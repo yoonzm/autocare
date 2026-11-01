@@ -3,7 +3,7 @@ name: Merchant CI
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, feat/merchant-supabase-foundation]
   workflow_dispatch:
 
 permissions:
@@ -71,3 +71,39 @@ jobs:
         run: |
           flutter pub get
           flutter build ios --release --no-codesign
+
+  branch-android-apk:
+    if: github.ref == 'refs/heads/feat/merchant-supabase-foundation'
+    needs: merchant
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: apps/merchant
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Set up Flutter
+        run: |
+          curl --fail --silent --show-error --retry 3 --max-time 600 \
+            -o "$RUNNER_TEMP/flutter.tar.xz" \
+            "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.47.9-stable.tar.xz"
+          tar xf "$RUNNER_TEMP/flutter.tar.xz" -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/flutter/bin" >> "$GITHUB_PATH"
+          "$RUNNER_TEMP/flutter/bin/flutter" --version
+      - name: Build Android APK for internal testing
+        run: |
+          flutter pub get
+          flutter build apk --release
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: AutoCare-Merchant-Supabase-${{ github.run_number }}
+          path: apps/merchant/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+          retention-days: 14
