@@ -8,6 +8,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../backend/registration_draft.dart';
+import '../backend/catalog_draft.dart';
+import '../backend/merchant_api.dart';
 import '../routes.dart';
 import '../theme.dart' show C;
 import 'keyboard.dart';
@@ -111,6 +113,21 @@ Widget hTap(
   return GestureDetector(
     behavior: HitTestBehavior.opaque,
     onTap: () {
+      final route = ModalRoute.of(context)?.settings.name;
+      if (merchantApi.hasSession &&
+          to == 'Services' &&
+          route == 'ServiceEdit' &&
+          _hasSaveLabel(child)) {
+        CatalogDraft.save(context, 'services');
+        return;
+      }
+      if (merchantApi.hasSession &&
+          to == 'CardTiers' &&
+          route == 'CardTierEdit' &&
+          _hasSaveLabel(child)) {
+        CatalogDraft.save(context, 'cards');
+        return;
+      }
       if (onTap != null) {
         onTap();
       } else if (back) {
@@ -130,6 +147,20 @@ Widget hTap(
     },
     child: child,
   );
+}
+
+bool _hasSaveLabel(Widget widget) {
+  if (widget is Text) return widget.data == '保存';
+  if (widget is Container && widget.child != null) {
+    return _hasSaveLabel(widget.child!);
+  }
+  if (widget is Align && widget.child != null) {
+    return _hasSaveLabel(widget.child!);
+  }
+  if (widget is Padding && widget.child != null) {
+    return _hasSaveLabel(widget.child!);
+  }
+  return false;
 }
 
 void hToast(BuildContext context, String msg) =>
@@ -299,6 +330,16 @@ Future<void> hConfirmPop(BuildContext context, String label) async {
   final nav = Navigator.of(context);
   final messenger = ScaffoldMessenger.of(context);
   if (await hConfirm(context, '确认$label？', message: '该操作会立即生效，请再确认一次。')) {
+    if (!context.mounted) return;
+    final route = ModalRoute.of(context)?.settings.name;
+    if (merchantApi.hasSession &&
+        (route == 'ServiceEdit' || route == 'CardTierEdit')) {
+      await CatalogDraft.remove(
+        context,
+        route == 'ServiceEdit' ? 'services' : 'cards',
+      );
+      return;
+    }
     // 等弹窗退场动画结束再返回，避免两层转场叠在一起留下遮罩
     await Future<void>.delayed(const Duration(milliseconds: 240));
     nav.maybePop();
@@ -642,7 +683,15 @@ class _HSwitchState extends State<HSwitch> {
   late bool on = widget.initial;
   @override
   Widget build(BuildContext context) => GestureDetector(
-    onTap: () => setState(() => on = !on),
+    onTap: () {
+      final route = ModalRoute.of(context)?.settings.name;
+      if (merchantApi.hasSession &&
+          (route == 'ServiceEdit' || route == 'CardTierEdit')) {
+        hToast(context, '此设置暂未接通');
+        return;
+      }
+      setState(() => on = !on);
+    },
     child: AnimatedContainer(
       duration: const Duration(milliseconds: 160),
       width: 48,
@@ -747,13 +796,36 @@ class HInput extends StatelessWidget {
   Widget build(BuildContext context) {
     final route = ModalRoute.of(context)?.settings.name ?? '';
     RegistrationDraft.remember(route, hint, value);
+    // TODO: Member/booking rules are out of V1. Keep the designed controls
+    // visible, but do not let them imply that their values were saved.
+    final deferred =
+        merchantApi.hasSession &&
+        ((route == 'ServiceEdit' && value == '8') ||
+            (route == 'CardTierEdit' &&
+                (value == '10,000' || value == '30,000')));
+    final catalogField = switch ((route, value)) {
+      ('ServiceEdit', '全车镀晶 · 9H 陶瓷') => ('services', 'name'),
+      ('ServiceEdit', '1,580') => ('services', 'price'),
+      ('CardTierEdit', '黑金卡') => ('cards', 'name'),
+      _ => null,
+    };
+    final initial = catalogField == null
+        ? value
+        : CatalogDraft.text(catalogField.$1, catalogField.$2, value);
     return TextFormField(
       onTapOutside: onTapOutsideDismiss,
-      onChanged: (text) => RegistrationDraft.set(route, hint, text),
+      readOnly: deferred,
+      onTap: deferred ? () => hToast(context, '此字段暂未接通') : null,
+      onChanged: (text) {
+        RegistrationDraft.set(route, hint, text);
+        if (catalogField != null) {
+          CatalogDraft.set(catalogField.$1, catalogField.$2, text);
+        }
+      },
       textInputAction: obscure || maxLines == 1
           ? TextInputAction.done
           : TextInputAction.newline,
-      initialValue: value,
+      initialValue: initial,
       style: style,
       textAlign: align,
       keyboardType: keyboard,
@@ -836,7 +908,14 @@ class HSel extends StatelessWidget {
     listenable: ctrl,
     builder: (_, _) => GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () => ctrl.tap(index),
+      onTap: () {
+        if (merchantApi.hasSession &&
+            ModalRoute.of(context)?.settings.name == 'CardTierEdit') {
+          hToast(context, '卡面颜色暂未接通');
+          return;
+        }
+        ctrl.tap(index);
+      },
       child: ctrl.selected.contains(index) ? on : off,
     ),
   );
@@ -877,7 +956,32 @@ class HHolder extends StatefulWidget {
 }
 
 class _HHolderState extends State<HHolder> {
-  late final List<ValCtrl> ctrls = [for (final i in widget.inits) ValCtrl(i)];
+  late final List<ValCtrl> ctrls;
+  bool initialized = false;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (initialized) return;
+    final cardDiscount =
+        ModalRoute.of(context)?.settings.name == 'CardTierEdit' &&
+        widget.inits.length == 1 &&
+        widget.inits.first == 90;
+    final initial = cardDiscount
+        ? ((num.tryParse(CatalogDraft.text('cards', 'discount', '0.9')) ??
+                      0.9) *
+                  100)
+              .round()
+        : null;
+    ctrls = [for (final i in widget.inits) ValCtrl(initial ?? i)];
+    if (cardDiscount) {
+      CatalogDraft.set('cards', 'discount', ctrls[0].v / 100);
+      ctrls[0].addListener(
+        () => CatalogDraft.set('cards', 'discount', ctrls[0].v / 100),
+      );
+    }
+    initialized = true;
+  }
+
   @override
   void dispose() {
     for (final c in ctrls) {
@@ -943,7 +1047,14 @@ class _HToggleState extends State<HToggle> {
   @override
   Widget build(BuildContext context) => GestureDetector(
     behavior: HitTestBehavior.opaque,
-    onTap: () => setState(() => sel = !sel),
+    onTap: () {
+      if (merchantApi.hasSession &&
+          ModalRoute.of(context)?.settings.name == 'CardTierEdit') {
+        hToast(context, '此设置暂未接通');
+        return;
+      }
+      setState(() => sel = !sel);
+    },
     child: sel ? widget.on : widget.off,
   );
 }

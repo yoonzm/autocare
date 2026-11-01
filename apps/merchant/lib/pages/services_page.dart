@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../backend/merchant_api.dart';
+import '../backend/catalog_draft.dart';
 import '../mock/mock_data.dart';
 import '../theme.dart';
 import '../routes.dart';
@@ -14,6 +15,7 @@ class ServicesPage extends StatefulWidget {
 
 class _ServicesPageState extends State<ServicesPage> {
   List<ServiceItem>? liveServices;
+  final Map<ServiceItem, Map<String, dynamic>> liveRows = {};
   String? loadError;
   static const _keys = [null, '镀晶镀膜', '洗车', '贴膜', '内饰'];
   int cat = 0;
@@ -21,24 +23,37 @@ class _ServicesPageState extends State<ServicesPage> {
   @override
   void initState() {
     super.initState();
-    if (merchantApi.hasSession) _load();
+    if (merchantApi.hasSession) {
+      CatalogDraft.changed.addListener(_load);
+      _load();
+    }
+  }
+
+  @override
+  void dispose() {
+    CatalogDraft.changed.removeListener(_load);
+    super.dispose();
   }
 
   Future<void> _load() async {
     try {
       final rows = await merchantApi.list('services');
       if (!mounted) return;
+      liveRows.clear();
+      final items = <ServiceItem>[];
+      for (final row in rows) {
+        final item = ServiceItem(
+          row['category']?.toString() ?? '其他',
+          row['name']?.toString() ?? '',
+          row['description']?.toString() ?? '',
+          num.tryParse(row['price'].toString()) ?? 0,
+          offline: row['active'] == false,
+        );
+        items.add(item);
+        liveRows[item] = row;
+      }
       setState(() {
-        liveServices = [
-          for (final row in rows)
-            ServiceItem(
-              row['category']?.toString() ?? '其他',
-              row['name']?.toString() ?? '',
-              row['description']?.toString() ?? '',
-              (num.tryParse(row['price'].toString()) ?? 0).round(),
-              offline: row['active'] == false,
-            ),
-        ];
+        liveServices = items;
         loadError = null;
       });
     } catch (_) {
@@ -75,7 +90,10 @@ class _ServicesPageState extends State<ServicesPage> {
                 child: RoundBtn(
                   'add',
                   label: '新增项目',
-                  onTap: () => openRoute(context, 'ServiceEdit'),
+                  onTap: () {
+                    if (merchantApi.hasSession) CatalogDraft.begin('services');
+                    openRoute(context, 'ServiceEdit');
+                  },
                 ),
               ),
             ),
@@ -133,7 +151,12 @@ class _ServicesPageState extends State<ServicesPage> {
     final dim = s.offline;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () => openRoute(context, 'ServiceEdit'),
+      onTap: () {
+        if (merchantApi.hasSession) {
+          CatalogDraft.begin('services', liveRows[s]);
+        }
+        openRoute(context, 'ServiceEdit');
+      },
       child: Opacity(
         opacity: dim ? 0.55 : 1,
         child: Padding(
@@ -173,7 +196,7 @@ class _ServicesPageState extends State<ServicesPage> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    '¥${money(s.price)}',
+                    '¥${money(s.price, digits: s.price % 1 == 0 ? 0 : 2)}',
                     style: ts(16, w: FontWeight.w600, h: 22, tabular: true),
                   ),
                   if (s.memberNote.isNotEmpty)

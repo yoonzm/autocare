@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../backend/merchant_api.dart';
+import '../backend/catalog_draft.dart';
 import '../theme.dart';
 import '../mock/app_state.dart';
 import '../mock/theme_state.dart';
@@ -120,6 +121,7 @@ class SettingsPage extends StatelessWidget {
                     onTap: () async {
                       try {
                         await merchantApi.signOut();
+                        CatalogDraft.current = null;
                         if (context.mounted) openRoute(context, 'Login');
                       } catch (e) {
                         if (context.mounted) toast(context, '退出失败：$e');

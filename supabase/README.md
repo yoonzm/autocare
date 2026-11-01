@@ -11,4 +11,6 @@
 3. 仅开发项目可设置 Edge Function 密钥 `ALLOW_MOCK_SMS=true`，固定验证码 `123456`。生产环境不得设置；真实短信与 OTP 流程尚为 `TODO`，因此生产注册暂不可用。
 4. 客户端只使用项目 URL 与 publishable key。绝不将 `SUPABASE_SERVICE_ROLE_KEY` 下发到 App。
 
-云函数已提供 `send_mock_code`、`register`、`login_password`、`list/save/delete`（服务项目与卡种）接口。后端接口已通过开发项目 API 冒烟测试，但商户端生成的服务/卡种编辑页面尚缺少稳定的记录 ID 和输入适配；客户端目前仅消费服务项目列表，保存/卡种列表仍标 `TODO`，不能视作端到端完成。
+云函数按 `auth.ts`、`services.ts`、`cards.ts`、`shared.ts`、`types.ts`、`index.ts` 分模块，`types.ts` 定义动作及数据模型。已提供 `send_mock_code`、`register`、`login_password`、`list/save/delete`（服务项目与卡种）接口。服务项目删除为物理删除；卡种因既有界面文案为“停用”，`delete` 为软删除（`active=false`），列表只显示启用卡种。后端接口已通过开发项目 API 冒烟测试。商户端保留生成的编辑页面代码，通过非生成代码适配输入与保存动作；卡种列表由设计页面的卡片模板派生并绑定真实数据。
+
+开发时执行 `cd supabase/functions/merchant-v1 && deno task check` 检查模块类型。Dashboard 部署须同时包含入口及其依赖模块；`types.ts` 是编译期类型文件，不含运行时代码。

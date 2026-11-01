@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 
 import '../backend/merchant_api.dart';
 import '../backend/registration_draft.dart';
+import '../backend/catalog_draft.dart';
 import '../mock/mock_data.dart';
 import 'keyboard.dart';
 
@@ -39,7 +40,22 @@ class HStrHolder extends StatefulWidget {
 }
 
 class _HStrHolderState extends State<HStrHolder> {
-  late final StrCtrl ctrl = StrCtrl(widget.initial);
+  late final StrCtrl ctrl;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!initialized) {
+      final route = ModalRoute.of(context)?.settings.name;
+      ctrl = StrCtrl(
+        route == 'ServiceEdit' && widget.initial == '镀晶镀膜'
+            ? CatalogDraft.text('services', 'category', widget.initial)
+            : widget.initial,
+      );
+      initialized = true;
+    }
+  }
+
+  bool initialized = false;
   @override
   void dispose() {
     ctrl.dispose();
@@ -783,6 +799,14 @@ Future<void> hPick(
   String label,
   StrCtrl c,
 ) async {
+  final route = ModalRoute.of(context)?.settings.name;
+  if (merchantApi.hasSession &&
+      ((route == 'ServiceEdit' && kind == 'duration') ||
+          (route == 'CardTierEdit' &&
+              (kind == 'multiplier' || kind == 'gift')))) {
+    hToast(context, '此字段暂未接通');
+    return;
+  }
   String? r;
   switch (kind) {
     case 'birthday':
@@ -900,7 +924,14 @@ Future<void> hPick(
     default:
       r = await pickFromList(context, label, [c.v], c.v);
   }
-  if (r != null) c.set(r);
+  if (r != null) {
+    c.set(r);
+    if (!context.mounted) return;
+    if (kind == 'category' &&
+        ModalRoute.of(context)?.settings.name == 'ServiceEdit') {
+      CatalogDraft.set('services', 'category', r);
+    }
+  }
 }
 
 // ───────── 车牌输入 ─────────

@@ -3,11 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'backend/merchant_api.dart';
+import 'backend/catalog_draft.dart';
 import 'backend/registration_draft.dart';
 import 'mock/app_state.dart';
 import 'mock/mock_data.dart';
 import 'pages/appointment_add_page.dart';
 import 'pages/appointments_page.dart';
+import 'pages/card_tiers_live_page.dart';
 import 'pages/gen/gen_routes.dart';
 import 'pages/login_page.dart';
 import 'pages/member_detail_page.dart';
@@ -49,8 +51,6 @@ Widget? pageFor(String name) {
     case 'MemberDetail':
       return MemberDetailPage(member: members.first);
     case 'Services':
-      // TODO: Bind the existing designed list/edit screens to merchantApi.list/save.
-      // The generated edit form has no stable record ID or input contract yet.
       return const ServicesPage();
     case 'Settings':
       return const SettingsPage();
@@ -172,7 +172,10 @@ class _PairPageState extends State<PairPage> {
     builder: (context, i, _) => IndexedStack(
       index: i,
       children: [
-        for (final n in _pairs[widget.id]!) Builder(builder: genRoutes[n]!),
+        for (final n in _pairs[widget.id]!)
+          n == 'CardTiers' && merchantApi.hasSession
+              ? const CardTiersLivePage()
+              : Builder(builder: genRoutes[n]!),
       ],
     ),
   );
@@ -190,17 +193,20 @@ void openRoute(BuildContext context, String name) {
     unawaited(_completeRegistration(context));
     return;
   }
-  // TODO: Generated service/card edit and card list pages still show fixed
-  // design-sample values. Bind them through a stable page adapter before
-  // enabling save; never imply their prototype buttons persisted data.
-  if (name == 'ServiceEdit' || name == 'CardTiers' || name == 'CardTierEdit') {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('此页面暂为设计预览，数据编辑尚未接通')));
+  if (merchantApi.hasSession &&
+      name == 'ServiceEdit' &&
+      CatalogDraft.current?.kind != 'services') {
+    CatalogDraft.begin('services');
   }
-  if ((name == 'Services' && _routeName(context) == 'ServiceEdit') ||
-      (name == 'CardTiers' && _routeName(context) == 'CardTierEdit')) {
+  if (merchantApi.hasSession &&
+      name == 'CardTierEdit' &&
+      CatalogDraft.current?.kind != 'cards') {
+    CatalogDraft.begin('cards');
+  }
+  if (name == 'CardPackages' && merchantApi.hasSession) {
+    // TODO: Package cards are outside the V1 tier-card scope.
     ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('此编辑页尚未接通，未保存更改')));
+        .showSnackBar(const SnackBar(content: Text('次卡套餐暂为设计预览，尚未接通')));
   }
   _openRouteCore(context, name);
 }
@@ -242,7 +248,6 @@ void _openRouteCore(BuildContext context, String name) {
   }
   final pairId = _pairOf(name);
   if (pairId != null) {
-    // TODO: Bind CardTiers/CardTierEdit to merchantApi without changing design.
     final idx = _pairs[pairId]!.indexOf(name);
     if (navTracker.has(pairId)) {
       nav.popUntil((r) => r.settings.name == pairId || r.isFirst);

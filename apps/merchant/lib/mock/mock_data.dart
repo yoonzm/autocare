@@ -227,7 +227,7 @@ const apptServices = <ServiceOption>[
 // ───────── 服务项目 ─────────
 class ServiceItem {
   final String category, name, desc, tag;
-  final int price;
+  final num price;
   final String memberNote;
   final bool offline;
   const ServiceItem(

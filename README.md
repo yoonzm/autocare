@@ -4,7 +4,7 @@
 
 | 路径 | 用途 | 状态 |
 | --- | --- | --- |
-| `apps/merchant` | Flutter 商户端（iOS / Android） | V1 注册/密码登录与服务项目读取接入 Supabase；其余见 TODO |
+| `apps/merchant` | Flutter 商户端（iOS / Android） | V1 注册/密码登录、服务项目和会员卡种维护接入 Supabase；其余见 TODO |
 | `apps/member-mini` | 会员端小程序 | 预留 |
 | `apps/staff-mini` | 店员端小程序 | 预留 |
 | `apps/admin` | Flutter 后台端（运营后台） | 已实现，mock 数据 |
