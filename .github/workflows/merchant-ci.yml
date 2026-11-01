@@ -1,0 +1,35 @@
+name: Merchant CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  merchant:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: apps/merchant
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Set up Flutter
+        run: |
+          curl --fail --silent --show-error --retry 3 --max-time 600 \
+            -o "$RUNNER_TEMP/flutter.tar.xz" \
+            "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.47.9-stable.tar.xz"
+          tar xf "$RUNNER_TEMP/flutter.tar.xz" -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/flutter/bin" >> "$GITHUB_PATH"
+          "$RUNNER_TEMP/flutter/bin/flutter" --version
+      - name: Analyze and test
+        run: |
+          flutter pub get
+          flutter analyze
+          flutter test

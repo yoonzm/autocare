@@ -1,0 +1,26 @@
+.DS_Store
+.build/
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.ipa
+*.xcarchive
+*.p8
+*.p12
+*.pem
+*.mobileprovision
+
+# Flutter
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/coverage/
+app.*.symbols
+app.*.map.json
+**/ios/Flutter/.last_build_id
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/Flutter/ephemeral/
+**/ios/Pods/

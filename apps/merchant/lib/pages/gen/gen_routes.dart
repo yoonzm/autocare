@@ -1,0 +1,253 @@
+// 由 tools/design_to_flutter.py 生成，请勿手工修改。
+import 'package:flutter/widgets.dart';
+
+import 'about_app_page.dart';
+import 'appointment_detail_page.dart';
+import 'appointment_schedule_page.dart';
+import 'appointment_settings_page.dart';
+import 'backup_content_page.dart';
+import 'backup_sent_page.dart';
+import 'backup_target_page.dart';
+import 'bay_edit_page.dart';
+import 'bind_done_page.dart';
+import 'bind_h5_page.dart';
+import 'budget_edit_page.dart';
+import 'budget_total_page.dart';
+import 'business_hours_page.dart';
+import 'card_packages_page.dart';
+import 'card_tier_edit_page.dart';
+import 'card_tiers_page.dart';
+import 'change_password_page.dart';
+import 'change_phone_page.dart';
+import 'changelog_page.dart';
+import 'channel_config_page.dart';
+import 'check_update_page.dart';
+import 'data_backup_page.dart';
+import 'delete_account_page.dart';
+import 'eco_filing_page.dart';
+import 'expense_add_page.dart';
+import 'expense_budget_page.dart';
+import 'expense_detail_page.dart';
+import 'expenses_page.dart';
+import 'feedback_page.dart';
+import 'hold_list_page.dart';
+import 'holiday_edit_page.dart';
+import 'invoices_page.dart';
+import 'license_page.dart';
+import 'main_expiring_page.dart';
+import 'main_trial_page.dart';
+import 'member_add_page.dart';
+import 'member_add_done_page.dart';
+import 'member_adjust_page.dart';
+import 'member_edit_page.dart';
+import 'member_follow_up_page.dart';
+import 'member_records_page.dart';
+import 'member_send_msg_page.dart';
+import 'member_visit_page.dart';
+import 'messages_page.dart';
+import 'notify_log_page.dart';
+import 'notify_settings_page.dart';
+import 'notify_template_page.dart';
+import 'package_detail_page.dart';
+import 'package_edit_page.dart';
+import 'package_sold_page.dart';
+import 'pay_config_page.dart';
+import 'pay_method_page.dart';
+import 'pay_success_page.dart';
+import 'pay_unbound_page.dart';
+import 'plan_checkout_page.dart';
+import 'plan_expired_page.dart';
+import 'plan_paid_page.dart';
+import 'plans_page.dart';
+import 'printer_page.dart';
+import 'privacy_page.dart';
+import 'product_detail_page.dart';
+import 'profile_edit_page.dart';
+import 'recharge_page.dart';
+import 'recharge_card_page.dart';
+import 'recharge_success_page.dart';
+import 'reg_done_page.dart';
+import 'reg_phone_page.dart';
+import 'reg_shop_page.dart';
+import 'renew_paid_page.dart';
+import 'role_permission_page.dart';
+import 'security_page.dart';
+import 'service_edit_page.dart';
+import 'staff_page.dart';
+import 'staff_detail_page.dart';
+import 'staff_records_page.dart';
+import 'stock_check_page.dart';
+import 'stock_in_page.dart';
+import 'stock_out_page.dart';
+import 'store_edit_page.dart';
+import 'store_info_page.dart';
+import 'store_q_r_page.dart';
+import 'subscription_page.dart';
+import 'terms_page.dart';
+import 'vehicle_add_page.dart';
+import 'wechat_bind_page.dart';
+import 'appointment_reschedule_sheet.dart';
+import 'backup_freq_sheet.dart';
+import 'bind_invite_sheet.dart';
+import 'budget_adjust_sheet.dart';
+import 'clear_cache_sheet.dart';
+import 'coupon_sheet_sheet.dart';
+import 'default_pay_sheet.dart';
+import 'disable_staff_sheet.dart';
+import 'export_sheet_sheet.dart';
+import 'find_result_sheet.dart';
+import 'find_result_code_sheet.dart';
+import 'hold_sheet_sheet.dart';
+import 'member_delete_sheet.dart';
+import 'member_filter_sheet.dart';
+import 'member_more_sheet.dart';
+import 'package_extend_sheet.dart';
+import 'package_refund_sheet.dart';
+import 'package_svc_pick_sheet.dart';
+import 'recharge_pick_sheet.dart';
+import 'renew_sheet.dart';
+import 'scan_plate_result_sheet.dart';
+import 'scan_result_sheet.dart';
+import 'store_switch_sheet.dart';
+
+final Map<String, WidgetBuilder> genRoutes = {
+  'AboutApp': (_) => const AboutAppPage(),
+  'AppointmentDetail': (_) => const AppointmentDetailPage(),
+  'AppointmentSchedule': (_) => const AppointmentSchedulePage(),
+  'AppointmentSettings': (_) => const AppointmentSettingsPage(),
+  'BackupContent': (_) => const BackupContentPage(),
+  'BackupSent': (_) => const BackupSentPage(),
+  'BackupTarget': (_) => const BackupTargetPage(),
+  'BayEdit': (_) => const BayEditPage(),
+  'BindDone': (_) => const BindDonePage(),
+  'BindH5': (_) => const BindH5Page(),
+  'BudgetEdit': (_) => const BudgetEditPage(),
+  'BudgetTotal': (_) => const BudgetTotalPage(),
+  'BusinessHours': (_) => const BusinessHoursPage(),
+  'CardPackages': (_) => const CardPackagesPage(),
+  'CardTierEdit': (_) => const CardTierEditPage(),
+  'CardTiers': (_) => const CardTiersPage(),
+  'ChangePassword': (_) => const ChangePasswordPage(),
+  'ChangePhone': (_) => const ChangePhonePage(),
+  'Changelog': (_) => const ChangelogPage(),
+  'ChannelConfig': (_) => const ChannelConfigPage(),
+  'CheckUpdate': (_) => const CheckUpdatePage(),
+  'DataBackup': (_) => const DataBackupPage(),
+  'DeleteAccount': (_) => const DeleteAccountPage(),
+  'EcoFiling': (_) => const EcoFilingPage(),
+  'ExpenseAdd': (_) => const ExpenseAddPage(),
+  'ExpenseBudget': (_) => const ExpenseBudgetPage(),
+  'ExpenseDetail': (_) => const ExpenseDetailPage(),
+  'Expenses': (_) => const ExpensesPage(),
+  'Feedback': (_) => const FeedbackPage(),
+  'HoldList': (_) => const HoldListPage(),
+  'HolidayEdit': (_) => const HolidayEditPage(),
+  'Invoices': (_) => const InvoicesPage(),
+  'License': (_) => const LicensePage(),
+  'MainExpiring': (_) => const MainExpiringPage(),
+  'MainTrial': (_) => const MainTrialPage(),
+  'MemberAdd': (_) => const MemberAddPage(),
+  'MemberAddDone': (_) => const MemberAddDonePage(),
+  'MemberAdjust': (_) => const MemberAdjustPage(),
+  'MemberEdit': (_) => const MemberEditPage(),
+  'MemberFollowUp': (_) => const MemberFollowUpPage(),
+  'MemberRecords': (_) => const MemberRecordsPage(),
+  'MemberSendMsg': (_) => const MemberSendMsgPage(),
+  'MemberVisit': (_) => const MemberVisitPage(),
+  'Messages': (_) => const MessagesPage(),
+  'NotifyLog': (_) => const NotifyLogPage(),
+  'NotifySettings': (_) => const NotifySettingsPage(),
+  'NotifyTemplate': (_) => const NotifyTemplatePage(),
+  'PackageDetail': (_) => const PackageDetailPage(),
+  'PackageEdit': (_) => const PackageEditPage(),
+  'PackageSold': (_) => const PackageSoldPage(),
+  'PayConfig': (_) => const PayConfigPage(),
+  'PayMethod': (_) => const PayMethodPage(),
+  'PaySuccess': (_) => const PaySuccessPage(),
+  'PayUnbound': (_) => const PayUnboundPage(),
+  'PlanCheckout': (_) => const PlanCheckoutPage(),
+  'PlanExpired': (_) => const PlanExpiredPage(),
+  'PlanPaid': (_) => const PlanPaidPage(),
+  'Plans': (_) => const PlansPage(),
+  'Printer': (_) => const PrinterPage(),
+  'Privacy': (_) => const PrivacyPage(),
+  'ProductDetail': (_) => const ProductDetailPage(),
+  'ProfileEdit': (_) => const ProfileEditPage(),
+  'Recharge': (_) => const RechargePage(),
+  'RechargeCard': (_) => const RechargeCardPage(),
+  'RechargeSuccess': (_) => const RechargeSuccessPage(),
+  'RegDone': (_) => const RegDonePage(),
+  'RegPhone': (_) => const RegPhonePage(),
+  'RegShop': (_) => const RegShopPage(),
+  'RenewPaid': (_) => const RenewPaidPage(),
+  'RolePermission': (_) => const RolePermissionPage(),
+  'Security': (_) => const SecurityPage(),
+  'ServiceEdit': (_) => const ServiceEditPage(),
+  'Staff': (_) => const StaffPage(),
+  'StaffDetail': (_) => const StaffDetailPage(),
+  'StaffRecords': (_) => const StaffRecordsPage(),
+  'StockCheck': (_) => const StockCheckPage(),
+  'StockIn': (_) => const StockInPage(),
+  'StockOut': (_) => const StockOutPage(),
+  'StoreEdit': (_) => const StoreEditPage(),
+  'StoreInfo': (_) => const StoreInfoPage(),
+  'StoreQR': (_) => const StoreQRPage(),
+  'Subscription': (_) => const SubscriptionPage(),
+  'Terms': (_) => const TermsPage(),
+  'VehicleAdd': (_) => const VehicleAddPage(),
+  'WechatBind': (_) => const WechatBindPage(),
+};
+
+/// 底部弹层（设计稿中叠在其他页面上的界面）。
+final Map<String, WidgetBuilder> genSheets = {
+  'AppointmentReschedule': (_) => const AppointmentRescheduleSheet(),
+  'BackupFreq': (_) => const BackupFreqSheet(),
+  'BindInvite': (_) => const BindInviteSheet(),
+  'BudgetAdjust': (_) => const BudgetAdjustSheet(),
+  'ClearCache': (_) => const ClearCacheSheet(),
+  'CouponSheet': (_) => const CouponSheetSheet(),
+  'DefaultPay': (_) => const DefaultPaySheet(),
+  'DisableStaff': (_) => const DisableStaffSheet(),
+  'ExportSheet': (_) => const ExportSheetSheet(),
+  'FindResult': (_) => const FindResultSheet(),
+  'FindResultCode': (_) => const FindResultCodeSheet(),
+  'HoldSheet': (_) => const HoldSheetSheet(),
+  'MemberDelete': (_) => const MemberDeleteSheet(),
+  'MemberFilter': (_) => const MemberFilterSheet(),
+  'MemberMore': (_) => const MemberMoreSheet(),
+  'PackageExtend': (_) => const PackageExtendSheet(),
+  'PackageRefund': (_) => const PackageRefundSheet(),
+  'PackageSvcPick': (_) => const PackageSvcPickSheet(),
+  'RechargePick': (_) => const RechargePickSheet(),
+  'Renew': (_) => const RenewSheet(),
+  'ScanPlateResult': (_) => const ScanPlateResultSheet(),
+  'ScanResult': (_) => const ScanResultSheet(),
+  'StoreSwitch': (_) => const StoreSwitchSheet(),
+};
+
+/// 弹层所属的页面（设计稿里的遮罩点击目标）。
+const Map<String, String> sheetParents = {
+  'AppointmentReschedule': 'AppointmentDetail',
+  'BackupFreq': 'DataBackup',
+  'BindInvite': 'PayUnbound',
+  'BudgetAdjust': 'ExpenseBudget',
+  'ClearCache': 'AboutApp',
+  'CouponSheet': 'PlanCheckout',
+  'DefaultPay': 'PayConfig',
+  'DisableStaff': 'StaffDetail',
+  'ExportSheet': 'Stats',
+  'FindResult': 'FindScanPlate',
+  'FindResultCode': 'FindScanCode',
+  'HoldSheet': 'Order',
+  'MemberDelete': 'MemberMore',
+  'MemberFilter': 'Members',
+  'MemberMore': 'MemberDetail',
+  'PackageExtend': 'PackageDetail',
+  'PackageRefund': 'PackageDetail',
+  'PackageSvcPick': 'PackageEdit',
+  'RechargePick': 'RechargeCard',
+  'Renew': 'Subscription',
+  'ScanPlateResult': 'ScanPlate',
+  'ScanResult': 'ScanLicense',
+  'StoreSwitch': 'Main',
+};
