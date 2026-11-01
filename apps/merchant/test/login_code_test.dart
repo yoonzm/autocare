@@ -37,8 +37,22 @@ void main() {
     await t.pumpWidget(const QimeiApp());
   }
 
+  testWidgets('首次打开登录页：手机号为空并显示 placeholder', (t) async {
+    await open(t);
+    final field = t.widget<TextField>(find.byType(TextField).first);
+    expect(field.controller!.text, isEmpty);
+    expect(field.decoration!.hintText, '请输入手机号');
+    // 手机号为空时点登录：字段下方提示，不请求后端
+    await t.ensureVisible(find.text('登录').first);
+    await t.tap(find.text('登录').first);
+    await t.pump();
+    expect(find.text('请输入手机号'), findsWidgets);
+    expect(api.calls, isEmpty);
+  });
+
   testWidgets('验证码登录：空 / 格式错误不请求后端，错误码提示，正确码进入首页', (t) async {
     await open(t);
+    await t.enterText(find.byType(TextField).first, '13988888812');
     await t.ensureVisible(find.text('登录').first);
     await t.tap(find.text('登录').first);
     await t.pump();

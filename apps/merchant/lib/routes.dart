@@ -6,6 +6,7 @@ import 'backend/merchant_api.dart';
 import 'kit/async_kit.dart';
 import 'kit/kit.dart' show hToast;
 import 'backend/catalog_draft.dart';
+import 'backend/forgot_flow.dart';
 import 'backend/registration_draft.dart';
 import 'backend/store_profile.dart';
 import 'mock/app_state.dart';
@@ -108,6 +109,7 @@ const Set<String> resultPages = {
   'PlanPaid',
   'RenewPaid',
   'RegDone',
+  'ForgotDone',
   'MemberAddDone',
   'BindDone',
   'PackageSold',
@@ -213,6 +215,29 @@ void openRoute(BuildContext context, String name) {
     unawaited(_completeRegistration(context));
     return;
   }
+  // 忘记密码（登录页和修改密码页两个入口共用这三页，不需要登录）
+  if (name == 'ForgotReset' && current == 'ForgotVerify') {
+    final problem = RegistrationDraft.forgotVerifyError();
+    if (problem != null) {
+      AppToast.show(context, problem, kind: ToastKind.error);
+      return;
+    }
+    unawaited(_forgotVerify(context));
+    return;
+  }
+  if (name == 'ForgotDone' && current == 'ForgotReset') {
+    if (!forgotFlow.live) {
+      AppToast.show(context, '请先验证手机号', kind: ToastKind.error);
+      return;
+    }
+    final problem = RegistrationDraft.forgotResetError(forgotFlow.phone);
+    if (problem != null) {
+      AppToast.show(context, problem, kind: ToastKind.error);
+      return;
+    }
+    unawaited(_forgotReset(context));
+    return;
+  }
   // 账号与安全：这几个页面的主按钮都接了真实后端（需已登录）。
   if (merchantApi.hasSession) {
     if (name == 'Security' && current == 'ChangePassword') {
@@ -281,7 +306,7 @@ Future<void> _completeRegistration(BuildContext context) async {
   var ok = false;
   await runBusy('RegShop>RegDone', () async {
     try {
-      await merchantApi.register(
+      final created = await merchantApi.register(
         phone: phone,
         code: code,
         password: password,
@@ -290,6 +315,8 @@ Future<void> _completeRegistration(BuildContext context) async {
       );
       await merchantApi.loginPassword(phone, password);
       await storeProfile.load(); // 「开通成功」页展示真实的门店名、手机号和试用期
+      final seeded = created['services'];
+      if (seeded is num) storeProfile.seededServices = seeded.toInt();
       ok = true;
     } catch (e) {
       AppToast.showOn(
@@ -302,6 +329,64 @@ Future<void> _completeRegistration(BuildContext context) async {
   if (!ok || !context.mounted) return;
   RegistrationDraft.clear();
   _openRouteCore(context, 'RegDone');
+}
+
+/// 忘记密码第 1 步：服务端校验验证码，且该手机号是已开通门店的账号。
+Future<void> _forgotVerify(BuildContext context) async {
+  final messenger = ScaffoldMessenger.of(context);
+  final phone = RegistrationDraft.get('ForgotVerify', '请输入手机号');
+  final code = RegistrationDraft.get('ForgotVerify', '6 位数字');
+  var ok = false;
+  await runBusy('ForgotVerify>ForgotReset', () async {
+    try {
+      await merchantApi.forgotVerify(phone, code);
+      forgotFlow.verified(phone, code);
+      ok = true;
+    } catch (e) {
+      AppToast.showOn(
+        messenger,
+        AppError.from(e).message,
+        kind: ToastKind.error,
+      );
+    }
+  });
+  if (ok && context.mounted) _openRouteCore(context, 'ForgotReset');
+}
+
+/// 忘记密码第 2 步：设置新密码。成功后所有设备（包括当前设备）都要重新登录。
+Future<void> _forgotReset(BuildContext context) async {
+  final messenger = ScaffoldMessenger.of(context);
+  var ok = false;
+  await runBusy('ForgotReset>ForgotDone', () async {
+    try {
+      await merchantApi.resetPassword(
+        phone: forgotFlow.phone,
+        code: forgotFlow.code,
+        newPassword: RegistrationDraft.getRaw('ForgotReset', '8-20 位，含字母和数字'),
+      );
+      ok = true;
+    } catch (e) {
+      AppToast.showOn(
+        messenger,
+        AppError.from(e).message,
+        kind: ToastKind.error,
+      );
+    }
+  });
+  if (!ok) return;
+  // 服务端已让所有会话失效；本机若还登录着，也清掉本地登录态
+  if (merchantApi.hasSession) {
+    try {
+      await merchantApi.signOut();
+    } catch (_) {
+      // 会话已被服务端作废，本地退出失败不影响结果
+    }
+  }
+  storeProfile.clear();
+  forgotFlow.clear();
+  RegistrationDraft.clearRoute('ForgotVerify');
+  RegistrationDraft.clearRoute('ForgotReset');
+  if (context.mounted) _openRouteCore(context, 'ForgotDone');
 }
 
 Future<void> _changePassword(BuildContext context) async {
@@ -492,11 +577,12 @@ void _openRouteCore(BuildContext context, String name) {
     }
     return;
   }
-  if (name == 'Login') {
+  if (name == 'Login' || name == 'LoginPwd') {
+    // LoginPwd 是“密码登录”标签，与验证码登录是同一个登录页
     nav.pushAndRemoveUntil(
       MaterialPageRoute(
         settings: const RouteSettings(name: 'Login'),
-        builder: (_) => const LoginPage(),
+        builder: (_) => LoginPage(initialTab: name == 'LoginPwd' ? 1 : 0),
       ),
       (_) => false,
     );

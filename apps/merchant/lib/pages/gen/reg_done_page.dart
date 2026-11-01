@@ -365,9 +365,11 @@ class RegDonePage extends StatelessWidget {
                                             lh: 22,
                                           ),
                                         ),
-                                        Text(
-                                          '已按主营业务生成 12 项',
-                                          style: hts(
+                                        hLiveText(
+                                          (p) => p.live
+                                              ? ('已按主营业务生成 ${p.seededServices} 项')
+                                              : '已按主营业务生成 12 项',
+                                          hts(
                                             12,
                                             dk(
                                               context,

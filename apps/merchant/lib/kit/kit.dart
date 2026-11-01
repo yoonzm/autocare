@@ -12,6 +12,8 @@ import '../backend/registration_draft.dart';
 import '../backend/catalog_draft.dart';
 import '../backend/merchant_api.dart';
 import 'async_kit.dart';
+export '../widgets/card_face.dart' show hCardPreview;
+import '../backend/forgot_flow.dart';
 import '../backend/store_profile.dart';
 import '../routes.dart';
 import '../theme.dart' show C;
@@ -732,11 +734,17 @@ class HSwitchValue extends StatelessWidget {
 class HSwitch extends StatefulWidget {
   final bool initial;
   final Color onColor, offColor;
+
+  /// 受控模式（[onChanged] 不为空时）：开关状态由 [value] 决定。
+  final bool? value;
+  final ValueChanged<bool>? onChanged;
   const HSwitch({
     super.key,
     required this.initial,
     this.onColor = const Color(0xFF0485F7),
     this.offColor = const Color(0xFFD4D4D8),
+    this.value,
+    this.onChanged,
   });
   @override
   State<HSwitch> createState() => _HSwitchState();
@@ -744,25 +752,48 @@ class HSwitch extends StatefulWidget {
 
 class _HSwitchState extends State<HSwitch> {
   late bool on = widget.initial;
+  bool _bound = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_bound) return;
+    _bound = true;
+    // 卡种编辑页唯一的开关是“预约优先排期”，值来自正在编辑的卡种
+    if (merchantApi.hasSession &&
+        ModalRoute.of(context)?.settings.name == 'CardTierEdit') {
+      on = CatalogDraft.priorityBooking;
+    }
+  }
+
   @override
   Widget build(BuildContext context) => GestureDetector(
     onTap: () {
       final route = ModalRoute.of(context)?.settings.name;
-      if (merchantApi.hasSession &&
-          (route == 'ServiceEdit' || route == 'CardTierEdit')) {
+      if (widget.onChanged != null) {
+        // 受控模式：值由外部保存，成功与否由外部决定
+        widget.onChanged!(!widget.value!);
+        return;
+      }
+      if (merchantApi.hasSession && route == 'ServiceEdit') {
         hToast(context, '此设置暂未接通');
         return;
       }
       setState(() => on = !on);
+      if (merchantApi.hasSession && route == 'CardTierEdit') {
+        CatalogDraft.set('cards', 'priority_booking', on);
+      }
     },
     child: AnimatedContainer(
       duration: const Duration(milliseconds: 160),
       width: 48,
       height: 28,
       padding: const EdgeInsets.all(2),
-      alignment: on ? Alignment.centerRight : Alignment.centerLeft,
+      alignment: (widget.onChanged != null ? widget.value! : on)
+          ? Alignment.centerRight
+          : Alignment.centerLeft,
       decoration: BoxDecoration(
-        color: on
+        color: (widget.onChanged != null ? widget.value! : on)
             ? widget.onColor
             : dk(
                 context,
@@ -919,14 +950,13 @@ class HInputState extends State<HInput> {
     // TODO: Member/booking rules are out of V1. Keep the designed controls
     // visible, but do not let them imply that their values were saved.
     final deferred =
-        merchantApi.hasSession &&
-        ((route == 'ServiceEdit' && value == '8') ||
-            (route == 'CardTierEdit' &&
-                (value == '10,000' || value == '30,000')));
+        merchantApi.hasSession && route == 'ServiceEdit' && value == '8';
     final catalogField = switch ((route, value)) {
       ('ServiceEdit', '全车镀晶 · 9H 陶瓷') => ('services', 'name'),
       ('ServiceEdit', '1,580') => ('services', 'price'),
       ('CardTierEdit', '黑金卡') => ('cards', 'name'),
+      ('CardTierEdit', '10,000') => ('cards', 'upgrade_recharge'),
+      ('CardTierEdit', '30,000') => ('cards', 'upgrade_cumulative'),
       _ => null,
     };
     final initial = isForm
@@ -986,6 +1016,24 @@ Widget hLiveText(
   ),
 );
 
+/// “忘记密码”流程状态驱动的文字（如“手机号 138 **** 1234 已验证通过”）。
+Widget hFlowText(
+  String Function(ForgotFlow f) text,
+  TextStyle style, {
+  TextAlign? textAlign,
+  bool? softWrap,
+  int? maxLines,
+}) => ListenableBuilder(
+  listenable: forgotFlow,
+  builder: (_, _) => Text(
+    text(forgotFlow),
+    style: style,
+    textAlign: textAlign,
+    softWrap: softWrap,
+    maxLines: maxLines,
+  ),
+);
+
 /// 密码框右侧的小眼睛：切换同一行里密码框的明文 / 密文。
 /// 设计稿生成的页面里小眼睛和输入框是同一行的两个兄弟控件，
 /// 这里沿着祖先找到包含密码框的那一行，直接切换它的状态。
@@ -1034,42 +1082,22 @@ class _PasswordEyeState extends State<PasswordEye> {
     child: GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: _toggle,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          widget.child,
-          // 明文显示时给眼睛画一道斜线（睁眼 = 点击可显示，斜线眼 = 点击可隐藏）
-          if (shown)
-            IgnorePointer(
-              child: CustomPaint(
-                size: const Size(20, 20),
-                painter: _SlashPainter(C.sub),
+      // 设计稿里默认是带斜线的眼睛（点击可显示）；明文显示时换成睁开的眼睛（点击可隐藏）
+      child: shown
+          ? SizedBox(
+              width: 32,
+              height: 32,
+              child: Center(
+                child: Icon(
+                  Icons.visibility_outlined,
+                  size: 20,
+                  color: C.muted,
+                ),
               ),
-            ),
-        ],
-      ),
+            )
+          : widget.child,
     ),
   );
-}
-
-class _SlashPainter extends CustomPainter {
-  final Color color;
-  const _SlashPainter(this.color);
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = 1.8
-      ..strokeCap = StrokeCap.round;
-    canvas.drawLine(
-      Offset(size.width * 0.15, size.height * 0.85),
-      Offset(size.width * 0.85, size.height * 0.15),
-      paint,
-    );
-  }
-
-  @override
-  bool shouldRepaint(_SlashPainter old) => old.color != color;
 }
 
 // ───────── 单选 / 多选组 ─────────
@@ -1115,12 +1143,60 @@ class _HSelHolderState extends State<HSelHolder> {
         ..onSelect = widget.onSelect[i],
   ];
   bool _registered = false;
+  String _slotKey = '';
+
+  @override
+  void dispose() {
+    if (_slotKey.isNotEmpty) RegistrationDraft.release(_slotKey, this);
+    super.dispose();
+  }
+
+  /// 卡种编辑页：第一组是卡面颜色，第二组是有效期；选中项来自正在编辑的卡种，
+  /// 点选后写回草稿（卡面预览、保存都读草稿）。
+  void _bindCardGroup() {
+    _slotKey = 'sel:CardTierEdit';
+    final slot = RegistrationDraft.claim(_slotKey, this);
+    final ctrl = ctrls.first;
+    if (slot == 0) {
+      // 白色卡面（普通会员）不在 4 个色块里：一个都不选，保存时保持白色
+      ctrl.selected.clear();
+      if (CatalogDraft.colorIndex >= 0) {
+        ctrl.selected.add(CatalogDraft.colorIndex);
+      }
+      ctrl.addListener(() {
+        if (ctrl.selected.isNotEmpty) {
+          CatalogDraft.set(
+            'cards',
+            'color',
+            CatalogDraft.cardColors[ctrl.selected.first],
+          );
+        }
+      });
+    } else if (slot == 1) {
+      ctrl.selected
+        ..clear()
+        ..add(CatalogDraft.validityIndex);
+      ctrl.addListener(
+        () => CatalogDraft.set(
+          'cards',
+          'validity',
+          CatalogDraft.cardValidities[ctrl.selected.first],
+        ),
+      );
+    }
+  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_registered) return;
     _registered = true;
+    if (merchantApi.hasSession &&
+        ModalRoute.of(context)?.settings.name == 'CardTierEdit' &&
+        widget.groups.length == 1) {
+      _bindCardGroup();
+      return;
+    }
     // 注册第二页的三组选项（身份 / 工位数量 / 主营业务）：让提交时能读到选中项。
     // 三组都是单组 holder，靠“多选 / 初始选中项”区分：多选 = 主营业务，
     // 初始 {0} = 身份，初始 {1} = 工位数量。
@@ -1158,14 +1234,7 @@ class HSel extends StatelessWidget {
     listenable: ctrl,
     builder: (_, _) => GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () {
-        if (merchantApi.hasSession &&
-            ModalRoute.of(context)?.settings.name == 'CardTierEdit') {
-          hToast(context, '卡面颜色暂未接通');
-          return;
-        }
-        ctrl.tap(index);
-      },
+      onTap: () => ctrl.tap(index),
       child: ctrl.selected.contains(index) ? on : off,
     ),
   );
@@ -1297,14 +1366,7 @@ class _HToggleState extends State<HToggle> {
   @override
   Widget build(BuildContext context) => GestureDetector(
     behavior: HitTestBehavior.opaque,
-    onTap: () {
-      if (merchantApi.hasSession &&
-          ModalRoute.of(context)?.settings.name == 'CardTierEdit') {
-        hToast(context, '此设置暂未接通');
-        return;
-      }
-      setState(() => sel = !sel);
-    },
+    onTap: () => setState(() => sel = !sel),
     child: sel ? widget.on : widget.off,
   );
 }

@@ -662,7 +662,7 @@ class ChangePasswordPage extends StatelessWidget {
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  to: 'ChangePhone',
+                  to: 'ForgotVerify',
                 ),
               ],
               main: MainAxisAlignment.start,

@@ -1,5 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.118.0';
 import { admin, anonKey, fail, json, mockSmsEnabled, nameOf, phoneOf, url } from './shared.ts';
+import { DEFAULT_CARDS, defaultServices } from './defaults.ts';
 import type { Input } from './types.ts';
 
 // TODO: Replace the development alias with native phone auth after SMS is configured.
@@ -7,6 +8,23 @@ export const emailOf = (phone: string) => `merchant+${phone.slice(3)}@example.co
 
 const TRIAL_DAYS = 14;
 const OTP_TTL_MS = 5 * 60 * 1000;
+const SMS_DAILY_LIMIT = 10;
+
+// Calendar day in China (UTC+8), used for the per-phone daily send limit.
+const chinaToday = () => new Date(Date.now() + 8 * 3600_000).toISOString().slice(0, 10);
+
+// Password rules shared by sign-up, change and reset (client mirrors them).
+function passwordProblem(password: unknown, phone: string): string | null {
+  if (typeof password !== 'string' || password.length < 8 || password.length > 20 ||
+      !/[a-zA-Z]/.test(password) || !/\d/.test(password)) {
+    return '新密码需 8–20 位，且同时包含字母和数字';
+  }
+  const digits = phone.replace(/\D/g, '').slice(-11);
+  for (let i = 0; i + 6 <= digits.length; i++) {
+    if (password.includes(digits.slice(i, i + 6))) return '新密码不能包含手机号中的连续数字';
+  }
+  return null;
+}
 const OTP_RESEND_MS = 60 * 1000;
 const OTP_MAX_ATTEMPTS = 5;
 
@@ -82,6 +100,11 @@ export async function handleAuth(input: Input): Promise<Response> {
       const wait = OTP_RESEND_MS - (Date.now() - new Date(prev.created_at).getTime());
       if (wait > 0) return fail(`请 ${Math.ceil(wait / 1000)} 秒后再获取验证码`, 429);
     }
+    const { data: allowed, error: quotaError } = await admin.rpc('take_sms_quota', {
+      p_phone: phone, p_day: chinaToday(), p_limit: SMS_DAILY_LIMIT,
+    });
+    if (quotaError) return fail('验证码生成失败', 500);
+    if (!allowed) return fail('今日发送次数已达上限', 429);
     const code = randomCode();
     const { error } = await admin.from('phone_otps').upsert({
       phone,
@@ -99,6 +122,36 @@ export async function handleAuth(input: Input): Promise<Response> {
     if (!phone) return fail('请输入有效手机号');
     const problem = await checkOtp(phone, input.code);
     return problem ? fail(problem) : json({ ok: true });
+  }
+  if (input.action === 'forgot_verify') {
+    // Step 1 of "forgot password": the code must be valid and the phone must belong to a store.
+    if (!mockSmsEnabled()) return fail('生产级验证码待接入短信服务', 501);
+    if (!phone) return fail('请输入有效手机号');
+    const problem = await checkOtp(phone, input.code);
+    if (problem) return fail(problem);
+    const { data: store } = await admin.from('stores').select('id').eq('phone', phone).maybeSingle();
+    if (!store) return fail('该手机号尚未开通门店账号', 404);
+    return json({ ok: true });
+  }
+  if (input.action === 'reset_password') {
+    // Step 2: verifies the code again (single use), sets the new password and signs out everywhere.
+    if (!mockSmsEnabled()) return fail('生产级验证码待接入短信服务', 501);
+    if (!phone) return fail('请输入有效手机号');
+    const badPassword = passwordProblem(input.new_password, phone);
+    if (badPassword) return fail(badPassword);
+    const problem = await checkOtp(phone, input.code);
+    if (problem) return fail(problem);
+    const { data: store } = await admin.from('stores').select('owner_id').eq('phone', phone).maybeSingle();
+    if (!store) return fail('该手机号尚未开通门店账号', 404);
+    const { error } = await admin.auth.admin.updateUserById(store.owner_id, {
+      password: input.new_password as string,
+    });
+    if (error) return fail('重置失败，请稍后重试', 500);
+    // Every device must sign in again with the new password.
+    const { error: revokeError } = await admin.rpc('revoke_user_sessions', { p_user: store.owner_id });
+    if (revokeError) return fail('重置失败，请稍后重试', 500);
+    await admin.from('phone_otps').delete().eq('phone', phone); // single use
+    return json({ ok: true });
   }
   if (input.action === 'register') {
     if (!mockSmsEnabled()) return fail('生产级手机注册待接入短信服务', 501);
@@ -122,17 +175,28 @@ export async function handleAuth(input: Input): Promise<Response> {
         /already|registered|exists/i.test(error?.message ?? '');
       return fail(taken ? '该手机号已注册，请直接登录' : '注册失败，请稍后重试', taken ? 409 : 500);
     }
-    const { error: storeError } = await admin.from('stores').upsert({
+    const { data: store, error: storeError } = await admin.from('stores').upsert({
       owner_id: data.user.id, name: storeName, phone, ...profile,
       plan: 'trial',
       trial_ends_at: new Date(Date.now() + TRIAL_DAYS * 86400000).toISOString(),
-    }, { onConflict: 'owner_id' });
-    if (storeError) {
+    }, { onConflict: 'owner_id' }).select('id').single();
+    if (storeError || !store) {
       await admin.auth.admin.deleteUser(data.user.id);
       return fail('门店创建失败', 500);
     }
+    // Starter data: services for the chosen business types and the four default card tiers.
+    const services = defaultServices(profile.business_types);
+    const { error: serviceError } = await admin.from('service_items')
+      .insert(services.map((s) => ({ ...s, store_id: store.id })));
+    const { error: cardError } = serviceError ? { error: null } : await admin.from('card_types')
+      .insert(DEFAULT_CARDS.map((c) => ({ ...c, store_id: store.id })));
+    if (serviceError || cardError) {
+      // The store and its data cascade from the user, so deleting the user rolls everything back.
+      await admin.auth.admin.deleteUser(data.user.id);
+      return fail('门店初始化失败，请稍后重试', 500);
+    }
     await admin.from('phone_otps').delete().eq('phone', phone); // single use
-    return json({ ok: true });
+    return json({ ok: true, services: services.length, cards: DEFAULT_CARDS.length });
   }
   if (input.action === 'login_password') {
     if (!phone || typeof input.password !== 'string') return fail('手机号或密码无效');

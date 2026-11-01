@@ -10,6 +10,8 @@ class RegistrationDraft {
     'ChangePassword',
     'ChangePhone',
     'DeleteAccount',
+    'ForgotVerify',
+    'ForgotReset',
   };
 
   static const cityPlaceholder = '请选择所在城市';
@@ -127,6 +129,37 @@ class RegistrationDraft {
     return i >= 0 && i < all.length ? all[i] : '';
   }
 
+  /// 新密码里不能出现手机号中的连续 6 位数字。
+  static bool containsPhoneDigits(String password, String phone) {
+    for (var i = 0; i + 6 <= phone.length; i++) {
+      if (password.contains(phone.substring(i, i + 6))) return true;
+    }
+    return false;
+  }
+
+  /// 忘记密码第 1 步（验证手机号）的本地校验。
+  static String? forgotVerifyError() {
+    final phone = get('ForgotVerify', '请输入手机号');
+    final code = get('ForgotVerify', '6 位数字');
+    if (phone.isEmpty) return '请输入手机号';
+    if (!_phoneRe.hasMatch(phone)) return '请输入正确的 11 位手机号';
+    if (code.isEmpty) return '请输入验证码';
+    if (!_codeRe.hasMatch(code)) return '验证码为 6 位数字';
+    return null;
+  }
+
+  /// 忘记密码第 2 步（设置新密码）的本地校验。
+  static String? forgotResetError(String phone) {
+    final next = getRaw('ForgotReset', '8-20 位，含字母和数字');
+    final again = getRaw('ForgotReset', '再次输入新密码');
+    if (next.isEmpty) return '请输入新密码';
+    final rule = passwordRuleError(next);
+    if (rule != null) return rule.replaceFirst('密码', '新密码');
+    if (containsPhoneDigits(next, phone)) return '新密码不能包含手机号中的连续数字';
+    if (again != next) return '两次输入的新密码不一致';
+    return null;
+  }
+
   static String? passwordChangeError(String ownPhone) {
     final old = getRaw('ChangePassword', '请输入当前密码');
     final next = getRaw('ChangePassword', '8-20 位，含字母和数字');
@@ -136,11 +169,7 @@ class RegistrationDraft {
     final rule = passwordRuleError(next);
     if (rule != null) return rule.replaceFirst('密码', '新密码');
     if (next == old) return '新密码不能与当前密码相同';
-    for (var i = 0; i + 6 <= ownPhone.length; i++) {
-      if (next.contains(ownPhone.substring(i, i + 6))) {
-        return '新密码不能包含手机号中的连续数字';
-      }
-    }
+    if (containsPhoneDigits(next, ownPhone)) return '新密码不能包含手机号中的连续数字';
     if (again != next) return '两次输入的新密码不一致';
     return null;
   }

@@ -126,14 +126,16 @@ class MerchantApi {
     await invoke({'action': 'check_code', 'phone': phone, 'code': code});
   }
 
-  Future<void> register({
+  /// 开通门店。返回云函数给新门店初始化的数据量：
+  /// `{'services': 服务项目数, 'cards': 会员卡种数}`。
+  Future<Map<String, dynamic>> register({
     required String phone,
     required String code,
     required String password,
     required String storeName,
     Map<String, dynamic> profile = const {},
   }) async {
-    await invoke({
+    return invoke({
       'action': 'register',
       'phone': phone,
       'code': code,
@@ -174,6 +176,25 @@ class MerchantApi {
     await invoke({'action': 'delete_account', 'code': code});
   }
 
+  /// 忘记密码第 1 步：验证码正确，且该手机号是已开通门店的账号。
+  Future<void> forgotVerify(String phone, String code) async {
+    await invoke({'action': 'forgot_verify', 'phone': phone, 'code': code});
+  }
+
+  /// 忘记密码第 2 步：重置密码；成功后所有设备的登录状态都会失效。
+  Future<void> resetPassword({
+    required String phone,
+    required String code,
+    required String newPassword,
+  }) async {
+    await invoke({
+      'action': 'reset_password',
+      'phone': phone,
+      'code': code,
+      'new_password': newPassword,
+    });
+  }
+
   Future<void> loginPassword(String phone, String password) async {
     final data = await invoke({
       'action': 'login_password',
@@ -212,6 +233,28 @@ class MerchantApi {
   Future<List<Map<String, dynamic>>> list(String kind) async {
     final data = await invoke({'action': 'list', 'kind': kind});
     return List<Map<String, dynamic>>.from(data['items'] as List);
+  }
+
+  /// 会员卡的通用规则（充值或消费自动升级 / 储值余额可退款）。
+  Future<({bool autoUpgrade, bool balanceRefundable})> cardRules() async {
+    final data = await invoke({'action': 'rules', 'kind': 'cards'});
+    final r = Map<String, dynamic>.from(data['rules'] as Map);
+    return (
+      autoUpgrade: r['auto_upgrade'] == true,
+      balanceRefundable: r['balance_refundable'] == true,
+    );
+  }
+
+  Future<void> saveCardRules({
+    required bool autoUpgrade,
+    required bool balanceRefundable,
+  }) async {
+    await invoke({
+      'action': 'save_rules',
+      'kind': 'cards',
+      'auto_upgrade': autoUpgrade,
+      'balance_refundable': balanceRefundable,
+    });
   }
 
   Future<Map<String, dynamic>> save(String kind, Map<String, dynamic> values) =>

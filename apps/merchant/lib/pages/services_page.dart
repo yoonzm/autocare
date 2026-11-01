@@ -48,6 +48,7 @@ class _ServicesPageState extends State<ServicesPage> {
         row['description']?.toString() ?? '',
         num.tryParse(row['price'].toString()) ?? 0,
         offline: row['active'] == false,
+        tag: row['active'] == false ? '已下架' : '',
       );
       items.add(item);
       liveRows[item] = row;

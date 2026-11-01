@@ -22,7 +22,7 @@ class _FakeApi extends MerchantApi {
   Future<void> checkCode(String phone, String code) async =>
       calls.add('check:$phone:$code');
   @override
-  Future<void> register({
+  Future<Map<String, dynamic>> register({
     required String phone,
     required String code,
     required String password,
@@ -36,6 +36,7 @@ class _FakeApi extends MerchantApi {
       'store_name': storeName,
       ...profile,
     };
+    return {'ok': true, 'services': 8, 'cards': 4};
   }
 
   @override
@@ -154,6 +155,21 @@ void main() {
     expect(find.text('专业版 · 试用'), findsOneWidget);
     expect(find.text(storeProfile.trialEndText), findsOneWidget);
     expect(storeProfile.trialEndText, startsWith('2026.11.'));
+  });
+
+  testWidgets('开通门店：成功页显示云函数按主营业务初始化的服务项目数', (t) async {
+    await open(t, 'RegShop');
+    RegistrationDraft.set('RegPhone', '请输入手机号', '13900000000');
+    RegistrationDraft.set('RegPhone', '6 位数字', '123456');
+    RegistrationDraft.set('RegPhone', '8-20 位，含字母和数字', 'abcd1234');
+    await t.enterText(input('如：驰光汽车美容'), '蓝鲸养护');
+    await t.enterText(input('您的姓名'), '林');
+    RegistrationDraft.city = '杭州市 · 西湖区';
+    await tapText(t, '开通并开始试用');
+    await t.pumpAndSettle(); // 等跳转到「开通成功」页
+    expect(api.registered!['store_name'], '蓝鲸养护');
+    expect(find.text('已按主营业务生成 8 项'), findsOneWidget);
+    expect(storeProfile.seededServices, 8);
   });
 
   testWidgets('账号与安全：手机号来自门店资料；退出所有设备走后端', (t) async {

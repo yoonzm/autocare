@@ -19,6 +19,7 @@ from html.parser import HTMLParser
 # 已手写实现、不需要生成的页面
 HANDWRITTEN = {
     'Main', 'Members', 'MemberDetail', 'Inventory', 'Stats', 'Login',
+    'LoginPwd',  # 密码登录与验证码登录是同一个手写登录页的两个标签
     'Settings', 'Order', 'Appointments', 'AppointmentAdd', 'Services',
     'ThemeSheet',
     'FindScanPlate', 'FindScanCode', 'ScanLicense', 'ScanPlate',  # 相机扫描页：手写  # 外观选择：手写，直接作用于全局主题
@@ -30,6 +31,7 @@ LIVE_TEXT = {
     ('RegDone', '专业版 · 试用'): 'p.planText',
     ('RegDone', '2026.11.14'): 'p.trialEndText',
     ('RegDone', '手机号 139 **** 8812'): "'手机号 ${p.maskedPhone}'",
+    ('RegDone', '已按主营业务生成 12 项'): "'已按主营业务生成 ${p.seededServices} 项'",
     ('Security', '139 **** 8812'): 'p.maskedPhone',
     ('ChangePhone', '验证码将发送至 139 **** 8812'): "'验证码将发送至 ${p.maskedPhone}'",
     ('StoreInfo', '驰光汽车美容 · 徐汇店'): 'p.name',
@@ -37,7 +39,12 @@ LIVE_TEXT = {
     ('StoreInfo', '021-[门店电话]'): 'p.localPhone',
 }
 
-SKIP = {'AppIcon', 'DarkTokens', 'PageTransitions'}
+# 由“忘记密码”流程状态驱动的文字（f 是 ForgotFlow）。
+LIVE_FLOW = {
+    ('ForgotReset', '手机号 138 **** 1234 已验证通过'): "'手机号 ${f.maskedPhone} 已验证通过'",
+}
+
+SKIP = {'ForgotNote', 'AppIcon', 'DarkTokens', 'PageTransitions'}
 # 设计稿里的深色版本只是参考，深色效果由同一套页面自动适配
 SKIP_SUFFIX = ('Dark',)
 
@@ -573,6 +580,10 @@ class Gen:
         same = all(s[1] == segs[0][1] for s in segs)
         if same:
             text = ''.join(s[0] for s in segs)
+            flow = LIVE_FLOW.get((self.page_name, text))
+            if flow:
+                return 'hFlowText((f) => f.live ? (%s) : %s, %s%s)' % (
+                    flow, dstr(text), self.ts(segs[0][1]), ''.join(', ' + e for e in extra))
             live = LIVE_TEXT.get((self.page_name, text))
             if live:
                 return 'hLiveText((p) => p.live ? (%s) : %s, %s%s)' % (
@@ -793,6 +804,9 @@ class Gen:
         """parent: 'row' | 'col' | 'block' | 'grid' | 'abs' | 'root'"""
         if isinstance(n, str):
             return 'Text(%s, style: %s)' % (dstr(re.sub(r'\s+', ' ', n).strip()), self.ts(inh))
+        # 卡种编辑页的“卡面预览”：换成随名称 / 折扣 / 颜色实时变化的组件
+        if self.page_name == 'CardTierEdit' and n.attrs.get('aria-label') == '卡面预览':
+            return 'hCardPreview()'
         if n.tag == 'svg':
             return self.emit_svg(n, inh, parent)
         if n.tag == 'input':
@@ -1248,7 +1262,9 @@ class Gen:
             n.attrs['_tap'] = '() => hPick(context, \'time\', %s, %s)' % (dstr(texts[0]), var)
             return [(var, texts[1], 'str')]
         # 获取验证码：点击后 60 秒倒计时
-        if n.tag == 'button' and len(texts) == 1 and texts[0] == '获取验证码':
+        # （设计稿里也会把倒计时中的状态画出来，如“42s 后重发”，同样按验证码按钮处理）
+        if n.tag == 'button' and len(texts) == 1 and (
+                texts[0] == '获取验证码' or re.fullmatch(r'\d+\s*(s|秒)\s*后重发', texts[0])):
             var = self.new_ctrl('k')
             n.attrs['_picked'] = var
             leaves[0].attrs['_code'] = var

@@ -26,6 +26,7 @@ void main() {
     expect(find.text('汽美管家'), findsOneWidget);
     await tester.tap(find.text('密码登录'));
     await tester.pump();
+    await tester.enterText(find.byType(TextField).first, '13988888812');
     await tester.enterText(find.byType(TextField).last, 'password123');
     await tester.tap(find.text('登录').first);
     await tester.pumpAndSettle();

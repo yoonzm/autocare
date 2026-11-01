@@ -14,15 +14,20 @@ import '../widgets/common.dart';
 import 'shell.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  /// 0 = 验证码登录，1 = 密码登录（设计稿的 LoginPwd）。
+  final int initialTab;
+  const LoginPage({super.key, this.initialTab = 0});
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
-  int tab = 0;
+  late int tab = widget.initialTab;
   bool agree = true;
-  final phone = TextEditingController(text: '13988888812');
+
+  /// 密码是否明文显示（密码框右侧的小眼睛）。
+  bool showPwd = false;
+  final phone = TextEditingController();
   final code = TextEditingController();
   final pwd = TextEditingController();
   int countdown = 0;
@@ -414,20 +419,71 @@ class _LoginPageState extends State<LoginPage> {
         else
           _field(
             '密码',
-            TextField(
-              onTapOutside: onTapOutsideDismiss,
-              controller: pwd,
-              readOnly: busy,
-              onChanged: (_) {
-                if (pwdErr != null) setState(() => pwdErr = null);
-              },
-              obscureText: true,
-              style: ts(15),
-              decoration: _dec('请输入密码'),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    onTapOutside: onTapOutsideDismiss,
+                    controller: pwd,
+                    readOnly: busy,
+                    onChanged: (_) {
+                      if (pwdErr != null) setState(() => pwdErr = null);
+                    },
+                    obscureText: !showPwd,
+                    style: ts(15),
+                    decoration: _dec('请输入登录密码'),
+                  ),
+                ),
+                Semantics(
+                  button: true,
+                  label: showPwd ? '隐藏密码' : '显示密码',
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => setState(() => showPwd = !showPwd),
+                    child: SizedBox(
+                      width: 40,
+                      height: 44,
+                      child: Icon(
+                        showPwd
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                        size: 20,
+                        color: C.muted,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
             error: pwdErr,
             fieldKey: _pwdKey,
           ),
+        if (tab == 1) ...[
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Semantics(
+              button: true,
+              label: '忘记密码',
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: busy ? null : () => openRoute(context, 'ForgotVerify'),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Text(
+                    '忘记密码？',
+                    style: ts(
+                      13,
+                      w: FontWeight.w500,
+                      color: C.primaryInk,
+                      h: 18,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
         const SizedBox(height: 16),
         SizedBox(
           width: double.infinity,

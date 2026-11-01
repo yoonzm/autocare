@@ -19,6 +19,9 @@ class StoreProfile extends ChangeNotifier {
   List<String> businessTypes = const [];
   DateTime? trialEndsAt;
 
+  /// 开通时按主营业务给新门店生成的服务项目数（「开通成功」页展示）。
+  int seededServices = 12;
+
   /// 11-digit mainland number, e.g. `13988888812` (the backend keeps `+86…`).
   String get localPhone {
     final d = phone.replaceAll(RegExp(r'\D'), '');

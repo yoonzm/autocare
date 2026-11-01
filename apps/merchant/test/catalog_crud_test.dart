@@ -31,6 +31,20 @@ class CatalogFakeApi extends MerchantApi {
     return {'item': row};
   }
 
+  var autoUpgrade = true;
+  var balanceRefundable = false;
+  @override
+  Future<({bool autoUpgrade, bool balanceRefundable})> cardRules() async =>
+      (autoUpgrade: autoUpgrade, balanceRefundable: balanceRefundable);
+  @override
+  Future<void> saveCardRules({
+    required bool autoUpgrade,
+    required bool balanceRefundable,
+  }) async {
+    this.autoUpgrade = autoUpgrade;
+    this.balanceRefundable = balanceRefundable;
+  }
+
   @override
   Future<void> delete(String kind, String id) async {
     if (kind == 'services') {

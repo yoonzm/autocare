@@ -28,6 +28,10 @@ class _Api extends MerchantApi {
   }
 
   @override
+  Future<({bool autoUpgrade, bool balanceRefundable})> cardRules() async =>
+      (autoUpgrade: true, balanceRefundable: false);
+
+  @override
   Future<List<Map<String, dynamic>>> list(String kind) async {
     calls.add('list:$kind');
     if (latency > Duration.zero) await Future<void>.delayed(latency);
@@ -464,6 +468,29 @@ void main() {
       await t.pumpAndSettle();
       expect(find.text('精致洗车'), findsOneWidget);
       expect(find.byType(SkeletonList), findsNothing);
+    });
+
+    testWidgets('服务项目：已下架的项目显示“已下架”', (t) async {
+      phone(t);
+      api.services = [
+        {
+          'id': '1',
+          'name': '发动机舱清洗',
+          'category': '洗车',
+          'price': 120,
+          'active': false,
+        },
+        {
+          'id': '2',
+          'name': '快速洗车',
+          'category': '洗车',
+          'price': 38,
+          'active': true,
+        },
+      ];
+      await t.pumpWidget(const MaterialApp(home: ServicesPage()));
+      await t.pumpAndSettle();
+      expect(find.text('已下架'), findsOneWidget);
     });
 
     testWidgets('服务项目：首次为空引导新建；失败可重试', (t) async {

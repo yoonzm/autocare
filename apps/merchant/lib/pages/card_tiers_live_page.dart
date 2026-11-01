@@ -9,6 +9,7 @@ import '../kit/kit.dart';
 import '../backend/merchant_api.dart';
 import '../backend/catalog_draft.dart';
 import '../routes.dart';
+import '../widgets/card_face.dart';
 import 'gen/svgs.dart';
 
 class CardTiersLivePage extends StatefulWidget {
@@ -21,6 +22,11 @@ class _CardTiersLivePageState extends State<CardTiersLivePage> {
   List<Map<String, dynamic>>? cards;
   AppError? error;
   bool loading = false;
+
+  /// 通用规则（来自后端，保存后即时生效）。
+  bool autoUpgrade = true;
+  bool balanceRefundable = false;
+  bool _savingRule = false;
 
   /// 请求超过 300ms 才显示骨架；出现后至少停留 500ms。
   bool showSkeleton = false;
@@ -55,9 +61,16 @@ class _CardTiersLivePageState extends State<CardTiersLivePage> {
       }
     });
     List<Map<String, dynamic>>? rows;
+    ({bool autoUpgrade, bool balanceRefundable})? rules;
     AppError? failed;
     try {
-      rows = await merchantApi.list('cards');
+      // 卡种和通用规则一起加载；任何一个失败都算加载失败
+      final results = await Future.wait<Object>([
+        merchantApi.list('cards'),
+        merchantApi.cardRules(),
+      ]);
+      rows = results[0] as List<Map<String, dynamic>>;
+      rules = results[1] as ({bool autoUpgrade, bool balanceRefundable});
     } catch (e) {
       failed = AppError.from(e);
     }
@@ -73,6 +86,8 @@ class _CardTiersLivePageState extends State<CardTiersLivePage> {
       showSkeleton = false;
       if (failed == null) {
         cards = rows;
+        autoUpgrade = rules!.autoUpgrade;
+        balanceRefundable = rules.balanceRefundable;
         error = null;
       } else if (cards == null) {
         error = failed;
@@ -87,6 +102,40 @@ class _CardTiersLivePageState extends State<CardTiersLivePage> {
         actionLabel: failed.retryable ? '重试' : null,
         onAction: failed.retryable ? _load : null,
       );
+    }
+  }
+
+  /// 通用规则只在已经加载出卡种时显示：加载中、失败、还没有卡种时都不显示。
+  bool get _showRules => cards != null && cards!.isNotEmpty;
+
+  /// 乐观更新：先改界面，保存失败回滚并用 Toast 说明原因。
+  Future<void> _saveRule({bool? autoUpgrade, bool? balanceRefundable}) async {
+    if (_savingRule) return;
+    _savingRule = true;
+    final before = (auto: this.autoUpgrade, refund: this.balanceRefundable);
+    final next = (
+      auto: autoUpgrade ?? this.autoUpgrade,
+      refund: balanceRefundable ?? this.balanceRefundable,
+    );
+    setState(() {
+      this.autoUpgrade = next.auto;
+      this.balanceRefundable = next.refund;
+    });
+    try {
+      await merchantApi.saveCardRules(
+        autoUpgrade: next.auto,
+        balanceRefundable: next.refund,
+      );
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          this.autoUpgrade = before.auto;
+          this.balanceRefundable = before.refund;
+        });
+        AppToast.error(context, e);
+      }
+    } finally {
+      _savingRule = false;
     }
   }
 
@@ -140,7 +189,8 @@ class _CardTiersLivePageState extends State<CardTiersLivePage> {
   Widget build(BuildContext context) {
     return HPage(
       bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
-      height: 1000,
+      // 高度跟随内容：内容不够一屏时不滚动（设计稿的固定高度只是示例）
+      height: 0,
       fixedHeight: false,
       flow: hcol(
         [
@@ -362,146 +412,155 @@ class _CardTiersLivePageState extends State<CardTiersLivePage> {
                   ),
                 ),
                 ..._listArea(context),
-                hbox(
-                  bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                  radius: BorderRadius.circular(24),
-                  shadow: dk(
-                    context,
-                    [
-                      BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
-                        spreadRadius: 0,
-                      ),
-                      BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 1),
-                        blurRadius: 2,
-                        spreadRadius: 0,
-                      ),
-                      BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
-                        spreadRadius: 0,
-                      ),
-                    ],
-                    [
-                      BoxShadow(
-                        color: Color(0xFF26262B),
-                        offset: Offset(0, 0),
-                        blurRadius: 0,
-                        spreadRadius: 1,
-                      ),
-                    ],
-                  ),
-                  pad: EdgeInsets.fromLTRB(16, 16, 16, 16),
-                  child: hcol(
-                    [
-                      Text(
-                        '通用规则',
-                        style: hts(
-                          15,
-                          dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                          w: FontWeight.w600,
-                          lh: 22,
+                if (_showRules)
+                  hbox(
+                    bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                    radius: BorderRadius.circular(24),
+                    shadow: dk(
+                      context,
+                      [
+                        BoxShadow(
+                          color: Color.fromRGBO(0, 0, 0, 0.06),
+                          offset: Offset(0, 0),
+                          blurRadius: 1,
+                          spreadRadius: 0,
                         ),
-                      ),
-                      hrow(
-                        [
-                          Expanded(
-                            flex: 1,
-                            child: hcol(
-                              [
-                                Text(
-                                  '充值或消费自动升级',
-                                  style: hts(
-                                    14,
-                                    dk(
-                                      context,
-                                      Color(0xFF18181B),
-                                      Color(0xFFFAFAFA),
-                                    ),
-                                    lh: 20,
-                                  ),
-                                ),
-                                Text(
-                                  '单次充值或累计消费达标，实时升级，取最高等级',
-                                  style: hts(
-                                    12,
-                                    dk(
-                                      context,
-                                      Color(0xFF71717A),
-                                      Color(0xFF9A9AA3),
-                                    ),
-                                    lh: 16,
-                                  ),
-                                ),
-                              ],
-                              main: MainAxisAlignment.start,
-                              cross: CrossAxisAlignment.stretch,
-                              gap: 0,
-                            ),
+                        BoxShadow(
+                          color: Color.fromRGBO(0, 0, 0, 0.06),
+                          offset: Offset(0, 1),
+                          blurRadius: 2,
+                          spreadRadius: 0,
+                        ),
+                        BoxShadow(
+                          color: Color.fromRGBO(0, 0, 0, 0.04),
+                          offset: Offset(0, 2),
+                          blurRadius: 4,
+                          spreadRadius: 0,
+                        ),
+                      ],
+                      [
+                        BoxShadow(
+                          color: Color(0xFF26262B),
+                          offset: Offset(0, 0),
+                          blurRadius: 0,
+                          spreadRadius: 1,
+                        ),
+                      ],
+                    ),
+                    pad: EdgeInsets.fromLTRB(16, 16, 16, 16),
+                    child: hcol(
+                      [
+                        Text(
+                          '通用规则',
+                          style: hts(
+                            15,
+                            dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                            w: FontWeight.w600,
+                            lh: 22,
                           ),
-                          HSwitch(initial: true),
-                        ],
-                        main: MainAxisAlignment.start,
-                        cross: CrossAxisAlignment.center,
-                        gap: 12,
-                      ),
-                      hbox(
-                        h: 1,
-                        bg: dk(context, Color(0xFFEFEFF1), Color(0xFF2A2A2E)),
-                      ),
-                      hrow(
-                        [
-                          Expanded(
-                            flex: 1,
-                            child: hcol(
-                              [
-                                Text(
-                                  '储值余额可退款',
-                                  style: hts(
-                                    14,
-                                    dk(
-                                      context,
-                                      Color(0xFF18181B),
-                                      Color(0xFFFAFAFA),
+                        ),
+                        hrow(
+                          [
+                            Expanded(
+                              flex: 1,
+                              child: hcol(
+                                [
+                                  Text(
+                                    '充值或消费自动升级',
+                                    style: hts(
+                                      14,
+                                      dk(
+                                        context,
+                                        Color(0xFF18181B),
+                                        Color(0xFFFAFAFA),
+                                      ),
+                                      lh: 20,
                                     ),
-                                    lh: 20,
                                   ),
-                                ),
-                                Text(
-                                  '退款时扣除已赠送金额',
-                                  style: hts(
-                                    12,
-                                    dk(
-                                      context,
-                                      Color(0xFF71717A),
-                                      Color(0xFF9A9AA3),
+                                  Text(
+                                    '单次充值或累计消费达标，实时升级，取最高等级',
+                                    style: hts(
+                                      12,
+                                      dk(
+                                        context,
+                                        Color(0xFF71717A),
+                                        Color(0xFF9A9AA3),
+                                      ),
+                                      lh: 16,
                                     ),
-                                    lh: 16,
                                   ),
-                                ),
-                              ],
-                              main: MainAxisAlignment.start,
-                              cross: CrossAxisAlignment.stretch,
-                              gap: 0,
+                                ],
+                                main: MainAxisAlignment.start,
+                                cross: CrossAxisAlignment.stretch,
+                                gap: 0,
+                              ),
                             ),
-                          ),
-                          HSwitch(initial: false),
-                        ],
-                        main: MainAxisAlignment.start,
-                        cross: CrossAxisAlignment.center,
-                        gap: 12,
-                      ),
-                    ],
-                    main: MainAxisAlignment.start,
-                    cross: CrossAxisAlignment.stretch,
-                    gap: 12,
+                            HSwitch(
+                              initial: autoUpgrade,
+                              value: autoUpgrade,
+                              onChanged: (v) => _saveRule(autoUpgrade: v),
+                            ),
+                          ],
+                          main: MainAxisAlignment.start,
+                          cross: CrossAxisAlignment.center,
+                          gap: 12,
+                        ),
+                        hbox(
+                          h: 1,
+                          bg: dk(context, Color(0xFFEFEFF1), Color(0xFF2A2A2E)),
+                        ),
+                        hrow(
+                          [
+                            Expanded(
+                              flex: 1,
+                              child: hcol(
+                                [
+                                  Text(
+                                    '储值余额可退款',
+                                    style: hts(
+                                      14,
+                                      dk(
+                                        context,
+                                        Color(0xFF18181B),
+                                        Color(0xFFFAFAFA),
+                                      ),
+                                      lh: 20,
+                                    ),
+                                  ),
+                                  Text(
+                                    '退款时扣除已赠送金额',
+                                    style: hts(
+                                      12,
+                                      dk(
+                                        context,
+                                        Color(0xFF71717A),
+                                        Color(0xFF9A9AA3),
+                                      ),
+                                      lh: 16,
+                                    ),
+                                  ),
+                                ],
+                                main: MainAxisAlignment.start,
+                                cross: CrossAxisAlignment.stretch,
+                                gap: 0,
+                              ),
+                            ),
+                            HSwitch(
+                              initial: balanceRefundable,
+                              value: balanceRefundable,
+                              onChanged: (v) => _saveRule(balanceRefundable: v),
+                            ),
+                          ],
+                          main: MainAxisAlignment.start,
+                          cross: CrossAxisAlignment.center,
+                          gap: 12,
+                        ),
+                      ],
+                      main: MainAxisAlignment.start,
+                      cross: CrossAxisAlignment.stretch,
+                      gap: 12,
+                    ),
                   ),
-                ),
               ],
               main: MainAxisAlignment.start,
               cross: CrossAxisAlignment.stretch,
@@ -517,425 +576,12 @@ class _CardTiersLivePageState extends State<CardTiersLivePage> {
     );
   }
 
-  String _discount(Map<String, dynamic> row) {
-    final value = (num.tryParse(row['discount'].toString()) ?? 1) * 10;
-    return value.toStringAsFixed(value == value.roundToDouble() ? 0 : 1);
-  }
-
-  Widget _cardTile(BuildContext context, Map<String, dynamic> row, int index) {
-    if (index % 4 == 0) {
-      return hTap(
-        context,
-        hbox(
-          bg: dk(context, Color(0xFF18181B), Color(0xFF34343A)),
-          radius: BorderRadius.circular(24),
-          pad: EdgeInsets.fromLTRB(20, 18, 20, 18),
-          clip: true,
-          child: hstack(
-            hcol(
-              [
-                hrow(
-                  [
-                    Expanded(
-                      flex: 1,
-                      child: Text(
-                        row['name']?.toString() ?? '',
-                        style: hts(
-                          18,
-                          Color(0xFFF5D78E),
-                          w: FontWeight.w600,
-                          lh: 26,
-                          ls: 0.72,
-                        ),
-                      ),
-                    ),
-                    Text.rich(
-                      TextSpan(
-                        style: hts(
-                          26,
-                          Color(0xFFF5D78E),
-                          w: FontWeight.w600,
-                          lh: 30,
-                        ),
-                        children: [
-                          TextSpan(
-                            text: _discount(row),
-                            style: hts(
-                              26,
-                              Color(0xFFF5D78E),
-                              w: FontWeight.w600,
-                              lh: 30,
-                            ),
-                          ),
-                          TextSpan(
-                            text: ' 折',
-                            style: hts(
-                              14,
-                              Color(0xFFF5D78E),
-                              w: FontWeight.w600,
-                              lh: 30,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                  main: MainAxisAlignment.start,
-                  cross: CrossAxisAlignment.baseline,
-                  gap: 8,
-                ),
-                hrow(
-                  [
-                    Expanded(
-                      flex: 1,
-                      child: Text(
-                        row['description']?.toString().isNotEmpty == true
-                            ? row['description'].toString()
-                            : '会员卡权益',
-                        style: hts(12, Color(0xFFD4D4D8), lh: 16),
-                      ),
-                    ),
-                    Text(
-                      '0 人',
-                      style: hts(
-                        12,
-                        Color(0xFFFAFAFA),
-                        w: FontWeight.w600,
-                        lh: 16,
-                      ),
-                    ),
-                  ],
-                  main: MainAxisAlignment.start,
-                  cross: CrossAxisAlignment.center,
-                  gap: 8,
-                ),
-              ],
-              main: MainAxisAlignment.start,
-              cross: CrossAxisAlignment.stretch,
-              gap: 22,
-            ),
-            [],
-            behind: [
-              Positioned(
-                top: -80,
-                right: -60,
-                child: hsvg(dk(context, Svgs.s83, Svgs.s84), w: 200, h: 200),
-              ),
-            ],
-          ),
-        ),
+  Widget _cardTile(BuildContext context, Map<String, dynamic> row, int index) =>
+      CardTileFace(
+        row: row,
         onTap: () {
           CatalogDraft.begin('cards', row);
           openRoute(context, 'CardTierEdit');
         },
       );
-    }
-    if (index % 4 == 1) {
-      return hTap(
-        context,
-        hbox(
-          bg: Color(0xFFF3E2B3),
-          radius: BorderRadius.circular(24),
-          pad: EdgeInsets.fromLTRB(20, 18, 20, 18),
-          child: hcol(
-            [
-              hrow(
-                [
-                  Expanded(
-                    flex: 1,
-                    child: Text(
-                      row['name']?.toString() ?? '',
-                      style: hts(
-                        18,
-                        Color(0xFF3D2B0E),
-                        w: FontWeight.w600,
-                        lh: 26,
-                        ls: 0.72,
-                      ),
-                    ),
-                  ),
-                  Text.rich(
-                    TextSpan(
-                      style: hts(
-                        26,
-                        Color(0xFF3D2B0E),
-                        w: FontWeight.w600,
-                        lh: 30,
-                      ),
-                      children: [
-                        TextSpan(
-                          text: _discount(row),
-                          style: hts(
-                            26,
-                            Color(0xFF3D2B0E),
-                            w: FontWeight.w600,
-                            lh: 30,
-                          ),
-                        ),
-                        TextSpan(
-                          text: ' 折',
-                          style: hts(
-                            14,
-                            Color(0xFF3D2B0E),
-                            w: FontWeight.w600,
-                            lh: 30,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-                main: MainAxisAlignment.start,
-                cross: CrossAxisAlignment.baseline,
-                gap: 8,
-              ),
-              hrow(
-                [
-                  Expanded(
-                    flex: 1,
-                    child: Text(
-                      row['description']?.toString().isNotEmpty == true
-                          ? row['description'].toString()
-                          : '会员卡权益',
-                      style: hts(12, Color(0xFF5C4520), lh: 16),
-                    ),
-                  ),
-                  Text(
-                    '0 人',
-                    style: hts(
-                      12,
-                      Color(0xFF3D2B0E),
-                      w: FontWeight.w600,
-                      lh: 16,
-                    ),
-                  ),
-                ],
-                main: MainAxisAlignment.start,
-                cross: CrossAxisAlignment.center,
-                gap: 8,
-              ),
-            ],
-            main: MainAxisAlignment.start,
-            cross: CrossAxisAlignment.stretch,
-            gap: 22,
-          ),
-        ),
-        onTap: () {
-          CatalogDraft.begin('cards', row);
-          openRoute(context, 'CardTierEdit');
-        },
-      );
-    }
-    if (index % 4 == 2) {
-      return hTap(
-        context,
-        hbox(
-          bg: dk(context, Color(0xFFE4E4E7), Color(0xFF3A3A40)),
-          radius: BorderRadius.circular(24),
-          pad: EdgeInsets.fromLTRB(20, 18, 20, 18),
-          child: hcol(
-            [
-              hrow(
-                [
-                  Expanded(
-                    flex: 1,
-                    child: Text(
-                      row['name']?.toString() ?? '',
-                      style: hts(
-                        18,
-                        dk(context, Color(0xFF27272A), Color(0xFFD4D4D8)),
-                        w: FontWeight.w600,
-                        lh: 26,
-                        ls: 0.72,
-                      ),
-                    ),
-                  ),
-                  Text.rich(
-                    TextSpan(
-                      style: hts(
-                        26,
-                        dk(context, Color(0xFF27272A), Color(0xFFD4D4D8)),
-                        w: FontWeight.w600,
-                        lh: 30,
-                      ),
-                      children: [
-                        TextSpan(
-                          text: _discount(row),
-                          style: hts(
-                            26,
-                            dk(context, Color(0xFF27272A), Color(0xFFD4D4D8)),
-                            w: FontWeight.w600,
-                            lh: 30,
-                          ),
-                        ),
-                        TextSpan(
-                          text: ' 折',
-                          style: hts(
-                            14,
-                            dk(context, Color(0xFF27272A), Color(0xFFD4D4D8)),
-                            w: FontWeight.w600,
-                            lh: 30,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-                main: MainAxisAlignment.start,
-                cross: CrossAxisAlignment.baseline,
-                gap: 8,
-              ),
-              hrow(
-                [
-                  Expanded(
-                    flex: 1,
-                    child: Text(
-                      row['description']?.toString().isNotEmpty == true
-                          ? row['description'].toString()
-                          : '会员卡权益',
-                      style: hts(
-                        12,
-                        dk(context, Color(0xFF52525B), Color(0xFFA8A8B3)),
-                        lh: 16,
-                      ),
-                    ),
-                  ),
-                  Text(
-                    '0 人',
-                    style: hts(
-                      12,
-                      dk(context, Color(0xFF27272A), Color(0xFFD4D4D8)),
-                      w: FontWeight.w600,
-                      lh: 16,
-                    ),
-                  ),
-                ],
-                main: MainAxisAlignment.start,
-                cross: CrossAxisAlignment.center,
-                gap: 8,
-              ),
-            ],
-            main: MainAxisAlignment.start,
-            cross: CrossAxisAlignment.stretch,
-            gap: 22,
-          ),
-        ),
-        onTap: () {
-          CatalogDraft.begin('cards', row);
-          openRoute(context, 'CardTierEdit');
-        },
-      );
-    }
-    if (index % 4 == 3) {
-      return hTap(
-        context,
-        hbox(
-          bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-          radius: BorderRadius.circular(24),
-          shadow: dk(
-            context,
-            [
-              BoxShadow(
-                color: Color.fromRGBO(0, 0, 0, 0.06),
-                offset: Offset(0, 0),
-                blurRadius: 1,
-                spreadRadius: 0,
-              ),
-              BoxShadow(
-                color: Color.fromRGBO(0, 0, 0, 0.06),
-                offset: Offset(0, 1),
-                blurRadius: 2,
-                spreadRadius: 0,
-              ),
-              BoxShadow(
-                color: Color.fromRGBO(0, 0, 0, 0.04),
-                offset: Offset(0, 2),
-                blurRadius: 4,
-                spreadRadius: 0,
-              ),
-            ],
-            [
-              BoxShadow(
-                color: Color(0xFF26262B),
-                offset: Offset(0, 0),
-                blurRadius: 0,
-                spreadRadius: 1,
-              ),
-            ],
-          ),
-          pad: EdgeInsets.fromLTRB(20, 18, 20, 18),
-          child: hcol(
-            [
-              hrow(
-                [
-                  Expanded(
-                    flex: 1,
-                    child: Text(
-                      row['name']?.toString() ?? '',
-                      style: hts(
-                        18,
-                        dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                        w: FontWeight.w600,
-                        lh: 26,
-                        ls: 0.72,
-                      ),
-                    ),
-                  ),
-                  Text(
-                    _discount(row) == '10' ? '原价' : '${_discount(row)} 折',
-                    style: hts(
-                      15,
-                      dk(context, Color(0xFF52525B), Color(0xFFA8A8B3)),
-                      w: FontWeight.w500,
-                      lh: 30,
-                    ),
-                  ),
-                ],
-                main: MainAxisAlignment.start,
-                cross: CrossAxisAlignment.baseline,
-                gap: 8,
-              ),
-              hrow(
-                [
-                  Expanded(
-                    flex: 1,
-                    child: Text(
-                      row['description']?.toString().isNotEmpty == true
-                          ? row['description'].toString()
-                          : '会员卡权益',
-                      style: hts(
-                        12,
-                        dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
-                        lh: 16,
-                      ),
-                    ),
-                  ),
-                  Text(
-                    '0 人',
-                    style: hts(
-                      12,
-                      dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                      w: FontWeight.w600,
-                      lh: 16,
-                    ),
-                  ),
-                ],
-                main: MainAxisAlignment.start,
-                cross: CrossAxisAlignment.center,
-                gap: 8,
-              ),
-            ],
-            main: MainAxisAlignment.start,
-            cross: CrossAxisAlignment.stretch,
-            gap: 22,
-          ),
-        ),
-        onTap: () {
-          CatalogDraft.begin('cards', row);
-          openRoute(context, 'CardTierEdit');
-        },
-      );
-    }
-    throw StateError("Invalid card style");
-  }
 }

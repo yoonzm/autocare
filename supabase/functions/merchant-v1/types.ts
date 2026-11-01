@@ -20,6 +20,9 @@ export interface ServiceItemRow {
   created_at: string;
 }
 
+export type CardColor = 'black' | 'champagne' | 'silver' | 'blue' | 'white';
+export type CardValidity = 'forever' | '1y' | '2y';
+
 export interface CardTypeRow {
   id: string;
   store_id: string;
@@ -28,11 +31,25 @@ export interface CardTypeRow {
   discount: number;
   active: boolean;
   created_at: string;
+  color: CardColor;
+  upgrade_recharge: number | null;
+  upgrade_cumulative: number | null;
+  points_multiplier: number;
+  birthday_gift: string;
+  priority_booking: boolean;
+  validity: CardValidity;
+}
+
+export interface CardRules {
+  auto_upgrade: boolean;
+  balance_refundable: boolean;
 }
 
 export type AuthAction =
   | { action: 'send_mock_code'; phone: string }
   | { action: 'check_code'; phone: string; code: string }
+  | { action: 'forgot_verify'; phone: string; code: string }
+  | { action: 'reset_password'; phone: string; code: string; new_password: string }
   | { action: 'register'; phone: string; code: string; password: string; store_name: string }
   | { action: 'login_password'; phone: string; password: string }
   | { action: 'login_code'; phone: string; code: string }
@@ -58,7 +75,13 @@ export interface StoreProfileRow {
 export type CatalogAction =
   | { action: 'list'; kind: CatalogKind }
   | { action: 'save'; kind: 'services'; id?: string; name: string; category: string; description: string; price: number }
-  | { action: 'save'; kind: 'cards'; id?: string; name: string; description: string; discount: number; active?: boolean }
+  | {
+    action: 'save'; kind: 'cards'; id?: string; name: string; description?: string; discount: number;
+    color?: CardColor; upgrade_recharge?: number | null; upgrade_cumulative?: number | null;
+    points_multiplier?: number; birthday_gift?: string; priority_booking?: boolean; validity?: CardValidity;
+  }
+  | { action: 'rules'; kind: 'cards' }
+  | { action: 'save_rules'; kind: 'cards'; auto_upgrade: boolean; balance_refundable: boolean }
   | { action: 'delete'; kind: CatalogKind; id: string };
 
 export type MerchantAction = AuthAction | CatalogAction;
@@ -66,9 +89,11 @@ export type Input = Record<string, unknown>;
 
 export type ApiResponse =
   | { ok: true }
+  | { ok: true; services: number; cards: number }
   | { code: string; mock: true }
   | { access_token: string; refresh_token: string }
   | { store: StoreProfileRow }
   | { items: ServiceItemRow[] | CardTypeRow[] }
+  | { rules: CardRules }
   | { item: ServiceItemRow | CardTypeRow }
   | { error: string };

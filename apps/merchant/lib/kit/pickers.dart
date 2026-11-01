@@ -1,4 +1,5 @@
 // 表单里的选择类交互：日期、车型、城市、列表选择、金额输入、车牌输入。数据均为 mock。
+import 'async_kit.dart';
 import 'kit.dart';
 
 import 'dart:async';
@@ -60,6 +61,19 @@ class _HStrHolderState extends State<HStrHolder> {
         ctrl.addListener(() {
           RegistrationDraft.city = ctrl.v == ctrl.placeholder ? '' : ctrl.v;
         });
+      } else if (merchantApi.hasSession &&
+          route == 'CardTierEdit' &&
+          (widget.initial == '2 倍' || widget.initial == '赠精致洗车 2 次')) {
+        // 卡种编辑页的积分倍率 / 生日礼：值来自正在编辑的卡种，选择后写回草稿
+        final multiplier = widget.initial == '2 倍';
+        ctrl = StrCtrl(
+          multiplier ? CatalogDraft.multiplierLabel : CatalogDraft.giftLabel,
+        );
+        ctrl.addListener(
+          () => multiplier
+              ? CatalogDraft.setMultiplier(ctrl.v)
+              : CatalogDraft.setGift(ctrl.v),
+        );
       } else {
         ctrl = StrCtrl(
           route == 'ServiceEdit' && widget.initial == '镀晶镀膜'
@@ -821,10 +835,7 @@ Future<void> hPick(
   StrCtrl c,
 ) async {
   final route = ModalRoute.of(context)?.settings.name;
-  if (merchantApi.hasSession &&
-      ((route == 'ServiceEdit' && kind == 'duration') ||
-          (route == 'CardTierEdit' &&
-              (kind == 'multiplier' || kind == 'gift')))) {
+  if (merchantApi.hasSession && route == 'ServiceEdit' && kind == 'duration') {
     hToast(context, '此字段暂未接通');
     return;
   }
@@ -1280,6 +1291,13 @@ void hSendCode(BuildContext context, CodeCtrl c) {
     _sendRegistrationCode(context, c);
     return;
   }
+  if (route == 'ForgotVerify') {
+    // 忘记密码：手机号手动输入（登录页和修改密码页两个入口一样）
+    unawaited(
+      sendCodeTo(context, c, RegistrationDraft.get('ForgotVerify', '请输入手机号')),
+    );
+    return;
+  }
   if (merchantApi.hasSession && route == 'ChangePhone') {
     // 第一个按钮发到当前手机号，第二个发到新手机号。
     final phone = c.slot == 0
@@ -1307,7 +1325,8 @@ Future<void> sendCodeTo(BuildContext context, CodeCtrl c, String phone) async {
     c.start();
     hToastOn(ScaffoldMessenger.of(context), '开发环境验证码：$code');
   } catch (e) {
-    if (context.mounted) hToastOn(ScaffoldMessenger.of(context), '验证码暂不可用：$e');
+    // 失败立即恢复可点，直接展示服务端的原因（如“今日发送次数已达上限”）
+    if (context.mounted) AppToast.error(context, e);
   }
 }
 

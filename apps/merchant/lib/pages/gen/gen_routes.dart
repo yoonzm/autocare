@@ -114,8 +114,14 @@ import 'staff_edit_page.dart';
 import 'staff_invite_page.dart';
 import 'staff_enable_sheet.dart';
 import 'staff_transfer_sheet.dart';
+import 'forgot_done_page.dart';
+import 'forgot_reset_page.dart';
+import 'forgot_verify_page.dart';
 
 final Map<String, WidgetBuilder> genRoutes = {
+  'ForgotDone': (_) => const ForgotDonePage(),
+  'ForgotReset': (_) => const ForgotResetPage(),
+  'ForgotVerify': (_) => const ForgotVerifyPage(),
   'StaffAdd': (_) => const StaffAddPage(),
   'StaffCommission': (_) => const StaffCommissionPage(),
   'StaffDetailOff': (_) => const StaffDetailOffPage(),

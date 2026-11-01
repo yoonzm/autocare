@@ -195,12 +195,12 @@ void main() {
     await t.pumpWidget(const MaterialApp(home: LoginPage()));
     await t.tap(find.text('密码登录'));
     await t.pump();
-    final hint = t.getRect(find.text('请输入密码')).center;
+    final hint = t.getRect(find.text('请输入登录密码')).center;
     final phoneHint = t.getRect(find.text('请输入手机号')).center;
     // 与手机号输入框相同的 48px 高度：占位文字应落在各自输入框的垂直中心
     final box = t.getRect(
       find
-          .ancestor(of: find.text('请输入密码'), matching: find.byType(Container))
+          .ancestor(of: find.text('请输入登录密码'), matching: find.byType(Container))
           .first,
     );
     final pbox = t.getRect(
@@ -210,7 +210,10 @@ void main() {
     );
     expect((hint.dy - box.center.dy).abs() < 14, isTrue);
     expect((phoneHint.dy - pbox.center.dy).abs() < 14, isTrue);
-    expect(t.getRect(find.text('请输入密码')).left, closeTo(54, 1)); // 靠左对齐（左内边距 14）
+    expect(
+      t.getRect(find.text('请输入登录密码')).left,
+      closeTo(54, 1),
+    ); // 靠左对齐（左内边距 14）
   });
 
   testWidgets('新增会员：生日 / 品牌车型 / 城市选择器可用并回写', (t) async {

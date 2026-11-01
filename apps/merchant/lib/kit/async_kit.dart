@@ -792,6 +792,8 @@ bool isBusy(String key) => busyActions.value.contains(key);
 const asyncActionKeys = {
   'RegPhone>RegShop',
   'RegShop>RegDone',
+  'ForgotVerify>ForgotReset',
+  'ForgotReset>ForgotDone',
   'ChangePassword>Security',
   'ChangePhone>Security',
   'DeleteAccount>Login',
