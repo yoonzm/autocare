@@ -41,16 +41,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
           persist-credentials: false
       - name: Reject untracked database migrations
-        env:
-          BEFORE: ${{ github.event.before }}
         run: |
           # TODO: Dashboard 已应用的首个迁移尚未登记在 CLI 历史中。
           # 对齐远端迁移历史、配置独立数据库凭据后，再自动执行 db push。
-          if git diff --name-only "$BEFORE" HEAD | grep -q '^supabase/migrations/'; then
-            echo '::error::数据库迁移变更尚不能自动部署：先核对并修复 autocare-dev 的 CLI 迁移历史。'
+          expected='89bd03bc20cb0506a2fcf2515789299bab38893d3855ce0c77013cd16c1fde70'
+          actual=$(sha256sum supabase/migrations/202611010002_merchant_v1.sql | cut -d' ' -f1)
+          count=$(find supabase/migrations -maxdepth 1 -type f -name '*.sql' | wc -l | tr -d ' ')
+          if [[ "$actual" != "$expected" || "$count" != 1 ]]; then
+            echo '::error::数据库迁移与已人工部署的 V1 基线不同；请先核对并修复 autocare-dev 的 CLI 迁移历史。'
             exit 1
           fi
       - name: Check deployment token
