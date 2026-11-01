@@ -2,7 +2,9 @@ name: Merchant Internal Release
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - feat/merchant-supabase-v1
     paths:
       - "apps/merchant/**"
       - ".github/workflows/merchant-internal.yml"
