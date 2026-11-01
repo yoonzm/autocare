@@ -5,7 +5,6 @@ import '../data/store.dart';
 import '../theme.dart';
 import '../ui.dart';
 import 'follow_pages.dart';
-import 'reviews_pages.dart';
 import 'shell_page.dart';
 import 'tickets_pages.dart';
 
@@ -80,15 +79,6 @@ class HomePage extends StatelessWidget {
         Section(
           '待办',
           RowGroup([
-            _todo(
-              Icons.verified_outlined,
-              C.amberInk,
-              C.amberSoft,
-              '开通审核',
-              '${store.pendingReviews} 家商家待审核',
-              store.pendingReviews,
-              () => go(context, const ReviewsPage()),
-            ),
             _todo(
               Icons.event_busy_outlined,
               C.redInk,

@@ -101,30 +101,6 @@ void main() {
     expect(find.text('已冻结'), findsOneWidget);
   });
 
-  testWidgets('开通审核：通过后商家出现在列表，驳回记录原因', (t) async {
-    await login(t);
-    final before = store.merchants.length;
-    await t.tap(find.text('开通审核'));
-    await t.pumpAndSettle();
-    await t.tap(find.text('极速洗护 · 闵行店'));
-    await t.pumpAndSettle();
-    await t.tap(find.text('通过并开通').last);
-    await t.pumpAndSettle();
-    await t.tap(find.text('通过并开通').last);
-    await t.pumpAndSettle();
-    expect(store.merchants.length, before + 1);
-    expect(store.pendingReviews, 2);
-
-    await t.tap(find.text('蓝鲸汽车美容 · 西湖店'));
-    await t.pumpAndSettle();
-    await t.tap(find.text('驳回'));
-    await t.pumpAndSettle();
-    await t.tap(find.text('确认驳回'));
-    await t.pumpAndSettle();
-    expect(store.reviews.firstWhere((r) => r.id == 'r2').status, RStatus.rejected);
-    expect(store.pendingReviews, 1);
-  });
-
   testWidgets('到期跟进：保存跟进记录', (t) async {
     await login(t);
     await t.tap(find.text('到期跟进').first);

@@ -14,7 +14,6 @@ class Store extends ChangeNotifier {
   late List<Account> accounts;
   late List<Merchant> merchants;
   late List<Order> orders;
-  late List<Review> reviews;
   late List<Ticket> tickets;
   late List<PlanInfo> plans;
   final List<String> audit = [];
@@ -86,7 +85,6 @@ class Store extends ChangeNotifier {
     ];
     merchants = _seedMerchants();
     orders = _seedOrders();
-    reviews = _seedReviews();
     tickets = _seedTickets();
     notifyListeners();
   }
@@ -211,7 +209,7 @@ class Store extends ChangeNotifier {
   };
   int _delta(MStatus s) => byStatus(s).length - _seedCount[s]!;
 
-  int get weekNew => 12 + reviews.where((r) => r.status == RStatus.approved).length - 2;
+  int get weekNew => 12;
 
   void addLog(Merchant m, String text) {
     m.logs.insert(0, FollowLog(kNow, me?.name ?? '运营', text.trim()));
@@ -277,41 +275,6 @@ class Store extends ChangeNotifier {
         notifyListeners();
         return m.frozen ? '商家账号已冻结' : '商家账号已解冻';
     }
-  }
-
-  // ───────── 开通审核 ─────────
-  int get pendingReviews =>
-      reviews.where((r) => r.status == RStatus.pending).length;
-
-  void approve(Review r) {
-    r.status = RStatus.approved;
-    final trial = r.plan == PlanKind.trial;
-    merchants.insert(
-      0,
-      Merchant(
-        id: 'm${merchants.length + 1}',
-        name: r.name,
-        city: r.city,
-        owner: r.owner,
-        phone: r.phone,
-        plan: r.plan,
-        expiry: trial
-            ? kNow.add(Duration(days: plans.last.trialDays))
-            : kNow.add(const Duration(days: 364)),
-        opened: kNow,
-        staff: 1,
-        tone: merchants.length % 4,
-      ),
-    );
-    _log('通过 ${r.name} 开通申请');
-    notifyListeners();
-  }
-
-  void reject(Review r, String reason) {
-    r.status = RStatus.rejected;
-    r.reason = reason;
-    _log('驳回 ${r.name} 开通申请：$reason');
-    notifyListeners();
   }
 
   // ───────── 订阅与收入 ─────────
@@ -516,67 +479,6 @@ List<Order> _seedOrders() => [
     original: 1199,
     pay: '支付宝',
     period: '2026.10.27 – 2027.10.26',
-  ),
-];
-
-List<Review> _seedReviews() => [
-  Review(
-    id: 'r1',
-    name: '极速洗护 · 闵行店',
-    city: '上海',
-    district: '闵行区',
-    owner: '周',
-    phone: '13833913391',
-    bays: 4,
-    plan: PlanKind.trial,
-    submitted: DateTime(2026, 10, 31, 9, 12),
-  ),
-  Review(
-    id: 'r2',
-    name: '蓝鲸汽车美容 · 西湖店',
-    city: '杭州',
-    district: '西湖区',
-    owner: '林',
-    phone: '13655027788',
-    bays: 6,
-    plan: PlanKind.basic,
-    submitted: DateTime(2026, 10, 30, 15, 40),
-  ),
-  Review(
-    id: 'r3',
-    name: '悦驰养护中心 · 江宁店',
-    city: '南京',
-    district: '江宁区',
-    owner: '许',
-    phone: '13988245521',
-    bays: 3,
-    plan: PlanKind.trial,
-    submitted: DateTime(2026, 10, 30, 10, 3),
-  ),
-  Review(
-    id: 'r4',
-    name: '锐驰美容',
-    city: '宁波',
-    district: '鄞州区',
-    owner: '钱',
-    phone: '13512340098',
-    bays: 5,
-    plan: PlanKind.basic,
-    submitted: DateTime(2026, 10, 27, 13, 20),
-    status: RStatus.approved,
-  ),
-  Review(
-    id: 'r5',
-    name: '快修快美',
-    city: '无锡',
-    district: '新吴区',
-    owner: '蒋',
-    phone: '13766540021',
-    bays: 2,
-    plan: PlanKind.trial,
-    submitted: DateTime(2026, 10, 26, 8, 55),
-    status: RStatus.rejected,
-    reason: '营业执照照片不清晰',
   ),
 ];
 

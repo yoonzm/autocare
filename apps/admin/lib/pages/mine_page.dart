@@ -8,7 +8,6 @@ import '../data/theme_state.dart';
 import 'accounts_pages.dart';
 import 'login_page.dart';
 import 'plans_pages.dart';
-import 'reviews_pages.dart';
 import 'theme_sheet.dart';
 import 'tickets_pages.dart';
 
@@ -105,14 +104,6 @@ class MinePage extends StatelessWidget {
                   ? Text('${store.todoTickets} 待处理', style: ts(13, color: C.muted))
                   : null,
               onTap: () => go(context, const TicketsPage()),
-            ),
-            Row1(
-              leading: SoftTile(Icons.verified_outlined, C.amberInk, C.amberSoft),
-              title: '开通审核',
-              trailing: store.pendingReviews > 0
-                  ? Text('${store.pendingReviews} 待审核', style: ts(13, color: C.muted))
-                  : null,
-              onTap: () => go(context, const ReviewsPage()),
             ),
             Row1(
               leading: SoftTile(Icons.group_outlined, C.greenInk, C.greenSoft),

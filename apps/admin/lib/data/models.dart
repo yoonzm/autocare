@@ -166,43 +166,6 @@ class Order {
   String get title => '${plan.label}$cycle';
 }
 
-enum RStatus {
-  pending('待审核'),
-  approved('已通过'),
-  rejected('已驳回');
-
-  final String label;
-  const RStatus(this.label);
-}
-
-class Review {
-  final String id;
-  final String name;
-  final String city;
-  final String district;
-  final String owner;
-  final String phone;
-  final int bays;
-  final PlanKind plan;
-  final DateTime submitted;
-  RStatus status;
-  String? reason;
-  Review({
-    required this.id,
-    required this.name,
-    required this.city,
-    required this.district,
-    required this.owner,
-    required this.phone,
-    required this.bays,
-    required this.plan,
-    required this.submitted,
-    this.status = RStatus.pending,
-    this.reason,
-  });
-  String get maskedPhone => '${phone.substring(0, 3)}****${phone.substring(7)}';
-}
-
 enum TStatus {
   todo('待处理'),
   doing('处理中'),

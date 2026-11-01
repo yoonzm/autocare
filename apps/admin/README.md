@@ -1,6 +1,6 @@
 # 后台端 App（运营后台）
 
-汽美管家平台运营后台 Flutter 前端原型，依据设计稿中的 21 个 `Ad*` 页面实现，全部使用内存 mock 数据，尚未接入 Supabase。
+汽美管家平台运营后台 Flutter 前端原型，依据设计稿中的 19 个 `Ad*` 页面实现，全部使用内存 mock 数据，尚未接入 Supabase。
 
 ```sh
 flutter pub get
@@ -32,10 +32,9 @@ flutter run
 | 模块 | 设计稿页面 | 交互 |
 | --- | --- | --- |
 | 登录 | AdLogin | 用户名/密码校验、显隐密码、禁用账号拦截、首次登录/重置后强制改密 |
-| 概览 | AdHome | MRR 与商家统计随操作联动；待办入口（审核/到期/工单）、本周新增跳转商家 |
+| 概览 | AdHome | MRR 与商家统计随操作联动；待办入口（到期/工单）、本周新增跳转商家 |
 | 商家 | AdMerchants / AdMerchantDetail / AdAdjust / AdMerchantAcct | 搜索、状态筛选；延长 7 天、升级专业版（生成补差订单）、暂停/恢复；联系店主；重发验证码、重置登录、冻结/解冻 |
 | 到期跟进 | AdFollow / AdFollowLog | 已到期/7 日内/30 日内；新增并保存跟进记录 |
-| 开通审核 | AdReviews / AdReviewDetail | 待审核/已通过/已驳回；证照预览；通过后商家入库，驳回需选原因 |
 | 订阅与收入 | AdSubs / AdOrder / AdRefund | 收入与图表联动（点柱查看）；订单详情；退款（金额校验，仅超级管理员） |
 | 工单 | AdTickets / AdTicketDetail | 状态分组；回复后自动转“处理中”；标记已解决 |
 | 套餐管理 | AdPlans / AdPlanEdit | 价格、员工数上限、功能开关（仅超级管理员可改） |

@@ -70,8 +70,7 @@ class _ShellPageState extends State<ShellPage> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Badge(
-                                  isLabelVisible: n == 3 &&
-                                      store.pendingReviews + store.todoTickets > 0,
+                                  isLabelVisible: n == 3 && store.todoTickets > 0,
                                   smallSize: 8,
                                   child: Icon(
                                     n == i ? _items[n].$2 : _items[n].$1,
