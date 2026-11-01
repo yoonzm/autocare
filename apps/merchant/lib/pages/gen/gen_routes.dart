@@ -24,7 +24,6 @@ import 'channel_config_page.dart';
 import 'check_update_page.dart';
 import 'data_backup_page.dart';
 import 'delete_account_page.dart';
-import 'eco_filing_page.dart';
 import 'expense_add_page.dart';
 import 'expense_budget_page.dart';
 import 'expense_detail_page.dart';
@@ -33,7 +32,6 @@ import 'feedback_page.dart';
 import 'hold_list_page.dart';
 import 'holiday_edit_page.dart';
 import 'invoices_page.dart';
-import 'license_page.dart';
 import 'main_expiring_page.dart';
 import 'main_trial_page.dart';
 import 'member_add_page.dart';
@@ -134,7 +132,6 @@ final Map<String, WidgetBuilder> genRoutes = {
   'CheckUpdate': (_) => const CheckUpdatePage(),
   'DataBackup': (_) => const DataBackupPage(),
   'DeleteAccount': (_) => const DeleteAccountPage(),
-  'EcoFiling': (_) => const EcoFilingPage(),
   'ExpenseAdd': (_) => const ExpenseAddPage(),
   'ExpenseBudget': (_) => const ExpenseBudgetPage(),
   'ExpenseDetail': (_) => const ExpenseDetailPage(),
@@ -143,7 +140,6 @@ final Map<String, WidgetBuilder> genRoutes = {
   'HoldList': (_) => const HoldListPage(),
   'HolidayEdit': (_) => const HolidayEditPage(),
   'Invoices': (_) => const InvoicesPage(),
-  'License': (_) => const LicensePage(),
   'MainExpiring': (_) => const MainExpiringPage(),
   'MainTrial': (_) => const MainTrialPage(),
   'MemberAdd': (_) => const MemberAddPage(),

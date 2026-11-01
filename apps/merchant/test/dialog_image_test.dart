@@ -40,10 +40,10 @@ void main() {
   testWidgets('上传入口：点击弹出“拍照 / 从相册选择”，取消后关闭', (t) async {
     phone(t);
     await t.pumpWidget(
-      MaterialApp(home: Builder(builder: genRoutes['EcoFiling']!)),
+      MaterialApp(home: Builder(builder: genRoutes['ProfileEdit']!)),
     );
     await t.pumpAndSettle();
-    await t.tap(find.text('上传排水许可证'));
+    await t.tap(find.text('更换头像'));
     await t.pumpAndSettle();
     expect(find.text('拍照'), findsOneWidget);
     expect(find.text('从相册选择'), findsOneWidget);

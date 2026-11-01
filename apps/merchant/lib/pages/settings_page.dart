@@ -29,7 +29,7 @@ class SettingsPage extends StatelessWidget {
                     _Item(
                       'store',
                       '门店信息',
-                      '地址 · 电话 · 营业执照',
+                      '地址 · 电话 · 营业时间',
                       bg: const Color(0xFFE1F0FE),
                       fg: const Color(0xFF1E63AE),
                       route: 'StoreInfo',

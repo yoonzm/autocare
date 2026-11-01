@@ -894,16 +894,12 @@ class Gen:
         if 'dashed' in (st.get('border') or '') and not txt and st.get('width', '').endswith('px') \
                 and float(st['width'][:-2]) <= 90:
             return ('slot', None)
-        if self.page_name == 'License' and txt == '[营业执照照片]':
-            return ('slot', 'license')
         if self.page_name == 'ProfileEdit' and n.tag == 'span' and st.get('width') == '88px' and txt.startswith('陈'):
             return ('slot', 'avatar')
         return None
 
     def tap(self, n, code):
         txt0 = re.sub(r'\s+', ' ', self.tree_text(n)).strip()
-        if self.page_name == 'License' and txt0 == '重新上传':
-            return "hTap(context, %s, onTap: () => hPickImage(context, 'License_license'))" % code
         if self.page_name == 'ProfileEdit' and txt0 == '更换头像':
             return "hTap(context, %s, onTap: () => hPickImage(context, 'ProfileEdit_avatar'))" % code
         if n.attrs.get('_notap'):
