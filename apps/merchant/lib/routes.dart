@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'dart:async';
+
+import 'backend/merchant_backend.dart';
 import 'mock/app_state.dart';
 import 'mock/mock_data.dart';
 import 'pages/appointment_add_page.dart';
@@ -258,12 +261,16 @@ void openRoute(BuildContext context, String name) {
     return;
   }
   if (name == 'Login') {
-    nav.pushAndRemoveUntil(
-      MaterialPageRoute(
-        settings: const RouteSettings(name: 'Login'),
-        builder: (_) => const LoginPage(),
-      ),
-      (_) => false,
+    // Keep MaterialApp.home (and its auth-state listener) mounted. A standalone
+    // LoginPage would not navigate to Shell after signInWithPassword succeeds.
+    nav.popUntil((r) => r.isFirst);
+    unawaited(
+      MerchantBackend.client.auth.signOut().catchError((Object error) {
+        if (nav.mounted) {
+          ScaffoldMessenger.of(nav.context)
+              .showSnackBar(SnackBar(content: Text('退出登录失败：$error')));
+        }
+      }),
     );
     return;
   }
