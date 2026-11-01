@@ -48,8 +48,6 @@ jobs:
       - uses: supabase/setup-cli@3c2f5e2ae34c34e428e8e206e2c4d21fa2d20fbf # v2.1.1
         with:
           version: latest
-      - name: Register previously applied V1 baseline (one-time)
-        run: supabase migration repair 202611010002 --status applied --db-url "$SUPABASE_DB_URL"
       - name: Verify migration history
         run: supabase migration list --db-url "$SUPABASE_DB_URL"
       - name: Apply pending database migrations

@@ -2,11 +2,11 @@
 
 本目录包含商户注册/登录、服务项目、会员卡种的数据库迁移和 `merchant-v1` Edge Function。所有业务写入和归属校验都在云函数中；客户端不持有 `service_role` 密钥。会员、订单等不在 V1 范围。
 
-开发项目：`autocare-dev`（`wghsytekrmpcofpugyua`）。`supabase/` 变更推送后只运行后端检查；推送到 `main` 或当前 `feat/merchant-supabase-v1` 时，通过检查后自动部署 `merchant-v1`。部署令牌在 GitHub Secret `SUPABASE_DEV_ACCESS_TOKEN`，限定开发项目，永不过期但可手动吊销。当前首个迁移已通过 Supabase Dashboard 应用，**尚未写入 CLI 迁移历史**；因此迁移文件变更会阻止自动部署，不能直接执行 `db push`。后续正式环境应使用独立的 CLI 迁移历史和凭据。
+开发项目：`autocare-dev`（`wghsytekrmpcofpugyua`）。`supabase/` 变更推送后只运行后端检查；推送到 `main` 或当前 `feat/merchant-supabase-v1` 时，通过检查后依次验证迁移历史、执行 `supabase db push`、部署 `merchant-v1`。数据库通过 IPv4 Session Pooler 连接，密码在 GitHub Secret `SUPABASE_DEV_DB_PASSWORD`；部署令牌在 `SUPABASE_DEV_ACCESS_TOKEN`，限定开发项目，永不过期但可手动吊销。首个迁移已通过 Dashboard 应用并登记到 CLI 迁移历史，后续数据库变更必须添加新的版本化 SQL 迁移文件，不要直接修改已部署迁移。正式环境应使用独立的项目、迁移历史和凭据。
 
 部署顺序：
 
-1. 在目标项目执行 `migrations/202611010002_merchant_v1.sql`，先在备份/测试环境验证迁移。旧表如已有数据，迁移前必须人工审查，不能直接删除。
+1. 在目标项目执行版本化迁移，先在备份/测试环境验证。旧表如已有数据，迁移前必须人工审查，不能直接删除。开发项目由 GitHub Actions 自动执行 `db push`。
 2. 部署 `functions/merchant-v1/index.ts` 为 `merchant-v1`。公共注册/登录动作需要关闭平台层 JWT 校验（`config.toml`），函数内部对所有业务动作自行验证访问令牌。
 3. 仅开发项目可设置 Edge Function 密钥 `ALLOW_MOCK_SMS=true`，固定验证码 `123456`。生产环境不得设置；真实短信与 OTP 流程尚为 `TODO`，因此生产注册暂不可用。
 4. 客户端只使用项目 URL 与 publishable key。绝不将 `SUPABASE_SERVICE_ROLE_KEY` 下发到 App。
