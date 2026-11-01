@@ -61,7 +61,7 @@ class _MerchantsPageState extends State<MerchantsPage> {
             ),
             child: Row(
               children: [
-                const Icon(Icons.search_rounded, size: 20, color: C.muted),
+                Icon(Icons.search_rounded, size: 20, color: C.muted),
                 const SizedBox(width: 8),
                 Expanded(
                   child: TextField(
@@ -79,7 +79,7 @@ class _MerchantsPageState extends State<MerchantsPage> {
                 if (q.text.isNotEmpty)
                   GestureDetector(
                     onTap: () => setState(q.clear),
-                    child: const Icon(Icons.cancel_rounded, size: 18, color: C.faint),
+                    child: Icon(Icons.cancel_rounded, size: 18, color: C.faint),
                   ),
               ],
             ),

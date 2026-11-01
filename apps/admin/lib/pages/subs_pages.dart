@@ -128,7 +128,7 @@ class _SubsPageState extends State<SubsPage> {
                           decoration: o.isRefunded ? TextDecoration.lineThrough : null,
                         ),
                       ),
-                      if (o.isRefunded) const Pill('已退款', C.redInk, C.redSoft),
+                      if (o.isRefunded) Pill('已退款', C.redInk, C.redSoft),
                     ],
                   ),
                   onTap: () => go(context, OrderPage(o)),
@@ -208,8 +208,8 @@ class OrderPage extends StatelessWidget {
                   ),
                 ),
                 o.isRefunded
-                    ? const Pill('已退款', C.redInk, C.redSoft)
-                    : const Pill('已支付', C.greenInk, C.greenSoft),
+                    ? Pill('已退款', C.redInk, C.redSoft)
+                    : Pill('已支付', C.greenInk, C.greenSoft),
               ],
             ),
           ),
@@ -221,7 +221,7 @@ class OrderPage extends StatelessWidget {
                 if (o.coupon > 0) KV('新店首购券', '-${money(o.coupon)}', vColor: C.greenInk),
                 KV('实付', '${money(o.paid)}.00', bold: true),
                 if (o.isRefunded) KV('已退款', '-${money(o.refunded)}', vColor: C.redInk),
-                const Divider(height: 16, color: C.line),
+                Divider(height: 16, color: C.line),
                 KV('订单号', o.id),
                 KV('支付方式', o.pay),
                 KV('服务周期', o.period),
@@ -290,7 +290,7 @@ class _RefundPageState extends State<RefundPage> {
       Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SoftTile(Icons.info_outline_rounded, C.amberInk, C.amberSoft, size: 32),
+          SoftTile(Icons.info_outline_rounded, C.amberInk, C.amberSoft, size: 32),
           const SizedBox(width: 10),
           Expanded(
             child: Text(

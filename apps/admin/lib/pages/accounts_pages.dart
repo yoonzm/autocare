@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../data/models.dart';
 import '../data/store.dart';
@@ -19,9 +20,9 @@ class AccountsPage extends StatelessWidget {
     final i = await pickOption(
       context,
       title: '管理账号 · ${a.name}',
-      subtitle: '${a.email} · ${a.role.label}',
+      subtitle: '用户名 ${a.username} · ${a.role.label}',
       options: [
-        const SheetOption('重置密码', '向该邮箱发送重置链接，原密码立即失效'),
+        const SheetOption('重置密码', '设为临时密码，原密码立即失效，首次登录需修改'),
         a.role == Role.ops
             ? const SheetOption('设为超级管理员', '获得账号管理、退款与套餐定价权限')
             : const SheetOption('降为运营', '失去账号管理、退款与套餐定价权限'),
@@ -34,8 +35,65 @@ class AccountsPage extends StatelessWidget {
     if (i == null || !context.mounted) return;
     switch (i) {
       case 0:
-        store.resetPassword(a);
-        toast(context, '重置链接已发送至 ${a.email}');
+        final tmp = store.resetPassword(a);
+        await showDialog<void>(
+          context: context,
+          builder: (c) => Dialog(
+            backgroundColor: C.card,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+            insetPadding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 22, 20, 18),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('临时密码已生成', style: ts(18, w: FontWeight.w600, h: 26)),
+                  const SizedBox(height: 8),
+                  Text(
+                    '${a.name} 的原密码已失效，请通过安全渠道告知本人，首次登录需修改。',
+                    style: ts(14, color: C.sub, h: 21),
+                  ),
+                  const SizedBox(height: 12),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: C.inset,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: SelectableText(
+                      tmp,
+                      style: ts(20, w: FontWeight.w600, h: 28),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 5,
+                        child: Btn('关闭', ghost: true, onTap: () => Navigator.pop(c)),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        flex: 7,
+                        child: Btn(
+                          '复制密码',
+                          onTap: () {
+                            Clipboard.setData(ClipboardData(text: tmp));
+                            Navigator.pop(c);
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+        if (context.mounted) toast(context, '已重置，下次登录需修改密码');
       case 1:
         final target = a.role == Role.ops ? Role.superAdmin : Role.ops;
         if (target == Role.ops &&
@@ -110,17 +168,17 @@ class AccountsPage extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           a.role == Role.superAdmin
-                              ? const Pill('超级管理员', C.amberInk, C.amberSoft)
-                              : const Pill('运营', C.primaryInk, C.primarySoft),
+                              ? Pill('超级管理员', C.amberInk, C.amberSoft)
+                              : Pill('运营', C.primaryInk, C.primarySoft),
                         ],
                       ),
-                      Text(a.email, style: ts(12, color: C.muted, h: 17)),
+                      Text(a.username, style: ts(12, color: C.muted, h: 17)),
                     ],
                   ),
                 ),
                 a.enabled
-                    ? const Pill('启用', C.greenInk, C.greenSoft)
-                    : const Pill('已禁用', C.redInk, C.redSoft),
+                    ? Pill('启用', C.greenInk, C.greenSoft)
+                    : Pill('已禁用', C.redInk, C.redSoft),
               ],
             ),
           ),
@@ -156,22 +214,24 @@ class AccountEditPage extends StatefulWidget {
 
 class _AccountEditPageState extends State<AccountEditPage> {
   final name = TextEditingController();
-  final email = TextEditingController();
+  final user = TextEditingController();
+  final pwd = TextEditingController();
   Role role = Role.ops;
   String? error;
 
   @override
   void dispose() {
     name.dispose();
-    email.dispose();
+    user.dispose();
+    pwd.dispose();
     super.dispose();
   }
 
   void _create() {
-    final err = store.addAccount(name.text, email.text, role);
+    final err = store.addAccount(name.text, user.text, pwd.text, role);
     setState(() => error = err);
     if (err != null) return;
-    toast(context, '已创建，初始密码已发送至 ${email.text.trim()}');
+    toast(context, '账号已创建，首次登录需修改初始密码');
     Navigator.pop(context);
   }
 
@@ -188,17 +248,26 @@ class _AccountEditPageState extends State<AccountEditPage> {
               required: true,
               controller: name,
               hint: '例如 陈运营',
-              error: error == '请输入姓名' ? error : null,
+              error: error != null && error!.contains('姓名') ? error : null,
               onChanged: (_) => setState(() => error = null),
             ),
             const SizedBox(height: 14),
             Field(
-              label: '工作邮箱',
+              label: '用户名',
               required: true,
-              controller: email,
-              hint: 'name@company.example',
-              keyboard: TextInputType.emailAddress,
-              error: error != null && error != '请输入姓名' ? error : null,
+              controller: user,
+              hint: '字母、数字或下划线，4–20 位',
+              error: error != null && error!.contains('用户名') ? error : null,
+              onChanged: (_) => setState(() => error = null),
+            ),
+            const SizedBox(height: 14),
+            Field(
+              label: '初始密码',
+              required: true,
+              controller: pwd,
+              hint: '至少 8 位',
+              obscure: true,
+              error: error != null && error!.contains('密码') ? error : null,
               onChanged: (_) => setState(() => error = null),
             ),
           ],
@@ -241,13 +310,13 @@ class _AccountEditPageState extends State<AccountEditPage> {
       Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SoftTile(Icons.lock_outline, C.greenInk, C.greenSoft, size: 32),
+          SoftTile(Icons.lock_outline, C.greenInk, C.greenSoft, size: 32),
           const SizedBox(width: 10),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.only(top: 2),
               child: Text(
-                '创建后将向该邮箱发送初始密码，首次登录需修改密码并完成二次验证。',
+                '首次登录需修改初始密码，请通过安全渠道告知本人。',
                 style: ts(12, color: C.sub, h: 17),
               ),
             ),

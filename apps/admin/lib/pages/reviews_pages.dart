@@ -44,7 +44,7 @@ class _ReviewsPageState extends State<ReviewsPage> {
             RowGroup([
               for (final r in list)
                 Row1(
-                  leading: const SoftTile(Icons.storefront_outlined, C.amberInk, C.amberSoft),
+                  leading: SoftTile(Icons.storefront_outlined, C.amberInk, C.amberSoft),
                   title: r.name,
                   sub: '${md(r.submitted)}提交 · ${r.city}',
                   trailing: Pill(r.status.label, reviewColors(r.status).$1, reviewColors(r.status).$2),
@@ -160,7 +160,7 @@ class ReviewDetailPage extends StatelessWidget {
           HCard(
             child: Row(
               children: [
-                const SoftTile(Icons.storefront_outlined, C.amberInk, C.amberSoft),
+                SoftTile(Icons.storefront_outlined, C.amberInk, C.amberSoft),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(

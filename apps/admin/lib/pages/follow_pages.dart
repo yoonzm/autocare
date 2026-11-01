@@ -53,10 +53,10 @@ class _FollowPageState extends State<FollowPage> {
                   title: m.name,
                   sub: followSub(m),
                   trailing: m.plan == PlanKind.trial && m.daysLeft >= 0
-                      ? const Pill('待转化', C.primaryInk, C.primarySoft)
+                      ? Pill('待转化', C.primaryInk, C.primarySoft)
                       : m.daysLeft < 0
-                      ? const Pill('待跟进', C.redInk, C.redSoft)
-                      : const Pill('待跟进', C.amberInk, C.amberSoft),
+                      ? Pill('待跟进', C.redInk, C.redSoft)
+                      : Pill('待跟进', C.amberInk, C.amberSoft),
                   onTap: () => go(context, FollowLogPage(m)),
                 ),
             ]),
@@ -106,7 +106,7 @@ class _FollowLogPageState extends State<FollowLogPage> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             child: Row(
               children: [
-                const SoftTile(Icons.storefront_outlined, C.amberInk, C.amberSoft),
+                SoftTile(Icons.storefront_outlined, C.amberInk, C.amberSoft),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(
@@ -123,8 +123,8 @@ class _FollowLogPageState extends State<FollowLogPage> {
                   ),
                 ),
                 m.plan == PlanKind.trial && m.daysLeft >= 0
-                    ? const Pill('待转化', C.primaryInk, C.primarySoft)
-                    : const Pill('待跟进', C.redInk, C.redSoft),
+                    ? Pill('待转化', C.primaryInk, C.primarySoft)
+                    : Pill('待跟进', C.redInk, C.redSoft),
               ],
             ),
           ),

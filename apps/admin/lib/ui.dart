@@ -11,7 +11,7 @@ void toast(BuildContext context, String msg) {
     SnackBar(
       content: Text(msg, style: ts(14, color: Colors.white, h: 20)),
       behavior: SnackBarBehavior.floating,
-      backgroundColor: C.ink,
+      backgroundColor: C.toastBg,
       elevation: 0,
       duration: const Duration(milliseconds: 1800),
       margin: const EdgeInsets.fromLTRB(20, 0, 20, 24),
@@ -294,7 +294,6 @@ class Pill extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 8),
     height: 18,
-    alignment: Alignment.center,
     decoration: BoxDecoration(
       color: bg,
       borderRadius: BorderRadius.circular(9),
@@ -457,8 +456,8 @@ class AdPage extends StatelessWidget {
                 MediaQuery.of(context).padding.bottom + 12,
               ),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: .94),
-                border: const Border(top: BorderSide(color: C.stroke)),
+                color: C.card.withValues(alpha: .94),
+                border: Border(top: BorderSide(color: C.stroke)),
               ),
               child: dock,
             ),
@@ -494,7 +493,7 @@ class Segmented extends StatelessWidget {
                 height: 32,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: i == index ? Colors.white : Colors.transparent,
+                  color: i == index ? C.segActive : Colors.transparent,
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: i == index ? softShadow : null,
                 ),
@@ -617,7 +616,7 @@ class Row1 extends StatelessWidget {
             if (trailing != null) ...[const SizedBox(width: 8), trailing!],
             if (chevron && onTap != null) ...[
               const SizedBox(width: 6),
-              const Icon(Icons.chevron_right_rounded, size: 20, color: C.faint),
+              Icon(Icons.chevron_right_rounded, size: 20, color: C.faint),
             ],
           ],
         ),
@@ -883,7 +882,7 @@ class Empty extends StatelessWidget {
     child: Center(
       child: Column(
         children: [
-          const Icon(Icons.inbox_outlined, size: 40, color: C.faint),
+          Icon(Icons.inbox_outlined, size: 40, color: C.faint),
           const SizedBox(height: 8),
           Text(text, style: ts(13, color: C.muted)),
         ],
