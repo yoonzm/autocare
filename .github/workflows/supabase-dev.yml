@@ -37,26 +37,24 @@ jobs:
     timeout-minutes: 15
     env:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_DEV_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DEV_DB_PASSWORD }}
       SUPABASE_PROJECT_REF: wghsytekrmpcofpugyua
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Reject untracked database migrations
-        run: |
-          # TODO: Dashboard 已应用的首个迁移尚未登记在 CLI 历史中。
-          # 对齐远端迁移历史、配置独立数据库凭据后，再自动执行 db push。
-          expected='89bd03bc20cb0506a2fcf2515789299bab38893d3855ce0c77013cd16c1fde70'
-          actual=$(sha256sum supabase/migrations/202611010002_merchant_v1.sql | cut -d' ' -f1)
-          count=$(find supabase/migrations -maxdepth 1 -type f -name '*.sql' | wc -l | tr -d ' ')
-          if [[ "$actual" != "$expected" || "$count" != 1 ]]; then
-            echo '::error::数据库迁移与已人工部署的 V1 基线不同；请先核对并修复 autocare-dev 的 CLI 迁移历史。'
-            exit 1
-          fi
-      - name: Check deployment token
-        run: test -n "$SUPABASE_ACCESS_TOKEN"
+      - name: Check deployment credentials
+        run: test -n "$SUPABASE_ACCESS_TOKEN" && test -n "$SUPABASE_DB_PASSWORD"
       - uses: supabase/setup-cli@3c2f5e2ae34c34e428e8e206e2c4d21fa2d20fbf # v2.1.1
         with:
           version: latest
+      - name: Link autocare-dev database
+        run: supabase link --project-ref "$SUPABASE_PROJECT_REF"
+      - name: Register previously applied V1 baseline (one-time)
+        run: supabase migration repair 202611010002 --status applied
+      - name: Verify migration history
+        run: supabase migration list --linked
+      - name: Apply pending database migrations
+        run: supabase db push --linked --yes
       - name: Deploy merchant-v1 Edge Function
         run: supabase functions deploy merchant-v1 --project-ref "$SUPABASE_PROJECT_REF" --no-verify-jwt --use-api
