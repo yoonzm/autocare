@@ -2,8 +2,14 @@ name: Merchant CI
 
 on:
   pull_request:
+    paths:
+      - "apps/merchant/**"
+      - ".github/workflows/merchant-ci.yml"
   push:
     branches: [main]
+    paths:
+      - "apps/merchant/**"
+      - ".github/workflows/merchant-ci.yml"
   workflow_dispatch:
 
 permissions:
