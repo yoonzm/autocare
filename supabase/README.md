@@ -2,7 +2,7 @@
 
 本目录包含商户注册/登录、服务项目、会员卡种的数据库迁移和 `merchant-v1` Edge Function。所有业务写入和归属校验都在云函数中；客户端不持有 `service_role` 密钥。会员、订单等不在 V1 范围。
 
-开发项目：`autocare-dev`（`wghsytekrmpcofpugyua`）。`supabase/` 变更推送到 `main` 或当前 `feat/merchant-supabase-v1` 后，GitHub Actions 会先检查函数类型，再自动部署 `merchant-v1`；每次推送只触发一个后端工作流。部署令牌在 GitHub Secret `SUPABASE_DEV_ACCESS_TOKEN`，限定开发项目，永不过期但可手动吊销。当前首个迁移已通过 Supabase Dashboard 应用，**尚未写入 CLI 迁移历史**；因此迁移文件变更会阻止自动部署，不能直接执行 `db push`。后续正式环境应使用独立的 CLI 迁移历史和凭据。
+开发项目：`autocare-dev`（`wghsytekrmpcofpugyua`）。`supabase/` 变更推送后只运行后端检查；推送到 `main` 或当前 `feat/merchant-supabase-v1` 时，通过检查后自动部署 `merchant-v1`。部署令牌在 GitHub Secret `SUPABASE_DEV_ACCESS_TOKEN`，限定开发项目，永不过期但可手动吊销。当前首个迁移已通过 Supabase Dashboard 应用，**尚未写入 CLI 迁移历史**；因此迁移文件变更会阻止自动部署，不能直接执行 `db push`。后续正式环境应使用独立的 CLI 迁移历史和凭据。
 
 部署顺序：
 
