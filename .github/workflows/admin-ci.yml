@@ -6,9 +6,10 @@ on:
       - "apps/admin/**"
       - ".github/workflows/admin-ci.yml"
   push:
-    branches: [main]
+    branches: [main, feat/admin-automated-packaging]
     paths:
       - "apps/admin/**"
+      - ".github/workflows/admin-ci.yml"
   workflow_dispatch:
 
 permissions:
@@ -37,3 +38,83 @@ jobs:
           flutter pub get
           flutter analyze
           flutter test
+
+  android-apk:
+    needs: admin
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: apps/admin
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Set up Flutter
+        run: |
+          curl --fail --silent --show-error --retry 3 --max-time 600 \
+            -o "$RUNNER_TEMP/flutter.tar.xz" \
+            "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.47.9-stable.tar.xz"
+          tar xf "$RUNNER_TEMP/flutter.tar.xz" -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/flutter/bin" >> "$GITHUB_PATH"
+      - name: Build Android APK for internal testing
+        run: |
+          flutter pub get
+          flutter build apk --release
+      - name: Upload Android APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: AutoCare-Admin-Android-${{ github.run_number }}-${{ github.run_attempt }}
+          path: apps/admin/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+          retention-days: 14
+
+  ios-unsigned:
+    needs: admin
+    runs-on: macos-15
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: apps/admin
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Select Xcode with iOS 26 SDK
+        run: |
+          python3 - <<'PY'
+          import pathlib, re, subprocess
+          candidates = []
+          for path in pathlib.Path('/Applications').glob('Xcode_*.app'):
+              match = re.fullmatch(r'Xcode_(\d+)\.(\d+)(?:\.(\d+))?\.app', path.name)
+              if match and int(match[1]) >= 26:
+                  candidates.append((tuple(int(v or 0) for v in match.groups()), path))
+          if not candidates:
+              raise SystemExit('Runner needs a stable Xcode 26 or later installation')
+          chosen = max(candidates)[1] / 'Contents/Developer'
+          subprocess.run(['sudo', 'xcode-select', '--switch', str(chosen)], check=True)
+          PY
+          xcodebuild -version
+      - name: Set up Flutter
+        run: |
+          curl --fail --silent --show-error --retry 3 --max-time 600 \
+            -o "$RUNNER_TEMP/flutter.zip" \
+            "https://storage.googleapis.com/flutter_infra_release/releases/stable/macos/flutter_macos_arm64_3.47.9-stable.zip"
+          unzip -q "$RUNNER_TEMP/flutter.zip" -d "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/flutter/bin" >> "$GITHUB_PATH"
+      - name: Build iOS without signing
+        run: |
+          flutter pub get
+          flutter build ios --release --no-codesign
+          ditto -c -k --sequesterRsrc --keepParent build/ios/iphoneos/Runner.app "$RUNNER_TEMP/AutoCare-Admin-iOS-unsigned.zip"
+      - name: Upload unsigned iOS app
+        uses: actions/upload-artifact@v4
+        with:
+          name: AutoCare-Admin-iOS-Unsigned-${{ github.run_number }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/AutoCare-Admin-iOS-unsigned.zip
+          if-no-files-found: error
+          retention-days: 14
