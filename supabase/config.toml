@@ -1,0 +1,2 @@
+[functions.merchant-v1]
+verify_jwt = false # Public registration/login; function verifies JWT for every business action.

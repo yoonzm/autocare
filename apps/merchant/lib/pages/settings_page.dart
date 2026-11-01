@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../backend/merchant_api.dart';
 import '../theme.dart';
 import '../mock/app_state.dart';
 import '../mock/theme_state.dart';
@@ -116,7 +117,14 @@ class SettingsPage extends StatelessWidget {
                   ]),
                   const SizedBox(height: 24),
                   GestureDetector(
-                    onTap: () => openRoute(context, 'Login'),
+                    onTap: () async {
+                      try {
+                        await merchantApi.signOut();
+                        if (context.mounted) openRoute(context, 'Login');
+                      } catch (e) {
+                        if (context.mounted) toast(context, '退出失败：$e');
+                      }
+                    },
                     child: Container(
                       height: 50,
                       alignment: Alignment.center,

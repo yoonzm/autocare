@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
+import 'backend/merchant_api.dart';
+import 'backend/registration_draft.dart';
 import 'mock/app_state.dart';
 import 'mock/mock_data.dart';
 import 'pages/appointment_add_page.dart';
@@ -45,6 +49,8 @@ Widget? pageFor(String name) {
     case 'MemberDetail':
       return MemberDetailPage(member: members.first);
     case 'Services':
+      // TODO: Bind the existing designed list/edit screens to merchantApi.list/save.
+      // The generated edit form has no stable record ID or input contract yet.
       return const ServicesPage();
     case 'Settings':
       return const SettingsPage();
@@ -180,6 +186,50 @@ String? _routeName(BuildContext context) =>
 /// - 目标页已在栈中时回退到它，避免循环叠页；
 /// - 同一界面的不同视图 / 结果页采用替换，保持返回逻辑与设计一致。
 void openRoute(BuildContext context, String name) {
+  if (name == 'RegDone' && ModalRoute.of(context)?.settings.name == 'RegShop') {
+    unawaited(_completeRegistration(context));
+    return;
+  }
+  // TODO: Generated service/card edit and card list pages still show fixed
+  // design-sample values. Bind them through a stable page adapter before
+  // enabling save; never imply their prototype buttons persisted data.
+  if (name == 'ServiceEdit' || name == 'CardTiers' || name == 'CardTierEdit') {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('此页面暂为设计预览，数据编辑尚未接通')));
+  }
+  if ((name == 'Services' && _routeName(context) == 'ServiceEdit') ||
+      (name == 'CardTiers' && _routeName(context) == 'CardTierEdit')) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('此编辑页尚未接通，未保存更改')));
+  }
+  _openRouteCore(context, name);
+}
+
+Future<void> _completeRegistration(BuildContext context) async {
+  final phone = RegistrationDraft.get('RegPhone', '请输入手机号');
+  final code = RegistrationDraft.get('RegPhone', '6 位数字');
+  final password = RegistrationDraft.get('RegPhone', '8-20 位，含字母和数字');
+  final storeName = RegistrationDraft.get('RegShop', '如：驰光汽车美容');
+  try {
+    await merchantApi.register(
+      phone: phone,
+      code: code,
+      password: password,
+      storeName: storeName,
+    );
+    await merchantApi.loginPassword(phone, password);
+    if (!context.mounted) return;
+    RegistrationDraft.clear();
+    _openRouteCore(context, 'RegDone');
+  } catch (e) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('开通失败：$e')));
+    }
+  }
+}
+
+void _openRouteCore(BuildContext context, String name) {
   final nav = Navigator.of(context);
   final cur = _routeName(context);
   final inSheet = cur != null && cur.startsWith('sheet:');
@@ -192,6 +242,7 @@ void openRoute(BuildContext context, String name) {
   }
   final pairId = _pairOf(name);
   if (pairId != null) {
+    // TODO: Bind CardTiers/CardTierEdit to merchantApi without changing design.
     final idx = _pairs[pairId]!.indexOf(name);
     if (navTracker.has(pairId)) {
       nav.popUntil((r) => r.settings.name == pairId || r.isFirst);

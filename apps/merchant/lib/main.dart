@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/services.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'backend/merchant_api.dart';
 import 'mock/theme_state.dart';
 import 'pages/login_page.dart';
+import 'pages/shell.dart';
 import 'routes.dart';
 import 'theme.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Supabase.initialize(
+    url: supabaseUrl,
+    publishableKey: supabasePublishableKey,
+  );
   runApp(const QimeiApp());
 }
 
@@ -85,7 +92,7 @@ class _QimeiAppState extends State<QimeiApp> with WidgetsBindingObserver {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      home: const LoginPage(),
+      home: merchantApi.hasSession ? const Shell() : const LoginPage(),
     );
   }
 }

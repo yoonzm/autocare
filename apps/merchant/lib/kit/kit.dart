@@ -7,6 +7,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../backend/registration_draft.dart';
 import '../routes.dart';
 import '../theme.dart' show C;
 import 'keyboard.dart';
@@ -743,29 +744,34 @@ class HInput extends StatelessWidget {
     this.hintColor = const Color(0xFF71717A),
   });
   @override
-  Widget build(BuildContext context) => TextFormField(
-    onTapOutside: onTapOutsideDismiss,
-    textInputAction: obscure || maxLines == 1
-        ? TextInputAction.done
-        : TextInputAction.newline,
-    initialValue: value,
-    style: style,
-    textAlign: align,
-    keyboardType: keyboard,
-    obscureText: obscure,
-    maxLines: obscure ? 1 : maxLines,
-    minLines: 1,
-    decoration: InputDecoration(
-      isCollapsed: true,
-      border: InputBorder.none,
-      hintText: hint,
-      hintStyle: style.copyWith(
-        color: hintColor == const Color(0xFF71717A)
-            ? dk(context, hintColor, const Color(0xFF9A9AA3))
-            : hintColor,
+  Widget build(BuildContext context) {
+    final route = ModalRoute.of(context)?.settings.name ?? '';
+    RegistrationDraft.remember(route, hint, value);
+    return TextFormField(
+      onTapOutside: onTapOutsideDismiss,
+      onChanged: (text) => RegistrationDraft.set(route, hint, text),
+      textInputAction: obscure || maxLines == 1
+          ? TextInputAction.done
+          : TextInputAction.newline,
+      initialValue: value,
+      style: style,
+      textAlign: align,
+      keyboardType: keyboard,
+      obscureText: obscure,
+      maxLines: obscure ? 1 : maxLines,
+      minLines: 1,
+      decoration: InputDecoration(
+        isCollapsed: true,
+        border: InputBorder.none,
+        hintText: hint,
+        hintStyle: style.copyWith(
+          color: hintColor == const Color(0xFF71717A)
+              ? dk(context, hintColor, const Color(0xFF9A9AA3))
+              : hintColor,
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 // ───────── 单选 / 多选组 ─────────

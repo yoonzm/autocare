@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+import '../backend/merchant_api.dart';
 import '../kit/keyboard.dart';
 import '../theme.dart';
 import '../routes.dart';
@@ -37,13 +38,20 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  void sendCode() {
+  Future<void> sendCode() async {
     if (countdown > 0) return;
     if (phone.text.trim().length < 11) {
       toast(context, '请输入正确的手机号');
       return;
     }
-    toast(context, '验证码已发送（演示）');
+    try {
+      final mockCode = await merchantApi.sendMockCode(phone.text.trim());
+      if (!mounted) return;
+      toast(context, '开发环境验证码：$mockCode');
+    } catch (e) {
+      if (mounted) toast(context, '验证码暂不可用：$e');
+      return;
+    }
     setState(() => countdown = 60);
     _timer = Timer.periodic(const Duration(seconds: 1), (t) {
       if (!mounted) return;
@@ -52,7 +60,7 @@ class _LoginPageState extends State<LoginPage> {
     });
   }
 
-  void login() {
+  Future<void> login() async {
     if (!agree) {
       toast(context, '请先勾选用户协议和隐私政策');
       return;
@@ -61,6 +69,22 @@ class _LoginPageState extends State<LoginPage> {
       toast(context, '请输入正确的手机号');
       return;
     }
+    if (tab == 0) {
+      // TODO: Cloud function needs production-grade SMS OTP verification.
+      toast(context, '验证码登录暂未接通，请使用密码登录');
+      return;
+    }
+    if (pwd.text.isEmpty) {
+      toast(context, '请输入密码');
+      return;
+    }
+    try {
+      await merchantApi.loginPassword(phone.text.trim(), pwd.text);
+    } catch (e) {
+      if (mounted) toast(context, '登录失败：$e');
+      return;
+    }
+    if (!mounted) return;
     Navigator.of(context)
         .pushReplacement(MaterialPageRoute(builder: (_) => const Shell()));
   }
@@ -403,7 +427,8 @@ class _LoginPageState extends State<LoginPage> {
     button: true,
     label: label,
     child: GestureDetector(
-      onTap: login,
+      // TODO: WeChat/one-tap login need provider credentials and backend functions.
+      onTap: () => toast(context, '$label 暂未接通'),
       child: Container(
         width: 52,
         height: 52,

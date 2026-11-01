@@ -6,6 +6,8 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../backend/merchant_api.dart';
+import '../backend/registration_draft.dart';
 import '../mock/mock_data.dart';
 import 'keyboard.dart';
 
@@ -1206,8 +1208,24 @@ class _HCodeHolderState extends State<HCodeHolder> {
 
 void hSendCode(BuildContext context, CodeCtrl c) {
   if (c.seconds > 0) return;
+  if (ModalRoute.of(context)?.settings.name == 'RegPhone') {
+    _sendRegistrationCode(context, c);
+    return;
+  }
   c.start();
   hToastOn(ScaffoldMessenger.of(context), '验证码已发送（演示）');
+}
+
+Future<void> _sendRegistrationCode(BuildContext context, CodeCtrl c) async {
+  final phone = RegistrationDraft.get('RegPhone', '请输入手机号');
+  try {
+    final code = await merchantApi.sendMockCode(phone);
+    if (!context.mounted) return;
+    c.start();
+    hToastOn(ScaffoldMessenger.of(context), '开发环境验证码：$code');
+  } catch (e) {
+    if (context.mounted) hToastOn(ScaffoldMessenger.of(context), '验证码暂不可用：$e');
+  }
 }
 
 Widget hCodeText(CodeCtrl c, TextStyle style) => ListenableBuilder(

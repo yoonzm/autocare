@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../backend/merchant_api.dart';
 import '../mock/mock_data.dart';
 import '../theme.dart';
 import '../routes.dart';
@@ -12,13 +13,51 @@ class ServicesPage extends StatefulWidget {
 }
 
 class _ServicesPageState extends State<ServicesPage> {
-  static const _cats = ['全部 36', '镀晶镀膜 8', '洗车 6', '贴膜 9', '内饰 7'];
+  List<ServiceItem>? liveServices;
+  String? loadError;
   static const _keys = [null, '镀晶镀膜', '洗车', '贴膜', '内饰'];
   int cat = 0;
 
   @override
+  void initState() {
+    super.initState();
+    if (merchantApi.hasSession) _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final rows = await merchantApi.list('services');
+      if (!mounted) return;
+      setState(() {
+        liveServices = [
+          for (final row in rows)
+            ServiceItem(
+              row['category']?.toString() ?? '其他',
+              row['name']?.toString() ?? '',
+              row['description']?.toString() ?? '',
+              (num.tryParse(row['price'].toString()) ?? 0).round(),
+              offline: row['active'] == false,
+            ),
+        ];
+        loadError = null;
+      });
+    } catch (_) {
+      if (mounted) setState(() => loadError = '服务项目加载失败，请稍后重试');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final list = services
+    // Anonymous widget tests keep the original design fixture. A signed-in
+    // merchant must never see the sample data as if it were their own.
+    final source =
+        liveServices ?? (merchantApi.hasSession ? <ServiceItem>[] : services);
+    final cats = [
+      '全部 ${source.length}',
+      for (final key in _keys.skip(1))
+        '$key ${source.where((s) => s.category == key).length}',
+    ];
+    final list = source
         .where((s) => _keys[cat] == null || s.category == _keys[cat])
         .toList();
     final groups = <String, List<ServiceItem>>{};
@@ -42,45 +81,47 @@ class _ServicesPageState extends State<ServicesPage> {
             ),
             const SizedBox(height: 8),
             ChipTabs(
-              labels: _cats,
+              labels: cats,
               selected: cat,
               onChanged: (i) => setState(() => cat = i),
             ),
             Expanded(
-              child: ListView(
-                keyboardDismissBehavior:
-                    ScrollViewKeyboardDismissBehavior.onDrag,
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-                children: [
-                  for (final e in groups.entries) ...[
-                    Padding(
-                      padding: const EdgeInsets.only(left: 4, bottom: 10),
-                      child: Text(
-                        e.key,
-                        style: ts(
-                          13,
-                          w: FontWeight.w500,
-                          color: C.muted,
-                          h: 18,
-                        ),
-                      ),
-                    ),
-                    AppCard(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      child: Column(
-                        children: [
-                          for (var i = 0; i < e.value.length; i++) ...[
-                            _row(context, e.value[i]),
-                            if (i < e.value.length - 1)
-                              const Divider1(indent: 16),
-                          ],
+              child: loadError != null
+                  ? Center(child: Text(loadError!))
+                  : ListView(
+                      keyboardDismissBehavior:
+                          ScrollViewKeyboardDismissBehavior.onDrag,
+                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                      children: [
+                        for (final e in groups.entries) ...[
+                          Padding(
+                            padding: const EdgeInsets.only(left: 4, bottom: 10),
+                            child: Text(
+                              e.key,
+                              style: ts(
+                                13,
+                                w: FontWeight.w500,
+                                color: C.muted,
+                                h: 18,
+                              ),
+                            ),
+                          ),
+                          AppCard(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: Column(
+                              children: [
+                                for (var i = 0; i < e.value.length; i++) ...[
+                                  _row(context, e.value[i]),
+                                  if (i < e.value.length - 1)
+                                    const Divider1(indent: 16),
+                                ],
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 20),
                         ],
-                      ),
+                      ],
                     ),
-                    const SizedBox(height: 20),
-                  ],
-                ],
-              ),
             ),
           ],
         ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:autocare_merchant/main.dart';
+import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/mock/mock_data.dart';
 import 'package:autocare_merchant/pages/appointment_add_page.dart';
 import 'package:autocare_merchant/pages/appointments_page.dart';
@@ -18,8 +19,14 @@ void main() {
 
   testWidgets('登录后进入首页，底部 Tab 可切换', (tester) async {
     phone(tester);
+    final originalApi = merchantApi;
+    merchantApi = _FakeMerchantApi();
+    addTearDown(() => merchantApi = originalApi);
     await tester.pumpWidget(const QimeiApp());
     expect(find.text('汽美管家'), findsOneWidget);
+    await tester.tap(find.text('密码登录'));
+    await tester.pump();
+    await tester.enterText(find.byType(TextField).last, 'password123');
     await tester.tap(find.text('登录').first);
     await tester.pumpAndSettle();
     expect(find.text('驰光汽车美容'), findsOneWidget);
@@ -57,4 +64,15 @@ void main() {
     expect(appointmentStore.items.length, 7);
     expect(tester.takeException(), isNull);
   });
+}
+
+class _FakeMerchantApi extends MerchantApi {
+  @override
+  bool get hasSession => false;
+
+  @override
+  Future<void> loginPassword(String phone, String password) async {
+    assert(phone == '13988888812');
+    assert(password == 'password123');
+  }
 }
