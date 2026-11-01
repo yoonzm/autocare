@@ -25,6 +25,25 @@ Future<void> tab(WidgetTester t, String label) async {
 }
 
 void main() {
+  testWidgets('密码框小眼睛：点击切换明文 / 密文', (t) async {
+    t.view.physicalSize = const Size(390 * 3, 844 * 3);
+    t.view.devicePixelRatio = 3;
+    addTearDown(t.view.reset);
+    store.reset();
+    await t.pumpWidget(const AdminApp());
+    bool obscured() =>
+        t.widget<EditableText>(find.byType(EditableText).at(1)).obscureText;
+    expect(obscured(), isTrue);
+    expect(find.byTooltip('显示密码'), findsOneWidget);
+    await t.tap(find.byTooltip('显示密码'));
+    await t.pump();
+    expect(obscured(), isFalse);
+    expect(find.byTooltip('隐藏密码'), findsOneWidget);
+    await t.tap(find.byTooltip('隐藏密码'));
+    await t.pump();
+    expect(obscured(), isTrue);
+  });
+
   testWidgets('登录校验：错误密码、禁用账号', (t) async {
     t.view.physicalSize = const Size(390 * 3, 844 * 3);
     t.view.devicePixelRatio = 3;

@@ -146,7 +146,7 @@ class StoreInfoPage extends StatelessWidget {
                   child: hcol(
                     [
                       HImageSlot(
-                        imgKey: 'StoreInfo_15',
+                        imgKey: 'StoreInfo_1',
                         radius: 16,
                         child: hbox(
                           h: 150,
@@ -204,9 +204,9 @@ class StoreInfoPage extends StatelessWidget {
                         pad: EdgeInsets.fromLTRB(16, 16, 16, 16),
                         child: hcol(
                           [
-                            Text(
-                              '驰光汽车美容 · 徐汇店',
-                              style: hts(
+                            hLiveText(
+                              (p) => p.live ? (p.name) : '驰光汽车美容 · 徐汇店',
+                              hts(
                                 19,
                                 dk(
                                   context,
@@ -384,9 +384,11 @@ class StoreInfoPage extends StatelessWidget {
                                       lh: 16,
                                     ),
                                   ),
-                                  Text(
-                                    '上海市徐汇区[详细地址]',
-                                    style: hts(
+                                  hLiveText(
+                                    (p) => p.live
+                                        ? (p.addressText)
+                                        : '上海市徐汇区[详细地址]',
+                                    hts(
                                       14,
                                       dk(
                                         context,
@@ -458,9 +460,10 @@ class StoreInfoPage extends StatelessWidget {
                                       lh: 16,
                                     ),
                                   ),
-                                  Text(
-                                    '021-[门店电话]',
-                                    style: hts(
+                                  hLiveText(
+                                    (p) =>
+                                        p.live ? (p.localPhone) : '021-[门店电话]',
+                                    hts(
                                       14,
                                       dk(
                                         context,

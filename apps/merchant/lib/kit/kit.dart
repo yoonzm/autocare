@@ -1,3 +1,4 @@
+import 'dart:async';
 // 设计稿转换后的页面所用的运行时组件。
 // 页面代码由 tools/design_to_flutter.py 生成，请勿手工修改 lib/pages/gen 下的文件。
 import 'dart:math' as math;
@@ -7,6 +8,11 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../backend/registration_draft.dart';
+import '../backend/catalog_draft.dart';
+import '../backend/merchant_api.dart';
+import 'async_kit.dart';
+import '../backend/store_profile.dart';
 import '../routes.dart';
 import '../theme.dart' show C;
 import 'keyboard.dart';
@@ -107,9 +113,39 @@ Widget hTap(
   VoidCallback? onTap,
   String? label,
 }) {
-  return GestureDetector(
+  if (label == '显示密码' && onTap == null && to == null && !back) {
+    return PasswordEye(child: child);
+  }
+  final route0 = ModalRoute.of(context)?.settings.name;
+  final busyKey = to == null || route0 == null ? null : '$route0>$to';
+  final tap = GestureDetector(
     behavior: HitTestBehavior.opaque,
     onTap: () {
+      final route = ModalRoute.of(context)?.settings.name;
+      if (merchantApi.hasSession &&
+          to == 'Services' &&
+          route == 'ServiceEdit' &&
+          _hasSaveLabel(child)) {
+        unawaited(
+          runBusy(
+            '$route>Services',
+            () => CatalogDraft.save(context, 'services'),
+          ),
+        );
+        return;
+      }
+      if (merchantApi.hasSession &&
+          to == 'CardTiers' &&
+          route == 'CardTierEdit' &&
+          _hasSaveLabel(child)) {
+        unawaited(
+          runBusy(
+            '$route>CardTiers',
+            () => CatalogDraft.save(context, 'cards'),
+          ),
+        );
+        return;
+      }
       if (onTap != null) {
         onTap();
       } else if (back) {
@@ -129,38 +165,33 @@ Widget hTap(
     },
     child: child,
   );
+  // 异步提交类按钮（保存 / 下一步 / 确认修改 …）：处理中显示 loading 并忽略点击
+  if (busyKey != null && asyncActionKeys.contains(busyKey)) {
+    return BusyOverlay(actionKey: busyKey, child: tap);
+  }
+  return tap;
+}
+
+bool _hasSaveLabel(Widget widget) {
+  if (widget is Text) return widget.data == '保存';
+  if (widget is Container && widget.child != null) {
+    return _hasSaveLabel(widget.child!);
+  }
+  if (widget is Align && widget.child != null) {
+    return _hasSaveLabel(widget.child!);
+  }
+  if (widget is Padding && widget.child != null) {
+    return _hasSaveLabel(widget.child!);
+  }
+  return false;
 }
 
 void hToast(BuildContext context, String msg) =>
     hToastOn(ScaffoldMessenger.of(context), msg);
 
-/// 提示条：深浅色都用明确的文字色与底色，悬浮在底部操作栏上方。
-void hToastOn(ScaffoldMessengerState messenger, String msg) {
-  messenger
-    ..hideCurrentSnackBar()
-    ..showSnackBar(
-      SnackBar(
-        content: Text(
-          msg,
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            height: 1.4,
-          ),
-        ),
-        behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.fromLTRB(48, 0, 48, 104),
-        duration: const Duration(milliseconds: 1600),
-        elevation: 0,
-        backgroundColor: C.dark
-            ? const Color(0xFF3A3A40)
-            : const Color(0xFF18181B),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
-      ),
-    );
-}
+/// 提示条（信息类，2s）。成功 / 失败请直接用 [AppToast]，失败提示停留更久。
+void hToastOn(ScaffoldMessengerState messenger, String msg) =>
+    AppToast.showOn(messenger, msg);
 
 bool _confirming = false;
 
@@ -172,117 +203,166 @@ Future<bool> hConfirm(
   String cancel = '取消',
   String? message,
   bool danger = true,
+
+  /// 确认后要等待的异步动作（如调用后端）。传入后确认按钮自带 loading，
+  /// 完成后才关闭弹层；失败时弹层保持打开并提示原因。
+  Future<void> Function()? onConfirm,
 }) async {
   if (_confirming) return false;
   _confirming = true;
+  var busy = false;
   try {
     final r = await showDialog<bool>(
       context: context,
       useRootNavigator: true,
+      barrierDismissible: false,
       barrierColor: const Color(0x73000000),
-      builder: (ctx) => Dialog(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        insetPadding: const EdgeInsets.symmetric(horizontal: 36),
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(20, 24, 20, 18),
-          decoration: BoxDecoration(
-            color: dk(ctx, Colors.white, const Color(0xFF1F1F23)),
-            borderRadius: BorderRadius.circular(28),
-            border: dk<Border?>(
-              ctx,
-              null,
-              Border.all(color: const Color(0xFF2E2E33)),
-            ),
-            boxShadow: dk(ctx, const [
-              BoxShadow(
-                color: Color(0x29000000),
-                blurRadius: 40,
-                offset: Offset(0, 16),
-              ),
-            ], const <BoxShadow>[]),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: hts(
-                  18,
-                  dk(ctx, const Color(0xFF18181B), const Color(0xFFFAFAFA)),
-                  w: FontWeight.w600,
-                  lh: 26,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setS) => PopScope(
+          canPop: !busy,
+          child: Dialog(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            insetPadding: const EdgeInsets.symmetric(horizontal: 36),
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 18),
+              decoration: BoxDecoration(
+                color: dk(ctx, Colors.white, const Color(0xFF1F1F23)),
+                borderRadius: BorderRadius.circular(28),
+                border: dk<Border?>(
+                  ctx,
+                  null,
+                  Border.all(color: const Color(0xFF2E2E33)),
                 ),
-              ),
-              if (message != null) ...[
-                const SizedBox(height: 8),
-                Text(
-                  message,
-                  textAlign: TextAlign.center,
-                  style: hts(
-                    14,
-                    dk(ctx, const Color(0xFF71717A), const Color(0xFF9A9AA3)),
-                    lh: 20,
+                boxShadow: dk(ctx, const [
+                  BoxShadow(
+                    color: Color(0x29000000),
+                    blurRadius: 40,
+                    offset: Offset(0, 16),
                   ),
-                ),
-              ],
-              const SizedBox(height: 22),
-              Row(
+                ], const <BoxShadow>[]),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => Navigator.of(ctx).pop(false),
-                      child: Container(
-                        height: 46,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: dk(
-                            ctx,
-                            const Color(0xFFEEEEF0),
-                            const Color(0xFF34343A),
-                          ),
-                          borderRadius: BorderRadius.circular(23),
-                        ),
-                        child: Text(
-                          cancel,
-                          style: hts(
-                            15,
-                            dk(
-                              ctx,
-                              const Color(0xFF18181B),
-                              const Color(0xFFFAFAFA),
-                            ),
-                            w: FontWeight.w500,
-                          ),
-                        ),
-                      ),
+                  Text(
+                    title,
+                    textAlign: TextAlign.center,
+                    style: hts(
+                      18,
+                      dk(ctx, const Color(0xFF18181B), const Color(0xFFFAFAFA)),
+                      w: FontWeight.w600,
+                      lh: 26,
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => Navigator.of(ctx).pop(true),
-                      child: Container(
-                        height: 46,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: danger
-                              ? const Color(0xFFFF383C)
-                              : const Color(0xFF0485F7),
-                          borderRadius: BorderRadius.circular(23),
+                  if (message != null) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      message,
+                      textAlign: TextAlign.center,
+                      style: hts(
+                        14,
+                        dk(
+                          ctx,
+                          const Color(0xFF71717A),
+                          const Color(0xFF9A9AA3),
                         ),
-                        child: Text(
-                          ok,
-                          style: hts(15, Colors.white, w: FontWeight.w600),
-                        ),
+                        lh: 20,
                       ),
                     ),
+                  ],
+                  const SizedBox(height: 22),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: busy
+                              ? null
+                              : () => Navigator.of(ctx).pop(false),
+                          child: Container(
+                            height: 46,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: dk(
+                                ctx,
+                                const Color(0xFFEEEEF0),
+                                const Color(0xFF34343A),
+                              ),
+                              borderRadius: BorderRadius.circular(23),
+                            ),
+                            child: Text(
+                              cancel,
+                              style: hts(
+                                15,
+                                dk(
+                                  ctx,
+                                  const Color(0xFF18181B),
+                                  const Color(0xFFFAFAFA),
+                                ),
+                                w: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () async {
+                            if (busy) return;
+                            if (onConfirm == null) {
+                              Navigator.of(ctx).pop(true);
+                              return;
+                            }
+                            setS(() => busy = true);
+                            try {
+                              await Future.wait([
+                                onConfirm(),
+                                Future<void>.delayed(kIndicatorMinShow),
+                              ]);
+                              if (ctx.mounted) Navigator.of(ctx).pop(true);
+                            } catch (e) {
+                              if (ctx.mounted) {
+                                setS(() => busy = false);
+                                AppToast.error(ctx, e);
+                              }
+                            }
+                          },
+                          child: Container(
+                            height: 46,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: danger
+                                  ? const Color(0xFFFF383C)
+                                  : const Color(0xFF0485F7),
+                              borderRadius: BorderRadius.circular(23),
+                            ),
+                            child: busy
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : Text(
+                                    ok,
+                                    style: hts(
+                                      15,
+                                      Colors.white,
+                                      w: FontWeight.w600,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
+            ),
           ),
         ),
       ),
@@ -297,7 +377,32 @@ Future<bool> hConfirm(
 Future<void> hConfirmPop(BuildContext context, String label) async {
   final nav = Navigator.of(context);
   final messenger = ScaffoldMessenger.of(context);
-  if (await hConfirm(context, '确认$label？', message: '该操作会立即生效，请再确认一次。')) {
+  final route = ModalRoute.of(context)?.settings.name;
+  final kind =
+      merchantApi.hasSession &&
+          (route == 'ServiceEdit' || route == 'CardTierEdit')
+      ? (route == 'ServiceEdit' ? 'services' : 'cards')
+      : null;
+  if (kind != null && !CatalogDraft.canRemove(kind)) {
+    AppToast.show(context, '尚未保存，无需删除');
+    return;
+  }
+  if (await hConfirm(
+    context,
+    '确认$label？',
+    message: '该操作会立即生效，请再确认一次。',
+    onConfirm: kind == null ? null : () => CatalogDraft.removeCurrent(kind),
+  )) {
+    if (!context.mounted) return;
+    if (kind != null) {
+      AppToast.showOn(
+        messenger,
+        kind == 'cards' ? '已停用' : '已删除',
+        kind: ToastKind.success,
+      );
+      nav.maybePop();
+      return;
+    }
     // 等弹窗退场动画结束再返回，避免两层转场叠在一起留下遮罩
     await Future<void>.delayed(const Duration(milliseconds: 240));
     nav.maybePop();
@@ -641,7 +746,15 @@ class _HSwitchState extends State<HSwitch> {
   late bool on = widget.initial;
   @override
   Widget build(BuildContext context) => GestureDetector(
-    onTap: () => setState(() => on = !on),
+    onTap: () {
+      final route = ModalRoute.of(context)?.settings.name;
+      if (merchantApi.hasSession &&
+          (route == 'ServiceEdit' || route == 'CardTierEdit')) {
+        hToast(context, '此设置暂未接通');
+        return;
+      }
+      setState(() => on = !on);
+    },
     child: AnimatedContainer(
       duration: const Duration(milliseconds: 160),
       width: 48,
@@ -695,9 +808,27 @@ class HCheck extends StatefulWidget {
 
 class _HCheckState extends State<HCheck> {
   late bool on = widget.initial;
+
+  /// 注册页的“同意协议”勾选状态需要在点“下一步”时校验。
+  void _report() {
+    final route = ModalRoute.of(context)?.settings.name;
+    if (route != null && RegistrationDraft.formRoutes.contains(route)) {
+      RegistrationDraft.setChecked(route, on);
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _report();
+  }
+
   @override
   Widget build(BuildContext context) => GestureDetector(
-    onTap: () => setState(() => on = !on),
+    onTap: () {
+      setState(() => on = !on);
+      _report();
+    },
     child: Container(
       width: widget.size,
       height: widget.size,
@@ -722,7 +853,7 @@ class _HCheckState extends State<HCheck> {
   );
 }
 
-class HInput extends StatelessWidget {
+class HInput extends StatefulWidget {
   final String hint;
   final String value;
   final TextStyle style;
@@ -743,29 +874,202 @@ class HInput extends StatelessWidget {
     this.hintColor = const Color(0xFF71717A),
   });
   @override
-  Widget build(BuildContext context) => TextFormField(
-    onTapOutside: onTapOutsideDismiss,
-    textInputAction: obscure || maxLines == 1
-        ? TextInputAction.done
-        : TextInputAction.newline,
-    initialValue: value,
+  State<HInput> createState() => HInputState();
+}
+
+class HInputState extends State<HInput> {
+  /// 密码框是否明文显示（由同一行里的“显示密码”小眼睛切换）。
+  bool visible = false;
+
+  /// 同一页里 hint 相同的输入框（如“6 位数字”出现两次）按出现顺序区分。
+  int _slot = 0;
+  String _route = '';
+  bool _claimed = false;
+
+  void toggleVisible() => setState(() => visible = !visible);
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_claimed) return;
+    _claimed = true;
+    _route = ModalRoute.of(context)?.settings.name ?? '';
+    if (RegistrationDraft.formRoutes.contains(_route)) {
+      _slot = RegistrationDraft.claim('$_route:${widget.hint}', this);
+      // 真实表单每次打开都从空白开始，不沿用设计稿里的示例文字。
+      RegistrationDraft.reset(_route, widget.hint, _slot);
+    }
+  }
+
+  @override
+  void dispose() {
+    if (_claimed) RegistrationDraft.release('$_route:${widget.hint}', this);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final hint = widget.hint;
+    final value = widget.value;
+    final style = widget.style;
+    final obscure = widget.obscure && !visible;
+    final route = ModalRoute.of(context)?.settings.name ?? '';
+    final isForm = RegistrationDraft.formRoutes.contains(route);
+    RegistrationDraft.remember(route, hint, value, _slot);
+    // TODO: Member/booking rules are out of V1. Keep the designed controls
+    // visible, but do not let them imply that their values were saved.
+    final deferred =
+        merchantApi.hasSession &&
+        ((route == 'ServiceEdit' && value == '8') ||
+            (route == 'CardTierEdit' &&
+                (value == '10,000' || value == '30,000')));
+    final catalogField = switch ((route, value)) {
+      ('ServiceEdit', '全车镀晶 · 9H 陶瓷') => ('services', 'name'),
+      ('ServiceEdit', '1,580') => ('services', 'price'),
+      ('CardTierEdit', '黑金卡') => ('cards', 'name'),
+      _ => null,
+    };
+    final initial = isForm
+        ? ''
+        : catalogField == null
+        ? value
+        : CatalogDraft.text(catalogField.$1, catalogField.$2, value);
+    return TextFormField(
+      onTapOutside: onTapOutsideDismiss,
+      readOnly: deferred,
+      onTap: deferred ? () => hToast(context, '此字段暂未接通') : null,
+      onChanged: (text) {
+        RegistrationDraft.set(route, hint, text, _slot);
+        if (catalogField != null) {
+          CatalogDraft.set(catalogField.$1, catalogField.$2, text);
+        }
+      },
+      textInputAction: widget.obscure || widget.maxLines == 1
+          ? TextInputAction.done
+          : TextInputAction.newline,
+      initialValue: initial,
+      style: style,
+      textAlign: widget.align,
+      keyboardType: widget.keyboard,
+      obscureText: obscure,
+      maxLines: widget.obscure ? 1 : widget.maxLines,
+      minLines: 1,
+      decoration: InputDecoration(
+        isCollapsed: true,
+        border: InputBorder.none,
+        hintText: hint,
+        hintStyle: style.copyWith(
+          color: widget.hintColor == const Color(0xFF71717A)
+              ? dk(context, widget.hintColor, const Color(0xFF9A9AA3))
+              : widget.hintColor,
+        ),
+      ),
+    );
+  }
+}
+
+/// 门店资料（登录后从后端读取）驱动的文字；未加载时由调用方给出设计稿的示例文字。
+Widget hLiveText(
+  String Function(StoreProfile p) text,
+  TextStyle style, {
+  TextAlign? textAlign,
+  bool? softWrap,
+  int? maxLines,
+}) => ListenableBuilder(
+  listenable: storeProfile,
+  builder: (_, _) => Text(
+    text(storeProfile),
     style: style,
-    textAlign: align,
-    keyboardType: keyboard,
-    obscureText: obscure,
-    maxLines: obscure ? 1 : maxLines,
-    minLines: 1,
-    decoration: InputDecoration(
-      isCollapsed: true,
-      border: InputBorder.none,
-      hintText: hint,
-      hintStyle: style.copyWith(
-        color: hintColor == const Color(0xFF71717A)
-            ? dk(context, hintColor, const Color(0xFF9A9AA3))
-            : hintColor,
+    textAlign: textAlign,
+    softWrap: softWrap,
+    maxLines: maxLines,
+  ),
+);
+
+/// 密码框右侧的小眼睛：切换同一行里密码框的明文 / 密文。
+/// 设计稿生成的页面里小眼睛和输入框是同一行的两个兄弟控件，
+/// 这里沿着祖先找到包含密码框的那一行，直接切换它的状态。
+class PasswordEye extends StatefulWidget {
+  final Widget child;
+  const PasswordEye({super.key, required this.child});
+  @override
+  State<PasswordEye> createState() => _PasswordEyeState();
+}
+
+class _PasswordEyeState extends State<PasswordEye> {
+  bool shown = false;
+
+  HInputState? _field() {
+    HInputState? found;
+    void visit(Element e) {
+      if (found != null) return;
+      if (e is StatefulElement) {
+        final st = e.state;
+        if (st is HInputState && st.widget.obscure) {
+          found = st;
+          return;
+        }
+      }
+      e.visitChildren(visit);
+    }
+
+    context.visitAncestorElements((a) {
+      a.visitChildren(visit);
+      return found == null;
+    });
+    return found;
+  }
+
+  void _toggle() {
+    final f = _field();
+    if (f == null) return;
+    f.toggleVisible();
+    setState(() => shown = f.visible);
+  }
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    label: shown ? '隐藏密码' : '显示密码',
+    child: GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: _toggle,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          widget.child,
+          // 明文显示时给眼睛画一道斜线（睁眼 = 点击可显示，斜线眼 = 点击可隐藏）
+          if (shown)
+            IgnorePointer(
+              child: CustomPaint(
+                size: const Size(20, 20),
+                painter: _SlashPainter(C.sub),
+              ),
+            ),
+        ],
       ),
     ),
   );
+}
+
+class _SlashPainter extends CustomPainter {
+  final Color color;
+  const _SlashPainter(this.color);
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 1.8
+      ..strokeCap = StrokeCap.round;
+    canvas.drawLine(
+      Offset(size.width * 0.15, size.height * 0.85),
+      Offset(size.width * 0.85, size.height * 0.15),
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_SlashPainter old) => old.color != color;
 }
 
 // ───────── 单选 / 多选组 ─────────
@@ -810,6 +1114,30 @@ class _HSelHolderState extends State<HSelHolder> {
       SelCtrl({...widget.groups[i].$1}, widget.groups[i].$2)
         ..onSelect = widget.onSelect[i],
   ];
+  bool _registered = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_registered) return;
+    _registered = true;
+    // 注册第二页的三组选项（身份 / 工位数量 / 主营业务）：让提交时能读到选中项。
+    // 三组都是单组 holder，靠“多选 / 初始选中项”区分：多选 = 主营业务，
+    // 初始 {0} = 身份，初始 {1} = 工位数量。
+    if (ModalRoute.of(context)?.settings.name == 'RegShop' &&
+        widget.groups.length == 1) {
+      final (initial, multi) = widget.groups.first;
+      final sel = ctrls.first.selected;
+      if (multi) {
+        RegistrationDraft.businessSel = sel;
+      } else if (initial.length == 1 && initial.first == 0) {
+        RegistrationDraft.roleSel = sel;
+      } else if (initial.length == 1 && initial.first == 1) {
+        RegistrationDraft.baySel = sel;
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) => widget.builder(context, ctrls);
 }
@@ -830,7 +1158,14 @@ class HSel extends StatelessWidget {
     listenable: ctrl,
     builder: (_, _) => GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () => ctrl.tap(index),
+      onTap: () {
+        if (merchantApi.hasSession &&
+            ModalRoute.of(context)?.settings.name == 'CardTierEdit') {
+          hToast(context, '卡面颜色暂未接通');
+          return;
+        }
+        ctrl.tap(index);
+      },
       child: ctrl.selected.contains(index) ? on : off,
     ),
   );
@@ -871,7 +1206,32 @@ class HHolder extends StatefulWidget {
 }
 
 class _HHolderState extends State<HHolder> {
-  late final List<ValCtrl> ctrls = [for (final i in widget.inits) ValCtrl(i)];
+  late final List<ValCtrl> ctrls;
+  bool initialized = false;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (initialized) return;
+    final cardDiscount =
+        ModalRoute.of(context)?.settings.name == 'CardTierEdit' &&
+        widget.inits.length == 1 &&
+        widget.inits.first == 90;
+    final initial = cardDiscount
+        ? ((num.tryParse(CatalogDraft.text('cards', 'discount', '0.9')) ??
+                      0.9) *
+                  100)
+              .round()
+        : null;
+    ctrls = [for (final i in widget.inits) ValCtrl(initial ?? i)];
+    if (cardDiscount) {
+      CatalogDraft.set('cards', 'discount', ctrls[0].v / 100);
+      ctrls[0].addListener(
+        () => CatalogDraft.set('cards', 'discount', ctrls[0].v / 100),
+      );
+    }
+    initialized = true;
+  }
+
   @override
   void dispose() {
     for (final c in ctrls) {
@@ -937,7 +1297,14 @@ class _HToggleState extends State<HToggle> {
   @override
   Widget build(BuildContext context) => GestureDetector(
     behavior: HitTestBehavior.opaque,
-    onTap: () => setState(() => sel = !sel),
+    onTap: () {
+      if (merchantApi.hasSession &&
+          ModalRoute.of(context)?.settings.name == 'CardTierEdit') {
+        hToast(context, '此设置暂未接通');
+        return;
+      }
+      setState(() => sel = !sel);
+    },
     child: sel ? widget.on : widget.off,
   );
 }

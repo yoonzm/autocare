@@ -177,6 +177,7 @@ class ExpenseAddPage extends StatelessWidget {
                                   ls: -1.2,
                                   tab: true,
                                 ),
+                                hint: '请输入金额',
                                 value: '1,260.00',
                                 keyboard: TextInputType.numberWithOptions(
                                   decimal: true,
@@ -1295,7 +1296,7 @@ class ExpenseAddPage extends StatelessWidget {
                             alignment: Alignment.topLeft,
                             constrainedAxis: Axis.horizontal,
                             child: HImageAdd(
-                              imgKey: 'ExpenseAdd_3',
+                              imgKey: 'ExpenseAdd_1',
                               size: 72,
                               radius: 16,
                               child: hbox(

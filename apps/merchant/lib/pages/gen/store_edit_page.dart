@@ -182,7 +182,7 @@ class StoreEditPage extends StatelessWidget {
                             Expanded(
                               flex: 1,
                               child: HImageSlot(
-                                imgKey: 'StoreEdit_11',
+                                imgKey: 'StoreEdit_7',
                                 radius: 14,
                                 child: AspectRatio(
                                   aspectRatio: 1,
@@ -243,7 +243,7 @@ class StoreEditPage extends StatelessWidget {
                             Expanded(
                               flex: 1,
                               child: HImageSlot(
-                                imgKey: 'StoreEdit_12',
+                                imgKey: 'StoreEdit_8',
                                 radius: 14,
                                 child: AspectRatio(
                                   aspectRatio: 1,
@@ -273,7 +273,7 @@ class StoreEditPage extends StatelessWidget {
                             Expanded(
                               flex: 1,
                               child: HImageSlot(
-                                imgKey: 'StoreEdit_13',
+                                imgKey: 'StoreEdit_9',
                                 radius: 14,
                                 child: AspectRatio(
                                   aspectRatio: 1,
@@ -303,7 +303,7 @@ class StoreEditPage extends StatelessWidget {
                             Expanded(
                               flex: 1,
                               child: HImageSlot(
-                                imgKey: 'StoreEdit_14',
+                                imgKey: 'StoreEdit_10',
                                 radius: 14,
                                 child: AspectRatio(
                                   aspectRatio: 1,
@@ -436,6 +436,7 @@ class StoreEditPage extends StatelessWidget {
                                       ),
                                       lh: 22,
                                     ),
+                                    hint: '请输入门店名称',
                                     value: '驰光汽车美容 · 徐汇店',
                                     align: TextAlign.right,
                                   ),
@@ -486,6 +487,7 @@ class StoreEditPage extends StatelessWidget {
                                       ),
                                       lh: 22,
                                     ),
+                                    hint: '请输入联系电话',
                                     value: '021-[门店电话]',
                                     keyboard: TextInputType.phone,
                                     align: TextAlign.right,
@@ -539,6 +541,7 @@ class StoreEditPage extends StatelessWidget {
                                         ),
                                         lh: 22,
                                       ),
+                                      hint: '请输入门店地址',
                                       value: '上海市徐汇区[详细地址]',
                                       align: TextAlign.right,
                                     ),

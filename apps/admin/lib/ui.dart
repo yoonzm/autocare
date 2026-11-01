@@ -680,7 +680,7 @@ class KV extends StatelessWidget {
   );
 }
 
-class Field extends StatelessWidget {
+class Field extends StatefulWidget {
   final String label;
   final bool required;
   final TextEditingController controller;
@@ -711,7 +711,21 @@ class Field extends StatelessWidget {
     this.prefix,
   });
   @override
-  Widget build(BuildContext context) => Column(
+  State<Field> createState() => _FieldState();
+}
+
+class _FieldState extends State<Field> {
+  /// 密码框是否明文显示。
+  bool show = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final label = widget.label;
+    final required = widget.required;
+    final obscure = widget.obscure;
+    final error = widget.error;
+    final prefix = widget.prefix;
+    return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       Text.rich(
@@ -738,40 +752,51 @@ class Field extends StatelessWidget {
             if (prefix != null)
               Padding(
                 padding: const EdgeInsets.only(right: 4),
-                child: Text(prefix!, style: ts(15, color: C.muted)),
+                child: Text(prefix, style: ts(15, color: C.muted)),
               ),
             Expanded(
               child: TextField(
-                controller: controller,
-                obscureText: obscure,
-                keyboardType: keyboard,
-                inputFormatters: formatters,
-                onChanged: onChanged,
-                onSubmitted: onSubmitted,
-                maxLines: maxLines,
+                controller: widget.controller,
+                obscureText: obscure && !show,
+                keyboardType: widget.keyboard,
+                inputFormatters: widget.formatters,
+                onChanged: widget.onChanged,
+                onSubmitted: widget.onSubmitted,
+                maxLines: obscure ? 1 : widget.maxLines,
                 minLines: 1,
                 style: ts(15, h: 22),
                 cursorColor: C.primary,
                 decoration: InputDecoration(
                   isCollapsed: true,
                   border: InputBorder.none,
-                  hintText: hint,
+                  hintText: widget.hint,
                   hintStyle: ts(15, color: C.faint, h: 22),
                   contentPadding: const EdgeInsets.symmetric(vertical: 13),
                 ),
               ),
             ),
-            ?suffix,
+            if (obscure)
+              IconButton(
+                onPressed: () => setState(() => show = !show),
+                tooltip: show ? '隐藏密码' : '显示密码',
+                icon: Icon(
+                  show ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                  size: 20,
+                  color: C.muted,
+                ),
+              ),
+            ?widget.suffix,
           ],
         ),
       ),
       if (error != null)
         Padding(
           padding: const EdgeInsets.only(top: 4, left: 2),
-          child: Text(error!, style: ts(12, color: C.redInk, h: 17)),
+          child: Text(error, style: ts(12, color: C.redInk, h: 17)),
         ),
     ],
-  );
+    );
+  }
 }
 
 class Switch1 extends StatelessWidget {

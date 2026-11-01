@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../backend/store_profile.dart';
 import '../mock/app_state.dart';
 import '../mock/mock_data.dart';
 import '../theme.dart';
@@ -136,9 +137,12 @@ class HomePage extends StatelessWidget {
               const SizedBox(height: 2),
               Row(
                 children: [
-                  Text(
-                    '驰光汽车美容',
-                    style: ts(22, w: FontWeight.w600, h: 30, spacing: -0.4),
+                  ListenableBuilder(
+                    listenable: storeProfile,
+                    builder: (_, _) => Text(
+                      storeProfile.live ? storeProfile.name : '驰光汽车美容',
+                      style: ts(22, w: FontWeight.w600, h: 30, spacing: -0.4),
+                    ),
                   ),
                   const SizedBox(width: 4),
                   AppIcon('chevronDown', size: 20, color: C.muted),

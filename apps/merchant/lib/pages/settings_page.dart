@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../backend/merchant_api.dart';
+import '../backend/catalog_draft.dart';
+import '../backend/store_profile.dart';
 import '../theme.dart';
 import '../mock/app_state.dart';
 import '../mock/theme_state.dart';
@@ -116,7 +119,15 @@ class SettingsPage extends StatelessWidget {
                   ]),
                   const SizedBox(height: 24),
                   GestureDetector(
-                    onTap: () => openRoute(context, 'Login'),
+                    onTap: () async {
+                      try {
+                        await merchantApi.signOut();
+                        CatalogDraft.current = null;
+                        if (context.mounted) openRoute(context, 'Login');
+                      } catch (e) {
+                        if (context.mounted) toast(context, '退出失败：$e');
+                      }
+                    },
                     child: Container(
                       height: 50,
                       alignment: Alignment.center,
@@ -315,19 +326,29 @@ class SettingsPage extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            '驰光汽车美容 · 徐汇店',
-                            style: ts(
-                              14,
-                              w: FontWeight.w500,
-                              color: const Color(0xFFFAFAFA),
-                              h: 20,
+                          ListenableBuilder(
+                            listenable: storeProfile,
+                            builder: (_, _) => Text(
+                              storeProfile.live
+                                  ? storeProfile.name
+                                  : '驰光汽车美容 · 徐汇店',
+                              style: ts(
+                                14,
+                                w: FontWeight.w500,
+                                color: const Color(0xFFFAFAFA),
+                                h: 20,
+                              ),
                             ),
                           ),
                           const SizedBox(height: 2),
-                          Text(
-                            '专业版 · 2027.10.30 到期',
-                            style: ts(12, color: C.faint, h: 16),
+                          ListenableBuilder(
+                            listenable: storeProfile,
+                            builder: (_, _) => Text(
+                              storeProfile.live
+                                  ? storeProfile.expiryLine
+                                  : '专业版 · 2027.10.30 到期',
+                              style: ts(12, color: C.faint, h: 16),
+                            ),
                           ),
                         ],
                       ),

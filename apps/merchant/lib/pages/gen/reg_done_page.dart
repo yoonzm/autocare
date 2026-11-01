@@ -84,9 +84,11 @@ class RegDonePage extends StatelessWidget {
                                 lh: 30,
                               ),
                             ),
-                            Text(
-                              '驰光汽车美容 · 已为您创建店长账号',
-                              style: hts(
+                            hLiveText(
+                              (p) => p.live
+                                  ? ('${p.name} · 已为您创建店长账号')
+                                  : '驰光汽车美容 · 已为您创建店长账号',
+                              hts(
                                 14,
                                 dk(
                                   context,
@@ -123,9 +125,9 @@ class RegDonePage extends StatelessWidget {
                                         lh: 14,
                                       ),
                                     ),
-                                    Text(
-                                      '专业版 · 试用',
-                                      style: hts(
+                                    hLiveText(
+                                      (p) => p.live ? (p.planText) : '专业版 · 试用',
+                                      hts(
                                         15,
                                         Color(0xFFF5D78E),
                                         w: FontWeight.w600,
@@ -159,9 +161,11 @@ class RegDonePage extends StatelessWidget {
                                         lh: 14,
                                       ),
                                     ),
-                                    Text(
-                                      '2026.11.14',
-                                      style: hts(
+                                    hLiveText(
+                                      (p) => p.live
+                                          ? (p.trialEndText)
+                                          : '2026.11.14',
+                                      hts(
                                         15,
                                         Color(0xFFFAFAFA),
                                         w: FontWeight.w600,
@@ -286,9 +290,11 @@ class RegDonePage extends StatelessWidget {
                                           deco: TextDecoration.lineThrough,
                                         ),
                                       ),
-                                      Text(
-                                        '手机号 139 **** 8812',
-                                        style: hts(
+                                      hLiveText(
+                                        (p) => p.live
+                                            ? ('手机号 ${p.maskedPhone}')
+                                            : '手机号 139 **** 8812',
+                                        hts(
                                           12,
                                           dk(
                                             context,

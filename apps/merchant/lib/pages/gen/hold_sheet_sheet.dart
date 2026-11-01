@@ -343,6 +343,7 @@ class HoldSheetSheet extends StatelessWidget {
                     lh: 20,
                   ),
                   maxLines: 4,
+                  hint: '请输入备注',
                   value: '客户去开会，17:00 取车',
                 ),
               ),

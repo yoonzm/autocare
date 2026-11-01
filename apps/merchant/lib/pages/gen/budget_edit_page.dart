@@ -381,6 +381,7 @@ class BudgetEditPage extends StatelessWidget {
                                   ls: -1.14,
                                   tab: true,
                                 ),
+                                hint: '请输入每月预算',
                                 value: '36,000',
                                 keyboard: TextInputType.number,
                               ),

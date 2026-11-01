@@ -370,6 +370,10 @@ class PrimaryButton extends StatelessWidget {
   final VoidCallback? onTap;
   final Color bg, fg;
   final EdgeInsetsGeometry padding;
+
+  /// 提交中：转圈 + [loadingText]，宽高不变，忽略点击（防连点）。
+  final bool loading;
+  final String? loadingText;
   const PrimaryButton(
     this.text, {
     super.key,
@@ -377,21 +381,41 @@ class PrimaryButton extends StatelessWidget {
     this.bg = C.primary,
     this.fg = Colors.white,
     this.padding = const EdgeInsets.symmetric(horizontal: 24),
+    this.loading = false,
+    this.loadingText,
   });
   @override
-  Widget build(BuildContext context) => GestureDetector(
-    onTap: onTap,
-    child: Container(
-      height: 50,
-      padding: padding,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: onTap == null ? C.faint : bg,
-        borderRadius: BorderRadius.circular(25),
-      ),
-      child: Text(
-        text,
-        style: ts(16, w: FontWeight.w600, color: fg, h: 24),
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    enabled: !loading && onTap != null,
+    label: loading ? (loadingText ?? text) : text,
+    child: GestureDetector(
+      onTap: loading ? null : onTap,
+      child: Container(
+        height: 50,
+        padding: padding,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: onTap == null ? C.faint : bg,
+          borderRadius: BorderRadius.circular(25),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (loading) ...[
+              SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(strokeWidth: 2, color: fg),
+              ),
+              const SizedBox(width: 8),
+            ],
+            Text(
+              loading ? (loadingText ?? text) : text,
+              style: ts(16, w: FontWeight.w600, color: fg, h: 24),
+            ),
+          ],
+        ),
       ),
     ),
   );

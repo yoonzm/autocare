@@ -1,9 +1,18 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
+import 'backend/merchant_api.dart';
+import 'kit/async_kit.dart';
+import 'kit/kit.dart' show hToast;
+import 'backend/catalog_draft.dart';
+import 'backend/registration_draft.dart';
+import 'backend/store_profile.dart';
 import 'mock/app_state.dart';
 import 'mock/mock_data.dart';
 import 'pages/appointment_add_page.dart';
 import 'pages/appointments_page.dart';
+import 'pages/card_tiers_live_page.dart';
 import 'pages/gen/gen_routes.dart';
 import 'pages/login_page.dart';
 import 'pages/member_detail_page.dart';
@@ -166,7 +175,10 @@ class _PairPageState extends State<PairPage> {
     builder: (context, i, _) => IndexedStack(
       index: i,
       children: [
-        for (final n in _pairs[widget.id]!) Builder(builder: genRoutes[n]!),
+        for (final n in _pairs[widget.id]!)
+          n == 'CardTiers' && merchantApi.hasSession
+              ? const CardTiersLivePage()
+              : Builder(builder: genRoutes[n]!),
       ],
     ),
   );
@@ -180,6 +192,243 @@ String? _routeName(BuildContext context) =>
 /// - 目标页已在栈中时回退到它，避免循环叠页；
 /// - 同一界面的不同视图 / 结果页采用替换，保持返回逻辑与设计一致。
 void openRoute(BuildContext context, String name) {
+  final current = ModalRoute.of(context)?.settings.name;
+  if (name == 'RegShop' && current == 'RegPhone') {
+    final problem = RegistrationDraft.phoneStepError();
+    if (problem != null) {
+      hToast(context, problem);
+      return;
+    }
+    unawaited(_continueToShop(context));
+    return;
+  }
+  if (name == 'RegDone' && current == 'RegShop') {
+    final problem = RegistrationDraft.shopStepError();
+    if (problem != null) {
+      hToast(context, problem);
+      return;
+    }
+  }
+  if (name == 'RegDone' && ModalRoute.of(context)?.settings.name == 'RegShop') {
+    unawaited(_completeRegistration(context));
+    return;
+  }
+  // 账号与安全：这几个页面的主按钮都接了真实后端（需已登录）。
+  if (merchantApi.hasSession) {
+    if (name == 'Security' && current == 'ChangePassword') {
+      unawaited(_changePassword(context));
+      return;
+    }
+    if (name == 'Security' && current == 'ChangePhone') {
+      unawaited(_changePhone(context));
+      return;
+    }
+    if (name == 'Login' && current == 'DeleteAccount') {
+      unawaited(_deleteAccount(context));
+      return;
+    }
+    if (name == 'Login' && current == 'Security') {
+      unawaited(_signOutEverywhere(context));
+      return;
+    }
+  }
+  if (merchantApi.hasSession &&
+      name == 'ServiceEdit' &&
+      CatalogDraft.current?.kind != 'services') {
+    CatalogDraft.begin('services');
+  }
+  if (merchantApi.hasSession &&
+      name == 'CardTierEdit' &&
+      CatalogDraft.current?.kind != 'cards') {
+    CatalogDraft.begin('cards');
+  }
+  if (name == 'CardPackages' && merchantApi.hasSession) {
+    // TODO: Package cards are outside the V1 tier-card scope.
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('次卡套餐暂为设计预览，尚未接通')));
+  }
+  _openRouteCore(context, name);
+}
+
+/// Rejects a wrong or expired code now instead of at the very last step.
+Future<void> _continueToShop(BuildContext context) async {
+  final messenger = ScaffoldMessenger.of(context);
+  var ok = false;
+  await runBusy('RegPhone>RegShop', () async {
+    try {
+      await merchantApi.checkCode(
+        RegistrationDraft.get('RegPhone', '请输入手机号'),
+        RegistrationDraft.get('RegPhone', '6 位数字'),
+      );
+      ok = true;
+    } catch (e) {
+      AppToast.showOn(
+        messenger,
+        AppError.from(e).message,
+        kind: ToastKind.error,
+      );
+    }
+  });
+  if (ok && context.mounted) _openRouteCore(context, 'RegShop');
+}
+
+Future<void> _completeRegistration(BuildContext context) async {
+  final phone = RegistrationDraft.get('RegPhone', '请输入手机号');
+  final code = RegistrationDraft.get('RegPhone', '6 位数字');
+  final password = RegistrationDraft.getRaw('RegPhone', '8-20 位，含字母和数字');
+  final storeName = RegistrationDraft.get('RegShop', '如：驰光汽车美容');
+  final messenger = ScaffoldMessenger.of(context);
+  var ok = false;
+  await runBusy('RegShop>RegDone', () async {
+    try {
+      await merchantApi.register(
+        phone: phone,
+        code: code,
+        password: password,
+        storeName: storeName,
+        profile: RegistrationDraft.profile(),
+      );
+      await merchantApi.loginPassword(phone, password);
+      await storeProfile.load(); // 「开通成功」页展示真实的门店名、手机号和试用期
+      ok = true;
+    } catch (e) {
+      AppToast.showOn(
+        messenger,
+        '开通失败：${AppError.from(e).message}',
+        kind: ToastKind.error,
+      );
+    }
+  });
+  if (!ok || !context.mounted) return;
+  RegistrationDraft.clear();
+  _openRouteCore(context, 'RegDone');
+}
+
+Future<void> _changePassword(BuildContext context) async {
+  final problem = RegistrationDraft.passwordChangeError(
+    storeProfile.localPhone,
+  );
+  if (problem != null) {
+    AppToast.show(context, problem, kind: ToastKind.error);
+    return;
+  }
+  final messenger = ScaffoldMessenger.of(context);
+  var ok = false;
+  await runBusy('ChangePassword>Security', () async {
+    try {
+      await merchantApi.changePassword(
+        RegistrationDraft.getRaw('ChangePassword', '请输入当前密码'),
+        RegistrationDraft.getRaw('ChangePassword', '8-20 位，含字母和数字'),
+      );
+      ok = true;
+    } catch (e) {
+      AppToast.showOn(
+        messenger,
+        AppError.from(e).message,
+        kind: ToastKind.error,
+      );
+    }
+  });
+  if (!ok || !context.mounted) return;
+  RegistrationDraft.clearRoute('ChangePassword');
+  AppToast.showOn(messenger, '密码已修改', kind: ToastKind.success);
+  _openRouteCore(context, 'Security');
+}
+
+Future<void> _changePhone(BuildContext context) async {
+  final problem = RegistrationDraft.phoneChangeError(storeProfile.localPhone);
+  if (problem != null) {
+    AppToast.show(context, problem, kind: ToastKind.error);
+    return;
+  }
+  final messenger = ScaffoldMessenger.of(context);
+  var ok = false;
+  await runBusy('ChangePhone>Security', () async {
+    try {
+      await merchantApi.changePhone(
+        code: RegistrationDraft.get('ChangePhone', '6 位数字'),
+        newPhone: RegistrationDraft.get('ChangePhone', '请输入新手机号'),
+        newCode: RegistrationDraft.get('ChangePhone', '6 位数字', 1),
+      );
+      await storeProfile.load();
+      ok = true;
+    } catch (e) {
+      AppToast.showOn(
+        messenger,
+        AppError.from(e).message,
+        kind: ToastKind.error,
+      );
+    }
+  });
+  if (!ok || !context.mounted) return;
+  RegistrationDraft.clearRoute('ChangePhone');
+  AppToast.showOn(messenger, '手机号已更换，请用新手机号登录', kind: ToastKind.success);
+  _openRouteCore(context, 'Security');
+}
+
+/// 申请注销：设计稿此页没有“获取验证码”按钮，所以验证码为空时点“申请注销”
+/// 会先把验证码发到当前手机号，填好后再点一次才真正提交。
+/// TODO: 注销前置条件（挂单 / 欠费）目前是设计稿示例，没有真实校验。
+Future<void> _deleteAccount(BuildContext context) async {
+  final messenger = ScaffoldMessenger.of(context);
+  var ok = false;
+  await runBusy('DeleteAccount>Login', () async {
+    try {
+      if (RegistrationDraft.get('DeleteAccount', '6 位数字').isEmpty) {
+        final code = await merchantApi.sendMockCode(storeProfile.localPhone);
+        AppToast.showOn(
+          messenger,
+          '验证码已发送至 ${storeProfile.maskedPhone}（开发环境：$code），填写后再次点击“申请注销”',
+        );
+        return;
+      }
+      final problem = RegistrationDraft.deleteError();
+      if (problem != null) {
+        AppToast.showOn(messenger, problem, kind: ToastKind.error);
+        return;
+      }
+      await merchantApi.deleteAccount(
+        RegistrationDraft.get('DeleteAccount', '6 位数字'),
+      );
+      try {
+        await merchantApi.signOut();
+      } catch (_) {
+        // 服务端已作废全部会话，本地退出失败不影响结果。
+      }
+      ok = true;
+    } catch (e) {
+      AppToast.showOn(
+        messenger,
+        AppError.from(e).message,
+        kind: ToastKind.error,
+      );
+    }
+  });
+  if (!ok || !context.mounted) return;
+  RegistrationDraft.clearRoute('DeleteAccount');
+  AppToast.showOn(messenger, '已提交注销申请，15 天内重新登录可撤销', kind: ToastKind.success);
+  _openRouteCore(context, 'Login');
+}
+
+Future<void> _signOutEverywhere(BuildContext context) async {
+  final messenger = ScaffoldMessenger.of(context);
+  var ok = false;
+  await runBusy('Security>Login', () async {
+    try {
+      await merchantApi.signOutAll();
+      ok = true;
+    } catch (e) {
+      AppToast.showOn(
+        messenger,
+        '退出失败：${AppError.from(e).message}',
+        kind: ToastKind.error,
+      );
+    }
+  });
+  if (ok && context.mounted) _openRouteCore(context, 'Login');
+}
+
+void _openRouteCore(BuildContext context, String name) {
   final nav = Navigator.of(context);
   final cur = _routeName(context);
   final inSheet = cur != null && cur.startsWith('sheet:');

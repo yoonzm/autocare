@@ -278,6 +278,7 @@ class MemberAddPage extends StatelessWidget {
                                       ),
                                       lh: 22,
                                     ),
+                                    hint: '请输入手机号',
                                     value: '139 1688 5530',
                                     keyboard: TextInputType.phone,
                                     align: TextAlign.right,

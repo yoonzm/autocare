@@ -176,6 +176,7 @@ class ServiceEditPage extends StatelessWidget {
                                   ),
                                   lh: 22,
                                 ),
+                                hint: '请输入项目名称',
                                 value: '全车镀晶 · 9H 陶瓷',
                                 align: TextAlign.right,
                               ),
@@ -402,6 +403,7 @@ class ServiceEditPage extends StatelessWidget {
                                   lh: 32,
                                   ls: -0.52,
                                 ),
+                                hint: '请输入门店价',
                                 value: '1,580',
                                 keyboard: TextInputType.numberWithOptions(
                                   decimal: true,
@@ -890,6 +892,7 @@ class ServiceEditPage extends StatelessWidget {
                                 w: FontWeight.w600,
                                 lh: 22,
                               ),
+                              hint: '请输入提成比例',
                               value: '8',
                               keyboard: TextInputType.numberWithOptions(
                                 decimal: true,

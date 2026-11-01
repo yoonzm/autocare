@@ -23,6 +23,20 @@ HANDWRITTEN = {
     'ThemeSheet',
     'FindScanPlate', 'FindScanCode', 'ScanLicense', 'ScanPlate',  # 相机扫描页：手写  # 外观选择：手写，直接作用于全局主题
 }
+# 由后端门店资料驱动的文字：(页面, 设计稿里的示例文字) -> 取值表达式。
+# 表达式里的 p 是 StoreProfile；门店资料尚未加载时（离线 / 测试）仍显示设计稿示例文字。
+LIVE_TEXT = {
+    ('RegDone', '驰光汽车美容 · 已为您创建店长账号'): "'${p.name} · 已为您创建店长账号'",
+    ('RegDone', '专业版 · 试用'): 'p.planText',
+    ('RegDone', '2026.11.14'): 'p.trialEndText',
+    ('RegDone', '手机号 139 **** 8812'): "'手机号 ${p.maskedPhone}'",
+    ('Security', '139 **** 8812'): 'p.maskedPhone',
+    ('ChangePhone', '验证码将发送至 139 **** 8812'): "'验证码将发送至 ${p.maskedPhone}'",
+    ('StoreInfo', '驰光汽车美容 · 徐汇店'): 'p.name',
+    ('StoreInfo', '上海市徐汇区[详细地址]'): 'p.addressText',
+    ('StoreInfo', '021-[门店电话]'): 'p.localPhone',
+}
+
 SKIP = {'AppIcon', 'DarkTokens', 'PageTransitions'}
 # 设计稿里的深色版本只是参考，深色效果由同一套页面自动适配
 SKIP_SUFFIX = ('Dark',)
@@ -559,6 +573,10 @@ class Gen:
         same = all(s[1] == segs[0][1] for s in segs)
         if same:
             text = ''.join(s[0] for s in segs)
+            live = LIVE_TEXT.get((self.page_name, text))
+            if live:
+                return 'hLiveText((p) => p.live ? (%s) : %s, %s%s)' % (
+                    live, dstr(text), self.ts(segs[0][1]), ''.join(', ' + e for e in extra))
             return 'Text(%s, style: %s%s)' % (dstr(text), self.ts(segs[0][1]), ''.join(', ' + e for e in extra))
         spans = []
         for t, i in segs:
@@ -974,6 +992,17 @@ class Gen:
         return code
 
     # ── 表单 ──
+    def placeholder_for(self, n):
+        """输入框的 placeholder：优先用设计稿写的；没有就取 label / aria-label 文字，
+        拼成“请输入××”；都没有时退回“请输入”。"""
+        ph = (n.attrs.get('placeholder') or '').strip()
+        if ph:
+            return ph
+        label = self.labels.get(n.attrs.get('id', '')) or n.attrs.get('aria-label') or ''
+        label = re.sub(r'[*＊\s]+', '', label)
+        label = re.sub(r'[（(·].*$', '', label)
+        return '请输入' + label
+
     def emit_input(self, n, inh, parent):
         t = n.attrs.get('type', 'text')
         inh2 = self.inherit(inh, n.style, n.dark)
@@ -993,8 +1022,8 @@ class Gen:
         if mode == 'decimal':
             kb = 'TextInputType.numberWithOptions(decimal: true)'
         args = ['style: %s' % self.ts(inh2)]
-        if n.attrs.get('placeholder'):
-            args.append('hint: %s' % dstr(n.attrs['placeholder']))
+        # 规范：所有输入框没值时都要有 placeholder（设计稿没写的，用对应标签文字推导）
+        args.append('hint: %s' % dstr(self.placeholder_for(n)))
         if n.attrs.get('value'):
             args.append('value: %s' % dstr(n.attrs['value']))
         if kb:
@@ -1020,8 +1049,7 @@ class Gen:
     def emit_textarea(self, n, inh):
         inh2 = self.inherit(inh, n.style, n.dark)
         args = ['style: %s' % self.ts(inh2), 'maxLines: 4']
-        if n.attrs.get('placeholder'):
-            args.append('hint: %s' % dstr(n.attrs['placeholder']))
+        args.append('hint: %s' % dstr(self.placeholder_for(n)))
         txt = ''.join(c for c in n.children if isinstance(c, str)).strip()
         if txt:
             args.append('value: %s' % dstr(txt))
@@ -1727,6 +1755,15 @@ class %s extends StatelessWidget {
                     mark_qr(c)
         mark_qr(root)
         self.refs, self.shared, self.dyn_filter = {}, {}, {}
+        self.labels = {}
+
+        def collect_labels(n):
+            for c in n.children:
+                if isinstance(c, Node):
+                    if c.tag == 'label' and c.attrs.get('for'):
+                        self.labels[c.attrs['for']] = self.tree_text(c)
+                    collect_labels(c)
+        collect_labels(root)
         self.prescan(root)
         for k, v in self.global_refs.items():
             for st in ('on', 'off'):

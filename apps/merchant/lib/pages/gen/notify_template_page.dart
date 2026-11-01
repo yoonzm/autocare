@@ -817,6 +817,7 @@ class NotifyTemplatePage extends StatelessWidget {
                                 lh: 22,
                               ),
                               maxLines: 4,
+                              hint: '请输入短信正文',
                               value: '【驰光汽车】{会员姓名}您好，您的爱车{车牌}于今日消费¥{金额}（{项目}），储值余额¥{余额}。如有疑问请致电{门店电话}。退订回T',
                             ),
                           ),

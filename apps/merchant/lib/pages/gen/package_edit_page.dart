@@ -767,6 +767,7 @@ class PackageEditPage extends StatelessWidget {
                                       w: FontWeight.w600,
                                       lh: 22,
                                     ),
+                                    hint: '请输入套餐售价',
                                     value: '1,080',
                                     keyboard: TextInputType.numberWithOptions(
                                       decimal: true,

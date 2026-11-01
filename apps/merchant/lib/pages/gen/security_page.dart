@@ -159,9 +159,11 @@ class SecurityPage extends StatelessWidget {
                                       ),
                                     ),
                                   ),
-                                  Text(
-                                    '139 **** 8812',
-                                    style: hts(
+                                  hLiveText(
+                                    (p) => p.live
+                                        ? (p.maskedPhone)
+                                        : '139 **** 8812',
+                                    hts(
                                       15,
                                       dk(
                                         context,

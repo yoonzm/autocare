@@ -97,9 +97,11 @@ class ChangePhonePage extends StatelessWidget {
                         lh: 30,
                       ),
                     ),
-                    Text(
-                      '验证码将发送至 139 **** 8812',
-                      style: hts(
+                    hLiveText(
+                      (p) => p.live
+                          ? ('验证码将发送至 ${p.maskedPhone}')
+                          : '验证码将发送至 139 **** 8812',
+                      hts(
                         14,
                         dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
                       ),

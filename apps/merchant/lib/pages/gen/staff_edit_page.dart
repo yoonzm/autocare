@@ -355,6 +355,7 @@ class StaffEditPage extends StatelessWidget {
                                       ),
                                       lh: 22,
                                     ),
+                                    hint: '请输入入职日期',
                                     value: '2022.03.14',
                                   ),
                                 ),

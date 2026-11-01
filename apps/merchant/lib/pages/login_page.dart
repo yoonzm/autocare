@@ -3,6 +3,9 @@ import 'dart:async';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+import '../backend/merchant_api.dart';
+import '../kit/async_kit.dart';
+import '../backend/store_profile.dart';
 import '../kit/keyboard.dart';
 import '../theme.dart';
 import '../routes.dart';
@@ -23,6 +26,16 @@ class _LoginPageState extends State<LoginPage> {
   final code = TextEditingController();
   final pwd = TextEditingController();
   int countdown = 0;
+
+  /// 获取验证码请求中（按钮显示“发送中…”）/ 登录请求中（表单只读、按钮 loading）。
+  bool sending = false;
+  bool busy = false;
+
+  /// 字段下方的错误提示；输入后清除。
+  String? phoneErr, codeErr, pwdErr;
+  final _phoneKey = GlobalKey();
+  final _codeKey = GlobalKey();
+  final _pwdKey = GlobalKey();
   late final TapGestureRecognizer _terms = TapGestureRecognizer()
     ..onTap = () => openRoute(context, 'Terms');
   late final TapGestureRecognizer _privacy = TapGestureRecognizer()
@@ -37,14 +50,60 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  void sendCode() {
-    if (countdown > 0) return;
-    if (phone.text.trim().length < 11) {
-      toast(context, '请输入正确的手机号');
+  static final _phoneRe = RegExp(r'^1[3-9]\d{9}$');
+
+  String? _phoneError() {
+    final v = phone.text.trim();
+    if (v.isEmpty) return '请输入手机号';
+    if (!_phoneRe.hasMatch(v)) return '请输入正确的 11 位手机号';
+    return null;
+  }
+
+  /// 滚动到第一个出错的字段。
+  void _focusFirstError() {
+    final key = phoneErr != null
+        ? _phoneKey
+        : codeErr != null
+        ? _codeKey
+        : pwdErr != null
+        ? _pwdKey
+        : null;
+    final ctx = key?.currentContext;
+    if (ctx != null) {
+      Scrollable.ensureVisible(
+        ctx,
+        duration: const Duration(milliseconds: 200),
+        alignment: 0.3,
+      );
+    }
+  }
+
+  Future<void> sendCode() async {
+    if (countdown > 0 || sending || busy) return;
+    final problem = _phoneError();
+    if (problem != null) {
+      setState(() => phoneErr = problem);
+      _focusFirstError();
       return;
     }
-    toast(context, '验证码已发送（演示）');
-    setState(() => countdown = 60);
+    setState(() => sending = true);
+    try {
+      final mockCode = await merchantApi.sendMockCode(phone.text.trim());
+      if (!mounted) return;
+      AppToast.show(context, '开发环境验证码：$mockCode');
+    } catch (e) {
+      // 失败立即恢复可点
+      if (mounted) {
+        setState(() => sending = false);
+        AppToast.error(context, e);
+      }
+      return;
+    }
+    setState(() {
+      sending = false;
+      countdown = 60;
+    });
+    _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (t) {
       if (!mounted) return;
       setState(() => countdown--);
@@ -52,15 +111,57 @@ class _LoginPageState extends State<LoginPage> {
     });
   }
 
-  void login() {
+  Future<void> login() async {
+    if (busy) return;
+    // 先校验，错误显示在字段下方并滚动到第一个错误
+    final p = _phoneError();
+    String? c, w;
+    if (tab == 0) {
+      final v = code.text.trim();
+      if (v.isEmpty) {
+        c = '请输入验证码';
+      } else if (!RegExp(r'^\d{6}$').hasMatch(v)) {
+        c = '验证码为 6 位数字';
+      }
+    } else if (pwd.text.isEmpty) {
+      w = '请输入密码';
+    }
+    if (p != null || c != null || w != null) {
+      setState(() {
+        phoneErr = p;
+        codeErr = c;
+        pwdErr = w;
+      });
+      _focusFirstError();
+      return;
+    }
     if (!agree) {
-      toast(context, '请先勾选用户协议和隐私政策');
+      AppToast.show(context, '请先勾选用户协议和隐私政策', kind: ToastKind.error);
       return;
     }
-    if (phone.text.trim().length < 11) {
-      toast(context, '请输入正确的手机号');
+    // 提交中：整个表单只读，按钮 loading（至少停留 500ms）
+    setState(() => busy = true);
+    try {
+      await Future.wait([
+        () async {
+          if (tab == 0) {
+            await merchantApi.loginCode(phone.text.trim(), code.text.trim());
+          } else {
+            await merchantApi.loginPassword(phone.text.trim(), pwd.text);
+          }
+          await storeProfile.load();
+        }(),
+        Future<void>.delayed(kIndicatorMinShow),
+      ]);
+    } catch (e) {
+      // 失败后恢复可点，输入内容保留
+      if (mounted) {
+        setState(() => busy = false);
+        AppToast.show(context, AppError.from(e).message, kind: ToastKind.error);
+      }
       return;
     }
+    if (!mounted) return;
     Navigator.of(context)
         .pushReplacement(MaterialPageRoute(builder: (_) => const Shell()));
   }
@@ -139,23 +240,33 @@ class _LoginPageState extends State<LoginPage> {
     ),
   );
 
-  Widget _field(String label, Widget child) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(label, style: ts(13, w: FontWeight.w500, h: 18)),
-      const SizedBox(height: 6),
-      Container(
-        height: 48,
-        padding: const EdgeInsets.only(left: 14, right: 6),
-        alignment: Alignment.centerLeft,
-        decoration: BoxDecoration(
-          color: C.inset,
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: child,
-      ),
-    ],
-  );
+  Widget _field(String label, Widget child, {String? error, Key? fieldKey}) =>
+      Column(
+        key: fieldKey,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: ts(13, w: FontWeight.w500, h: 18)),
+          const SizedBox(height: 6),
+          Container(
+            height: 48,
+            padding: const EdgeInsets.only(left: 14, right: 6),
+            alignment: Alignment.centerLeft,
+            decoration: BoxDecoration(
+              color: C.inset,
+              borderRadius: BorderRadius.circular(14),
+              border: error != null
+                  ? Border.all(color: C.red, width: 1.2)
+                  : null,
+            ),
+            child: child,
+          ),
+          if (error != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 4, left: 2),
+              child: Text(error, style: ts(12, color: C.redInk, h: 17)),
+            ),
+        ],
+      );
 
   InputDecoration _dec(String hint) => InputDecoration(
     border: InputBorder.none,
@@ -234,6 +345,10 @@ class _LoginPageState extends State<LoginPage> {
                 child: TextField(
                   onTapOutside: onTapOutsideDismiss,
                   controller: phone,
+                  readOnly: busy,
+                  onChanged: (_) {
+                    if (phoneErr != null) setState(() => phoneErr = null);
+                  },
                   keyboardType: TextInputType.phone,
                   style: ts(15),
                   decoration: _dec('请输入手机号'),
@@ -241,6 +356,8 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ],
           ),
+          error: phoneErr,
+          fieldKey: _phoneKey,
         ),
         const SizedBox(height: 16),
         if (tab == 0)
@@ -252,6 +369,10 @@ class _LoginPageState extends State<LoginPage> {
                   child: TextField(
                     onTapOutside: onTapOutsideDismiss,
                     controller: code,
+                    readOnly: busy,
+                    onChanged: (_) {
+                      if (codeErr != null) setState(() => codeErr = null);
+                    },
                     keyboardType: TextInputType.number,
                     style: ts(15),
                     decoration: _dec('6 位数字'),
@@ -269,11 +390,17 @@ class _LoginPageState extends State<LoginPage> {
                       boxShadow: softShadow,
                     ),
                     child: Text(
-                      countdown > 0 ? '$countdown 秒后重发' : '获取验证码',
+                      sending
+                          ? '发送中…'
+                          : countdown > 0
+                          ? '$countdown 秒后重发'
+                          : '获取验证码',
                       style: ts(
                         13,
                         w: FontWeight.w500,
-                        color: countdown > 0 ? C.muted : C.primaryInk,
+                        color: countdown > 0 || sending
+                            ? C.muted
+                            : C.primaryInk,
                         h: 18,
                       ),
                     ),
@@ -281,6 +408,8 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ],
             ),
+            error: codeErr,
+            fieldKey: _codeKey,
           )
         else
           _field(
@@ -288,15 +417,26 @@ class _LoginPageState extends State<LoginPage> {
             TextField(
               onTapOutside: onTapOutsideDismiss,
               controller: pwd,
+              readOnly: busy,
+              onChanged: (_) {
+                if (pwdErr != null) setState(() => pwdErr = null);
+              },
               obscureText: true,
               style: ts(15),
               decoration: _dec('请输入密码'),
             ),
+            error: pwdErr,
+            fieldKey: _pwdKey,
           ),
         const SizedBox(height: 16),
         SizedBox(
           width: double.infinity,
-          child: PrimaryButton('登录', onTap: login),
+          child: PrimaryButton(
+            '登录',
+            onTap: login,
+            loading: busy,
+            loadingText: '登录中…',
+          ),
         ),
         const SizedBox(height: 16),
         GestureDetector(
@@ -403,7 +543,8 @@ class _LoginPageState extends State<LoginPage> {
     button: true,
     label: label,
     child: GestureDetector(
-      onTap: login,
+      // TODO: WeChat/one-tap login need provider credentials and backend functions.
+      onTap: () => toast(context, '$label 暂未接通'),
       child: Container(
         width: 52,
         height: 52,

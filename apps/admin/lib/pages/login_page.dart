@@ -14,7 +14,6 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final user = TextEditingController(text: 'ops_xiaoli');
   final pw = TextEditingController();
-  bool show = false;
   String? error;
 
   @override
@@ -121,24 +120,10 @@ class _LoginPageState extends State<LoginPage> {
                       required: true,
                       controller: pw,
                       hint: '请输入密码',
-                      obscure: !show,
+                      obscure: true,
                       error: error,
                       onChanged: (_) => setState(() => error = null),
                       onSubmitted: (_) => _submit(),
-                      suffix: GestureDetector(
-                        onTap: () => setState(() => show = !show),
-                        child: Padding(
-                          padding: const EdgeInsets.all(6),
-                          child: Icon(
-                            show
-                                ? Icons.visibility_outlined
-                                : Icons.visibility_off_outlined,
-                            size: 20,
-                            color: C.muted,
-                            semanticLabel: show ? '隐藏密码' : '显示密码',
-                          ),
-                        ),
-                      ),
                     ),
                     const SizedBox(height: 14),
                     Row(

@@ -1,14 +1,26 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/services.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'backend/merchant_api.dart';
+import 'backend/store_profile.dart';
+import 'kit/async_kit.dart';
 import 'mock/theme_state.dart';
 import 'pages/login_page.dart';
+import 'pages/shell.dart';
 import 'routes.dart';
 import 'theme.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Supabase.initialize(
+    url: supabaseUrl,
+    publishableKey: supabasePublishableKey,
+  );
+  if (merchantApi.hasSession) unawaited(storeProfile.load());
   runApp(const QimeiApp());
 }
 
@@ -20,15 +32,46 @@ class QimeiApp extends StatefulWidget {
 }
 
 class _QimeiAppState extends State<QimeiApp> with WidgetsBindingObserver {
+  final _navKey = GlobalKey<NavigatorState>();
+  final _msgKey = GlobalKey<ScaffoldMessengerState>();
+  bool _expiring = false;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     appThemeMode.addListener(_onMode);
+    authExpired.addListener(_onAuthExpired);
+  }
+
+  /// 令牌刷新失败：清掉本地登录态，回到登录页并说明原因。
+  /// TODO: 登录后回到失效前的页面（需要记录来源页并在登录成功后恢复）。
+  Future<void> _onAuthExpired() async {
+    if (_expiring) return;
+    _expiring = true;
+    try {
+      storeProfile.clear();
+      try {
+        await merchantApi.client.auth.signOut(scope: SignOutScope.local);
+      } catch (_) {
+        // 本地清理失败不影响回到登录页
+      }
+      _navKey.currentState?.pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const LoginPage()),
+        (_) => false,
+      );
+      final messenger = _msgKey.currentState;
+      if (messenger != null) {
+        AppToast.showOn(messenger, '登录已过期，请重新登录', kind: ToastKind.error);
+      }
+    } finally {
+      _expiring = false;
+    }
   }
 
   @override
   void dispose() {
+    authExpired.removeListener(_onAuthExpired);
     appThemeMode.removeListener(_onMode);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
@@ -77,6 +120,8 @@ class _QimeiAppState extends State<QimeiApp> with WidgetsBindingObserver {
       theme: buildTheme(Brightness.light),
       darkTheme: buildTheme(Brightness.dark),
       themeMode: appThemeMode.value,
+      navigatorKey: _navKey,
+      scaffoldMessengerKey: _msgKey,
       navigatorObservers: [navTracker],
       locale: const Locale('zh', 'CN'),
       supportedLocales: const [Locale('zh', 'CN')],
@@ -85,7 +130,7 @@ class _QimeiAppState extends State<QimeiApp> with WidgetsBindingObserver {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      home: const LoginPage(),
+      home: merchantApi.hasSession ? const Shell() : const LoginPage(),
     );
   }
 }

@@ -254,6 +254,7 @@ class CardTierEditPage extends StatelessWidget {
                                   ),
                                   lh: 22,
                                 ),
+                                hint: '请输入卡种名称',
                                 value: '黑金卡',
                                 align: TextAlign.right,
                               ),
@@ -630,6 +631,7 @@ class CardTierEditPage extends StatelessWidget {
                                       w: FontWeight.w600,
                                       lh: 22,
                                     ),
+                                    hint: '请输入单次充值满',
                                     value: '10,000',
                                     keyboard: TextInputType.numberWithOptions(
                                       decimal: true,
@@ -697,6 +699,7 @@ class CardTierEditPage extends StatelessWidget {
                                       w: FontWeight.w600,
                                       lh: 22,
                                     ),
+                                    hint: '请输入累计消费满',
                                     value: '30,000',
                                     keyboard: TextInputType.numberWithOptions(
                                       decimal: true,

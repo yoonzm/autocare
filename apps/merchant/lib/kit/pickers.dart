@@ -6,6 +6,10 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../backend/merchant_api.dart';
+import '../backend/registration_draft.dart';
+import '../backend/store_profile.dart';
+import '../backend/catalog_draft.dart';
 import '../mock/mock_data.dart';
 import 'keyboard.dart';
 
@@ -19,7 +23,10 @@ Color get _line => C.line;
 // ───────── 取值控制器 ─────────
 class StrCtrl extends ChangeNotifier {
   String v;
-  StrCtrl(this.v);
+
+  /// 还没选择时显示的占位文字（显示为灰色）。
+  String? placeholder;
+  StrCtrl(this.v, {this.placeholder});
   void set(String s) {
     if (s != v) {
       v = s;
@@ -37,7 +44,34 @@ class HStrHolder extends StatefulWidget {
 }
 
 class _HStrHolderState extends State<HStrHolder> {
-  late final StrCtrl ctrl = StrCtrl(widget.initial);
+  late final StrCtrl ctrl;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!initialized) {
+      final route = ModalRoute.of(context)?.settings.name;
+      if (route == 'RegShop' && widget.initial == '上海市 · 浦东新区') {
+        // 注册时城市必须自己选，不预设成设计稿里的示例城市。
+        ctrl = StrCtrl(
+          RegistrationDraft.cityPlaceholder,
+          placeholder: RegistrationDraft.cityPlaceholder,
+        );
+        RegistrationDraft.city = '';
+        ctrl.addListener(() {
+          RegistrationDraft.city = ctrl.v == ctrl.placeholder ? '' : ctrl.v;
+        });
+      } else {
+        ctrl = StrCtrl(
+          route == 'ServiceEdit' && widget.initial == '镀晶镀膜'
+              ? CatalogDraft.text('services', 'category', widget.initial)
+              : widget.initial,
+        );
+      }
+      initialized = true;
+    }
+  }
+
+  bool initialized = false;
   @override
   void dispose() {
     ctrl.dispose();
@@ -52,12 +86,17 @@ class _HStrHolderState extends State<HStrHolder> {
 Widget hStr(StrCtrl c, TextStyle style, {String? placeholder}) =>
     ListenableBuilder(
       listenable: c,
-      builder: (_, _) => Text(
-        c.v,
-        style: placeholder != null && c.v != placeholder
-            ? style.copyWith(color: _ink)
-            : style,
-      ),
+      builder: (_, _) {
+        final ph = placeholder ?? c.placeholder;
+        return Text(
+          c.v,
+          style: ph != null && c.v != ph
+              ? style.copyWith(color: _ink)
+              : c.placeholder != null
+              ? style.copyWith(color: _muted)
+              : style,
+        );
+      },
     );
 
 // ───────── 通用底部面板 ─────────
@@ -781,6 +820,14 @@ Future<void> hPick(
   String label,
   StrCtrl c,
 ) async {
+  final route = ModalRoute.of(context)?.settings.name;
+  if (merchantApi.hasSession &&
+      ((route == 'ServiceEdit' && kind == 'duration') ||
+          (route == 'CardTierEdit' &&
+              (kind == 'multiplier' || kind == 'gift')))) {
+    hToast(context, '此字段暂未接通');
+    return;
+  }
   String? r;
   switch (kind) {
     case 'birthday':
@@ -898,7 +945,14 @@ Future<void> hPick(
     default:
       r = await pickFromList(context, label, [c.v], c.v);
   }
-  if (r != null) c.set(r);
+  if (r != null) {
+    c.set(r);
+    if (!context.mounted) return;
+    if (kind == 'category' &&
+        ModalRoute.of(context)?.settings.name == 'ServiceEdit') {
+      CatalogDraft.set('services', 'category', r);
+    }
+  }
 }
 
 // ───────── 车牌输入 ─────────
@@ -1165,6 +1219,8 @@ class _PlateKeyboard extends StatelessWidget {
 
 // ───────── 获取验证码（60 秒倒计时）─────────
 class CodeCtrl extends ChangeNotifier {
+  /// 同一页有多个“获取验证码”时的序号（按出现顺序，0 起）。
+  int slot = 0;
   int seconds = 0;
   Timer? _timer;
   void start() {
@@ -1194,8 +1250,21 @@ class HCodeHolder extends StatefulWidget {
 
 class _HCodeHolderState extends State<HCodeHolder> {
   final CodeCtrl ctrl = CodeCtrl();
+  bool _claimed = false;
+  String _route = '';
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_claimed) return;
+    _claimed = true;
+    _route = ModalRoute.of(context)?.settings.name ?? '';
+    ctrl.slot = RegistrationDraft.claim('code:$_route', this);
+  }
+
   @override
   void dispose() {
+    if (_claimed) RegistrationDraft.release('code:$_route', this);
     ctrl.dispose();
     super.dispose();
   }
@@ -1206,8 +1275,40 @@ class _HCodeHolderState extends State<HCodeHolder> {
 
 void hSendCode(BuildContext context, CodeCtrl c) {
   if (c.seconds > 0) return;
+  final route = ModalRoute.of(context)?.settings.name;
+  if (route == 'RegPhone') {
+    _sendRegistrationCode(context, c);
+    return;
+  }
+  if (merchantApi.hasSession && route == 'ChangePhone') {
+    // 第一个按钮发到当前手机号，第二个发到新手机号。
+    final phone = c.slot == 0
+        ? storeProfile.localPhone
+        : RegistrationDraft.get('ChangePhone', '请输入新手机号');
+    unawaited(sendCodeTo(context, c, phone));
+    return;
+  }
   c.start();
   hToastOn(ScaffoldMessenger.of(context), '验证码已发送（演示）');
+}
+
+Future<void> _sendRegistrationCode(BuildContext context, CodeCtrl c) =>
+    sendCodeTo(context, c, RegistrationDraft.get('RegPhone', '请输入手机号'));
+
+/// 向 [phone] 获取验证码（开发环境由后端 mock 返回并直接提示）。
+Future<void> sendCodeTo(BuildContext context, CodeCtrl c, String phone) async {
+  if (!RegExp(r'^1[3-9]\d{9}$').hasMatch(phone)) {
+    hToastOn(ScaffoldMessenger.of(context), '请输入正确的 11 位手机号');
+    return;
+  }
+  try {
+    final code = await merchantApi.sendMockCode(phone);
+    if (!context.mounted) return;
+    c.start();
+    hToastOn(ScaffoldMessenger.of(context), '开发环境验证码：$code');
+  } catch (e) {
+    if (context.mounted) hToastOn(ScaffoldMessenger.of(context), '验证码暂不可用：$e');
+  }
 }
 
 Widget hCodeText(CodeCtrl c, TextStyle style) => ListenableBuilder(

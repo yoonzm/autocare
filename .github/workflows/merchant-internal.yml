@@ -1,18 +1,17 @@
-name: Merchant Internal Release
+name: Merchant Build
 
 on:
   push:
-    branches: [main]
+    branches: ["**"]
     paths:
       - "apps/merchant/**"
       - ".github/workflows/merchant-internal.yml"
-  workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: autocare-merchant-internal
+  group: autocare-merchant-${{ github.ref }}
   cancel-in-progress: false
 
 env:
@@ -20,8 +19,68 @@ env:
   APP_VERSION: 1.0.0
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      merchant: ${{ steps.paths.outputs.merchant }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Detect affected modules
+        id: paths
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+        run: |
+          if [[ "$EVENT_NAME" == pull_request ]]; then
+            base="$PR_BASE"
+          else
+            base="$PUSH_BEFORE"
+          fi
+          if [[ -z "$base" || "$base" == "0000000000000000000000000000000000000000" ]]; then
+            base="HEAD^"
+          fi
+          git diff --name-only "$base" HEAD > "$RUNNER_TEMP/changed-files"
+          if grep -q '^apps/merchant/' "$RUNNER_TEMP/changed-files"; then
+            echo 'merchant=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'merchant=false' >> "$GITHUB_OUTPUT"
+          fi
+
+  validate:
+    needs: changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Set up Flutter
+        if: needs.changes.outputs.merchant == 'true'
+        run: |
+          curl --fail --silent --show-error --retry 3 --max-time 600 \
+            -o "$RUNNER_TEMP/flutter.tar.xz" \
+            "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz"
+          tar xf "$RUNNER_TEMP/flutter.tar.xz" -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/flutter/bin" >> "$GITHUB_PATH"
+      - name: Analyze and test merchant
+        if: needs.changes.outputs.merchant == 'true'
+        working-directory: apps/merchant
+        run: |
+          flutter pub get
+          flutter analyze
+          flutter test
+
   ios:
-    if: vars.ENABLE_MERCHANT_TESTFLIGHT == 'true'
+    needs: [changes, validate]
+    if: >-
+      needs.changes.outputs.merchant == 'true' &&
+      vars.ENABLE_MERCHANT_TESTFLIGHT == 'true' &&
+      (github.ref == 'refs/heads/main' ||
+       github.ref == 'refs/heads/feat/merchant-supabase-v1')
     runs-on: macos-15
     environment: merchant-testflight
     defaults:
@@ -78,11 +137,9 @@ jobs:
           rm "$RUNNER_TEMP/flutter.zip"
           "$RUNNER_TEMP/flutter/bin/flutter" --version
 
-      - name: Analyze and test
+      - name: Resolve Flutter dependencies
         run: |
           flutter pub get
-          flutter analyze
-          flutter test
 
       - name: Generate iOS build configuration
         run: |
@@ -149,6 +206,11 @@ jobs:
           rm -rf "$HOME/.appstoreconnect/private_keys"
 
   android:
+    needs: [changes, validate]
+    if: >-
+      needs.changes.outputs.merchant == 'true' &&
+      (github.ref == 'refs/heads/main' ||
+       github.ref == 'refs/heads/feat/merchant-supabase-v1')
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -175,11 +237,9 @@ jobs:
           rm "$RUNNER_TEMP/flutter.tar.xz"
           "$RUNNER_TEMP/flutter/bin/flutter" --version
 
-      - name: Analyze and test
+      - name: Resolve Flutter dependencies
         run: |
           flutter pub get
-          flutter analyze
-          flutter test
 
       - name: Build release APK
         run: |
