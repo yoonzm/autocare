@@ -13,9 +13,9 @@ flutter run
 
 ## 自动化打包
 
-`.github/workflows/admin-ci.yml` 在后台端 PR 时运行分析与测试；合入 `main` 后再次检查，通过后构建 Android 测试 APK 和无签名 iOS `.app` 压缩包。两个产物可在对应 GitHub Actions 运行页的 Artifacts 下载，保留 14 天。功能分支与 PR 不打包。
+`.github/workflows/admin-ci.yml` 在后台端 PR 时只运行分析与测试；合入 `main` 后再次检查，通过后构建 Android 测试 APK，并在 `ENABLE_ADMIN_TESTFLIGHT=true` 时签名 iOS IPA 上传 App Store Connect。功能分支与 PR 不打包。Android APK 保留 14 天，iOS IPA 与构建日志保留 7 天，可从对应 GitHub Actions 运行页下载。
 
-Android APK 仅用于内部测试，不能直接上架；iOS 产物未签名，不能直接安装或上传 TestFlight。正式分发需要独立签名与发布配置。
+后台 iOS App 标识为 `com.yoonzm.autocare.admin`。TestFlight 使用仓库已有的发布证书与 App Store Connect API 密钥，以及后台专用的 `ADMIN_BUILD_PROVISION_PROFILE_BASE64` 描述文件密钥。上传成功后仍需等待 Apple 处理构建版本，并在 App Store Connect 中配置内部测试人员；若 Apple 开发者协议待账号持有人接受，上传/测试可能受阻。
 
 ## 演示账号
 
