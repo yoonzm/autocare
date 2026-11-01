@@ -4,10 +4,12 @@ import '../data/models.dart';
 import '../data/store.dart';
 import '../theme.dart';
 import '../ui.dart';
+import '../data/theme_state.dart';
 import 'accounts_pages.dart';
 import 'login_page.dart';
 import 'plans_pages.dart';
 import 'reviews_pages.dart';
+import 'theme_sheet.dart';
 import 'tickets_pages.dart';
 
 class MinePage extends StatelessWidget {
@@ -31,7 +33,7 @@ class MinePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
-    listenable: store,
+    listenable: Listenable.merge([store, appThemeMode]),
     builder: (context, _) {
       final me = store.me;
       if (me == null) return const SizedBox();
@@ -39,24 +41,24 @@ class MinePage extends StatelessWidget {
         title: '我的',
         back: false,
         children: [
-          HCard(
+          DarkHero(
             child: Row(
               children: [
                 Container(
-                  width: 56,
-                  height: 56,
+                  width: 60,
+                  height: 60,
                   alignment: Alignment.center,
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
                     gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [Color(0xFF7CC0FF), Color(0xFF0485F7)],
+                      begin: Alignment(-.5, -1),
+                      end: Alignment(.5, 1),
+                      colors: [Color(0xFFFBE7B0), Color(0xFFE6B85C)],
                     ),
                   ),
                   child: Text(
-                    me.name.characters.first == '运' ? me.name.characters.last : me.name.characters.first,
-                    style: ts(22, w: FontWeight.w600, color: Colors.white),
+                    me.name.characters.first,
+                    style: ts(24, w: FontWeight.w600, color: const Color(0xFF18181B)),
                   ),
                 ),
                 const SizedBox(width: 14),
@@ -64,15 +66,25 @@ class MinePage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(me.name, style: ts(17, w: FontWeight.w600, h: 24)),
-                      const SizedBox(height: 2),
-                      Pill(
-                        me.role == Role.superAdmin ? '超级管理员' : '平台运营',
-                        me.role == Role.superAdmin ? C.amberInk : C.primaryInk,
-                        me.role == Role.superAdmin ? C.amberSoft : C.primarySoft,
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              me.name,
+                              overflow: TextOverflow.ellipsis,
+                              style: ts(19, w: FontWeight.w600, color: const Color(0xFFFAFAFA), h: 28),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Pill(
+                            me.role == Role.superAdmin ? '超级管理员' : '平台运营',
+                            C.gold,
+                            const Color(0x24FFFFFF),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 2),
-                      Text(me.email, style: ts(12, color: C.muted, h: 17)),
+                      const SizedBox(height: 4),
+                      Text(me.username, style: ts(12, color: const Color(0xFFA1A1AA), h: 17)),
                     ],
                   ),
                 ),
@@ -81,13 +93,13 @@ class MinePage extends StatelessWidget {
           ),
           RowGroup([
             Row1(
-              leading: const SoftTile(Icons.workspace_premium_outlined, C.violetInk, C.violetSoft),
+              leading: SoftTile(Icons.workspace_premium_outlined, C.violetInk, C.violetSoft),
               title: '套餐管理',
               trailing: Text('${store.plans.length} 个套餐', style: ts(13, color: C.muted)),
               onTap: () => go(context, const PlansPage()),
             ),
             Row1(
-              leading: const SoftTile(Icons.chat_bubble_outline_rounded, C.primaryInk, C.primarySoft),
+              leading: SoftTile(Icons.chat_bubble_outline_rounded, C.primaryInk, C.primarySoft),
               title: '工单',
               trailing: store.todoTickets > 0
                   ? Text('${store.todoTickets} 待处理', style: ts(13, color: C.muted))
@@ -95,7 +107,7 @@ class MinePage extends StatelessWidget {
               onTap: () => go(context, const TicketsPage()),
             ),
             Row1(
-              leading: const SoftTile(Icons.verified_outlined, C.amberInk, C.amberSoft),
+              leading: SoftTile(Icons.verified_outlined, C.amberInk, C.amberSoft),
               title: '开通审核',
               trailing: store.pendingReviews > 0
                   ? Text('${store.pendingReviews} 待审核', style: ts(13, color: C.muted))
@@ -103,7 +115,7 @@ class MinePage extends StatelessWidget {
               onTap: () => go(context, const ReviewsPage()),
             ),
             Row1(
-              leading: const SoftTile(Icons.group_outlined, C.greenInk, C.greenSoft),
+              leading: SoftTile(Icons.group_outlined, C.greenInk, C.greenSoft),
               title: '运营账号',
               sub: '${store.accounts.length} 人 · 仅超级管理员可见',
               onTap: () {
@@ -114,12 +126,18 @@ class MinePage extends StatelessWidget {
                 go(context, const AccountsPage());
               },
             ),
+            Row1(
+              leading: SoftTile(Icons.dark_mode_outlined, C.sub, C.chip),
+              title: '外观',
+              trailing: Text(themeModeLabel(appThemeMode.value), style: ts(13, color: C.muted)),
+              onTap: () => showThemeSheet(context),
+            ),
           ]),
           HCard(
             padding: EdgeInsets.zero,
             onTap: () => _logout(context),
             child: Row1(
-              leading: const SoftTile(Icons.logout_rounded, C.redInk, C.redSoft),
+              leading: SoftTile(Icons.logout_rounded, C.redInk, C.redSoft),
               title: '退出登录',
               minHeight: 64,
             ),

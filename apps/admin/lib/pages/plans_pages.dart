@@ -61,7 +61,7 @@ class PlansPage extends StatelessWidget {
                       p.kind == PlanKind.trial ? '${p.trialDays} 天免费' : '${money(p.fee)} / 年',
                       style: ts(15, w: FontWeight.w600, h: 22),
                     ),
-                    if (store.isSuper) const Icon(Icons.chevron_right_rounded, size: 20, color: C.faint),
+                    if (store.isSuper) Icon(Icons.chevron_right_rounded, size: 20, color: C.faint),
                   ],
                 ),
                 const SizedBox(height: 12),

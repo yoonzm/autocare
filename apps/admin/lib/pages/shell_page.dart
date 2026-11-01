@@ -49,8 +49,8 @@ class _ShellPageState extends State<ShellPage> {
                 bottom: MediaQuery.of(context).padding.bottom,
               ),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: .96),
-                border: const Border(top: BorderSide(color: C.stroke)),
+                color: C.card.withValues(alpha: .96),
+                border: Border(top: BorderSide(color: C.stroke)),
               ),
               child: Row(
                 children: [

@@ -35,25 +35,25 @@ class Store extends ChangeNotifier {
       Account(
         id: 'a1',
         name: '王主管',
-        email: 'wang@chiguang.example',
+        username: 'wang_admin',
         role: Role.superAdmin,
       ),
       Account(
         id: 'a2',
         name: '运营小李',
-        email: 'ops@chiguang.example',
+        username: 'ops_xiaoli',
         role: Role.ops,
       ),
       Account(
         id: 'a3',
         name: '赵运营',
-        email: 'zhao@chiguang.example',
+        username: 'zhao_ops',
         role: Role.ops,
       ),
       Account(
         id: 'a4',
         name: '张运营',
-        email: 'zhang@chiguang.example',
+        username: 'zhang_ops',
         role: Role.ops,
         enabled: false,
       ),
@@ -92,20 +92,41 @@ class Store extends ChangeNotifier {
   }
 
   // ───────── 登录与账号 ─────────
-  String? checkCredentials(String email, String pw) {
-    final e = email.trim().toLowerCase();
-    if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(e)) return '请输入正确的工作邮箱';
+  static final _userRe = RegExp(r'^[A-Za-z0-9_]{4,20}$');
+
+  Account? _byUser(String u) =>
+      accounts.where((a) => a.username == u.trim().toLowerCase()).firstOrNull;
+
+  /// 校验用户名与密码，返回错误提示；通过返回 null。
+  String? checkCredentials(String username, String pw) {
+    if (username.trim().isEmpty) return '请输入用户名';
     if (pw.isEmpty) return '请输入密码';
-    final a = accounts.where((a) => a.email == e).firstOrNull;
-    if (a == null || pw != demoPassword) return '邮箱或密码错误';
+    final a = _byUser(username);
+    if (a == null || a.password != pw) return '用户名或密码错误';
     if (!a.enabled) return '该账号已被禁用，请联系超级管理员';
     return null;
   }
 
-  void signIn(String email) {
-    me = accounts.firstWhere((a) => a.email == email.trim().toLowerCase());
+  /// 登录成功后是否必须先修改密码。
+  bool needsPasswordChange(String username) =>
+      _byUser(username)?.mustChange ?? false;
+
+  void signIn(String username) {
+    me = _byUser(username);
     _log('登录');
     notifyListeners();
+  }
+
+  /// 修改自己的密码（首次登录 / 重置后）。
+  String? changePassword(Account a, String next, String again) {
+    if (next.length < 8) return '新密码至少 8 位';
+    if (next == a.password) return '新密码不能与当前密码相同';
+    if (next != again) return '两次输入的密码不一致';
+    a.password = next;
+    a.mustChange = false;
+    _log('修改密码');
+    notifyListeners();
+    return null;
   }
 
   void signOut() {
@@ -114,14 +135,23 @@ class Store extends ChangeNotifier {
     notifyListeners();
   }
 
-  String? addAccount(String name, String email, Role role) {
+  /// 新增运营账号：返回错误提示，成功返回 null。
+  String? addAccount(String name, String username, String password, Role role) {
     final n = name.trim();
-    final e = email.trim().toLowerCase();
+    final u = username.trim().toLowerCase();
     if (n.isEmpty) return '请输入姓名';
-    if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(e)) return '请输入正确的工作邮箱';
-    if (accounts.any((a) => a.email == e)) return '该邮箱已存在账号';
+    if (!_userRe.hasMatch(u)) return '用户名需为 4–20 位字母、数字或下划线';
+    if (_byUser(u) != null) return '该用户名已存在';
+    if (password.length < 8) return '初始密码至少 8 位';
     accounts.add(
-      Account(id: 'a${accounts.length + 1}', name: n, email: e, role: role),
+      Account(
+        id: 'a${accounts.length + 1}',
+        name: n,
+        username: u,
+        password: password,
+        role: role,
+        mustChange: true,
+      ),
     );
     _log('新增运营账号 $n（${role.label}）');
     notifyListeners();
@@ -140,7 +170,17 @@ class Store extends ChangeNotifier {
     notifyListeners();
   }
 
-  void resetPassword(Account a) => _log('重置 ${a.name} 的密码');
+  int _tmp = 1000;
+
+  /// 重置为临时密码：原密码立即失效，下次登录必须修改。返回临时密码。
+  String resetPassword(Account a) {
+    final t = 'Ops@${++_tmp}';
+    a.password = t;
+    a.mustChange = true;
+    _log('重置 ${a.name} 的密码');
+    notifyListeners();
+    return t;
+  }
 
   void _log(String s) => audit.add('${me?.name ?? '系统'} · $s');
 

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../data/store.dart';
 import '../theme.dart';
@@ -13,26 +12,34 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final email = TextEditingController(text: 'ops@chiguang.example');
+  final user = TextEditingController(text: 'ops_xiaoli');
   final pw = TextEditingController();
   bool show = false;
   String? error;
 
   @override
   void dispose() {
-    email.dispose();
+    user.dispose();
     pw.dispose();
     super.dispose();
   }
 
   Future<void> _submit() async {
     FocusScope.of(context).unfocus();
-    final err = store.checkCredentials(email.text, pw.text);
+    final err = store.checkCredentials(user.text, pw.text);
     setState(() => error = err);
     if (err != null) return;
-    final ok = await showSheet<bool>(context, (c) => const _CodeSheet());
-    if (ok != true || !mounted) return;
-    store.signIn(email.text);
+    if (store.needsPasswordChange(user.text)) {
+      // 首次登录或密码被重置：必须先改密
+      final done = await Navigator.of(context).push<bool>(
+        MaterialPageRoute(
+          builder: (_) => ChangePasswordPage(username: user.text),
+        ),
+      );
+      if (done != true || !mounted) return;
+      pw.clear();
+    }
+    store.signIn(user.text);
     Navigator.of(
       context,
     ).pushReplacement(MaterialPageRoute(builder: (_) => const ShellPage()));
@@ -72,7 +79,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ],
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.bar_chart_rounded,
                       size: 34,
                       color: C.ink,
@@ -102,11 +109,11 @@ class _LoginPageState extends State<LoginPage> {
                 child: Column(
                   children: [
                     Field(
-                      label: '工作邮箱',
+                      label: '用户名',
                       required: true,
-                      controller: email,
-                      hint: 'name@company.example',
-                      keyboard: TextInputType.emailAddress,
+                      controller: user,
+                      hint: '请输入用户名',
+                      onChanged: (_) => setState(() => error = null),
                     ),
                     const SizedBox(height: 14),
                     Field(
@@ -116,6 +123,7 @@ class _LoginPageState extends State<LoginPage> {
                       hint: '请输入密码',
                       obscure: !show,
                       error: error,
+                      onChanged: (_) => setState(() => error = null),
                       onSubmitted: (_) => _submit(),
                       suffix: GestureDetector(
                         onTap: () => setState(() => show = !show),
@@ -135,11 +143,11 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 14),
                     Row(
                       children: [
-                        const SoftTile(Icons.lock_outline, C.greenInk, C.greenSoft, size: 32),
+                        SoftTile(Icons.lock_outline, C.greenInk, C.greenSoft, size: 32),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            '仅限平台运营人员登录，登录将进行二次验证',
+                            '仅限平台运营人员登录',
                             style: ts(12, color: C.muted, h: 17),
                           ),
                         ),
@@ -154,7 +162,7 @@ class _LoginPageState extends State<LoginPage> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        '演示账号：ops@chiguang.example（运营）、wang@chiguang.example（超级管理员），密码 ${Store.demoPassword}',
+                        '演示账号：ops_xiaoli（运营）、wang_admin（超级管理员），密码 ${Store.demoPassword}',
                         style: ts(11, color: C.primaryInk, h: 16),
                       ),
                     ),
@@ -173,8 +181,8 @@ class _LoginPageState extends State<LoginPage> {
           MediaQuery.of(context).padding.bottom + 12,
         ),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: .94),
-          border: const Border(top: BorderSide(color: C.stroke)),
+          color: C.card.withValues(alpha: .94),
+          border: Border(top: BorderSide(color: C.stroke)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -192,72 +200,82 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
-/// 二次验证：输入 6 位短信验证码。
-class _CodeSheet extends StatefulWidget {
-  const _CodeSheet();
+/// 首次登录 / 密码被重置后的强制改密页，不可返回。
+class ChangePasswordPage extends StatefulWidget {
+  final String username;
+  const ChangePasswordPage({super.key, required this.username});
   @override
-  State<_CodeSheet> createState() => _CodeSheetState();
+  State<ChangePasswordPage> createState() => _ChangePasswordPageState();
 }
 
-class _CodeSheetState extends State<_CodeSheet> {
-  final ctrl = TextEditingController();
+class _ChangePasswordPageState extends State<ChangePasswordPage> {
+  final next = TextEditingController();
+  final again = TextEditingController();
   String? error;
-  int resent = 0;
 
   @override
   void dispose() {
-    ctrl.dispose();
+    next.dispose();
+    again.dispose();
     super.dispose();
   }
 
-  void _verify() {
-    if (ctrl.text == Store.demoCode) {
-      Navigator.pop(context, true);
-    } else {
-      setState(() => error = ctrl.text.length < 6 ? '请输入 6 位验证码' : '验证码错误，请重试');
-    }
+  void _save() {
+    final a = store.accounts.firstWhere((a) => a.username == widget.username.trim().toLowerCase());
+    final err = store.changePassword(a, next.text, again.text);
+    setState(() => error = err);
+    if (err != null) return;
+    toast(context, '密码已修改');
+    Navigator.pop(context, true);
   }
 
   @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      Text('二次验证', style: ts(20, w: FontWeight.w600, h: 28)),
-      const SizedBox(height: 2),
-      Text(
-        '验证码已发送至绑定手机 ${resent > 0 ? '（已重发 $resent 次）' : ''}· 演示验证码 ${Store.demoCode}',
-        style: ts(12, color: C.muted, h: 17),
-      ),
-      const SizedBox(height: 14),
-      Field(
-        label: '短信验证码',
-        required: true,
-        controller: ctrl,
-        hint: '6 位数字',
-        keyboard: TextInputType.number,
-        formatters: [
-          FilteringTextInputFormatter.digitsOnly,
-          LengthLimitingTextInputFormatter(6),
-        ],
-        error: error,
-        onSubmitted: (_) => _verify(),
-        suffix: GestureDetector(
-          onTap: () => setState(() => resent++),
-          child: Text('重新发送', style: ts(13, w: FontWeight.w500, color: C.primary)),
+  Widget build(BuildContext context) => PopScope(
+    canPop: false,
+    child: AdPage(
+      title: '修改密码',
+      back: false,
+      dock: Btn('确认修改', onTap: _save),
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SoftTile(Icons.lock_outline, C.amberInk, C.amberSoft, size: 32),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                '当前密码为初始或临时密码，请先设置新密码后再进入后台。',
+                style: ts(13, color: C.sub, h: 19),
+              ),
+            ),
+          ],
         ),
-      ),
-      const SizedBox(height: 16),
-      Row(
-        children: [
-          Expanded(
-            flex: 5,
-            child: Btn('取消', ghost: true, onTap: () => Navigator.pop(context)),
+        HCard(
+          child: Column(
+            children: [
+              Field(
+                label: '新密码',
+                required: true,
+                controller: next,
+                hint: '至少 8 位',
+                obscure: true,
+                onChanged: (_) => setState(() => error = null),
+              ),
+              const SizedBox(height: 14),
+              Field(
+                label: '确认新密码',
+                required: true,
+                controller: again,
+                hint: '再次输入新密码',
+                obscure: true,
+                error: error,
+                onChanged: (_) => setState(() => error = null),
+                onSubmitted: (_) => _save(),
+              ),
+            ],
           ),
-          const SizedBox(width: 10),
-          Expanded(flex: 7, child: Btn('验证并登录', onTap: _verify)),
-        ],
-      ),
-    ],
+        ),
+      ],
+    ),
   );
 }
