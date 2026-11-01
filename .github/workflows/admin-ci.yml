@@ -9,6 +9,7 @@ on:
     branches: [main]
     paths:
       - "apps/admin/**"
+      - ".github/workflows/admin-ci.yml"
   workflow_dispatch:
 
 permissions:
@@ -37,3 +38,146 @@ jobs:
           flutter pub get
           flutter analyze
           flutter test
+
+  android-apk:
+    if: github.ref == 'refs/heads/main'
+    needs: admin
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: apps/admin
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Set up Flutter
+        run: |
+          curl --fail --silent --show-error --retry 3 --max-time 600 \
+            -o "$RUNNER_TEMP/flutter.tar.xz" \
+            "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.47.9-stable.tar.xz"
+          tar xf "$RUNNER_TEMP/flutter.tar.xz" -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/flutter/bin" >> "$GITHUB_PATH"
+      - name: Build Android APK for internal testing
+        run: |
+          flutter pub get
+          flutter build apk --release
+      - name: Upload Android APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: AutoCare-Admin-Android-${{ github.run_number }}-${{ github.run_attempt }}
+          path: apps/admin/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+          retention-days: 14
+
+  ios-testflight:
+    if: github.ref == 'refs/heads/main' && vars.ENABLE_ADMIN_TESTFLIGHT == 'true'
+    needs: admin
+    runs-on: macos-15
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: apps/admin
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Select Xcode with iOS 26 SDK
+        run: |
+          python3 - <<'PY'
+          import pathlib, re, subprocess
+          candidates = []
+          for path in pathlib.Path('/Applications').glob('Xcode_*.app'):
+              match = re.fullmatch(r'Xcode_(\d+)\.(\d+)(?:\.(\d+))?\.app', path.name)
+              if match and int(match[1]) >= 26:
+                  candidates.append((tuple(int(v or 0) for v in match.groups()), path))
+          if not candidates:
+              raise SystemExit('Runner needs a stable Xcode 26 or later installation')
+          chosen = max(candidates)[1] / 'Contents/Developer'
+          subprocess.run(['sudo', 'xcode-select', '--switch', str(chosen)], check=True)
+          PY
+          xcodebuild -version
+          sdk_version=$(xcrun --sdk iphoneos --show-sdk-version)
+          test "${sdk_version%%.*}" -ge 26
+      - name: Check signing configuration
+        env:
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+          ADMIN_BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.ADMIN_BUILD_PROVISION_PROFILE_BASE64 }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+        run: |
+          for name in BUILD_CERTIFICATE_BASE64 P12_PASSWORD ADMIN_BUILD_PROVISION_PROFILE_BASE64 ASC_KEY_ID ASC_ISSUER_ID ASC_PRIVATE_KEY; do
+            if [[ -z "${!name}" ]]; then
+              echo "::error::Missing repository secret: $name"
+              exit 1
+            fi
+          done
+      - name: Set up Flutter
+        run: |
+          curl --fail --silent --show-error --retry 3 --max-time 600 \
+            -o "$RUNNER_TEMP/flutter.zip" \
+            "https://storage.googleapis.com/flutter_infra_release/releases/stable/macos/flutter_macos_arm64_3.47.9-stable.zip"
+          unzip -q "$RUNNER_TEMP/flutter.zip" -d "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/flutter/bin" >> "$GITHUB_PATH"
+      - name: Generate iOS build configuration
+        run: |
+          flutter pub get
+          flutter build ios --config-only --no-codesign --release \
+            --build-name=1.0.0 --build-number="$GITHUB_RUN_NUMBER"
+      - name: Install signing identity and provisioning profile
+        env:
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+          ADMIN_BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.ADMIN_BUILD_PROVISION_PROFILE_BASE64 }}
+        run: bash scripts/install-signing.sh
+      - name: Archive and export IPA
+        env:
+          CI_PROFILE_UUID: ${{ env.PROFILE_UUID }}
+        run: |
+          set -o pipefail
+          xcodebuild -workspace ios/Runner.xcworkspace -scheme Runner \
+            -configuration Release -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/Runner.xcarchive" \
+            archive | tee "$RUNNER_TEMP/archive.log"
+          xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/Runner.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
+            -exportPath "$RUNNER_TEMP/ipa" | tee "$RUNNER_TEMP/export.log"
+      - name: Upload to App Store Connect (TestFlight)
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+        run: |
+          umask 077
+          mkdir -p "$HOME/.appstoreconnect/private_keys"
+          printf '%s' "$ASC_PRIVATE_KEY" > "$HOME/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8"
+          ipa=$(ls "$RUNNER_TEMP"/ipa/*.ipa | head -n 1)
+          xcrun altool --upload-app --type ios --file "$ipa" \
+            --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
+          echo "Admin IPA uploaded: build $GITHUB_RUN_NUMBER. Apple processing follows asynchronously." >> "$GITHUB_STEP_SUMMARY"
+      - name: Save IPA and build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: AutoCare-Admin-iOS-${{ github.run_number }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/ipa/*.ipa
+            ${{ runner.temp }}/archive.log
+            ${{ runner.temp }}/export.log
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Remove temporary signing material
+        if: always()
+        run: |
+          security delete-keychain "$RUNNER_TEMP/autocare-signing.keychain-db" || true
+          rm -f "$RUNNER_TEMP/signing.p12" "$RUNNER_TEMP/profile.mobileprovision" "$RUNNER_TEMP/profile.plist"
+          if [[ -n "${PROFILE_UUID:-}" ]]; then
+            rm -f "$HOME/Library/MobileDevice/Provisioning Profiles/$PROFILE_UUID.mobileprovision"
+          fi
+          rm -rf "$HOME/.appstoreconnect/private_keys"
