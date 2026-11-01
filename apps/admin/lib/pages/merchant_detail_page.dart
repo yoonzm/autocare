@@ -109,8 +109,8 @@ class MerchantDetailPage extends StatelessWidget {
                   children: [
                     Pill(m.status.label, fg, bg),
                     Pill(m.plan.label, C.sub, C.chip),
-                    if (m.frozen) const Pill('已冻结', C.redInk, C.redSoft),
-                    if (m.paused) const Pill('已暂停', C.amberInk, C.amberSoft),
+                    if (m.frozen) Pill('已冻结', C.redInk, C.redSoft),
+                    if (m.paused) Pill('已暂停', C.amberInk, C.amberSoft),
                   ],
                 ),
               ],
@@ -126,7 +126,7 @@ class MerchantDetailPage extends StatelessWidget {
                     _num(m.plan.label, '当前套餐'),
                   ],
                 ),
-                const Divider(height: 24, color: C.line),
+                Divider(height: 24, color: C.line),
                 KV('到期时间', dotted(m.expiry),
                     vColor: m.daysLeft < 0 ? C.redInk : null),
                 KV('开通时间', dotted(m.opened)),
@@ -137,24 +137,24 @@ class MerchantDetailPage extends StatelessWidget {
           ),
           RowGroup([
             Row1(
-              leading: const SoftTile(Icons.tune_rounded, C.primaryInk, C.primarySoft),
+              leading: SoftTile(Icons.tune_rounded, C.primaryInk, C.primarySoft),
               title: m.plan == PlanKind.trial ? '延长试用 / 调整套餐' : '延长期限 / 调整套餐',
               onTap: () => _adjust(context),
             ),
             Row1(
-              leading: const SoftTile(Icons.history_edu_outlined, C.amberInk, C.amberSoft),
+              leading: SoftTile(Icons.history_edu_outlined, C.amberInk, C.amberSoft),
               title: '跟进记录',
               trailing: Text('${m.logs.length} 条', style: ts(13, color: C.muted)),
               onTap: () => go(context, FollowLogPage(m)),
             ),
             Row1(
-              leading: const SoftTile(Icons.phone_outlined, C.greenInk, C.greenSoft),
+              leading: SoftTile(Icons.phone_outlined, C.greenInk, C.greenSoft),
               title: '联系店主',
               trailing: Text(m.maskedPhone, style: ts(13, color: C.muted)),
               onTap: () => _contact(context),
             ),
             Row1(
-              leading: const SoftTile(Icons.manage_accounts_outlined, C.redInk, C.redSoft),
+              leading: SoftTile(Icons.manage_accounts_outlined, C.redInk, C.redSoft),
               title: '账号处理',
               sub: '重发验证码 · 重置登录 · 冻结',
               onTap: () => _account(context),

@@ -25,15 +25,19 @@ enum Role {
 class Account {
   final String id;
   String name;
-  final String email;
+  final String username;
+  String password;
   Role role;
   bool enabled;
+  bool mustChange; // 首次登录 / 被重置后必须修改密码
   Account({
     required this.id,
     required this.name,
-    required this.email,
+    required this.username,
+    this.password = 'admin123',
     required this.role,
     this.enabled = true,
+    this.mustChange = false,
   });
 }
 

@@ -1,21 +1,20 @@
 import 'package:autocare_admin/data/models.dart';
 import 'package:autocare_admin/data/store.dart';
+import 'package:autocare_admin/data/theme_state.dart';
 import 'package:autocare_admin/main.dart';
+import 'package:autocare_admin/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-Future<void> login(WidgetTester t, {String email = 'ops@chiguang.example'}) async {
+Future<void> login(WidgetTester t, {String user = 'ops_xiaoli'}) async {
   t.view.physicalSize = const Size(390 * 3, 844 * 3);
   t.view.devicePixelRatio = 3;
   addTearDown(t.view.reset);
   store.reset();
   await t.pumpWidget(const AdminApp());
-  await t.enterText(find.byType(TextField).at(0), email);
+  await t.enterText(find.byType(TextField).at(0), user);
   await t.enterText(find.byType(TextField).at(1), Store.demoPassword);
   await t.tap(find.text('登录').last);
-  await t.pumpAndSettle();
-  await t.enterText(find.byType(TextField).last, Store.demoCode);
-  await t.tap(find.text('验证并登录'));
   await t.pumpAndSettle();
 }
 
@@ -26,7 +25,7 @@ Future<void> tab(WidgetTester t, String label) async {
 }
 
 void main() {
-  testWidgets('登录校验：错误密码、禁用账号、验证码错误', (t) async {
+  testWidgets('登录校验：错误密码、禁用账号', (t) async {
     t.view.physicalSize = const Size(390 * 3, 844 * 3);
     t.view.devicePixelRatio = 3;
     addTearDown(t.view.reset);
@@ -35,21 +34,13 @@ void main() {
     await t.enterText(find.byType(TextField).at(1), 'bad');
     await t.tap(find.text('登录').last);
     await t.pumpAndSettle();
-    expect(find.text('邮箱或密码错误'), findsOneWidget);
+    expect(find.text('用户名或密码错误'), findsOneWidget);
 
-    await t.enterText(find.byType(TextField).at(0), 'zhang@chiguang.example');
+    await t.enterText(find.byType(TextField).at(0), 'zhang_ops');
     await t.enterText(find.byType(TextField).at(1), Store.demoPassword);
     await t.tap(find.text('登录').last);
     await t.pumpAndSettle();
     expect(find.text('该账号已被禁用，请联系超级管理员'), findsOneWidget);
-
-    await t.enterText(find.byType(TextField).at(0), 'ops@chiguang.example');
-    await t.tap(find.text('登录').last);
-    await t.pumpAndSettle();
-    await t.enterText(find.byType(TextField).last, '000000');
-    await t.tap(find.text('验证并登录'));
-    await t.pumpAndSettle();
-    expect(find.text('验证码错误，请重试'), findsOneWidget);
   });
 
   testWidgets('登录后进入概览，四个 Tab 可切换', (t) async {
@@ -62,6 +53,11 @@ void main() {
     expect(find.text('本月收入（元）'), findsOneWidget);
     await tab(t, '我的');
     expect(find.text('运营小李'), findsOneWidget);
+    // 名称旁的角色标签应贴合文字宽度，而不是被撑满
+    expect(t.getSize(find.text('平台运营')).width, lessThan(90));
+    final pill = find.ancestor(of: find.text('平台运营'), matching: find.byType(Container)).first;
+    expect(t.getSize(pill).width, lessThan(90));
+    expect(t.getTopLeft(pill).dx, greaterThan(t.getTopRight(find.text('运营小李')).dx));
   });
 
   testWidgets('商家搜索与筛选', (t) async {
@@ -184,7 +180,7 @@ void main() {
   });
 
   testWidgets('超级管理员：退款金额校验与生效', (t) async {
-    await login(t, email: 'wang@chiguang.example');
+    await login(t, user: 'wang_admin');
     await tab(t, '订阅');
     final total = store.monthRevenue;
     await t.tap(find.text('驰光汽车美容 · 徐汇店').first);
@@ -205,7 +201,7 @@ void main() {
   });
 
   testWidgets('超级管理员：新增账号校验、禁用与不能禁用自己', (t) async {
-    await login(t, email: 'wang@chiguang.example');
+    await login(t, user: 'wang_admin');
     await tab(t, '我的');
     await t.tap(find.text('运营账号'));
     await t.pumpAndSettle();
@@ -216,11 +212,17 @@ void main() {
     await t.pumpAndSettle();
     expect(find.text('请输入姓名'), findsOneWidget);
     await t.enterText(find.byType(TextField).at(0), '陈运营');
-    await t.enterText(find.byType(TextField).at(1), 'ops@chiguang.example');
+    await t.enterText(find.byType(TextField).at(1), 'ops_xiaoli');
+    await t.enterText(find.byType(TextField).at(2), 'abcd1234');
     await t.tap(find.text('创建账号'));
     await t.pumpAndSettle();
-    expect(find.text('该邮箱已存在账号'), findsOneWidget);
-    await t.enterText(find.byType(TextField).at(1), 'chen@chiguang.example');
+    expect(find.text('该用户名已存在'), findsOneWidget);
+    await t.enterText(find.byType(TextField).at(1), 'chen_ops');
+    await t.enterText(find.byType(TextField).at(2), 'short');
+    await t.tap(find.text('创建账号'));
+    await t.pumpAndSettle();
+    expect(find.text('初始密码至少 8 位'), findsOneWidget);
+    await t.enterText(find.byType(TextField).at(2), 'abcd1234');
     await t.tap(find.text('创建账号'));
     await t.pumpAndSettle();
     expect(store.accounts.length, 5);
@@ -240,7 +242,7 @@ void main() {
   });
 
   testWidgets('套餐编辑：超级管理员保存，校验空名称', (t) async {
-    await login(t, email: 'wang@chiguang.example');
+    await login(t, user: 'wang_admin');
     await tab(t, '我的');
     await t.tap(find.text('套餐管理'));
     await t.pumpAndSettle();
@@ -267,5 +269,86 @@ void main() {
     await t.pumpAndSettle();
     expect(find.text('汽美管家 · 运营后台'), findsOneWidget);
     expect(store.me, isNull);
+  });
+
+  testWidgets('新建账号首次登录必须改密；重置密码后同样', (t) async {
+    await login(t, user: 'wang_admin');
+    store.addAccount('陈运营', 'chen_ops', 'abcd1234', Role.ops);
+    await tab(t, '我的');
+    await t.tap(find.text('退出登录').first);
+    await t.pumpAndSettle();
+    await t.tap(find.text('退出登录').last);
+    await t.pumpAndSettle();
+    await t.enterText(find.byType(TextField).at(0), 'chen_ops');
+    await t.enterText(find.byType(TextField).at(1), 'abcd1234');
+    await t.tap(find.text('登录').last);
+    await t.pumpAndSettle();
+    expect(find.text('修改密码'), findsOneWidget);
+    await t.enterText(find.byType(TextField).at(0), 'abcd1234');
+    await t.enterText(find.byType(TextField).at(1), 'abcd1234');
+    await t.tap(find.text('确认修改'));
+    await t.pumpAndSettle();
+    expect(find.text('新密码不能与当前密码相同'), findsOneWidget);
+    await t.enterText(find.byType(TextField).at(0), 'newpass88');
+    await t.enterText(find.byType(TextField).at(1), 'newpass89');
+    await t.tap(find.text('确认修改'));
+    await t.pumpAndSettle();
+    expect(find.text('两次输入的密码不一致'), findsOneWidget);
+    await t.enterText(find.byType(TextField).at(1), 'newpass88');
+    await t.tap(find.text('确认修改'));
+    await t.pumpAndSettle();
+    expect(store.me?.username, 'chen_ops');
+    expect(find.text('本月 MRR（元）'), findsOneWidget);
+  });
+
+  testWidgets('超级管理员重置密码：生成临时密码并要求改密', (t) async {
+    await login(t, user: 'wang_admin');
+    await tab(t, '我的');
+    await t.tap(find.text('运营账号'));
+    await t.pumpAndSettle();
+    await t.tap(find.text('赵运营'));
+    await t.pumpAndSettle();
+    await t.tap(find.text('确认'));
+    await t.pumpAndSettle();
+    expect(find.text('临时密码已生成'), findsOneWidget);
+    final a = store.accounts.firstWhere((a) => a.username == 'zhao_ops');
+    expect(a.mustChange, isTrue);
+    expect(a.password, isNot(Store.demoPassword));
+    expect(find.text(a.password), findsOneWidget);
+  });
+
+  testWidgets('外观：切换深色并应用后全局变深，再切回浅色', (t) async {
+    addTearDown(() {
+      appThemeMode.value = ThemeMode.system;
+      C.dark = false;
+    });
+    await login(t);
+    await tab(t, '我的');
+    expect(C.dark, isFalse);
+    Future<void> apply(String label) async {
+      await t.tap(find.text('外观').first);
+      await t.pumpAndSettle();
+      await t.tap(find.text(label));
+      await t.pump();
+      await t.tap(find.text('应用'));
+      await t.pumpAndSettle();
+    }
+
+    await apply('深色');
+    expect(appThemeMode.value, ThemeMode.dark);
+    expect(C.dark, isTrue);
+    expect(find.text('深色'), findsOneWidget); // 行右侧显示当前模式
+    expect(t.takeException(), isNull);
+    // 其它页面在深色下也能正常渲染
+    await tab(t, '商家');
+    await t.tap(find.text('驰光汽车美容 · 徐汇店'));
+    await t.pumpAndSettle();
+    expect(t.takeException(), isNull);
+    await t.tap(find.byIcon(Icons.chevron_left_rounded));
+    await t.pumpAndSettle();
+    await tab(t, '我的');
+    await apply('浅色');
+    expect(C.dark, isFalse);
+    expect(t.takeException(), isNull);
   });
 }
