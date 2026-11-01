@@ -6,7 +6,7 @@ on:
       - "apps/admin/**"
       - ".github/workflows/admin-ci.yml"
   push:
-    branches: [main, feat/admin-automated-packaging]
+    branches: [main]
     paths:
       - "apps/admin/**"
       - ".github/workflows/admin-ci.yml"
@@ -40,6 +40,7 @@ jobs:
           flutter test
 
   android-apk:
+    if: github.ref == 'refs/heads/main'
     needs: admin
     runs-on: ubuntu-latest
     timeout-minutes: 40
@@ -74,6 +75,7 @@ jobs:
           retention-days: 14
 
   ios-unsigned:
+    if: github.ref == 'refs/heads/main'
     needs: admin
     runs-on: macos-15
     timeout-minutes: 45

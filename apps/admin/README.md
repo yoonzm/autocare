@@ -13,7 +13,7 @@ flutter run
 
 ## 自动化打包
 
-`.github/workflows/admin-ci.yml` 在后台端 PR、`main` 和 `feat/admin-automated-packaging` 分支推送时运行分析与测试，通过后构建 Android 测试 APK 和无签名 iOS `.app` 压缩包。两个产物可在对应 GitHub Actions 运行页的 Artifacts 下载，保留 14 天。
+`.github/workflows/admin-ci.yml` 在后台端 PR 时运行分析与测试；合入 `main` 后再次检查，通过后构建 Android 测试 APK 和无签名 iOS `.app` 压缩包。两个产物可在对应 GitHub Actions 运行页的 Artifacts 下载，保留 14 天。功能分支与 PR 不打包。
 
 Android APK 仅用于内部测试，不能直接上架；iOS 产物未签名，不能直接安装或上传 TestFlight。正式分发需要独立签名与发布配置。
 
