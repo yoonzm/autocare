@@ -16,6 +16,36 @@ ValueNotifier<List<String>> imageStore(String key) =>
 
 bool _picking = false;
 
+/// 不弹来源选择，直接调用系统相机 / 相册，选中后写入 [key]，返回是否拿到了图片。
+Future<bool> hCaptureImage(
+  BuildContext context,
+  String key, {
+  required bool camera,
+}) async {
+  if (_picking) return false;
+  _picking = true;
+  try {
+    final f = await ImagePicker().pickImage(
+      source: camera ? ImageSource.camera : ImageSource.gallery,
+      maxWidth: 1600,
+      imageQuality: 85,
+    );
+    if (f == null) return false;
+    imageStore(key).value = [f.path];
+    return true;
+  } catch (_) {
+    if (context.mounted) {
+      hToastOn(
+        ScaffoldMessenger.of(context),
+        camera ? '无法打开相机，请在系统设置中允许访问' : '无法访问相册，请在系统设置中允许访问',
+      );
+    }
+    return false;
+  } finally {
+    _picking = false;
+  }
+}
+
 /// 弹出“拍照 / 从相册选择”，选中后写入 [key]。
 /// [replaceAt] 不为空时替换该位置，否则追加（受 [max] 限制）。
 Future<void> hPickImage(

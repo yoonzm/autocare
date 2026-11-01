@@ -31,9 +31,9 @@ class SecurityPage extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -43,9 +43,9 @@ class SecurityPage extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -107,9 +107,9 @@ class SecurityPage extends StatelessWidget {
                         context,
                         [
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.04),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
+                            color: Color.fromRGBO(0, 0, 0, 0.06),
+                            offset: Offset(0, 0),
+                            blurRadius: 1,
                             spreadRadius: 0,
                           ),
                           BoxShadow(
@@ -119,9 +119,9 @@ class SecurityPage extends StatelessWidget {
                             spreadRadius: 0,
                           ),
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 0),
-                            blurRadius: 1,
+                            color: Color.fromRGBO(0, 0, 0, 0.04),
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
                             spreadRadius: 0,
                           ),
                         ],
@@ -328,9 +328,9 @@ class SecurityPage extends StatelessWidget {
                         context,
                         [
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.04),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
+                            color: Color.fromRGBO(0, 0, 0, 0.06),
+                            offset: Offset(0, 0),
+                            blurRadius: 1,
                             spreadRadius: 0,
                           ),
                           BoxShadow(
@@ -340,9 +340,9 @@ class SecurityPage extends StatelessWidget {
                             spreadRadius: 0,
                           ),
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 0),
-                            blurRadius: 1,
+                            color: Color.fromRGBO(0, 0, 0, 0.04),
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
                             spreadRadius: 0,
                           ),
                         ],
@@ -546,9 +546,9 @@ class SecurityPage extends StatelessWidget {
                         context,
                         [
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.04),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
+                            color: Color.fromRGBO(0, 0, 0, 0.06),
+                            offset: Offset(0, 0),
+                            blurRadius: 1,
                             spreadRadius: 0,
                           ),
                           BoxShadow(
@@ -558,9 +558,9 @@ class SecurityPage extends StatelessWidget {
                             spreadRadius: 0,
                           ),
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 0),
-                            blurRadius: 1,
+                            color: Color.fromRGBO(0, 0, 0, 0.04),
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
                             spreadRadius: 0,
                           ),
                         ],
@@ -593,7 +593,7 @@ class SecurityPage extends StatelessWidget {
                                   child: hrow(
                                     [
                                       hsvg(
-                                        dk(context, Svgs.s339, Svgs.s340),
+                                        dk(context, Svgs.s340, Svgs.s341),
                                         w: 18,
                                         h: 18,
                                       ),
@@ -681,7 +681,7 @@ class SecurityPage extends StatelessWidget {
                                   child: hrow(
                                     [
                                       hsvg(
-                                        dk(context, Svgs.s341, Svgs.s342),
+                                        dk(context, Svgs.s342, Svgs.s343),
                                         w: 18,
                                         h: 18,
                                       ),
@@ -769,7 +769,7 @@ class SecurityPage extends StatelessWidget {
                                   child: hrow(
                                     [
                                       hsvg(
-                                        dk(context, Svgs.s341, Svgs.s342),
+                                        dk(context, Svgs.s342, Svgs.s343),
                                         w: 18,
                                         h: 18,
                                       ),
@@ -852,9 +852,9 @@ class SecurityPage extends StatelessWidget {
                       context,
                       [
                         BoxShadow(
-                          color: Color.fromRGBO(0, 0, 0, 0.04),
-                          offset: Offset(0, 2),
-                          blurRadius: 4,
+                          color: Color.fromRGBO(0, 0, 0, 0.06),
+                          offset: Offset(0, 0),
+                          blurRadius: 1,
                           spreadRadius: 0,
                         ),
                         BoxShadow(
@@ -864,9 +864,9 @@ class SecurityPage extends StatelessWidget {
                           spreadRadius: 0,
                         ),
                         BoxShadow(
-                          color: Color.fromRGBO(0, 0, 0, 0.06),
-                          offset: Offset(0, 0),
-                          blurRadius: 1,
+                          color: Color.fromRGBO(0, 0, 0, 0.04),
+                          offset: Offset(0, 2),
+                          blurRadius: 4,
                           spreadRadius: 0,
                         ),
                       ],

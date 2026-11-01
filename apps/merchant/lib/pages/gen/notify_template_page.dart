@@ -31,9 +31,9 @@ class NotifyTemplatePage extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -43,9 +43,9 @@ class NotifyTemplatePage extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -93,9 +93,9 @@ class NotifyTemplatePage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -105,9 +105,9 @@ class NotifyTemplatePage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -520,9 +520,9 @@ class NotifyTemplatePage extends StatelessWidget {
                         context,
                         [
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.04),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
+                            color: Color.fromRGBO(0, 0, 0, 0.06),
+                            offset: Offset(0, 0),
+                            blurRadius: 1,
                             spreadRadius: 0,
                           ),
                           BoxShadow(
@@ -532,9 +532,9 @@ class NotifyTemplatePage extends StatelessWidget {
                             spreadRadius: 0,
                           ),
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 0),
-                            blurRadius: 1,
+                            color: Color.fromRGBO(0, 0, 0, 0.04),
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
                             spreadRadius: 0,
                           ),
                         ],
@@ -759,9 +759,9 @@ class NotifyTemplatePage extends StatelessWidget {
                         context,
                         [
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.04),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
+                            color: Color.fromRGBO(0, 0, 0, 0.06),
+                            offset: Offset(0, 0),
+                            blurRadius: 1,
                             spreadRadius: 0,
                           ),
                           BoxShadow(
@@ -771,9 +771,9 @@ class NotifyTemplatePage extends StatelessWidget {
                             spreadRadius: 0,
                           ),
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 0),
-                            blurRadius: 1,
+                            color: Color.fromRGBO(0, 0, 0, 0.04),
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
                             spreadRadius: 0,
                           ),
                         ],
@@ -1188,52 +1188,60 @@ class NotifyTemplatePage extends StatelessWidget {
               [
                 Expanded(
                   flex: 1,
-                  child: hTap(
-                    context,
-                    hbox(
-                      h: 50,
-                      bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
-                      radius: BorderRadius.circular(25),
-                      child: Align(
-                        alignment: Alignment.center,
-                        widthFactor: 1,
-                        child: Text(
-                          '发给我测试',
-                          style: hts(
-                            15,
-                            dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                            w: FontWeight.w500,
-                            lh: 22,
+                  child: UnconstrainedBox(
+                    alignment: Alignment.topLeft,
+                    constrainedAxis: Axis.horizontal,
+                    child: hTap(
+                      context,
+                      hbox(
+                        h: 50,
+                        bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(25),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '发给我测试',
+                            style: hts(
+                              15,
+                              dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                              w: FontWeight.w500,
+                              lh: 22,
+                            ),
                           ),
                         ),
                       ),
+                      label: '发给我测试',
                     ),
-                    label: '发给我测试',
                   ),
                 ),
                 Expanded(
                   flex: 1,
-                  child: hTap(
-                    context,
-                    hbox(
-                      h: 50,
-                      bg: Color(0xFF0485F7),
-                      radius: BorderRadius.circular(25),
-                      child: Align(
-                        alignment: Alignment(0, 0),
-                        widthFactor: 1,
-                        child: Text(
-                          '保存',
-                          style: hts(
-                            15,
-                            Color(0xFFFFFFFF),
-                            w: FontWeight.w600,
-                            lh: 22,
+                  child: UnconstrainedBox(
+                    alignment: Alignment.topLeft,
+                    constrainedAxis: Axis.horizontal,
+                    child: hTap(
+                      context,
+                      hbox(
+                        h: 50,
+                        bg: Color(0xFF0485F7),
+                        radius: BorderRadius.circular(25),
+                        child: Align(
+                          alignment: Alignment(0, 0),
+                          widthFactor: 1,
+                          child: Text(
+                            '保存',
+                            style: hts(
+                              15,
+                              Color(0xFFFFFFFF),
+                              w: FontWeight.w600,
+                              lh: 22,
+                            ),
                           ),
                         ),
                       ),
+                      to: 'NotifySettings',
                     ),
-                    to: 'NotifySettings',
                   ),
                 ),
               ],

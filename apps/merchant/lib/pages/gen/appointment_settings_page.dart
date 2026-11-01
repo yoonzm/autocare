@@ -31,9 +31,9 @@ class AppointmentSettingsPage extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -43,9 +43,9 @@ class AppointmentSettingsPage extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -126,9 +126,9 @@ class AppointmentSettingsPage extends StatelessWidget {
                         context,
                         [
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.04),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
+                            color: Color.fromRGBO(0, 0, 0, 0.06),
+                            offset: Offset(0, 0),
+                            blurRadius: 1,
                             spreadRadius: 0,
                           ),
                           BoxShadow(
@@ -138,9 +138,9 @@ class AppointmentSettingsPage extends StatelessWidget {
                             spreadRadius: 0,
                           ),
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 0),
-                            blurRadius: 1,
+                            color: Color.fromRGBO(0, 0, 0, 0.04),
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
                             spreadRadius: 0,
                           ),
                         ],
@@ -289,9 +289,9 @@ class AppointmentSettingsPage extends StatelessWidget {
                         context,
                         [
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.04),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
+                            color: Color.fromRGBO(0, 0, 0, 0.06),
+                            offset: Offset(0, 0),
+                            blurRadius: 1,
                             spreadRadius: 0,
                           ),
                           BoxShadow(
@@ -301,9 +301,9 @@ class AppointmentSettingsPage extends StatelessWidget {
                             spreadRadius: 0,
                           ),
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 0),
-                            blurRadius: 1,
+                            color: Color.fromRGBO(0, 0, 0, 0.04),
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
                             spreadRadius: 0,
                           ),
                         ],
@@ -1134,9 +1134,9 @@ class AppointmentSettingsPage extends StatelessWidget {
                         context,
                         [
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.04),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
+                            color: Color.fromRGBO(0, 0, 0, 0.06),
+                            offset: Offset(0, 0),
+                            blurRadius: 1,
                             spreadRadius: 0,
                           ),
                           BoxShadow(
@@ -1146,9 +1146,9 @@ class AppointmentSettingsPage extends StatelessWidget {
                             spreadRadius: 0,
                           ),
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 0),
-                            blurRadius: 1,
+                            color: Color.fromRGBO(0, 0, 0, 0.04),
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
                             spreadRadius: 0,
                           ),
                         ],
@@ -1251,18 +1251,25 @@ class AppointmentSettingsPage extends StatelessWidget {
                                                 flex: 9,
                                                 child: hbox(
                                                   minW: 36,
-                                                  child: hCount(
-                                                    c5,
-                                                    hts(
-                                                      15,
-                                                      dk(
-                                                        context,
-                                                        Color(0xFF18181B),
-                                                        Color(0xFFFAFAFA),
+                                                  child: Align(
+                                                    alignment: Alignment.center,
+                                                    widthFactor: 1,
+                                                    child: hCount(
+                                                      c5,
+                                                      hts(
+                                                        15,
+                                                        dk(
+                                                          context,
+                                                          Color(0xFF18181B),
+                                                          Color(0xFFFAFAFA),
+                                                        ),
+                                                        w: FontWeight.w600,
+                                                        lh: 22,
+                                                        tab: true,
                                                       ),
-                                                      w: FontWeight.w600,
-                                                      lh: 22,
-                                                      tab: true,
+                                                      0,
+                                                      '',
+                                                      false,
                                                     ),
                                                   ),
                                                 ),
@@ -1436,18 +1443,25 @@ class AppointmentSettingsPage extends StatelessWidget {
                                                 flex: 9,
                                                 child: hbox(
                                                   minW: 36,
-                                                  child: hCount(
-                                                    c6,
-                                                    hts(
-                                                      15,
-                                                      dk(
-                                                        context,
-                                                        Color(0xFF18181B),
-                                                        Color(0xFFFAFAFA),
+                                                  child: Align(
+                                                    alignment: Alignment.center,
+                                                    widthFactor: 1,
+                                                    child: hCount(
+                                                      c6,
+                                                      hts(
+                                                        15,
+                                                        dk(
+                                                          context,
+                                                          Color(0xFF18181B),
+                                                          Color(0xFFFAFAFA),
+                                                        ),
+                                                        w: FontWeight.w600,
+                                                        lh: 22,
+                                                        tab: true,
                                                       ),
-                                                      w: FontWeight.w600,
-                                                      lh: 22,
-                                                      tab: true,
+                                                      0,
+                                                      '',
+                                                      false,
                                                     ),
                                                   ),
                                                 ),
@@ -1621,18 +1635,25 @@ class AppointmentSettingsPage extends StatelessWidget {
                                                 flex: 17,
                                                 child: hbox(
                                                   minW: 36,
-                                                  child: hCount(
-                                                    c7,
-                                                    hts(
-                                                      15,
-                                                      dk(
-                                                        context,
-                                                        Color(0xFF18181B),
-                                                        Color(0xFFFAFAFA),
+                                                  child: Align(
+                                                    alignment: Alignment.center,
+                                                    widthFactor: 1,
+                                                    child: hCount(
+                                                      c7,
+                                                      hts(
+                                                        15,
+                                                        dk(
+                                                          context,
+                                                          Color(0xFF18181B),
+                                                          Color(0xFFFAFAFA),
+                                                        ),
+                                                        w: FontWeight.w600,
+                                                        lh: 22,
+                                                        tab: true,
                                                       ),
-                                                      w: FontWeight.w600,
-                                                      lh: 22,
-                                                      tab: true,
+                                                      0,
+                                                      '',
+                                                      false,
                                                     ),
                                                   ),
                                                 ),
@@ -1818,18 +1839,25 @@ class AppointmentSettingsPage extends StatelessWidget {
                                                 flex: 17,
                                                 child: hbox(
                                                   minW: 36,
-                                                  child: hCount(
-                                                    c8,
-                                                    hts(
-                                                      15,
-                                                      dk(
-                                                        context,
-                                                        Color(0xFF18181B),
-                                                        Color(0xFFFAFAFA),
+                                                  child: Align(
+                                                    alignment: Alignment.center,
+                                                    widthFactor: 1,
+                                                    child: hCount(
+                                                      c8,
+                                                      hts(
+                                                        15,
+                                                        dk(
+                                                          context,
+                                                          Color(0xFF18181B),
+                                                          Color(0xFFFAFAFA),
+                                                        ),
+                                                        w: FontWeight.w600,
+                                                        lh: 22,
+                                                        tab: true,
                                                       ),
-                                                      w: FontWeight.w600,
-                                                      lh: 22,
-                                                      tab: true,
+                                                      0,
+                                                      '',
+                                                      false,
                                                     ),
                                                   ),
                                                 ),
@@ -1933,9 +1961,9 @@ class AppointmentSettingsPage extends StatelessWidget {
                         context,
                         [
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.04),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
+                            color: Color.fromRGBO(0, 0, 0, 0.06),
+                            offset: Offset(0, 0),
+                            blurRadius: 1,
                             spreadRadius: 0,
                           ),
                           BoxShadow(
@@ -1945,9 +1973,9 @@ class AppointmentSettingsPage extends StatelessWidget {
                             spreadRadius: 0,
                           ),
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 0),
-                            blurRadius: 1,
+                            color: Color.fromRGBO(0, 0, 0, 0.04),
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
                             spreadRadius: 0,
                           ),
                         ],
@@ -2093,18 +2121,25 @@ class AppointmentSettingsPage extends StatelessWidget {
                                                 flex: 9,
                                                 child: hbox(
                                                   minW: 36,
-                                                  child: hCount(
-                                                    c9,
-                                                    hts(
-                                                      15,
-                                                      dk(
-                                                        context,
-                                                        Color(0xFF18181B),
-                                                        Color(0xFFFAFAFA),
+                                                  child: Align(
+                                                    alignment: Alignment.center,
+                                                    widthFactor: 1,
+                                                    child: hCount(
+                                                      c9,
+                                                      hts(
+                                                        15,
+                                                        dk(
+                                                          context,
+                                                          Color(0xFF18181B),
+                                                          Color(0xFFFAFAFA),
+                                                        ),
+                                                        w: FontWeight.w600,
+                                                        lh: 22,
+                                                        tab: true,
                                                       ),
-                                                      w: FontWeight.w600,
-                                                      lh: 22,
-                                                      tab: true,
+                                                      0,
+                                                      '',
+                                                      false,
                                                     ),
                                                   ),
                                                 ),
@@ -2272,18 +2307,25 @@ class AppointmentSettingsPage extends StatelessWidget {
                                                 flex: 17,
                                                 child: hbox(
                                                   minW: 36,
-                                                  child: hCount(
-                                                    c10,
-                                                    hts(
-                                                      15,
-                                                      dk(
-                                                        context,
-                                                        Color(0xFF18181B),
-                                                        Color(0xFFFAFAFA),
+                                                  child: Align(
+                                                    alignment: Alignment.center,
+                                                    widthFactor: 1,
+                                                    child: hCount(
+                                                      c10,
+                                                      hts(
+                                                        15,
+                                                        dk(
+                                                          context,
+                                                          Color(0xFF18181B),
+                                                          Color(0xFFFAFAFA),
+                                                        ),
+                                                        w: FontWeight.w600,
+                                                        lh: 22,
+                                                        tab: true,
                                                       ),
-                                                      w: FontWeight.w600,
-                                                      lh: 22,
-                                                      tab: true,
+                                                      0,
+                                                      '',
+                                                      false,
                                                     ),
                                                   ),
                                                 ),
@@ -2387,9 +2429,9 @@ class AppointmentSettingsPage extends StatelessWidget {
                         context,
                         [
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.04),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
+                            color: Color.fromRGBO(0, 0, 0, 0.06),
+                            offset: Offset(0, 0),
+                            blurRadius: 1,
                             spreadRadius: 0,
                           ),
                           BoxShadow(
@@ -2399,9 +2441,9 @@ class AppointmentSettingsPage extends StatelessWidget {
                             spreadRadius: 0,
                           ),
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 0),
-                            blurRadius: 1,
+                            color: Color.fromRGBO(0, 0, 0, 0.04),
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
                             spreadRadius: 0,
                           ),
                         ],

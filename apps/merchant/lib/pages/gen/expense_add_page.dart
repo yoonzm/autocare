@@ -31,9 +31,9 @@ class ExpenseAddPage extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -43,9 +43,9 @@ class ExpenseAddPage extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -112,9 +112,9 @@ class ExpenseAddPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -124,9 +124,9 @@ class ExpenseAddPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -202,9 +202,9 @@ class ExpenseAddPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -214,9 +214,9 @@ class ExpenseAddPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -736,9 +736,9 @@ class ExpenseAddPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -748,9 +748,9 @@ class ExpenseAddPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -939,9 +939,9 @@ class ExpenseAddPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -951,9 +951,9 @@ class ExpenseAddPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -1127,9 +1127,9 @@ class ExpenseAddPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -1139,9 +1139,9 @@ class ExpenseAddPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -1222,9 +1222,9 @@ class ExpenseAddPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -1234,9 +1234,9 @@ class ExpenseAddPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -1291,29 +1291,33 @@ class ExpenseAddPage extends StatelessWidget {
                       ),
                       hrow(
                         [
-                          HImageAdd(
-                            imgKey: 'ExpenseAdd_3',
-                            size: 72,
-                            radius: 16,
-                            child: hbox(
-                              w: 72,
-                              h: 72,
-                              radius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: Color(0xFFC7C7CC),
-                                width: 1.5,
-                              ),
-                              child: hrow(
-                                [
-                                  hsvg(
-                                    dk(context, Svgs.s125, Svgs.s126),
-                                    w: 24,
-                                    h: 24,
-                                  ),
-                                ],
-                                main: MainAxisAlignment.center,
-                                cross: CrossAxisAlignment.center,
-                                gap: 0,
+                          UnconstrainedBox(
+                            alignment: Alignment.topLeft,
+                            constrainedAxis: Axis.horizontal,
+                            child: HImageAdd(
+                              imgKey: 'ExpenseAdd_3',
+                              size: 72,
+                              radius: 16,
+                              child: hbox(
+                                w: 72,
+                                h: 72,
+                                radius: BorderRadius.circular(16),
+                                border: Border.all(
+                                  color: Color(0xFFC7C7CC),
+                                  width: 1.5,
+                                ),
+                                child: hrow(
+                                  [
+                                    hsvg(
+                                      dk(context, Svgs.s125, Svgs.s126),
+                                      w: 24,
+                                      h: 24,
+                                    ),
+                                  ],
+                                  main: MainAxisAlignment.center,
+                                  cross: CrossAxisAlignment.center,
+                                  gap: 0,
+                                ),
                               ),
                             ),
                           ),
@@ -1336,9 +1340,9 @@ class ExpenseAddPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -1348,9 +1352,9 @@ class ExpenseAddPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],

@@ -66,7 +66,7 @@ class RegDonePage extends StatelessWidget {
                             bg: Color(0xFF17C964),
                             radius: BorderRadius.circular(26),
                             child: hrow(
-                              [hsvg(Svgs.s334, w: 26, h: 26)],
+                              [hsvg(Svgs.s335, w: 26, h: 26)],
                               main: MainAxisAlignment.center,
                               cross: CrossAxisAlignment.center,
                               gap: 0,
@@ -221,9 +221,9 @@ class RegDonePage extends StatelessWidget {
                         context,
                         [
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.04),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
+                            color: Color.fromRGBO(0, 0, 0, 0.06),
+                            offset: Offset(0, 0),
+                            blurRadius: 1,
                             spreadRadius: 0,
                           ),
                           BoxShadow(
@@ -233,9 +233,9 @@ class RegDonePage extends StatelessWidget {
                             spreadRadius: 0,
                           ),
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 0),
-                            blurRadius: 1,
+                            color: Color.fromRGBO(0, 0, 0, 0.04),
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
                             spreadRadius: 0,
                           ),
                         ],
@@ -568,9 +568,9 @@ class RegDonePage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -580,9 +580,9 @@ class RegDonePage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],

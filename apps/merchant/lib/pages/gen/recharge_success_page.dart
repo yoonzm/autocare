@@ -31,9 +31,9 @@ class RechargeSuccessPage extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -43,9 +43,9 @@ class RechargeSuccessPage extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -242,9 +242,9 @@ class RechargeSuccessPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -254,9 +254,9 @@ class RechargeSuccessPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -491,9 +491,9 @@ class RechargeSuccessPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -503,9 +503,9 @@ class RechargeSuccessPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -699,52 +699,60 @@ class RechargeSuccessPage extends StatelessWidget {
               [
                 Expanded(
                   flex: 1,
-                  child: hTap(
-                    context,
-                    hbox(
-                      h: 50,
-                      bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
-                      radius: BorderRadius.circular(25),
-                      child: Align(
-                        alignment: Alignment(0, 0),
-                        widthFactor: 1,
-                        child: Text(
-                          '再充一笔',
-                          style: hts(
-                            15,
-                            dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                            w: FontWeight.w500,
-                            lh: 22,
+                  child: UnconstrainedBox(
+                    alignment: Alignment.topLeft,
+                    constrainedAxis: Axis.horizontal,
+                    child: hTap(
+                      context,
+                      hbox(
+                        h: 50,
+                        bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(25),
+                        child: Align(
+                          alignment: Alignment(0, 0),
+                          widthFactor: 1,
+                          child: Text(
+                            '再充一笔',
+                            style: hts(
+                              15,
+                              dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                              w: FontWeight.w500,
+                              lh: 22,
+                            ),
                           ),
                         ),
                       ),
+                      to: 'Recharge',
                     ),
-                    to: 'Recharge',
                   ),
                 ),
                 Expanded(
                   flex: 1,
-                  child: hTap(
-                    context,
-                    hbox(
-                      h: 50,
-                      bg: dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                      radius: BorderRadius.circular(25),
-                      child: Align(
-                        alignment: Alignment(0, 0),
-                        widthFactor: 1,
-                        child: Text(
-                          '完成',
-                          style: hts(
-                            15,
-                            dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                            w: FontWeight.w600,
-                            lh: 22,
+                  child: UnconstrainedBox(
+                    alignment: Alignment.topLeft,
+                    constrainedAxis: Axis.horizontal,
+                    child: hTap(
+                      context,
+                      hbox(
+                        h: 50,
+                        bg: dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                        radius: BorderRadius.circular(25),
+                        child: Align(
+                          alignment: Alignment(0, 0),
+                          widthFactor: 1,
+                          child: Text(
+                            '完成',
+                            style: hts(
+                              15,
+                              dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                              w: FontWeight.w600,
+                              lh: 22,
+                            ),
                           ),
                         ),
                       ),
+                      to: 'Main',
                     ),
-                    to: 'Main',
                   ),
                 ),
               ],

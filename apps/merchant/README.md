@@ -1,6 +1,6 @@
 # Merchant app
 
-汽美管家商户端 Flutter 原型，从 LanScope 仓库的 `claude/sleepy-clarke-4ehenr` 分支（提交 `6544de9`）迁入。目前使用 mock 数据，尚未接入 Supabase。
+汽美管家商户端 Flutter 原型，从 LanScope 仓库的 `claude/sleepy-clarke-4ehenr` 分支（提交 `e696c67`）迁入。目前使用 mock 数据，尚未接入 Supabase。
 
 ```sh
 flutter pub get

@@ -129,6 +129,49 @@ const Set<String> _modalPages = {
   'FindScanCode',
 };
 
+/// 同一页面里的两个 Tab：设计稿把它们画成两张图，实际是一个页面里切换。
+/// 键是页面（路由）名，值是依次对应的两个设计稿页面。
+const Map<String, List<String>> _pairs = {
+  'Recharge': ['Recharge', 'RechargeCard'],
+  'CardTiers': ['CardTiers', 'CardPackages'],
+};
+final Map<String, ValueNotifier<int>> pairTabs = {
+  for (final k in _pairs.keys) k: ValueNotifier<int>(0),
+};
+String? _pairOf(String name) {
+  for (final e in _pairs.entries) {
+    if (e.value.contains(name)) return e.key;
+  }
+  return null;
+}
+
+class PairPage extends StatefulWidget {
+  final String id;
+  final int initial;
+  const PairPage(this.id, this.initial, {super.key});
+  @override
+  State<PairPage> createState() => _PairPageState();
+}
+
+class _PairPageState extends State<PairPage> {
+  @override
+  void initState() {
+    super.initState();
+    pairTabs[widget.id]!.value = widget.initial;
+  }
+
+  @override
+  Widget build(BuildContext context) => ValueListenableBuilder<int>(
+    valueListenable: pairTabs[widget.id]!,
+    builder: (context, i, _) => IndexedStack(
+      index: i,
+      children: [
+        for (final n in _pairs[widget.id]!) Builder(builder: genRoutes[n]!),
+      ],
+    ),
+  );
+}
+
 String? _routeName(BuildContext context) =>
     ModalRoute.of(context)?.settings.name;
 
@@ -146,6 +189,22 @@ void openRoute(BuildContext context, String name) {
         (cur == 'sheet:ThemeSheet' && name == 'Settings')) {
       return; // 点遮罩 / 取消：回到所属页面
     }
+  }
+  final pairId = _pairOf(name);
+  if (pairId != null) {
+    final idx = _pairs[pairId]!.indexOf(name);
+    if (navTracker.has(pairId)) {
+      nav.popUntil((r) => r.settings.name == pairId || r.isFirst);
+      pairTabs[pairId]!.value = idx;
+    } else {
+      nav.push(
+        MaterialPageRoute<void>(
+          settings: RouteSettings(name: pairId),
+          builder: (_) => PairPage(pairId, idx),
+        ),
+      );
+    }
+    return;
   }
   if (_allSheets.containsKey(name)) {
     if (navTracker.has('sheet:$name')) {

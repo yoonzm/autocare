@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../kit/keyboard.dart';
 import '../kit/pickers.dart';
 import '../mock/mock_data.dart';
 import '../theme.dart';
@@ -23,6 +24,12 @@ class _OrderPageState extends State<OrderPage> {
     ('组合支付', '余额 + 其他'),
   ];
   int cat = 0;
+  bool searching = false;
+  String query = '';
+  final _searchCtl = TextEditingController();
+  String bay = '2 号工位';
+  String finish = '今天 15:30';
+  static const _bays = ['1 号工位', '2 号工位', '3 号工位', '4 号工位', '5 号工位', '贴膜间'];
   late Member customer = widget.member ?? members.first;
   int pay = 0;
   final Set<int> picked = {0, 1};
@@ -235,8 +242,77 @@ class _OrderPageState extends State<OrderPage> {
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Text('服务项目', style: ts(15, w: FontWeight.w600, h: 22)),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text('服务项目', style: ts(15, w: FontWeight.w600, h: 22)),
+              ),
+              Semantics(
+                button: true,
+                label: '搜索项目',
+                child: GestureDetector(
+                  onTap: () => setState(() {
+                    searching = !searching;
+                    if (!searching) {
+                      query = '';
+                      _searchCtl.clear();
+                    }
+                  }),
+                  child: Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: searching ? C.primarySoft : C.inset,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: AppIcon(
+                        searching ? 'close' : 'search',
+                        size: 16,
+                        color: searching ? C.primaryInk : C.sub,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
+        if (searching) ...[
+          const SizedBox(height: 12),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Container(
+              height: 40,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                color: C.inset,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Row(
+                children: [
+                  AppIcon('search', size: 16, color: C.muted),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: TextField(
+                      controller: _searchCtl,
+                      autofocus: true,
+                      onTapOutside: onTapOutsideDismiss,
+                      onChanged: (v) => setState(() => query = v.trim()),
+                      style: ts(14),
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        isCollapsed: true,
+                        hintText: '搜索服务项目',
+                        hintStyle: ts(14, color: C.muted),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
         const SizedBox(height: 12),
         SizedBox(
           height: 32,
@@ -269,7 +345,18 @@ class _OrderPageState extends State<OrderPage> {
         ),
         const SizedBox(height: 8),
         for (var i = 0; i < orderServices.length; i++)
-          if (orderServices[i].cats.contains(_cats[cat])) _serviceRow(i),
+          if (query.isNotEmpty
+              ? orderServices[i].name.contains(query)
+              : orderServices[i].cats.contains(_cats[cat]))
+            _serviceRow(i),
+        if (query.isNotEmpty &&
+            !orderServices.any((e) => e.name.contains(query)))
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 24),
+            child: Center(
+              child: Text('没有找到「$query」', style: ts(13, color: C.muted)),
+            ),
+          ),
       ],
     ),
   );
@@ -411,9 +498,9 @@ class _OrderPageState extends State<OrderPage> {
           const SizedBox(height: 12),
           Row(
             children: [
-              Expanded(child: _kv('工位', '2 号工位')),
+              Expanded(child: _kv('工位', bay, _pickBay)),
               const SizedBox(width: 8),
-              Expanded(child: _kv('预计完工', '今天 15:30')),
+              Expanded(child: _kv('预计完工', finish, _pickFinish)),
             ],
           ),
         ],
@@ -421,18 +508,38 @@ class _OrderPageState extends State<OrderPage> {
     );
   }
 
-  Widget _kv(String k, String v) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-    decoration: BoxDecoration(
-      color: C.inset,
-      borderRadius: BorderRadius.circular(14),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(k, style: ts(12, color: C.muted, h: 16)),
-        Text(v, style: ts(14, w: FontWeight.w500, h: 20)),
-      ],
+  Future<void> _pickBay() async {
+    final r = await pickFromList(context, '选择工位', _bays, bay);
+    if (r != null && mounted) setState(() => bay = r);
+  }
+
+  Future<void> _pickFinish() async {
+    final r = await pickTime(context, '选择预计完工时间', finish);
+    if (r != null && mounted) setState(() => finish = '今天 $r');
+  }
+
+  Widget _kv(String k, String v, VoidCallback onTap) => GestureDetector(
+    behavior: HitTestBehavior.opaque,
+    onTap: onTap,
+    child: Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: C.inset,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(k, style: ts(12, color: C.muted, h: 16)),
+                Text(v, style: ts(14, w: FontWeight.w500, h: 20)),
+              ],
+            ),
+          ),
+        ],
+      ),
     ),
   );
 

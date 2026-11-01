@@ -10,12 +10,24 @@ import '../widgets/app_icon.dart';
 /// 扫描页的四种形态：扫码找会员（车牌 / 会员码）、扫描建档（行驶证 / 车牌）。
 enum ScanKind { findPlate, findCode, licenseCard, plateCard }
 
-class ScanPage extends StatelessWidget {
-  final ScanKind kind;
-  const ScanPage(this.kind, {super.key});
+class ScanPage extends StatefulWidget {
+  final ScanKind initial;
+  const ScanPage(this.initial, {super.key});
+  @override
+  State<ScanPage> createState() => _ScanPageState();
+}
+
+class _ScanPageState extends State<ScanPage> {
+  /// 同一个页面里的两个 Tab：车牌 / 会员码（扫码找会员），行驶证 / 车牌（扫描建档）。
+  late ScanKind kind = widget.initial;
 
   bool get _find => kind == ScanKind.findPlate || kind == ScanKind.findCode;
   bool get _first => kind == ScanKind.findPlate || kind == ScanKind.licenseCard;
+  void _switch(int i) => setState(
+    () => kind = _find
+        ? (i == 0 ? ScanKind.findPlate : ScanKind.findCode)
+        : (i == 0 ? ScanKind.licenseCard : ScanKind.plateCard),
+  );
 
   String get _title => _find ? '扫码找会员' : '扫描建档';
   List<(String, String, String)> get _tabs => _find
@@ -150,14 +162,22 @@ class ScanPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     _side(context, 'info', '相册', () async {
-                      await hPickImage(context, 'scan_album');
-                      if (context.mounted &&
-                          imageStore('scan_album').value.isNotEmpty) {
-                        openRoute(context, _result);
-                      }
+                      final ok = await hCaptureImage(
+                        context,
+                        'scan_photo',
+                        camera: false,
+                      );
+                      if (ok && context.mounted) openRoute(context, _result);
                     }),
                     GestureDetector(
-                      onTap: () => openRoute(context, _result),
+                      onTap: () async {
+                        final ok = await hCaptureImage(
+                          context,
+                          'scan_photo',
+                          camera: true,
+                        );
+                        if (ok && context.mounted) openRoute(context, _result);
+                      },
                       child: Semantics(
                         button: true,
                         label: '拍照识别',
@@ -264,20 +284,7 @@ class ScanPage extends StatelessWidget {
           if (i > 0) const SizedBox(width: 2),
           Expanded(
             child: GestureDetector(
-              onTap: () {
-                final on = (i == 0) == _first;
-                if (on) return;
-                final name = _tabs[i].$3;
-                final page = pageFor(name);
-                if (page == null) return;
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute<void>(
-                    settings: RouteSettings(name: name),
-                    fullscreenDialog: true,
-                    builder: (_) => page,
-                  ),
-                );
-              },
+              onTap: () => _switch(i),
               child: Container(
                 height: 36,
                 decoration: BoxDecoration(

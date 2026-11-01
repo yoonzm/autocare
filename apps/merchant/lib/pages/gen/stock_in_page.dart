@@ -31,9 +31,9 @@ class StockInPage extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -43,9 +43,9 @@ class StockInPage extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -126,9 +126,9 @@ class StockInPage extends StatelessWidget {
                         context,
                         [
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.04),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
+                            color: Color.fromRGBO(0, 0, 0, 0.06),
+                            offset: Offset(0, 0),
+                            blurRadius: 1,
                             spreadRadius: 0,
                           ),
                           BoxShadow(
@@ -138,9 +138,9 @@ class StockInPage extends StatelessWidget {
                             spreadRadius: 0,
                           ),
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 0),
-                            blurRadius: 1,
+                            color: Color.fromRGBO(0, 0, 0, 0.04),
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
                             spreadRadius: 0,
                           ),
                         ],
@@ -372,9 +372,9 @@ class StockInPage extends StatelessWidget {
                         context,
                         [
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.04),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
+                            color: Color.fromRGBO(0, 0, 0, 0.06),
+                            offset: Offset(0, 0),
+                            blurRadius: 1,
                             spreadRadius: 0,
                           ),
                           BoxShadow(
@@ -384,9 +384,9 @@ class StockInPage extends StatelessWidget {
                             spreadRadius: 0,
                           ),
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 0),
-                            blurRadius: 1,
+                            color: Color.fromRGBO(0, 0, 0, 0.04),
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
                             spreadRadius: 0,
                           ),
                         ],
@@ -463,8 +463,8 @@ class StockInPage extends StatelessWidget {
                                               hsvg(
                                                 dk(
                                                   context,
-                                                  Svgs.s357,
                                                   Svgs.s358,
+                                                  Svgs.s359,
                                                 ),
                                                 w: 14,
                                                 h: 14,
@@ -563,18 +563,25 @@ class StockInPage extends StatelessWidget {
                                                 flex: 9,
                                                 child: hbox(
                                                   minW: 36,
-                                                  child: hCount(
-                                                    c4,
-                                                    hts(
-                                                      15,
-                                                      dk(
-                                                        context,
-                                                        Color(0xFF18181B),
-                                                        Color(0xFFFAFAFA),
+                                                  child: Align(
+                                                    alignment: Alignment.center,
+                                                    widthFactor: 1,
+                                                    child: hCount(
+                                                      c4,
+                                                      hts(
+                                                        15,
+                                                        dk(
+                                                          context,
+                                                          Color(0xFF18181B),
+                                                          Color(0xFFFAFAFA),
+                                                        ),
+                                                        w: FontWeight.w600,
+                                                        lh: 22,
+                                                        tab: true,
                                                       ),
-                                                      w: FontWeight.w600,
-                                                      lh: 22,
-                                                      tab: true,
+                                                      0,
+                                                      '',
+                                                      false,
                                                     ),
                                                   ),
                                                 ),
@@ -622,20 +629,24 @@ class StockInPage extends StatelessWidget {
                                       ),
                                       hbox(
                                         minW: 78,
-                                        child: Text(
-                                          '¥14,280.00',
-                                          style: hts(
-                                            15,
-                                            dk(
-                                              context,
-                                              Color(0xFF18181B),
-                                              Color(0xFFFAFAFA),
+                                        child: Align(
+                                          alignment: Alignment.centerRight,
+                                          widthFactor: 1,
+                                          child: Text(
+                                            '¥14,280.00',
+                                            style: hts(
+                                              15,
+                                              dk(
+                                                context,
+                                                Color(0xFF18181B),
+                                                Color(0xFFFAFAFA),
+                                              ),
+                                              w: FontWeight.w600,
+                                              lh: 22,
+                                              tab: true,
                                             ),
-                                            w: FontWeight.w600,
-                                            lh: 22,
-                                            tab: true,
+                                            textAlign: TextAlign.right,
                                           ),
-                                          textAlign: TextAlign.right,
                                         ),
                                       ),
                                     ],
@@ -703,8 +714,8 @@ class StockInPage extends StatelessWidget {
                                               hsvg(
                                                 dk(
                                                   context,
-                                                  Svgs.s357,
                                                   Svgs.s358,
+                                                  Svgs.s359,
                                                 ),
                                                 w: 14,
                                                 h: 14,
@@ -803,18 +814,25 @@ class StockInPage extends StatelessWidget {
                                                 flex: 17,
                                                 child: hbox(
                                                   minW: 36,
-                                                  child: hCount(
-                                                    c5,
-                                                    hts(
-                                                      15,
-                                                      dk(
-                                                        context,
-                                                        Color(0xFF18181B),
-                                                        Color(0xFFFAFAFA),
+                                                  child: Align(
+                                                    alignment: Alignment.center,
+                                                    widthFactor: 1,
+                                                    child: hCount(
+                                                      c5,
+                                                      hts(
+                                                        15,
+                                                        dk(
+                                                          context,
+                                                          Color(0xFF18181B),
+                                                          Color(0xFFFAFAFA),
+                                                        ),
+                                                        w: FontWeight.w600,
+                                                        lh: 22,
+                                                        tab: true,
                                                       ),
-                                                      w: FontWeight.w600,
-                                                      lh: 22,
-                                                      tab: true,
+                                                      0,
+                                                      '',
+                                                      false,
                                                     ),
                                                   ),
                                                 ),
@@ -862,20 +880,24 @@ class StockInPage extends StatelessWidget {
                                       ),
                                       hbox(
                                         minW: 78,
-                                        child: Text(
-                                          '¥1,680.00',
-                                          style: hts(
-                                            15,
-                                            dk(
-                                              context,
-                                              Color(0xFF18181B),
-                                              Color(0xFFFAFAFA),
+                                        child: Align(
+                                          alignment: Alignment.centerRight,
+                                          widthFactor: 1,
+                                          child: Text(
+                                            '¥1,680.00',
+                                            style: hts(
+                                              15,
+                                              dk(
+                                                context,
+                                                Color(0xFF18181B),
+                                                Color(0xFFFAFAFA),
+                                              ),
+                                              w: FontWeight.w600,
+                                              lh: 22,
+                                              tab: true,
                                             ),
-                                            w: FontWeight.w600,
-                                            lh: 22,
-                                            tab: true,
+                                            textAlign: TextAlign.right,
                                           ),
-                                          textAlign: TextAlign.right,
                                         ),
                                       ),
                                     ],
@@ -901,90 +923,98 @@ class StockInPage extends StatelessWidget {
                               [
                                 Expanded(
                                   flex: 1,
-                                  child: hTap(
-                                    context,
-                                    hbox(
-                                      h: 42,
-                                      bg: dk(
-                                        context,
-                                        Color(0xFFE1F0FE),
-                                        Color.fromRGBO(4, 133, 247, 0.18),
-                                      ),
-                                      radius: BorderRadius.circular(21),
-                                      child: hrow(
-                                        [
-                                          hsvg(
-                                            dk(context, Svgs.s359, Svgs.s360),
-                                            w: 16,
-                                            h: 16,
-                                          ),
-                                          Flexible(
-                                            flex: 56,
-                                            child: Text(
-                                              '添加商品',
-                                              style: hts(
-                                                14,
-                                                dk(
-                                                  context,
-                                                  Color(0xFF1E63AE),
-                                                  Color(0xFF6AB4FA),
+                                  child: UnconstrainedBox(
+                                    alignment: Alignment.topLeft,
+                                    constrainedAxis: Axis.horizontal,
+                                    child: hTap(
+                                      context,
+                                      hbox(
+                                        h: 42,
+                                        bg: dk(
+                                          context,
+                                          Color(0xFFE1F0FE),
+                                          Color.fromRGBO(4, 133, 247, 0.18),
+                                        ),
+                                        radius: BorderRadius.circular(21),
+                                        child: hrow(
+                                          [
+                                            hsvg(
+                                              dk(context, Svgs.s360, Svgs.s361),
+                                              w: 16,
+                                              h: 16,
+                                            ),
+                                            Flexible(
+                                              flex: 56,
+                                              child: Text(
+                                                '添加商品',
+                                                style: hts(
+                                                  14,
+                                                  dk(
+                                                    context,
+                                                    Color(0xFF1E63AE),
+                                                    Color(0xFF6AB4FA),
+                                                  ),
+                                                  w: FontWeight.w600,
+                                                  lh: 20,
                                                 ),
-                                                w: FontWeight.w600,
-                                                lh: 20,
                                               ),
                                             ),
-                                          ),
-                                        ],
-                                        main: MainAxisAlignment.center,
-                                        cross: CrossAxisAlignment.center,
-                                        gap: 6,
+                                          ],
+                                          main: MainAxisAlignment.center,
+                                          cross: CrossAxisAlignment.center,
+                                          gap: 6,
+                                        ),
                                       ),
+                                      label: '添加商品',
                                     ),
-                                    label: '添加商品',
                                   ),
                                 ),
                                 Expanded(
                                   flex: 1,
-                                  child: hTap(
-                                    context,
-                                    hbox(
-                                      h: 42,
-                                      bg: dk(
-                                        context,
-                                        Color(0xFFEEEEF0),
-                                        Color(0xFF27272A),
-                                      ),
-                                      radius: BorderRadius.circular(21),
-                                      child: hrow(
-                                        [
-                                          hsvg(
-                                            dk(context, Svgs.s361, Svgs.s362),
-                                            w: 16,
-                                            h: 16,
-                                          ),
-                                          Flexible(
-                                            flex: 56,
-                                            child: Text(
-                                              '扫码添加',
-                                              style: hts(
-                                                14,
-                                                dk(
-                                                  context,
-                                                  Color(0xFF18181B),
-                                                  Color(0xFFFAFAFA),
+                                  child: UnconstrainedBox(
+                                    alignment: Alignment.topLeft,
+                                    constrainedAxis: Axis.horizontal,
+                                    child: hTap(
+                                      context,
+                                      hbox(
+                                        h: 42,
+                                        bg: dk(
+                                          context,
+                                          Color(0xFFEEEEF0),
+                                          Color(0xFF27272A),
+                                        ),
+                                        radius: BorderRadius.circular(21),
+                                        child: hrow(
+                                          [
+                                            hsvg(
+                                              dk(context, Svgs.s362, Svgs.s363),
+                                              w: 16,
+                                              h: 16,
+                                            ),
+                                            Flexible(
+                                              flex: 56,
+                                              child: Text(
+                                                '扫码添加',
+                                                style: hts(
+                                                  14,
+                                                  dk(
+                                                    context,
+                                                    Color(0xFF18181B),
+                                                    Color(0xFFFAFAFA),
+                                                  ),
+                                                  w: FontWeight.w500,
+                                                  lh: 20,
                                                 ),
-                                                w: FontWeight.w500,
-                                                lh: 20,
                                               ),
                                             ),
-                                          ),
-                                        ],
-                                        main: MainAxisAlignment.center,
-                                        cross: CrossAxisAlignment.center,
-                                        gap: 6,
+                                          ],
+                                          main: MainAxisAlignment.center,
+                                          cross: CrossAxisAlignment.center,
+                                          gap: 6,
+                                        ),
                                       ),
+                                      label: '扫码添加',
                                     ),
-                                    label: '扫码添加',
                                   ),
                                 ),
                               ],
@@ -1026,9 +1056,9 @@ class StockInPage extends StatelessWidget {
                         context,
                         [
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.04),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
+                            color: Color.fromRGBO(0, 0, 0, 0.06),
+                            offset: Offset(0, 0),
+                            blurRadius: 1,
                             spreadRadius: 0,
                           ),
                           BoxShadow(
@@ -1038,9 +1068,9 @@ class StockInPage extends StatelessWidget {
                             spreadRadius: 0,
                           ),
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 0),
-                            blurRadius: 1,
+                            color: Color.fromRGBO(0, 0, 0, 0.04),
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
                             spreadRadius: 0,
                           ),
                         ],
@@ -1235,9 +1265,9 @@ class StockInPage extends StatelessWidget {
                         context,
                         [
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.04),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
+                            color: Color.fromRGBO(0, 0, 0, 0.06),
+                            offset: Offset(0, 0),
+                            blurRadius: 1,
                             spreadRadius: 0,
                           ),
                           BoxShadow(
@@ -1247,9 +1277,9 @@ class StockInPage extends StatelessWidget {
                             spreadRadius: 0,
                           ),
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 0),
-                            blurRadius: 1,
+                            color: Color.fromRGBO(0, 0, 0, 0.04),
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
                             spreadRadius: 0,
                           ),
                         ],
@@ -1613,9 +1643,9 @@ class StockInPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -1625,9 +1655,9 @@ class StockInPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -1682,51 +1712,59 @@ class StockInPage extends StatelessWidget {
                       ),
                       hrow(
                         [
-                          hbox(
-                            w: 72,
-                            h: 72,
-                            bg: dk(
-                              context,
-                              Color(0xFFEEEEF0),
-                              Color(0xFF27272A),
-                            ),
-                            radius: BorderRadius.circular(16),
-                            child: hrow(
-                              [
-                                hsvg(
-                                  dk(context, Svgs.s142, Svgs.s143),
-                                  w: 26,
-                                  h: 26,
-                                ),
-                              ],
-                              main: MainAxisAlignment.center,
-                              cross: CrossAxisAlignment.center,
-                              gap: 0,
-                            ),
-                          ),
-                          HImageAdd(
-                            imgKey: 'StockIn_10',
-                            size: 72,
-                            radius: 16,
+                          UnconstrainedBox(
+                            alignment: Alignment.topLeft,
+                            constrainedAxis: Axis.horizontal,
                             child: hbox(
                               w: 72,
                               h: 72,
-                              radius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: Color(0xFFC7C7CC),
-                                width: 1.5,
+                              bg: dk(
+                                context,
+                                Color(0xFFEEEEF0),
+                                Color(0xFF27272A),
                               ),
+                              radius: BorderRadius.circular(16),
                               child: hrow(
                                 [
                                   hsvg(
-                                    dk(context, Svgs.s125, Svgs.s126),
-                                    w: 24,
-                                    h: 24,
+                                    dk(context, Svgs.s142, Svgs.s143),
+                                    w: 26,
+                                    h: 26,
                                   ),
                                 ],
                                 main: MainAxisAlignment.center,
                                 cross: CrossAxisAlignment.center,
                                 gap: 0,
+                              ),
+                            ),
+                          ),
+                          UnconstrainedBox(
+                            alignment: Alignment.topLeft,
+                            constrainedAxis: Axis.horizontal,
+                            child: HImageAdd(
+                              imgKey: 'StockIn_10',
+                              size: 72,
+                              radius: 16,
+                              child: hbox(
+                                w: 72,
+                                h: 72,
+                                radius: BorderRadius.circular(16),
+                                border: Border.all(
+                                  color: Color(0xFFC7C7CC),
+                                  width: 1.5,
+                                ),
+                                child: hrow(
+                                  [
+                                    hsvg(
+                                      dk(context, Svgs.s125, Svgs.s126),
+                                      w: 24,
+                                      h: 24,
+                                    ),
+                                  ],
+                                  main: MainAxisAlignment.center,
+                                  cross: CrossAxisAlignment.center,
+                                  gap: 0,
+                                ),
                               ),
                             ),
                           ),

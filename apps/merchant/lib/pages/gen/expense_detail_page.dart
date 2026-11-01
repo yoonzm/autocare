@@ -31,9 +31,9 @@ class ExpenseDetailPage extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -43,9 +43,9 @@ class ExpenseDetailPage extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -93,9 +93,9 @@ class ExpenseDetailPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -105,9 +105,9 @@ class ExpenseDetailPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -195,9 +195,9 @@ class ExpenseDetailPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -207,9 +207,9 @@ class ExpenseDetailPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -496,9 +496,9 @@ class ExpenseDetailPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -508,9 +508,9 @@ class ExpenseDetailPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -537,72 +537,80 @@ class ExpenseDetailPage extends StatelessWidget {
                       ),
                       hrow(
                         [
-                          hbox(
-                            w: 88,
-                            h: 88,
-                            bg: dk(
-                              context,
-                              Color(0xFFEEEEF0),
-                              Color(0xFF27272A),
-                            ),
-                            radius: BorderRadius.circular(16),
-                            child: hcol(
-                              [
-                                hsvg(
-                                  dk(context, Svgs.s142, Svgs.s143),
-                                  w: 26,
-                                  h: 26,
-                                ),
-                                Text(
-                                  '送货单',
-                                  style: hts(
-                                    11,
-                                    dk(
-                                      context,
-                                      Color(0xFF71717A),
-                                      Color(0xFF9A9AA3),
+                          UnconstrainedBox(
+                            alignment: Alignment.topLeft,
+                            constrainedAxis: Axis.horizontal,
+                            child: hbox(
+                              w: 88,
+                              h: 88,
+                              bg: dk(
+                                context,
+                                Color(0xFFEEEEF0),
+                                Color(0xFF27272A),
+                              ),
+                              radius: BorderRadius.circular(16),
+                              child: hcol(
+                                [
+                                  hsvg(
+                                    dk(context, Svgs.s142, Svgs.s143),
+                                    w: 26,
+                                    h: 26,
+                                  ),
+                                  Text(
+                                    '送货单',
+                                    style: hts(
+                                      11,
+                                      dk(
+                                        context,
+                                        Color(0xFF71717A),
+                                        Color(0xFF9A9AA3),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
-                              main: MainAxisAlignment.center,
-                              cross: CrossAxisAlignment.center,
-                              gap: 4,
-                              min: false,
+                                ],
+                                main: MainAxisAlignment.center,
+                                cross: CrossAxisAlignment.center,
+                                gap: 4,
+                                min: false,
+                              ),
                             ),
                           ),
-                          hbox(
-                            w: 88,
-                            h: 88,
-                            bg: dk(
-                              context,
-                              Color(0xFFEEEEF0),
-                              Color(0xFF27272A),
-                            ),
-                            radius: BorderRadius.circular(16),
-                            child: hcol(
-                              [
-                                hsvg(
-                                  dk(context, Svgs.s142, Svgs.s143),
-                                  w: 26,
-                                  h: 26,
-                                ),
-                                Text(
-                                  '转账回单',
-                                  style: hts(
-                                    11,
-                                    dk(
-                                      context,
-                                      Color(0xFF71717A),
-                                      Color(0xFF9A9AA3),
+                          UnconstrainedBox(
+                            alignment: Alignment.topLeft,
+                            constrainedAxis: Axis.horizontal,
+                            child: hbox(
+                              w: 88,
+                              h: 88,
+                              bg: dk(
+                                context,
+                                Color(0xFFEEEEF0),
+                                Color(0xFF27272A),
+                              ),
+                              radius: BorderRadius.circular(16),
+                              child: hcol(
+                                [
+                                  hsvg(
+                                    dk(context, Svgs.s142, Svgs.s143),
+                                    w: 26,
+                                    h: 26,
+                                  ),
+                                  Text(
+                                    '转账回单',
+                                    style: hts(
+                                      11,
+                                      dk(
+                                        context,
+                                        Color(0xFF71717A),
+                                        Color(0xFF9A9AA3),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
-                              main: MainAxisAlignment.center,
-                              cross: CrossAxisAlignment.center,
-                              gap: 4,
-                              min: false,
+                                ],
+                                main: MainAxisAlignment.center,
+                                cross: CrossAxisAlignment.center,
+                                gap: 4,
+                                min: false,
+                              ),
                             ),
                           ),
                         ],

@@ -306,28 +306,32 @@ class CouponSheetSheet extends StatelessWidget {
                   ),
                 ),
               ),
-              hTap(
-                context,
-                hbox(
-                  h: 44,
-                  bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
-                  radius: BorderRadius.circular(22),
-                  pad: EdgeInsets.fromLTRB(18, 0, 18, 0),
-                  child: Align(
-                    alignment: Alignment.center,
-                    widthFactor: 1,
-                    child: Text(
-                      '兑换',
-                      style: hts(
-                        14,
-                        dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                        w: FontWeight.w500,
-                        lh: 20,
+              UnconstrainedBox(
+                alignment: Alignment.topLeft,
+                constrainedAxis: Axis.horizontal,
+                child: hTap(
+                  context,
+                  hbox(
+                    h: 44,
+                    bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
+                    radius: BorderRadius.circular(22),
+                    pad: EdgeInsets.fromLTRB(18, 0, 18, 0),
+                    child: Align(
+                      alignment: Alignment.center,
+                      widthFactor: 1,
+                      child: Text(
+                        '兑换',
+                        style: hts(
+                          14,
+                          dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                          w: FontWeight.w500,
+                          lh: 20,
+                        ),
                       ),
                     ),
                   ),
+                  label: '兑换',
                 ),
-                label: '兑换',
               ),
             ],
             main: MainAxisAlignment.start,
@@ -339,52 +343,60 @@ class CouponSheetSheet extends StatelessWidget {
             [
               Expanded(
                 flex: 10,
-                child: hTap(
-                  context,
-                  hbox(
-                    h: 50,
-                    bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
-                    radius: BorderRadius.circular(25),
-                    child: Align(
-                      alignment: Alignment(0, 0),
-                      widthFactor: 1,
-                      child: Text(
-                        '不使用优惠券',
-                        style: hts(
-                          15,
-                          dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                          w: FontWeight.w500,
-                          lh: 22,
+                child: UnconstrainedBox(
+                  alignment: Alignment.topLeft,
+                  constrainedAxis: Axis.horizontal,
+                  child: hTap(
+                    context,
+                    hbox(
+                      h: 50,
+                      bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
+                      radius: BorderRadius.circular(25),
+                      child: Align(
+                        alignment: Alignment(0, 0),
+                        widthFactor: 1,
+                        child: Text(
+                          '不使用优惠券',
+                          style: hts(
+                            15,
+                            dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                            w: FontWeight.w500,
+                            lh: 22,
+                          ),
                         ),
                       ),
                     ),
+                    to: 'PlanCheckout',
                   ),
-                  to: 'PlanCheckout',
                 ),
               ),
               Expanded(
                 flex: 16,
-                child: hTap(
-                  context,
-                  hbox(
-                    h: 50,
-                    bg: dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                    radius: BorderRadius.circular(25),
-                    child: Align(
-                      alignment: Alignment(0, 0),
-                      widthFactor: 1,
-                      child: Text(
-                        '确定 · 减 ¥200',
-                        style: hts(
-                          15,
-                          dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                          w: FontWeight.w600,
-                          lh: 22,
+                child: UnconstrainedBox(
+                  alignment: Alignment.topLeft,
+                  constrainedAxis: Axis.horizontal,
+                  child: hTap(
+                    context,
+                    hbox(
+                      h: 50,
+                      bg: dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                      radius: BorderRadius.circular(25),
+                      child: Align(
+                        alignment: Alignment(0, 0),
+                        widthFactor: 1,
+                        child: Text(
+                          '确定 · 减 ¥200',
+                          style: hts(
+                            15,
+                            dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                            w: FontWeight.w600,
+                            lh: 22,
+                          ),
                         ),
                       ),
                     ),
+                    to: 'PlanCheckout',
                   ),
-                  to: 'PlanCheckout',
                 ),
               ),
             ],

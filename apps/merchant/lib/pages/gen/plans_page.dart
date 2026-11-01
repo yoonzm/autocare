@@ -31,9 +31,9 @@ class PlansPage extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -43,9 +43,9 @@ class PlansPage extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -98,110 +98,34 @@ class PlansPage extends StatelessWidget {
                       [
                         Expanded(
                           flex: 1,
-                          child: HSel(
-                            ctrl: g1[0],
-                            index: 0,
-                            on: hbox(
-                              h: 36,
-                              radius: BorderRadius.circular(16),
-                              shadow: dk(context, [
-                                BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.04),
-                                  offset: Offset(0, 2),
-                                  blurRadius: 4,
-                                  spreadRadius: 0,
-                                ),
-                                BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.06),
-                                  offset: Offset(0, 1),
-                                  blurRadius: 2,
-                                  spreadRadius: 0,
-                                ),
-                              ], null),
-                              child: Align(
-                                alignment: Alignment.center,
-                                widthFactor: 1,
-                                child: Text(
-                                  '月付',
-                                  style: hts(
-                                    14,
-                                    dk(
-                                      context,
-                                      Color(0xFF18181B),
-                                      Color(0xFFFAFAFA),
-                                    ),
-                                    w: FontWeight.w600,
-                                    lh: 20,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            off: hbox(
-                              h: 36,
-                              radius: BorderRadius.circular(16),
-                              child: Align(
-                                alignment: Alignment.center,
-                                widthFactor: 1,
-                                child: Text(
-                                  '月付',
-                                  style: hts(
-                                    14,
-                                    dk(
-                                      context,
-                                      Color(0xFF52525B),
-                                      Color(0xFFA8A8B3),
-                                    ),
-                                    w: FontWeight.w500,
-                                    lh: 20,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 1,
-                          child: HSel(
-                            ctrl: g1[0],
-                            index: 1,
-                            on: hbox(
-                              h: 36,
-                              bg: dk(
-                                context,
-                                Color(0xFFFFFFFF),
-                                Color(0xFF18181B),
-                              ),
-                              radius: BorderRadius.circular(16),
-                              shadow: dk(
-                                context,
-                                [
-                                  BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.04),
-                                    offset: Offset(0, 2),
-                                    blurRadius: 4,
-                                    spreadRadius: 0,
-                                  ),
+                          child: UnconstrainedBox(
+                            alignment: Alignment.topLeft,
+                            constrainedAxis: Axis.horizontal,
+                            child: HSel(
+                              ctrl: g1[0],
+                              index: 0,
+                              on: hbox(
+                                h: 36,
+                                radius: BorderRadius.circular(16),
+                                shadow: dk(context, [
                                   BoxShadow(
                                     color: Color.fromRGBO(0, 0, 0, 0.06),
                                     offset: Offset(0, 1),
                                     blurRadius: 2,
                                     spreadRadius: 0,
                                   ),
-                                ],
-                                [
                                   BoxShadow(
-                                    color: Color(0xFF26262B),
-                                    offset: Offset(0, 0),
-                                    blurRadius: 0,
-                                    spreadRadius: 1,
+                                    color: Color.fromRGBO(0, 0, 0, 0.04),
+                                    offset: Offset(0, 2),
+                                    blurRadius: 4,
+                                    spreadRadius: 0,
                                   ),
-                                ],
-                              ),
-                              child: Align(
-                                alignment: Alignment.center,
-                                widthFactor: 1,
-                                child: Text.rich(
-                                  TextSpan(
+                                ], null),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    '月付',
                                     style: hts(
                                       14,
                                       dk(
@@ -212,51 +136,17 @@ class PlansPage extends StatelessWidget {
                                       w: FontWeight.w600,
                                       lh: 20,
                                     ),
-                                    children: [
-                                      TextSpan(
-                                        text: '年付 ',
-                                        style: hts(
-                                          14,
-                                          dk(
-                                            context,
-                                            Color(0xFF18181B),
-                                            Color(0xFFFAFAFA),
-                                          ),
-                                          w: FontWeight.w600,
-                                          lh: 20,
-                                        ),
-                                      ),
-                                      TextSpan(
-                                        text: '省 2 个月',
-                                        style: hts(
-                                          12,
-                                          dk(
-                                            context,
-                                            Color(0xFF2B7745),
-                                            Color(0xFF5FD48C),
-                                          ),
-                                          w: FontWeight.w600,
-                                          lh: 20,
-                                        ),
-                                      ),
-                                    ],
                                   ),
                                 ),
                               ),
-                            ),
-                            off: hbox(
-                              h: 36,
-                              bg: dk(
-                                context,
-                                Color(0xFFFFFFFF),
-                                Color(0xFF18181B),
-                              ),
-                              radius: BorderRadius.circular(16),
-                              child: Align(
-                                alignment: Alignment.center,
-                                widthFactor: 1,
-                                child: Text.rich(
-                                  TextSpan(
+                              off: hbox(
+                                h: 36,
+                                radius: BorderRadius.circular(16),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    '月付',
                                     style: hts(
                                       14,
                                       dk(
@@ -267,34 +157,152 @@ class PlansPage extends StatelessWidget {
                                       w: FontWeight.w500,
                                       lh: 20,
                                     ),
-                                    children: [
-                                      TextSpan(
-                                        text: '年付 ',
-                                        style: hts(
-                                          14,
-                                          dk(
-                                            context,
-                                            Color(0xFF52525B),
-                                            Color(0xFFA8A8B3),
-                                          ),
-                                          w: FontWeight.w500,
-                                          lh: 20,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: UnconstrainedBox(
+                            alignment: Alignment.topLeft,
+                            constrainedAxis: Axis.horizontal,
+                            child: HSel(
+                              ctrl: g1[0],
+                              index: 1,
+                              on: hbox(
+                                h: 36,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFFFFFFF),
+                                  Color(0xFF18181B),
+                                ),
+                                radius: BorderRadius.circular(16),
+                                shadow: dk(
+                                  context,
+                                  [
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.06),
+                                      offset: Offset(0, 1),
+                                      blurRadius: 2,
+                                      spreadRadius: 0,
+                                    ),
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.04),
+                                      offset: Offset(0, 2),
+                                      blurRadius: 4,
+                                      spreadRadius: 0,
+                                    ),
+                                  ],
+                                  [
+                                    BoxShadow(
+                                      color: Color(0xFF26262B),
+                                      offset: Offset(0, 0),
+                                      blurRadius: 0,
+                                      spreadRadius: 1,
+                                    ),
+                                  ],
+                                ),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text.rich(
+                                    TextSpan(
+                                      style: hts(
+                                        14,
+                                        dk(
+                                          context,
+                                          Color(0xFF18181B),
+                                          Color(0xFFFAFAFA),
                                         ),
+                                        w: FontWeight.w600,
+                                        lh: 20,
                                       ),
-                                      TextSpan(
-                                        text: '省 2 个月',
-                                        style: hts(
-                                          12,
-                                          dk(
-                                            context,
-                                            Color(0xFF2B7745),
-                                            Color(0xFF5FD48C),
+                                      children: [
+                                        TextSpan(
+                                          text: '年付 ',
+                                          style: hts(
+                                            14,
+                                            dk(
+                                              context,
+                                              Color(0xFF18181B),
+                                              Color(0xFFFAFAFA),
+                                            ),
+                                            w: FontWeight.w600,
+                                            lh: 20,
                                           ),
-                                          w: FontWeight.w500,
-                                          lh: 20,
                                         ),
+                                        TextSpan(
+                                          text: '省 2 个月',
+                                          style: hts(
+                                            12,
+                                            dk(
+                                              context,
+                                              Color(0xFF2B7745),
+                                              Color(0xFF5FD48C),
+                                            ),
+                                            w: FontWeight.w600,
+                                            lh: 20,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              off: hbox(
+                                h: 36,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFFFFFFF),
+                                  Color(0xFF18181B),
+                                ),
+                                radius: BorderRadius.circular(16),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text.rich(
+                                    TextSpan(
+                                      style: hts(
+                                        14,
+                                        dk(
+                                          context,
+                                          Color(0xFF52525B),
+                                          Color(0xFFA8A8B3),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 20,
                                       ),
-                                    ],
+                                      children: [
+                                        TextSpan(
+                                          text: '年付 ',
+                                          style: hts(
+                                            14,
+                                            dk(
+                                              context,
+                                              Color(0xFF52525B),
+                                              Color(0xFFA8A8B3),
+                                            ),
+                                            w: FontWeight.w500,
+                                            lh: 20,
+                                          ),
+                                        ),
+                                        TextSpan(
+                                          text: '省 2 个月',
+                                          style: hts(
+                                            12,
+                                            dk(
+                                              context,
+                                              Color(0xFF2B7745),
+                                              Color(0xFF5FD48C),
+                                            ),
+                                            w: FontWeight.w500,
+                                            lh: 20,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
@@ -316,9 +324,9 @@ class PlansPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -328,9 +336,9 @@ class PlansPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -742,9 +750,9 @@ class PlansPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -754,9 +762,9 @@ class PlansPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -988,9 +996,9 @@ class PlansPage extends StatelessWidget {
                         context,
                         [
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.04),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
+                            color: Color.fromRGBO(0, 0, 0, 0.06),
+                            offset: Offset(0, 0),
+                            blurRadius: 1,
                             spreadRadius: 0,
                           ),
                           BoxShadow(
@@ -1000,9 +1008,9 @@ class PlansPage extends StatelessWidget {
                             spreadRadius: 0,
                           ),
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 0),
-                            blurRadius: 1,
+                            color: Color.fromRGBO(0, 0, 0, 0.04),
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
                             spreadRadius: 0,
                           ),
                         ],
@@ -1026,6 +1034,7 @@ class PlansPage extends StatelessWidget {
                                 Expanded(flex: 1, child: SizedBox.shrink()),
                                 hbox(
                                   w: 64,
+                                  align: Alignment.center,
                                   child: Text(
                                     '基础版',
                                     style: hts(
@@ -1042,6 +1051,7 @@ class PlansPage extends StatelessWidget {
                                 ),
                                 hbox(
                                   w: 64,
+                                  align: Alignment.center,
                                   child: Text(
                                     '专业版',
                                     style: hts(
@@ -1054,6 +1064,7 @@ class PlansPage extends StatelessWidget {
                                 ),
                                 hbox(
                                   w: 64,
+                                  align: Alignment.center,
                                   child: Text(
                                     '旗舰版',
                                     style: hts(
@@ -1104,6 +1115,7 @@ class PlansPage extends StatelessWidget {
                                 ),
                                 hbox(
                                   w: 64,
+                                  align: Alignment.center,
                                   child: Text(
                                     '1',
                                     style: hts(
@@ -1121,6 +1133,7 @@ class PlansPage extends StatelessWidget {
                                 ),
                                 hbox(
                                   w: 64,
+                                  align: Alignment.center,
                                   child: Text(
                                     '3',
                                     style: hts(
@@ -1138,6 +1151,7 @@ class PlansPage extends StatelessWidget {
                                 ),
                                 hbox(
                                   w: 64,
+                                  align: Alignment.center,
                                   child: Text(
                                     '10',
                                     style: hts(
@@ -1189,6 +1203,7 @@ class PlansPage extends StatelessWidget {
                                 ),
                                 hbox(
                                   w: 64,
+                                  align: Alignment.center,
                                   child: Text(
                                     '3',
                                     style: hts(
@@ -1206,6 +1221,7 @@ class PlansPage extends StatelessWidget {
                                 ),
                                 hbox(
                                   w: 64,
+                                  align: Alignment.center,
                                   child: Text(
                                     '10',
                                     style: hts(
@@ -1223,6 +1239,7 @@ class PlansPage extends StatelessWidget {
                                 ),
                                 hbox(
                                   w: 64,
+                                  align: Alignment.center,
                                   child: Text(
                                     '不限',
                                     style: hts(
@@ -1274,6 +1291,7 @@ class PlansPage extends StatelessWidget {
                                 ),
                                 hbox(
                                   w: 64,
+                                  align: Alignment.center,
                                   child: Text(
                                     '200',
                                     style: hts(
@@ -1291,6 +1309,7 @@ class PlansPage extends StatelessWidget {
                                 ),
                                 hbox(
                                   w: 64,
+                                  align: Alignment.center,
                                   child: Text(
                                     '1,000',
                                     style: hts(
@@ -1308,6 +1327,7 @@ class PlansPage extends StatelessWidget {
                                 ),
                                 hbox(
                                   w: 64,
+                                  align: Alignment.center,
                                   child: Text(
                                     '3,000',
                                     style: hts(
@@ -1359,6 +1379,7 @@ class PlansPage extends StatelessWidget {
                                 ),
                                 hbox(
                                   w: 64,
+                                  align: Alignment.center,
                                   child: Text(
                                     '✓',
                                     style: hts(
@@ -1376,6 +1397,7 @@ class PlansPage extends StatelessWidget {
                                 ),
                                 hbox(
                                   w: 64,
+                                  align: Alignment.center,
                                   child: Text(
                                     '✓',
                                     style: hts(
@@ -1393,6 +1415,7 @@ class PlansPage extends StatelessWidget {
                                 ),
                                 hbox(
                                   w: 64,
+                                  align: Alignment.center,
                                   child: Text(
                                     '✓',
                                     style: hts(
@@ -1444,6 +1467,7 @@ class PlansPage extends StatelessWidget {
                                 ),
                                 hbox(
                                   w: 64,
+                                  align: Alignment.center,
                                   child: Text(
                                     '—',
                                     style: hts(
@@ -1460,6 +1484,7 @@ class PlansPage extends StatelessWidget {
                                 ),
                                 hbox(
                                   w: 64,
+                                  align: Alignment.center,
                                   child: Text(
                                     '✓',
                                     style: hts(
@@ -1477,6 +1502,7 @@ class PlansPage extends StatelessWidget {
                                 ),
                                 hbox(
                                   w: 64,
+                                  align: Alignment.center,
                                   child: Text(
                                     '✓',
                                     style: hts(
@@ -1528,6 +1554,7 @@ class PlansPage extends StatelessWidget {
                                 ),
                                 hbox(
                                   w: 64,
+                                  align: Alignment.center,
                                   child: Text(
                                     '—',
                                     style: hts(
@@ -1544,6 +1571,7 @@ class PlansPage extends StatelessWidget {
                                 ),
                                 hbox(
                                   w: 64,
+                                  align: Alignment.center,
                                   child: Text(
                                     '✓',
                                     style: hts(
@@ -1561,6 +1589,7 @@ class PlansPage extends StatelessWidget {
                                 ),
                                 hbox(
                                   w: 64,
+                                  align: Alignment.center,
                                   child: Text(
                                     '✓',
                                     style: hts(
@@ -1612,6 +1641,7 @@ class PlansPage extends StatelessWidget {
                                 ),
                                 hbox(
                                   w: 64,
+                                  align: Alignment.center,
                                   child: Text(
                                     '—',
                                     style: hts(
@@ -1628,6 +1658,7 @@ class PlansPage extends StatelessWidget {
                                 ),
                                 hbox(
                                   w: 64,
+                                  align: Alignment.center,
                                   child: Text(
                                     '✓',
                                     style: hts(
@@ -1645,6 +1676,7 @@ class PlansPage extends StatelessWidget {
                                 ),
                                 hbox(
                                   w: 64,
+                                  align: Alignment.center,
                                   child: Text(
                                     '✓',
                                     style: hts(
@@ -1696,6 +1728,7 @@ class PlansPage extends StatelessWidget {
                                 ),
                                 hbox(
                                   w: 64,
+                                  align: Alignment.center,
                                   child: Text(
                                     '—',
                                     style: hts(
@@ -1712,6 +1745,7 @@ class PlansPage extends StatelessWidget {
                                 ),
                                 hbox(
                                   w: 64,
+                                  align: Alignment.center,
                                   child: Text(
                                     '✓',
                                     style: hts(
@@ -1729,6 +1763,7 @@ class PlansPage extends StatelessWidget {
                                 ),
                                 hbox(
                                   w: 64,
+                                  align: Alignment.center,
                                   child: Text(
                                     '✓',
                                     style: hts(
@@ -1780,6 +1815,7 @@ class PlansPage extends StatelessWidget {
                                 ),
                                 hbox(
                                   w: 64,
+                                  align: Alignment.center,
                                   child: Text(
                                     '—',
                                     style: hts(
@@ -1796,6 +1832,7 @@ class PlansPage extends StatelessWidget {
                                 ),
                                 hbox(
                                   w: 64,
+                                  align: Alignment.center,
                                   child: Text(
                                     '—',
                                     style: hts(
@@ -1812,6 +1849,7 @@ class PlansPage extends StatelessWidget {
                                 ),
                                 hbox(
                                   w: 64,
+                                  align: Alignment.center,
                                   child: Text(
                                     '✓',
                                     style: hts(
@@ -1863,6 +1901,7 @@ class PlansPage extends StatelessWidget {
                                 ),
                                 hbox(
                                   w: 64,
+                                  align: Alignment.center,
                                   child: Text(
                                     '—',
                                     style: hts(
@@ -1879,6 +1918,7 @@ class PlansPage extends StatelessWidget {
                                 ),
                                 hbox(
                                   w: 64,
+                                  align: Alignment.center,
                                   child: Text(
                                     '—',
                                     style: hts(
@@ -1895,6 +1935,7 @@ class PlansPage extends StatelessWidget {
                                 ),
                                 hbox(
                                   w: 64,
+                                  align: Alignment.center,
                                   child: Text(
                                     '✓',
                                     style: hts(
@@ -1948,9 +1989,9 @@ class PlansPage extends StatelessWidget {
                         context,
                         [
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.04),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
+                            color: Color.fromRGBO(0, 0, 0, 0.06),
+                            offset: Offset(0, 0),
+                            blurRadius: 1,
                             spreadRadius: 0,
                           ),
                           BoxShadow(
@@ -1960,9 +2001,9 @@ class PlansPage extends StatelessWidget {
                             spreadRadius: 0,
                           ),
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 0),
-                            blurRadius: 1,
+                            color: Color.fromRGBO(0, 0, 0, 0.04),
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
                             spreadRadius: 0,
                           ),
                         ],

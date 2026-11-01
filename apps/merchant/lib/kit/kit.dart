@@ -884,9 +884,28 @@ class _HHolderState extends State<HHolder> {
   Widget build(BuildContext context) => widget.builder(context, ctrls);
 }
 
-Widget hCount(ValCtrl c, TextStyle style) => ListenableBuilder(
+/// 步进器中间的数字：[dec] 小数位（值按 10^dec 放大保存）、[suffix] 单位后缀、[comma] 千分位。
+Widget hCount(
+  ValCtrl c,
+  TextStyle style, [
+  int dec = 0,
+  String suffix = '',
+  bool comma = false,
+]) => ListenableBuilder(
   listenable: c,
-  builder: (_, _) => Text('${c.v}', style: style),
+  builder: (_, _) {
+    final base = dec == 0 ? c.v.toDouble() : c.v / math.pow(10, dec);
+    var t = base.toStringAsFixed(dec);
+    if (comma) {
+      final parts = t.split('.');
+      final ip = parts[0].replaceAllMapped(
+        RegExp(r'\B(?=(\d{3})+(?!\d))'),
+        (_) => ',',
+      );
+      t = parts.length > 1 ? '$ip.${parts[1]}' : ip;
+    }
+    return Text('$t$suffix', style: style);
+  },
 );
 
 Widget hMonth(ValCtrl c, TextStyle style) => ListenableBuilder(

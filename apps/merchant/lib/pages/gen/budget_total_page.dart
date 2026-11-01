@@ -31,9 +31,9 @@ class BudgetTotalPage extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -43,9 +43,9 @@ class BudgetTotalPage extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -112,9 +112,9 @@ class BudgetTotalPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -124,9 +124,9 @@ class BudgetTotalPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -251,9 +251,9 @@ class BudgetTotalPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -263,9 +263,9 @@ class BudgetTotalPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -585,9 +585,9 @@ class BudgetTotalPage extends StatelessWidget {
                         context,
                         [
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.04),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
+                            color: Color.fromRGBO(0, 0, 0, 0.06),
+                            offset: Offset(0, 0),
+                            blurRadius: 1,
                             spreadRadius: 0,
                           ),
                           BoxShadow(
@@ -597,9 +597,9 @@ class BudgetTotalPage extends StatelessWidget {
                             spreadRadius: 0,
                           ),
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 0),
-                            blurRadius: 1,
+                            color: Color.fromRGBO(0, 0, 0, 0.04),
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
                             spreadRadius: 0,
                           ),
                         ],
@@ -703,25 +703,23 @@ class BudgetTotalPage extends StatelessWidget {
                                               ),
                                             ),
                                           ),
-                                          Expanded(
-                                            child: hbox(
-                                              w: 70,
-                                              child: HInput(
-                                                style: hts(
-                                                  15,
-                                                  dk(
-                                                    context,
-                                                    Color(0xFF18181B),
-                                                    Color(0xFFFAFAFA),
-                                                  ),
-                                                  w: FontWeight.w600,
-                                                  lh: 22,
-                                                  tab: true,
+                                          hbox(
+                                            w: 70,
+                                            child: HInput(
+                                              style: hts(
+                                                15,
+                                                dk(
+                                                  context,
+                                                  Color(0xFF18181B),
+                                                  Color(0xFFFAFAFA),
                                                 ),
-                                                value: '28,000',
-                                                keyboard: TextInputType.number,
-                                                align: TextAlign.right,
+                                                w: FontWeight.w600,
+                                                lh: 22,
+                                                tab: true,
                                               ),
+                                              value: '28,000',
+                                              keyboard: TextInputType.number,
+                                              align: TextAlign.right,
                                             ),
                                           ),
                                         ],
@@ -838,25 +836,23 @@ class BudgetTotalPage extends StatelessWidget {
                                               ),
                                             ),
                                           ),
-                                          Expanded(
-                                            child: hbox(
-                                              w: 70,
-                                              child: HInput(
-                                                style: hts(
-                                                  15,
-                                                  dk(
-                                                    context,
-                                                    Color(0xFF18181B),
-                                                    Color(0xFFFAFAFA),
-                                                  ),
-                                                  w: FontWeight.w600,
-                                                  lh: 22,
-                                                  tab: true,
+                                          hbox(
+                                            w: 70,
+                                            child: HInput(
+                                              style: hts(
+                                                15,
+                                                dk(
+                                                  context,
+                                                  Color(0xFF18181B),
+                                                  Color(0xFFFAFAFA),
                                                 ),
-                                                value: '86,000',
-                                                keyboard: TextInputType.number,
-                                                align: TextAlign.right,
+                                                w: FontWeight.w600,
+                                                lh: 22,
+                                                tab: true,
                                               ),
+                                              value: '86,000',
+                                              keyboard: TextInputType.number,
+                                              align: TextAlign.right,
                                             ),
                                           ),
                                         ],
@@ -973,25 +969,23 @@ class BudgetTotalPage extends StatelessWidget {
                                               ),
                                             ),
                                           ),
-                                          Expanded(
-                                            child: hbox(
-                                              w: 70,
-                                              child: HInput(
-                                                style: hts(
-                                                  15,
-                                                  dk(
-                                                    context,
-                                                    Color(0xFF18181B),
-                                                    Color(0xFFFAFAFA),
-                                                  ),
-                                                  w: FontWeight.w600,
-                                                  lh: 22,
-                                                  tab: true,
+                                          hbox(
+                                            w: 70,
+                                            child: HInput(
+                                              style: hts(
+                                                15,
+                                                dk(
+                                                  context,
+                                                  Color(0xFF18181B),
+                                                  Color(0xFFFAFAFA),
                                                 ),
-                                                value: '32,000',
-                                                keyboard: TextInputType.number,
-                                                align: TextAlign.right,
+                                                w: FontWeight.w600,
+                                                lh: 22,
+                                                tab: true,
                                               ),
+                                              value: '32,000',
+                                              keyboard: TextInputType.number,
+                                              align: TextAlign.right,
                                             ),
                                           ),
                                         ],
@@ -1108,25 +1102,23 @@ class BudgetTotalPage extends StatelessWidget {
                                               ),
                                             ),
                                           ),
-                                          Expanded(
-                                            child: hbox(
-                                              w: 70,
-                                              child: HInput(
-                                                style: hts(
-                                                  15,
-                                                  dk(
-                                                    context,
-                                                    Color(0xFF18181B),
-                                                    Color(0xFFFAFAFA),
-                                                  ),
-                                                  w: FontWeight.w600,
-                                                  lh: 22,
-                                                  tab: true,
+                                          hbox(
+                                            w: 70,
+                                            child: HInput(
+                                              style: hts(
+                                                15,
+                                                dk(
+                                                  context,
+                                                  Color(0xFF18181B),
+                                                  Color(0xFFFAFAFA),
                                                 ),
-                                                value: '7,000',
-                                                keyboard: TextInputType.number,
-                                                align: TextAlign.right,
+                                                w: FontWeight.w600,
+                                                lh: 22,
+                                                tab: true,
                                               ),
+                                              value: '7,000',
+                                              keyboard: TextInputType.number,
+                                              align: TextAlign.right,
                                             ),
                                           ),
                                         ],
@@ -1243,25 +1235,23 @@ class BudgetTotalPage extends StatelessWidget {
                                               ),
                                             ),
                                           ),
-                                          Expanded(
-                                            child: hbox(
-                                              w: 70,
-                                              child: HInput(
-                                                style: hts(
-                                                  15,
-                                                  dk(
-                                                    context,
-                                                    Color(0xFF18181B),
-                                                    Color(0xFFFAFAFA),
-                                                  ),
-                                                  w: FontWeight.w600,
-                                                  lh: 22,
-                                                  tab: true,
+                                          hbox(
+                                            w: 70,
+                                            child: HInput(
+                                              style: hts(
+                                                15,
+                                                dk(
+                                                  context,
+                                                  Color(0xFF18181B),
+                                                  Color(0xFFFAFAFA),
                                                 ),
-                                                value: '12,000',
-                                                keyboard: TextInputType.number,
-                                                align: TextAlign.right,
+                                                w: FontWeight.w600,
+                                                lh: 22,
+                                                tab: true,
                                               ),
+                                              value: '12,000',
+                                              keyboard: TextInputType.number,
+                                              align: TextAlign.right,
                                             ),
                                           ),
                                         ],
@@ -1378,25 +1368,23 @@ class BudgetTotalPage extends StatelessWidget {
                                               ),
                                             ),
                                           ),
-                                          Expanded(
-                                            child: hbox(
-                                              w: 70,
-                                              child: HInput(
-                                                style: hts(
-                                                  15,
-                                                  dk(
-                                                    context,
-                                                    Color(0xFF18181B),
-                                                    Color(0xFFFAFAFA),
-                                                  ),
-                                                  w: FontWeight.w600,
-                                                  lh: 22,
-                                                  tab: true,
+                                          hbox(
+                                            w: 70,
+                                            child: HInput(
+                                              style: hts(
+                                                15,
+                                                dk(
+                                                  context,
+                                                  Color(0xFF18181B),
+                                                  Color(0xFFFAFAFA),
                                                 ),
-                                                value: '6,000',
-                                                keyboard: TextInputType.number,
-                                                align: TextAlign.right,
+                                                w: FontWeight.w600,
+                                                lh: 22,
+                                                tab: true,
                                               ),
+                                              value: '6,000',
+                                              keyboard: TextInputType.number,
+                                              align: TextAlign.right,
                                             ),
                                           ),
                                         ],
@@ -1463,9 +1451,9 @@ class BudgetTotalPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -1475,9 +1463,9 @@ class BudgetTotalPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],

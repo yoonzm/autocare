@@ -31,9 +31,9 @@ class PackageDetailPage extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -43,9 +43,9 @@ class PackageDetailPage extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -425,9 +425,9 @@ class PackageDetailPage extends StatelessWidget {
                         context,
                         [
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.04),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
+                            color: Color.fromRGBO(0, 0, 0, 0.06),
+                            offset: Offset(0, 0),
+                            blurRadius: 1,
                             spreadRadius: 0,
                           ),
                           BoxShadow(
@@ -437,9 +437,9 @@ class PackageDetailPage extends StatelessWidget {
                             spreadRadius: 0,
                           ),
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 0),
-                            blurRadius: 1,
+                            color: Color.fromRGBO(0, 0, 0, 0.04),
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
                             spreadRadius: 0,
                           ),
                         ],
@@ -553,9 +553,9 @@ class PackageDetailPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -565,9 +565,9 @@ class PackageDetailPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -597,20 +597,24 @@ class PackageDetailPage extends StatelessWidget {
                         child: hstack(
                           hrow(
                             [
-                              hbox(
-                                w: 12,
-                                h: 12,
-                                bg: Color(0xFF0485F7),
-                                radius: BorderRadius.circular(6),
-                                shadow: [
-                                  BoxShadow(
-                                    color: Color(0xFFE1F0FE),
-                                    offset: Offset(0, 0),
-                                    blurRadius: 0,
-                                    spreadRadius: 3,
-                                  ),
-                                ],
-                                margin: EdgeInsets.fromLTRB(0, 5, 0, 0),
+                              UnconstrainedBox(
+                                alignment: Alignment.topLeft,
+                                constrainedAxis: Axis.horizontal,
+                                child: hbox(
+                                  w: 12,
+                                  h: 12,
+                                  bg: Color(0xFF0485F7),
+                                  radius: BorderRadius.circular(6),
+                                  shadow: [
+                                    BoxShadow(
+                                      color: Color(0xFFE1F0FE),
+                                      offset: Offset(0, 0),
+                                      blurRadius: 0,
+                                      spreadRadius: 3,
+                                    ),
+                                  ],
+                                  margin: EdgeInsets.fromLTRB(0, 5, 0, 0),
+                                ),
                               ),
                               Expanded(
                                 flex: 1,
@@ -688,20 +692,24 @@ class PackageDetailPage extends StatelessWidget {
                         child: hstack(
                           hrow(
                             [
-                              hbox(
-                                w: 12,
-                                h: 12,
-                                bg: Color(0xFF0485F7),
-                                radius: BorderRadius.circular(6),
-                                shadow: [
-                                  BoxShadow(
-                                    color: Color(0xFFE1F0FE),
-                                    offset: Offset(0, 0),
-                                    blurRadius: 0,
-                                    spreadRadius: 3,
-                                  ),
-                                ],
-                                margin: EdgeInsets.fromLTRB(0, 5, 0, 0),
+                              UnconstrainedBox(
+                                alignment: Alignment.topLeft,
+                                constrainedAxis: Axis.horizontal,
+                                child: hbox(
+                                  w: 12,
+                                  h: 12,
+                                  bg: Color(0xFF0485F7),
+                                  radius: BorderRadius.circular(6),
+                                  shadow: [
+                                    BoxShadow(
+                                      color: Color(0xFFE1F0FE),
+                                      offset: Offset(0, 0),
+                                      blurRadius: 0,
+                                      spreadRadius: 3,
+                                    ),
+                                  ],
+                                  margin: EdgeInsets.fromLTRB(0, 5, 0, 0),
+                                ),
                               ),
                               Expanded(
                                 flex: 1,
@@ -779,20 +787,24 @@ class PackageDetailPage extends StatelessWidget {
                         child: hstack(
                           hrow(
                             [
-                              hbox(
-                                w: 12,
-                                h: 12,
-                                bg: Color(0xFF0485F7),
-                                radius: BorderRadius.circular(6),
-                                shadow: [
-                                  BoxShadow(
-                                    color: Color(0xFFE1F0FE),
-                                    offset: Offset(0, 0),
-                                    blurRadius: 0,
-                                    spreadRadius: 3,
-                                  ),
-                                ],
-                                margin: EdgeInsets.fromLTRB(0, 5, 0, 0),
+                              UnconstrainedBox(
+                                alignment: Alignment.topLeft,
+                                constrainedAxis: Axis.horizontal,
+                                child: hbox(
+                                  w: 12,
+                                  h: 12,
+                                  bg: Color(0xFF0485F7),
+                                  radius: BorderRadius.circular(6),
+                                  shadow: [
+                                    BoxShadow(
+                                      color: Color(0xFFE1F0FE),
+                                      offset: Offset(0, 0),
+                                      blurRadius: 0,
+                                      spreadRadius: 3,
+                                    ),
+                                  ],
+                                  margin: EdgeInsets.fromLTRB(0, 5, 0, 0),
+                                ),
                               ),
                               Expanded(
                                 flex: 1,
@@ -870,20 +882,24 @@ class PackageDetailPage extends StatelessWidget {
                         child: hstack(
                           hrow(
                             [
-                              hbox(
-                                w: 12,
-                                h: 12,
-                                bg: Color(0xFF0485F7),
-                                radius: BorderRadius.circular(6),
-                                shadow: [
-                                  BoxShadow(
-                                    color: Color(0xFFE1F0FE),
-                                    offset: Offset(0, 0),
-                                    blurRadius: 0,
-                                    spreadRadius: 3,
-                                  ),
-                                ],
-                                margin: EdgeInsets.fromLTRB(0, 5, 0, 0),
+                              UnconstrainedBox(
+                                alignment: Alignment.topLeft,
+                                constrainedAxis: Axis.horizontal,
+                                child: hbox(
+                                  w: 12,
+                                  h: 12,
+                                  bg: Color(0xFF0485F7),
+                                  radius: BorderRadius.circular(6),
+                                  shadow: [
+                                    BoxShadow(
+                                      color: Color(0xFFE1F0FE),
+                                      offset: Offset(0, 0),
+                                      blurRadius: 0,
+                                      spreadRadius: 3,
+                                    ),
+                                  ],
+                                  margin: EdgeInsets.fromLTRB(0, 5, 0, 0),
+                                ),
                               ),
                               Expanded(
                                 flex: 1,

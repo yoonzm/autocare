@@ -17,9 +17,9 @@ class AppointmentScheduleBody extends StatelessWidget {
             context,
             [
               BoxShadow(
-                color: Color.fromRGBO(0, 0, 0, 0.04),
-                offset: Offset(0, 2),
-                blurRadius: 4,
+                color: Color.fromRGBO(0, 0, 0, 0.06),
+                offset: Offset(0, 0),
+                blurRadius: 1,
                 spreadRadius: 0,
               ),
               BoxShadow(
@@ -29,9 +29,9 @@ class AppointmentScheduleBody extends StatelessWidget {
                 spreadRadius: 0,
               ),
               BoxShadow(
-                color: Color.fromRGBO(0, 0, 0, 0.06),
-                offset: Offset(0, 0),
-                blurRadius: 1,
+                color: Color.fromRGBO(0, 0, 0, 0.04),
+                offset: Offset(0, 2),
+                blurRadius: 4,
                 spreadRadius: 0,
               ),
             ],
@@ -54,6 +54,7 @@ class AppointmentScheduleBody extends StatelessWidget {
                   [
                     hbox(
                       w: 62,
+                      align: Alignment.center,
                       child: Text(
                         '1 号',
                         style: hts(
@@ -67,6 +68,7 @@ class AppointmentScheduleBody extends StatelessWidget {
                     ),
                     hbox(
                       w: 62,
+                      align: Alignment.center,
                       child: Text(
                         '2 号',
                         style: hts(
@@ -80,6 +82,7 @@ class AppointmentScheduleBody extends StatelessWidget {
                     ),
                     hbox(
                       w: 62,
+                      align: Alignment.center,
                       child: Text(
                         '3 号',
                         style: hts(
@@ -93,6 +96,7 @@ class AppointmentScheduleBody extends StatelessWidget {
                     ),
                     hbox(
                       w: 62,
+                      align: Alignment.center,
                       child: Text(
                         '4 号',
                         style: hts(
@@ -106,6 +110,7 @@ class AppointmentScheduleBody extends StatelessWidget {
                     ),
                     hbox(
                       w: 62,
+                      align: Alignment.center,
                       child: Text(
                         '贴膜间',
                         style: hts(
@@ -151,6 +156,7 @@ class AppointmentScheduleBody extends StatelessWidget {
                       width: 34,
                       child: hbox(
                         w: 34,
+                        align: Alignment.centerRight,
                         child: Text(
                           '09:00',
                           style: hts(
@@ -179,6 +185,7 @@ class AppointmentScheduleBody extends StatelessWidget {
                       width: 34,
                       child: hbox(
                         w: 34,
+                        align: Alignment.centerRight,
                         child: Text(
                           '10:00',
                           style: hts(
@@ -207,6 +214,7 @@ class AppointmentScheduleBody extends StatelessWidget {
                       width: 34,
                       child: hbox(
                         w: 34,
+                        align: Alignment.centerRight,
                         child: Text(
                           '11:00',
                           style: hts(
@@ -235,6 +243,7 @@ class AppointmentScheduleBody extends StatelessWidget {
                       width: 34,
                       child: hbox(
                         w: 34,
+                        align: Alignment.centerRight,
                         child: Text(
                           '12:00',
                           style: hts(
@@ -263,6 +272,7 @@ class AppointmentScheduleBody extends StatelessWidget {
                       width: 34,
                       child: hbox(
                         w: 34,
+                        align: Alignment.centerRight,
                         child: Text(
                           '13:00',
                           style: hts(
@@ -291,6 +301,7 @@ class AppointmentScheduleBody extends StatelessWidget {
                       width: 34,
                       child: hbox(
                         w: 34,
+                        align: Alignment.centerRight,
                         child: Text(
                           '14:00',
                           style: hts(
@@ -319,6 +330,7 @@ class AppointmentScheduleBody extends StatelessWidget {
                       width: 34,
                       child: hbox(
                         w: 34,
+                        align: Alignment.centerRight,
                         child: Text(
                           '15:00',
                           style: hts(
@@ -347,6 +359,7 @@ class AppointmentScheduleBody extends StatelessWidget {
                       width: 34,
                       child: hbox(
                         w: 34,
+                        align: Alignment.centerRight,
                         child: Text(
                           '16:00',
                           style: hts(
@@ -375,6 +388,7 @@ class AppointmentScheduleBody extends StatelessWidget {
                       width: 34,
                       child: hbox(
                         w: 34,
+                        align: Alignment.centerRight,
                         child: Text(
                           '17:00',
                           style: hts(
@@ -403,6 +417,7 @@ class AppointmentScheduleBody extends StatelessWidget {
                       width: 34,
                       child: hbox(
                         w: 34,
+                        align: Alignment.centerRight,
                         child: Text(
                           '18:00',
                           style: hts(
@@ -431,6 +446,7 @@ class AppointmentScheduleBody extends StatelessWidget {
                       width: 34,
                       child: hbox(
                         w: 34,
+                        align: Alignment.centerRight,
                         child: Text(
                           '19:00',
                           style: hts(
@@ -459,6 +475,7 @@ class AppointmentScheduleBody extends StatelessWidget {
                       width: 34,
                       child: hbox(
                         w: 34,
+                        align: Alignment.centerRight,
                         child: Text(
                           '20:00',
                           style: hts(

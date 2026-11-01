@@ -28,4 +28,4 @@ flutter run
 
 PR 运行商户端检查；`main` 的商户端变更触发内测构建。iOS TestFlight 发布必须先配置独立应用和签名，Android APK 目前仅供内部测试，不是商店正式包。详见 `docs/release.md`。
 
-本仓库从原仓库的 `claude/sleepy-clarke-4ehenr` 分支提交 `6544de9` 快照建立；原仓库未被修改。
+本仓库从原仓库的 `claude/sleepy-clarke-4ehenr` 分支提交 `e696c67` 快照建立；原仓库未被修改。

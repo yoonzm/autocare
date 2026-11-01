@@ -48,9 +48,9 @@ class HoldListPage extends StatelessWidget {
                               context,
                               [
                                 BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.04),
-                                  offset: Offset(0, 2),
-                                  blurRadius: 4,
+                                  color: Color.fromRGBO(0, 0, 0, 0.06),
+                                  offset: Offset(0, 0),
+                                  blurRadius: 1,
                                   spreadRadius: 0,
                                 ),
                                 BoxShadow(
@@ -60,9 +60,9 @@ class HoldListPage extends StatelessWidget {
                                   spreadRadius: 0,
                                 ),
                                 BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.06),
-                                  offset: Offset(0, 0),
-                                  blurRadius: 1,
+                                  color: Color.fromRGBO(0, 0, 0, 0.04),
+                                  offset: Offset(0, 2),
+                                  blurRadius: 4,
                                   spreadRadius: 0,
                                 ),
                               ],
@@ -283,82 +283,153 @@ class HoldListPage extends StatelessWidget {
                         [
                           Expanded(
                             flex: 1,
-                            child: HSel(
-                              ctrl: g1[0],
-                              index: 0,
-                              on: hbox(
-                                h: 32,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFFFFFFF),
-                                  Color(0xFF18181B),
-                                ),
-                                radius: BorderRadius.circular(16),
-                                shadow: dk(
-                                  context,
-                                  [
-                                    BoxShadow(
-                                      color: Color.fromRGBO(0, 0, 0, 0.04),
-                                      offset: Offset(0, 2),
-                                      blurRadius: 4,
-                                      spreadRadius: 0,
+                            child: UnconstrainedBox(
+                              alignment: Alignment.topLeft,
+                              constrainedAxis: Axis.horizontal,
+                              child: HSel(
+                                ctrl: g1[0],
+                                index: 0,
+                                on: hbox(
+                                  h: 32,
+                                  bg: dk(
+                                    context,
+                                    Color(0xFFFFFFFF),
+                                    Color(0xFF18181B),
+                                  ),
+                                  radius: BorderRadius.circular(16),
+                                  shadow: dk(
+                                    context,
+                                    [
+                                      BoxShadow(
+                                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                                        offset: Offset(0, 1),
+                                        blurRadius: 2,
+                                        spreadRadius: 0,
+                                      ),
+                                      BoxShadow(
+                                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                                        offset: Offset(0, 2),
+                                        blurRadius: 4,
+                                        spreadRadius: 0,
+                                      ),
+                                    ],
+                                    [
+                                      BoxShadow(
+                                        color: Color(0xFF26262B),
+                                        offset: Offset(0, 0),
+                                        blurRadius: 0,
+                                        spreadRadius: 1,
+                                      ),
+                                    ],
+                                  ),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    widthFactor: 1,
+                                    child: Text(
+                                      '全部 4',
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF18181B),
+                                          Color(0xFFFAFAFA),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
+                                      ),
                                     ),
+                                  ),
+                                ),
+                                off: hbox(
+                                  h: 32,
+                                  bg: dk(
+                                    context,
+                                    Color(0xFFFFFFFF),
+                                    Color(0xFF18181B),
+                                  ),
+                                  radius: BorderRadius.circular(16),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    widthFactor: 1,
+                                    child: Text(
+                                      '全部 4',
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF52525B),
+                                          Color(0xFFA8A8B3),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: UnconstrainedBox(
+                              alignment: Alignment.topLeft,
+                              constrainedAxis: Axis.horizontal,
+                              child: HSel(
+                                ctrl: g1[0],
+                                index: 1,
+                                on: hbox(
+                                  h: 32,
+                                  radius: BorderRadius.circular(16),
+                                  shadow: dk(context, [
                                     BoxShadow(
                                       color: Color.fromRGBO(0, 0, 0, 0.06),
                                       offset: Offset(0, 1),
                                       blurRadius: 2,
                                       spreadRadius: 0,
                                     ),
-                                  ],
-                                  [
                                     BoxShadow(
-                                      color: Color(0xFF26262B),
-                                      offset: Offset(0, 0),
-                                      blurRadius: 0,
-                                      spreadRadius: 1,
+                                      color: Color.fromRGBO(0, 0, 0, 0.04),
+                                      offset: Offset(0, 2),
+                                      blurRadius: 4,
+                                      spreadRadius: 0,
                                     ),
-                                  ],
-                                ),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  widthFactor: 1,
-                                  child: Text(
-                                    '全部 4',
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF18181B),
-                                        Color(0xFFFAFAFA),
+                                  ], null),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    widthFactor: 1,
+                                    child: Text(
+                                      '待施工 1',
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF18181B),
+                                          Color(0xFFFAFAFA),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
                                       ),
-                                      w: FontWeight.w500,
-                                      lh: 18,
                                     ),
                                   ),
                                 ),
-                              ),
-                              off: hbox(
-                                h: 32,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFFFFFFF),
-                                  Color(0xFF18181B),
-                                ),
-                                radius: BorderRadius.circular(16),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  widthFactor: 1,
-                                  child: Text(
-                                    '全部 4',
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF52525B),
-                                        Color(0xFFA8A8B3),
+                                off: hbox(
+                                  h: 32,
+                                  radius: BorderRadius.circular(16),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    widthFactor: 1,
+                                    child: Text(
+                                      '待施工 1',
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF52525B),
+                                          Color(0xFFA8A8B3),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
                                       ),
-                                      w: FontWeight.w500,
-                                      lh: 18,
                                     ),
                                   ),
                                 ),
@@ -367,124 +438,65 @@ class HoldListPage extends StatelessWidget {
                           ),
                           Expanded(
                             flex: 1,
-                            child: HSel(
-                              ctrl: g1[0],
-                              index: 1,
-                              on: hbox(
-                                h: 32,
-                                radius: BorderRadius.circular(16),
-                                shadow: dk(context, [
-                                  BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.04),
-                                    offset: Offset(0, 2),
-                                    blurRadius: 4,
-                                    spreadRadius: 0,
-                                  ),
-                                  BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.06),
-                                    offset: Offset(0, 1),
-                                    blurRadius: 2,
-                                    spreadRadius: 0,
-                                  ),
-                                ], null),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  widthFactor: 1,
-                                  child: Text(
-                                    '待施工 1',
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF18181B),
-                                        Color(0xFFFAFAFA),
+                            child: UnconstrainedBox(
+                              alignment: Alignment.topLeft,
+                              constrainedAxis: Axis.horizontal,
+                              child: HSel(
+                                ctrl: g1[0],
+                                index: 2,
+                                on: hbox(
+                                  h: 32,
+                                  radius: BorderRadius.circular(16),
+                                  shadow: dk(context, [
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.06),
+                                      offset: Offset(0, 1),
+                                      blurRadius: 2,
+                                      spreadRadius: 0,
+                                    ),
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.04),
+                                      offset: Offset(0, 2),
+                                      blurRadius: 4,
+                                      spreadRadius: 0,
+                                    ),
+                                  ], null),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    widthFactor: 1,
+                                    child: Text(
+                                      '施工中 2',
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF18181B),
+                                          Color(0xFFFAFAFA),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
                                       ),
-                                      w: FontWeight.w500,
-                                      lh: 18,
                                     ),
                                   ),
                                 ),
-                              ),
-                              off: hbox(
-                                h: 32,
-                                radius: BorderRadius.circular(16),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  widthFactor: 1,
-                                  child: Text(
-                                    '待施工 1',
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF52525B),
-                                        Color(0xFFA8A8B3),
+                                off: hbox(
+                                  h: 32,
+                                  radius: BorderRadius.circular(16),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    widthFactor: 1,
+                                    child: Text(
+                                      '施工中 2',
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF52525B),
+                                          Color(0xFFA8A8B3),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
                                       ),
-                                      w: FontWeight.w500,
-                                      lh: 18,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            flex: 1,
-                            child: HSel(
-                              ctrl: g1[0],
-                              index: 2,
-                              on: hbox(
-                                h: 32,
-                                radius: BorderRadius.circular(16),
-                                shadow: dk(context, [
-                                  BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.04),
-                                    offset: Offset(0, 2),
-                                    blurRadius: 4,
-                                    spreadRadius: 0,
-                                  ),
-                                  BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.06),
-                                    offset: Offset(0, 1),
-                                    blurRadius: 2,
-                                    spreadRadius: 0,
-                                  ),
-                                ], null),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  widthFactor: 1,
-                                  child: Text(
-                                    '施工中 2',
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF18181B),
-                                        Color(0xFFFAFAFA),
-                                      ),
-                                      w: FontWeight.w500,
-                                      lh: 18,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              off: hbox(
-                                h: 32,
-                                radius: BorderRadius.circular(16),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  widthFactor: 1,
-                                  child: Text(
-                                    '施工中 2',
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF52525B),
-                                        Color(0xFFA8A8B3),
-                                      ),
-                                      w: FontWeight.w500,
-                                      lh: 18,
                                     ),
                                   ),
                                 ),
@@ -493,61 +505,65 @@ class HoldListPage extends StatelessWidget {
                           ),
                           Expanded(
                             flex: 1,
-                            child: HSel(
-                              ctrl: g1[0],
-                              index: 3,
-                              on: hbox(
-                                h: 32,
-                                radius: BorderRadius.circular(16),
-                                shadow: dk(context, [
-                                  BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.04),
-                                    offset: Offset(0, 2),
-                                    blurRadius: 4,
-                                    spreadRadius: 0,
-                                  ),
-                                  BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.06),
-                                    offset: Offset(0, 1),
-                                    blurRadius: 2,
-                                    spreadRadius: 0,
-                                  ),
-                                ], null),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  widthFactor: 1,
-                                  child: Text(
-                                    '待结算 1',
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF18181B),
-                                        Color(0xFFFAFAFA),
+                            child: UnconstrainedBox(
+                              alignment: Alignment.topLeft,
+                              constrainedAxis: Axis.horizontal,
+                              child: HSel(
+                                ctrl: g1[0],
+                                index: 3,
+                                on: hbox(
+                                  h: 32,
+                                  radius: BorderRadius.circular(16),
+                                  shadow: dk(context, [
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.06),
+                                      offset: Offset(0, 1),
+                                      blurRadius: 2,
+                                      spreadRadius: 0,
+                                    ),
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.04),
+                                      offset: Offset(0, 2),
+                                      blurRadius: 4,
+                                      spreadRadius: 0,
+                                    ),
+                                  ], null),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    widthFactor: 1,
+                                    child: Text(
+                                      '待结算 1',
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF18181B),
+                                          Color(0xFFFAFAFA),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
                                       ),
-                                      w: FontWeight.w500,
-                                      lh: 18,
                                     ),
                                   ),
                                 ),
-                              ),
-                              off: hbox(
-                                h: 32,
-                                radius: BorderRadius.circular(16),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  widthFactor: 1,
-                                  child: Text(
-                                    '待结算 1',
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF52525B),
-                                        Color(0xFFA8A8B3),
+                                off: hbox(
+                                  h: 32,
+                                  radius: BorderRadius.circular(16),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    widthFactor: 1,
+                                    child: Text(
+                                      '待结算 1',
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF52525B),
+                                          Color(0xFFA8A8B3),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
                                       ),
-                                      w: FontWeight.w500,
-                                      lh: 18,
                                     ),
                                   ),
                                 ),
@@ -569,9 +585,9 @@ class HoldListPage extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -581,9 +597,9 @@ class HoldListPage extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -825,29 +841,68 @@ class HoldListPage extends StatelessWidget {
                               [
                                 Expanded(
                                   flex: 1,
+                                  child: UnconstrainedBox(
+                                    alignment: Alignment.topLeft,
+                                    constrainedAxis: Axis.horizontal,
+                                    child: hTap(
+                                      context,
+                                      hbox(
+                                        h: 42,
+                                        bg: dk(
+                                          context,
+                                          Color(0xFF18181B),
+                                          Color(0xFFFAFAFA),
+                                        ),
+                                        radius: BorderRadius.circular(21),
+                                        child: Align(
+                                          alignment: Alignment(0, 0),
+                                          widthFactor: 1,
+                                          child: Text(
+                                            '取单结算',
+                                            style: hts(
+                                              14,
+                                              dk(
+                                                context,
+                                                Color(0xFFFFFFFF),
+                                                Color(0xFF18181B),
+                                              ),
+                                              w: FontWeight.w600,
+                                              lh: 20,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      to: 'Order',
+                                    ),
+                                  ),
+                                ),
+                                UnconstrainedBox(
+                                  alignment: Alignment.topLeft,
+                                  constrainedAxis: Axis.horizontal,
                                   child: hTap(
                                     context,
                                     hbox(
                                       h: 42,
                                       bg: dk(
                                         context,
-                                        Color(0xFF18181B),
-                                        Color(0xFFFAFAFA),
+                                        Color(0xFFEEEEF0),
+                                        Color(0xFF27272A),
                                       ),
                                       radius: BorderRadius.circular(21),
+                                      pad: EdgeInsets.fromLTRB(18, 0, 18, 0),
                                       child: Align(
                                         alignment: Alignment(0, 0),
                                         widthFactor: 1,
                                         child: Text(
-                                          '取单结算',
+                                          '加项',
                                           style: hts(
                                             14,
                                             dk(
                                               context,
-                                              Color(0xFFFFFFFF),
                                               Color(0xFF18181B),
+                                              Color(0xFFFAFAFA),
                                             ),
-                                            w: FontWeight.w600,
+                                            w: FontWeight.w500,
                                             lh: 20,
                                           ),
                                         ),
@@ -856,62 +911,35 @@ class HoldListPage extends StatelessWidget {
                                     to: 'Order',
                                   ),
                                 ),
-                                hTap(
-                                  context,
-                                  hbox(
-                                    h: 42,
-                                    bg: dk(
-                                      context,
-                                      Color(0xFFEEEEF0),
-                                      Color(0xFF27272A),
-                                    ),
-                                    radius: BorderRadius.circular(21),
-                                    pad: EdgeInsets.fromLTRB(18, 0, 18, 0),
-                                    child: Align(
-                                      alignment: Alignment(0, 0),
-                                      widthFactor: 1,
-                                      child: Text(
-                                        '加项',
-                                        style: hts(
-                                          14,
-                                          dk(
-                                            context,
-                                            Color(0xFF18181B),
-                                            Color(0xFFFAFAFA),
+                                UnconstrainedBox(
+                                  alignment: Alignment.topLeft,
+                                  constrainedAxis: Axis.horizontal,
+                                  child: hTap(
+                                    context,
+                                    hbox(
+                                      w: 42,
+                                      h: 42,
+                                      bg: dk(
+                                        context,
+                                        Color(0xFFFFE1E2),
+                                        Color.fromRGBO(255, 56, 60, 0.18),
+                                      ),
+                                      radius: BorderRadius.circular(21),
+                                      child: hrow(
+                                        [
+                                          hsvg(
+                                            dk(context, Svgs.s165, Svgs.s166),
+                                            w: 18,
+                                            h: 18,
                                           ),
-                                          w: FontWeight.w500,
-                                          lh: 20,
-                                        ),
+                                        ],
+                                        main: MainAxisAlignment.center,
+                                        cross: CrossAxisAlignment.center,
+                                        gap: 0,
                                       ),
                                     ),
+                                    onTap: () => d2.confirmRemove(context, 0),
                                   ),
-                                  to: 'Order',
-                                ),
-                                hTap(
-                                  context,
-                                  hbox(
-                                    w: 42,
-                                    h: 42,
-                                    bg: dk(
-                                      context,
-                                      Color(0xFFFFE1E2),
-                                      Color.fromRGBO(255, 56, 60, 0.18),
-                                    ),
-                                    radius: BorderRadius.circular(21),
-                                    child: hrow(
-                                      [
-                                        hsvg(
-                                          dk(context, Svgs.s165, Svgs.s166),
-                                          w: 18,
-                                          h: 18,
-                                        ),
-                                      ],
-                                      main: MainAxisAlignment.center,
-                                      cross: CrossAxisAlignment.center,
-                                      gap: 0,
-                                    ),
-                                  ),
-                                  onTap: () => d2.confirmRemove(context, 0),
                                 ),
                               ],
                               main: MainAxisAlignment.start,
@@ -932,9 +960,9 @@ class HoldListPage extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -944,9 +972,9 @@ class HoldListPage extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -1163,29 +1191,68 @@ class HoldListPage extends StatelessWidget {
                               [
                                 Expanded(
                                   flex: 1,
+                                  child: UnconstrainedBox(
+                                    alignment: Alignment.topLeft,
+                                    constrainedAxis: Axis.horizontal,
+                                    child: hTap(
+                                      context,
+                                      hbox(
+                                        h: 42,
+                                        bg: dk(
+                                          context,
+                                          Color(0xFF18181B),
+                                          Color(0xFFFAFAFA),
+                                        ),
+                                        radius: BorderRadius.circular(21),
+                                        child: Align(
+                                          alignment: Alignment(0, 0),
+                                          widthFactor: 1,
+                                          child: Text(
+                                            '取单结算',
+                                            style: hts(
+                                              14,
+                                              dk(
+                                                context,
+                                                Color(0xFFFFFFFF),
+                                                Color(0xFF18181B),
+                                              ),
+                                              w: FontWeight.w600,
+                                              lh: 20,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      to: 'Order',
+                                    ),
+                                  ),
+                                ),
+                                UnconstrainedBox(
+                                  alignment: Alignment.topLeft,
+                                  constrainedAxis: Axis.horizontal,
                                   child: hTap(
                                     context,
                                     hbox(
                                       h: 42,
                                       bg: dk(
                                         context,
-                                        Color(0xFF18181B),
-                                        Color(0xFFFAFAFA),
+                                        Color(0xFFEEEEF0),
+                                        Color(0xFF27272A),
                                       ),
                                       radius: BorderRadius.circular(21),
+                                      pad: EdgeInsets.fromLTRB(18, 0, 18, 0),
                                       child: Align(
                                         alignment: Alignment(0, 0),
                                         widthFactor: 1,
                                         child: Text(
-                                          '取单结算',
+                                          '加项',
                                           style: hts(
                                             14,
                                             dk(
                                               context,
-                                              Color(0xFFFFFFFF),
                                               Color(0xFF18181B),
+                                              Color(0xFFFAFAFA),
                                             ),
-                                            w: FontWeight.w600,
+                                            w: FontWeight.w500,
                                             lh: 20,
                                           ),
                                         ),
@@ -1194,62 +1261,35 @@ class HoldListPage extends StatelessWidget {
                                     to: 'Order',
                                   ),
                                 ),
-                                hTap(
-                                  context,
-                                  hbox(
-                                    h: 42,
-                                    bg: dk(
-                                      context,
-                                      Color(0xFFEEEEF0),
-                                      Color(0xFF27272A),
-                                    ),
-                                    radius: BorderRadius.circular(21),
-                                    pad: EdgeInsets.fromLTRB(18, 0, 18, 0),
-                                    child: Align(
-                                      alignment: Alignment(0, 0),
-                                      widthFactor: 1,
-                                      child: Text(
-                                        '加项',
-                                        style: hts(
-                                          14,
-                                          dk(
-                                            context,
-                                            Color(0xFF18181B),
-                                            Color(0xFFFAFAFA),
+                                UnconstrainedBox(
+                                  alignment: Alignment.topLeft,
+                                  constrainedAxis: Axis.horizontal,
+                                  child: hTap(
+                                    context,
+                                    hbox(
+                                      w: 42,
+                                      h: 42,
+                                      bg: dk(
+                                        context,
+                                        Color(0xFFFFE1E2),
+                                        Color.fromRGBO(255, 56, 60, 0.18),
+                                      ),
+                                      radius: BorderRadius.circular(21),
+                                      child: hrow(
+                                        [
+                                          hsvg(
+                                            dk(context, Svgs.s165, Svgs.s166),
+                                            w: 18,
+                                            h: 18,
                                           ),
-                                          w: FontWeight.w500,
-                                          lh: 20,
-                                        ),
+                                        ],
+                                        main: MainAxisAlignment.center,
+                                        cross: CrossAxisAlignment.center,
+                                        gap: 0,
                                       ),
                                     ),
+                                    onTap: () => d2.confirmRemove(context, 1),
                                   ),
-                                  to: 'Order',
-                                ),
-                                hTap(
-                                  context,
-                                  hbox(
-                                    w: 42,
-                                    h: 42,
-                                    bg: dk(
-                                      context,
-                                      Color(0xFFFFE1E2),
-                                      Color.fromRGBO(255, 56, 60, 0.18),
-                                    ),
-                                    radius: BorderRadius.circular(21),
-                                    child: hrow(
-                                      [
-                                        hsvg(
-                                          dk(context, Svgs.s165, Svgs.s166),
-                                          w: 18,
-                                          h: 18,
-                                        ),
-                                      ],
-                                      main: MainAxisAlignment.center,
-                                      cross: CrossAxisAlignment.center,
-                                      gap: 0,
-                                    ),
-                                  ),
-                                  onTap: () => d2.confirmRemove(context, 1),
                                 ),
                               ],
                               main: MainAxisAlignment.start,
@@ -1270,9 +1310,9 @@ class HoldListPage extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -1282,9 +1322,9 @@ class HoldListPage extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -1509,21 +1549,60 @@ class HoldListPage extends StatelessWidget {
                               [
                                 Expanded(
                                   flex: 1,
+                                  child: UnconstrainedBox(
+                                    alignment: Alignment.topLeft,
+                                    constrainedAxis: Axis.horizontal,
+                                    child: hTap(
+                                      context,
+                                      hbox(
+                                        h: 42,
+                                        bg: Color(0xFF0485F7),
+                                        radius: BorderRadius.circular(21),
+                                        child: Align(
+                                          alignment: Alignment(0, 0),
+                                          widthFactor: 1,
+                                          child: Text(
+                                            '取单结算',
+                                            style: hts(
+                                              14,
+                                              Color(0xFFFFFFFF),
+                                              w: FontWeight.w600,
+                                              lh: 20,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      to: 'Order',
+                                    ),
+                                  ),
+                                ),
+                                UnconstrainedBox(
+                                  alignment: Alignment.topLeft,
+                                  constrainedAxis: Axis.horizontal,
                                   child: hTap(
                                     context,
                                     hbox(
                                       h: 42,
-                                      bg: Color(0xFF0485F7),
+                                      bg: dk(
+                                        context,
+                                        Color(0xFFEEEEF0),
+                                        Color(0xFF27272A),
+                                      ),
                                       radius: BorderRadius.circular(21),
+                                      pad: EdgeInsets.fromLTRB(18, 0, 18, 0),
                                       child: Align(
                                         alignment: Alignment(0, 0),
                                         widthFactor: 1,
                                         child: Text(
-                                          '取单结算',
+                                          '提醒取车',
                                           style: hts(
                                             14,
-                                            Color(0xFFFFFFFF),
-                                            w: FontWeight.w600,
+                                            dk(
+                                              context,
+                                              Color(0xFF18181B),
+                                              Color(0xFFFAFAFA),
+                                            ),
+                                            w: FontWeight.w500,
                                             lh: 20,
                                           ),
                                         ),
@@ -1532,62 +1611,35 @@ class HoldListPage extends StatelessWidget {
                                     to: 'Order',
                                   ),
                                 ),
-                                hTap(
-                                  context,
-                                  hbox(
-                                    h: 42,
-                                    bg: dk(
-                                      context,
-                                      Color(0xFFEEEEF0),
-                                      Color(0xFF27272A),
-                                    ),
-                                    radius: BorderRadius.circular(21),
-                                    pad: EdgeInsets.fromLTRB(18, 0, 18, 0),
-                                    child: Align(
-                                      alignment: Alignment(0, 0),
-                                      widthFactor: 1,
-                                      child: Text(
-                                        '提醒取车',
-                                        style: hts(
-                                          14,
-                                          dk(
-                                            context,
-                                            Color(0xFF18181B),
-                                            Color(0xFFFAFAFA),
+                                UnconstrainedBox(
+                                  alignment: Alignment.topLeft,
+                                  constrainedAxis: Axis.horizontal,
+                                  child: hTap(
+                                    context,
+                                    hbox(
+                                      w: 42,
+                                      h: 42,
+                                      bg: dk(
+                                        context,
+                                        Color(0xFFFFE1E2),
+                                        Color.fromRGBO(255, 56, 60, 0.18),
+                                      ),
+                                      radius: BorderRadius.circular(21),
+                                      child: hrow(
+                                        [
+                                          hsvg(
+                                            dk(context, Svgs.s165, Svgs.s166),
+                                            w: 18,
+                                            h: 18,
                                           ),
-                                          w: FontWeight.w500,
-                                          lh: 20,
-                                        ),
+                                        ],
+                                        main: MainAxisAlignment.center,
+                                        cross: CrossAxisAlignment.center,
+                                        gap: 0,
                                       ),
                                     ),
+                                    onTap: () => d2.confirmRemove(context, 2),
                                   ),
-                                  to: 'Order',
-                                ),
-                                hTap(
-                                  context,
-                                  hbox(
-                                    w: 42,
-                                    h: 42,
-                                    bg: dk(
-                                      context,
-                                      Color(0xFFFFE1E2),
-                                      Color.fromRGBO(255, 56, 60, 0.18),
-                                    ),
-                                    radius: BorderRadius.circular(21),
-                                    child: hrow(
-                                      [
-                                        hsvg(
-                                          dk(context, Svgs.s165, Svgs.s166),
-                                          w: 18,
-                                          h: 18,
-                                        ),
-                                      ],
-                                      main: MainAxisAlignment.center,
-                                      cross: CrossAxisAlignment.center,
-                                      gap: 0,
-                                    ),
-                                  ),
-                                  onTap: () => d2.confirmRemove(context, 2),
                                 ),
                               ],
                               main: MainAxisAlignment.start,
@@ -1608,9 +1660,9 @@ class HoldListPage extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -1620,9 +1672,9 @@ class HoldListPage extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -1851,29 +1903,68 @@ class HoldListPage extends StatelessWidget {
                               [
                                 Expanded(
                                   flex: 1,
+                                  child: UnconstrainedBox(
+                                    alignment: Alignment.topLeft,
+                                    constrainedAxis: Axis.horizontal,
+                                    child: hTap(
+                                      context,
+                                      hbox(
+                                        h: 42,
+                                        bg: dk(
+                                          context,
+                                          Color(0xFF18181B),
+                                          Color(0xFFFAFAFA),
+                                        ),
+                                        radius: BorderRadius.circular(21),
+                                        child: Align(
+                                          alignment: Alignment(0, 0),
+                                          widthFactor: 1,
+                                          child: Text(
+                                            '取单结算',
+                                            style: hts(
+                                              14,
+                                              dk(
+                                                context,
+                                                Color(0xFFFFFFFF),
+                                                Color(0xFF18181B),
+                                              ),
+                                              w: FontWeight.w600,
+                                              lh: 20,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      to: 'Order',
+                                    ),
+                                  ),
+                                ),
+                                UnconstrainedBox(
+                                  alignment: Alignment.topLeft,
+                                  constrainedAxis: Axis.horizontal,
                                   child: hTap(
                                     context,
                                     hbox(
                                       h: 42,
                                       bg: dk(
                                         context,
-                                        Color(0xFF18181B),
-                                        Color(0xFFFAFAFA),
+                                        Color(0xFFEEEEF0),
+                                        Color(0xFF27272A),
                                       ),
                                       radius: BorderRadius.circular(21),
+                                      pad: EdgeInsets.fromLTRB(18, 0, 18, 0),
                                       child: Align(
                                         alignment: Alignment(0, 0),
                                         widthFactor: 1,
                                         child: Text(
-                                          '取单结算',
+                                          '加项',
                                           style: hts(
                                             14,
                                             dk(
                                               context,
-                                              Color(0xFFFFFFFF),
                                               Color(0xFF18181B),
+                                              Color(0xFFFAFAFA),
                                             ),
-                                            w: FontWeight.w600,
+                                            w: FontWeight.w500,
                                             lh: 20,
                                           ),
                                         ),
@@ -1882,62 +1973,35 @@ class HoldListPage extends StatelessWidget {
                                     to: 'Order',
                                   ),
                                 ),
-                                hTap(
-                                  context,
-                                  hbox(
-                                    h: 42,
-                                    bg: dk(
-                                      context,
-                                      Color(0xFFEEEEF0),
-                                      Color(0xFF27272A),
-                                    ),
-                                    radius: BorderRadius.circular(21),
-                                    pad: EdgeInsets.fromLTRB(18, 0, 18, 0),
-                                    child: Align(
-                                      alignment: Alignment(0, 0),
-                                      widthFactor: 1,
-                                      child: Text(
-                                        '加项',
-                                        style: hts(
-                                          14,
-                                          dk(
-                                            context,
-                                            Color(0xFF18181B),
-                                            Color(0xFFFAFAFA),
+                                UnconstrainedBox(
+                                  alignment: Alignment.topLeft,
+                                  constrainedAxis: Axis.horizontal,
+                                  child: hTap(
+                                    context,
+                                    hbox(
+                                      w: 42,
+                                      h: 42,
+                                      bg: dk(
+                                        context,
+                                        Color(0xFFFFE1E2),
+                                        Color.fromRGBO(255, 56, 60, 0.18),
+                                      ),
+                                      radius: BorderRadius.circular(21),
+                                      child: hrow(
+                                        [
+                                          hsvg(
+                                            dk(context, Svgs.s165, Svgs.s166),
+                                            w: 18,
+                                            h: 18,
                                           ),
-                                          w: FontWeight.w500,
-                                          lh: 20,
-                                        ),
+                                        ],
+                                        main: MainAxisAlignment.center,
+                                        cross: CrossAxisAlignment.center,
+                                        gap: 0,
                                       ),
                                     ),
+                                    onTap: () => d2.confirmRemove(context, 3),
                                   ),
-                                  to: 'Order',
-                                ),
-                                hTap(
-                                  context,
-                                  hbox(
-                                    w: 42,
-                                    h: 42,
-                                    bg: dk(
-                                      context,
-                                      Color(0xFFFFE1E2),
-                                      Color.fromRGBO(255, 56, 60, 0.18),
-                                    ),
-                                    radius: BorderRadius.circular(21),
-                                    child: hrow(
-                                      [
-                                        hsvg(
-                                          dk(context, Svgs.s165, Svgs.s166),
-                                          w: 18,
-                                          h: 18,
-                                        ),
-                                      ],
-                                      main: MainAxisAlignment.center,
-                                      cross: CrossAxisAlignment.center,
-                                      gap: 0,
-                                    ),
-                                  ),
-                                  onTap: () => d2.confirmRemove(context, 3),
                                 ),
                               ],
                               main: MainAxisAlignment.start,

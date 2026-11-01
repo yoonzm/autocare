@@ -31,9 +31,9 @@ class ServiceEditPage extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -43,9 +43,9 @@ class ServiceEditPage extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -115,9 +115,9 @@ class ServiceEditPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -127,9 +127,9 @@ class ServiceEditPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -315,9 +315,9 @@ class ServiceEditPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -327,9 +327,9 @@ class ServiceEditPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -388,27 +388,25 @@ class ServiceEditPage extends StatelessWidget {
                                 lh: 24,
                               ),
                             ),
-                            Expanded(
-                              child: hbox(
-                                w: 96,
-                                child: HInput(
-                                  style: hts(
-                                    26,
-                                    dk(
-                                      context,
-                                      Color(0xFF18181B),
-                                      Color(0xFFFAFAFA),
-                                    ),
-                                    w: FontWeight.w600,
-                                    lh: 32,
-                                    ls: -0.52,
+                            hbox(
+                              w: 96,
+                              child: HInput(
+                                style: hts(
+                                  26,
+                                  dk(
+                                    context,
+                                    Color(0xFF18181B),
+                                    Color(0xFFFAFAFA),
                                   ),
-                                  value: '1,580',
-                                  keyboard: TextInputType.numberWithOptions(
-                                    decimal: true,
-                                  ),
-                                  align: TextAlign.right,
+                                  w: FontWeight.w600,
+                                  lh: 32,
+                                  ls: -0.52,
                                 ),
+                                value: '1,580',
+                                keyboard: TextInputType.numberWithOptions(
+                                  decimal: true,
+                                ),
+                                align: TextAlign.right,
                               ),
                             ),
                           ],
@@ -640,9 +638,9 @@ class ServiceEditPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -652,9 +650,9 @@ class ServiceEditPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -691,76 +689,85 @@ class ServiceEditPage extends StatelessWidget {
                             [
                               Expanded(
                                 flex: 1,
-                                child: HSel(
-                                  ctrl: g3[0],
-                                  index: 0,
-                                  on: hbox(
-                                    h: 32,
-                                    bg: dk(
-                                      context,
-                                      Color(0xFFFFFFFF),
-                                      Color(0xFF18181B),
-                                    ),
-                                    radius: BorderRadius.circular(16),
-                                    shadow: dk(
-                                      context,
-                                      [
-                                        BoxShadow(
-                                          color: Color.fromRGBO(0, 0, 0, 0.08),
-                                          offset: Offset(0, 1),
-                                          blurRadius: 2,
-                                          spreadRadius: 0,
-                                        ),
-                                      ],
-                                      [
-                                        BoxShadow(
-                                          color: Color(0xFF26262B),
-                                          offset: Offset(0, 0),
-                                          blurRadius: 0,
-                                          spreadRadius: 1,
-                                        ),
-                                      ],
-                                    ),
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      widthFactor: 1,
-                                      child: Text(
-                                        '按实收比例',
-                                        style: hts(
-                                          13,
-                                          dk(
-                                            context,
-                                            Color(0xFF18181B),
-                                            Color(0xFFFAFAFA),
+                                child: UnconstrainedBox(
+                                  alignment: Alignment.topLeft,
+                                  constrainedAxis: Axis.horizontal,
+                                  child: HSel(
+                                    ctrl: g3[0],
+                                    index: 0,
+                                    on: hbox(
+                                      h: 32,
+                                      bg: dk(
+                                        context,
+                                        Color(0xFFFFFFFF),
+                                        Color(0xFF18181B),
+                                      ),
+                                      radius: BorderRadius.circular(16),
+                                      shadow: dk(
+                                        context,
+                                        [
+                                          BoxShadow(
+                                            color: Color.fromRGBO(
+                                              0,
+                                              0,
+                                              0,
+                                              0.08,
+                                            ),
+                                            offset: Offset(0, 1),
+                                            blurRadius: 2,
+                                            spreadRadius: 0,
                                           ),
-                                          w: FontWeight.w500,
-                                          lh: 18,
+                                        ],
+                                        [
+                                          BoxShadow(
+                                            color: Color(0xFF26262B),
+                                            offset: Offset(0, 0),
+                                            blurRadius: 0,
+                                            spreadRadius: 1,
+                                          ),
+                                        ],
+                                      ),
+                                      child: Align(
+                                        alignment: Alignment.center,
+                                        widthFactor: 1,
+                                        child: Text(
+                                          '按实收比例',
+                                          style: hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFF18181B),
+                                              Color(0xFFFAFAFA),
+                                            ),
+                                            w: FontWeight.w500,
+                                            lh: 18,
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                  off: hbox(
-                                    h: 32,
-                                    bg: dk(
-                                      context,
-                                      Color(0xFFFFFFFF),
-                                      Color(0xFF18181B),
-                                    ),
-                                    radius: BorderRadius.circular(16),
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      widthFactor: 1,
-                                      child: Text(
-                                        '按实收比例',
-                                        style: hts(
-                                          13,
-                                          dk(
-                                            context,
-                                            Color(0xFF52525B),
-                                            Color(0xFFA8A8B3),
+                                    off: hbox(
+                                      h: 32,
+                                      bg: dk(
+                                        context,
+                                        Color(0xFFFFFFFF),
+                                        Color(0xFF18181B),
+                                      ),
+                                      radius: BorderRadius.circular(16),
+                                      child: Align(
+                                        alignment: Alignment.center,
+                                        widthFactor: 1,
+                                        child: Text(
+                                          '按实收比例',
+                                          style: hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFF52525B),
+                                              Color(0xFFA8A8B3),
+                                            ),
+                                            w: FontWeight.w500,
+                                            lh: 18,
                                           ),
-                                          w: FontWeight.w500,
-                                          lh: 18,
                                         ),
                                       ),
                                     ),
@@ -769,55 +776,59 @@ class ServiceEditPage extends StatelessWidget {
                               ),
                               Expanded(
                                 flex: 1,
-                                child: HSel(
-                                  ctrl: g3[0],
-                                  index: 1,
-                                  on: hbox(
-                                    h: 32,
-                                    radius: BorderRadius.circular(16),
-                                    shadow: dk(context, [
-                                      BoxShadow(
-                                        color: Color.fromRGBO(0, 0, 0, 0.08),
-                                        offset: Offset(0, 1),
-                                        blurRadius: 2,
-                                        spreadRadius: 0,
-                                      ),
-                                    ], null),
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      widthFactor: 1,
-                                      child: Text(
-                                        '固定金额',
-                                        style: hts(
-                                          13,
-                                          dk(
-                                            context,
-                                            Color(0xFF18181B),
-                                            Color(0xFFFAFAFA),
+                                child: UnconstrainedBox(
+                                  alignment: Alignment.topLeft,
+                                  constrainedAxis: Axis.horizontal,
+                                  child: HSel(
+                                    ctrl: g3[0],
+                                    index: 1,
+                                    on: hbox(
+                                      h: 32,
+                                      radius: BorderRadius.circular(16),
+                                      shadow: dk(context, [
+                                        BoxShadow(
+                                          color: Color.fromRGBO(0, 0, 0, 0.08),
+                                          offset: Offset(0, 1),
+                                          blurRadius: 2,
+                                          spreadRadius: 0,
+                                        ),
+                                      ], null),
+                                      child: Align(
+                                        alignment: Alignment.center,
+                                        widthFactor: 1,
+                                        child: Text(
+                                          '固定金额',
+                                          style: hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFF18181B),
+                                              Color(0xFFFAFAFA),
+                                            ),
+                                            w: FontWeight.w500,
+                                            lh: 18,
                                           ),
-                                          w: FontWeight.w500,
-                                          lh: 18,
                                         ),
                                       ),
                                     ),
-                                  ),
-                                  off: hbox(
-                                    h: 32,
-                                    radius: BorderRadius.circular(16),
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      widthFactor: 1,
-                                      child: Text(
-                                        '固定金额',
-                                        style: hts(
-                                          13,
-                                          dk(
-                                            context,
-                                            Color(0xFF52525B),
-                                            Color(0xFFA8A8B3),
+                                    off: hbox(
+                                      h: 32,
+                                      radius: BorderRadius.circular(16),
+                                      child: Align(
+                                        alignment: Alignment.center,
+                                        widthFactor: 1,
+                                        child: Text(
+                                          '固定金额',
+                                          style: hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFF52525B),
+                                              Color(0xFFA8A8B3),
+                                            ),
+                                            w: FontWeight.w500,
+                                            lh: 18,
                                           ),
-                                          w: FontWeight.w500,
-                                          lh: 18,
                                         ),
                                       ),
                                     ),
@@ -858,34 +869,32 @@ class ServiceEditPage extends StatelessWidget {
                               textAlign: TextAlign.right,
                             ),
                           ),
-                          Expanded(
-                            child: hbox(
-                              w: 48,
-                              h: 36,
-                              bg: dk(
-                                context,
-                                Color(0xFFF4F4F5),
-                                Color(0xFF27272A),
-                              ),
-                              radius: BorderRadius.circular(10),
-                              align: Alignment.centerLeft,
-                              child: HInput(
-                                style: hts(
-                                  15,
-                                  dk(
-                                    context,
-                                    Color(0xFF18181B),
-                                    Color(0xFFFAFAFA),
-                                  ),
-                                  w: FontWeight.w600,
-                                  lh: 22,
+                          hbox(
+                            w: 48,
+                            h: 36,
+                            bg: dk(
+                              context,
+                              Color(0xFFF4F4F5),
+                              Color(0xFF27272A),
+                            ),
+                            radius: BorderRadius.circular(10),
+                            align: Alignment.centerLeft,
+                            child: HInput(
+                              style: hts(
+                                15,
+                                dk(
+                                  context,
+                                  Color(0xFF18181B),
+                                  Color(0xFFFAFAFA),
                                 ),
-                                value: '8',
-                                keyboard: TextInputType.numberWithOptions(
-                                  decimal: true,
-                                ),
-                                align: TextAlign.center,
+                                w: FontWeight.w600,
+                                lh: 22,
                               ),
+                              value: '8',
+                              keyboard: TextInputType.numberWithOptions(
+                                decimal: true,
+                              ),
+                              align: TextAlign.center,
                             ),
                           ),
                           Text(
@@ -914,9 +923,9 @@ class ServiceEditPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -926,9 +935,9 @@ class ServiceEditPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -989,7 +998,7 @@ class ServiceEditPage extends StatelessWidget {
                             child: hrow(
                               [
                                 hsvg(
-                                  dk(context, Svgs.s343, Svgs.s344),
+                                  dk(context, Svgs.s344, Svgs.s345),
                                   w: 18,
                                   h: 18,
                                 ),
@@ -1062,7 +1071,7 @@ class ServiceEditPage extends StatelessWidget {
                             child: hrow(
                               [
                                 hsvg(
-                                  dk(context, Svgs.s345, Svgs.s346),
+                                  dk(context, Svgs.s346, Svgs.s347),
                                   w: 18,
                                   h: 18,
                                 ),
@@ -1134,7 +1143,7 @@ class ServiceEditPage extends StatelessWidget {
                           child: hrow(
                             [
                               hsvg(
-                                dk(context, Svgs.s347, Svgs.s348),
+                                dk(context, Svgs.s348, Svgs.s349),
                                 w: 16,
                                 h: 16,
                               ),
@@ -1175,9 +1184,9 @@ class ServiceEditPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -1187,9 +1196,9 @@ class ServiceEditPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],

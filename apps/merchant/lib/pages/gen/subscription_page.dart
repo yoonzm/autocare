@@ -31,9 +31,9 @@ class SubscriptionPage extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -43,9 +43,9 @@ class SubscriptionPage extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -221,54 +221,62 @@ class SubscriptionPage extends StatelessWidget {
                           [
                             Expanded(
                               flex: 1,
-                              child: hTap(
-                                context,
-                                hbox(
-                                  h: 44,
-                                  bg: Color(0xFFF5D78E),
-                                  radius: BorderRadius.circular(22),
-                                  child: Align(
-                                    alignment: Alignment(0, 0),
-                                    widthFactor: 1,
-                                    child: Text(
-                                      '续费',
-                                      style: hts(
-                                        15,
-                                        dk(
-                                          context,
-                                          Color(0xFF18181B),
-                                          Color(0xFFFAFAFA),
+                              child: UnconstrainedBox(
+                                alignment: Alignment.topLeft,
+                                constrainedAxis: Axis.horizontal,
+                                child: hTap(
+                                  context,
+                                  hbox(
+                                    h: 44,
+                                    bg: Color(0xFFF5D78E),
+                                    radius: BorderRadius.circular(22),
+                                    child: Align(
+                                      alignment: Alignment(0, 0),
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '续费',
+                                        style: hts(
+                                          15,
+                                          dk(
+                                            context,
+                                            Color(0xFF18181B),
+                                            Color(0xFFFAFAFA),
+                                          ),
+                                          w: FontWeight.w600,
                                         ),
-                                        w: FontWeight.w600,
                                       ),
                                     ),
                                   ),
+                                  to: 'Renew',
                                 ),
-                                to: 'Renew',
                               ),
                             ),
                             Expanded(
                               flex: 1,
-                              child: hTap(
-                                context,
-                                hbox(
-                                  h: 44,
-                                  bg: Color(0xFF27272A),
-                                  radius: BorderRadius.circular(22),
-                                  child: Align(
-                                    alignment: Alignment(0, 0),
-                                    widthFactor: 1,
-                                    child: Text(
-                                      '升级套餐',
-                                      style: hts(
-                                        15,
-                                        Color(0xFFFAFAFA),
-                                        w: FontWeight.w500,
+                              child: UnconstrainedBox(
+                                alignment: Alignment.topLeft,
+                                constrainedAxis: Axis.horizontal,
+                                child: hTap(
+                                  context,
+                                  hbox(
+                                    h: 44,
+                                    bg: Color(0xFF27272A),
+                                    radius: BorderRadius.circular(22),
+                                    child: Align(
+                                      alignment: Alignment(0, 0),
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '升级套餐',
+                                        style: hts(
+                                          15,
+                                          Color(0xFFFAFAFA),
+                                          w: FontWeight.w500,
+                                        ),
                                       ),
                                     ),
                                   ),
+                                  to: 'Plans',
                                 ),
-                                to: 'Plans',
                               ),
                             ),
                           ],
@@ -317,9 +325,9 @@ class SubscriptionPage extends StatelessWidget {
                         context,
                         [
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.04),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
+                            color: Color.fromRGBO(0, 0, 0, 0.06),
+                            offset: Offset(0, 0),
+                            blurRadius: 1,
                             spreadRadius: 0,
                           ),
                           BoxShadow(
@@ -329,9 +337,9 @@ class SubscriptionPage extends StatelessWidget {
                             spreadRadius: 0,
                           ),
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 0),
-                            blurRadius: 1,
+                            color: Color.fromRGBO(0, 0, 0, 0.04),
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
                             spreadRadius: 0,
                           ),
                         ],
@@ -664,9 +672,9 @@ class SubscriptionPage extends StatelessWidget {
                         context,
                         [
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.04),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
+                            color: Color.fromRGBO(0, 0, 0, 0.06),
+                            offset: Offset(0, 0),
+                            blurRadius: 1,
                             spreadRadius: 0,
                           ),
                           BoxShadow(
@@ -676,9 +684,9 @@ class SubscriptionPage extends StatelessWidget {
                             spreadRadius: 0,
                           ),
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 0),
-                            blurRadius: 1,
+                            color: Color.fromRGBO(0, 0, 0, 0.04),
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
                             spreadRadius: 0,
                           ),
                         ],

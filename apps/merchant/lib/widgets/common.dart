@@ -438,8 +438,23 @@ class Divider1 extends StatelessWidget {
   );
 }
 
-void push(BuildContext context, Widget page) =>
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) => page));
+/// 压入页面，并按页面类型给路由命名，这样 openRoute('MemberDetail') 之类的跳转
+/// 能回到已打开的页面，而不是再新开一个。
+void push(BuildContext context, Widget page) {
+  final name = switch (page.runtimeType.toString()) {
+    'MemberDetailPage' => 'MemberDetail',
+    'OrderPage' => 'Order',
+    'AppointmentAddPage' => 'AppointmentAdd',
+    'AppointmentsPage' => 'Appointments',
+    _ => null,
+  };
+  Navigator.of(context).push(
+    MaterialPageRoute(
+      settings: name == null ? null : RouteSettings(name: name),
+      builder: (_) => page,
+    ),
+  );
+}
 
 void toast(BuildContext context, String msg) => hToast(context, msg);
 

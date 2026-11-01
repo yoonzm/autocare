@@ -31,9 +31,9 @@ class StaffPage extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -43,9 +43,9 @@ class StaffPage extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -119,9 +119,9 @@ class StaffPage extends StatelessWidget {
                               context,
                               [
                                 BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.04),
-                                  offset: Offset(0, 2),
-                                  blurRadius: 4,
+                                  color: Color.fromRGBO(0, 0, 0, 0.06),
+                                  offset: Offset(0, 0),
+                                  blurRadius: 1,
                                   spreadRadius: 0,
                                 ),
                                 BoxShadow(
@@ -131,9 +131,9 @@ class StaffPage extends StatelessWidget {
                                   spreadRadius: 0,
                                 ),
                                 BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.06),
-                                  offset: Offset(0, 0),
-                                  blurRadius: 1,
+                                  color: Color.fromRGBO(0, 0, 0, 0.04),
+                                  offset: Offset(0, 2),
+                                  blurRadius: 4,
                                   spreadRadius: 0,
                                 ),
                               ],
@@ -207,9 +207,9 @@ class StaffPage extends StatelessWidget {
                               context,
                               [
                                 BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.04),
-                                  offset: Offset(0, 2),
-                                  blurRadius: 4,
+                                  color: Color.fromRGBO(0, 0, 0, 0.06),
+                                  offset: Offset(0, 0),
+                                  blurRadius: 1,
                                   spreadRadius: 0,
                                 ),
                                 BoxShadow(
@@ -219,9 +219,9 @@ class StaffPage extends StatelessWidget {
                                   spreadRadius: 0,
                                 ),
                                 BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.06),
-                                  offset: Offset(0, 0),
-                                  blurRadius: 1,
+                                  color: Color.fromRGBO(0, 0, 0, 0.04),
+                                  offset: Offset(0, 2),
+                                  blurRadius: 4,
                                   spreadRadius: 0,
                                 ),
                               ],
@@ -288,7 +288,7 @@ class StaffPage extends StatelessWidget {
                             bg: dk(
                               context,
                               Color(0xFF18181B),
-                              Color(0xFF1F1F23),
+                              Color(0xFFFAFAFA),
                             ),
                             radius: BorderRadius.circular(18),
                             pad: EdgeInsets.fromLTRB(14, 12, 14, 12),
@@ -319,7 +319,11 @@ class StaffPage extends StatelessWidget {
                                   '5',
                                   style: hts(
                                     20,
-                                    Color(0xFFFAFAFA),
+                                    dk(
+                                      context,
+                                      Color(0xFFFAFAFA),
+                                      Color(0xFF18181B),
+                                    ),
                                     w: FontWeight.w600,
                                     lh: 26,
                                   ),
@@ -347,9 +351,9 @@ class StaffPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -359,9 +363,9 @@ class StaffPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -941,9 +945,9 @@ class StaffPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -953,9 +957,9 @@ class StaffPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -1030,7 +1034,7 @@ class StaffPage extends StatelessWidget {
                                     child: hrow(
                                       [
                                         hsvg(
-                                          dk(context, Svgs.s349, Svgs.s350),
+                                          dk(context, Svgs.s350, Svgs.s351),
                                           w: 12,
                                           h: 12,
                                         ),
@@ -1077,7 +1081,7 @@ class StaffPage extends StatelessWidget {
                                     child: hrow(
                                       [
                                         hsvg(
-                                          dk(context, Svgs.s349, Svgs.s350),
+                                          dk(context, Svgs.s350, Svgs.s351),
                                           w: 12,
                                           h: 12,
                                         ),
@@ -1132,7 +1136,7 @@ class StaffPage extends StatelessWidget {
                                     child: hrow(
                                       [
                                         hsvg(
-                                          dk(context, Svgs.s349, Svgs.s350),
+                                          dk(context, Svgs.s350, Svgs.s351),
                                           w: 12,
                                           h: 12,
                                         ),
@@ -1179,7 +1183,7 @@ class StaffPage extends StatelessWidget {
                                     child: hrow(
                                       [
                                         hsvg(
-                                          dk(context, Svgs.s349, Svgs.s350),
+                                          dk(context, Svgs.s350, Svgs.s351),
                                           w: 12,
                                           h: 12,
                                         ),
@@ -1234,7 +1238,7 @@ class StaffPage extends StatelessWidget {
                                     child: hrow(
                                       [
                                         hsvg(
-                                          dk(context, Svgs.s351, Svgs.s352),
+                                          dk(context, Svgs.s352, Svgs.s353),
                                           w: 12,
                                           h: 12,
                                         ),
@@ -1281,7 +1285,7 @@ class StaffPage extends StatelessWidget {
                                     child: hrow(
                                       [
                                         hsvg(
-                                          dk(context, Svgs.s351, Svgs.s352),
+                                          dk(context, Svgs.s352, Svgs.s353),
                                           w: 12,
                                           h: 12,
                                         ),

@@ -31,9 +31,9 @@ class ChangePasswordPage extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -43,9 +43,9 @@ class ChangePasswordPage extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -93,9 +93,9 @@ class ChangePasswordPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -105,9 +105,9 @@ class ChangePasswordPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -340,38 +340,54 @@ class ChangePasswordPage extends StatelessWidget {
                             [
                               Expanded(
                                 flex: 1,
-                                child: hbox(
-                                  h: 4,
-                                  bg: Color(0xFF17C964),
-                                  radius: BorderRadius.circular(2),
-                                ),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: hbox(
-                                  h: 4,
-                                  bg: Color(0xFF17C964),
-                                  radius: BorderRadius.circular(2),
-                                ),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: hbox(
-                                  h: 4,
-                                  bg: Color(0xFF17C964),
-                                  radius: BorderRadius.circular(2),
-                                ),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: hbox(
-                                  h: 4,
-                                  bg: dk(
-                                    context,
-                                    Color(0xFFE4E4E7),
-                                    Color(0xFF3A3A40),
+                                child: UnconstrainedBox(
+                                  alignment: Alignment.topLeft,
+                                  constrainedAxis: Axis.horizontal,
+                                  child: hbox(
+                                    h: 4,
+                                    bg: Color(0xFF17C964),
+                                    radius: BorderRadius.circular(2),
                                   ),
-                                  radius: BorderRadius.circular(2),
+                                ),
+                              ),
+                              Expanded(
+                                flex: 1,
+                                child: UnconstrainedBox(
+                                  alignment: Alignment.topLeft,
+                                  constrainedAxis: Axis.horizontal,
+                                  child: hbox(
+                                    h: 4,
+                                    bg: Color(0xFF17C964),
+                                    radius: BorderRadius.circular(2),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                flex: 1,
+                                child: UnconstrainedBox(
+                                  alignment: Alignment.topLeft,
+                                  constrainedAxis: Axis.horizontal,
+                                  child: hbox(
+                                    h: 4,
+                                    bg: Color(0xFF17C964),
+                                    radius: BorderRadius.circular(2),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                flex: 1,
+                                child: UnconstrainedBox(
+                                  alignment: Alignment.topLeft,
+                                  constrainedAxis: Axis.horizontal,
+                                  child: hbox(
+                                    h: 4,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFE4E4E7),
+                                      Color(0xFF3A3A40),
+                                    ),
+                                    radius: BorderRadius.circular(2),
+                                  ),
                                 ),
                               ),
                             ],
@@ -512,9 +528,9 @@ class ChangePasswordPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -524,9 +540,9 @@ class ChangePasswordPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],

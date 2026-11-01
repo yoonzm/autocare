@@ -98,7 +98,7 @@ class RecordItem {
 }
 
 const memberVehicles = <Vehicle>[
-  Vehicle('宝马 5系 525Li · 黑', '沪A·8K29M', '上次保养 10.31 · 里程 32,800 km'),
+  Vehicle('宝马 5系 525Li · 黑', '沪A·8K29M', '上次保养 10.31 · 32,800 km'),
   Vehicle('理想 L7 · 灰', '沪AF·09316', '车衣质保至 2029.06'),
 ];
 

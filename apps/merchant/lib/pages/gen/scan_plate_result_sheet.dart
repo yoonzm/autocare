@@ -359,57 +359,65 @@ class ScanPlateResultSheet extends StatelessWidget {
               [
                 Expanded(
                   flex: 10,
-                  child: hTap(
-                    context,
-                    hbox(
-                      h: 48,
-                      bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
-                      radius: BorderRadius.circular(24),
-                      child: Align(
-                        alignment: Alignment(0, 0),
-                        widthFactor: 1,
-                        child: Text(
-                          '查看会员',
-                          style: hts(
-                            15,
-                            dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                            w: FontWeight.w500,
+                  child: UnconstrainedBox(
+                    alignment: Alignment.topLeft,
+                    constrainedAxis: Axis.horizontal,
+                    child: hTap(
+                      context,
+                      hbox(
+                        h: 48,
+                        bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(24),
+                        child: Align(
+                          alignment: Alignment(0, 0),
+                          widthFactor: 1,
+                          child: Text(
+                            '查看会员',
+                            style: hts(
+                              15,
+                              dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                              w: FontWeight.w500,
+                            ),
                           ),
                         ),
                       ),
+                      to: 'MemberDetail',
                     ),
-                    to: 'MemberDetail',
                   ),
                 ),
                 Expanded(
                   flex: 14,
-                  child: hTap(
-                    context,
-                    hbox(
-                      h: 48,
-                      bg: Color(0xFF0485F7),
-                      radius: BorderRadius.circular(24),
-                      child: hrow(
-                        [
-                          hsvg(Svgs.s160, w: 18, h: 18),
-                          Flexible(
-                            flex: 60,
-                            child: Text(
-                              '为他开单',
-                              style: hts(
-                                15,
-                                Color(0xFFFFFFFF),
-                                w: FontWeight.w600,
+                  child: UnconstrainedBox(
+                    alignment: Alignment.topLeft,
+                    constrainedAxis: Axis.horizontal,
+                    child: hTap(
+                      context,
+                      hbox(
+                        h: 48,
+                        bg: Color(0xFF0485F7),
+                        radius: BorderRadius.circular(24),
+                        child: hrow(
+                          [
+                            hsvg(Svgs.s160, w: 18, h: 18),
+                            Flexible(
+                              flex: 60,
+                              child: Text(
+                                '为他开单',
+                                style: hts(
+                                  15,
+                                  Color(0xFFFFFFFF),
+                                  w: FontWeight.w600,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
-                        main: MainAxisAlignment.center,
-                        cross: CrossAxisAlignment.center,
-                        gap: 6,
+                          ],
+                          main: MainAxisAlignment.center,
+                          cross: CrossAxisAlignment.center,
+                          gap: 6,
+                        ),
                       ),
+                      to: 'Order',
                     ),
-                    to: 'Order',
                   ),
                 ),
               ],

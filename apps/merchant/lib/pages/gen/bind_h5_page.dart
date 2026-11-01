@@ -134,9 +134,9 @@ class BindH5Page extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -146,9 +146,9 @@ class BindH5Page extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -214,9 +214,9 @@ class BindH5Page extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -226,9 +226,9 @@ class BindH5Page extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -294,9 +294,9 @@ class BindH5Page extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -306,9 +306,9 @@ class BindH5Page extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -378,9 +378,9 @@ class BindH5Page extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -390,9 +390,9 @@ class BindH5Page extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -471,64 +471,72 @@ class BindH5Page extends StatelessWidget {
                           hrow(
                             [
                               Expanded(
-                                child: hbox(
-                                  h: 48,
-                                  minW: 0,
-                                  bg: dk(
-                                    context,
-                                    Color(0xFFF4F4F5),
-                                    Color(0xFF27272A),
-                                  ),
-                                  radius: BorderRadius.circular(16),
-                                  pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                  align: Alignment.centerLeft,
-                                  child: HInput(
-                                    style: hts(
-                                      17,
-                                      dk(
-                                        context,
-                                        Color(0xFF18181B),
-                                        Color(0xFFFAFAFA),
-                                      ),
-                                      w: FontWeight.w600,
-                                      lh: 24,
-                                      ls: 4,
+                                child: UnconstrainedBox(
+                                  alignment: Alignment.topLeft,
+                                  constrainedAxis: Axis.horizontal,
+                                  child: hbox(
+                                    h: 48,
+                                    minW: 0,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFF4F4F5),
+                                      Color(0xFF27272A),
                                     ),
-                                    value: '4 8 2 0',
-                                    keyboard: TextInputType.number,
+                                    radius: BorderRadius.circular(16),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    align: Alignment.centerLeft,
+                                    child: HInput(
+                                      style: hts(
+                                        17,
+                                        dk(
+                                          context,
+                                          Color(0xFF18181B),
+                                          Color(0xFFFAFAFA),
+                                        ),
+                                        w: FontWeight.w600,
+                                        lh: 24,
+                                        ls: 4,
+                                      ),
+                                      value: '4 8 2 0',
+                                      keyboard: TextInputType.number,
+                                    ),
                                   ),
                                 ),
                               ),
-                              hTap(
-                                context,
-                                hbox(
-                                  h: 48,
-                                  bg: dk(
-                                    context,
-                                    Color(0xFFE1F0FE),
-                                    Color.fromRGBO(4, 133, 247, 0.18),
-                                  ),
-                                  radius: BorderRadius.circular(16),
-                                  pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                  child: Align(
-                                    alignment: Alignment.center,
-                                    widthFactor: 1,
-                                    child: Text(
-                                      '52 秒后重发',
-                                      style: hts(
-                                        13,
-                                        dk(
-                                          context,
-                                          Color(0xFF1E63AE),
-                                          Color(0xFF6AB4FA),
+                              UnconstrainedBox(
+                                alignment: Alignment.topLeft,
+                                constrainedAxis: Axis.horizontal,
+                                child: hTap(
+                                  context,
+                                  hbox(
+                                    h: 48,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFE1F0FE),
+                                      Color.fromRGBO(4, 133, 247, 0.18),
+                                    ),
+                                    radius: BorderRadius.circular(16),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '52 秒后重发',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF1E63AE),
+                                            Color(0xFF6AB4FA),
+                                          ),
+                                          w: FontWeight.w600,
+                                          lh: 18,
                                         ),
-                                        w: FontWeight.w600,
-                                        lh: 18,
                                       ),
                                     ),
                                   ),
+                                  label: '52 秒后重发',
                                 ),
-                                label: '52 秒后重发',
                               ),
                             ],
                             main: MainAxisAlignment.start,

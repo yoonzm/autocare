@@ -69,37 +69,45 @@ class PackageSvcPickSheet extends StatelessWidget {
               [
                 Flexible(
                   flex: 54,
-                  child: HSel(
-                    ctrl: g1[0],
-                    index: 0,
-                    on: hbox(
-                      h: 30,
-                      bg: dk(context, Color(0xFF18181B), Color(0xFF34343A)),
-                      radius: BorderRadius.circular(15),
-                      pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                      child: Align(
-                        alignment: Alignment(-1, 0),
-                        widthFactor: 1,
-                        child: Text(
-                          '全部',
-                          style: hts(13, Color(0xFFFFFFFF), w: FontWeight.w500),
+                  child: UnconstrainedBox(
+                    alignment: Alignment.topLeft,
+                    constrainedAxis: Axis.horizontal,
+                    child: HSel(
+                      ctrl: g1[0],
+                      index: 0,
+                      on: hbox(
+                        h: 30,
+                        bg: dk(context, Color(0xFF18181B), Color(0xFF34343A)),
+                        radius: BorderRadius.circular(15),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment(-1, 0),
+                          widthFactor: 1,
+                          child: Text(
+                            '全部',
+                            style: hts(
+                              13,
+                              Color(0xFFFFFFFF),
+                              w: FontWeight.w500,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                    off: hbox(
-                      h: 30,
-                      bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
-                      radius: BorderRadius.circular(15),
-                      pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                      child: Align(
-                        alignment: Alignment(-1, 0),
-                        widthFactor: 1,
-                        child: Text(
-                          '全部',
-                          style: hts(
-                            13,
-                            dk(context, Color(0xFF52525B), Color(0xFFA8A8B3)),
-                            w: FontWeight.w500,
+                      off: hbox(
+                        h: 30,
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(15),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment(-1, 0),
+                          widthFactor: 1,
+                          child: Text(
+                            '全部',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF52525B), Color(0xFFA8A8B3)),
+                              w: FontWeight.w500,
+                            ),
                           ),
                         ),
                       ),
@@ -108,37 +116,45 @@ class PackageSvcPickSheet extends StatelessWidget {
                 ),
                 Flexible(
                   flex: 54,
-                  child: HSel(
-                    ctrl: g1[0],
-                    index: 1,
-                    on: hbox(
-                      h: 30,
-                      bg: dk(context, Color(0xFF18181B), Color(0xFF34343A)),
-                      radius: BorderRadius.circular(15),
-                      pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                      child: Align(
-                        alignment: Alignment(-1, 0),
-                        widthFactor: 1,
-                        child: Text(
-                          '洗车',
-                          style: hts(13, Color(0xFFFFFFFF), w: FontWeight.w500),
+                  child: UnconstrainedBox(
+                    alignment: Alignment.topLeft,
+                    constrainedAxis: Axis.horizontal,
+                    child: HSel(
+                      ctrl: g1[0],
+                      index: 1,
+                      on: hbox(
+                        h: 30,
+                        bg: dk(context, Color(0xFF18181B), Color(0xFF34343A)),
+                        radius: BorderRadius.circular(15),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment(-1, 0),
+                          widthFactor: 1,
+                          child: Text(
+                            '洗车',
+                            style: hts(
+                              13,
+                              Color(0xFFFFFFFF),
+                              w: FontWeight.w500,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                    off: hbox(
-                      h: 30,
-                      bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
-                      radius: BorderRadius.circular(15),
-                      pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                      child: Align(
-                        alignment: Alignment(-1, 0),
-                        widthFactor: 1,
-                        child: Text(
-                          '洗车',
-                          style: hts(
-                            13,
-                            dk(context, Color(0xFF52525B), Color(0xFFA8A8B3)),
-                            w: FontWeight.w500,
+                      off: hbox(
+                        h: 30,
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(15),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment(-1, 0),
+                          widthFactor: 1,
+                          child: Text(
+                            '洗车',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF52525B), Color(0xFFA8A8B3)),
+                              w: FontWeight.w500,
+                            ),
                           ),
                         ),
                       ),
@@ -147,37 +163,45 @@ class PackageSvcPickSheet extends StatelessWidget {
                 ),
                 Flexible(
                   flex: 54,
-                  child: HSel(
-                    ctrl: g1[0],
-                    index: 2,
-                    on: hbox(
-                      h: 30,
-                      bg: dk(context, Color(0xFF18181B), Color(0xFF34343A)),
-                      radius: BorderRadius.circular(15),
-                      pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                      child: Align(
-                        alignment: Alignment(-1, 0),
-                        widthFactor: 1,
-                        child: Text(
-                          '美容',
-                          style: hts(13, Color(0xFFFFFFFF), w: FontWeight.w500),
+                  child: UnconstrainedBox(
+                    alignment: Alignment.topLeft,
+                    constrainedAxis: Axis.horizontal,
+                    child: HSel(
+                      ctrl: g1[0],
+                      index: 2,
+                      on: hbox(
+                        h: 30,
+                        bg: dk(context, Color(0xFF18181B), Color(0xFF34343A)),
+                        radius: BorderRadius.circular(15),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment(-1, 0),
+                          widthFactor: 1,
+                          child: Text(
+                            '美容',
+                            style: hts(
+                              13,
+                              Color(0xFFFFFFFF),
+                              w: FontWeight.w500,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                    off: hbox(
-                      h: 30,
-                      bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
-                      radius: BorderRadius.circular(15),
-                      pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                      child: Align(
-                        alignment: Alignment(-1, 0),
-                        widthFactor: 1,
-                        child: Text(
-                          '美容',
-                          style: hts(
-                            13,
-                            dk(context, Color(0xFF52525B), Color(0xFFA8A8B3)),
-                            w: FontWeight.w500,
+                      off: hbox(
+                        h: 30,
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(15),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment(-1, 0),
+                          widthFactor: 1,
+                          child: Text(
+                            '美容',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF52525B), Color(0xFFA8A8B3)),
+                              w: FontWeight.w500,
+                            ),
                           ),
                         ),
                       ),
@@ -186,37 +210,45 @@ class PackageSvcPickSheet extends StatelessWidget {
                 ),
                 Flexible(
                   flex: 54,
-                  child: HSel(
-                    ctrl: g1[0],
-                    index: 3,
-                    on: hbox(
-                      h: 30,
-                      bg: dk(context, Color(0xFF18181B), Color(0xFF34343A)),
-                      radius: BorderRadius.circular(15),
-                      pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                      child: Align(
-                        alignment: Alignment(-1, 0),
-                        widthFactor: 1,
-                        child: Text(
-                          '养护',
-                          style: hts(13, Color(0xFFFFFFFF), w: FontWeight.w500),
+                  child: UnconstrainedBox(
+                    alignment: Alignment.topLeft,
+                    constrainedAxis: Axis.horizontal,
+                    child: HSel(
+                      ctrl: g1[0],
+                      index: 3,
+                      on: hbox(
+                        h: 30,
+                        bg: dk(context, Color(0xFF18181B), Color(0xFF34343A)),
+                        radius: BorderRadius.circular(15),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment(-1, 0),
+                          widthFactor: 1,
+                          child: Text(
+                            '养护',
+                            style: hts(
+                              13,
+                              Color(0xFFFFFFFF),
+                              w: FontWeight.w500,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                    off: hbox(
-                      h: 30,
-                      bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
-                      radius: BorderRadius.circular(15),
-                      pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                      child: Align(
-                        alignment: Alignment(-1, 0),
-                        widthFactor: 1,
-                        child: Text(
-                          '养护',
-                          style: hts(
-                            13,
-                            dk(context, Color(0xFF52525B), Color(0xFFA8A8B3)),
-                            w: FontWeight.w500,
+                      off: hbox(
+                        h: 30,
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(15),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment(-1, 0),
+                          widthFactor: 1,
+                          child: Text(
+                            '养护',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF52525B), Color(0xFFA8A8B3)),
+                              w: FontWeight.w500,
+                            ),
                           ),
                         ),
                       ),
@@ -304,71 +336,111 @@ class PackageSvcPickSheet extends StatelessWidget {
                         ),
                       ),
                     ),
-                    hrow(
-                      [
-                        hbox(
-                          w: 26,
-                          h: 26,
-                          bg: Color(0xFFFFFFFF),
-                          radius: BorderRadius.circular(13),
-                          border: dk(
-                            context,
-                            Border.all(color: Color(0xFFD4D4D8), width: 1),
-                            Border.all(color: Color(0xFF3F3F46), width: 1),
-                          ),
-                          align: Alignment(0, 0),
-                          child: Text(
-                            '−',
-                            style: hts(
-                              16,
-                              dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                              lh: 16,
-                            ),
-                          ),
-                        ),
-                        Flexible(
-                          flex: 34,
-                          child: hbox(
-                            minW: 34,
-                            child: Text(
-                              '20 次',
-                              style: hts(
-                                14,
-                                dk(
+                    HHolder(
+                      inits: [20],
+                      builder: (context, ctrls) {
+                        final c2 = ctrls[0];
+                        return hrow(
+                          [
+                            hTap(
+                              context,
+                              hbox(
+                                w: 26,
+                                h: 26,
+                                bg: Color(0xFFFFFFFF),
+                                radius: BorderRadius.circular(13),
+                                border: dk(
                                   context,
-                                  Color(0xFF18181B),
-                                  Color(0xFFFAFAFA),
+                                  Border.all(
+                                    color: Color(0xFFD4D4D8),
+                                    width: 1,
+                                  ),
+                                  Border.all(
+                                    color: Color(0xFF3F3F46),
+                                    width: 1,
+                                  ),
                                 ),
-                                w: FontWeight.w600,
+                                align: Alignment(0, 0),
+                                child: Text(
+                                  '−',
+                                  style: hts(
+                                    16,
+                                    dk(
+                                      context,
+                                      Color(0xFF18181B),
+                                      Color(0xFFFAFAFA),
+                                    ),
+                                    lh: 16,
+                                  ),
+                                ),
                               ),
-                              textAlign: TextAlign.center,
+                              onTap: () => c2.add(-1),
                             ),
-                          ),
-                        ),
-                        hbox(
-                          w: 26,
-                          h: 26,
-                          bg: Color(0xFFFFFFFF),
-                          radius: BorderRadius.circular(13),
-                          border: dk(
-                            context,
-                            Border.all(color: Color(0xFFD4D4D8), width: 1),
-                            Border.all(color: Color(0xFF3F3F46), width: 1),
-                          ),
-                          align: Alignment(0, 0),
-                          child: Text(
-                            '+',
-                            style: hts(
-                              16,
-                              dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                              lh: 16,
+                            Flexible(
+                              flex: 34,
+                              child: hbox(
+                                minW: 34,
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: hCount(
+                                    c2,
+                                    hts(
+                                      14,
+                                      dk(
+                                        context,
+                                        Color(0xFF18181B),
+                                        Color(0xFFFAFAFA),
+                                      ),
+                                      w: FontWeight.w600,
+                                    ),
+                                    0,
+                                    ' 次',
+                                    false,
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                      ],
-                      main: MainAxisAlignment.start,
-                      cross: CrossAxisAlignment.center,
-                      gap: 6,
+                            hTap(
+                              context,
+                              hbox(
+                                w: 26,
+                                h: 26,
+                                bg: Color(0xFFFFFFFF),
+                                radius: BorderRadius.circular(13),
+                                border: dk(
+                                  context,
+                                  Border.all(
+                                    color: Color(0xFFD4D4D8),
+                                    width: 1,
+                                  ),
+                                  Border.all(
+                                    color: Color(0xFF3F3F46),
+                                    width: 1,
+                                  ),
+                                ),
+                                align: Alignment(0, 0),
+                                child: Text(
+                                  '+',
+                                  style: hts(
+                                    16,
+                                    dk(
+                                      context,
+                                      Color(0xFF18181B),
+                                      Color(0xFFFAFAFA),
+                                    ),
+                                    lh: 16,
+                                  ),
+                                ),
+                              ),
+                              onTap: () => c2.add(1),
+                            ),
+                          ],
+                          main: MainAxisAlignment.start,
+                          cross: CrossAxisAlignment.center,
+                          gap: 6,
+                        );
+                      },
                     ),
                   ],
                   main: MainAxisAlignment.start,

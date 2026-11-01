@@ -31,9 +31,9 @@ class FeedbackPage extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -43,9 +43,9 @@ class FeedbackPage extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -93,9 +93,9 @@ class FeedbackPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -105,9 +105,9 @@ class FeedbackPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -483,90 +483,102 @@ class FeedbackPage extends StatelessWidget {
                           ),
                           hrow(
                             [
-                              HImageSlot(
-                                imgKey: 'Feedback_4',
-                                radius: 16,
-                                child: hbox(
-                                  w: 76,
-                                  h: 76,
-                                  bg: Color(0xFFFAFAFA),
-                                  radius: BorderRadius.circular(16),
-                                  dashed: true,
-                                  dashColor: dk(
-                                    context,
-                                    Color(0xFFD4D4D8),
-                                    Color(0xFF3F3F46),
-                                  ),
-                                  dashWidth: 2,
-                                  child: hrow(
-                                    [
-                                      hsvg(
-                                        dk(context, Svgs.s154, Svgs.s155),
-                                        w: 22,
-                                        h: 22,
-                                      ),
-                                    ],
-                                    main: MainAxisAlignment.center,
-                                    cross: CrossAxisAlignment.center,
-                                    gap: 0,
-                                  ),
-                                ),
-                              ),
-                              HImageSlot(
-                                imgKey: 'Feedback_5',
-                                radius: 16,
-                                child: hbox(
-                                  w: 76,
-                                  h: 76,
-                                  bg: Color(0xFFFAFAFA),
-                                  radius: BorderRadius.circular(16),
-                                  dashed: true,
-                                  dashColor: dk(
-                                    context,
-                                    Color(0xFFD4D4D8),
-                                    Color(0xFF3F3F46),
-                                  ),
-                                  dashWidth: 2,
-                                  child: hrow(
-                                    [
-                                      hsvg(
-                                        dk(context, Svgs.s154, Svgs.s155),
-                                        w: 22,
-                                        h: 22,
-                                      ),
-                                    ],
-                                    main: MainAxisAlignment.center,
-                                    cross: CrossAxisAlignment.center,
-                                    gap: 0,
+                              UnconstrainedBox(
+                                alignment: Alignment.topLeft,
+                                constrainedAxis: Axis.horizontal,
+                                child: HImageSlot(
+                                  imgKey: 'Feedback_4',
+                                  radius: 16,
+                                  child: hbox(
+                                    w: 76,
+                                    h: 76,
+                                    bg: Color(0xFFFAFAFA),
+                                    radius: BorderRadius.circular(16),
+                                    dashed: true,
+                                    dashColor: dk(
+                                      context,
+                                      Color(0xFFD4D4D8),
+                                      Color(0xFF3F3F46),
+                                    ),
+                                    dashWidth: 2,
+                                    child: hrow(
+                                      [
+                                        hsvg(
+                                          dk(context, Svgs.s154, Svgs.s155),
+                                          w: 22,
+                                          h: 22,
+                                        ),
+                                      ],
+                                      main: MainAxisAlignment.center,
+                                      cross: CrossAxisAlignment.center,
+                                      gap: 0,
+                                    ),
                                   ),
                                 ),
                               ),
-                              HImageSlot(
-                                imgKey: 'Feedback_6',
-                                radius: 16,
-                                child: hbox(
-                                  w: 76,
-                                  h: 76,
-                                  bg: Color(0xFFFAFAFA),
-                                  radius: BorderRadius.circular(16),
-                                  dashed: true,
-                                  dashColor: dk(
-                                    context,
-                                    Color(0xFFD4D4D8),
-                                    Color(0xFF3F3F46),
+                              UnconstrainedBox(
+                                alignment: Alignment.topLeft,
+                                constrainedAxis: Axis.horizontal,
+                                child: HImageSlot(
+                                  imgKey: 'Feedback_5',
+                                  radius: 16,
+                                  child: hbox(
+                                    w: 76,
+                                    h: 76,
+                                    bg: Color(0xFFFAFAFA),
+                                    radius: BorderRadius.circular(16),
+                                    dashed: true,
+                                    dashColor: dk(
+                                      context,
+                                      Color(0xFFD4D4D8),
+                                      Color(0xFF3F3F46),
+                                    ),
+                                    dashWidth: 2,
+                                    child: hrow(
+                                      [
+                                        hsvg(
+                                          dk(context, Svgs.s154, Svgs.s155),
+                                          w: 22,
+                                          h: 22,
+                                        ),
+                                      ],
+                                      main: MainAxisAlignment.center,
+                                      cross: CrossAxisAlignment.center,
+                                      gap: 0,
+                                    ),
                                   ),
-                                  dashWidth: 2,
-                                  child: hrow(
-                                    [
-                                      hsvg(
-                                        dk(context, Svgs.s154, Svgs.s155),
-                                        w: 22,
-                                        h: 22,
-                                      ),
-                                    ],
-                                    main: MainAxisAlignment.center,
-                                    cross: CrossAxisAlignment.center,
-                                    gap: 0,
+                                ),
+                              ),
+                              UnconstrainedBox(
+                                alignment: Alignment.topLeft,
+                                constrainedAxis: Axis.horizontal,
+                                child: HImageSlot(
+                                  imgKey: 'Feedback_6',
+                                  radius: 16,
+                                  child: hbox(
+                                    w: 76,
+                                    h: 76,
+                                    bg: Color(0xFFFAFAFA),
+                                    radius: BorderRadius.circular(16),
+                                    dashed: true,
+                                    dashColor: dk(
+                                      context,
+                                      Color(0xFFD4D4D8),
+                                      Color(0xFF3F3F46),
+                                    ),
+                                    dashWidth: 2,
+                                    child: hrow(
+                                      [
+                                        hsvg(
+                                          dk(context, Svgs.s154, Svgs.s155),
+                                          w: 22,
+                                          h: 22,
+                                        ),
+                                      ],
+                                      main: MainAxisAlignment.center,
+                                      cross: CrossAxisAlignment.center,
+                                      gap: 0,
+                                    ),
                                   ),
                                 ),
                               ),

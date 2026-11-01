@@ -545,52 +545,60 @@ class AppointmentRescheduleSheet extends StatelessWidget {
             [
               Expanded(
                 flex: 1,
-                child: hTap(
-                  context,
-                  hbox(
-                    h: 50,
-                    bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
-                    radius: BorderRadius.circular(25),
-                    child: Align(
-                      alignment: Alignment(0, 0),
-                      widthFactor: 1,
-                      child: Text(
-                        '取消',
-                        style: hts(
-                          15,
-                          dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                          w: FontWeight.w500,
-                          lh: 22,
+                child: UnconstrainedBox(
+                  alignment: Alignment.topLeft,
+                  constrainedAxis: Axis.horizontal,
+                  child: hTap(
+                    context,
+                    hbox(
+                      h: 50,
+                      bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
+                      radius: BorderRadius.circular(25),
+                      child: Align(
+                        alignment: Alignment(0, 0),
+                        widthFactor: 1,
+                        child: Text(
+                          '取消',
+                          style: hts(
+                            15,
+                            dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                            w: FontWeight.w500,
+                            lh: 22,
+                          ),
                         ),
                       ),
                     ),
+                    to: 'AppointmentDetail',
                   ),
-                  to: 'AppointmentDetail',
                 ),
               ),
               Expanded(
                 flex: 2,
-                child: hTap(
-                  context,
-                  hbox(
-                    h: 50,
-                    bg: dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                    radius: BorderRadius.circular(25),
-                    child: Align(
-                      alignment: Alignment(0, 0),
-                      widthFactor: 1,
-                      child: Text(
-                        '确认改期',
-                        style: hts(
-                          15,
-                          dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                          w: FontWeight.w600,
-                          lh: 22,
+                child: UnconstrainedBox(
+                  alignment: Alignment.topLeft,
+                  constrainedAxis: Axis.horizontal,
+                  child: hTap(
+                    context,
+                    hbox(
+                      h: 50,
+                      bg: dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                      radius: BorderRadius.circular(25),
+                      child: Align(
+                        alignment: Alignment(0, 0),
+                        widthFactor: 1,
+                        child: Text(
+                          '确认改期',
+                          style: hts(
+                            15,
+                            dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                            w: FontWeight.w600,
+                            lh: 22,
+                          ),
                         ),
                       ),
                     ),
+                    to: 'Appointments',
                   ),
-                  to: 'Appointments',
                 ),
               ),
             ],

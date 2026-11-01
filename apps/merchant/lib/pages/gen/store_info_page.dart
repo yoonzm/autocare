@@ -31,9 +31,9 @@ class StoreInfoPage extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -43,9 +43,9 @@ class StoreInfoPage extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -115,9 +115,9 @@ class StoreInfoPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -127,9 +127,9 @@ class StoreInfoPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -155,7 +155,7 @@ class StoreInfoPage extends StatelessWidget {
                             hcol(
                               [
                                 hsvg(
-                                  dk(context, Svgs.s371, Svgs.s372),
+                                  dk(context, Svgs.s372, Svgs.s373),
                                   w: 28,
                                   h: 28,
                                 ),
@@ -326,9 +326,9 @@ class StoreInfoPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -338,9 +338,9 @@ class StoreInfoPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -363,7 +363,7 @@ class StoreInfoPage extends StatelessWidget {
                             Padding(
                               padding: EdgeInsets.fromLTRB(0, 1, 0, 0),
                               child: hsvg(
-                                dk(context, Svgs.s373, Svgs.s374),
+                                dk(context, Svgs.s374, Svgs.s375),
                                 w: 20,
                                 h: 20,
                               ),
@@ -437,7 +437,7 @@ class StoreInfoPage extends StatelessWidget {
                             Padding(
                               padding: EdgeInsets.fromLTRB(0, 1, 0, 0),
                               child: hsvg(
-                                dk(context, Svgs.s375, Svgs.s376),
+                                dk(context, Svgs.s376, Svgs.s377),
                                 w: 20,
                                 h: 20,
                               ),
@@ -494,7 +494,7 @@ class StoreInfoPage extends StatelessWidget {
                             Padding(
                               padding: EdgeInsets.fromLTRB(0, 1, 0, 0),
                               child: hsvg(
-                                dk(context, Svgs.s377, Svgs.s378),
+                                dk(context, Svgs.s378, Svgs.s379),
                                 w: 20,
                                 h: 20,
                               ),
@@ -551,7 +551,7 @@ class StoreInfoPage extends StatelessWidget {
                             Padding(
                               padding: EdgeInsets.fromLTRB(0, 1, 0, 0),
                               child: hsvg(
-                                dk(context, Svgs.s379, Svgs.s380),
+                                dk(context, Svgs.s380, Svgs.s381),
                                 w: 20,
                                 h: 20,
                               ),
@@ -694,9 +694,9 @@ class StoreInfoPage extends StatelessWidget {
                         context,
                         [
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.04),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
+                            color: Color.fromRGBO(0, 0, 0, 0.06),
+                            offset: Offset(0, 0),
+                            blurRadius: 1,
                             spreadRadius: 0,
                           ),
                           BoxShadow(
@@ -706,9 +706,9 @@ class StoreInfoPage extends StatelessWidget {
                             spreadRadius: 0,
                           ),
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 0),
-                            blurRadius: 1,
+                            color: Color.fromRGBO(0, 0, 0, 0.04),
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
                             spreadRadius: 0,
                           ),
                         ],
@@ -743,7 +743,7 @@ class StoreInfoPage extends StatelessWidget {
                                     child: hrow(
                                       [
                                         hsvg(
-                                          dk(context, Svgs.s381, Svgs.s382),
+                                          dk(context, Svgs.s382, Svgs.s383),
                                           w: 18,
                                           h: 18,
                                         ),
@@ -822,7 +822,7 @@ class StoreInfoPage extends StatelessWidget {
                                     child: hrow(
                                       [
                                         hsvg(
-                                          dk(context, Svgs.s383, Svgs.s384),
+                                          dk(context, Svgs.s384, Svgs.s385),
                                           w: 18,
                                           h: 18,
                                         ),
@@ -900,7 +900,7 @@ class StoreInfoPage extends StatelessWidget {
                           child: hrow(
                             [
                               hsvg(
-                                dk(context, Svgs.s385, Svgs.s386),
+                                dk(context, Svgs.s386, Svgs.s387),
                                 w: 22,
                                 h: 22,
                               ),

@@ -82,9 +82,9 @@ class MainExpiringPage extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -94,9 +94,9 @@ class MainExpiringPage extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -133,14 +133,25 @@ class MainExpiringPage extends StatelessWidget {
                                 h: 8,
                                 bg: Color(0xFFFF383C),
                                 radius: BorderRadius.circular(4),
-                                shadow: [
-                                  BoxShadow(
-                                    color: Color(0xFFFFFFFF),
-                                    offset: Offset(0, 0),
-                                    blurRadius: 0,
-                                    spreadRadius: 2,
-                                  ),
-                                ],
+                                shadow: dk(
+                                  context,
+                                  [
+                                    BoxShadow(
+                                      color: Color(0xFFFFFFFF),
+                                      offset: Offset(0, 0),
+                                      blurRadius: 0,
+                                      spreadRadius: 2,
+                                    ),
+                                  ],
+                                  [
+                                    BoxShadow(
+                                      color: Color(0xFF18181B),
+                                      offset: Offset(0, 0),
+                                      blurRadius: 0,
+                                      spreadRadius: 2,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ],
@@ -155,14 +166,25 @@ class MainExpiringPage extends StatelessWidget {
                         h: 44,
                         bg: Color(0xFF0485F7),
                         radius: BorderRadius.circular(22),
-                        shadow: [
-                          BoxShadow(
-                            color: Color(0xFFFFFFFF),
-                            offset: Offset(0, 0),
-                            blurRadius: 0,
-                            spreadRadius: 3,
-                          ),
-                        ],
+                        shadow: dk(
+                          context,
+                          [
+                            BoxShadow(
+                              color: Color(0xFFFFFFFF),
+                              offset: Offset(0, 0),
+                              blurRadius: 0,
+                              spreadRadius: 3,
+                            ),
+                          ],
+                          [
+                            BoxShadow(
+                              color: Color(0xFF18181B),
+                              offset: Offset(0, 0),
+                              blurRadius: 0,
+                              spreadRadius: 3,
+                            ),
+                          ],
+                        ),
                         align: Alignment(0, 0),
                         child: Text(
                           '陈',
@@ -980,9 +1002,9 @@ class MainExpiringPage extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -992,9 +1014,9 @@ class MainExpiringPage extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -1201,9 +1223,9 @@ class MainExpiringPage extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -1213,9 +1235,9 @@ class MainExpiringPage extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -1658,15 +1680,15 @@ class MainExpiringPage extends StatelessWidget {
                         radius: BorderRadius.circular(28),
                         shadow: [
                           BoxShadow(
-                            color: Color.fromRGBO(4, 133, 247, 0.55),
-                            offset: Offset(0, 10),
-                            blurRadius: 26,
-                            spreadRadius: 0,
-                          ),
-                          BoxShadow(
                             color: Color.fromRGBO(4, 133, 247, 0.35),
                             offset: Offset(0, 2),
                             blurRadius: 6,
+                            spreadRadius: 0,
+                          ),
+                          BoxShadow(
+                            color: Color.fromRGBO(4, 133, 247, 0.55),
+                            offset: Offset(0, 10),
+                            blurRadius: 26,
                             spreadRadius: 0,
                           ),
                         ],

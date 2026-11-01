@@ -31,9 +31,9 @@ class PayUnboundPage extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -43,9 +43,9 @@ class PayUnboundPage extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -242,9 +242,9 @@ class PayUnboundPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -254,9 +254,9 @@ class PayUnboundPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -407,9 +407,9 @@ class PayUnboundPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -419,9 +419,9 @@ class PayUnboundPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -700,68 +700,76 @@ class PayUnboundPage extends StatelessWidget {
                         [
                           Expanded(
                             flex: 1,
-                            child: hTap(
-                              context,
-                              hbox(
-                                h: 46,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFEEEEF0),
-                                  Color(0xFF27272A),
-                                ),
-                                radius: BorderRadius.circular(23),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  widthFactor: 1,
-                                  child: Text(
-                                    '本次改发短信通知',
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF18181B),
-                                        Color(0xFFFAFAFA),
+                            child: UnconstrainedBox(
+                              alignment: Alignment.topLeft,
+                              constrainedAxis: Axis.horizontal,
+                              child: hTap(
+                                context,
+                                hbox(
+                                  h: 46,
+                                  bg: dk(
+                                    context,
+                                    Color(0xFFEEEEF0),
+                                    Color(0xFF27272A),
+                                  ),
+                                  radius: BorderRadius.circular(23),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    widthFactor: 1,
+                                    child: Text(
+                                      '本次改发短信通知',
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF18181B),
+                                          Color(0xFFFAFAFA),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
                                       ),
-                                      w: FontWeight.w500,
-                                      lh: 18,
                                     ),
                                   ),
                                 ),
+                                label: '本次改发短信通知',
                               ),
-                              label: '本次改发短信通知',
                             ),
                           ),
                           Expanded(
                             flex: 1,
-                            child: hTap(
-                              context,
-                              hbox(
-                                h: 46,
-                                radius: BorderRadius.circular(23),
-                                border: Border.all(
-                                  color: Color(0xFFC7C7CC),
-                                  width: 1.5,
-                                ),
-                                child: Align(
-                                  alignment: Alignment(0, 0),
-                                  widthFactor: 1,
-                                  child: Text(
-                                    '会员已扫码（演示）',
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF52525B),
-                                        Color(0xFFA8A8B3),
+                            child: UnconstrainedBox(
+                              alignment: Alignment.topLeft,
+                              constrainedAxis: Axis.horizontal,
+                              child: hTap(
+                                context,
+                                hbox(
+                                  h: 46,
+                                  radius: BorderRadius.circular(23),
+                                  border: Border.all(
+                                    color: Color(0xFFC7C7CC),
+                                    width: 1.5,
+                                  ),
+                                  child: Align(
+                                    alignment: Alignment(0, 0),
+                                    widthFactor: 1,
+                                    child: Text(
+                                      '会员已扫码（演示）',
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF52525B),
+                                          Color(0xFFA8A8B3),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
                                       ),
-                                      w: FontWeight.w500,
-                                      lh: 18,
+                                      textAlign: TextAlign.center,
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
                                 ),
+                                label: '会员已扫码（演示）',
                               ),
-                              label: '会员已扫码（演示）',
                             ),
                           ),
                         ],
@@ -819,52 +827,60 @@ class PayUnboundPage extends StatelessWidget {
               [
                 Expanded(
                   flex: 1,
-                  child: hTap(
-                    context,
-                    hbox(
-                      h: 50,
-                      bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
-                      radius: BorderRadius.circular(25),
-                      child: Align(
-                        alignment: Alignment(0, 0),
-                        widthFactor: 1,
-                        child: Text(
-                          '继续开单',
-                          style: hts(
-                            15,
-                            dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                            w: FontWeight.w500,
-                            lh: 22,
+                  child: UnconstrainedBox(
+                    alignment: Alignment.topLeft,
+                    constrainedAxis: Axis.horizontal,
+                    child: hTap(
+                      context,
+                      hbox(
+                        h: 50,
+                        bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(25),
+                        child: Align(
+                          alignment: Alignment(0, 0),
+                          widthFactor: 1,
+                          child: Text(
+                            '继续开单',
+                            style: hts(
+                              15,
+                              dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                              w: FontWeight.w500,
+                              lh: 22,
+                            ),
                           ),
                         ),
                       ),
+                      to: 'Order',
                     ),
-                    to: 'Order',
                   ),
                 ),
                 Expanded(
                   flex: 1,
-                  child: hTap(
-                    context,
-                    hbox(
-                      h: 50,
-                      bg: dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                      radius: BorderRadius.circular(25),
-                      child: Align(
-                        alignment: Alignment(0, 0),
-                        widthFactor: 1,
-                        child: Text(
-                          '完成',
-                          style: hts(
-                            15,
-                            dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                            w: FontWeight.w600,
-                            lh: 22,
+                  child: UnconstrainedBox(
+                    alignment: Alignment.topLeft,
+                    constrainedAxis: Axis.horizontal,
+                    child: hTap(
+                      context,
+                      hbox(
+                        h: 50,
+                        bg: dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                        radius: BorderRadius.circular(25),
+                        child: Align(
+                          alignment: Alignment(0, 0),
+                          widthFactor: 1,
+                          child: Text(
+                            '完成',
+                            style: hts(
+                              15,
+                              dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                              w: FontWeight.w600,
+                              lh: 22,
+                            ),
                           ),
                         ),
                       ),
+                      to: 'Main',
                     ),
-                    to: 'Main',
                   ),
                 ),
               ],

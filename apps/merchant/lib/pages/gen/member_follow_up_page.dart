@@ -48,9 +48,9 @@ class MemberFollowUpPage extends StatelessWidget {
                               context,
                               [
                                 BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.04),
-                                  offset: Offset(0, 2),
-                                  blurRadius: 4,
+                                  color: Color.fromRGBO(0, 0, 0, 0.06),
+                                  offset: Offset(0, 0),
+                                  blurRadius: 1,
                                   spreadRadius: 0,
                                 ),
                                 BoxShadow(
@@ -60,9 +60,9 @@ class MemberFollowUpPage extends StatelessWidget {
                                   spreadRadius: 0,
                                 ),
                                 BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.06),
-                                  offset: Offset(0, 0),
-                                  blurRadius: 1,
+                                  color: Color.fromRGBO(0, 0, 0, 0.04),
+                                  offset: Offset(0, 2),
+                                  blurRadius: 4,
                                   spreadRadius: 0,
                                 ),
                               ],
@@ -275,326 +275,350 @@ class MemberFollowUpPage extends StatelessWidget {
                           scrollDirection: Axis.horizontal,
                           child: hrow(
                             [
-                              HSel(
-                                ctrl: g1[0],
-                                index: 0,
-                                on: hbox(
-                                  h: 34,
-                                  bg: dk(
-                                    context,
-                                    Color(0xFF18181B),
-                                    Color(0xFF34343A),
-                                  ),
-                                  radius: BorderRadius.circular(17),
-                                  pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                  child: Align(
-                                    alignment: Alignment.center,
-                                    widthFactor: 1,
-                                    child: Text(
-                                      '全部 18',
-                                      style: hts(
-                                        13,
-                                        Color(0xFFFFFFFF),
-                                        w: FontWeight.w500,
-                                        lh: 18,
+                              UnconstrainedBox(
+                                alignment: Alignment.topLeft,
+                                constrainedAxis: Axis.horizontal,
+                                child: HSel(
+                                  ctrl: g1[0],
+                                  index: 0,
+                                  on: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFF18181B),
+                                      Color(0xFFFAFAFA),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '全部 18',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFFFFFFFF),
+                                            Color(0xFF18181B),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                                off: hbox(
-                                  h: 34,
-                                  bg: dk(
-                                    context,
-                                    Color(0xFF18181B),
-                                    Color(0xFF34343A),
-                                  ),
-                                  radius: BorderRadius.circular(17),
-                                  border: dk(
-                                    context,
-                                    Border.all(
-                                      color: Color(0xFFE4E4E7),
-                                      width: 1,
+                                  off: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFF18181B),
+                                      Color(0xFF34343A),
                                     ),
-                                    Border.all(
-                                      color: Color(0xFF3A3A40),
-                                      width: 1,
+                                    radius: BorderRadius.circular(17),
+                                    border: dk(
+                                      context,
+                                      Border.all(
+                                        color: Color(0xFFE4E4E7),
+                                        width: 1,
+                                      ),
+                                      Border.all(
+                                        color: Color(0xFF3A3A40),
+                                        width: 1,
+                                      ),
                                     ),
-                                  ),
-                                  pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                  child: Align(
-                                    alignment: Alignment.center,
-                                    widthFactor: 1,
-                                    child: Text(
-                                      '全部 18',
-                                      style: hts(
-                                        13,
-                                        dk(
-                                          context,
-                                          Color(0xFF3F3F46),
-                                          Color(0xFFD4D4D8),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '全部 18',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF3F3F46),
+                                            Color(0xFFD4D4D8),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
                                         ),
-                                        w: FontWeight.w500,
-                                        lh: 18,
                                       ),
                                     ),
                                   ),
                                 ),
                               ),
-                              HSel(
-                                ctrl: g1[0],
-                                index: 1,
-                                on: hbox(
-                                  h: 34,
-                                  bg: dk(
-                                    context,
-                                    Color(0xFFFFFFFF),
-                                    Color(0xFF18181B),
-                                  ),
-                                  radius: BorderRadius.circular(17),
-                                  pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                  child: Align(
-                                    alignment: Alignment.center,
-                                    widthFactor: 1,
-                                    child: Text(
-                                      '次卡到期 5',
-                                      style: hts(
-                                        13,
-                                        Color(0xFFFFFFFF),
-                                        w: FontWeight.w500,
-                                        lh: 18,
+                              UnconstrainedBox(
+                                alignment: Alignment.topLeft,
+                                constrainedAxis: Axis.horizontal,
+                                child: HSel(
+                                  ctrl: g1[0],
+                                  index: 1,
+                                  on: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFFFFFFF),
+                                      Color(0xFF18181B),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '次卡到期 5',
+                                        style: hts(
+                                          13,
+                                          Color(0xFFFFFFFF),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                                off: hbox(
-                                  h: 34,
-                                  bg: dk(
-                                    context,
-                                    Color(0xFFFFFFFF),
-                                    Color(0xFF18181B),
-                                  ),
-                                  radius: BorderRadius.circular(17),
-                                  border: dk(
-                                    context,
-                                    Border.all(
-                                      color: Color(0xFFE4E4E7),
-                                      width: 1,
+                                  off: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFFFFFFF),
+                                      Color(0xFF18181B),
                                     ),
-                                    Border.all(
-                                      color: Color(0xFF3A3A40),
-                                      width: 1,
+                                    radius: BorderRadius.circular(17),
+                                    border: dk(
+                                      context,
+                                      Border.all(
+                                        color: Color(0xFFE4E4E7),
+                                        width: 1,
+                                      ),
+                                      Border.all(
+                                        color: Color(0xFF3A3A40),
+                                        width: 1,
+                                      ),
                                     ),
-                                  ),
-                                  pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                  child: Align(
-                                    alignment: Alignment.center,
-                                    widthFactor: 1,
-                                    child: Text(
-                                      '次卡到期 5',
-                                      style: hts(
-                                        13,
-                                        dk(
-                                          context,
-                                          Color(0xFF3F3F46),
-                                          Color(0xFFD4D4D8),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '次卡到期 5',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF3F3F46),
+                                            Color(0xFFD4D4D8),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
                                         ),
-                                        w: FontWeight.w500,
-                                        lh: 18,
                                       ),
                                     ),
                                   ),
                                 ),
                               ),
-                              HSel(
-                                ctrl: g1[0],
-                                index: 2,
-                                on: hbox(
-                                  h: 34,
-                                  bg: dk(
-                                    context,
-                                    Color(0xFFFFFFFF),
-                                    Color(0xFF18181B),
-                                  ),
-                                  radius: BorderRadius.circular(17),
-                                  pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                  child: Align(
-                                    alignment: Alignment.center,
-                                    widthFactor: 1,
-                                    child: Text(
-                                      '养护到期 6',
-                                      style: hts(
-                                        13,
-                                        Color(0xFFFFFFFF),
-                                        w: FontWeight.w500,
-                                        lh: 18,
+                              UnconstrainedBox(
+                                alignment: Alignment.topLeft,
+                                constrainedAxis: Axis.horizontal,
+                                child: HSel(
+                                  ctrl: g1[0],
+                                  index: 2,
+                                  on: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFFFFFFF),
+                                      Color(0xFF18181B),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '养护到期 6',
+                                        style: hts(
+                                          13,
+                                          Color(0xFFFFFFFF),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                                off: hbox(
-                                  h: 34,
-                                  bg: dk(
-                                    context,
-                                    Color(0xFFFFFFFF),
-                                    Color(0xFF18181B),
-                                  ),
-                                  radius: BorderRadius.circular(17),
-                                  border: dk(
-                                    context,
-                                    Border.all(
-                                      color: Color(0xFFE4E4E7),
-                                      width: 1,
+                                  off: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFFFFFFF),
+                                      Color(0xFF18181B),
                                     ),
-                                    Border.all(
-                                      color: Color(0xFF3A3A40),
-                                      width: 1,
+                                    radius: BorderRadius.circular(17),
+                                    border: dk(
+                                      context,
+                                      Border.all(
+                                        color: Color(0xFFE4E4E7),
+                                        width: 1,
+                                      ),
+                                      Border.all(
+                                        color: Color(0xFF3A3A40),
+                                        width: 1,
+                                      ),
                                     ),
-                                  ),
-                                  pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                  child: Align(
-                                    alignment: Alignment.center,
-                                    widthFactor: 1,
-                                    child: Text(
-                                      '养护到期 6',
-                                      style: hts(
-                                        13,
-                                        dk(
-                                          context,
-                                          Color(0xFF3F3F46),
-                                          Color(0xFFD4D4D8),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '养护到期 6',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF3F3F46),
+                                            Color(0xFFD4D4D8),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
                                         ),
-                                        w: FontWeight.w500,
-                                        lh: 18,
                                       ),
                                     ),
                                   ),
                                 ),
                               ),
-                              HSel(
-                                ctrl: g1[0],
-                                index: 3,
-                                on: hbox(
-                                  h: 34,
-                                  bg: dk(
-                                    context,
-                                    Color(0xFFFFFFFF),
-                                    Color(0xFF18181B),
-                                  ),
-                                  radius: BorderRadius.circular(17),
-                                  pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                  child: Align(
-                                    alignment: Alignment.center,
-                                    widthFactor: 1,
-                                    child: Text(
-                                      '生日 2',
-                                      style: hts(
-                                        13,
-                                        Color(0xFFFFFFFF),
-                                        w: FontWeight.w500,
-                                        lh: 18,
+                              UnconstrainedBox(
+                                alignment: Alignment.topLeft,
+                                constrainedAxis: Axis.horizontal,
+                                child: HSel(
+                                  ctrl: g1[0],
+                                  index: 3,
+                                  on: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFFFFFFF),
+                                      Color(0xFF18181B),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '生日 2',
+                                        style: hts(
+                                          13,
+                                          Color(0xFFFFFFFF),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                                off: hbox(
-                                  h: 34,
-                                  bg: dk(
-                                    context,
-                                    Color(0xFFFFFFFF),
-                                    Color(0xFF18181B),
-                                  ),
-                                  radius: BorderRadius.circular(17),
-                                  border: dk(
-                                    context,
-                                    Border.all(
-                                      color: Color(0xFFE4E4E7),
-                                      width: 1,
+                                  off: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFFFFFFF),
+                                      Color(0xFF18181B),
                                     ),
-                                    Border.all(
-                                      color: Color(0xFF3A3A40),
-                                      width: 1,
+                                    radius: BorderRadius.circular(17),
+                                    border: dk(
+                                      context,
+                                      Border.all(
+                                        color: Color(0xFFE4E4E7),
+                                        width: 1,
+                                      ),
+                                      Border.all(
+                                        color: Color(0xFF3A3A40),
+                                        width: 1,
+                                      ),
                                     ),
-                                  ),
-                                  pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                  child: Align(
-                                    alignment: Alignment.center,
-                                    widthFactor: 1,
-                                    child: Text(
-                                      '生日 2',
-                                      style: hts(
-                                        13,
-                                        dk(
-                                          context,
-                                          Color(0xFF3F3F46),
-                                          Color(0xFFD4D4D8),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '生日 2',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF3F3F46),
+                                            Color(0xFFD4D4D8),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
                                         ),
-                                        w: FontWeight.w500,
-                                        lh: 18,
                                       ),
                                     ),
                                   ),
                                 ),
                               ),
-                              HSel(
-                                ctrl: g1[0],
-                                index: 4,
-                                on: hbox(
-                                  h: 34,
-                                  bg: dk(
-                                    context,
-                                    Color(0xFFFFFFFF),
-                                    Color(0xFF18181B),
-                                  ),
-                                  radius: BorderRadius.circular(17),
-                                  pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                  child: Align(
-                                    alignment: Alignment.center,
-                                    widthFactor: 1,
-                                    child: Text(
-                                      '沉睡 5',
-                                      style: hts(
-                                        13,
-                                        Color(0xFFFFFFFF),
-                                        w: FontWeight.w500,
-                                        lh: 18,
+                              UnconstrainedBox(
+                                alignment: Alignment.topLeft,
+                                constrainedAxis: Axis.horizontal,
+                                child: HSel(
+                                  ctrl: g1[0],
+                                  index: 4,
+                                  on: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFFFFFFF),
+                                      Color(0xFF18181B),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '沉睡 5',
+                                        style: hts(
+                                          13,
+                                          Color(0xFFFFFFFF),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                                off: hbox(
-                                  h: 34,
-                                  bg: dk(
-                                    context,
-                                    Color(0xFFFFFFFF),
-                                    Color(0xFF18181B),
-                                  ),
-                                  radius: BorderRadius.circular(17),
-                                  border: dk(
-                                    context,
-                                    Border.all(
-                                      color: Color(0xFFE4E4E7),
-                                      width: 1,
+                                  off: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFFFFFFF),
+                                      Color(0xFF18181B),
                                     ),
-                                    Border.all(
-                                      color: Color(0xFF3A3A40),
-                                      width: 1,
+                                    radius: BorderRadius.circular(17),
+                                    border: dk(
+                                      context,
+                                      Border.all(
+                                        color: Color(0xFFE4E4E7),
+                                        width: 1,
+                                      ),
+                                      Border.all(
+                                        color: Color(0xFF3A3A40),
+                                        width: 1,
+                                      ),
                                     ),
-                                  ),
-                                  pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                  child: Align(
-                                    alignment: Alignment.center,
-                                    widthFactor: 1,
-                                    child: Text(
-                                      '沉睡 5',
-                                      style: hts(
-                                        13,
-                                        dk(
-                                          context,
-                                          Color(0xFF3F3F46),
-                                          Color(0xFFD4D4D8),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '沉睡 5',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF3F3F46),
+                                            Color(0xFFD4D4D8),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
                                         ),
-                                        w: FontWeight.w500,
-                                        lh: 18,
                                       ),
                                     ),
                                   ),
@@ -617,9 +641,9 @@ class MemberFollowUpPage extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -629,9 +653,9 @@ class MemberFollowUpPage extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -789,89 +813,101 @@ class MemberFollowUpPage extends StatelessWidget {
                             ),
                             hrow(
                               [
-                                hTap(
-                                  context,
-                                  hbox(
-                                    w: 40,
-                                    h: 40,
-                                    bg: dk(
-                                      context,
-                                      Color(0xFFEEEEF0),
-                                      Color(0xFF27272A),
-                                    ),
-                                    radius: BorderRadius.circular(20),
-                                    child: hrow(
-                                      [
-                                        hsvg(
-                                          dk(context, Svgs.s216, Svgs.s217),
-                                          w: 18,
-                                          h: 18,
-                                        ),
-                                      ],
-                                      main: MainAxisAlignment.center,
-                                      cross: CrossAxisAlignment.center,
-                                      gap: 0,
-                                    ),
-                                  ),
-                                  label: '拨打电话',
-                                ),
-                                hTap(
-                                  context,
-                                  hbox(
-                                    w: 40,
-                                    h: 40,
-                                    bg: dk(
-                                      context,
-                                      Color(0xFFEEEEF0),
-                                      Color(0xFF27272A),
-                                    ),
-                                    radius: BorderRadius.circular(20),
-                                    child: hrow(
-                                      [
-                                        hsvg(
-                                          dk(context, Svgs.s218, Svgs.s219),
-                                          w: 18,
-                                          h: 18,
-                                        ),
-                                      ],
-                                      main: MainAxisAlignment.center,
-                                      cross: CrossAxisAlignment.center,
-                                      gap: 0,
-                                    ),
-                                  ),
-                                  label: '发送短信',
-                                ),
-                                Expanded(
-                                  flex: 1,
+                                UnconstrainedBox(
+                                  alignment: Alignment.topLeft,
+                                  constrainedAxis: Axis.horizontal,
                                   child: hTap(
                                     context,
                                     hbox(
+                                      w: 40,
                                       h: 40,
                                       bg: dk(
                                         context,
-                                        Color(0xFF18181B),
-                                        Color(0xFFFAFAFA),
+                                        Color(0xFFEEEEF0),
+                                        Color(0xFF27272A),
                                       ),
                                       radius: BorderRadius.circular(20),
-                                      child: Align(
-                                        alignment: Alignment.center,
-                                        widthFactor: 1,
-                                        child: Text(
-                                          '发送续卡优惠',
-                                          style: hts(
-                                            13,
-                                            dk(
-                                              context,
-                                              Color(0xFFFFFFFF),
-                                              Color(0xFF18181B),
+                                      child: hrow(
+                                        [
+                                          hsvg(
+                                            dk(context, Svgs.s216, Svgs.s217),
+                                            w: 18,
+                                            h: 18,
+                                          ),
+                                        ],
+                                        main: MainAxisAlignment.center,
+                                        cross: CrossAxisAlignment.center,
+                                        gap: 0,
+                                      ),
+                                    ),
+                                    label: '拨打电话',
+                                  ),
+                                ),
+                                UnconstrainedBox(
+                                  alignment: Alignment.topLeft,
+                                  constrainedAxis: Axis.horizontal,
+                                  child: hTap(
+                                    context,
+                                    hbox(
+                                      w: 40,
+                                      h: 40,
+                                      bg: dk(
+                                        context,
+                                        Color(0xFFEEEEF0),
+                                        Color(0xFF27272A),
+                                      ),
+                                      radius: BorderRadius.circular(20),
+                                      child: hrow(
+                                        [
+                                          hsvg(
+                                            dk(context, Svgs.s218, Svgs.s219),
+                                            w: 18,
+                                            h: 18,
+                                          ),
+                                        ],
+                                        main: MainAxisAlignment.center,
+                                        cross: CrossAxisAlignment.center,
+                                        gap: 0,
+                                      ),
+                                    ),
+                                    label: '发送短信',
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 1,
+                                  child: UnconstrainedBox(
+                                    alignment: Alignment.topLeft,
+                                    constrainedAxis: Axis.horizontal,
+                                    child: hTap(
+                                      context,
+                                      hbox(
+                                        h: 40,
+                                        bg: dk(
+                                          context,
+                                          Color(0xFF18181B),
+                                          Color(0xFFFAFAFA),
+                                        ),
+                                        radius: BorderRadius.circular(20),
+                                        child: Align(
+                                          alignment: Alignment.center,
+                                          widthFactor: 1,
+                                          child: Text(
+                                            '发送续卡优惠',
+                                            style: hts(
+                                              13,
+                                              dk(
+                                                context,
+                                                Color(0xFFFFFFFF),
+                                                Color(0xFF18181B),
+                                              ),
+                                              w: FontWeight.w500,
+                                              lh: 18,
                                             ),
-                                            w: FontWeight.w500,
-                                            lh: 18,
                                           ),
                                         ),
                                       ),
+                                      label: '发送续卡优惠',
                                     ),
-                                    label: '发送续卡优惠',
                                   ),
                                 ),
                               ],
@@ -893,9 +929,9 @@ class MemberFollowUpPage extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -905,9 +941,9 @@ class MemberFollowUpPage extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -1064,89 +1100,101 @@ class MemberFollowUpPage extends StatelessWidget {
                             ),
                             hrow(
                               [
-                                hTap(
-                                  context,
-                                  hbox(
-                                    w: 40,
-                                    h: 40,
-                                    bg: dk(
-                                      context,
-                                      Color(0xFFEEEEF0),
-                                      Color(0xFF27272A),
-                                    ),
-                                    radius: BorderRadius.circular(20),
-                                    child: hrow(
-                                      [
-                                        hsvg(
-                                          dk(context, Svgs.s216, Svgs.s217),
-                                          w: 18,
-                                          h: 18,
-                                        ),
-                                      ],
-                                      main: MainAxisAlignment.center,
-                                      cross: CrossAxisAlignment.center,
-                                      gap: 0,
-                                    ),
-                                  ),
-                                  label: '拨打电话',
-                                ),
-                                hTap(
-                                  context,
-                                  hbox(
-                                    w: 40,
-                                    h: 40,
-                                    bg: dk(
-                                      context,
-                                      Color(0xFFEEEEF0),
-                                      Color(0xFF27272A),
-                                    ),
-                                    radius: BorderRadius.circular(20),
-                                    child: hrow(
-                                      [
-                                        hsvg(
-                                          dk(context, Svgs.s218, Svgs.s219),
-                                          w: 18,
-                                          h: 18,
-                                        ),
-                                      ],
-                                      main: MainAxisAlignment.center,
-                                      cross: CrossAxisAlignment.center,
-                                      gap: 0,
-                                    ),
-                                  ),
-                                  label: '发送短信',
-                                ),
-                                Expanded(
-                                  flex: 1,
+                                UnconstrainedBox(
+                                  alignment: Alignment.topLeft,
+                                  constrainedAxis: Axis.horizontal,
                                   child: hTap(
                                     context,
                                     hbox(
+                                      w: 40,
                                       h: 40,
                                       bg: dk(
                                         context,
-                                        Color(0xFF18181B),
-                                        Color(0xFFFAFAFA),
+                                        Color(0xFFEEEEF0),
+                                        Color(0xFF27272A),
                                       ),
                                       radius: BorderRadius.circular(20),
-                                      child: Align(
-                                        alignment: Alignment.center,
-                                        widthFactor: 1,
-                                        child: Text(
-                                          '帮她预约',
-                                          style: hts(
-                                            13,
-                                            dk(
-                                              context,
-                                              Color(0xFFFFFFFF),
-                                              Color(0xFF18181B),
+                                      child: hrow(
+                                        [
+                                          hsvg(
+                                            dk(context, Svgs.s216, Svgs.s217),
+                                            w: 18,
+                                            h: 18,
+                                          ),
+                                        ],
+                                        main: MainAxisAlignment.center,
+                                        cross: CrossAxisAlignment.center,
+                                        gap: 0,
+                                      ),
+                                    ),
+                                    label: '拨打电话',
+                                  ),
+                                ),
+                                UnconstrainedBox(
+                                  alignment: Alignment.topLeft,
+                                  constrainedAxis: Axis.horizontal,
+                                  child: hTap(
+                                    context,
+                                    hbox(
+                                      w: 40,
+                                      h: 40,
+                                      bg: dk(
+                                        context,
+                                        Color(0xFFEEEEF0),
+                                        Color(0xFF27272A),
+                                      ),
+                                      radius: BorderRadius.circular(20),
+                                      child: hrow(
+                                        [
+                                          hsvg(
+                                            dk(context, Svgs.s218, Svgs.s219),
+                                            w: 18,
+                                            h: 18,
+                                          ),
+                                        ],
+                                        main: MainAxisAlignment.center,
+                                        cross: CrossAxisAlignment.center,
+                                        gap: 0,
+                                      ),
+                                    ),
+                                    label: '发送短信',
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 1,
+                                  child: UnconstrainedBox(
+                                    alignment: Alignment.topLeft,
+                                    constrainedAxis: Axis.horizontal,
+                                    child: hTap(
+                                      context,
+                                      hbox(
+                                        h: 40,
+                                        bg: dk(
+                                          context,
+                                          Color(0xFF18181B),
+                                          Color(0xFFFAFAFA),
+                                        ),
+                                        radius: BorderRadius.circular(20),
+                                        child: Align(
+                                          alignment: Alignment.center,
+                                          widthFactor: 1,
+                                          child: Text(
+                                            '帮她预约',
+                                            style: hts(
+                                              13,
+                                              dk(
+                                                context,
+                                                Color(0xFFFFFFFF),
+                                                Color(0xFF18181B),
+                                              ),
+                                              w: FontWeight.w500,
+                                              lh: 18,
                                             ),
-                                            w: FontWeight.w500,
-                                            lh: 18,
                                           ),
                                         ),
                                       ),
+                                      label: '帮她预约',
                                     ),
-                                    label: '帮她预约',
                                   ),
                                 ),
                               ],
@@ -1168,9 +1216,9 @@ class MemberFollowUpPage extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -1180,9 +1228,9 @@ class MemberFollowUpPage extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -1339,89 +1387,101 @@ class MemberFollowUpPage extends StatelessWidget {
                             ),
                             hrow(
                               [
-                                hTap(
-                                  context,
-                                  hbox(
-                                    w: 40,
-                                    h: 40,
-                                    bg: dk(
-                                      context,
-                                      Color(0xFFEEEEF0),
-                                      Color(0xFF27272A),
-                                    ),
-                                    radius: BorderRadius.circular(20),
-                                    child: hrow(
-                                      [
-                                        hsvg(
-                                          dk(context, Svgs.s216, Svgs.s217),
-                                          w: 18,
-                                          h: 18,
-                                        ),
-                                      ],
-                                      main: MainAxisAlignment.center,
-                                      cross: CrossAxisAlignment.center,
-                                      gap: 0,
-                                    ),
-                                  ),
-                                  label: '拨打电话',
-                                ),
-                                hTap(
-                                  context,
-                                  hbox(
-                                    w: 40,
-                                    h: 40,
-                                    bg: dk(
-                                      context,
-                                      Color(0xFFEEEEF0),
-                                      Color(0xFF27272A),
-                                    ),
-                                    radius: BorderRadius.circular(20),
-                                    child: hrow(
-                                      [
-                                        hsvg(
-                                          dk(context, Svgs.s218, Svgs.s219),
-                                          w: 18,
-                                          h: 18,
-                                        ),
-                                      ],
-                                      main: MainAxisAlignment.center,
-                                      cross: CrossAxisAlignment.center,
-                                      gap: 0,
-                                    ),
-                                  ),
-                                  label: '发送短信',
-                                ),
-                                Expanded(
-                                  flex: 1,
+                                UnconstrainedBox(
+                                  alignment: Alignment.topLeft,
+                                  constrainedAxis: Axis.horizontal,
                                   child: hTap(
                                     context,
                                     hbox(
+                                      w: 40,
                                       h: 40,
                                       bg: dk(
                                         context,
-                                        Color(0xFF18181B),
-                                        Color(0xFFFAFAFA),
+                                        Color(0xFFEEEEF0),
+                                        Color(0xFF27272A),
                                       ),
                                       radius: BorderRadius.circular(20),
-                                      child: Align(
-                                        alignment: Alignment.center,
-                                        widthFactor: 1,
-                                        child: Text(
-                                          '发放生日礼',
-                                          style: hts(
-                                            13,
-                                            dk(
-                                              context,
-                                              Color(0xFFFFFFFF),
-                                              Color(0xFF18181B),
+                                      child: hrow(
+                                        [
+                                          hsvg(
+                                            dk(context, Svgs.s216, Svgs.s217),
+                                            w: 18,
+                                            h: 18,
+                                          ),
+                                        ],
+                                        main: MainAxisAlignment.center,
+                                        cross: CrossAxisAlignment.center,
+                                        gap: 0,
+                                      ),
+                                    ),
+                                    label: '拨打电话',
+                                  ),
+                                ),
+                                UnconstrainedBox(
+                                  alignment: Alignment.topLeft,
+                                  constrainedAxis: Axis.horizontal,
+                                  child: hTap(
+                                    context,
+                                    hbox(
+                                      w: 40,
+                                      h: 40,
+                                      bg: dk(
+                                        context,
+                                        Color(0xFFEEEEF0),
+                                        Color(0xFF27272A),
+                                      ),
+                                      radius: BorderRadius.circular(20),
+                                      child: hrow(
+                                        [
+                                          hsvg(
+                                            dk(context, Svgs.s218, Svgs.s219),
+                                            w: 18,
+                                            h: 18,
+                                          ),
+                                        ],
+                                        main: MainAxisAlignment.center,
+                                        cross: CrossAxisAlignment.center,
+                                        gap: 0,
+                                      ),
+                                    ),
+                                    label: '发送短信',
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 1,
+                                  child: UnconstrainedBox(
+                                    alignment: Alignment.topLeft,
+                                    constrainedAxis: Axis.horizontal,
+                                    child: hTap(
+                                      context,
+                                      hbox(
+                                        h: 40,
+                                        bg: dk(
+                                          context,
+                                          Color(0xFF18181B),
+                                          Color(0xFFFAFAFA),
+                                        ),
+                                        radius: BorderRadius.circular(20),
+                                        child: Align(
+                                          alignment: Alignment.center,
+                                          widthFactor: 1,
+                                          child: Text(
+                                            '发放生日礼',
+                                            style: hts(
+                                              13,
+                                              dk(
+                                                context,
+                                                Color(0xFFFFFFFF),
+                                                Color(0xFF18181B),
+                                              ),
+                                              w: FontWeight.w500,
+                                              lh: 18,
                                             ),
-                                            w: FontWeight.w500,
-                                            lh: 18,
                                           ),
                                         ),
                                       ),
+                                      label: '发放生日礼',
                                     ),
-                                    label: '发放生日礼',
                                   ),
                                 ),
                               ],
@@ -1443,9 +1503,9 @@ class MemberFollowUpPage extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -1455,9 +1515,9 @@ class MemberFollowUpPage extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -1614,63 +1674,13 @@ class MemberFollowUpPage extends StatelessWidget {
                             ),
                             hrow(
                               [
-                                hTap(
-                                  context,
-                                  hbox(
-                                    w: 40,
-                                    h: 40,
-                                    bg: dk(
-                                      context,
-                                      Color(0xFFEEEEF0),
-                                      Color(0xFF27272A),
-                                    ),
-                                    radius: BorderRadius.circular(20),
-                                    child: hrow(
-                                      [
-                                        hsvg(
-                                          dk(context, Svgs.s216, Svgs.s217),
-                                          w: 18,
-                                          h: 18,
-                                        ),
-                                      ],
-                                      main: MainAxisAlignment.center,
-                                      cross: CrossAxisAlignment.center,
-                                      gap: 0,
-                                    ),
-                                  ),
-                                  label: '拨打电话',
-                                ),
-                                hTap(
-                                  context,
-                                  hbox(
-                                    w: 40,
-                                    h: 40,
-                                    bg: dk(
-                                      context,
-                                      Color(0xFFEEEEF0),
-                                      Color(0xFF27272A),
-                                    ),
-                                    radius: BorderRadius.circular(20),
-                                    child: hrow(
-                                      [
-                                        hsvg(
-                                          dk(context, Svgs.s218, Svgs.s219),
-                                          w: 18,
-                                          h: 18,
-                                        ),
-                                      ],
-                                      main: MainAxisAlignment.center,
-                                      cross: CrossAxisAlignment.center,
-                                      gap: 0,
-                                    ),
-                                  ),
-                                  label: '发送短信',
-                                ),
-                                Expanded(
-                                  flex: 1,
+                                UnconstrainedBox(
+                                  alignment: Alignment.topLeft,
+                                  constrainedAxis: Axis.horizontal,
                                   child: hTap(
                                     context,
                                     hbox(
+                                      w: 40,
                                       h: 40,
                                       bg: dk(
                                         context,
@@ -1678,25 +1688,87 @@ class MemberFollowUpPage extends StatelessWidget {
                                         Color(0xFF27272A),
                                       ),
                                       radius: BorderRadius.circular(20),
-                                      child: Align(
-                                        alignment: Alignment.center,
-                                        widthFactor: 1,
-                                        child: Text(
-                                          '标记已回访',
-                                          style: hts(
-                                            13,
-                                            dk(
-                                              context,
-                                              Color(0xFF18181B),
-                                              Color(0xFFFAFAFA),
+                                      child: hrow(
+                                        [
+                                          hsvg(
+                                            dk(context, Svgs.s216, Svgs.s217),
+                                            w: 18,
+                                            h: 18,
+                                          ),
+                                        ],
+                                        main: MainAxisAlignment.center,
+                                        cross: CrossAxisAlignment.center,
+                                        gap: 0,
+                                      ),
+                                    ),
+                                    label: '拨打电话',
+                                  ),
+                                ),
+                                UnconstrainedBox(
+                                  alignment: Alignment.topLeft,
+                                  constrainedAxis: Axis.horizontal,
+                                  child: hTap(
+                                    context,
+                                    hbox(
+                                      w: 40,
+                                      h: 40,
+                                      bg: dk(
+                                        context,
+                                        Color(0xFFEEEEF0),
+                                        Color(0xFF27272A),
+                                      ),
+                                      radius: BorderRadius.circular(20),
+                                      child: hrow(
+                                        [
+                                          hsvg(
+                                            dk(context, Svgs.s218, Svgs.s219),
+                                            w: 18,
+                                            h: 18,
+                                          ),
+                                        ],
+                                        main: MainAxisAlignment.center,
+                                        cross: CrossAxisAlignment.center,
+                                        gap: 0,
+                                      ),
+                                    ),
+                                    label: '发送短信',
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 1,
+                                  child: UnconstrainedBox(
+                                    alignment: Alignment.topLeft,
+                                    constrainedAxis: Axis.horizontal,
+                                    child: hTap(
+                                      context,
+                                      hbox(
+                                        h: 40,
+                                        bg: dk(
+                                          context,
+                                          Color(0xFFEEEEF0),
+                                          Color(0xFF27272A),
+                                        ),
+                                        radius: BorderRadius.circular(20),
+                                        child: Align(
+                                          alignment: Alignment.center,
+                                          widthFactor: 1,
+                                          child: Text(
+                                            '标记已回访',
+                                            style: hts(
+                                              13,
+                                              dk(
+                                                context,
+                                                Color(0xFF18181B),
+                                                Color(0xFFFAFAFA),
+                                              ),
+                                              w: FontWeight.w500,
+                                              lh: 18,
                                             ),
-                                            w: FontWeight.w500,
-                                            lh: 18,
                                           ),
                                         ),
                                       ),
+                                      label: '标记已回访',
                                     ),
-                                    label: '标记已回访',
                                   ),
                                 ),
                               ],

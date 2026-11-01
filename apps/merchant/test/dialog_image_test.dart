@@ -6,6 +6,7 @@ import 'package:autocare_merchant/routes.dart';
 void main() {
   resultCloseTest();
   scanTests();
+  pairTests();
   void phone(WidgetTester t) {
     t.view.physicalSize = const Size(390 * 3, 900 * 3);
     t.view.devicePixelRatio = 3;
@@ -86,7 +87,7 @@ void resultCloseTest() {
 }
 
 void scanTests() {
-  testWidgets('扫码找会员：切换会员码、点快门弹出识别结果', (t) async {
+  testWidgets('扫码找会员：同一页面内切换 车牌 / 会员码', (t) async {
     t.view.physicalSize = const Size(390 * 3, 900 * 3);
     t.view.devicePixelRatio = 3;
     addTearDown(t.view.reset);
@@ -112,8 +113,50 @@ void scanTests() {
     await t.tap(find.text('会员码'));
     await t.pumpAndSettle();
     expect(find.text('将会员码放入框内'), findsOneWidget);
-    await t.tapAt(const Offset(195, 900 - 64));
+    // 快门会调起系统相机（真机行为），测试里不触发；切回车牌
+    await t.tap(find.text('车牌'));
     await t.pumpAndSettle();
-    expect(find.textContaining('识别成功'), findsWidgets);
+    expect(find.text('将车牌对准框内'), findsOneWidget);
+  });
+}
+
+void pairTests() {
+  void setup(WidgetTester t) {
+    t.view.physicalSize = const Size(390 * 3, 1100 * 3);
+    t.view.devicePixelRatio = 3;
+    addTearDown(t.view.reset);
+    final old = FlutterError.onError;
+    FlutterError.onError = (d) {
+      if (!d.exceptionAsString().contains('overflowed')) old?.call(d);
+    };
+    addTearDown(() => FlutterError.onError = old);
+  }
+
+  testWidgets('会员充值：储值 / 购买次卡是同一页面的两个 Tab', (t) async {
+    setup(t);
+    late BuildContext ctx;
+    await t.pumpWidget(
+      MaterialApp(
+        navigatorObservers: [navTracker],
+        home: Builder(
+          builder: (c) {
+            ctx = c;
+            return const Scaffold(body: Text('会员详情'));
+          },
+        ),
+      ),
+    );
+    openRoute(ctx, 'RechargeCard'); // 会员详情“购买次卡”：默认选中购买次卡
+    await t.pumpAndSettle();
+    expect(find.text('选择套餐'), findsOneWidget);
+    final depth = navTracker.stack.length;
+    await t.tap(find.text('储值充值').first);
+    await t.pumpAndSettle();
+    expect(navTracker.stack.length, depth); // 没有新开页面
+    expect(find.text('自定义金额'), findsOneWidget);
+    await t.tap(find.text('购买次卡').first);
+    await t.pumpAndSettle();
+    expect(find.text('选择套餐'), findsOneWidget);
+    expect(navTracker.stack.length, depth);
   });
 }

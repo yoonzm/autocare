@@ -39,55 +39,12 @@ class MemberDetailPage extends StatelessWidget {
                   _hero(),
                   const SizedBox(height: 16),
                   _wechat(context),
-                  const SizedBox(height: 20),
-                  SectionTitle(
-                    '名下车辆',
-                    action: '添加车辆',
-                    onAction: () => openRoute(context, 'VehicleAdd'),
-                  ),
-                  const SizedBox(height: 12),
-                  AppCard(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
-                    child: Column(
-                      children: [
-                        for (var i = 0; i < memberVehicles.length; i++) ...[
-                          _vehicle(memberVehicles[i]),
-                          if (i < memberVehicles.length - 1)
-                            const Divider1(indent: 16),
-                        ],
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  SectionTitle(
-                    '次卡套餐',
-                    action: '购买次卡',
-                    onAction: () => openRoute(context, 'Recharge'),
-                  ),
-                  const SizedBox(height: 12),
-                  for (final p in memberPacks) ...[
-                    _pack(context, p),
-                    const SizedBox(height: 10),
-                  ],
-                  const SizedBox(height: 10),
-                  SectionTitle(
-                    '消费与充值记录',
-                    action: '全部',
-                    onAction: () => openRoute(context, 'MemberRecords'),
-                  ),
-                  const SizedBox(height: 12),
-                  AppCard(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
-                    child: Column(
-                      children: [
-                        for (var i = 0; i < memberRecords.length; i++) ...[
-                          _record(memberRecords[i]),
-                          if (i < memberRecords.length - 1)
-                            const Divider1(indent: 16),
-                        ],
-                      ],
-                    ),
-                  ),
+                  const SizedBox(height: 16),
+                  _vehicles(context),
+                  const SizedBox(height: 16),
+                  _packs(context),
+                  const SizedBox(height: 16),
+                  _recordsRow(context),
                 ],
               ),
             ),
@@ -96,13 +53,13 @@ class MemberDetailPage extends StatelessWidget {
                 20,
                 12,
                 20,
-                bottom > 0 ? bottom : 16,
+                bottom > 0 ? bottom - 4 : 16,
               ),
               decoration: BoxDecoration(
                 color: C.card,
                 boxShadow: [
                   BoxShadow(color: C.line, offset: const Offset(0, -1)),
-                  BoxShadow(
+                  const BoxShadow(
                     color: Color(0x0A000000),
                     blurRadius: 24,
                     offset: Offset(0, -8),
@@ -112,18 +69,24 @@ class MemberDetailPage extends StatelessWidget {
               child: Row(
                 children: [
                   Expanded(
-                    child: PrimaryButton(
+                    flex: 10,
+                    child: _bottomBtn(
                       '余额充值',
-                      bg: C.chip,
-                      fg: C.ink,
-                      onTap: () => openRoute(context, 'Recharge'),
+                      C.chip,
+                      C.ink,
+                      () => openRoute(context, 'Recharge'),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 10),
                   Expanded(
-                    child: PrimaryButton(
+                    flex: 14,
+                    child: _bottomBtn(
                       '为他开单',
-                      onTap: () => push(context, OrderPage(member: member)),
+                      C.primary,
+                      Colors.white,
+                      () => push(context, OrderPage(member: member)),
+                      icon: 'receipt',
+                      bold: true,
                     ),
                   ),
                 ],
@@ -135,21 +98,56 @@ class MemberDetailPage extends StatelessWidget {
     );
   }
 
+  Widget _bottomBtn(
+    String t,
+    Color bg,
+    Color fg,
+    VoidCallback onTap, {
+    String? icon,
+    bool bold = false,
+  }) => GestureDetector(
+    onTap: onTap,
+    child: Container(
+      height: 48,
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (icon != null) ...[
+            AppIcon(icon, size: 18, color: fg),
+            const SizedBox(width: 6),
+          ],
+          Text(
+            t,
+            style: ts(
+              15,
+              w: bold ? FontWeight.w600 : FontWeight.w500,
+              color: fg,
+              h: 22,
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+
   Widget _hero() {
     Widget stat(String l, String v) => Expanded(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(l, style: ts(12, color: C.faint, h: 16)),
+          Text(l, style: ts(12, color: const Color(0xFFA1A1AA), h: 16)),
           const SizedBox(height: 2),
           Text(
             v,
             style: ts(
-              17,
+              15,
               w: FontWeight.w600,
               color: const Color(0xFFFAFAFA),
-              h: 24,
-              tabular: true,
+              h: 22,
             ),
           ),
         ],
@@ -166,67 +164,82 @@ class MemberDetailPage extends StatelessWidget {
       child: Stack(
         clipBehavior: Clip.hardEdge,
         children: [
-          const Positioned(right: -90, top: -100, child: Rings(size: 220)),
+          const Positioned(
+            right: -90,
+            bottom: -120,
+            child: Rings(size: 260, color: Color(0xFF3A3226)),
+          ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  Avatar(
-                    member.name.substring(0, 1),
-                    size: 52,
-                    bg: C.gold,
-                    fg: C.onGold,
+                  Container(
+                    width: 48,
+                    height: 48,
+                    alignment: Alignment.center,
+                    decoration: const BoxDecoration(
+                      color: C.gold,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      member.name.substring(0, 1),
+                      style: ts(18, w: FontWeight.w600, color: C.onGold),
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            Text(
-                              member.name,
-                              style: ts(
-                                18,
-                                w: FontWeight.w600,
-                                color: const Color(0xFFFAFAFA),
-                                h: 26,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Pill(
-                              '${member.level}会员',
-                              bg: C.gold,
-                              fg: C.onGold,
-                              size: 11,
-                            ),
-                          ],
+                        Text(
+                          member.name,
+                          style: ts(
+                            18,
+                            w: FontWeight.w600,
+                            color: const Color(0xFFFAFAFA),
+                            h: 26,
+                          ),
                         ),
+                        const SizedBox(height: 2),
                         Text(
                           '138 **** 6021 · 入会 2023.04',
-                          style: ts(12, color: C.faint, h: 18),
+                          style: ts(12, color: const Color(0xFFA1A1AA), h: 16),
                         ),
                       ],
                     ),
                   ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+                      color: C.gold,
+                      borderRadius: BorderRadius.circular(11),
+                    ),
+                    child: Text(
+                      '${member.level}会员',
+                      style: ts(12, w: FontWeight.w600, color: C.onGold, h: 22),
+                    ),
+                  ),
                 ],
               ),
-              const SizedBox(height: 20),
-              Text('储值余额（元）', style: ts(13, color: C.faint, h: 18)),
+              const SizedBox(height: 18),
+              Text(
+                '储值余额（元）',
+                style: ts(12, color: const Color(0xFFA1A1AA), h: 16),
+              ),
               const SizedBox(height: 2),
               Text(
                 '3,680.00',
                 style: ts(
-                  34,
+                  32,
                   w: FontWeight.w600,
                   color: const Color(0xFFFAFAFA),
-                  h: 40,
+                  h: 38,
                   spacing: -1,
                   tabular: true,
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 18),
               Container(
                 padding: const EdgeInsets.only(top: 14),
                 decoration: const BoxDecoration(
@@ -247,145 +260,243 @@ class MemberDetailPage extends StatelessWidget {
     );
   }
 
-  Widget _wechat(BuildContext context) => AppCard(
-    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-    radius: 20,
-    child: Row(
-      children: [
-        Container(
-          width: 36,
-          height: 36,
-          decoration: BoxDecoration(
-            color: member.bound ? C.greenSoft : C.chip,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: AppIcon(
-            'chat',
-            size: 18,
-            color: member.bound ? C.greenInk : C.muted,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                member.bound ? '微信已绑定' : '微信未绑定',
-                style: ts(14, w: FontWeight.w500, h: 20),
+  Widget _wechat(BuildContext context) => GestureDetector(
+    behavior: HitTestBehavior.opaque,
+    onTap: () => openRoute(context, member.bound ? 'NotifyLog' : 'BindInvite'),
+    child: AppCard(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: SizedBox(
+        height: 56,
+        child: Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: member.bound ? C.greenSoft : C.chip,
+                borderRadius: BorderRadius.circular(10),
               ),
-              Text(
-                member.bound ? '2024.03.12 绑定 · 通知已开启' : '绑定后可微信通知消费与充值',
-                style: ts(12, color: C.muted, h: 16),
+              child: Center(
+                child: AppIcon(
+                  'chat',
+                  size: 18,
+                  color: member.bound ? C.greenInk : C.muted,
+                ),
               ),
-            ],
-          ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(member.bound ? '微信已绑定' : '微信未绑定', style: ts(15, h: 22)),
+                  Text(
+                    member.bound ? '2024.03.12 绑定 · 通知已开启' : '绑定后可微信通知消费与充值',
+                    style: ts(12, color: C.muted, h: 16),
+                  ),
+                ],
+              ),
+            ),
+            Text(
+              member.bound ? '通知记录' : '发送邀请',
+              style: ts(13, color: C.muted, h: 18),
+            ),
+            const SizedBox(width: 4),
+            AppIcon('chevronRight', size: 16, color: C.faint),
+          ],
         ),
-        GestureDetector(
-          onTap: () =>
-              openRoute(context, member.bound ? 'NotifyLog' : 'BindInvite'),
-          child: Text(
-            member.bound ? '通知记录' : '发送邀请',
-            style: ts(13, w: FontWeight.w500, color: C.primaryInk, h: 18),
-          ),
-        ),
-      ],
+      ),
     ),
   );
 
-  Widget _vehicle(Vehicle v) => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-    child: Row(
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(v.model, style: ts(15, w: FontWeight.w500, h: 22)),
-              const SizedBox(height: 2),
-              Text(v.note, style: ts(12, color: C.muted, h: 16)),
-            ],
-          ),
+  Widget _sectionHead(String title, String action, VoidCallback onTap) => Row(
+    children: [
+      Expanded(
+        child: Text(title, style: ts(15, w: FontWeight.w600, h: 22)),
+      ),
+      GestureDetector(
+        onTap: onTap,
+        child: Text(
+          action,
+          style: ts(13, w: FontWeight.w500, color: C.primaryInk, h: 18),
         ),
-        PlateTag(v.plate),
-      ],
-    ),
+      ),
+    ],
   );
 
-  Widget _pack(BuildContext context, CardPack p) => AppCard(
-    onTap: () => openRoute(context, 'PackageDetail'),
-    radius: 20,
+  Widget _vehicles(BuildContext context) => AppCard(
     padding: const EdgeInsets.all(16),
     child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _sectionHead('名下车辆', '添加车辆', () => openRoute(context, 'VehicleAdd')),
+        for (var i = 0; i < memberVehicles.length; i++) ...[
+          const SizedBox(height: 12),
+          if (i > 0) ...[const Divider1(), const SizedBox(height: 12)],
+          _vehicle(memberVehicles[i], green: i == 1),
+        ],
+      ],
+    ),
+  );
+
+  Widget _vehicle(Vehicle v, {bool green = false}) => Row(
+    children: [
+      Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: C.inset,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Center(child: AppIcon('car', size: 22, color: C.sub)),
+      ),
+      const SizedBox(width: 12),
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(v.model, style: ts(14, w: FontWeight.w500, h: 20)),
+            const SizedBox(height: 2),
+            Text(v.note, style: ts(12, color: C.muted, h: 16)),
+          ],
+        ),
+      ),
+      const SizedBox(width: 12),
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+        decoration: BoxDecoration(
+          color: green ? const Color(0xFFD7F5E1) : const Color(0xFF0B5FD6),
+          borderRadius: BorderRadius.circular(5),
+          border: Border.all(
+            color: green ? const Color(0xFF86D9A4) : const Color(0xFF5B9BF0),
+            width: 1.5,
+          ),
+        ),
+        child: Text(
+          v.plate,
+          maxLines: 1,
+          style: ts(
+            12,
+            w: FontWeight.w600,
+            color: green ? const Color(0xFF14532D) : Colors.white,
+            h: 16,
+          ),
+        ),
+      ),
+    ],
+  );
+
+  Widget _packs(BuildContext context) => AppCard(
+    padding: const EdgeInsets.all(16),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _sectionHead('次卡套餐', '购买次卡', () => openRoute(context, 'RechargeCard')),
+        for (var i = 0; i < memberPacks.length; i++) ...[
+          const SizedBox(height: 14),
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => openRoute(context, 'PackageDetail'),
+            child: _pack(memberPacks[i], i),
+          ),
+        ],
+      ],
+    ),
+  );
+
+  Widget _pack(CardPack p, int i) {
+    final amber = i == 1;
+    final bg = amber ? C.amberSoft : C.primarySoft;
+    final fg = amber ? C.amberInk : C.primaryInk;
+    final bar = amber ? C.amber : C.primary;
+    final rest = p.expire.contains('到期') && i == 1
+        ? ' / ${p.total} 次 · ${p.expire}'
+        : ' / ${p.total} 次';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Row(
           children: [
+            Container(
+              width: 28,
+              height: 28,
+              decoration: BoxDecoration(
+                color: bg,
+                borderRadius: BorderRadius.circular(9),
+              ),
+              child: Center(
+                child: AppIcon(amber ? 'sparkle' : 'drop', size: 16, color: fg),
+              ),
+            ),
+            const SizedBox(width: 8),
             Expanded(
-              child: Text(p.name, style: ts(15, w: FontWeight.w500, h: 22)),
+              child: Text(p.name, style: ts(14, w: FontWeight.w500, h: 20)),
             ),
             Text.rich(
               TextSpan(
                 children: [
                   TextSpan(
                     text: '${p.used}',
-                    style: ts(18, w: FontWeight.w600, h: 24),
+                    style: ts(13, w: FontWeight.w600, h: 18),
                   ),
                   TextSpan(
-                    text: ' / ${p.total} 次',
-                    style: ts(12, color: C.muted),
+                    text: rest,
+                    style: ts(13, color: C.muted, h: 18),
                   ),
                 ],
               ),
             ),
           ],
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 8),
         ClipRRect(
           borderRadius: BorderRadius.circular(3),
-          child: LinearProgressIndicator(
-            value: p.used / p.total,
-            minHeight: 6,
-            backgroundColor: C.chip,
-            valueColor: const AlwaysStoppedAnimation(C.primary),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Text(p.expire, style: ts(12, color: C.muted, h: 16)),
-        ),
-      ],
-    ),
-  );
-
-  Widget _record(RecordItem r) => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-    child: Row(
-      children: [
-        SizedBox(
-          width: 44,
-          child: Text(r.date, style: ts(12, color: C.muted, h: 16)),
-        ),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Stack(
             children: [
-              Text(r.title, style: ts(14, w: FontWeight.w500, h: 20)),
-              Text(r.desc, style: ts(12, color: C.muted, h: 16)),
+              Container(height: 6, color: C.chip),
+              FractionallySizedBox(
+                widthFactor: p.used / p.total,
+                child: Container(height: 6, color: bar),
+              ),
             ],
           ),
         ),
-        Text(
-          r.amount,
-          style: ts(
-            15,
-            w: FontWeight.w600,
-            color: r.income ? C.greenInk : C.ink,
-            h: 22,
-            tabular: true,
-          ),
-        ),
       ],
+    );
+  }
+
+  Widget _recordsRow(BuildContext context) => GestureDetector(
+    behavior: HitTestBehavior.opaque,
+    onTap: () => openRoute(context, 'MemberRecords'),
+    child: AppCard(
+      radius: 20,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: SizedBox(
+        height: 56,
+        child: Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: C.primarySoft,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Center(
+                child: AppIcon('receipt', size: 18, color: C.primaryInk),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text('消费与充值记录', style: ts(15, w: FontWeight.w500, h: 22)),
+            ),
+            Text('最近 今天', style: ts(13, color: C.muted, h: 18)),
+            const SizedBox(width: 4),
+            AppIcon('chevronRight', size: 16, color: C.faint),
+          ],
+        ),
+      ),
     ),
   );
 }

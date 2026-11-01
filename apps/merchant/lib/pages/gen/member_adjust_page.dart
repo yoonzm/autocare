@@ -31,9 +31,9 @@ class MemberAdjustPage extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -43,9 +43,9 @@ class MemberAdjustPage extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -167,9 +167,9 @@ class MemberAdjustPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -179,9 +179,9 @@ class MemberAdjustPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -530,9 +530,9 @@ class MemberAdjustPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -542,9 +542,9 @@ class MemberAdjustPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -745,77 +745,97 @@ class MemberAdjustPage extends StatelessWidget {
                       ),
                       hbox(
                         pad: EdgeInsets.fromLTRB(0, 6, 0, 6),
-                        child: hrow(
-                          [
-                            hbox(
-                              w: 40,
-                              h: 40,
-                              bg: dk(
-                                context,
-                                Color(0xFFF4F4F5),
-                                Color(0xFF27272A),
-                              ),
-                              radius: BorderRadius.circular(20),
-                              align: Alignment(0, 0),
-                              child: Text(
-                                '−',
-                                style: hts(
-                                  16,
-                                  dk(
-                                    context,
-                                    Color(0xFF18181B),
-                                    Color(0xFFFAFAFA),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Flexible(
-                              flex: 56,
-                              child: hbox(
-                                minW: 120,
-                                child: Text(
-                                  '500',
-                                  style: hts(
-                                    32,
-                                    dk(
+                        child: HHolder(
+                          inits: [500],
+                          builder: (context, ctrls) {
+                            final c3 = ctrls[0];
+                            return hrow(
+                              [
+                                hTap(
+                                  context,
+                                  hbox(
+                                    w: 40,
+                                    h: 40,
+                                    bg: dk(
                                       context,
-                                      Color(0xFF18181B),
-                                      Color(0xFFFAFAFA),
+                                      Color(0xFFF4F4F5),
+                                      Color(0xFF27272A),
                                     ),
-                                    w: FontWeight.w600,
-                                    lh: 38,
-                                    ls: -0.64,
+                                    radius: BorderRadius.circular(20),
+                                    align: Alignment(0, 0),
+                                    child: Text(
+                                      '−',
+                                      style: hts(
+                                        16,
+                                        dk(
+                                          context,
+                                          Color(0xFF18181B),
+                                          Color(0xFFFAFAFA),
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                                  textAlign: TextAlign.center,
+                                  onTap: () => c3.add(-10),
                                 ),
-                              ),
-                            ),
-                            hbox(
-                              w: 40,
-                              h: 40,
-                              bg: dk(
-                                context,
-                                Color(0xFFF4F4F5),
-                                Color(0xFF27272A),
-                              ),
-                              radius: BorderRadius.circular(20),
-                              child: hrow(
-                                [
-                                  hsvg(
-                                    dk(context, Svgs.s214, Svgs.s215),
-                                    w: 18,
-                                    h: 18,
+                                Flexible(
+                                  flex: 56,
+                                  child: hbox(
+                                    minW: 120,
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: hCount(
+                                        c3,
+                                        hts(
+                                          32,
+                                          dk(
+                                            context,
+                                            Color(0xFF18181B),
+                                            Color(0xFFFAFAFA),
+                                          ),
+                                          w: FontWeight.w600,
+                                          lh: 38,
+                                          ls: -0.64,
+                                        ),
+                                        0,
+                                        '',
+                                        false,
+                                      ),
+                                    ),
                                   ),
-                                ],
-                                main: MainAxisAlignment.center,
-                                cross: CrossAxisAlignment.center,
-                                gap: 0,
-                              ),
-                            ),
-                          ],
-                          main: MainAxisAlignment.center,
-                          cross: CrossAxisAlignment.center,
-                          gap: 14,
+                                ),
+                                hTap(
+                                  context,
+                                  hbox(
+                                    w: 40,
+                                    h: 40,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFF4F4F5),
+                                      Color(0xFF27272A),
+                                    ),
+                                    radius: BorderRadius.circular(20),
+                                    child: hrow(
+                                      [
+                                        hsvg(
+                                          dk(context, Svgs.s214, Svgs.s215),
+                                          w: 18,
+                                          h: 18,
+                                        ),
+                                      ],
+                                      main: MainAxisAlignment.center,
+                                      cross: CrossAxisAlignment.center,
+                                      gap: 0,
+                                    ),
+                                  ),
+                                  onTap: () => c3.add(10),
+                                ),
+                              ],
+                              main: MainAxisAlignment.center,
+                              cross: CrossAxisAlignment.center,
+                              gap: 14,
+                            );
+                          },
                         ),
                       ),
                       hbox(
@@ -876,9 +896,9 @@ class MemberAdjustPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -888,9 +908,9 @@ class MemberAdjustPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -954,10 +974,10 @@ class MemberAdjustPage extends StatelessWidget {
                             groups: [
                               ({0}, false),
                             ],
-                            builder: (context, g3) => hwrap(
+                            builder: (context, g4) => hwrap(
                               [
                                 HSel(
-                                  ctrl: g3[0],
+                                  ctrl: g4[0],
                                   index: 0,
                                   on: hbox(
                                     h: 34,
@@ -1019,7 +1039,7 @@ class MemberAdjustPage extends StatelessWidget {
                                   ),
                                 ),
                                 HSel(
-                                  ctrl: g3[0],
+                                  ctrl: g4[0],
                                   index: 1,
                                   on: hbox(
                                     h: 34,
@@ -1081,7 +1101,7 @@ class MemberAdjustPage extends StatelessWidget {
                                   ),
                                 ),
                                 HSel(
-                                  ctrl: g3[0],
+                                  ctrl: g4[0],
                                   index: 2,
                                   on: hbox(
                                     h: 34,
@@ -1143,7 +1163,7 @@ class MemberAdjustPage extends StatelessWidget {
                                   ),
                                 ),
                                 HSel(
-                                  ctrl: g3[0],
+                                  ctrl: g4[0],
                                   index: 3,
                                   on: hbox(
                                     h: 34,

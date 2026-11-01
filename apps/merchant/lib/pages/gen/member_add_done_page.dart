@@ -31,9 +31,9 @@ class MemberAddDonePage extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -43,9 +43,9 @@ class MemberAddDonePage extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -232,9 +232,9 @@ class MemberAddDonePage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -244,9 +244,9 @@ class MemberAddDonePage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -661,9 +661,9 @@ class MemberAddDonePage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -673,9 +673,9 @@ class MemberAddDonePage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -843,14 +843,25 @@ class MemberAddDonePage extends StatelessWidget {
                                         Color(0xFF34343A),
                                       ),
                                       radius: BorderRadius.circular(13),
-                                      shadow: [
-                                        BoxShadow(
-                                          color: Color(0xFFFFFFFF),
-                                          offset: Offset(0, 0),
-                                          blurRadius: 0,
-                                          spreadRadius: 4,
-                                        ),
-                                      ],
+                                      shadow: dk(
+                                        context,
+                                        [
+                                          BoxShadow(
+                                            color: Color(0xFFFFFFFF),
+                                            offset: Offset(0, 0),
+                                            blurRadius: 0,
+                                            spreadRadius: 4,
+                                          ),
+                                        ],
+                                        [
+                                          BoxShadow(
+                                            color: Color(0xFF18181B),
+                                            offset: Offset(0, 0),
+                                            blurRadius: 0,
+                                            spreadRadius: 4,
+                                          ),
+                                        ],
+                                      ),
                                       align: Alignment(0, 0),
                                       child: Text(
                                         '1',
@@ -894,14 +905,25 @@ class MemberAddDonePage extends StatelessWidget {
                                         Color(0xFF34343A),
                                       ),
                                       radius: BorderRadius.circular(13),
-                                      shadow: [
-                                        BoxShadow(
-                                          color: Color(0xFFFFFFFF),
-                                          offset: Offset(0, 0),
-                                          blurRadius: 0,
-                                          spreadRadius: 4,
-                                        ),
-                                      ],
+                                      shadow: dk(
+                                        context,
+                                        [
+                                          BoxShadow(
+                                            color: Color(0xFFFFFFFF),
+                                            offset: Offset(0, 0),
+                                            blurRadius: 0,
+                                            spreadRadius: 4,
+                                          ),
+                                        ],
+                                        [
+                                          BoxShadow(
+                                            color: Color(0xFF18181B),
+                                            offset: Offset(0, 0),
+                                            blurRadius: 0,
+                                            spreadRadius: 4,
+                                          ),
+                                        ],
+                                      ),
                                       align: Alignment(0, 0),
                                       child: Text(
                                         '2',
@@ -945,14 +967,25 @@ class MemberAddDonePage extends StatelessWidget {
                                         Color(0xFF34343A),
                                       ),
                                       radius: BorderRadius.circular(13),
-                                      shadow: [
-                                        BoxShadow(
-                                          color: Color(0xFFFFFFFF),
-                                          offset: Offset(0, 0),
-                                          blurRadius: 0,
-                                          spreadRadius: 4,
-                                        ),
-                                      ],
+                                      shadow: dk(
+                                        context,
+                                        [
+                                          BoxShadow(
+                                            color: Color(0xFFFFFFFF),
+                                            offset: Offset(0, 0),
+                                            blurRadius: 0,
+                                            spreadRadius: 4,
+                                          ),
+                                        ],
+                                        [
+                                          BoxShadow(
+                                            color: Color(0xFF18181B),
+                                            offset: Offset(0, 0),
+                                            blurRadius: 0,
+                                            spreadRadius: 4,
+                                          ),
+                                        ],
+                                      ),
                                       align: Alignment(0, 0),
                                       child: Text(
                                         '3',
@@ -1009,67 +1042,75 @@ class MemberAddDonePage extends StatelessWidget {
                         [
                           Expanded(
                             flex: 1,
-                            child: hTap(
-                              context,
-                              hbox(
-                                h: 46,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFEEEEF0),
-                                  Color(0xFF27272A),
-                                ),
-                                radius: BorderRadius.circular(23),
-                                child: Align(
-                                  alignment: Alignment(0, 0),
-                                  widthFactor: 1,
-                                  child: Text(
-                                    '改发短信邀请',
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF18181B),
-                                        Color(0xFFFAFAFA),
+                            child: UnconstrainedBox(
+                              alignment: Alignment.topLeft,
+                              constrainedAxis: Axis.horizontal,
+                              child: hTap(
+                                context,
+                                hbox(
+                                  h: 46,
+                                  bg: dk(
+                                    context,
+                                    Color(0xFFEEEEF0),
+                                    Color(0xFF27272A),
+                                  ),
+                                  radius: BorderRadius.circular(23),
+                                  child: Align(
+                                    alignment: Alignment(0, 0),
+                                    widthFactor: 1,
+                                    child: Text(
+                                      '改发短信邀请',
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF18181B),
+                                          Color(0xFFFAFAFA),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
                                       ),
-                                      w: FontWeight.w500,
-                                      lh: 18,
                                     ),
                                   ),
                                 ),
+                                to: 'BindInvite',
                               ),
-                              to: 'BindInvite',
                             ),
                           ),
                           Expanded(
                             flex: 1,
-                            child: hTap(
-                              context,
-                              hbox(
-                                h: 46,
-                                radius: BorderRadius.circular(23),
-                                border: Border.all(
-                                  color: Color(0xFFC7C7CC),
-                                  width: 1.5,
-                                ),
-                                child: Align(
-                                  alignment: Alignment(0, 0),
-                                  widthFactor: 1,
-                                  child: Text(
-                                    '会员已扫码（演示）',
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF52525B),
-                                        Color(0xFFA8A8B3),
+                            child: UnconstrainedBox(
+                              alignment: Alignment.topLeft,
+                              constrainedAxis: Axis.horizontal,
+                              child: hTap(
+                                context,
+                                hbox(
+                                  h: 46,
+                                  radius: BorderRadius.circular(23),
+                                  border: Border.all(
+                                    color: Color(0xFFC7C7CC),
+                                    width: 1.5,
+                                  ),
+                                  child: Align(
+                                    alignment: Alignment(0, 0),
+                                    widthFactor: 1,
+                                    child: Text(
+                                      '会员已扫码（演示）',
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF52525B),
+                                          Color(0xFFA8A8B3),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
                                       ),
-                                      w: FontWeight.w500,
-                                      lh: 18,
                                     ),
                                   ),
                                 ),
+                                label: '会员已扫码（演示）',
                               ),
-                              label: '会员已扫码（演示）',
                             ),
                           ),
                         ],

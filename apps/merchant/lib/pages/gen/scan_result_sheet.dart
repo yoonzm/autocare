@@ -385,7 +385,7 @@ class ScanResultSheet extends StatelessWidget {
             pad: EdgeInsets.fromLTRB(12, 10, 12, 10),
             child: hrow(
               [
-                hsvg(dk(context, Svgs.s337, Svgs.s338), w: 16, h: 16),
+                hsvg(dk(context, Svgs.s338, Svgs.s339), w: 16, h: 16),
                 Flexible(
                   flex: 336,
                   child: Text(
@@ -409,46 +409,58 @@ class ScanResultSheet extends StatelessWidget {
               [
                 Expanded(
                   flex: 10,
-                  child: hTap(
-                    context,
-                    hbox(
-                      h: 48,
-                      bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
-                      radius: BorderRadius.circular(24),
-                      child: Align(
-                        alignment: Alignment(0, 0),
-                        widthFactor: 1,
-                        child: Text(
-                          '重新扫描',
-                          style: hts(
-                            15,
-                            dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                            w: FontWeight.w500,
+                  child: UnconstrainedBox(
+                    alignment: Alignment.topLeft,
+                    constrainedAxis: Axis.horizontal,
+                    child: hTap(
+                      context,
+                      hbox(
+                        h: 48,
+                        bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(24),
+                        child: Align(
+                          alignment: Alignment(0, 0),
+                          widthFactor: 1,
+                          child: Text(
+                            '重新扫描',
+                            style: hts(
+                              15,
+                              dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                              w: FontWeight.w500,
+                            ),
                           ),
                         ),
                       ),
+                      to: 'ScanLicense',
                     ),
-                    to: 'ScanLicense',
                   ),
                 ),
                 Expanded(
                   flex: 14,
-                  child: hTap(
-                    context,
-                    hbox(
-                      h: 48,
-                      bg: Color(0xFF0485F7),
-                      radius: BorderRadius.circular(24),
-                      child: Align(
-                        alignment: Alignment(0, 0),
-                        widthFactor: 1,
-                        child: Text(
-                          '确认并填入',
-                          style: hts(15, Color(0xFFFFFFFF), w: FontWeight.w600),
+                  child: UnconstrainedBox(
+                    alignment: Alignment.topLeft,
+                    constrainedAxis: Axis.horizontal,
+                    child: hTap(
+                      context,
+                      hbox(
+                        h: 48,
+                        bg: Color(0xFF0485F7),
+                        radius: BorderRadius.circular(24),
+                        child: Align(
+                          alignment: Alignment(0, 0),
+                          widthFactor: 1,
+                          child: Text(
+                            '确认并填入',
+                            style: hts(
+                              15,
+                              Color(0xFFFFFFFF),
+                              w: FontWeight.w600,
+                            ),
+                          ),
                         ),
                       ),
+                      to: 'MemberAdd',
                     ),
-                    to: 'MemberAdd',
                   ),
                 ),
               ],

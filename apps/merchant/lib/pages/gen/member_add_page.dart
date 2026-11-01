@@ -31,9 +31,9 @@ class MemberAddPage extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -43,9 +43,9 @@ class MemberAddPage extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -189,9 +189,9 @@ class MemberAddPage extends StatelessWidget {
                         context,
                         [
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.04),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
+                            color: Color.fromRGBO(0, 0, 0, 0.06),
+                            offset: Offset(0, 0),
+                            blurRadius: 1,
                             spreadRadius: 0,
                           ),
                           BoxShadow(
@@ -201,9 +201,9 @@ class MemberAddPage extends StatelessWidget {
                             spreadRadius: 0,
                           ),
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 0),
-                            blurRadius: 1,
+                            color: Color.fromRGBO(0, 0, 0, 0.04),
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
                             spreadRadius: 0,
                           ),
                         ],
@@ -406,313 +406,343 @@ class MemberAddPage extends StatelessWidget {
                                     [
                                       Flexible(
                                         flex: 82,
-                                        child: HToggle(
-                                          initial: true,
-                                          on: hbox(
-                                            h: 28,
-                                            bg: dk(
-                                              context,
-                                              Color(0xFFFFFFFF),
-                                              Color(0xFF18181B),
-                                            ),
-                                            radius: BorderRadius.circular(14),
-                                            shadow: dk(
-                                              context,
-                                              [
-                                                BoxShadow(
-                                                  color: Color.fromRGBO(
-                                                    0,
-                                                    0,
-                                                    0,
-                                                    0.08,
+                                        child: UnconstrainedBox(
+                                          alignment: Alignment.topLeft,
+                                          constrainedAxis: Axis.horizontal,
+                                          child: HToggle(
+                                            initial: true,
+                                            on: hbox(
+                                              h: 28,
+                                              bg: dk(
+                                                context,
+                                                Color(0xFFFFFFFF),
+                                                Color(0xFF18181B),
+                                              ),
+                                              radius: BorderRadius.circular(14),
+                                              shadow: dk(
+                                                context,
+                                                [
+                                                  BoxShadow(
+                                                    color: Color.fromRGBO(
+                                                      0,
+                                                      0,
+                                                      0,
+                                                      0.08,
+                                                    ),
+                                                    offset: Offset(0, 1),
+                                                    blurRadius: 2,
+                                                    spreadRadius: 0,
                                                   ),
-                                                  offset: Offset(0, 1),
-                                                  blurRadius: 2,
-                                                  spreadRadius: 0,
-                                                ),
-                                              ],
-                                              [
-                                                BoxShadow(
-                                                  color: Color(0xFF26262B),
-                                                  offset: Offset(0, 0),
-                                                  blurRadius: 0,
-                                                  spreadRadius: 1,
-                                                ),
-                                              ],
-                                            ),
-                                            pad: EdgeInsets.fromLTRB(
-                                              14,
-                                              0,
-                                              14,
-                                              0,
-                                            ),
-                                            child: hrow(
-                                              [
-                                                Flexible(
-                                                  flex: 26,
-                                                  child: Text(
-                                                    '先生',
-                                                    style: hts(
-                                                      13,
-                                                      dk(
-                                                        context,
-                                                        Color(0xFF18181B),
-                                                        Color(0xFFFAFAFA),
+                                                ],
+                                                [
+                                                  BoxShadow(
+                                                    color: Color(0xFF26262B),
+                                                    offset: Offset(0, 0),
+                                                    blurRadius: 0,
+                                                    spreadRadius: 1,
+                                                  ),
+                                                ],
+                                              ),
+                                              pad: EdgeInsets.fromLTRB(
+                                                14,
+                                                0,
+                                                14,
+                                                0,
+                                              ),
+                                              child: hrow(
+                                                [
+                                                  Flexible(
+                                                    flex: 26,
+                                                    child: Text(
+                                                      '先生',
+                                                      style: hts(
+                                                        13,
+                                                        dk(
+                                                          context,
+                                                          Color(0xFF18181B),
+                                                          Color(0xFFFAFAFA),
+                                                        ),
+                                                        w: FontWeight.w500,
+                                                        lh: 18,
                                                       ),
-                                                      w: FontWeight.w500,
-                                                      lh: 18,
                                                     ),
                                                   ),
-                                                ),
-                                                Flexible(
-                                                  flex: 54,
-                                                  child: HToggle(
-                                                    initial: false,
-                                                    on: hbox(
-                                                      h: 28,
-                                                      bg: dk(
-                                                        context,
-                                                        Color(0xFFFFFFFF),
-                                                        Color(0xFF18181B),
-                                                      ),
-                                                      radius:
-                                                          BorderRadius.circular(
-                                                            14,
-                                                          ),
-                                                      shadow: dk(
-                                                        context,
-                                                        [
-                                                          BoxShadow(
-                                                            color:
-                                                                Color.fromRGBO(
-                                                                  0,
-                                                                  0,
-                                                                  0,
-                                                                  0.08,
+                                                  Flexible(
+                                                    flex: 54,
+                                                    child: HToggle(
+                                                      initial: false,
+                                                      on: hbox(
+                                                        h: 28,
+                                                        bg: dk(
+                                                          context,
+                                                          Color(0xFFFFFFFF),
+                                                          Color(0xFF18181B),
+                                                        ),
+                                                        radius:
+                                                            BorderRadius.circular(
+                                                              14,
+                                                            ),
+                                                        shadow: dk(
+                                                          context,
+                                                          [
+                                                            BoxShadow(
+                                                              color:
+                                                                  Color.fromRGBO(
+                                                                    0,
+                                                                    0,
+                                                                    0,
+                                                                    0.08,
+                                                                  ),
+                                                              offset: Offset(
+                                                                0,
+                                                                1,
+                                                              ),
+                                                              blurRadius: 2,
+                                                              spreadRadius: 0,
+                                                            ),
+                                                          ],
+                                                          [
+                                                            BoxShadow(
+                                                              color: Color(
+                                                                0xFF26262B,
+                                                              ),
+                                                              offset: Offset(
+                                                                0,
+                                                                0,
+                                                              ),
+                                                              blurRadius: 0,
+                                                              spreadRadius: 1,
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        pad:
+                                                            EdgeInsets.fromLTRB(
+                                                              14,
+                                                              0,
+                                                              14,
+                                                              0,
+                                                            ),
+                                                        child: Align(
+                                                          alignment:
+                                                              Alignment.center,
+                                                          widthFactor: 1,
+                                                          child: Text(
+                                                            '女士',
+                                                            style: hts(
+                                                              13,
+                                                              dk(
+                                                                context,
+                                                                Color(
+                                                                  0xFF18181B,
                                                                 ),
-                                                            offset: Offset(
-                                                              0,
-                                                              1,
-                                                            ),
-                                                            blurRadius: 2,
-                                                            spreadRadius: 0,
-                                                          ),
-                                                        ],
-                                                        [
-                                                          BoxShadow(
-                                                            color: Color(
-                                                              0xFF26262B,
-                                                            ),
-                                                            offset: Offset(
-                                                              0,
-                                                              0,
-                                                            ),
-                                                            blurRadius: 0,
-                                                            spreadRadius: 1,
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      pad: EdgeInsets.fromLTRB(
-                                                        14,
-                                                        0,
-                                                        14,
-                                                        0,
-                                                      ),
-                                                      child: Align(
-                                                        alignment:
-                                                            Alignment.center,
-                                                        widthFactor: 1,
-                                                        child: Text(
-                                                          '女士',
-                                                          style: hts(
-                                                            13,
-                                                            dk(
-                                                              context,
-                                                              Color(0xFF18181B),
-                                                              Color(0xFFFAFAFA),
-                                                            ),
-                                                            w: FontWeight.w500,
-                                                            lh: 18,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    off: hbox(
-                                                      h: 28,
-                                                      radius:
-                                                          BorderRadius.circular(
-                                                            14,
-                                                          ),
-                                                      pad: EdgeInsets.fromLTRB(
-                                                        14,
-                                                        0,
-                                                        14,
-                                                        0,
-                                                      ),
-                                                      child: Align(
-                                                        alignment:
-                                                            Alignment.center,
-                                                        widthFactor: 1,
-                                                        child: Text(
-                                                          '女士',
-                                                          style: hts(
-                                                            13,
-                                                            dk(
-                                                              context,
-                                                              Color(0xFF52525B),
-                                                              Color(0xFFA8A8B3),
-                                                            ),
-                                                            w: FontWeight.w500,
-                                                            lh: 18,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                              main: MainAxisAlignment.start,
-                                              cross: CrossAxisAlignment.center,
-                                              gap: 6,
-                                            ),
-                                          ),
-                                          off: hbox(
-                                            h: 28,
-                                            radius: BorderRadius.circular(14),
-                                            pad: EdgeInsets.fromLTRB(
-                                              14,
-                                              0,
-                                              14,
-                                              0,
-                                            ),
-                                            child: hrow(
-                                              [
-                                                Flexible(
-                                                  flex: 26,
-                                                  child: Text(
-                                                    '先生',
-                                                    style: hts(
-                                                      13,
-                                                      dk(
-                                                        context,
-                                                        Color(0xFF52525B),
-                                                        Color(0xFFA8A8B3),
-                                                      ),
-                                                      w: FontWeight.w500,
-                                                      lh: 18,
-                                                    ),
-                                                  ),
-                                                ),
-                                                Flexible(
-                                                  flex: 54,
-                                                  child: HToggle(
-                                                    initial: false,
-                                                    on: hbox(
-                                                      h: 28,
-                                                      bg: dk(
-                                                        context,
-                                                        Color(0xFFFFFFFF),
-                                                        Color(0xFF18181B),
-                                                      ),
-                                                      radius:
-                                                          BorderRadius.circular(
-                                                            14,
-                                                          ),
-                                                      shadow: dk(
-                                                        context,
-                                                        [
-                                                          BoxShadow(
-                                                            color:
-                                                                Color.fromRGBO(
-                                                                  0,
-                                                                  0,
-                                                                  0,
-                                                                  0.08,
+                                                                Color(
+                                                                  0xFFFAFAFA,
                                                                 ),
-                                                            offset: Offset(
-                                                              0,
-                                                              1,
+                                                              ),
+                                                              w: FontWeight
+                                                                  .w500,
+                                                              lh: 18,
                                                             ),
-                                                            blurRadius: 2,
-                                                            spreadRadius: 0,
-                                                          ),
-                                                        ],
-                                                        [
-                                                          BoxShadow(
-                                                            color: Color(
-                                                              0xFF26262B,
-                                                            ),
-                                                            offset: Offset(
-                                                              0,
-                                                              0,
-                                                            ),
-                                                            blurRadius: 0,
-                                                            spreadRadius: 1,
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      pad: EdgeInsets.fromLTRB(
-                                                        14,
-                                                        0,
-                                                        14,
-                                                        0,
-                                                      ),
-                                                      child: Align(
-                                                        alignment:
-                                                            Alignment.center,
-                                                        widthFactor: 1,
-                                                        child: Text(
-                                                          '女士',
-                                                          style: hts(
-                                                            13,
-                                                            dk(
-                                                              context,
-                                                              Color(0xFF18181B),
-                                                              Color(0xFFFAFAFA),
-                                                            ),
-                                                            w: FontWeight.w500,
-                                                            lh: 18,
                                                           ),
                                                         ),
                                                       ),
-                                                    ),
-                                                    off: hbox(
-                                                      h: 28,
-                                                      radius:
-                                                          BorderRadius.circular(
-                                                            14,
-                                                          ),
-                                                      pad: EdgeInsets.fromLTRB(
-                                                        14,
-                                                        0,
-                                                        14,
-                                                        0,
-                                                      ),
-                                                      child: Align(
-                                                        alignment:
-                                                            Alignment.center,
-                                                        widthFactor: 1,
-                                                        child: Text(
-                                                          '女士',
-                                                          style: hts(
-                                                            13,
-                                                            dk(
-                                                              context,
-                                                              Color(0xFF52525B),
-                                                              Color(0xFFA8A8B3),
+                                                      off: hbox(
+                                                        h: 28,
+                                                        radius:
+                                                            BorderRadius.circular(
+                                                              14,
                                                             ),
-                                                            w: FontWeight.w500,
-                                                            lh: 18,
+                                                        pad:
+                                                            EdgeInsets.fromLTRB(
+                                                              14,
+                                                              0,
+                                                              14,
+                                                              0,
+                                                            ),
+                                                        child: Align(
+                                                          alignment:
+                                                              Alignment.center,
+                                                          widthFactor: 1,
+                                                          child: Text(
+                                                            '女士',
+                                                            style: hts(
+                                                              13,
+                                                              dk(
+                                                                context,
+                                                                Color(
+                                                                  0xFF52525B,
+                                                                ),
+                                                                Color(
+                                                                  0xFFA8A8B3,
+                                                                ),
+                                                              ),
+                                                              w: FontWeight
+                                                                  .w500,
+                                                              lh: 18,
+                                                            ),
                                                           ),
                                                         ),
                                                       ),
                                                     ),
                                                   ),
-                                                ),
-                                              ],
-                                              main: MainAxisAlignment.start,
-                                              cross: CrossAxisAlignment.center,
-                                              gap: 6,
+                                                ],
+                                                main: MainAxisAlignment.start,
+                                                cross:
+                                                    CrossAxisAlignment.center,
+                                                gap: 6,
+                                              ),
+                                            ),
+                                            off: hbox(
+                                              h: 28,
+                                              radius: BorderRadius.circular(14),
+                                              pad: EdgeInsets.fromLTRB(
+                                                14,
+                                                0,
+                                                14,
+                                                0,
+                                              ),
+                                              child: hrow(
+                                                [
+                                                  Flexible(
+                                                    flex: 26,
+                                                    child: Text(
+                                                      '先生',
+                                                      style: hts(
+                                                        13,
+                                                        dk(
+                                                          context,
+                                                          Color(0xFF52525B),
+                                                          Color(0xFFA8A8B3),
+                                                        ),
+                                                        w: FontWeight.w500,
+                                                        lh: 18,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Flexible(
+                                                    flex: 54,
+                                                    child: HToggle(
+                                                      initial: false,
+                                                      on: hbox(
+                                                        h: 28,
+                                                        bg: dk(
+                                                          context,
+                                                          Color(0xFFFFFFFF),
+                                                          Color(0xFF18181B),
+                                                        ),
+                                                        radius:
+                                                            BorderRadius.circular(
+                                                              14,
+                                                            ),
+                                                        shadow: dk(
+                                                          context,
+                                                          [
+                                                            BoxShadow(
+                                                              color:
+                                                                  Color.fromRGBO(
+                                                                    0,
+                                                                    0,
+                                                                    0,
+                                                                    0.08,
+                                                                  ),
+                                                              offset: Offset(
+                                                                0,
+                                                                1,
+                                                              ),
+                                                              blurRadius: 2,
+                                                              spreadRadius: 0,
+                                                            ),
+                                                          ],
+                                                          [
+                                                            BoxShadow(
+                                                              color: Color(
+                                                                0xFF26262B,
+                                                              ),
+                                                              offset: Offset(
+                                                                0,
+                                                                0,
+                                                              ),
+                                                              blurRadius: 0,
+                                                              spreadRadius: 1,
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        pad:
+                                                            EdgeInsets.fromLTRB(
+                                                              14,
+                                                              0,
+                                                              14,
+                                                              0,
+                                                            ),
+                                                        child: Align(
+                                                          alignment:
+                                                              Alignment.center,
+                                                          widthFactor: 1,
+                                                          child: Text(
+                                                            '女士',
+                                                            style: hts(
+                                                              13,
+                                                              dk(
+                                                                context,
+                                                                Color(
+                                                                  0xFF18181B,
+                                                                ),
+                                                                Color(
+                                                                  0xFFFAFAFA,
+                                                                ),
+                                                              ),
+                                                              w: FontWeight
+                                                                  .w500,
+                                                              lh: 18,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      off: hbox(
+                                                        h: 28,
+                                                        radius:
+                                                            BorderRadius.circular(
+                                                              14,
+                                                            ),
+                                                        pad:
+                                                            EdgeInsets.fromLTRB(
+                                                              14,
+                                                              0,
+                                                              14,
+                                                              0,
+                                                            ),
+                                                        child: Align(
+                                                          alignment:
+                                                              Alignment.center,
+                                                          widthFactor: 1,
+                                                          child: Text(
+                                                            '女士',
+                                                            style: hts(
+                                                              13,
+                                                              dk(
+                                                                context,
+                                                                Color(
+                                                                  0xFF52525B,
+                                                                ),
+                                                                Color(
+                                                                  0xFFA8A8B3,
+                                                                ),
+                                                              ),
+                                                              w: FontWeight
+                                                                  .w500,
+                                                              lh: 18,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                                main: MainAxisAlignment.start,
+                                                cross:
+                                                    CrossAxisAlignment.center,
+                                                gap: 6,
+                                              ),
                                             ),
                                           ),
                                         ),
@@ -822,9 +852,9 @@ class MemberAddPage extends StatelessWidget {
                         context,
                         [
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.04),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
+                            color: Color.fromRGBO(0, 0, 0, 0.06),
+                            offset: Offset(0, 0),
+                            blurRadius: 1,
                             spreadRadius: 0,
                           ),
                           BoxShadow(
@@ -834,9 +864,9 @@ class MemberAddPage extends StatelessWidget {
                             spreadRadius: 0,
                           ),
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 0),
-                            blurRadius: 1,
+                            color: Color.fromRGBO(0, 0, 0, 0.04),
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
                             spreadRadius: 0,
                           ),
                         ],
@@ -945,192 +975,317 @@ class MemberAddPage extends StatelessWidget {
                                       ],
                                       builder: (context, g3) => hrow(
                                         [
-                                          HSel(
-                                            ctrl: g3[0],
-                                            index: 0,
-                                            on: hbox(
-                                              w: 26,
-                                              h: 26,
-                                              bg: dk(
-                                                context,
-                                                Color(0xFF18181B),
-                                                Color(0xFF34343A),
+                                          UnconstrainedBox(
+                                            alignment: Alignment.topLeft,
+                                            constrainedAxis: Axis.horizontal,
+                                            child: HSel(
+                                              ctrl: g3[0],
+                                              index: 0,
+                                              on: hbox(
+                                                w: 26,
+                                                h: 26,
+                                                bg: dk(
+                                                  context,
+                                                  Color(0xFF18181B),
+                                                  Color(0xFF34343A),
+                                                ),
+                                                radius: BorderRadius.circular(
+                                                  13,
+                                                ),
+                                                shadow: dk(
+                                                  context,
+                                                  [
+                                                    BoxShadow(
+                                                      color: Color(0xFF0485F7),
+                                                      offset: Offset(0, 0),
+                                                      blurRadius: 0,
+                                                      spreadRadius: 4,
+                                                    ),
+                                                    BoxShadow(
+                                                      color: Color(0xFFFFFFFF),
+                                                      offset: Offset(0, 0),
+                                                      blurRadius: 0,
+                                                      spreadRadius: 2,
+                                                    ),
+                                                  ],
+                                                  [
+                                                    BoxShadow(
+                                                      color: Color(0xFF0485F7),
+                                                      offset: Offset(0, 0),
+                                                      blurRadius: 0,
+                                                      spreadRadius: 4,
+                                                    ),
+                                                    BoxShadow(
+                                                      color: Color(0xFF18181B),
+                                                      offset: Offset(0, 0),
+                                                      blurRadius: 0,
+                                                      spreadRadius: 2,
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
-                                              radius: BorderRadius.circular(13),
-                                              shadow: [
-                                                BoxShadow(
-                                                  color: Color(0xFFFFFFFF),
-                                                  offset: Offset(0, 0),
-                                                  blurRadius: 0,
-                                                  spreadRadius: 2,
+                                              off: hbox(
+                                                w: 26,
+                                                h: 26,
+                                                bg: dk(
+                                                  context,
+                                                  Color(0xFF18181B),
+                                                  Color(0xFF34343A),
                                                 ),
-                                                BoxShadow(
-                                                  color: Color(0xFF0485F7),
-                                                  offset: Offset(0, 0),
-                                                  blurRadius: 0,
-                                                  spreadRadius: 4,
+                                                radius: BorderRadius.circular(
+                                                  13,
                                                 ),
-                                              ],
-                                            ),
-                                            off: hbox(
-                                              w: 26,
-                                              h: 26,
-                                              bg: dk(
-                                                context,
-                                                Color(0xFF18181B),
-                                                Color(0xFF34343A),
-                                              ),
-                                              radius: BorderRadius.circular(13),
-                                              border: dk(
-                                                context,
-                                                Border.all(
-                                                  color: Color(0xFFD4D4D8),
-                                                  width: 1.5,
-                                                ),
-                                                Border.all(
-                                                  color: Color(0xFF3F3F46),
-                                                  width: 1.5,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          HSel(
-                                            ctrl: g3[0],
-                                            index: 1,
-                                            on: hbox(
-                                              w: 26,
-                                              h: 26,
-                                              bg: dk(
-                                                context,
-                                                Color(0xFFFFFFFF),
-                                                Color(0xFF18181B),
-                                              ),
-                                              radius: BorderRadius.circular(13),
-                                              shadow: [
-                                                BoxShadow(
-                                                  color: Color(0xFFFFFFFF),
-                                                  offset: Offset(0, 0),
-                                                  blurRadius: 0,
-                                                  spreadRadius: 2,
-                                                ),
-                                                BoxShadow(
-                                                  color: Color(0xFF0485F7),
-                                                  offset: Offset(0, 0),
-                                                  blurRadius: 0,
-                                                  spreadRadius: 4,
-                                                ),
-                                              ],
-                                            ),
-                                            off: hbox(
-                                              w: 26,
-                                              h: 26,
-                                              bg: dk(
-                                                context,
-                                                Color(0xFFFFFFFF),
-                                                Color(0xFF18181B),
-                                              ),
-                                              radius: BorderRadius.circular(13),
-                                              border: dk(
-                                                context,
-                                                Border.all(
-                                                  color: Color(0xFFD4D4D8),
-                                                  width: 1.5,
-                                                ),
-                                                Border.all(
-                                                  color: Color(0xFF3F3F46),
-                                                  width: 1.5,
+                                                border: dk(
+                                                  context,
+                                                  Border.all(
+                                                    color: Color(0xFFD4D4D8),
+                                                    width: 1.5,
+                                                  ),
+                                                  Border.all(
+                                                    color: Color(0xFF3F3F46),
+                                                    width: 1.5,
+                                                  ),
                                                 ),
                                               ),
                                             ),
                                           ),
-                                          HSel(
-                                            ctrl: g3[0],
-                                            index: 2,
-                                            on: hbox(
-                                              w: 26,
-                                              h: 26,
-                                              bg: Color(0xFF8E8E93),
-                                              radius: BorderRadius.circular(13),
-                                              shadow: [
-                                                BoxShadow(
-                                                  color: Color(0xFFFFFFFF),
-                                                  offset: Offset(0, 0),
-                                                  blurRadius: 0,
-                                                  spreadRadius: 2,
+                                          UnconstrainedBox(
+                                            alignment: Alignment.topLeft,
+                                            constrainedAxis: Axis.horizontal,
+                                            child: HSel(
+                                              ctrl: g3[0],
+                                              index: 1,
+                                              on: hbox(
+                                                w: 26,
+                                                h: 26,
+                                                bg: dk(
+                                                  context,
+                                                  Color(0xFFFFFFFF),
+                                                  Color(0xFF18181B),
                                                 ),
-                                                BoxShadow(
-                                                  color: Color(0xFF0485F7),
-                                                  offset: Offset(0, 0),
-                                                  blurRadius: 0,
-                                                  spreadRadius: 4,
+                                                radius: BorderRadius.circular(
+                                                  13,
                                                 ),
-                                              ],
-                                            ),
-                                            off: hbox(
-                                              w: 26,
-                                              h: 26,
-                                              bg: Color(0xFF8E8E93),
-                                              radius: BorderRadius.circular(13),
+                                                shadow: dk(
+                                                  context,
+                                                  [
+                                                    BoxShadow(
+                                                      color: Color(0xFF0485F7),
+                                                      offset: Offset(0, 0),
+                                                      blurRadius: 0,
+                                                      spreadRadius: 4,
+                                                    ),
+                                                    BoxShadow(
+                                                      color: Color(0xFFFFFFFF),
+                                                      offset: Offset(0, 0),
+                                                      blurRadius: 0,
+                                                      spreadRadius: 2,
+                                                    ),
+                                                  ],
+                                                  [
+                                                    BoxShadow(
+                                                      color: Color(0xFF0485F7),
+                                                      offset: Offset(0, 0),
+                                                      blurRadius: 0,
+                                                      spreadRadius: 4,
+                                                    ),
+                                                    BoxShadow(
+                                                      color: Color(0xFF18181B),
+                                                      offset: Offset(0, 0),
+                                                      blurRadius: 0,
+                                                      spreadRadius: 2,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              off: hbox(
+                                                w: 26,
+                                                h: 26,
+                                                bg: dk(
+                                                  context,
+                                                  Color(0xFFFFFFFF),
+                                                  Color(0xFF18181B),
+                                                ),
+                                                radius: BorderRadius.circular(
+                                                  13,
+                                                ),
+                                                border: dk(
+                                                  context,
+                                                  Border.all(
+                                                    color: Color(0xFFD4D4D8),
+                                                    width: 1.5,
+                                                  ),
+                                                  Border.all(
+                                                    color: Color(0xFF3F3F46),
+                                                    width: 1.5,
+                                                  ),
+                                                ),
+                                              ),
                                             ),
                                           ),
-                                          HSel(
-                                            ctrl: g3[0],
-                                            index: 3,
-                                            on: hbox(
-                                              w: 26,
-                                              h: 26,
-                                              bg: Color(0xFF1E40AF),
-                                              radius: BorderRadius.circular(13),
-                                              shadow: [
-                                                BoxShadow(
-                                                  color: Color(0xFFFFFFFF),
-                                                  offset: Offset(0, 0),
-                                                  blurRadius: 0,
-                                                  spreadRadius: 2,
+                                          UnconstrainedBox(
+                                            alignment: Alignment.topLeft,
+                                            constrainedAxis: Axis.horizontal,
+                                            child: HSel(
+                                              ctrl: g3[0],
+                                              index: 2,
+                                              on: hbox(
+                                                w: 26,
+                                                h: 26,
+                                                bg: Color(0xFF8E8E93),
+                                                radius: BorderRadius.circular(
+                                                  13,
                                                 ),
-                                                BoxShadow(
-                                                  color: Color(0xFF0485F7),
-                                                  offset: Offset(0, 0),
-                                                  blurRadius: 0,
-                                                  spreadRadius: 4,
+                                                shadow: dk(
+                                                  context,
+                                                  [
+                                                    BoxShadow(
+                                                      color: Color(0xFF0485F7),
+                                                      offset: Offset(0, 0),
+                                                      blurRadius: 0,
+                                                      spreadRadius: 4,
+                                                    ),
+                                                    BoxShadow(
+                                                      color: Color(0xFFFFFFFF),
+                                                      offset: Offset(0, 0),
+                                                      blurRadius: 0,
+                                                      spreadRadius: 2,
+                                                    ),
+                                                  ],
+                                                  [
+                                                    BoxShadow(
+                                                      color: Color(0xFF0485F7),
+                                                      offset: Offset(0, 0),
+                                                      blurRadius: 0,
+                                                      spreadRadius: 4,
+                                                    ),
+                                                    BoxShadow(
+                                                      color: Color(0xFF18181B),
+                                                      offset: Offset(0, 0),
+                                                      blurRadius: 0,
+                                                      spreadRadius: 2,
+                                                    ),
+                                                  ],
                                                 ),
-                                              ],
-                                            ),
-                                            off: hbox(
-                                              w: 26,
-                                              h: 26,
-                                              bg: Color(0xFF1E40AF),
-                                              radius: BorderRadius.circular(13),
+                                              ),
+                                              off: hbox(
+                                                w: 26,
+                                                h: 26,
+                                                bg: Color(0xFF8E8E93),
+                                                radius: BorderRadius.circular(
+                                                  13,
+                                                ),
+                                              ),
                                             ),
                                           ),
-                                          HSel(
-                                            ctrl: g3[0],
-                                            index: 4,
-                                            on: hbox(
-                                              w: 26,
-                                              h: 26,
-                                              bg: Color(0xFFB91C1C),
-                                              radius: BorderRadius.circular(13),
-                                              shadow: [
-                                                BoxShadow(
-                                                  color: Color(0xFFFFFFFF),
-                                                  offset: Offset(0, 0),
-                                                  blurRadius: 0,
-                                                  spreadRadius: 2,
+                                          UnconstrainedBox(
+                                            alignment: Alignment.topLeft,
+                                            constrainedAxis: Axis.horizontal,
+                                            child: HSel(
+                                              ctrl: g3[0],
+                                              index: 3,
+                                              on: hbox(
+                                                w: 26,
+                                                h: 26,
+                                                bg: Color(0xFF1E40AF),
+                                                radius: BorderRadius.circular(
+                                                  13,
                                                 ),
-                                                BoxShadow(
-                                                  color: Color(0xFF0485F7),
-                                                  offset: Offset(0, 0),
-                                                  blurRadius: 0,
-                                                  spreadRadius: 4,
+                                                shadow: dk(
+                                                  context,
+                                                  [
+                                                    BoxShadow(
+                                                      color: Color(0xFF0485F7),
+                                                      offset: Offset(0, 0),
+                                                      blurRadius: 0,
+                                                      spreadRadius: 4,
+                                                    ),
+                                                    BoxShadow(
+                                                      color: Color(0xFFFFFFFF),
+                                                      offset: Offset(0, 0),
+                                                      blurRadius: 0,
+                                                      spreadRadius: 2,
+                                                    ),
+                                                  ],
+                                                  [
+                                                    BoxShadow(
+                                                      color: Color(0xFF0485F7),
+                                                      offset: Offset(0, 0),
+                                                      blurRadius: 0,
+                                                      spreadRadius: 4,
+                                                    ),
+                                                    BoxShadow(
+                                                      color: Color(0xFF18181B),
+                                                      offset: Offset(0, 0),
+                                                      blurRadius: 0,
+                                                      spreadRadius: 2,
+                                                    ),
+                                                  ],
                                                 ),
-                                              ],
+                                              ),
+                                              off: hbox(
+                                                w: 26,
+                                                h: 26,
+                                                bg: Color(0xFF1E40AF),
+                                                radius: BorderRadius.circular(
+                                                  13,
+                                                ),
+                                              ),
                                             ),
-                                            off: hbox(
-                                              w: 26,
-                                              h: 26,
-                                              bg: Color(0xFFB91C1C),
-                                              radius: BorderRadius.circular(13),
+                                          ),
+                                          UnconstrainedBox(
+                                            alignment: Alignment.topLeft,
+                                            constrainedAxis: Axis.horizontal,
+                                            child: HSel(
+                                              ctrl: g3[0],
+                                              index: 4,
+                                              on: hbox(
+                                                w: 26,
+                                                h: 26,
+                                                bg: Color(0xFFB91C1C),
+                                                radius: BorderRadius.circular(
+                                                  13,
+                                                ),
+                                                shadow: dk(
+                                                  context,
+                                                  [
+                                                    BoxShadow(
+                                                      color: Color(0xFF0485F7),
+                                                      offset: Offset(0, 0),
+                                                      blurRadius: 0,
+                                                      spreadRadius: 4,
+                                                    ),
+                                                    BoxShadow(
+                                                      color: Color(0xFFFFFFFF),
+                                                      offset: Offset(0, 0),
+                                                      blurRadius: 0,
+                                                      spreadRadius: 2,
+                                                    ),
+                                                  ],
+                                                  [
+                                                    BoxShadow(
+                                                      color: Color(0xFF0485F7),
+                                                      offset: Offset(0, 0),
+                                                      blurRadius: 0,
+                                                      spreadRadius: 4,
+                                                    ),
+                                                    BoxShadow(
+                                                      color: Color(0xFF18181B),
+                                                      offset: Offset(0, 0),
+                                                      blurRadius: 0,
+                                                      spreadRadius: 2,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              off: hbox(
+                                                w: 26,
+                                                h: 26,
+                                                bg: Color(0xFFB91C1C),
+                                                radius: BorderRadius.circular(
+                                                  13,
+                                                ),
+                                              ),
                                             ),
                                           ),
                                         ],
@@ -1169,9 +1324,9 @@ class MemberAddPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -1181,9 +1336,9 @@ class MemberAddPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -1260,34 +1415,55 @@ class MemberAddPage extends StatelessWidget {
                                       Color(0xFF27272A),
                                     ),
                                     radius: BorderRadius.circular(16),
-                                    shadow: [
-                                      BoxShadow(
-                                        color: Color(0xFFFFFFFF),
-                                        offset: Offset(0, 0),
-                                        blurRadius: 0,
-                                        spreadRadius: 2,
-                                      ),
-                                      BoxShadow(
-                                        color: Color(0xFF0485F7),
-                                        offset: Offset(0, 0),
-                                        blurRadius: 0,
-                                        spreadRadius: 4,
-                                      ),
-                                    ],
-                                    pad: EdgeInsets.fromLTRB(12, 0, 12, 0),
-                                    child: Text(
-                                      '普通',
-                                      style: hts(
-                                        13,
-                                        dk(
-                                          context,
-                                          Color(0xFF18181B),
-                                          Color(0xFFFAFAFA),
+                                    shadow: dk(
+                                      context,
+                                      [
+                                        BoxShadow(
+                                          color: Color(0xFF0485F7),
+                                          offset: Offset(0, 0),
+                                          blurRadius: 0,
+                                          spreadRadius: 4,
                                         ),
-                                        w: FontWeight.w600,
-                                        lh: 32,
+                                        BoxShadow(
+                                          color: Color(0xFFFFFFFF),
+                                          offset: Offset(0, 0),
+                                          blurRadius: 0,
+                                          spreadRadius: 2,
+                                        ),
+                                      ],
+                                      [
+                                        BoxShadow(
+                                          color: Color(0xFF0485F7),
+                                          offset: Offset(0, 0),
+                                          blurRadius: 0,
+                                          spreadRadius: 4,
+                                        ),
+                                        BoxShadow(
+                                          color: Color(0xFF18181B),
+                                          offset: Offset(0, 0),
+                                          blurRadius: 0,
+                                          spreadRadius: 2,
+                                        ),
+                                      ],
+                                    ),
+                                    pad: EdgeInsets.fromLTRB(12, 0, 12, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '普通',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF18181B),
+                                            Color(0xFFFAFAFA),
+                                          ),
+                                          w: FontWeight.w600,
+                                          lh: 32,
+                                        ),
+                                        textAlign: TextAlign.center,
                                       ),
-                                      textAlign: TextAlign.center,
                                     ),
                                   ),
                                   Text(
@@ -1323,19 +1499,23 @@ class MemberAddPage extends StatelessWidget {
                                     ),
                                     radius: BorderRadius.circular(16),
                                     pad: EdgeInsets.fromLTRB(12, 0, 12, 0),
-                                    child: Text(
-                                      '银卡',
-                                      style: hts(
-                                        13,
-                                        dk(
-                                          context,
-                                          Color(0xFF27272A),
-                                          Color(0xFFD4D4D8),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '银卡',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF27272A),
+                                            Color(0xFFD4D4D8),
+                                          ),
+                                          w: FontWeight.w600,
+                                          lh: 32,
                                         ),
-                                        w: FontWeight.w600,
-                                        lh: 32,
+                                        textAlign: TextAlign.center,
                                       ),
-                                      textAlign: TextAlign.center,
                                     ),
                                   ),
                                   Text(
@@ -1352,7 +1532,6 @@ class MemberAddPage extends StatelessWidget {
                                     ),
                                     textAlign: TextAlign.center,
                                     softWrap: false,
-                                    maxLines: 1,
                                   ),
                                 ],
                                 main: MainAxisAlignment.start,
@@ -1370,15 +1549,19 @@ class MemberAddPage extends StatelessWidget {
                                     bg: Color(0xFFF3E2B3),
                                     radius: BorderRadius.circular(16),
                                     pad: EdgeInsets.fromLTRB(12, 0, 12, 0),
-                                    child: Text(
-                                      '金卡',
-                                      style: hts(
-                                        13,
-                                        Color(0xFF3D2B0E),
-                                        w: FontWeight.w600,
-                                        lh: 32,
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '金卡',
+                                        style: hts(
+                                          13,
+                                          Color(0xFF3D2B0E),
+                                          w: FontWeight.w600,
+                                          lh: 32,
+                                        ),
+                                        textAlign: TextAlign.center,
                                       ),
-                                      textAlign: TextAlign.center,
                                     ),
                                   ),
                                   Text(
@@ -1395,7 +1578,6 @@ class MemberAddPage extends StatelessWidget {
                                     ),
                                     textAlign: TextAlign.center,
                                     softWrap: false,
-                                    maxLines: 1,
                                   ),
                                 ],
                                 main: MainAxisAlignment.start,
@@ -1417,15 +1599,19 @@ class MemberAddPage extends StatelessWidget {
                                     ),
                                     radius: BorderRadius.circular(16),
                                     pad: EdgeInsets.fromLTRB(12, 0, 12, 0),
-                                    child: Text(
-                                      '黑金',
-                                      style: hts(
-                                        13,
-                                        Color(0xFFF5D78E),
-                                        w: FontWeight.w600,
-                                        lh: 32,
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '黑金',
+                                        style: hts(
+                                          13,
+                                          Color(0xFFF5D78E),
+                                          w: FontWeight.w600,
+                                          lh: 32,
+                                        ),
+                                        textAlign: TextAlign.center,
                                       ),
-                                      textAlign: TextAlign.center,
                                     ),
                                   ),
                                   Text(
@@ -1442,7 +1628,6 @@ class MemberAddPage extends StatelessWidget {
                                     ),
                                     textAlign: TextAlign.center,
                                     softWrap: false,
-                                    maxLines: 1,
                                   ),
                                 ],
                                 main: MainAxisAlignment.start,
@@ -1497,9 +1682,9 @@ class MemberAddPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -1509,9 +1694,9 @@ class MemberAddPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -1604,7 +1789,7 @@ class MemberAddPage extends StatelessWidget {
                                 bg: dk(
                                   context,
                                   Color(0xFF18181B),
-                                  Color(0xFF34343A),
+                                  Color(0xFFFAFAFA),
                                 ),
                                 radius: BorderRadius.circular(16),
                                 pad: EdgeInsets.fromLTRB(12, 0, 12, 0),
@@ -1615,7 +1800,11 @@ class MemberAddPage extends StatelessWidget {
                                     '老客推荐',
                                     style: hts(
                                       13,
-                                      Color(0xFFFFFFFF),
+                                      dk(
+                                        context,
+                                        Color(0xFFFFFFFF),
+                                        Color(0xFF18181B),
+                                      ),
                                       w: FontWeight.w500,
                                       lh: 18,
                                     ),

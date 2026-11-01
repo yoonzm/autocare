@@ -31,9 +31,9 @@ class StockOutPage extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -43,9 +43,9 @@ class StockOutPage extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -93,9 +93,9 @@ class StockOutPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -105,9 +105,9 @@ class StockOutPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -419,9 +419,9 @@ class StockOutPage extends StatelessWidget {
                         context,
                         [
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.04),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
+                            color: Color.fromRGBO(0, 0, 0, 0.06),
+                            offset: Offset(0, 0),
+                            blurRadius: 1,
                             spreadRadius: 0,
                           ),
                           BoxShadow(
@@ -431,9 +431,9 @@ class StockOutPage extends StatelessWidget {
                             spreadRadius: 0,
                           ),
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 0),
-                            blurRadius: 1,
+                            color: Color.fromRGBO(0, 0, 0, 0.04),
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
                             spreadRadius: 0,
                           ),
                         ],
@@ -591,9 +591,9 @@ class StockOutPage extends StatelessWidget {
                         context,
                         [
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.04),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
+                            color: Color.fromRGBO(0, 0, 0, 0.06),
+                            offset: Offset(0, 0),
+                            blurRadius: 1,
                             spreadRadius: 0,
                           ),
                           BoxShadow(
@@ -603,9 +603,9 @@ class StockOutPage extends StatelessWidget {
                             spreadRadius: 0,
                           ),
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 0),
-                            blurRadius: 1,
+                            color: Color.fromRGBO(0, 0, 0, 0.04),
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
                             spreadRadius: 0,
                           ),
                         ],
@@ -658,85 +658,97 @@ class StockOutPage extends StatelessWidget {
                                   gap: 2,
                                 ),
                               ),
-                              hrow(
-                                [
-                                  hTap(
-                                    context,
-                                    hbox(
-                                      w: 32,
-                                      h: 32,
-                                      bg: dk(
+                              HHolder(
+                                inits: [5],
+                                builder: (context, ctrls) {
+                                  final c4 = ctrls[0];
+                                  return hrow(
+                                    [
+                                      hTap(
                                         context,
-                                        Color(0xFFF4F4F5),
-                                        Color(0xFF27272A),
-                                      ),
-                                      radius: BorderRadius.circular(16),
-                                      child: hrow(
-                                        [
-                                          hsvg(
-                                            dk(context, Svgs.s16, Svgs.s17),
-                                            w: 14,
-                                            h: 14,
-                                          ),
-                                        ],
-                                        main: MainAxisAlignment.center,
-                                        cross: CrossAxisAlignment.center,
-                                        gap: 0,
-                                      ),
-                                    ),
-                                    label: '减少',
-                                  ),
-                                  Flexible(
-                                    flex: 25,
-                                    child: hbox(
-                                      minW: 36,
-                                      child: Text(
-                                        '0.5',
-                                        style: hts(
-                                          15,
-                                          dk(
+                                        hbox(
+                                          w: 32,
+                                          h: 32,
+                                          bg: dk(
                                             context,
-                                            Color(0xFF18181B),
-                                            Color(0xFFFAFAFA),
+                                            Color(0xFFF4F4F5),
+                                            Color(0xFF27272A),
                                           ),
-                                          w: FontWeight.w600,
-                                          lh: 22,
-                                          tab: true,
+                                          radius: BorderRadius.circular(16),
+                                          child: hrow(
+                                            [
+                                              hsvg(
+                                                dk(context, Svgs.s16, Svgs.s17),
+                                                w: 14,
+                                                h: 14,
+                                              ),
+                                            ],
+                                            main: MainAxisAlignment.center,
+                                            cross: CrossAxisAlignment.center,
+                                            gap: 0,
+                                          ),
                                         ),
-                                        textAlign: TextAlign.center,
+                                        onTap: () => c4.add(-1),
                                       ),
-                                    ),
-                                  ),
-                                  hTap(
-                                    context,
-                                    hbox(
-                                      w: 32,
-                                      h: 32,
-                                      bg: dk(
-                                        context,
-                                        Color(0xFFF4F4F5),
-                                        Color(0xFF27272A),
-                                      ),
-                                      radius: BorderRadius.circular(16),
-                                      child: hrow(
-                                        [
-                                          hsvg(
-                                            dk(context, Svgs.s18, Svgs.s19),
-                                            w: 14,
-                                            h: 14,
+                                      Flexible(
+                                        flex: 25,
+                                        child: hbox(
+                                          minW: 36,
+                                          child: Align(
+                                            alignment: Alignment.center,
+                                            widthFactor: 1,
+                                            child: hCount(
+                                              c4,
+                                              hts(
+                                                15,
+                                                dk(
+                                                  context,
+                                                  Color(0xFF18181B),
+                                                  Color(0xFFFAFAFA),
+                                                ),
+                                                w: FontWeight.w600,
+                                                lh: 22,
+                                                tab: true,
+                                              ),
+                                              1,
+                                              '',
+                                              false,
+                                            ),
                                           ),
-                                        ],
-                                        main: MainAxisAlignment.center,
-                                        cross: CrossAxisAlignment.center,
-                                        gap: 0,
+                                        ),
                                       ),
-                                    ),
-                                    label: '增加',
-                                  ),
-                                ],
-                                main: MainAxisAlignment.start,
-                                cross: CrossAxisAlignment.center,
-                                gap: 4,
+                                      hTap(
+                                        context,
+                                        hbox(
+                                          w: 32,
+                                          h: 32,
+                                          bg: dk(
+                                            context,
+                                            Color(0xFFF4F4F5),
+                                            Color(0xFF27272A),
+                                          ),
+                                          radius: BorderRadius.circular(16),
+                                          child: hrow(
+                                            [
+                                              hsvg(
+                                                dk(context, Svgs.s18, Svgs.s19),
+                                                w: 14,
+                                                h: 14,
+                                              ),
+                                            ],
+                                            main: MainAxisAlignment.center,
+                                            cross: CrossAxisAlignment.center,
+                                            gap: 0,
+                                          ),
+                                        ),
+                                        onTap: () => c4.add(1),
+                                      ),
+                                    ],
+                                    main: MainAxisAlignment.start,
+                                    cross: CrossAxisAlignment.center,
+                                    gap: 4,
+                                  );
+                                },
                               ),
                             ],
                             main: MainAxisAlignment.start,
@@ -791,7 +803,7 @@ class StockOutPage extends StatelessWidget {
                               HHolder(
                                 inits: [1],
                                 builder: (context, ctrls) {
-                                  final c4 = ctrls[0];
+                                  final c5 = ctrls[0];
                                   return hrow(
                                     [
                                       hTap(
@@ -818,24 +830,31 @@ class StockOutPage extends StatelessWidget {
                                             gap: 0,
                                           ),
                                         ),
-                                        onTap: () => c4.add(-1),
+                                        onTap: () => c5.add(-1),
                                       ),
                                       Flexible(
                                         flex: 9,
                                         child: hbox(
                                           minW: 36,
-                                          child: hCount(
-                                            c4,
-                                            hts(
-                                              15,
-                                              dk(
-                                                context,
-                                                Color(0xFF18181B),
-                                                Color(0xFFFAFAFA),
+                                          child: Align(
+                                            alignment: Alignment.center,
+                                            widthFactor: 1,
+                                            child: hCount(
+                                              c5,
+                                              hts(
+                                                15,
+                                                dk(
+                                                  context,
+                                                  Color(0xFF18181B),
+                                                  Color(0xFFFAFAFA),
+                                                ),
+                                                w: FontWeight.w600,
+                                                lh: 22,
+                                                tab: true,
                                               ),
-                                              w: FontWeight.w600,
-                                              lh: 22,
-                                              tab: true,
+                                              0,
+                                              '',
+                                              false,
                                             ),
                                           ),
                                         ),
@@ -864,7 +883,7 @@ class StockOutPage extends StatelessWidget {
                                             gap: 0,
                                           ),
                                         ),
-                                        onTap: () => c4.add(1),
+                                        onTap: () => c5.add(1),
                                       ),
                                     ],
                                     main: MainAxisAlignment.start,
@@ -891,7 +910,7 @@ class StockOutPage extends StatelessWidget {
                               child: hrow(
                                 [
                                   hsvg(
-                                    dk(context, Svgs.s359, Svgs.s360),
+                                    dk(context, Svgs.s360, Svgs.s361),
                                     w: 16,
                                     h: 16,
                                   ),
@@ -937,9 +956,9 @@ class StockOutPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -949,9 +968,9 @@ class StockOutPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -979,7 +998,7 @@ class StockOutPage extends StatelessWidget {
                         child: hrow(
                           [
                             hsvg(
-                              dk(context, Svgs.s363, Svgs.s364),
+                              dk(context, Svgs.s364, Svgs.s365),
                               w: 18,
                               h: 18,
                             ),
@@ -1046,9 +1065,9 @@ class StockOutPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -1058,9 +1077,9 @@ class StockOutPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],

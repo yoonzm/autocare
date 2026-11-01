@@ -31,9 +31,9 @@ class DataBackupPage extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -43,9 +43,9 @@ class DataBackupPage extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -357,9 +357,9 @@ class DataBackupPage extends StatelessWidget {
                         context,
                         [
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.04),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
+                            color: Color.fromRGBO(0, 0, 0, 0.06),
+                            offset: Offset(0, 0),
+                            blurRadius: 1,
                             spreadRadius: 0,
                           ),
                           BoxShadow(
@@ -369,9 +369,9 @@ class DataBackupPage extends StatelessWidget {
                             spreadRadius: 0,
                           ),
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 0),
-                            blurRadius: 1,
+                            color: Color.fromRGBO(0, 0, 0, 0.04),
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
                             spreadRadius: 0,
                           ),
                         ],
@@ -743,9 +743,9 @@ class DataBackupPage extends StatelessWidget {
                         context,
                         [
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.04),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
+                            color: Color.fromRGBO(0, 0, 0, 0.06),
+                            offset: Offset(0, 0),
+                            blurRadius: 1,
                             spreadRadius: 0,
                           ),
                           BoxShadow(
@@ -755,9 +755,9 @@ class DataBackupPage extends StatelessWidget {
                             spreadRadius: 0,
                           ),
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 0),
-                            blurRadius: 1,
+                            color: Color.fromRGBO(0, 0, 0, 0.04),
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
                             spreadRadius: 0,
                           ),
                         ],
@@ -838,17 +838,21 @@ class DataBackupPage extends StatelessWidget {
                                 ),
                                 hbox(
                                   minW: 44,
-                                  child: Text(
-                                    '3.1 MB',
-                                    style: hts(
-                                      12,
-                                      dk(
-                                        context,
-                                        Color(0xFFA1A1AA),
-                                        Color(0xFF80808A),
+                                  child: Align(
+                                    alignment: Alignment.centerRight,
+                                    widthFactor: 1,
+                                    child: Text(
+                                      '3.1 MB',
+                                      style: hts(
+                                        12,
+                                        dk(
+                                          context,
+                                          Color(0xFFA1A1AA),
+                                          Color(0xFF80808A),
+                                        ),
                                       ),
+                                      textAlign: TextAlign.right,
                                     ),
-                                    textAlign: TextAlign.right,
                                   ),
                                 ),
                               ],
@@ -931,17 +935,21 @@ class DataBackupPage extends StatelessWidget {
                                 ),
                                 hbox(
                                   minW: 44,
-                                  child: Text(
-                                    '3.1 MB',
-                                    style: hts(
-                                      12,
-                                      dk(
-                                        context,
-                                        Color(0xFFA1A1AA),
-                                        Color(0xFF80808A),
+                                  child: Align(
+                                    alignment: Alignment.centerRight,
+                                    widthFactor: 1,
+                                    child: Text(
+                                      '3.1 MB',
+                                      style: hts(
+                                        12,
+                                        dk(
+                                          context,
+                                          Color(0xFFA1A1AA),
+                                          Color(0xFF80808A),
+                                        ),
                                       ),
+                                      textAlign: TextAlign.right,
                                     ),
-                                    textAlign: TextAlign.right,
                                   ),
                                 ),
                               ],
@@ -1108,17 +1116,21 @@ class DataBackupPage extends StatelessWidget {
                                 ),
                                 hbox(
                                   minW: 44,
-                                  child: Text(
-                                    '3.0 MB',
-                                    style: hts(
-                                      12,
-                                      dk(
-                                        context,
-                                        Color(0xFFA1A1AA),
-                                        Color(0xFF80808A),
+                                  child: Align(
+                                    alignment: Alignment.centerRight,
+                                    widthFactor: 1,
+                                    child: Text(
+                                      '3.0 MB',
+                                      style: hts(
+                                        12,
+                                        dk(
+                                          context,
+                                          Color(0xFFA1A1AA),
+                                          Color(0xFF80808A),
+                                        ),
                                       ),
+                                      textAlign: TextAlign.right,
                                     ),
-                                    textAlign: TextAlign.right,
                                   ),
                                 ),
                               ],

@@ -46,9 +46,9 @@ class NotifyLogPage extends StatelessWidget {
                               context,
                               [
                                 BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.04),
-                                  offset: Offset(0, 2),
-                                  blurRadius: 4,
+                                  color: Color.fromRGBO(0, 0, 0, 0.06),
+                                  offset: Offset(0, 0),
+                                  blurRadius: 1,
                                   spreadRadius: 0,
                                 ),
                                 BoxShadow(
@@ -58,9 +58,9 @@ class NotifyLogPage extends StatelessWidget {
                                   spreadRadius: 0,
                                 ),
                                 BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.06),
-                                  offset: Offset(0, 0),
-                                  blurRadius: 1,
+                                  color: Color.fromRGBO(0, 0, 0, 0.04),
+                                  offset: Offset(0, 2),
+                                  blurRadius: 4,
                                   spreadRadius: 0,
                                 ),
                               ],
@@ -170,9 +170,9 @@ class NotifyLogPage extends StatelessWidget {
                                   context,
                                   [
                                     BoxShadow(
-                                      color: Color.fromRGBO(0, 0, 0, 0.04),
-                                      offset: Offset(0, 2),
-                                      blurRadius: 4,
+                                      color: Color.fromRGBO(0, 0, 0, 0.06),
+                                      offset: Offset(0, 0),
+                                      blurRadius: 1,
                                       spreadRadius: 0,
                                     ),
                                     BoxShadow(
@@ -182,9 +182,9 @@ class NotifyLogPage extends StatelessWidget {
                                       spreadRadius: 0,
                                     ),
                                     BoxShadow(
-                                      color: Color.fromRGBO(0, 0, 0, 0.06),
-                                      offset: Offset(0, 0),
-                                      blurRadius: 1,
+                                      color: Color.fromRGBO(0, 0, 0, 0.04),
+                                      offset: Offset(0, 2),
+                                      blurRadius: 4,
                                       spreadRadius: 0,
                                     ),
                                   ],
@@ -290,9 +290,9 @@ class NotifyLogPage extends StatelessWidget {
                                   context,
                                   [
                                     BoxShadow(
-                                      color: Color.fromRGBO(0, 0, 0, 0.04),
-                                      offset: Offset(0, 2),
-                                      blurRadius: 4,
+                                      color: Color.fromRGBO(0, 0, 0, 0.06),
+                                      offset: Offset(0, 0),
+                                      blurRadius: 1,
                                       spreadRadius: 0,
                                     ),
                                     BoxShadow(
@@ -302,9 +302,9 @@ class NotifyLogPage extends StatelessWidget {
                                       spreadRadius: 0,
                                     ),
                                     BoxShadow(
-                                      color: Color.fromRGBO(0, 0, 0, 0.06),
-                                      offset: Offset(0, 0),
-                                      blurRadius: 1,
+                                      color: Color.fromRGBO(0, 0, 0, 0.04),
+                                      offset: Offset(0, 2),
+                                      blurRadius: 4,
                                       spreadRadius: 0,
                                     ),
                                   ],
@@ -410,9 +410,9 @@ class NotifyLogPage extends StatelessWidget {
                                   context,
                                   [
                                     BoxShadow(
-                                      color: Color.fromRGBO(0, 0, 0, 0.04),
-                                      offset: Offset(0, 2),
-                                      blurRadius: 4,
+                                      color: Color.fromRGBO(0, 0, 0, 0.06),
+                                      offset: Offset(0, 0),
+                                      blurRadius: 1,
                                       spreadRadius: 0,
                                     ),
                                     BoxShadow(
@@ -422,9 +422,9 @@ class NotifyLogPage extends StatelessWidget {
                                       spreadRadius: 0,
                                     ),
                                     BoxShadow(
-                                      color: Color.fromRGBO(0, 0, 0, 0.06),
-                                      offset: Offset(0, 0),
-                                      blurRadius: 1,
+                                      color: Color.fromRGBO(0, 0, 0, 0.04),
+                                      offset: Offset(0, 2),
+                                      blurRadius: 4,
                                       spreadRadius: 0,
                                     ),
                                   ],
@@ -488,122 +488,69 @@ class NotifyLogPage extends StatelessWidget {
                         [
                           Expanded(
                             flex: 1,
-                            child: HSel(
-                              ctrl: g1[0],
-                              index: 0,
-                              on: hbox(
-                                h: 36,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFFFFFFF),
-                                  Color(0xFF18181B),
-                                ),
-                                radius: BorderRadius.circular(18),
-                                shadow: [
-                                  BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.12),
-                                    offset: Offset(0, 1),
-                                    blurRadius: 3,
-                                    spreadRadius: 0,
+                            child: UnconstrainedBox(
+                              alignment: Alignment.topLeft,
+                              constrainedAxis: Axis.horizontal,
+                              child: HSel(
+                                ctrl: g1[0],
+                                index: 0,
+                                on: hbox(
+                                  h: 36,
+                                  bg: dk(
+                                    context,
+                                    Color(0xFFFFFFFF),
+                                    Color(0xFF18181B),
                                   ),
-                                ],
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  widthFactor: 1,
-                                  child: Text(
-                                    '全部',
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF18181B),
-                                        Color(0xFFFAFAFA),
+                                  radius: BorderRadius.circular(18),
+                                  shadow: [
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.12),
+                                      offset: Offset(0, 1),
+                                      blurRadius: 3,
+                                      spreadRadius: 0,
+                                    ),
+                                  ],
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    widthFactor: 1,
+                                    child: Text(
+                                      '全部',
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF18181B),
+                                          Color(0xFFFAFAFA),
+                                        ),
+                                        w: FontWeight.w600,
+                                        lh: 18,
                                       ),
-                                      w: FontWeight.w600,
-                                      lh: 18,
                                     ),
                                   ),
                                 ),
-                              ),
-                              off: hbox(
-                                h: 36,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFFFFFFF),
-                                  Color(0xFF18181B),
-                                ),
-                                radius: BorderRadius.circular(18),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  widthFactor: 1,
-                                  child: Text(
-                                    '全部',
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF52525B),
-                                        Color(0xFFA8A8B3),
-                                      ),
-                                      w: FontWeight.w500,
-                                      lh: 18,
-                                    ),
+                                off: hbox(
+                                  h: 36,
+                                  bg: dk(
+                                    context,
+                                    Color(0xFFFFFFFF),
+                                    Color(0xFF18181B),
                                   ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            flex: 1,
-                            child: HSel(
-                              ctrl: g1[0],
-                              index: 1,
-                              on: hbox(
-                                h: 36,
-                                radius: BorderRadius.circular(18),
-                                shadow: [
-                                  BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.12),
-                                    offset: Offset(0, 1),
-                                    blurRadius: 3,
-                                    spreadRadius: 0,
-                                  ),
-                                ],
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  widthFactor: 1,
-                                  child: Text(
-                                    '微信',
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF18181B),
-                                        Color(0xFFFAFAFA),
+                                  radius: BorderRadius.circular(18),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    widthFactor: 1,
+                                    child: Text(
+                                      '全部',
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF52525B),
+                                          Color(0xFFA8A8B3),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
                                       ),
-                                      w: FontWeight.w600,
-                                      lh: 18,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              off: hbox(
-                                h: 36,
-                                radius: BorderRadius.circular(18),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  widthFactor: 1,
-                                  child: Text(
-                                    '微信',
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF52525B),
-                                        Color(0xFFA8A8B3),
-                                      ),
-                                      w: FontWeight.w500,
-                                      lh: 18,
                                     ),
                                   ),
                                 ),
@@ -612,55 +559,59 @@ class NotifyLogPage extends StatelessWidget {
                           ),
                           Expanded(
                             flex: 1,
-                            child: HSel(
-                              ctrl: g1[0],
-                              index: 2,
-                              on: hbox(
-                                h: 36,
-                                radius: BorderRadius.circular(18),
-                                shadow: [
-                                  BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.12),
-                                    offset: Offset(0, 1),
-                                    blurRadius: 3,
-                                    spreadRadius: 0,
-                                  ),
-                                ],
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  widthFactor: 1,
-                                  child: Text(
-                                    '短信',
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF18181B),
-                                        Color(0xFFFAFAFA),
+                            child: UnconstrainedBox(
+                              alignment: Alignment.topLeft,
+                              constrainedAxis: Axis.horizontal,
+                              child: HSel(
+                                ctrl: g1[0],
+                                index: 1,
+                                on: hbox(
+                                  h: 36,
+                                  radius: BorderRadius.circular(18),
+                                  shadow: [
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.12),
+                                      offset: Offset(0, 1),
+                                      blurRadius: 3,
+                                      spreadRadius: 0,
+                                    ),
+                                  ],
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    widthFactor: 1,
+                                    child: Text(
+                                      '微信',
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF18181B),
+                                          Color(0xFFFAFAFA),
+                                        ),
+                                        w: FontWeight.w600,
+                                        lh: 18,
                                       ),
-                                      w: FontWeight.w600,
-                                      lh: 18,
                                     ),
                                   ),
                                 ),
-                              ),
-                              off: hbox(
-                                h: 36,
-                                radius: BorderRadius.circular(18),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  widthFactor: 1,
-                                  child: Text(
-                                    '短信',
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF52525B),
-                                        Color(0xFFA8A8B3),
+                                off: hbox(
+                                  h: 36,
+                                  radius: BorderRadius.circular(18),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    widthFactor: 1,
+                                    child: Text(
+                                      '微信',
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF52525B),
+                                          Color(0xFFA8A8B3),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
                                       ),
-                                      w: FontWeight.w500,
-                                      lh: 18,
                                     ),
                                   ),
                                 ),
@@ -669,55 +620,120 @@ class NotifyLogPage extends StatelessWidget {
                           ),
                           Expanded(
                             flex: 1,
-                            child: HSel(
-                              ctrl: g1[0],
-                              index: 3,
-                              on: hbox(
-                                h: 36,
-                                radius: BorderRadius.circular(18),
-                                shadow: [
-                                  BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.12),
-                                    offset: Offset(0, 1),
-                                    blurRadius: 3,
-                                    spreadRadius: 0,
-                                  ),
-                                ],
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  widthFactor: 1,
-                                  child: Text(
-                                    '失败',
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF18181B),
-                                        Color(0xFFFAFAFA),
+                            child: UnconstrainedBox(
+                              alignment: Alignment.topLeft,
+                              constrainedAxis: Axis.horizontal,
+                              child: HSel(
+                                ctrl: g1[0],
+                                index: 2,
+                                on: hbox(
+                                  h: 36,
+                                  radius: BorderRadius.circular(18),
+                                  shadow: [
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.12),
+                                      offset: Offset(0, 1),
+                                      blurRadius: 3,
+                                      spreadRadius: 0,
+                                    ),
+                                  ],
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    widthFactor: 1,
+                                    child: Text(
+                                      '短信',
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF18181B),
+                                          Color(0xFFFAFAFA),
+                                        ),
+                                        w: FontWeight.w600,
+                                        lh: 18,
                                       ),
-                                      w: FontWeight.w600,
-                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                                off: hbox(
+                                  h: 36,
+                                  radius: BorderRadius.circular(18),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    widthFactor: 1,
+                                    child: Text(
+                                      '短信',
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF52525B),
+                                          Color(0xFFA8A8B3),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
-                              off: hbox(
-                                h: 36,
-                                radius: BorderRadius.circular(18),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  widthFactor: 1,
-                                  child: Text(
-                                    '失败',
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF52525B),
-                                        Color(0xFFA8A8B3),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: UnconstrainedBox(
+                              alignment: Alignment.topLeft,
+                              constrainedAxis: Axis.horizontal,
+                              child: HSel(
+                                ctrl: g1[0],
+                                index: 3,
+                                on: hbox(
+                                  h: 36,
+                                  radius: BorderRadius.circular(18),
+                                  shadow: [
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.12),
+                                      offset: Offset(0, 1),
+                                      blurRadius: 3,
+                                      spreadRadius: 0,
+                                    ),
+                                  ],
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    widthFactor: 1,
+                                    child: Text(
+                                      '失败',
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF18181B),
+                                          Color(0xFFFAFAFA),
+                                        ),
+                                        w: FontWeight.w600,
+                                        lh: 18,
                                       ),
-                                      w: FontWeight.w500,
-                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                                off: hbox(
+                                  h: 36,
+                                  radius: BorderRadius.circular(18),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    widthFactor: 1,
+                                    child: Text(
+                                      '失败',
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF52525B),
+                                          Color(0xFFA8A8B3),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -761,9 +777,9 @@ class NotifyLogPage extends StatelessWidget {
                               context,
                               [
                                 BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.04),
-                                  offset: Offset(0, 2),
-                                  blurRadius: 4,
+                                  color: Color.fromRGBO(0, 0, 0, 0.06),
+                                  offset: Offset(0, 0),
+                                  blurRadius: 1,
                                   spreadRadius: 0,
                                 ),
                                 BoxShadow(
@@ -773,9 +789,9 @@ class NotifyLogPage extends StatelessWidget {
                                   spreadRadius: 0,
                                 ),
                                 BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.06),
-                                  offset: Offset(0, 0),
-                                  blurRadius: 1,
+                                  color: Color.fromRGBO(0, 0, 0, 0.04),
+                                  offset: Offset(0, 2),
+                                  blurRadius: 4,
                                   spreadRadius: 0,
                                 ),
                               ],
@@ -1630,7 +1646,7 @@ class NotifyLogPage extends StatelessWidget {
                                               bg: dk(
                                                 context,
                                                 Color(0xFF18181B),
-                                                Color(0xFF34343A),
+                                                Color(0xFFFAFAFA),
                                               ),
                                               radius: BorderRadius.circular(14),
                                               pad: EdgeInsets.fromLTRB(
@@ -1646,7 +1662,11 @@ class NotifyLogPage extends StatelessWidget {
                                                   '重发',
                                                   style: hts(
                                                     12,
-                                                    Color(0xFFFFFFFF),
+                                                    dk(
+                                                      context,
+                                                      Color(0xFFFFFFFF),
+                                                      Color(0xFF18181B),
+                                                    ),
                                                     w: FontWeight.w500,
                                                     lh: 16,
                                                   ),
@@ -1706,9 +1726,9 @@ class NotifyLogPage extends StatelessWidget {
                               context,
                               [
                                 BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.04),
-                                  offset: Offset(0, 2),
-                                  blurRadius: 4,
+                                  color: Color.fromRGBO(0, 0, 0, 0.06),
+                                  offset: Offset(0, 0),
+                                  blurRadius: 1,
                                   spreadRadius: 0,
                                 ),
                                 BoxShadow(
@@ -1718,9 +1738,9 @@ class NotifyLogPage extends StatelessWidget {
                                   spreadRadius: 0,
                                 ),
                                 BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.06),
-                                  offset: Offset(0, 0),
-                                  blurRadius: 1,
+                                  color: Color.fromRGBO(0, 0, 0, 0.04),
+                                  offset: Offset(0, 2),
+                                  blurRadius: 4,
                                   spreadRadius: 0,
                                 ),
                               ],

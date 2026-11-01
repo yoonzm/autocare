@@ -31,9 +31,9 @@ class RegPhonePage extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -43,9 +43,9 @@ class RegPhonePage extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -90,26 +90,38 @@ class RegPhonePage extends StatelessWidget {
                   [
                     Expanded(
                       flex: 1,
-                      child: hbox(
-                        h: 4,
-                        bg: Color(0xFF0485F7),
-                        radius: BorderRadius.circular(2),
+                      child: UnconstrainedBox(
+                        alignment: Alignment.topLeft,
+                        constrainedAxis: Axis.horizontal,
+                        child: hbox(
+                          h: 4,
+                          bg: Color(0xFF0485F7),
+                          radius: BorderRadius.circular(2),
+                        ),
                       ),
                     ),
                     Expanded(
                       flex: 1,
-                      child: hbox(
-                        h: 4,
-                        bg: dk(context, Color(0xFFD4D4D8), Color(0xFF3F3F46)),
-                        radius: BorderRadius.circular(2),
+                      child: UnconstrainedBox(
+                        alignment: Alignment.topLeft,
+                        constrainedAxis: Axis.horizontal,
+                        child: hbox(
+                          h: 4,
+                          bg: dk(context, Color(0xFFD4D4D8), Color(0xFF3F3F46)),
+                          radius: BorderRadius.circular(2),
+                        ),
                       ),
                     ),
                     Expanded(
                       flex: 1,
-                      child: hbox(
-                        h: 4,
-                        bg: dk(context, Color(0xFFD4D4D8), Color(0xFF3F3F46)),
-                        radius: BorderRadius.circular(2),
+                      child: UnconstrainedBox(
+                        alignment: Alignment.topLeft,
+                        constrainedAxis: Axis.horizontal,
+                        child: hbox(
+                          h: 4,
+                          bg: dk(context, Color(0xFFD4D4D8), Color(0xFF3F3F46)),
+                          radius: BorderRadius.circular(2),
+                        ),
                       ),
                     ),
                   ],
@@ -247,9 +259,9 @@ class RegPhonePage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -259,9 +271,9 @@ class RegPhonePage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],

@@ -31,9 +31,9 @@ class AppointmentSchedulePage extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -43,9 +43,9 @@ class AppointmentSchedulePage extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -91,9 +91,9 @@ class AppointmentSchedulePage extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -103,9 +103,9 @@ class AppointmentSchedulePage extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -139,9 +139,9 @@ class AppointmentSchedulePage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -151,9 +151,9 @@ class AppointmentSchedulePage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -453,7 +453,7 @@ class AppointmentSchedulePage extends StatelessWidget {
                               bg: dk(
                                 context,
                                 Color(0xFF18181B),
-                                Color(0xFF1F1F23),
+                                Color(0xFFFAFAFA),
                               ),
                               radius: BorderRadius.circular(16),
                               pad: EdgeInsets.fromLTRB(0, 8, 0, 8),
@@ -475,7 +475,11 @@ class AppointmentSchedulePage extends StatelessWidget {
                                     '31',
                                     style: hts(
                                       17,
-                                      Color(0xFFFFFFFF),
+                                      dk(
+                                        context,
+                                        Color(0xFFFFFFFF),
+                                        Color(0xFF18181B),
+                                      ),
                                       w: FontWeight.w600,
                                       lh: 24,
                                     ),
@@ -572,69 +576,85 @@ class AppointmentSchedulePage extends StatelessWidget {
                     [
                       Expanded(
                         flex: 1,
-                        child: hTap(
-                          context,
-                          hbox(
+                        child: UnconstrainedBox(
+                          alignment: Alignment.topLeft,
+                          constrainedAxis: Axis.horizontal,
+                          child: hTap(
+                            context,
+                            hbox(
+                              h: 32,
+                              radius: BorderRadius.circular(16),
+                              child: Text(
+                                '列表',
+                                style: hts(
+                                  13,
+                                  dk(
+                                    context,
+                                    Color(0xFF52525B),
+                                    Color(0xFFA8A8B3),
+                                  ),
+                                  w: FontWeight.w500,
+                                  lh: 32,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                            to: 'Appointments',
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: UnconstrainedBox(
+                          alignment: Alignment.topLeft,
+                          constrainedAxis: Axis.horizontal,
+                          child: hbox(
                             h: 32,
+                            bg: dk(
+                              context,
+                              Color(0xFFFFFFFF),
+                              Color(0xFF18181B),
+                            ),
                             radius: BorderRadius.circular(16),
+                            shadow: dk(
+                              context,
+                              [
+                                BoxShadow(
+                                  color: Color.fromRGBO(0, 0, 0, 0.06),
+                                  offset: Offset(0, 1),
+                                  blurRadius: 2,
+                                  spreadRadius: 0,
+                                ),
+                                BoxShadow(
+                                  color: Color.fromRGBO(0, 0, 0, 0.04),
+                                  offset: Offset(0, 2),
+                                  blurRadius: 4,
+                                  spreadRadius: 0,
+                                ),
+                              ],
+                              [
+                                BoxShadow(
+                                  color: Color(0xFF26262B),
+                                  offset: Offset(0, 0),
+                                  blurRadius: 0,
+                                  spreadRadius: 1,
+                                ),
+                              ],
+                            ),
                             child: Text(
-                              '列表',
+                              '工位时间表',
                               style: hts(
                                 13,
                                 dk(
                                   context,
-                                  Color(0xFF52525B),
-                                  Color(0xFFA8A8B3),
+                                  Color(0xFF18181B),
+                                  Color(0xFFFAFAFA),
                                 ),
                                 w: FontWeight.w500,
                                 lh: 32,
                               ),
                               textAlign: TextAlign.center,
                             ),
-                          ),
-                          to: 'Appointments',
-                        ),
-                      ),
-                      Expanded(
-                        flex: 1,
-                        child: hbox(
-                          h: 32,
-                          bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                          radius: BorderRadius.circular(16),
-                          shadow: dk(
-                            context,
-                            [
-                              BoxShadow(
-                                color: Color.fromRGBO(0, 0, 0, 0.04),
-                                offset: Offset(0, 2),
-                                blurRadius: 4,
-                                spreadRadius: 0,
-                              ),
-                              BoxShadow(
-                                color: Color.fromRGBO(0, 0, 0, 0.06),
-                                offset: Offset(0, 1),
-                                blurRadius: 2,
-                                spreadRadius: 0,
-                              ),
-                            ],
-                            [
-                              BoxShadow(
-                                color: Color(0xFF26262B),
-                                offset: Offset(0, 0),
-                                blurRadius: 0,
-                                spreadRadius: 1,
-                              ),
-                            ],
-                          ),
-                          child: Text(
-                            '工位时间表',
-                            style: hts(
-                              13,
-                              dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                              w: FontWeight.w500,
-                              lh: 32,
-                            ),
-                            textAlign: TextAlign.center,
                           ),
                         ),
                       ),
@@ -652,9 +672,9 @@ class AppointmentSchedulePage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -664,9 +684,9 @@ class AppointmentSchedulePage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -689,6 +709,7 @@ class AppointmentSchedulePage extends StatelessWidget {
                           [
                             hbox(
                               w: 62,
+                              align: Alignment.center,
                               child: Text(
                                 '1 号',
                                 style: hts(
@@ -706,6 +727,7 @@ class AppointmentSchedulePage extends StatelessWidget {
                             ),
                             hbox(
                               w: 62,
+                              align: Alignment.center,
                               child: Text(
                                 '2 号',
                                 style: hts(
@@ -723,6 +745,7 @@ class AppointmentSchedulePage extends StatelessWidget {
                             ),
                             hbox(
                               w: 62,
+                              align: Alignment.center,
                               child: Text(
                                 '3 号',
                                 style: hts(
@@ -740,6 +763,7 @@ class AppointmentSchedulePage extends StatelessWidget {
                             ),
                             hbox(
                               w: 62,
+                              align: Alignment.center,
                               child: Text(
                                 '4 号',
                                 style: hts(
@@ -757,6 +781,7 @@ class AppointmentSchedulePage extends StatelessWidget {
                             ),
                             hbox(
                               w: 62,
+                              align: Alignment.center,
                               child: Text(
                                 '贴膜间',
                                 style: hts(
@@ -810,6 +835,7 @@ class AppointmentSchedulePage extends StatelessWidget {
                               width: 34,
                               child: hbox(
                                 w: 34,
+                                align: Alignment.centerRight,
                                 child: Text(
                                   '09:00',
                                   style: hts(
@@ -846,6 +872,7 @@ class AppointmentSchedulePage extends StatelessWidget {
                               width: 34,
                               child: hbox(
                                 w: 34,
+                                align: Alignment.centerRight,
                                 child: Text(
                                   '10:00',
                                   style: hts(
@@ -882,6 +909,7 @@ class AppointmentSchedulePage extends StatelessWidget {
                               width: 34,
                               child: hbox(
                                 w: 34,
+                                align: Alignment.centerRight,
                                 child: Text(
                                   '11:00',
                                   style: hts(
@@ -918,6 +946,7 @@ class AppointmentSchedulePage extends StatelessWidget {
                               width: 34,
                               child: hbox(
                                 w: 34,
+                                align: Alignment.centerRight,
                                 child: Text(
                                   '12:00',
                                   style: hts(
@@ -954,6 +983,7 @@ class AppointmentSchedulePage extends StatelessWidget {
                               width: 34,
                               child: hbox(
                                 w: 34,
+                                align: Alignment.centerRight,
                                 child: Text(
                                   '13:00',
                                   style: hts(
@@ -990,6 +1020,7 @@ class AppointmentSchedulePage extends StatelessWidget {
                               width: 34,
                               child: hbox(
                                 w: 34,
+                                align: Alignment.centerRight,
                                 child: Text(
                                   '14:00',
                                   style: hts(
@@ -1026,6 +1057,7 @@ class AppointmentSchedulePage extends StatelessWidget {
                               width: 34,
                               child: hbox(
                                 w: 34,
+                                align: Alignment.centerRight,
                                 child: Text(
                                   '15:00',
                                   style: hts(
@@ -1062,6 +1094,7 @@ class AppointmentSchedulePage extends StatelessWidget {
                               width: 34,
                               child: hbox(
                                 w: 34,
+                                align: Alignment.centerRight,
                                 child: Text(
                                   '16:00',
                                   style: hts(
@@ -1098,6 +1131,7 @@ class AppointmentSchedulePage extends StatelessWidget {
                               width: 34,
                               child: hbox(
                                 w: 34,
+                                align: Alignment.centerRight,
                                 child: Text(
                                   '17:00',
                                   style: hts(
@@ -1134,6 +1168,7 @@ class AppointmentSchedulePage extends StatelessWidget {
                               width: 34,
                               child: hbox(
                                 w: 34,
+                                align: Alignment.centerRight,
                                 child: Text(
                                   '18:00',
                                   style: hts(
@@ -1170,6 +1205,7 @@ class AppointmentSchedulePage extends StatelessWidget {
                               width: 34,
                               child: hbox(
                                 w: 34,
+                                align: Alignment.centerRight,
                                 child: Text(
                                   '19:00',
                                   style: hts(
@@ -1206,6 +1242,7 @@ class AppointmentSchedulePage extends StatelessWidget {
                               width: 34,
                               child: hbox(
                                 w: 34,
+                                align: Alignment.centerRight,
                                 child: Text(
                                   '20:00',
                                   style: hts(

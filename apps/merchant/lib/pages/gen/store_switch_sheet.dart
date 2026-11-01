@@ -289,7 +289,7 @@ class StoreSwitchSheet extends StatelessWidget {
               pad: EdgeInsets.fromLTRB(14, 12, 14, 12),
               child: hrow(
                 [
-                  hsvg(dk(context, Svgs.s388, Svgs.s389), w: 20, h: 20),
+                  hsvg(dk(context, Svgs.s389, Svgs.s390), w: 20, h: 20),
                   Expanded(
                     flex: 1,
                     child: hcol(

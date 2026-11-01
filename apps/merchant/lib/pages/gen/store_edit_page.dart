@@ -31,9 +31,9 @@ class StoreEditPage extends StatelessWidget {
                           context,
                           [
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
                               spreadRadius: 0,
                             ),
                             BoxShadow(
@@ -43,9 +43,9 @@ class StoreEditPage extends StatelessWidget {
                               spreadRadius: 0,
                             ),
                             BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
                               spreadRadius: 0,
                             ),
                           ],
@@ -115,9 +115,9 @@ class StoreEditPage extends StatelessWidget {
                     context,
                     [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
                         spreadRadius: 0,
                       ),
                       BoxShadow(
@@ -127,9 +127,9 @@ class StoreEditPage extends StatelessWidget {
                         spreadRadius: 0,
                       ),
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
                         spreadRadius: 0,
                       ),
                     ],
@@ -197,7 +197,7 @@ class StoreEditPage extends StatelessWidget {
                                       hrow(
                                         [
                                           hsvg(
-                                            dk(context, Svgs.s365, Svgs.s366),
+                                            dk(context, Svgs.s366, Svgs.s367),
                                             w: 20,
                                             h: 20,
                                           ),
@@ -257,7 +257,7 @@ class StoreEditPage extends StatelessWidget {
                                     child: hrow(
                                       [
                                         hsvg(
-                                          dk(context, Svgs.s365, Svgs.s366),
+                                          dk(context, Svgs.s366, Svgs.s367),
                                           w: 20,
                                           h: 20,
                                         ),
@@ -287,7 +287,7 @@ class StoreEditPage extends StatelessWidget {
                                     child: hrow(
                                       [
                                         hsvg(
-                                          dk(context, Svgs.s365, Svgs.s366),
+                                          dk(context, Svgs.s366, Svgs.s367),
                                           w: 20,
                                           h: 20,
                                         ),
@@ -328,7 +328,7 @@ class StoreEditPage extends StatelessWidget {
                                     child: hrow(
                                       [
                                         hsvg(
-                                          dk(context, Svgs.s367, Svgs.s368),
+                                          dk(context, Svgs.s368, Svgs.s369),
                                           w: 22,
                                           h: 22,
                                         ),
@@ -375,9 +375,9 @@ class StoreEditPage extends StatelessWidget {
                         context,
                         [
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.04),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
+                            color: Color.fromRGBO(0, 0, 0, 0.06),
+                            offset: Offset(0, 0),
+                            blurRadius: 1,
                             spreadRadius: 0,
                           ),
                           BoxShadow(
@@ -387,9 +387,9 @@ class StoreEditPage extends StatelessWidget {
                             spreadRadius: 0,
                           ),
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 0),
-                            blurRadius: 1,
+                            color: Color.fromRGBO(0, 0, 0, 0.04),
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
                             spreadRadius: 0,
                           ),
                         ],
@@ -558,7 +558,7 @@ class StoreEditPage extends StatelessWidget {
                                     child: hrow(
                                       [
                                         hsvg(
-                                          dk(context, Svgs.s369, Svgs.s370),
+                                          dk(context, Svgs.s370, Svgs.s371),
                                           w: 16,
                                           h: 16,
                                         ),
@@ -608,9 +608,9 @@ class StoreEditPage extends StatelessWidget {
                         context,
                         [
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.04),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
+                            color: Color.fromRGBO(0, 0, 0, 0.06),
+                            offset: Offset(0, 0),
+                            blurRadius: 1,
                             spreadRadius: 0,
                           ),
                           BoxShadow(
@@ -620,9 +620,9 @@ class StoreEditPage extends StatelessWidget {
                             spreadRadius: 0,
                           ),
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 0),
-                            blurRadius: 1,
+                            color: Color.fromRGBO(0, 0, 0, 0.04),
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
                             spreadRadius: 0,
                           ),
                         ],
@@ -1074,9 +1074,9 @@ class StoreEditPage extends StatelessWidget {
                         context,
                         [
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.04),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
+                            color: Color.fromRGBO(0, 0, 0, 0.06),
+                            offset: Offset(0, 0),
+                            blurRadius: 1,
                             spreadRadius: 0,
                           ),
                           BoxShadow(
@@ -1086,9 +1086,9 @@ class StoreEditPage extends StatelessWidget {
                             spreadRadius: 0,
                           ),
                           BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 0),
-                            blurRadius: 1,
+                            color: Color.fromRGBO(0, 0, 0, 0.04),
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
                             spreadRadius: 0,
                           ),
                         ],
@@ -1166,6 +1166,7 @@ class StoreEditPage extends StatelessWidget {
                                         ),
                                         hbox(
                                           w: 32,
+                                          align: Alignment.center,
                                           child: hCount(
                                             c3,
                                             hts(
@@ -1178,6 +1179,9 @@ class StoreEditPage extends StatelessWidget {
                                               w: FontWeight.w600,
                                               lh: 22,
                                             ),
+                                            0,
+                                            '',
+                                            false,
                                           ),
                                         ),
                                         hTap(
@@ -1288,6 +1292,7 @@ class StoreEditPage extends StatelessWidget {
                                         ),
                                         hbox(
                                           w: 32,
+                                          align: Alignment.center,
                                           child: hCount(
                                             c4,
                                             hts(
@@ -1300,6 +1305,9 @@ class StoreEditPage extends StatelessWidget {
                                               w: FontWeight.w600,
                                               lh: 22,
                                             ),
+                                            0,
+                                            '',
+                                            false,
                                           ),
                                         ),
                                         hTap(
@@ -1410,6 +1418,7 @@ class StoreEditPage extends StatelessWidget {
                                         ),
                                         hbox(
                                           w: 32,
+                                          align: Alignment.center,
                                           child: hCount(
                                             c5,
                                             hts(
@@ -1422,6 +1431,9 @@ class StoreEditPage extends StatelessWidget {
                                               w: FontWeight.w600,
                                               lh: 22,
                                             ),
+                                            0,
+                                            '',
+                                            false,
                                           ),
                                         ),
                                         hTap(

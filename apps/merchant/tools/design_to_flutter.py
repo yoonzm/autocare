@@ -72,6 +72,9 @@ def dark_of(n):
                 out['background'] = '#34343A'
             elif w and h and w == h and w >= 48:
                 out['background'] = '#FAFAFA'; inv = True
+            elif tag == 'button' and col in ('#FAFAFA', '#FFFFFF') and not (w and h and w == h):
+                # 选中的按钮 / 胶囊：深色模式下反白，才能与未选中项区分开
+                out['background'] = '#FAFAFA'; inv = True
             elif col == '#FAFAFA':
                 out['background'] = '#1F1F23'
                 if r and r >= 24 and not (h and h <= 64):
@@ -85,7 +88,7 @@ def dark_of(n):
             else:
                 out['background'] = '#1F1F23'
     if col:
-        if col == '#FFFFFF' and inv:
+        if col in ('#FFFFFF', '#FAFAFA') and inv:
             out['color'] = '#18181B'
         elif col in FG_DARK:
             out['color'] = FG_DARK[col]
@@ -100,6 +103,9 @@ def dark_of(n):
             new = sh
             for k, v in LINE_DARK.items():
                 new = re.sub(k, v, new, flags=re.I)
+            # 描边环（0 0 0 Npx 白 / 页面底色）用来“镂空”背后的线条或圆点，深色下要换成对应的卡片 / 页面底色
+            new = re.sub(r'(0 0 0 \d+px )#FFFFFF', r'\1#18181B', new, flags=re.I)
+            new = re.sub(r'(0 0 0 \d+px )#F4F4F5', r'\1#09090B', new, flags=re.I)
             if new != sh:
                 out['box-shadow'] = new
     for k in ('border', 'border-top', 'border-bottom', 'border-left', 'border-right'):
@@ -548,7 +554,8 @@ class Gen:
             extra.append('textAlign: %s' % ta)
         if inh.get('nowrap'):
             extra.append('softWrap: false')
-            extra.append('maxLines: 1')
+            if not any('\n' in sg[0] for sg in segs):
+                extra.append('maxLines: 1')
         same = all(s[1] == segs[0][1] for s in segs)
         if same:
             text = ''.join(s[0] for s in segs)
@@ -637,7 +644,7 @@ class Gen:
                 shadows.append('BoxShadow(color: %s, offset: Offset(%s, %s), blurRadius: %s, spreadRadius: %s)' % (
                     dcolor(color), num(x), num(y), num(blur), num(spread)))
         if shadows:
-            a.append('shadow: [%s]' % ', '.join(shadows))
+            a.append('shadow: [%s]' % ', '.join(reversed(shadows)))
         # 边框
         border_sides = {}
         dashed = None
@@ -793,7 +800,7 @@ class Gen:
             ph = n.attrs.get('_ph')
             content = 'hStr(%s, %s%s)' % (n.attrs['_str'], self.ts(inh2), ', placeholder: %s' % dstr(ph) if ph else '')
         elif is_text and '_count' in n.attrs:
-            content = 'hCount(%s, %s)' % (n.attrs['_count'], self.ts(inh2))
+            content = 'hCount(%s, %s%s)' % (n.attrs['_count'], self.ts(inh2), (', %s' % n.attrs['_cfmt']) if '_cfmt' in n.attrs else '')
         elif is_text and '_month' in n.attrs:
             content = 'hMonth(%s, %s)' % (n.attrs['_month'], self.ts(inh2))
         elif is_text and '_pwd' in n.attrs:
@@ -819,6 +826,9 @@ class Gen:
         # 盒子
         args, neg = self.box_args(n, inh2, parent)
         al = self.align_code(n, direction) if is_text else None
+        if is_text and al is None and inh2.get('ta') in ('center', 'right') and \
+                any(a.startswith(('w:', 'minW:')) for a in args):
+            al = 'Alignment.center' if inh2.get('ta') == 'center' else 'Alignment.centerRight'
         if is_text and n.tag == 'button' and not st.get('display') and (st.get('height') or st.get('min-height') or st.get('width')):
             al = 'Alignment.center'
         if al:
@@ -928,9 +938,9 @@ class Gen:
         dcur = inh.get('dcolor') or cur
         raw = re.sub(r'currentColor', scolor(cur), raw0)
         # 深色模式：currentColor 取深色文字色，描边里的灰色按文字色表映射（装饰性填充保持不变）
-        draw = re.sub(r'currentColor', scolor(dcur), raw0)
         draw = re.sub(r'(stroke=")(#[0-9A-Fa-f]{6})(")',
-                      lambda m: m.group(1) + FG_DARK.get(m.group(2).upper(), m.group(2)) + m.group(3), draw)
+                      lambda m: m.group(1) + FG_DARK.get(m.group(2).upper(), m.group(2)) + m.group(3), raw0)
+        draw = re.sub(r'currentColor', scolor(dcur), draw)
         if 'id="abg"' in raw:
             # 设计稿里这个图标的子元素被误写入了外层的 width/height/style，这里还原为 1024 画布
             head_end = raw.index('>') + 1
@@ -1271,18 +1281,42 @@ class Gen:
         """识别 步进器 / 月份切换 / 密码显示 并给节点打上动作标记。返回 (holder 变量名, 创建表达式) 列表。"""
         holders = []
         sub = [c for k in kids if isinstance(k, Node) for c in [k]]
-        # 步进器：同一父级里同时存在 减少 / 增加 按钮
-        minus = [c for c in sub if c.tag == 'button' and c.attrs.get('aria-label') == '减少']
-        plus = [c for c in sub if c.tag == 'button' and c.attrs.get('aria-label') == '增加']
+        # 步进器：同一父级里同时存在 减 / 加 控件，中间是数字（可带小数与单位后缀）
+        def _txt(c):
+            return re.sub(r'\s+', ' ', self.tree_text(c)).strip()
+
+        def _is_minus(c):
+            return c.tag in ('button', 'span') and (c.attrs.get('aria-label') in ('减少', '降低折扣') or _txt(c) in ('−', '-', '–'))
+
+        def _is_plus(c):
+            if c.tag not in ('button', 'span'):
+                return False
+            if c.attrs.get('aria-label') in ('增加', '提高折扣') or _txt(c) == '+':
+                return True
+            return any(isinstance(x, Node) and x.tag == 'svg' and x.raw and 'M12 5v14M5 12h14' in x.raw for x in c.children) and not _txt(c)
+
+        minus = [c for c in sub if _is_minus(c)]
+        plus = [c for c in sub if _is_plus(c)]
         if minus and plus:
-            num_nodes = [c for c in sub if c.tag in ('span', 'div') and re.fullmatch(r'\d+', self.tree_text(c).strip() or 'x')]
+            num_nodes = [c for c in sub if c.tag in ('span', 'div') and c is not minus[0] and c is not plus[0]
+                         and re.fullmatch(r'[\d,]+(\.\d+)?( ?[^\d\s]{1,3})?', _txt(c) or 'x')]
             if num_nodes:
+                m = re.fullmatch(r'([\d,]+)(\.\d+)?( ?[^\d\s]{1,3})?', _txt(num_nodes[0]))
+                dec = len(m.group(2)) - 1 if m.group(2) else 0
+                suffix = m.group(3) or ''
+                comma = ',' in m.group(1)
+                base = float(m.group(1).replace(',', '') + (m.group(2) or ''))
+                scaled = int(round(base * (10 ** dec)))
+                if dec:
+                    step = 1
+                else:
+                    step = 1 if base < 100 else (10 if base < 1000 else 100)
                 v = self.new_ctrl('c')
-                init = int(self.tree_text(num_nodes[0]).strip())
-                holders.append((v, 'ValCtrl(%d)' % init))
-                minus[0].attrs['_tap'] = '() => %s.add(-1)' % v
-                plus[0].attrs['_tap'] = '() => %s.add(1)' % v
+                holders.append((v, 'ValCtrl(%d)' % scaled))
+                minus[0].attrs['_tap'] = '() => %s.add(-%d)' % (v, step)
+                plus[0].attrs['_tap'] = '() => %s.add(%d)' % (v, step)
                 num_nodes[0].attrs['_count'] = v
+                num_nodes[0].attrs['_cfmt'] = '%d, %s, %s' % (dec, dstr(suffix), 'true' if comma else 'false')
         # 月份切换
         prev = [c for c in sub if c.attrs.get('aria-label') == '上个月']
         nxt = [c for c in sub if c.attrs.get('aria-label') == '下个月']
@@ -1433,6 +1467,7 @@ class Gen:
         for c in kids:
             if isinstance(c, Node) and not self.is_abs(c) and (c.style.get('background') not in (None, 'transparent') or 'box-shadow' in c.style):
                 any_bg = True
+        row_stretch = (direction == 'row' and not wrap and (ai == 'stretch' or (not ai and any_bg)))
         for c in kids:
             if isinstance(c, str):
                 tcode = 'Text(%s, style: %s)' % (dstr(re.sub(r'\s+', ' ', c).strip()), self.ts(inh))
@@ -1459,7 +1494,7 @@ class Gen:
             else:
                 code = self.emit(c, inh, direction if disp in ('flex', 'inline-flex') else 'block')
             if not wrap:
-                code = self.wrap_child(c, code, direction, definite, disp, scale, flow, any_grow, inh, ai)
+                code = self.wrap_child(c, code, direction, definite, disp, scale, flow, any_grow, inh, ai, row_stretch)
             if dyn and id(c) in item_ids:
                 if not dyn_codes:
                     flow.append('...%s.vis([DYN_PLACEHOLDER])' % dyn)
@@ -1528,14 +1563,20 @@ class Gen:
         except ValueError:
             return 0
 
-    def wrap_child(self, c, code, direction, definite, disp, scale, flow, any_grow=False, inh=None, parent_ai=None):
+    def wrap_child(self, c, code, direction, definite, disp, scale, flow, any_grow=False, inh=None, parent_ai=None, row_stretch=False):
         st = c.style
         g = self.grow(c)
         w = st.get('width')
         if direction == 'row':
+            # CSS：有明确高度的子项不会被 align-items: stretch 拉伸（如时间线圆点）
+            hv = st.get('height')
+            if row_stretch and hv and hv.endswith('px') and c.tag != 'svg' \
+                    and st.get('align-self') != 'stretch' and not hv.startswith('0'):
+                code = 'UnconstrainedBox(alignment: Alignment.topLeft, constrainedAxis: Axis.horizontal, child: %s)' % code
             if c.style.get('margin-left') == 'auto' and definite:
                 flow.append('Spacer()')
-            if (c.tag == 'input' and c.attrs.get('type', 'text') != 'checkbox') or (c.tag == 'textarea'):
+            if ((c.tag == 'input' and c.attrs.get('type', 'text') != 'checkbox') or (c.tag == 'textarea')) \
+                    and not (w and w.endswith('px')):
                 return 'Expanded(child: %s)' % code
             if g > 0 and definite:
                 return 'Expanded(flex: %d, child: %s)' % (max(1, round(g * scale)), code)
@@ -1840,12 +1881,14 @@ def split_variants(name, src):
     base = src
     # 状态 1：储值充值
     a = _cut(_cut(_cut(src, 'p2'), 'b2'), 'sh')
-    a = a.replace('class="p1"', '').replace('class="b1"', '')
+    a = a.replace('class="p1"', 'style="display:flex;flex-direction:column;gap:16px"').replace('class="b1"', 'data-b="1"')
+    a = re.sub(r'(<div data-b="1" style=")', r'\1display:flex;', a)
     a = re.sub(r'<label for="sh"[^>]*>', '<a href="RechargeCard.dc.html" style="display:flex">', a)
     a = tidy(a, 'rt1', 'RechargeCard', 'RechargeCard')
     # 状态 2：购买次卡
     b = _cut(_cut(_cut(src, 'p1'), 'b1'), 'sh')
-    b = b.replace('class="p2"', '').replace('class="b2"', '')
+    b = b.replace('class="p2"', 'style="display:flex;flex-direction:column;gap:16px"').replace('class="b2"', 'data-b="1"')
+    b = re.sub(r'(<div data-b="1" style=")', r'\1display:flex;', b)
     b = re.sub(r'<label for="sh"([^>]*)>', r'<a href="RechargePick.dc.html"\1>', b)
     b = tidy(b, 'rt2', 'Recharge', 'Recharge')
     # 状态 3：选择套餐弹层（叠在状态 2 之上）

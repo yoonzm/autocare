@@ -157,56 +157,64 @@ class DisableStaffSheet extends StatelessWidget {
             [
               Expanded(
                 flex: 10,
-                child: hTap(
-                  context,
-                  hbox(
-                    h: 50,
-                    bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
-                    radius: BorderRadius.circular(25),
-                    child: Align(
-                      alignment: Alignment(0, 0),
-                      widthFactor: 1,
-                      child: Text(
-                        '取消',
-                        style: hts(
-                          15,
-                          dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                          w: FontWeight.w500,
-                          lh: 22,
+                child: UnconstrainedBox(
+                  alignment: Alignment.topLeft,
+                  constrainedAxis: Axis.horizontal,
+                  child: hTap(
+                    context,
+                    hbox(
+                      h: 50,
+                      bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
+                      radius: BorderRadius.circular(25),
+                      child: Align(
+                        alignment: Alignment(0, 0),
+                        widthFactor: 1,
+                        child: Text(
+                          '取消',
+                          style: hts(
+                            15,
+                            dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                            w: FontWeight.w500,
+                            lh: 22,
+                          ),
                         ),
                       ),
                     ),
+                    to: 'StaffDetail',
                   ),
-                  to: 'StaffDetail',
                 ),
               ),
               Expanded(
                 flex: 16,
-                child: hTap(
-                  context,
-                  hbox(
-                    h: 50,
-                    bg: dk(
-                      context,
-                      Color(0xFFFFE1E2),
-                      Color.fromRGBO(255, 56, 60, 0.18),
-                    ),
-                    radius: BorderRadius.circular(25),
-                    child: Align(
-                      alignment: Alignment(0, 0),
-                      widthFactor: 1,
-                      child: Text(
-                        '确认停用',
-                        style: hts(
-                          15,
-                          dk(context, Color(0xFFA43433), Color(0xFFFF7B7E)),
-                          w: FontWeight.w500,
-                          lh: 22,
+                child: UnconstrainedBox(
+                  alignment: Alignment.topLeft,
+                  constrainedAxis: Axis.horizontal,
+                  child: hTap(
+                    context,
+                    hbox(
+                      h: 50,
+                      bg: dk(
+                        context,
+                        Color(0xFFFFE1E2),
+                        Color.fromRGBO(255, 56, 60, 0.18),
+                      ),
+                      radius: BorderRadius.circular(25),
+                      child: Align(
+                        alignment: Alignment(0, 0),
+                        widthFactor: 1,
+                        child: Text(
+                          '确认停用',
+                          style: hts(
+                            15,
+                            dk(context, Color(0xFFA43433), Color(0xFFFF7B7E)),
+                            w: FontWeight.w500,
+                            lh: 22,
+                          ),
                         ),
                       ),
                     ),
+                    to: 'Staff',
                   ),
-                  to: 'Staff',
                 ),
               ),
             ],
