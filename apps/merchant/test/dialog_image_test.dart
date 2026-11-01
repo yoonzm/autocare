@@ -113,7 +113,7 @@ void scanTests() {
     await t.tap(find.text('会员码'));
     await t.pumpAndSettle();
     expect(find.text('将会员码放入框内'), findsOneWidget);
-    // 快门会调起系统相机（真机行为），测试里不触发；切回车牌
+    // 测试环境没有摄像头，页面退回到深色背景；切回车牌
     await t.tap(find.text('车牌'));
     await t.pumpAndSettle();
     expect(find.text('将车牌对准框内'), findsOneWidget);
