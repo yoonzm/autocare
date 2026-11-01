@@ -10,7 +10,7 @@ class StaffDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return HPage(
       bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
-      height: 980,
+      height: 880,
       fixedHeight: false,
       flow: hcol(
         [
@@ -119,7 +119,7 @@ class StaffDetailPage extends StatelessWidget {
                         ),
                         pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
                         child: Align(
-                          alignment: Alignment.center,
+                          alignment: Alignment(-1, 0),
                           widthFactor: 1,
                           child: Text(
                             '编辑',
@@ -132,7 +132,7 @@ class StaffDetailPage extends StatelessWidget {
                           ),
                         ),
                       ),
-                      label: '编辑',
+                      to: 'StaffEdit',
                     ),
                   ],
                   main: MainAxisAlignment.start,
@@ -633,43 +633,48 @@ class StaffDetailPage extends StatelessWidget {
                         bg: dk(context, Color(0xFFEFEFF1), Color(0xFF2A2A2E)),
                         margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
                       ),
-                      hbox(
-                        minH: 54,
-                        pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                        child: hrow(
-                          [
-                            Expanded(
-                              flex: 1,
-                              child: Text(
-                                '提成方案',
+                      hTap(
+                        context,
+                        hbox(
+                          minH: 54,
+                          pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                          child: hrow(
+                            [
+                              Expanded(
+                                flex: 1,
+                                child: Text(
+                                  '提成方案',
+                                  style: hts(
+                                    14,
+                                    dk(
+                                      context,
+                                      Color(0xFF52525B),
+                                      Color(0xFFA8A8B3),
+                                    ),
+                                    lh: 20,
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                '跟随项目设置',
                                 style: hts(
-                                  14,
+                                  15,
                                   dk(
                                     context,
-                                    Color(0xFF52525B),
-                                    Color(0xFFA8A8B3),
+                                    Color(0xFF18181B),
+                                    Color(0xFFFAFAFA),
                                   ),
-                                  lh: 20,
+                                  lh: 22,
                                 ),
                               ),
-                            ),
-                            Text(
-                              '跟随项目设置',
-                              style: hts(
-                                15,
-                                dk(
-                                  context,
-                                  Color(0xFF18181B),
-                                  Color(0xFFFAFAFA),
-                                ),
-                                lh: 22,
-                              ),
-                            ),
-                          ],
-                          main: MainAxisAlignment.start,
-                          cross: CrossAxisAlignment.center,
-                          gap: 12,
+                              hsvg(dk(context, Svgs.s3, Svgs.s4), w: 16, h: 16),
+                            ],
+                            main: MainAxisAlignment.start,
+                            cross: CrossAxisAlignment.center,
+                            gap: 12,
+                          ),
                         ),
+                        to: 'StaffCommission',
                       ),
                     ],
                     main: MainAxisAlignment.start,
@@ -938,13 +943,17 @@ class StaffDetailPage extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: Text(
-                      '停用账号',
-                      style: hts(
-                        15,
-                        dk(context, Color(0xFFA43433), Color(0xFFFF7B7E)),
-                        w: FontWeight.w500,
-                        lh: 22,
+                    child: Align(
+                      alignment: Alignment(0, 0),
+                      widthFactor: 1,
+                      child: Text(
+                        '停用账号',
+                        style: hts(
+                          15,
+                          dk(context, Color(0xFFA43433), Color(0xFFFF7B7E)),
+                          w: FontWeight.w500,
+                          lh: 22,
+                        ),
                       ),
                     ),
                   ),

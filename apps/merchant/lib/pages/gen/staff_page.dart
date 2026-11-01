@@ -94,256 +94,560 @@ class StaffPage extends StatelessWidget {
                           gap: 0,
                         ),
                       ),
-                      label: '邀请员工',
+                      to: 'StaffAdd',
                     ),
                   ],
                   main: MainAxisAlignment.start,
                   cross: CrossAxisAlignment.center,
                   gap: 8,
                 ),
-                hcol([
-                  hrow(
-                    [
-                      Expanded(
-                        flex: 1,
-                        child: hTap(
-                          context,
-                          hbox(
-                            bg: dk(
-                              context,
-                              Color(0xFFFFFFFF),
-                              Color(0xFF18181B),
-                            ),
-                            radius: BorderRadius.circular(18),
-                            shadow: dk(
-                              context,
-                              [
-                                BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.06),
-                                  offset: Offset(0, 0),
-                                  blurRadius: 1,
-                                  spreadRadius: 0,
-                                ),
-                                BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.06),
-                                  offset: Offset(0, 1),
-                                  blurRadius: 2,
-                                  spreadRadius: 0,
-                                ),
-                                BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.04),
-                                  offset: Offset(0, 2),
-                                  blurRadius: 4,
-                                  spreadRadius: 0,
-                                ),
-                              ],
-                              [
-                                BoxShadow(
-                                  color: Color(0xFF26262B),
-                                  offset: Offset(0, 0),
-                                  blurRadius: 0,
-                                  spreadRadius: 1,
-                                ),
-                              ],
-                            ),
-                            pad: EdgeInsets.fromLTRB(14, 12, 14, 12),
-                            child: hcol(
-                              [
-                                Align(
-                                  alignment: Alignment.topLeft,
-                                  child: hbox(
-                                    w: 8,
-                                    h: 8,
-                                    bg: Color(0xFFF5A524),
-                                    radius: BorderRadius.circular(4),
-                                  ),
-                                ),
-                                Text(
-                                  '店长',
-                                  style: hts(
-                                    13,
-                                    dk(
-                                      context,
-                                      Color(0xFF52525B),
-                                      Color(0xFFA8A8B3),
-                                    ),
-                                    lh: 18,
-                                  ),
-                                ),
-                                Text(
-                                  '1',
-                                  style: hts(
-                                    20,
-                                    dk(
-                                      context,
-                                      Color(0xFF18181B),
-                                      Color(0xFFFAFAFA),
-                                    ),
-                                    w: FontWeight.w600,
-                                    lh: 26,
-                                  ),
-                                ),
-                              ],
-                              main: MainAxisAlignment.start,
-                              cross: CrossAxisAlignment.stretch,
-                              gap: 6,
-                            ),
-                          ),
-                          label: '店长1',
-                        ),
-                      ),
-                      Expanded(
-                        flex: 1,
-                        child: hTap(
-                          context,
-                          hbox(
-                            bg: dk(
-                              context,
-                              Color(0xFFFFFFFF),
-                              Color(0xFF18181B),
-                            ),
-                            radius: BorderRadius.circular(18),
-                            shadow: dk(
-                              context,
-                              [
-                                BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.06),
-                                  offset: Offset(0, 0),
-                                  blurRadius: 1,
-                                  spreadRadius: 0,
-                                ),
-                                BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.06),
-                                  offset: Offset(0, 1),
-                                  blurRadius: 2,
-                                  spreadRadius: 0,
-                                ),
-                                BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.04),
-                                  offset: Offset(0, 2),
-                                  blurRadius: 4,
-                                  spreadRadius: 0,
-                                ),
-                              ],
-                              [
-                                BoxShadow(
-                                  color: Color(0xFF26262B),
-                                  offset: Offset(0, 0),
-                                  blurRadius: 0,
-                                  spreadRadius: 1,
-                                ),
-                              ],
-                            ),
-                            pad: EdgeInsets.fromLTRB(14, 12, 14, 12),
-                            child: hcol(
-                              [
-                                Align(
-                                  alignment: Alignment.topLeft,
-                                  child: hbox(
-                                    w: 8,
-                                    h: 8,
-                                    bg: Color(0xFF17C964),
-                                    radius: BorderRadius.circular(4),
-                                  ),
-                                ),
-                                Text(
-                                  '前台收银',
-                                  style: hts(
-                                    13,
-                                    dk(
-                                      context,
-                                      Color(0xFF52525B),
-                                      Color(0xFFA8A8B3),
-                                    ),
-                                    lh: 18,
-                                  ),
-                                ),
-                                Text(
-                                  '2',
-                                  style: hts(
-                                    20,
-                                    dk(
-                                      context,
-                                      Color(0xFF18181B),
-                                      Color(0xFFFAFAFA),
-                                    ),
-                                    w: FontWeight.w600,
-                                    lh: 26,
-                                  ),
-                                ),
-                              ],
-                              main: MainAxisAlignment.start,
-                              cross: CrossAxisAlignment.stretch,
-                              gap: 6,
-                            ),
-                          ),
-                          label: '前台收银2',
-                        ),
-                      ),
-                      Expanded(
-                        flex: 1,
-                        child: hTap(
-                          context,
-                          hbox(
-                            bg: dk(
-                              context,
-                              Color(0xFF18181B),
-                              Color(0xFFFAFAFA),
-                            ),
-                            radius: BorderRadius.circular(18),
-                            pad: EdgeInsets.fromLTRB(14, 12, 14, 12),
-                            child: hcol(
-                              [
-                                Align(
-                                  alignment: Alignment.topLeft,
-                                  child: hbox(
-                                    w: 8,
-                                    h: 8,
-                                    bg: Color(0xFF0485F7),
-                                    radius: BorderRadius.circular(4),
-                                  ),
-                                ),
-                                Text(
-                                  '施工技师',
-                                  style: hts(
-                                    13,
-                                    dk(
-                                      context,
-                                      Color(0xFFA1A1AA),
-                                      Color(0xFF80808A),
-                                    ),
-                                    lh: 18,
-                                  ),
-                                ),
-                                Text(
-                                  '5',
-                                  style: hts(
-                                    20,
-                                    dk(
-                                      context,
-                                      Color(0xFFFAFAFA),
-                                      Color(0xFF18181B),
-                                    ),
-                                    w: FontWeight.w600,
-                                    lh: 26,
-                                  ),
-                                ),
-                              ],
-                              main: MainAxisAlignment.start,
-                              cross: CrossAxisAlignment.stretch,
-                              gap: 6,
-                            ),
-                          ),
-                          label: '施工技师5',
-                        ),
-                      ),
+                hbox(
+                  bg: dk(context, Color(0xFFE9E9EB), Color(0xFF1F1F23)),
+                  radius: BorderRadius.circular(20),
+                  pad: EdgeInsets.fromLTRB(4, 4, 4, 4),
+                  child: HSelHolder(
+                    groups: [
+                      ({3}, false),
                     ],
-                    cross: CrossAxisAlignment.stretch,
-                    gap: 8,
-                    intrinsic: true,
-                    min: false,
+                    builder: (context, g1) => hrow(
+                      [
+                        Expanded(
+                          flex: 1,
+                          child: UnconstrainedBox(
+                            alignment: Alignment.topLeft,
+                            constrainedAxis: Axis.horizontal,
+                            child: HSel(
+                              ctrl: g1[0],
+                              index: 0,
+                              on: hbox(
+                                h: 34,
+                                radius: BorderRadius.circular(17),
+                                shadow: dk(context, [
+                                  BoxShadow(
+                                    color: Color.fromRGBO(0, 0, 0, 0.06),
+                                    offset: Offset(0, 1),
+                                    blurRadius: 2,
+                                    spreadRadius: 0,
+                                  ),
+                                  BoxShadow(
+                                    color: Color.fromRGBO(0, 0, 0, 0.04),
+                                    offset: Offset(0, 2),
+                                    blurRadius: 4,
+                                    spreadRadius: 0,
+                                  ),
+                                ], null),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text.rich(
+                                    TextSpan(
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF18181B),
+                                          Color(0xFFFAFAFA),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
+                                      ),
+                                      children: [
+                                        TextSpan(
+                                          text: '全部 ',
+                                          style: hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFF18181B),
+                                              Color(0xFFFAFAFA),
+                                            ),
+                                            w: FontWeight.w500,
+                                            lh: 18,
+                                          ),
+                                        ),
+                                        TextSpan(
+                                          text: '8',
+                                          style: hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFFA1A1AA),
+                                              Color(0xFF80808A),
+                                            ),
+                                            lh: 18,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    softWrap: false,
+                                    maxLines: 1,
+                                  ),
+                                ),
+                              ),
+                              off: hbox(
+                                h: 34,
+                                radius: BorderRadius.circular(17),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text.rich(
+                                    TextSpan(
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF52525B),
+                                          Color(0xFFA8A8B3),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
+                                      ),
+                                      children: [
+                                        TextSpan(
+                                          text: '全部 ',
+                                          style: hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFF52525B),
+                                              Color(0xFFA8A8B3),
+                                            ),
+                                            w: FontWeight.w500,
+                                            lh: 18,
+                                          ),
+                                        ),
+                                        TextSpan(
+                                          text: '8',
+                                          style: hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFFA1A1AA),
+                                              Color(0xFF80808A),
+                                            ),
+                                            lh: 18,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    softWrap: false,
+                                    maxLines: 1,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: UnconstrainedBox(
+                            alignment: Alignment.topLeft,
+                            constrainedAxis: Axis.horizontal,
+                            child: HSel(
+                              ctrl: g1[0],
+                              index: 1,
+                              on: hbox(
+                                h: 34,
+                                radius: BorderRadius.circular(17),
+                                shadow: dk(context, [
+                                  BoxShadow(
+                                    color: Color.fromRGBO(0, 0, 0, 0.06),
+                                    offset: Offset(0, 1),
+                                    blurRadius: 2,
+                                    spreadRadius: 0,
+                                  ),
+                                  BoxShadow(
+                                    color: Color.fromRGBO(0, 0, 0, 0.04),
+                                    offset: Offset(0, 2),
+                                    blurRadius: 4,
+                                    spreadRadius: 0,
+                                  ),
+                                ], null),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text.rich(
+                                    TextSpan(
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF18181B),
+                                          Color(0xFFFAFAFA),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
+                                      ),
+                                      children: [
+                                        TextSpan(
+                                          text: '店长 ',
+                                          style: hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFF18181B),
+                                              Color(0xFFFAFAFA),
+                                            ),
+                                            w: FontWeight.w500,
+                                            lh: 18,
+                                          ),
+                                        ),
+                                        TextSpan(
+                                          text: '1',
+                                          style: hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFFA1A1AA),
+                                              Color(0xFF80808A),
+                                            ),
+                                            lh: 18,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    softWrap: false,
+                                    maxLines: 1,
+                                  ),
+                                ),
+                              ),
+                              off: hbox(
+                                h: 34,
+                                radius: BorderRadius.circular(17),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text.rich(
+                                    TextSpan(
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF52525B),
+                                          Color(0xFFA8A8B3),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
+                                      ),
+                                      children: [
+                                        TextSpan(
+                                          text: '店长 ',
+                                          style: hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFF52525B),
+                                              Color(0xFFA8A8B3),
+                                            ),
+                                            w: FontWeight.w500,
+                                            lh: 18,
+                                          ),
+                                        ),
+                                        TextSpan(
+                                          text: '1',
+                                          style: hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFFA1A1AA),
+                                              Color(0xFF80808A),
+                                            ),
+                                            lh: 18,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    softWrap: false,
+                                    maxLines: 1,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: UnconstrainedBox(
+                            alignment: Alignment.topLeft,
+                            constrainedAxis: Axis.horizontal,
+                            child: HSel(
+                              ctrl: g1[0],
+                              index: 2,
+                              on: hbox(
+                                h: 34,
+                                radius: BorderRadius.circular(17),
+                                shadow: dk(context, [
+                                  BoxShadow(
+                                    color: Color.fromRGBO(0, 0, 0, 0.06),
+                                    offset: Offset(0, 1),
+                                    blurRadius: 2,
+                                    spreadRadius: 0,
+                                  ),
+                                  BoxShadow(
+                                    color: Color.fromRGBO(0, 0, 0, 0.04),
+                                    offset: Offset(0, 2),
+                                    blurRadius: 4,
+                                    spreadRadius: 0,
+                                  ),
+                                ], null),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text.rich(
+                                    TextSpan(
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF18181B),
+                                          Color(0xFFFAFAFA),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
+                                      ),
+                                      children: [
+                                        TextSpan(
+                                          text: '前台收银 ',
+                                          style: hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFF18181B),
+                                              Color(0xFFFAFAFA),
+                                            ),
+                                            w: FontWeight.w500,
+                                            lh: 18,
+                                          ),
+                                        ),
+                                        TextSpan(
+                                          text: '2',
+                                          style: hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFFA1A1AA),
+                                              Color(0xFF80808A),
+                                            ),
+                                            lh: 18,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    softWrap: false,
+                                    maxLines: 1,
+                                  ),
+                                ),
+                              ),
+                              off: hbox(
+                                h: 34,
+                                radius: BorderRadius.circular(17),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text.rich(
+                                    TextSpan(
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF52525B),
+                                          Color(0xFFA8A8B3),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
+                                      ),
+                                      children: [
+                                        TextSpan(
+                                          text: '前台收银 ',
+                                          style: hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFF52525B),
+                                              Color(0xFFA8A8B3),
+                                            ),
+                                            w: FontWeight.w500,
+                                            lh: 18,
+                                          ),
+                                        ),
+                                        TextSpan(
+                                          text: '2',
+                                          style: hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFFA1A1AA),
+                                              Color(0xFF80808A),
+                                            ),
+                                            lh: 18,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    softWrap: false,
+                                    maxLines: 1,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: UnconstrainedBox(
+                            alignment: Alignment.topLeft,
+                            constrainedAxis: Axis.horizontal,
+                            child: HSel(
+                              ctrl: g1[0],
+                              index: 3,
+                              on: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFFFFFFF),
+                                  Color(0xFF18181B),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                shadow: dk(
+                                  context,
+                                  [
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.06),
+                                      offset: Offset(0, 1),
+                                      blurRadius: 2,
+                                      spreadRadius: 0,
+                                    ),
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.04),
+                                      offset: Offset(0, 2),
+                                      blurRadius: 4,
+                                      spreadRadius: 0,
+                                    ),
+                                  ],
+                                  [
+                                    BoxShadow(
+                                      color: Color(0xFF26262B),
+                                      offset: Offset(0, 0),
+                                      blurRadius: 0,
+                                      spreadRadius: 1,
+                                    ),
+                                  ],
+                                ),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text.rich(
+                                    TextSpan(
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF18181B),
+                                          Color(0xFFFAFAFA),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
+                                      ),
+                                      children: [
+                                        TextSpan(
+                                          text: '施工技师 ',
+                                          style: hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFF18181B),
+                                              Color(0xFFFAFAFA),
+                                            ),
+                                            w: FontWeight.w500,
+                                            lh: 18,
+                                          ),
+                                        ),
+                                        TextSpan(
+                                          text: '5',
+                                          style: hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFF71717A),
+                                              Color(0xFF9A9AA3),
+                                            ),
+                                            lh: 18,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    softWrap: false,
+                                    maxLines: 1,
+                                  ),
+                                ),
+                              ),
+                              off: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFFFFFFF),
+                                  Color(0xFF18181B),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text.rich(
+                                    TextSpan(
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF52525B),
+                                          Color(0xFFA8A8B3),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
+                                      ),
+                                      children: [
+                                        TextSpan(
+                                          text: '施工技师 ',
+                                          style: hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFF52525B),
+                                              Color(0xFFA8A8B3),
+                                            ),
+                                            w: FontWeight.w500,
+                                            lh: 18,
+                                          ),
+                                        ),
+                                        TextSpan(
+                                          text: '5',
+                                          style: hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFF71717A),
+                                              Color(0xFF9A9AA3),
+                                            ),
+                                            lh: 18,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    softWrap: false,
+                                    maxLines: 1,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                      main: MainAxisAlignment.start,
+                      cross: CrossAxisAlignment.stretch,
+                      gap: 2,
+                      intrinsic: true,
+                    ),
                   ),
-                ], gap: 8),
+                ),
                 hbox(
                   bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
                   radius: BorderRadius.circular(24),
@@ -932,11 +1236,200 @@ class StaffPage extends StatelessWidget {
                         ),
                         to: 'StaffDetail',
                       ),
+                      hTap(
+                        context,
+                        hbox(
+                          pad: EdgeInsets.fromLTRB(16, 12, 16, 12),
+                          child: hrow(
+                            [
+                              hbox(
+                                w: 40,
+                                h: 40,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFFDEFD6),
+                                  Color.fromRGBO(245, 165, 36, 0.16),
+                                ),
+                                radius: BorderRadius.circular(20),
+                                align: Alignment(0, 0),
+                                child: Text(
+                                  '赵',
+                                  style: hts(
+                                    15,
+                                    dk(
+                                      context,
+                                      Color(0xFF855F2E),
+                                      Color(0xFFF0C46A),
+                                    ),
+                                    w: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                flex: 1,
+                                child: hcol(
+                                  [
+                                    Text.rich(
+                                      TextSpan(
+                                        style: hts(
+                                          15,
+                                          dk(
+                                            context,
+                                            Color(0xFF18181B),
+                                            Color(0xFFFAFAFA),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 22,
+                                        ),
+                                        children: [
+                                          TextSpan(
+                                            text: '赵敏 ',
+                                            style: hts(
+                                              15,
+                                              dk(
+                                                context,
+                                                Color(0xFF18181B),
+                                                Color(0xFFFAFAFA),
+                                              ),
+                                              w: FontWeight.w500,
+                                              lh: 22,
+                                            ),
+                                          ),
+                                          TextSpan(
+                                            text: '· 洗车',
+                                            style: hts(
+                                              12,
+                                              dk(
+                                                context,
+                                                Color(0xFF71717A),
+                                                Color(0xFF9A9AA3),
+                                              ),
+                                              lh: 22,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Text(
+                                      '邀请已发送，等待员工登录',
+                                      style: hts(
+                                        12,
+                                        dk(
+                                          context,
+                                          Color(0xFF71717A),
+                                          Color(0xFF9A9AA3),
+                                        ),
+                                        lh: 16,
+                                      ),
+                                    ),
+                                  ],
+                                  main: MainAxisAlignment.start,
+                                  cross: CrossAxisAlignment.stretch,
+                                  gap: 2,
+                                ),
+                              ),
+                              hbox(
+                                bg: dk(
+                                  context,
+                                  Color(0xFFFDEFD6),
+                                  Color.fromRGBO(245, 165, 36, 0.16),
+                                ),
+                                radius: BorderRadius.circular(10),
+                                pad: EdgeInsets.fromLTRB(8, 0, 8, 0),
+                                child: Text(
+                                  '待激活',
+                                  style: hts(
+                                    12,
+                                    dk(
+                                      context,
+                                      Color(0xFF855F2E),
+                                      Color(0xFFF0C46A),
+                                    ),
+                                    w: FontWeight.w500,
+                                    lh: 20,
+                                  ),
+                                ),
+                              ),
+                            ],
+                            main: MainAxisAlignment.start,
+                            cross: CrossAxisAlignment.center,
+                            gap: 12,
+                          ),
+                        ),
+                        to: 'StaffDetail',
+                      ),
                     ],
                     main: MainAxisAlignment.start,
                     cross: CrossAxisAlignment.stretch,
                     gap: 0,
                   ),
+                ),
+                hTap(
+                  context,
+                  hbox(
+                    h: 56,
+                    bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                    radius: BorderRadius.circular(20),
+                    shadow: dk(
+                      context,
+                      [
+                        BoxShadow(
+                          color: Color.fromRGBO(0, 0, 0, 0.06),
+                          offset: Offset(0, 0),
+                          blurRadius: 1,
+                          spreadRadius: 0,
+                        ),
+                        BoxShadow(
+                          color: Color.fromRGBO(0, 0, 0, 0.06),
+                          offset: Offset(0, 1),
+                          blurRadius: 2,
+                          spreadRadius: 0,
+                        ),
+                        BoxShadow(
+                          color: Color.fromRGBO(0, 0, 0, 0.04),
+                          offset: Offset(0, 2),
+                          blurRadius: 4,
+                          spreadRadius: 0,
+                        ),
+                      ],
+                      [
+                        BoxShadow(
+                          color: Color(0xFF26262B),
+                          offset: Offset(0, 0),
+                          blurRadius: 0,
+                          spreadRadius: 1,
+                        ),
+                      ],
+                    ),
+                    pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                    child: hrow(
+                      [
+                        Expanded(
+                          flex: 1,
+                          child: Text(
+                            '已停用账号',
+                            style: hts(
+                              15,
+                              dk(context, Color(0xFF52525B), Color(0xFFA8A8B3)),
+                              lh: 22,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          '1 人',
+                          style: hts(
+                            13,
+                            dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
+                          ),
+                        ),
+                        hsvg(dk(context, Svgs.s3, Svgs.s4), w: 16, h: 16),
+                      ],
+                      main: MainAxisAlignment.start,
+                      cross: CrossAxisAlignment.center,
+                      gap: 12,
+                    ),
+                  ),
+                  to: 'StaffDetailOff',
                 ),
                 hbox(
                   bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),

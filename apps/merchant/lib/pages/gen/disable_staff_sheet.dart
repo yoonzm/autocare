@@ -124,9 +124,28 @@ class DisableStaffSheet extends StatelessWidget {
                       ),
                     ),
                   ),
+                  Spacer(),
+                  Flexible(
+                    flex: 39,
+                    child: hTap(
+                      context,
+                      Text(
+                        '去转交',
+                        style: hts(
+                          13,
+                          Color(0xFF0485F7),
+                          w: FontWeight.w500,
+                          lh: 19,
+                        ),
+                        softWrap: false,
+                        maxLines: 1,
+                      ),
+                      to: 'StaffTransfer',
+                    ),
+                  ),
                 ],
                 main: MainAxisAlignment.start,
-                cross: CrossAxisAlignment.start,
+                cross: CrossAxisAlignment.center,
                 gap: 8,
               ),
               hrow(

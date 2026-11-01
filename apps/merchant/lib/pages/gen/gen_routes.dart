@@ -107,8 +107,20 @@ import 'renew_sheet.dart';
 import 'scan_plate_result_sheet.dart';
 import 'scan_result_sheet.dart';
 import 'store_switch_sheet.dart';
+import 'staff_add_page.dart';
+import 'staff_commission_page.dart';
+import 'staff_detail_off_page.dart';
+import 'staff_edit_page.dart';
+import 'staff_invite_page.dart';
+import 'staff_enable_sheet.dart';
+import 'staff_transfer_sheet.dart';
 
 final Map<String, WidgetBuilder> genRoutes = {
+  'StaffAdd': (_) => const StaffAddPage(),
+  'StaffCommission': (_) => const StaffCommissionPage(),
+  'StaffDetailOff': (_) => const StaffDetailOffPage(),
+  'StaffEdit': (_) => const StaffEditPage(),
+  'StaffInvite': (_) => const StaffInvitePage(),
   'AboutApp': (_) => const AboutAppPage(),
   'AppointmentDetail': (_) => const AppointmentDetailPage(),
   'AppointmentSchedule': (_) => const AppointmentSchedulePage(),
@@ -196,6 +208,8 @@ final Map<String, WidgetBuilder> genRoutes = {
 
 /// 底部弹层（设计稿中叠在其他页面上的界面）。
 final Map<String, WidgetBuilder> genSheets = {
+  'StaffEnable': (_) => const StaffEnableSheet(),
+  'StaffTransfer': (_) => const StaffTransferSheet(),
   'AppointmentReschedule': (_) => const AppointmentRescheduleSheet(),
   'BackupFreq': (_) => const BackupFreqSheet(),
   'BindInvite': (_) => const BindInviteSheet(),
@@ -223,6 +237,8 @@ final Map<String, WidgetBuilder> genSheets = {
 
 /// 弹层所属的页面（设计稿里的遮罩点击目标）。
 const Map<String, String> sheetParents = {
+  'StaffEnable': 'StaffDetailOff',
+  'StaffTransfer': 'DisableStaff',
   'AppointmentReschedule': 'AppointmentDetail',
   'BackupFreq': 'DataBackup',
   'BindInvite': 'PayUnbound',
