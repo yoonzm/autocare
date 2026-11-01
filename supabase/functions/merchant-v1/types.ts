@@ -1,4 +1,6 @@
 export type CatalogKind = 'services' | 'cards';
+export const isCatalogKind = (value: unknown): value is CatalogKind =>
+  value === 'services' || value === 'cards';
 
 export interface StoreRow {
   id: string;

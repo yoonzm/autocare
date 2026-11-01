@@ -2,6 +2,7 @@ import { handleAuth } from './auth.ts';
 import { handleCards } from './cards.ts';
 import { handleServices } from './services.ts';
 import { cors, fail, isInput, storeFor } from './shared.ts';
+import { isCatalogKind } from './types.ts';
 
 Deno.serve(async (request: Request): Promise<Response> => {
   if (request.method === 'OPTIONS') return new Response(null, { headers: cors });
@@ -16,7 +17,7 @@ Deno.serve(async (request: Request): Promise<Response> => {
   if (['send_mock_code', 'register', 'login_password', 'login_code'].includes(String(input.action))) {
     return handleAuth(input);
   }
-  if (input.kind !== 'services' && input.kind !== 'cards') return fail('不支持的业务类型');
+  if (!isCatalogKind(input.kind)) return fail('不支持的业务类型');
   const storeId = await storeFor(request);
   if (storeId instanceof Response) return storeId;
   return input.kind === 'services'
