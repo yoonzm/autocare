@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qimei_guanjia/pages/gen/gen_routes.dart';
+import 'package:autocare_merchant/pages/gen/gen_routes.dart';
 
 /// 所有由设计稿生成的页面都能构建并布局；忽略测试字体导致的文字溢出。
 void main() {

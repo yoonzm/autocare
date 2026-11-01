@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qimei_guanjia/kit/keyboard.dart';
-import 'package:qimei_guanjia/kit/kit.dart';
-import 'package:qimei_guanjia/mock/app_state.dart';
-import 'package:qimei_guanjia/pages/appointments_page.dart';
-import 'package:qimei_guanjia/pages/home_page.dart';
-import 'package:qimei_guanjia/pages/login_page.dart';
-import 'package:qimei_guanjia/pages/settings_page.dart';
-import 'package:qimei_guanjia/routes.dart';
-import 'package:qimei_guanjia/pages/gen/gen_routes.dart';
+import 'package:autocare_merchant/kit/keyboard.dart';
+import 'package:autocare_merchant/kit/kit.dart';
+import 'package:autocare_merchant/mock/app_state.dart';
+import 'package:autocare_merchant/pages/appointments_page.dart';
+import 'package:autocare_merchant/pages/home_page.dart';
+import 'package:autocare_merchant/pages/login_page.dart';
+import 'package:autocare_merchant/pages/settings_page.dart';
+import 'package:autocare_merchant/routes.dart';
+import 'package:autocare_merchant/pages/gen/gen_routes.dart';
 
 void phone(WidgetTester t) {
   t.view.physicalSize = const Size(390 * 3, 900 * 3);

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qimei_guanjia/main.dart';
-import 'package:qimei_guanjia/mock/theme_state.dart';
-import 'package:qimei_guanjia/pages/settings_page.dart';
-import 'package:qimei_guanjia/theme.dart';
+import 'package:autocare_merchant/main.dart';
+import 'package:autocare_merchant/mock/theme_state.dart';
+import 'package:autocare_merchant/pages/settings_page.dart';
+import 'package:autocare_merchant/theme.dart';
 
 void main() {
   tearDown(() {

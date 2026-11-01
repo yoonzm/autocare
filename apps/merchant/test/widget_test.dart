@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qimei_guanjia/main.dart';
-import 'package:qimei_guanjia/mock/mock_data.dart';
-import 'package:qimei_guanjia/pages/appointment_add_page.dart';
-import 'package:qimei_guanjia/pages/appointments_page.dart';
-import 'package:qimei_guanjia/pages/member_detail_page.dart';
-import 'package:qimei_guanjia/pages/order_page.dart';
-import 'package:qimei_guanjia/pages/services_page.dart';
-import 'package:qimei_guanjia/pages/settings_page.dart';
+import 'package:autocare_merchant/main.dart';
+import 'package:autocare_merchant/mock/mock_data.dart';
+import 'package:autocare_merchant/pages/appointment_add_page.dart';
+import 'package:autocare_merchant/pages/appointments_page.dart';
+import 'package:autocare_merchant/pages/member_detail_page.dart';
+import 'package:autocare_merchant/pages/order_page.dart';
+import 'package:autocare_merchant/pages/services_page.dart';
+import 'package:autocare_merchant/pages/settings_page.dart';
 
 void main() {
   void phone(WidgetTester t) {

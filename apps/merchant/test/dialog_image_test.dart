@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qimei_guanjia/pages/gen/gen_routes.dart';
-import 'package:qimei_guanjia/routes.dart';
+import 'package:autocare_merchant/pages/gen/gen_routes.dart';
+import 'package:autocare_merchant/routes.dart';
 
 void main() {
   resultCloseTest();
