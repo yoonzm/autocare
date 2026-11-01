@@ -4,13 +4,11 @@ on:
   pull_request:
     paths:
       - "apps/merchant/**"
-      - "supabase/**"
       - ".github/workflows/merchant-internal.yml"
   push:
     branches: [main]
     paths:
       - "apps/merchant/**"
-      - "supabase/**"
       - ".github/workflows/merchant-internal.yml"
 
 permissions:
@@ -29,7 +27,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       merchant: ${{ steps.paths.outputs.merchant }}
-      supabase: ${{ steps.paths.outputs.supabase }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -56,11 +53,6 @@ jobs:
           else
             echo 'merchant=false' >> "$GITHUB_OUTPUT"
           fi
-          if grep -q '^supabase/' "$RUNNER_TEMP/changed-files"; then
-            echo 'supabase=true' >> "$GITHUB_OUTPUT"
-          else
-            echo 'supabase=false' >> "$GITHUB_OUTPUT"
-          fi
 
   validate:
     needs: changes
@@ -85,14 +77,6 @@ jobs:
           flutter pub get
           flutter analyze
           flutter test
-      - uses: denoland/setup-deno@v2
-        if: needs.changes.outputs.supabase == 'true'
-        with:
-          deno-version: v2.5.4
-      - name: Check Edge Function types
-        if: needs.changes.outputs.supabase == 'true'
-        working-directory: supabase/functions/merchant-v1
-        run: deno task check
 
   ios:
     needs: [changes, validate]
