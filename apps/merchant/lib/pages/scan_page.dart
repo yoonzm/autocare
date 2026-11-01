@@ -1,14 +1,23 @@
-import 'dart:math' as math;
+import 'dart:async';
 
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-import '../kit/image_pick.dart';
+import '../kit/kit.dart';
 import '../routes.dart';
 import '../theme.dart';
 import '../widgets/app_icon.dart';
 
 /// 扫描页的四种形态：扫码找会员（车牌 / 会员码）、扫描建档（行驶证 / 车牌）。
 enum ScanKind { findPlate, findCode, licenseCard, plateCard }
+
+/// 相机状态：启动中 / 可用 / 无权限 / 不可用（模拟器、无摄像头等）。
+enum _Cam { starting, ready, denied, unavailable }
+
+// 版面与设计稿一致：头部 44 + 间距 16 + 分段控件 42；底部快门行 78。
+const double _kTop = 44 + 16 + 42;
+const double _kBottom = 78;
 
 class ScanPage extends StatefulWidget {
   final ScanKind initial;
@@ -17,9 +26,23 @@ class ScanPage extends StatefulWidget {
   State<ScanPage> createState() => _ScanPageState();
 }
 
-class _ScanPageState extends State<ScanPage> {
+class _ScanPageState extends State<ScanPage>
+    with WidgetsBindingObserver, SingleTickerProviderStateMixin {
   /// 同一个页面里的两个 Tab：车牌 / 会员码（扫码找会员），行驶证 / 车牌（扫描建档）。
   late ScanKind kind = widget.initial;
+
+  CameraController? _ctrl;
+  _Cam _cam = _Cam.starting;
+  bool _initializing = false;
+  bool _suspended = false; // 退到后台时释放了相机
+  bool _torch = false;
+  bool _busy = false; // 拍照 / 识别中
+  Offset? _focusAt;
+  Timer? _focusTimer;
+  late final AnimationController _sweep = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1100),
+  );
 
   bool get _find => kind == ScanKind.findPlate || kind == ScanKind.findCode;
   bool get _first => kind == ScanKind.findPlate || kind == ScanKind.licenseCard;
@@ -30,9 +53,9 @@ class _ScanPageState extends State<ScanPage> {
   );
 
   String get _title => _find ? '扫码找会员' : '扫描建档';
-  List<(String, String, String)> get _tabs => _find
-      ? const [('车牌', 'car', 'FindScanPlate'), ('会员码', 'scan', 'FindScanCode')]
-      : const [('行驶证', 'clipboard', 'ScanLicense'), ('车牌', 'car', 'ScanPlate')];
+  List<(String, String)> get _tabs => _find
+      ? const [('车牌', 'car2'), ('会员码', 'qr')]
+      : const [('行驶证', 'idCard'), ('车牌', 'car2')];
   (String, String) get _hint => switch (kind) {
     ScanKind.findPlate => ('将车牌对准框内', '自动匹配该车牌对应的会员'),
     ScanKind.findCode => ('将会员码放入框内', '扫描会员小程序「会员码」，或会员卡二维码'),
@@ -51,163 +74,222 @@ class _ScanPageState extends State<ScanPage> {
     ScanKind.licenseCard => const Size(322, 206),
   };
 
+  // ───────── 相机生命周期 ─────────
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _initCamera();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _focusTimer?.cancel();
+    _sweep.dispose();
+    final c = _ctrl;
+    _ctrl = null;
+    c?.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.paused) {
+      final c = _ctrl;
+      if (c == null) return;
+      _suspended = true;
+      _ctrl = null;
+      if (mounted) setState(() => _cam = _Cam.starting);
+      c.dispose();
+    } else if (state == AppLifecycleState.resumed && _suspended) {
+      _suspended = false;
+      _initCamera();
+    }
+  }
+
+  Future<void> _initCamera() async {
+    if (_initializing) return;
+    _initializing = true;
+    if (mounted) setState(() => _cam = _Cam.starting);
+    try {
+      final cams = await availableCameras();
+      if (cams.isEmpty) {
+        if (mounted) setState(() => _cam = _Cam.unavailable);
+        return;
+      }
+      final desc = cams.firstWhere(
+        (c) => c.lensDirection == CameraLensDirection.back,
+        orElse: () => cams.first,
+      );
+      final c = CameraController(
+        desc,
+        ResolutionPreset.high,
+        enableAudio: false,
+      );
+      await c.initialize();
+      if (!mounted) {
+        await c.dispose();
+        return;
+      }
+      try {
+        await c.lockCaptureOrientation(DeviceOrientation.portraitUp);
+      } catch (_) {}
+      try {
+        await c.setFlashMode(_torch ? FlashMode.torch : FlashMode.off);
+      } catch (_) {
+        _torch = false;
+      }
+      setState(() {
+        _ctrl = c;
+        _cam = _Cam.ready;
+      });
+    } on CameraException catch (e) {
+      if (mounted) {
+        setState(
+          () => _cam = e.code.startsWith('CameraAccess')
+              ? _Cam.denied
+              : _Cam.unavailable,
+        );
+      }
+    } catch (_) {
+      if (mounted) setState(() => _cam = _Cam.unavailable);
+    } finally {
+      _initializing = false;
+    }
+  }
+
+  bool get _ready => _ctrl != null && _ctrl!.value.isInitialized;
+
+  // ───────── 交互：闪光灯 / 对焦 / 拍照 / 相册 ─────────
+  Future<void> _toggleTorch() async {
+    final c = _ctrl;
+    if (!_ready || c == null) {
+      hToast(context, '相机未就绪');
+      return;
+    }
+    final next = !_torch;
+    try {
+      await c.setFlashMode(next ? FlashMode.torch : FlashMode.off);
+      if (mounted) setState(() => _torch = next);
+    } catch (_) {
+      if (mounted) hToast(context, '当前设备不支持闪光灯');
+    }
+  }
+
+  void _focus(TapUpDetails d, Size size) {
+    final c = _ctrl;
+    if (!_ready || c == null || _busy) return;
+    final p = Offset(
+      (d.localPosition.dx / size.width).clamp(0.0, 1.0),
+      (d.localPosition.dy / size.height).clamp(0.0, 1.0),
+    );
+    () async {
+      try {
+        await c.setFocusMode(FocusMode.auto);
+        await c.setFocusPoint(p);
+        await c.setExposurePoint(p);
+      } catch (_) {}
+    }();
+    HapticFeedback.selectionClick();
+    _focusTimer?.cancel();
+    setState(() => _focusAt = d.localPosition);
+    _focusTimer = Timer(const Duration(milliseconds: 900), () {
+      if (mounted) setState(() => _focusAt = null);
+    });
+  }
+
+  Future<void> _shoot() async {
+    if (_busy) return;
+    final c = _ctrl;
+    if (!_ready || c == null || c.value.isTakingPicture) {
+      hToast(context, _cam == _Cam.denied ? '请在系统设置中允许访问相机' : '相机未就绪');
+      return;
+    }
+    setState(() {
+      _busy = true;
+      _focusAt = null;
+    });
+    try {
+      HapticFeedback.mediumImpact();
+      final f = await c.takePicture();
+      imageStore('scan_photo').value = [f.path];
+      // 定格拍到的画面，随后开始识别
+      try {
+        await c.pausePreview();
+      } catch (_) {}
+    } catch (_) {
+      if (mounted) {
+        setState(() => _busy = false);
+        hToast(context, '拍照失败，请重试');
+      }
+      return;
+    }
+    await _recognize();
+  }
+
+  Future<void> _pickAlbum() async {
+    if (_busy) return;
+    final ok = await hCaptureImage(context, 'scan_photo', camera: false);
+    if (ok && mounted) await _recognize();
+  }
+
+  /// 识别过程为 mock：扫描线来回扫动一小段时间后进入结果。
+  Future<void> _recognize() async {
+    if (!mounted) return;
+    setState(() => _busy = true);
+    _sweep.repeat(reverse: true);
+    await Future<void>.delayed(const Duration(milliseconds: 1300));
+    if (!mounted) return;
+    _sweep.stop();
+    final result = _result;
+    openRoute(context, result);
+    setState(() => _busy = false);
+    // 结果弹层关闭后恢复取景
+    await Future<void>.delayed(const Duration(milliseconds: 200));
+    while (mounted && navTracker.has('sheet:$result')) {
+      await Future<void>.delayed(const Duration(milliseconds: 200));
+    }
+    if (!mounted) return;
+    try {
+      await _ctrl?.resumePreview();
+    } catch (_) {}
+  }
+
+  // ───────── 构建 ─────────
   @override
   Widget build(BuildContext context) {
     final top = MediaQuery.of(context).padding.top;
     final bottom = MediaQuery.of(context).padding.bottom;
-    final frame = _frame;
+    final pad = EdgeInsets.fromLTRB(20, top + 12, 20, bottom + 18);
     return Scaffold(
       backgroundColor: const Color(0xFF0B0B0D),
       body: Stack(
         fit: StackFit.expand,
         children: [
-          const DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: RadialGradient(
-                center: Alignment(0, -0.4),
-                radius: 1.2,
-                colors: [
-                  Color(0xFF3A3F4A),
-                  Color(0xFF1B1D22),
-                  Color(0xFF0B0B0D),
-                ],
-                stops: [0, 0.55, 1],
-              ),
-            ),
-          ),
-          Positioned(
-            left: 0,
-            right: 0,
-            top: 120,
-            height: 440,
-            child: CustomPaint(painter: _ScanLines()),
-          ),
-          // 取景框外的遮罩
-          Center(
-            child: Transform.translate(
-              offset: const Offset(0, -8),
-              child: SizedBox(
-                width: frame.width,
-                height: frame.height,
-                child: _FrameContent(kind: kind),
-              ),
-            ),
-          ),
+          _viewfinder(context),
+          // 取景框 + 提示（压暗遮罩在这一层，位于头部与底部操作之下）
           Padding(
-            padding: EdgeInsets.fromLTRB(20, top + 12, 20, bottom + 18),
+            padding: pad,
             child: Column(
               children: [
-                Row(
-                  children: [
-                    _round(
-                      'close',
-                      '关闭',
-                      () => Navigator.of(context).maybePop(),
-                    ),
-                    Expanded(
-                      child: Text(
-                        _title,
-                        textAlign: TextAlign.center,
-                        style: ts(
-                          17,
-                          w: FontWeight.w600,
-                          color: Colors.white,
-                          h: 24,
-                        ),
-                      ),
-                    ),
-                    _round('trendUp', '打开闪光灯', () {
-                      ScaffoldMessenger.of(context)
-                        ..hideCurrentSnackBar()
-                        ..showSnackBar(
-                          const SnackBar(
-                            content: Text('闪光灯（演示）'),
-                            behavior: SnackBarBehavior.floating,
-                            duration: Duration(milliseconds: 1000),
-                          ),
-                        );
-                    }, bolt: true),
-                  ],
-                ),
+                const SizedBox(height: _kTop),
+                Expanded(child: _frameAndHint()),
+                const SizedBox(height: _kBottom),
+              ],
+            ),
+          ),
+          // 头部 / 分段控件 / 底部操作
+          Padding(
+            padding: pad,
+            child: Column(
+              children: [
+                _header(context),
                 const SizedBox(height: 16),
                 _tabBar(context),
-                Expanded(
-                  child: Align(
-                    alignment: const Alignment(0, 0.62),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          _hint.$1,
-                          textAlign: TextAlign.center,
-                          style: ts(
-                            15,
-                            w: FontWeight.w600,
-                            color: Colors.white,
-                            h: 22,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          _hint.$2,
-                          textAlign: TextAlign.center,
-                          style: ts(13, color: const Color(0xB3FFFFFF), h: 18),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    _side(context, 'info', '相册', () async {
-                      final ok = await hCaptureImage(
-                        context,
-                        'scan_photo',
-                        camera: false,
-                      );
-                      if (ok && context.mounted) openRoute(context, _result);
-                    }),
-                    GestureDetector(
-                      onTap: () async {
-                        final ok = await hCaptureImage(
-                          context,
-                          'scan_photo',
-                          camera: true,
-                        );
-                        if (ok && context.mounted) openRoute(context, _result);
-                      },
-                      child: Semantics(
-                        button: true,
-                        label: '拍照识别',
-                        child: Container(
-                          width: 80,
-                          height: 80,
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 3),
-                          ),
-                          child: Container(
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    _side(
-                      context,
-                      'search',
-                      _find ? '手动搜索' : '手动输入',
-                      () => _find
-                          ? Navigator.of(context).maybePop()
-                          : openRoute(context, 'VehicleAdd'),
-                    ),
-                  ],
-                ),
+                const Spacer(),
+                _controls(context),
               ],
             ),
           ),
@@ -216,39 +298,224 @@ class _ScanPageState extends State<ScanPage> {
     );
   }
 
-  Widget _round(
-    String icon,
-    String label,
-    VoidCallback onTap, {
-    bool bolt = false,
-  }) => Semantics(
-    button: true,
-    label: label,
-    child: GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 44,
-        height: 44,
-        decoration: const BoxDecoration(
-          color: Color(0x24FFFFFF),
-          shape: BoxShape.circle,
+  /// 最底层：实时相机画面（点击对焦）；相机不可用时退回深色背景。
+  Widget _viewfinder(BuildContext context) {
+    final c = _ctrl;
+    if (!_ready || c == null) {
+      return const DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: RadialGradient(
+            center: Alignment(0, -0.4),
+            radius: 1.2,
+            colors: [Color(0xFF3A3F4A), Color(0xFF1B1D22), Color(0xFF0B0B0D)],
+            stops: [0, 0.55, 1],
+          ),
         ),
-        child: Center(
-          child: bolt
-              ? const Icon(Icons.bolt_outlined, size: 20, color: Colors.white)
-              : AppIcon(icon, size: 20, color: Colors.white),
+      );
+    }
+    return LayoutBuilder(
+      builder: (context, box) {
+        final size = Size(box.maxWidth, box.maxHeight);
+        // 铺满屏幕（cover），超出部分裁掉
+        var scale = size.aspectRatio * c.value.aspectRatio;
+        if (scale < 1) scale = 1 / scale;
+        return GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTapUp: (d) => _focus(d, size),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              ClipRect(
+                child: Transform.scale(
+                  scale: scale,
+                  child: Center(child: CameraPreview(c)),
+                ),
+              ),
+              if (_focusAt != null)
+                Positioned(
+                  left: _focusAt!.dx - 32,
+                  top: _focusAt!.dy - 32,
+                  child: IgnorePointer(
+                    child: Container(
+                      width: 64,
+                      height: 64,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: C.gold, width: 1.5),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _frameAndHint() {
+    final frame = _frame;
+    final (title, sub) = _busy ? ('识别中…', '请保持画面稳定') : _hint;
+    return IgnorePointer(
+      ignoring: _cam == _Cam.ready,
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: frame.width,
+              height: frame.height,
+              child: CustomPaint(
+                foregroundPainter: const _Corners(),
+                painter: const _Dim(),
+                child: LayoutBuilder(
+                  builder: (context, box) => AnimatedBuilder(
+                    animation: _sweep,
+                    builder: (context, _) {
+                      final t = _busy ? 0.1 + 0.8 * _sweep.value : 0.46;
+                      return Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          Positioned(
+                            left: 10,
+                            right: 10,
+                            top: box.maxHeight * t - 1,
+                            height: 2,
+                            child: const _ScanLine(),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 26),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: ts(16, w: FontWeight.w600, color: Colors.white, h: 24),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              sub,
+              textAlign: TextAlign.center,
+              style: ts(13, color: const Color(0xB3FFFFFF), h: 18),
+            ),
+            if (_cam == _Cam.denied || _cam == _Cam.unavailable) ...[
+              const SizedBox(height: 14),
+              _cameraNotice(),
+            ],
+          ],
         ),
+      ),
+    );
+  }
+
+  /// 相机不可用时的提示（IgnorePointer 只在相机可用时生效，这里始终可点）。
+  Widget _cameraNotice() => GestureDetector(
+    behavior: HitTestBehavior.opaque,
+    onTap: _initCamera,
+    child: Container(
+      height: 32,
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      decoration: BoxDecoration(
+        color: const Color(0x24FFFFFF),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        _cam == _Cam.denied ? '未获得相机权限，请在系统设置中允许 · 点此重试' : '相机不可用 · 点此重试',
+        style: ts(12, color: Colors.white, h: 16),
       ),
     ),
   );
 
-  Widget _side(
-    BuildContext context,
-    String icon,
+  Widget _header(BuildContext context) => Row(
+    children: [
+      _round(
+        const AppIcon('close', size: 20, color: Colors.white),
+        '关闭',
+        () => Navigator.of(context).maybePop(),
+      ),
+      Expanded(
+        child: Text(
+          _title,
+          textAlign: TextAlign.center,
+          style: ts(17, w: FontWeight.w600, color: Colors.white, h: 24),
+        ),
+      ),
+      _round(
+        AppIcon('bolt', size: 20, color: _torch ? C.onGold : Colors.white),
+        _torch ? '关闭闪光灯' : '打开闪光灯',
+        _toggleTorch,
+        bg: _torch ? C.gold : const Color(0x24FFFFFF),
+      ),
+    ],
+  );
+
+  Widget _controls(BuildContext context) => Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    crossAxisAlignment: CrossAxisAlignment.center,
+    children: [
+      _side('gallery', '相册', _pickAlbum),
+      Semantics(
+        button: true,
+        label: '拍摄识别',
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: _shoot,
+          child: Container(
+            width: 78,
+            height: 78,
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white, width: 4),
+            ),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 120),
+              margin: EdgeInsets.all(_busy ? 8 : 0),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+        ),
+      ),
+      _side(
+        _find ? 'search' : 'pencil',
+        _find ? '手动搜索' : '手动输入',
+        () => _find
+            ? Navigator.of(context).maybePop()
+            : openRoute(context, 'VehicleAdd'),
+      ),
+    ],
+  );
+
+  Widget _round(
+    Widget icon,
     String label,
-    VoidCallback onTap,
-  ) => SizedBox(
-    width: 64,
+    VoidCallback onTap, {
+    Color bg = const Color(0x24FFFFFF),
+  }) => Semantics(
+    button: true,
+    label: label,
+    child: GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Container(
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(color: bg, shape: BoxShape.circle),
+        child: Center(child: icon),
+      ),
+    ),
+  );
+
+  Widget _side(String icon, String label, VoidCallback onTap) => SizedBox(
+    width: 72,
     child: GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
@@ -265,7 +532,7 @@ class _ScanPageState extends State<ScanPage> {
             child: Center(child: AppIcon(icon, size: 22, color: Colors.white)),
           ),
           const SizedBox(height: 6),
-          Text(label, style: ts(12, color: const Color(0xCCFFFFFF), h: 16)),
+          Text(label, style: ts(12, color: const Color(0xD9FFFFFF), h: 16)),
         ],
       ),
     ),
@@ -284,7 +551,8 @@ class _ScanPageState extends State<ScanPage> {
           if (i > 0) const SizedBox(width: 2),
           Expanded(
             child: GestureDetector(
-              onTap: () => _switch(i),
+              behavior: HitTestBehavior.opaque,
+              onTap: _busy ? null : () => _switch(i),
               child: Container(
                 height: 36,
                 decoration: BoxDecoration(
@@ -325,124 +593,24 @@ class _ScanPageState extends State<ScanPage> {
   );
 }
 
-/// 取景框：外侧压暗，内部是识别对象示意，四角金色定位角。
-class _FrameContent extends StatelessWidget {
-  final ScanKind kind;
-  const _FrameContent({required this.kind});
-
+/// 取景框内的金色扫描线。
+class _ScanLine extends StatelessWidget {
+  const _ScanLine();
   @override
-  Widget build(BuildContext context) {
-    Widget inner;
-    switch (kind) {
-      case ScanKind.findPlate:
-      case ScanKind.plateCard:
-        inner = Container(
-          width: 232,
-          height: 64,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            gradient: const LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Color(0xFF2F73F2), Color(0xFF1A4FC4)],
-            ),
-            border: Border.all(color: const Color(0xCCFFFFFF), width: 3),
-          ),
-          child: Text(
-            '沪A·8K29M',
-            style: ts(
-              28,
-              w: FontWeight.w600,
-              color: Colors.white,
-              h: 34,
-              spacing: 2,
-            ),
-          ),
-        );
-      case ScanKind.findCode:
-        inner = Opacity(
-          opacity: 0.9,
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: const SizedBox(
-              width: 150,
-              height: 150,
-              child: CustomPaint(painter: _QrPainter()),
-            ),
-          ),
-        );
-      case ScanKind.licenseCard:
-        inner = Padding(
-          padding: const EdgeInsets.all(14),
-          child: Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: const Color(0x12FFFFFF),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0x1AFFFFFF)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    _bar(26, 26, round: 13, a: 0.18),
-                    const SizedBox(width: 10),
-                    _bar(90, 7),
-                    const Spacer(),
-                    Container(
-                      width: 46,
-                      height: 24,
-                      decoration: BoxDecoration(
-                        color: const Color(0x8C2F73F2),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                for (final w in [0.7, 0.84, 0.58, 0.76]) ...[
-                  FractionallySizedBox(
-                    widthFactor: w,
-                    child: _bar(double.infinity, 7, a: 0.22),
-                  ),
-                  const SizedBox(height: 10),
-                ],
-                const Spacer(),
-                Row(
-                  children: [
-                    _bar(80, 7, a: 0.22),
-                    const SizedBox(width: 10),
-                    _bar(60, 7, a: 0.22),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-    }
-    return CustomPaint(
-      foregroundPainter: const _Corners(),
-      painter: const _Dim(),
-      child: Center(child: inner),
-    );
-  }
-
-  Widget _bar(double w, double h, {double? round, double a = 0.3}) => Container(
-    width: w == double.infinity ? null : w,
-    height: h,
+  Widget build(BuildContext context) => const DecoratedBox(
     decoration: BoxDecoration(
-      color: Color.fromRGBO(255, 255, 255, a),
-      borderRadius: BorderRadius.circular(round ?? 4),
+      borderRadius: BorderRadius.all(Radius.circular(1)),
+      gradient: LinearGradient(
+        colors: [Color(0x00F5D78E), Color(0xFFF5D78E), Color(0x00F5D78E)],
+      ),
+      boxShadow: [
+        BoxShadow(color: Color(0x8CF5D78E), blurRadius: 14, spreadRadius: 3),
+      ],
     ),
   );
 }
 
+/// 取景框外侧压暗（挖出圆角矩形）。
 class _Dim extends CustomPainter {
   const _Dim();
   @override
@@ -465,6 +633,7 @@ class _Dim extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter old) => false;
 }
 
+/// 四角金色定位角。
 class _Corners extends CustomPainter {
   const _Corners();
   @override
@@ -517,58 +686,6 @@ class _Corners extends CustomPainter {
         ..lineTo(w, h - l),
       p,
     );
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter old) => false;
-}
-
-class _ScanLines extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final p = Paint()..color = const Color(0x06FFFFFF);
-    for (double y = 0; y < size.height; y += 6) {
-      canvas.drawRect(Rect.fromLTWH(0, y, size.width, 2), p);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter old) => false;
-}
-
-/// 会员码示意（伪二维码）。
-class _QrPainter extends CustomPainter {
-  const _QrPainter();
-  @override
-  void paint(Canvas canvas, Size size) {
-    const n = 21;
-    final c = size.width / n;
-    final p = Paint()..color = const Color(0xFF18181B);
-    final rnd = math.Random(7);
-    bool finder(int x, int y) =>
-        (x < 8 && y < 8) || (x > n - 9 && y < 8) || (x < 8 && y > n - 9);
-    for (var y = 0; y < n; y++) {
-      for (var x = 0; x < n; x++) {
-        if (!finder(x, y) && rnd.nextDouble() > 0.52) {
-          canvas.drawRect(Rect.fromLTWH(x * c, y * c, c, c), p);
-        }
-      }
-    }
-    void eye(int ox, int oy) {
-      canvas.drawRect(Rect.fromLTWH(ox * c, oy * c, 7 * c, 7 * c), p);
-      canvas.drawRect(
-        Rect.fromLTWH((ox + 1) * c, (oy + 1) * c, 5 * c, 5 * c),
-        Paint()..color = Colors.white,
-      );
-      canvas.drawRect(
-        Rect.fromLTWH((ox + 2) * c, (oy + 2) * c, 3 * c, 3 * c),
-        p,
-      );
-    }
-
-    eye(0, 0);
-    eye(n - 7, 0);
-    eye(0, n - 7);
   }
 
   @override
