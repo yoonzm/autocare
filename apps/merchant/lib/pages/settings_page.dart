@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../backend/merchant_backend.dart';
+
 import '../theme.dart';
 import '../mock/app_state.dart';
 import '../mock/theme_state.dart';
@@ -29,7 +31,7 @@ class SettingsPage extends StatelessWidget {
                     _Item(
                       'store',
                       '门店信息',
-                      '地址 · 电话 · 营业执照',
+                      '名称 · 地址 · 电话',
                       bg: const Color(0xFFE1F0FE),
                       fg: const Color(0xFF1E63AE),
                       route: 'StoreInfo',
@@ -45,7 +47,7 @@ class SettingsPage extends StatelessWidget {
                     _Item(
                       'sparkle',
                       '服务项目与价格',
-                      '36 项',
+                      '管理项目',
                       bg: const Color(0xFFFDEFD6),
                       fg: const Color(0xFF855F2E),
                       route: 'Services',
@@ -53,7 +55,7 @@ class SettingsPage extends StatelessWidget {
                     _Item(
                       'card',
                       '会员卡种与权益',
-                      '4 种',
+                      '管理卡种',
                       bg: const Color(0xFF18181B),
                       fg: const Color(0xFFF5D78E),
                       route: 'CardTiers',
@@ -116,7 +118,12 @@ class SettingsPage extends StatelessWidget {
                   ]),
                   const SizedBox(height: 24),
                   GestureDetector(
-                    onTap: () => openRoute(context, 'Login'),
+                    onTap: () async {
+                      await MerchantBackend.client.auth.signOut();
+                      if (context.mounted) {
+                        Navigator.of(context).popUntil((r) => r.isFirst);
+                      }
+                    },
                     child: Container(
                       height: 50,
                       alignment: Alignment.center,
@@ -316,7 +323,7 @@ class SettingsPage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '驰光汽车美容 · 徐汇店',
+                            '我的门店',
                             style: ts(
                               14,
                               w: FontWeight.w500,

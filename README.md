@@ -4,13 +4,13 @@
 
 | 路径 | 用途 | 状态 |
 | --- | --- | --- |
-| `apps/merchant` | Flutter 商户端（iOS / Android） | 已迁入，mock 数据 |
+| `apps/merchant` | Flutter 商户端（iOS / Android） | 登录、门店、会员、服务项目、会员卡种已接 Supabase；其他页面仍为 mock |
 | `apps/member-mini` | 会员端小程序 | 预留 |
 | `apps/staff-mini` | 店员端小程序 | 预留 |
 | `apps/admin` | 后台端 App | 预留 |
 | `apps/desktop` | 桌面端 App | 预留 |
 | `packages` | 共享契约与业务包 | 预留 |
-| `supabase` | 数据库迁移、Edge Functions | 预留 |
+| `supabase` | 数据库迁移、Edge Functions | 商户基础表与 RLS 已建立 |
 
 ## 开发
 

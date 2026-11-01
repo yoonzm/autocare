@@ -5,7 +5,7 @@ import '../widgets/app_icon.dart';
 import '../widgets/common.dart';
 import 'home_page.dart';
 import 'inventory_page.dart';
-import 'members_page.dart';
+import 'merchant_catalog_page.dart';
 import '../mock/app_state.dart';
 import '../routes.dart';
 import 'gen/plan_expired_page.dart';
@@ -37,7 +37,7 @@ class _ShellState extends State<Shell> {
 
   static const _pages = <Widget>[
     HomePage(),
-    MembersPage(),
+    MerchantCatalogPage('members'),
     InventoryPage(),
     StatsPage(),
   ];

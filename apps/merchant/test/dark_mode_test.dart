@@ -1,11 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:autocare_merchant/backend/merchant_backend.dart';
 import 'package:autocare_merchant/main.dart';
 import 'package:autocare_merchant/mock/theme_state.dart';
 import 'package:autocare_merchant/pages/settings_page.dart';
 import 'package:autocare_merchant/theme.dart';
 
 void main() {
+  setUpAll(() async {
+    SharedPreferences.setMockInitialValues({});
+    await Supabase.initialize(
+      url: supabaseUrl,
+      publishableKey: supabasePublishableKey,
+    );
+  });
   tearDown(() {
     appThemeMode.value = ThemeMode.system;
     C.dark = false;
@@ -16,8 +26,6 @@ void main() {
     t.view.devicePixelRatio = 3;
     addTearDown(t.view.reset);
     await t.pumpWidget(const QimeiApp());
-    await t.tap(find.text('登录').first);
-    await t.pumpAndSettle();
     expect(C.dark, isFalse);
 
     Future<void> apply(String label) async {

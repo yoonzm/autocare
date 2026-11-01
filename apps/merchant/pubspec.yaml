@@ -1,5 +1,5 @@
 name: autocare_merchant
-description: 汽美管家 - 汽车美容店铺管理 App（前端原型，使用 mock 数据）
+description: 汽美管家 - 汽车美容店铺管理 App（基础业务接入 Supabase，其余为原型）
 publish_to: "none"
 version: 1.0.0+1
 
@@ -14,6 +14,7 @@ dependencies:
     sdk: flutter
   flutter_svg: ^2.3.2
   image_picker: ^1.1.2
+  supabase_flutter: ^2.18.3
 
 dev_dependencies:
   flutter_test:
@@ -21,6 +22,7 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   plugin_platform_interface: ^2.1.8
   camera_platform_interface: ^2.15.0
+  shared_preferences: ^2.5.6
 
 flutter:
   uses-material-design: true

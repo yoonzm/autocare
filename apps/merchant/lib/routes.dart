@@ -6,9 +6,10 @@ import 'pages/appointment_add_page.dart';
 import 'pages/appointments_page.dart';
 import 'pages/gen/gen_routes.dart';
 import 'pages/login_page.dart';
+import 'pages/merchant_catalog_page.dart';
+import 'pages/merchant_store_page.dart';
 import 'pages/member_detail_page.dart';
 import 'pages/order_page.dart';
-import 'pages/services_page.dart';
 import 'pages/settings_page.dart';
 import 'pages/scan_page.dart';
 import 'pages/shell.dart';
@@ -45,7 +46,12 @@ Widget? pageFor(String name) {
     case 'MemberDetail':
       return MemberDetailPage(member: members.first);
     case 'Services':
-      return const ServicesPage();
+      return const MerchantCatalogPage('services');
+    case 'StoreInfo':
+      return const MerchantStorePage();
+    case 'CardTiers':
+    case 'CardPackages':
+      return const MerchantCatalogPage('cards');
     case 'Settings':
       return const SettingsPage();
     case 'FindScanPlate':
@@ -181,6 +187,14 @@ String? _routeName(BuildContext context) =>
 /// - 同一界面的不同视图 / 结果页采用替换，保持返回逻辑与设计一致。
 void openRoute(BuildContext context, String name) {
   final nav = Navigator.of(context);
+  if (name == 'CardTiers' || name == 'CardPackages') {
+    nav.push(
+      MaterialPageRoute<void>(
+        builder: (_) => const MerchantCatalogPage('cards'),
+      ),
+    );
+    return;
+  }
   final cur = _routeName(context);
   final inSheet = cur != null && cur.startsWith('sheet:');
   if (inSheet) {

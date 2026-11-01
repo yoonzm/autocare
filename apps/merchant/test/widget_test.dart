@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:autocare_merchant/main.dart';
+import 'package:autocare_merchant/pages/login_page.dart';
 import 'package:autocare_merchant/mock/mock_data.dart';
 import 'package:autocare_merchant/pages/appointment_add_page.dart';
 import 'package:autocare_merchant/pages/appointments_page.dart';
@@ -16,17 +16,13 @@ void main() {
     addTearDown(t.view.reset);
   }
 
-  testWidgets('登录后进入首页，底部 Tab 可切换', (tester) async {
+  testWidgets('登录页校验输入，不会绕过认证进入首页', (tester) async {
     phone(tester);
-    await tester.pumpWidget(const QimeiApp());
+    await tester.pumpWidget(const MaterialApp(home: LoginPage()));
     expect(find.text('汽美管家'), findsOneWidget);
-    await tester.tap(find.text('登录').first);
+    await tester.tap(find.text('登录'));
     await tester.pumpAndSettle();
-    expect(find.text('驰光汽车美容'), findsOneWidget);
-    for (final tab in ['会员', '库存', '统计', '首页']) {
-      await tester.tap(find.text(tab).last);
-      await tester.pumpAndSettle();
-    }
+    expect(find.text('请填写有效邮箱和至少 6 位密码'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
