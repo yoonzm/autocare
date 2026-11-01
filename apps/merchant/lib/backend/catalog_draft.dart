@@ -6,6 +6,7 @@ import 'merchant_api.dart';
 class CatalogDraft {
   static CatalogDraft? current;
   static final changed = ValueNotifier<int>(0);
+  static bool _busy = false;
 
   final String kind;
   final String? id;
@@ -69,6 +70,8 @@ class CatalogDraft {
         'description': draft.fields['description'] ?? '',
       });
     }
+    if (_busy) return;
+    _busy = true;
     try {
       await merchantApi.save(kind, values);
       changed.value++;
@@ -78,6 +81,8 @@ class CatalogDraft {
       }
     } catch (e) {
       if (context.mounted) _message(context, '保存失败：$e');
+    } finally {
+      _busy = false;
     }
   }
 
@@ -87,6 +92,8 @@ class CatalogDraft {
       _message(context, '尚未保存，无需删除');
       return;
     }
+    if (_busy) return;
+    _busy = true;
     try {
       await merchantApi.delete(kind, draft.id!);
       changed.value++;
@@ -96,6 +103,8 @@ class CatalogDraft {
       }
     } catch (e) {
       if (context.mounted) _message(context, '删除失败：$e');
+    } finally {
+      _busy = false;
     }
   }
 
