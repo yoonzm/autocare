@@ -110,7 +110,7 @@ export type Input = Record<string, unknown>;
 
 export type ApiResponse =
   | { ok: true }
-  | { ok: true; services: number; cards: number }
+  | { ok: true; services: number; cards: number; packages: number }
   | { code: string; mock: true }
   | { access_token: string; refresh_token: string }
   | { store: StoreProfileRow }

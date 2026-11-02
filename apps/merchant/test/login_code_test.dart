@@ -68,7 +68,9 @@ void main() {
     await t.enterText(find.byType(TextField).at(1), '000000');
     await t.ensureVisible(find.text('登录').first);
     await t.tap(find.text('登录').first);
-    await t.pumpAndSettle();
+    // 不用 pumpAndSettle：它会一直等到提示条自动消失
+    await t.pump();
+    await t.pump(const Duration(milliseconds: 600));
     expect(find.textContaining('验证码错误'), findsOneWidget);
     expect(find.text('驰光汽车美容'), findsNothing);
 
@@ -77,7 +79,7 @@ void main() {
     await t.pump();
     expect(find.text('发送中…'), findsOneWidget); // 点击后立即显示加载中
     await t.pump(const Duration(milliseconds: 600));
-    await t.pumpAndSettle(); // 等旧提示条退场、新提示条出现
+    await t.pump(const Duration(milliseconds: 300)); // 新提示条滑入
     expect(find.text('开发环境验证码：482910'), findsOneWidget);
     await t.pump(const Duration(seconds: 4));
     await t.enterText(find.byType(TextField).at(1), '482910');
@@ -86,5 +88,25 @@ void main() {
     await t.pumpAndSettle();
     expect(find.text('驰光汽车美容'), findsOneWidget);
     expect(api.calls.last, 'login:13988888812:482910');
+  });
+
+  testWidgets('提示条显示在屏幕顶部，不在底部，到时间自动消失', (t) async {
+    await open(t);
+    await t.enterText(find.byType(TextField).first, '13988888812');
+    await t.enterText(find.byType(TextField).at(1), '000000');
+    await t.ensureVisible(find.text('登录').first);
+    await t.tap(find.text('登录').first);
+    await t.pump();
+    await t.pump(const Duration(milliseconds: 800));
+    final toast = find.textContaining('验证码错误');
+    expect(toast, findsOneWidget);
+    final y = t.getCenter(toast).dy;
+    expect(y, lessThan(120), reason: '屏幕高 844，提示条应在顶部');
+    await t.pump(const Duration(seconds: 4));
+    final left = [
+      for (var i = 0; i < toast.evaluate().length; i++)
+        t.getCenter(toast.at(i)).dy,
+    ];
+    expect(left.any((y) => y < 120), isFalse, reason: '到时间后顶部提示条应消失');
   });
 }

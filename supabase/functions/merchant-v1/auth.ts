@@ -1,6 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.118.0';
 import { admin, anonKey, fail, json, mockSmsEnabled, nameOf, phoneOf, url } from './shared.ts';
-import { DEFAULT_CARDS, defaultServices } from './defaults.ts';
+import { DEFAULT_CARDS, defaultPackages, defaultServices } from './defaults.ts';
 import type { Input } from './types.ts';
 
 // TODO: Replace the development alias with native phone auth after SMS is configured.
@@ -184,19 +184,41 @@ export async function handleAuth(input: Input): Promise<Response> {
       await admin.auth.admin.deleteUser(data.user.id);
       return fail('门店创建失败', 500);
     }
-    // Starter data: services for the chosen business types and the four default card tiers.
+    // Starter data: services for the chosen business types, the four default card tiers and
+    // the design's packages (only those whose services were created).
     const services = defaultServices(profile.business_types);
-    const { error: serviceError } = await admin.from('service_items')
-      .insert(services.map((s) => ({ ...s, store_id: store.id })));
+    const { data: createdServices, error: serviceError } = await admin.from('service_items')
+      .insert(services.map((s) => ({ ...s, store_id: store.id }))).select('id, name');
     const { error: cardError } = serviceError ? { error: null } : await admin.from('card_types')
       .insert(DEFAULT_CARDS.map((c) => ({ ...c, store_id: store.id })));
-    if (serviceError || cardError) {
+    const idByName = new Map((createdServices ?? []).map((s) => [s.name as string, s.id as string]));
+    const packages = defaultPackages([...idByName.keys()]);
+    let packageFailed = false;
+    if (!serviceError && !cardError) {
+      for (const p of packages) {
+        const { error: packageError } = await admin.rpc('save_card_package', {
+          p_store: store.id,
+          p_id: null,
+          p_values: {
+            name: p.name, price: p.price, validity_months: p.validity_months,
+            purchase_limit: null, vehicle_scope: '全部车型', show_in_mini: true,
+            description: '', active: p.active,
+          },
+          p_items: p.items.map((i) => ({ service_id: idByName.get(i.service), count: i.count })),
+        });
+        if (packageError) {
+          packageFailed = true;
+          break;
+        }
+      }
+    }
+    if (serviceError || cardError || packageFailed) {
       // The store and its data cascade from the user, so deleting the user rolls everything back.
       await admin.auth.admin.deleteUser(data.user.id);
       return fail('门店初始化失败，请稍后重试', 500);
     }
     await admin.from('phone_otps').delete().eq('phone', phone); // single use
-    return json({ ok: true, services: services.length, cards: DEFAULT_CARDS.length });
+    return json({ ok: true, services: services.length, cards: DEFAULT_CARDS.length, packages: packages.length });
   }
   if (input.action === 'login_password') {
     if (!phone || typeof input.password !== 'string') return fail('手机号或密码无效');

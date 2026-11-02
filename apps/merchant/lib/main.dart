@@ -123,6 +123,7 @@ class _QimeiAppState extends State<QimeiApp> with WidgetsBindingObserver {
       navigatorKey: _navKey,
       scaffoldMessengerKey: _msgKey,
       navigatorObservers: [navTracker],
+      builder: (context, child) => ToastHost(child: child ?? const SizedBox()),
       locale: const Locale('zh', 'CN'),
       supportedLocales: const [Locale('zh', 'CN')],
       localizationsDelegates: const [
