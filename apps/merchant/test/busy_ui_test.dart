@@ -261,9 +261,16 @@ void main() {
       r'ASYNC_ACTIONS = \{(.*?)\n\}',
       dotAll: true,
     ).firstMatch(src)!.group(1)!;
+    // 同一个路由里的几个页签共用动作键前缀（如 RechargeCard 属于 Recharge 路由）
+    final keyPage = {
+      for (final m in RegExp(
+        r"'(\w+)': '(\w+)'",
+      ).allMatches(RegExp(r'KEY_PAGE = \{(.*?)\}').firstMatch(src)!.group(1)!))
+        m.group(1)!: m.group(2)!,
+    };
     final fromGenerator = {
       for (final m in RegExp(r"\('(\w+)', '(\w+)'\)").allMatches(block))
-        '${m.group(1)}>${m.group(2)}',
+        '${keyPage[m.group(1)] ?? m.group(1)}>${m.group(2)}',
     };
     expect(fromGenerator, asyncActionKeys);
   });

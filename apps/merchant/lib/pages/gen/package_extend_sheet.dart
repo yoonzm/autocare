@@ -36,13 +36,10 @@ class PackageExtendSheet extends StatelessWidget {
               lh: 28,
             ),
           ),
-          Text(
+          hPackageText(
+            (k) => k.extendSubtitle,
             '精致洗车年卡 · 当前到期日 2027.03.31',
-            style: hts(
-              13,
-              dk(context, Color(0xFF52525B), Color(0xFFA8A8B3)),
-              lh: 20,
-            ),
+            hts(13, dk(context, Color(0xFF52525B), Color(0xFFA8A8B3)), lh: 20),
           ),
           hcol(
             [
@@ -279,9 +276,10 @@ class PackageExtendSheet extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Text(
+                    hPackageText(
+                      (k) => k.extendedExpiry,
                       '2027.05.30',
-                      style: hts(
+                      hts(
                         15,
                         dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
                         w: FontWeight.w600,
@@ -526,14 +524,24 @@ class PackageExtendSheet extends StatelessWidget {
                         child: Align(
                           alignment: Alignment(0, 0),
                           widthFactor: 1,
-                          child: Text(
-                            '确认延期',
+                          child: hBusy(
+                            'PackageExtend>PackageDetail',
+                            Text(
+                              '确认延期',
+                              style: hts(
+                                15,
+                                Color(0xFFFFFFFF),
+                                w: FontWeight.w600,
+                                lh: 22,
+                              ),
+                            ),
                             style: hts(
                               15,
                               Color(0xFFFFFFFF),
                               w: FontWeight.w600,
                               lh: 22,
                             ),
+                            label: '提交中…',
                           ),
                         ),
                       ),

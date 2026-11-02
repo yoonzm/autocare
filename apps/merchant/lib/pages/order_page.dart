@@ -1,7 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+
+import '../backend/member_flow.dart';
+import '../backend/merchant_api.dart';
+import '../kit/async_kit.dart';
 
 import '../kit/keyboard.dart';
 import '../kit/pickers.dart';
+import '../backend/catalog_draft.dart';
 import '../mock/mock_data.dart';
 import '../theme.dart';
 import '../routes.dart';
@@ -16,7 +23,117 @@ class OrderPage extends StatefulWidget {
 }
 
 class _OrderPageState extends State<OrderPage> {
-  static const _cats = ['常用', '洗车', '镀晶镀膜', '贴膜', '内饰'];
+  static const _mockCats = ['常用', '洗车', '镀晶镀膜', '贴膜', '内饰'];
+
+  // ───────── 登录后：服务项目、会员次卡、折扣来自后端 ─────────
+  bool get _live => merchantApi.hasSession;
+  List<_Svc> _liveSvcs = const [];
+  bool _loadingSvcs = false;
+  AppError? _svcError;
+
+  /// 会员名下可用次卡：服务 ID -> (次卡 ID, 剩余次数)。
+  Map<String, (String, int)> _cover = {};
+  bool _busy = false;
+
+  List<_Svc> get _svcs => _live
+      ? _liveSvcs
+      : [
+          for (final s in orderServices)
+            _Svc(null, s.name, s.price.toDouble(), s.cats, s.cardCovered),
+        ];
+
+  List<String> get _cats => _live
+      ? [
+          '常用',
+          ...{for (final s in _liveSvcs) ...s.cats},
+        ]
+      : _mockCats;
+
+  bool _covered(int i) =>
+      _live ? _cover.containsKey(_svcs[i].id) : _svcs[i].mockCovered;
+
+  /// 会员卡折扣（0.9 = 9 折）；没有折扣时 1。
+  double get _discount => _live
+      ? (num.tryParse(
+                  '${(customer.data?['card'] as Map?)?['discount'] ?? 1}',
+                ) ??
+                1)
+            .toDouble()
+      : 0.9;
+
+  String get _discountN {
+    final d = _discount * 10;
+    return '${d == d.roundToDouble() ? d.round() : d.toStringAsFixed(1)} 折';
+  }
+
+  String get _discountLabel => '${_live ? customer.level : '黑金'} $_discountN';
+
+  @override
+  void initState() {
+    super.initState();
+    if (_live) {
+      picked.clear();
+      if (widget.member != null) MemberFlow.current ??= widget.member!.data;
+      unawaited(_loadServices());
+      unawaited(_loadCover());
+    }
+  }
+
+  Future<void> _loadServices() async {
+    setState(() {
+      _loadingSvcs = true;
+      _svcError = null;
+    });
+    try {
+      final rows = await merchantApi.list('services');
+      if (!mounted) return;
+      setState(() {
+        _liveSvcs = [
+          for (final r in rows)
+            if (r['active'] != false)
+              _Svc(
+                '${r['id']}',
+                '${r['name']}',
+                (num.tryParse('${r['price']}') ?? 0).toDouble(),
+                {'${r['category'] ?? '其他'}'},
+                false,
+              ),
+        ];
+        _loadingSvcs = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _loadingSvcs = false;
+        _svcError = AppError.from(e);
+      });
+    }
+  }
+
+  Future<void> _loadCover() async {
+    final id = customer.id;
+    if (id == null) return;
+    try {
+      final rows = await merchantApi.memberPackages(id);
+      final map = <String, (String, int)>{};
+      for (final p in rows) {
+        if (p['refunded_at'] != null) continue;
+        final exp = DateTime.tryParse('${p['expires_at'] ?? ''}');
+        if (exp != null && exp.isBefore(DateTime.now())) continue;
+        for (final it in (p['items'] as List? ?? const [])) {
+          final left = ((it['total'] as num) - (it['used'] as num)).toInt();
+          final sid = '${it['service_id']}';
+          if (left > 0 && !map.containsKey(sid)) {
+            map[sid] = ('${p['id']}', left);
+          }
+        }
+      }
+      if (mounted) setState(() => _cover = map);
+    } catch (_) {
+      // 次卡读取失败时按普通项目收费，服务端会再次核对
+    }
+  }
+
   List<(String, String)> get _pays => [
     ('会员余额', '可用 $_balanceText'),
     ('微信 / 支付宝', '扫码收款'),
@@ -30,17 +147,28 @@ class _OrderPageState extends State<OrderPage> {
   String bay = '2 号工位';
   String finish = '今天 15:30';
   static const _bays = ['1 号工位', '2 号工位', '3 号工位', '4 号工位', '5 号工位', '贴膜间'];
-  late Member customer = widget.member ?? members.first;
+  late Member customer =
+      widget.member ??
+      (merchantApi.hasSession
+          ? const Member('请选择会员', '', '', '', '—', '', {})
+          : members.first);
   int pay = 0;
   final Set<int> picked = {0, 1};
   final Set<String> techs = {'李国强 · 镀晶', '王磊 · 洗车'};
 
-  double get subtotal => picked.fold(0, (s, i) => s + orderServices[i].price);
-  double get cardOff => picked
-      .where((i) => orderServices[i].cardCovered)
-      .fold(0, (s, i) => s + orderServices[i].price);
-  // 黑金 9 折：次卡抵扣之外的项目
-  double get vipOff => (subtotal - cardOff) * 0.1;
+  double get subtotal => picked.fold(0, (s, i) => s + _svcs[i].price);
+  double get cardOff =>
+      picked.where(_covered).fold(0, (s, i) => s + _svcs[i].price);
+  // 会员卡折扣：次卡抵扣之外的项目（登录后与云函数一致，逐项四舍五入到分）
+  double get vipOff => _live
+      ? picked
+            .where((i) => !_covered(i))
+            .fold(
+              0.0,
+              (s, i) =>
+                  s + (_svcs[i].price * (1 - _discount) * 100).round() / 100,
+            )
+      : (subtotal - cardOff) * 0.1;
   double get payable => subtotal - cardOff - vipOff;
 
   void checkout() {
@@ -48,7 +176,98 @@ class _OrderPageState extends State<OrderPage> {
       toast(context, '请先选择服务项目');
       return;
     }
+    if (_live) {
+      unawaited(_checkoutLive());
+      return;
+    }
     openRoute(context, customer.bound ? 'PaySuccess' : 'PayUnbound');
+  }
+
+  /// 真实收款：价格、折扣、次卡抵扣、扣款都由云函数算，这里只传选择；收款方式只是记账。
+  Future<void> _checkoutLive() async {
+    if (_busy) return;
+    final id = customer.id;
+    if (id == null) {
+      toast(context, '请先选择会员');
+      return;
+    }
+    String method;
+    num? balancePart;
+    String? other;
+    if (payable <= 0) {
+      method = '现金'; // 全部由次卡抵扣，云函数记为“次卡抵扣”
+    } else if (pay == 0) {
+      method = '会员余额';
+    } else if (pay == 1) {
+      final r = await pickFromList(context, '选择收款方式', ['微信', '支付宝'], '微信');
+      if (r == null || !mounted) return;
+      method = r;
+    } else if (pay == 2) {
+      method = '现金';
+    } else {
+      method = '组合支付';
+      final bal = num.tryParse('${customer.data?['balance'] ?? 0}') ?? 0;
+      final max = bal < payable ? bal : payable - 0.01;
+      final part = await pickAmount(context, '使用余额（最多 ¥${money(max)}）', '');
+      if (!mounted) return;
+      final n = num.tryParse((part ?? '').replaceAll(RegExp(r'[¥,\s]'), ''));
+      if (n == null || n <= 0 || n > max) {
+        if (mounted) toast(context, '请填写使用的余额金额');
+        return;
+      }
+      balancePart = n;
+      final r = await pickFromList(context, '其余部分的收款方式', [
+        '微信',
+        '支付宝',
+        '现金',
+        'POS 刷卡',
+      ], '微信');
+      if (r == null || !mounted) return;
+      other = r;
+    }
+    setState(() => _busy = true);
+    final started = DateTime.now();
+    try {
+      final res = await merchantApi.checkout(
+        memberId: id,
+        lines: [
+          for (final i in picked)
+            {
+              'service_id': _svcs[i].id,
+              'qty': 1,
+              if (_covered(i)) 'member_package_id': _cover[_svcs[i].id]!.$1,
+            },
+        ],
+        method: method,
+        balancePart: balancePart,
+        other: other,
+        plate: customer.plate.contains('·')
+            ? customer.plate.replaceAll('·', '')
+            : '',
+      );
+      // 加载指示至少停留 500ms
+      final left = kIndicatorMinShow - DateTime.now().difference(started);
+      if (left > Duration.zero) await Future<void>.delayed(left);
+      MemberFlow.lastOrder = {
+        ...res,
+        'member_name': customer.name,
+        'plate': customer.plate,
+        'at': DateTime.now(),
+      };
+      MemberFlow.current = await merchantApi.member(id);
+      CatalogDraft.changed.value++;
+      if (res['upgraded_to'] != null && mounted) {
+        toast(context, '已自动升级为${res['upgraded_to']}');
+      }
+      if (mounted) {
+        setState(() => picked.clear());
+        openRoute(context, 'PaySuccess');
+      }
+    } catch (e) {
+      if (mounted) AppToast.error(context, e);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
   }
 
   @override
@@ -178,7 +397,12 @@ class _OrderPageState extends State<OrderPage> {
                     onTap: () => openRoute(context, 'HoldSheet'),
                   ),
                   const SizedBox(width: 12),
-                  PrimaryButton('确认收款', onTap: checkout),
+                  PrimaryButton(
+                    '确认收款',
+                    onTap: checkout,
+                    loading: _busy,
+                    loadingText: '提交中…',
+                  ),
                 ],
               ),
             ),
@@ -192,8 +416,20 @@ class _OrderPageState extends State<OrderPage> {
       customer.amountNote == '余额' ? customer.amount : '¥0';
 
   Future<void> _pickCustomer() async {
-    final m = await pickMember(context, current: customer);
-    if (m != null && mounted) setState(() => customer = m);
+    final m = _live
+        ? await pickLiveMember(context)
+        : await pickMember(context, current: customer);
+    if (m != null && mounted) {
+      setState(() {
+        customer = m;
+        picked.clear();
+        _cover = {};
+      });
+      if (_live) {
+        MemberFlow.current = m.data;
+        unawaited(_loadCover());
+      }
+    }
   }
 
   Widget _customer(BuildContext context) => AppCard(
@@ -344,13 +580,31 @@ class _OrderPageState extends State<OrderPage> {
           ),
         ),
         const SizedBox(height: 8),
-        for (var i = 0; i < orderServices.length; i++)
+        if (_live && _loadingSvcs && _liveSvcs.isEmpty)
+          const SkeletonList(count: 5)
+        else if (_live && _svcError != null && _liveSvcs.isEmpty)
+          SizedBox(
+            height: 220,
+            child: ErrorView(
+              error: _svcError!,
+              retrying: _loadingSvcs,
+              onRetry: _loadServices,
+            ),
+          )
+        else if (_live && _liveSvcs.isEmpty)
+          const SizedBox(
+            height: 200,
+            child: EmptyView(title: '还没有服务项目', message: '请先在“服务项目”里新增'),
+          ),
+        for (var i = 0; i < _svcs.length; i++)
           if (query.isNotEmpty
-              ? orderServices[i].name.contains(query)
-              : orderServices[i].cats.contains(_cats[cat]))
+              ? _svcs[i].name.contains(query)
+              : (cat == 0 ||
+                    _svcs[i].cats.contains(
+                      _cats[cat < _cats.length ? cat : 0],
+                    )))
             _serviceRow(i),
-        if (query.isNotEmpty &&
-            !orderServices.any((e) => e.name.contains(query)))
+        if (query.isNotEmpty && !_svcs.any((e) => e.name.contains(query)))
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 24),
             child: Center(
@@ -362,7 +616,7 @@ class _OrderPageState extends State<OrderPage> {
   );
 
   Widget _serviceRow(int i) {
-    final s = orderServices[i];
+    final s = _svcs[i];
     final on = picked.contains(i);
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -378,7 +632,7 @@ class _OrderPageState extends State<OrderPage> {
                 children: [
                   Text(s.name, style: ts(14, w: FontWeight.w500, h: 20)),
                   const SizedBox(height: 3),
-                  if (on && s.cardCovered)
+                  if (on && _covered(i))
                     Row(
                       children: [
                         Text(
@@ -408,7 +662,7 @@ class _OrderPageState extends State<OrderPage> {
                         ),
                         const SizedBox(width: 6),
                         Pill(
-                          '黑金 9 折',
+                          _discountLabel,
                           bg: C.amberSoft,
                           fg: C.amberInk,
                           size: 11,
@@ -553,12 +807,18 @@ class _OrderPageState extends State<OrderPage> {
         _line('项目合计', '¥${money(subtotal, digits: 2)}'),
         if (cardOff > 0)
           _line(
-            '次卡抵扣 · 精致洗车 1 次',
+            _live
+                ? '次卡抵扣 · ${picked.where(_covered).map((i) => _svcs[i].name).join('、')}'
+                : '次卡抵扣 · 精致洗车 1 次',
             '-¥${money(cardOff, digits: 2)}',
             green: true,
           ),
         if (vipOff > 0)
-          _line('黑金会员 9 折', '-¥${money(vipOff, digits: 2)}', green: true),
+          _line(
+            _live ? '${customer.level} $_discountN' : '黑金会员 9 折',
+            '-¥${money(vipOff, digits: 2)}',
+            green: true,
+          ),
         const SizedBox(height: 4),
         const Divider1(),
         const SizedBox(height: 12),
@@ -632,4 +892,14 @@ class _OrderPageState extends State<OrderPage> {
       ],
     ),
   );
+}
+
+/// 开单页里的一个服务项目（登录后来自后端，设计预览来自示例数据）。
+class _Svc {
+  final String? id;
+  final String name;
+  final double price;
+  final Set<String> cats;
+  final bool mockCovered;
+  const _Svc(this.id, this.name, this.price, this.cats, this.mockCovered);
 }

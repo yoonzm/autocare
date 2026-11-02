@@ -98,9 +98,10 @@ class MemberAdjustPage extends StatelessWidget {
                         bg: Color(0xFFF5D78E),
                         radius: BorderRadius.circular(22),
                         align: Alignment(0, 0),
-                        child: Text(
+                        child: hMemberText(
+                          (m) => m.avatar,
                           '王',
-                          style: hts(
+                          hts(
                             17,
                             dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
                             w: FontWeight.w600,
@@ -111,18 +112,20 @@ class MemberAdjustPage extends StatelessWidget {
                         flex: 1,
                         child: hcol(
                           [
-                            Text(
+                            hMemberText(
+                              (m) => m.name,
                               '王建国',
-                              style: hts(
+                              hts(
                                 16,
                                 Color(0xFFFAFAFA),
                                 w: FontWeight.w600,
                                 lh: 22,
                               ),
                             ),
-                            Text(
+                            hMemberText(
+                              (m) => '${m.maskedPhone} · ${m.plate}',
                               '138 **** 6021 · 沪A·8K29M',
-                              style: hts(
+                              hts(
                                 12,
                                 dk(
                                   context,
@@ -142,9 +145,10 @@ class MemberAdjustPage extends StatelessWidget {
                         bg: Color(0xFFF5D78E),
                         radius: BorderRadius.circular(9),
                         pad: EdgeInsets.fromLTRB(8, 0, 8, 0),
-                        child: Text(
+                        child: hMemberText(
+                          (m) => m.levelMember,
                           '黑金会员',
-                          style: hts(
+                          hts(
                             11,
                             dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
                             w: FontWeight.w600,
@@ -229,9 +233,10 @@ class MemberAdjustPage extends StatelessWidget {
                               bg: Color(0xFFF5D78E),
                               radius: BorderRadius.circular(9),
                               pad: EdgeInsets.fromLTRB(8, 0, 8, 0),
-                              child: Text(
+                              child: hMemberText(
+                                (m) => m.levelMember,
                                 '黑金会员',
-                                style: hts(
+                                hts(
                                   11,
                                   dk(
                                     context,
@@ -274,9 +279,10 @@ class MemberAdjustPage extends StatelessWidget {
                                 child: Align(
                                   alignment: Alignment.center,
                                   widthFactor: 1,
-                                  child: Text(
+                                  child: hTierName(
+                                    0,
                                     '普通',
-                                    style: hts(
+                                    hts(
                                       13,
                                       dk(
                                         context,
@@ -301,9 +307,10 @@ class MemberAdjustPage extends StatelessWidget {
                                 child: Align(
                                   alignment: Alignment.center,
                                   widthFactor: 1,
-                                  child: Text(
+                                  child: hTierName(
+                                    0,
                                     '普通',
-                                    style: hts(
+                                    hts(
                                       13,
                                       dk(
                                         context,
@@ -336,9 +343,10 @@ class MemberAdjustPage extends StatelessWidget {
                                 child: Align(
                                   alignment: Alignment.center,
                                   widthFactor: 1,
-                                  child: Text(
+                                  child: hTierName(
+                                    1,
                                     '银卡',
-                                    style: hts(
+                                    hts(
                                       13,
                                       dk(
                                         context,
@@ -363,9 +371,10 @@ class MemberAdjustPage extends StatelessWidget {
                                 child: Align(
                                   alignment: Alignment.center,
                                   widthFactor: 1,
-                                  child: Text(
+                                  child: hTierName(
+                                    1,
                                     '银卡',
-                                    style: hts(
+                                    hts(
                                       13,
                                       dk(
                                         context,
@@ -398,9 +407,10 @@ class MemberAdjustPage extends StatelessWidget {
                                 child: Align(
                                   alignment: Alignment.center,
                                   widthFactor: 1,
-                                  child: Text(
+                                  child: hTierName(
+                                    2,
                                     '金卡',
-                                    style: hts(
+                                    hts(
                                       13,
                                       dk(
                                         context,
@@ -425,9 +435,10 @@ class MemberAdjustPage extends StatelessWidget {
                                 child: Align(
                                   alignment: Alignment.center,
                                   widthFactor: 1,
-                                  child: Text(
+                                  child: hTierName(
+                                    2,
                                     '金卡',
-                                    style: hts(
+                                    hts(
                                       13,
                                       dk(
                                         context,
@@ -460,9 +471,10 @@ class MemberAdjustPage extends StatelessWidget {
                                 child: Align(
                                   alignment: Alignment.center,
                                   widthFactor: 1,
-                                  child: Text(
+                                  child: hTierName(
+                                    3,
                                     '黑金',
-                                    style: hts(
+                                    hts(
                                       13,
                                       dk(
                                         context,
@@ -487,9 +499,10 @@ class MemberAdjustPage extends StatelessWidget {
                                 child: Align(
                                   alignment: Alignment.center,
                                   widthFactor: 1,
-                                  child: Text(
+                                  child: hTierName(
+                                    3,
                                     '黑金',
-                                    style: hts(
+                                    hts(
                                       13,
                                       dk(
                                         context,
@@ -588,9 +601,10 @@ class MemberAdjustPage extends StatelessWidget {
                           ),
                           Flexible(
                             flex: 51,
-                            child: Text(
+                            child: hMemberText(
+                              (m) => m.pointsText,
                               '12,450',
-                              style: hts(
+                              hts(
                                 15,
                                 dk(
                                   context,
@@ -864,9 +878,10 @@ class MemberAdjustPage extends StatelessWidget {
                               ),
                             ),
                             Expanded(flex: 1, child: SizedBox.shrink()),
-                            Text(
+                            hRechargeText(
+                              (r) => r.adjustAfter,
                               '12,950',
-                              style: hts(
+                              hts(
                                 16,
                                 dk(
                                   context,
@@ -1389,14 +1404,24 @@ class MemberAdjustPage extends StatelessWidget {
                       child: Align(
                         alignment: Alignment(0, 0),
                         widthFactor: 1,
-                        child: Text(
-                          '确认调整',
+                        child: hBusy(
+                          'MemberAdjust>MemberDetail',
+                          Text(
+                            '确认调整',
+                            style: hts(
+                              15,
+                              Color(0xFFFFFFFF),
+                              w: FontWeight.w600,
+                              lh: 22,
+                            ),
+                          ),
                           style: hts(
                             15,
                             Color(0xFFFFFFFF),
                             w: FontWeight.w600,
                             lh: 22,
                           ),
+                          label: '提交中…',
                         ),
                       ),
                     ),

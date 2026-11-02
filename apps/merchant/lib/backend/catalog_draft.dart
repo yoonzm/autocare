@@ -176,6 +176,7 @@ class CatalogDraft {
       'note' ||
       'birthday' ||
       'plate' ||
+      'content' ||
       'vin' ||
       'mileage' => '',
       _ => fallback,

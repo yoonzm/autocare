@@ -134,9 +134,10 @@ class RechargeSuccessPage extends StatelessWidget {
                             lh: 28,
                           ),
                         ),
-                        Text(
+                        hRechargeText(
+                          (r) => r.doneAmount,
                           '¥2,000.00',
-                          style: hts(
+                          hts(
                             34,
                             dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
                             w: FontWeight.w600,
@@ -144,9 +145,10 @@ class RechargeSuccessPage extends StatelessWidget {
                             ls: -0.5,
                           ),
                         ),
-                        Text(
+                        hRechargeText(
+                          (r) => r.doneSubtitle,
                           '王建国 · 微信支付 · 14:38',
-                          style: hts(
+                          hts(
                             13,
                             dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
                             lh: 19,
@@ -291,9 +293,10 @@ class RechargeSuccessPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            Text(
+                            hRechargeText(
+                              (r) => r.doneAmount,
                               '¥2,000.00',
-                              style: hts(
+                              hts(
                                 14,
                                 dk(
                                   context,
@@ -333,9 +336,10 @@ class RechargeSuccessPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            Text(
+                            hRechargeText(
+                              (r) => r.doneGift,
                               '+¥300.00',
-                              style: hts(
+                              hts(
                                 14,
                                 dk(
                                   context,
@@ -375,9 +379,10 @@ class RechargeSuccessPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            Text(
+                            hRechargeText(
+                              (r) => r.doneTotal,
                               '¥2,300.00',
-                              style: hts(
+                              hts(
                                 14,
                                 dk(
                                   context,
@@ -417,9 +422,10 @@ class RechargeSuccessPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            Text(
+                            hRechargeText(
+                              (r) => r.doneBalance,
                               '¥5,980.00',
-                              style: hts(
+                              hts(
                                 14,
                                 dk(
                                   context,
@@ -459,9 +465,10 @@ class RechargeSuccessPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            Text(
+                            hRechargeText(
+                              (r) => r.donePoints,
                               '+2,000',
-                              style: hts(
+                              hts(
                                 14,
                                 dk(
                                   context,

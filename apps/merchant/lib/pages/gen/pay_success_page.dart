@@ -134,9 +134,10 @@ class PaySuccessPage extends StatelessWidget {
                             lh: 28,
                           ),
                         ),
-                        Text(
+                        hOrderText(
+                          (o) => o.payable,
                           '¥1,422.00',
-                          style: hts(
+                          hts(
                             34,
                             dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
                             w: FontWeight.w600,
@@ -144,9 +145,10 @@ class PaySuccessPage extends StatelessWidget {
                             ls: -0.5,
                           ),
                         ),
-                        Text(
+                        hOrderText(
+                          (o) => o.subtitle,
                           '沪A·8K826 · 王建国 · 储值支付 · 14:32',
-                          style: hts(
+                          hts(
                             13,
                             dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
                             lh: 19,
@@ -291,9 +293,10 @@ class PaySuccessPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            Text(
+                            hOrderText(
+                              (o) => o.items,
                               '镀晶养护 · 内饰精洗',
-                              style: hts(
+                              hts(
                                 14,
                                 dk(
                                   context,
@@ -333,9 +336,10 @@ class PaySuccessPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            Text(
+                            hOrderText(
+                              (o) => o.discountLine,
                               '黑金 9 折 −¥158.00',
-                              style: hts(
+                              hts(
                                 14,
                                 dk(
                                   context,
@@ -375,9 +379,10 @@ class PaySuccessPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            Text(
+                            hOrderText(
+                              (o) => o.balancePaid,
                               '¥1,422.00',
-                              style: hts(
+                              hts(
                                 14,
                                 dk(
                                   context,
@@ -417,9 +422,10 @@ class PaySuccessPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            Text(
+                            hOrderText(
+                              (o) => o.balance,
                               '¥2,258.00',
-                              style: hts(
+                              hts(
                                 14,
                                 dk(
                                   context,
@@ -459,9 +465,10 @@ class PaySuccessPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            Text(
+                            hOrderText(
+                              (o) => o.points,
                               '+1,422',
-                              style: hts(
+                              hts(
                                 14,
                                 dk(
                                   context,

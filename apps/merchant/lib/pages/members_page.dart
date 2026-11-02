@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import '../backend/catalog_draft.dart';
 import '../backend/member_flow.dart';
 import '../backend/merchant_api.dart';
+import '../backend/package_calc.dart' show formatMoney;
 import '../kit/async_kit.dart';
-import '../kit/kit.dart' show hToast;
 import '../kit/pickers.dart';
 import '../mock/mock_data.dart';
 import '../kit/keyboard.dart';
@@ -34,6 +34,10 @@ class _MembersPageState extends State<MembersPage> {
   List<Map<String, dynamic>> _tiers = const [];
   Map<String, int> _counts = const {};
   int _total = 0;
+  int _matched = 0;
+  num _totalBalance = 0;
+  int _newThisMonth = 0;
+  bool _loadingMore = false;
   AppError? _error;
   bool _loading = false;
   bool _showSkeleton = false;
@@ -48,6 +52,7 @@ class _MembersPageState extends State<MembersPage> {
     super.initState();
     if (_live) {
       CatalogDraft.changed.addListener(_load);
+      MemberFlow.filter.addListener(_filterChanged);
       _load();
     }
   }
@@ -55,19 +60,27 @@ class _MembersPageState extends State<MembersPage> {
   @override
   void dispose() {
     _debounce?.cancel();
-    if (_live) CatalogDraft.changed.removeListener(_load);
+    if (_live) {
+      CatalogDraft.changed.removeListener(_load);
+      MemberFlow.filter.removeListener(_filterChanged);
+    }
     super.dispose();
   }
 
-  Future<void> _load() async {
-    if (!_live || _loading) return;
+  Future<void> _load({bool more = false}) async {
+    if (!_live || _loading || _loadingMore) return;
+    final offset = more ? (_liveList?.length ?? 0) : 0;
     setState(() {
-      _loading = true;
-      _showSkeleton = false;
-      _skeletonAt = null;
+      if (more) {
+        _loadingMore = true;
+      } else {
+        _loading = true;
+        _showSkeleton = false;
+        _skeletonAt = null;
+      }
     });
     final timer = Timer(kIndicatorDelay, () {
-      if (mounted && _loading) {
+      if (mounted && _loading && !more) {
         setState(() {
           _showSkeleton = true;
           _skeletonAt = DateTime.now();
@@ -77,18 +90,30 @@ class _MembersPageState extends State<MembersPage> {
     List<Member>? rows;
     List<Map<String, dynamic>>? tiers;
     Map<String, int>? counts;
+    MemberPage? pageData;
     int? total;
     AppError? failed;
     final asked = (query: query, tier: _tierId);
+    final filterArgs = MemberFlow.filter.args();
     try {
       final res = await Future.wait<Object>([
-        merchantApi.members(query: asked.query, cardTypeId: asked.tier),
+        merchantApi.members(
+          query: asked.query,
+          cardTypeId: asked.tier,
+          cardTypeIds: filterArgs['ids'] as List<String>,
+          balanceMin: filterArgs['min'] as num?,
+          balanceMax: filterArgs['max'] as num?,
+          visitedWithinDays: filterArgs['within'] as int?,
+          visitedOverDays: filterArgs['over'] as int?,
+          offset: offset,
+        ),
         merchantApi.list('cards'),
       ]);
-      final page = res[0] as dynamic;
+      final page = res[0] as MemberPage;
+      pageData = page;
       rows = [for (final r in page.items) memberFromRow(r)];
-      counts = page.counts as Map<String, int>;
-      total = page.total as int;
+      counts = page.counts;
+      total = page.total;
       tiers = res[1] as List<Map<String, dynamic>>;
     } catch (e) {
       failed = AppError.from(e);
@@ -102,9 +127,14 @@ class _MembersPageState extends State<MembersPage> {
     if (!mounted) return;
     setState(() {
       _loading = false;
+      _loadingMore = false;
       _showSkeleton = false;
       if (failed == null) {
-        _liveList = rows;
+        _liveList = more ? [...?_liveList, ...rows!] : rows;
+        if (!more) unawaited(MemberFlow.loadReminders());
+        _matched = pageData!.matched;
+        _totalBalance = pageData.totalBalance;
+        _newThisMonth = pageData.newThisMonth;
         _counts = counts!;
         _total = total!;
         _tiers = tiers!;
@@ -126,6 +156,24 @@ class _MembersPageState extends State<MembersPage> {
       // 请求期间又改了搜索 / 筛选：按最新条件再取一次
       unawaited(_load());
     }
+  }
+
+  // 面板里改条件时也会通知，只有“查看”应用了才需要重新读取列表
+  Set<int>? _lastTiers;
+  int? _lastBalance, _lastVisit;
+  void _filterChanged() {
+    final f = MemberFlow.filter;
+    if (_lastBalance == f.appliedBalance &&
+        _lastVisit == f.appliedVisit &&
+        _lastTiers != null &&
+        _lastTiers!.length == f.appliedTiers.length &&
+        _lastTiers!.containsAll(f.appliedTiers)) {
+      return;
+    }
+    _lastTiers = {...f.appliedTiers};
+    _lastBalance = f.appliedBalance;
+    _lastVisit = f.appliedVisit;
+    _load();
   }
 
   void _onQuery(String v) {
@@ -177,9 +225,9 @@ class _MembersPageState extends State<MembersPage> {
                   child: GestureDetector(
                     onTap: () {
                       if (_live) {
-                        // TODO: 储值余额 / 最近到店 / 次卡状态 / 车辆项目的筛选依赖储值、订单、次卡数据，
-                        // 预期接口：merchant-v1 `members` list 的 filters 参数。卡种筛选用下面的页签。
-                        hToast(context, '高级筛选暂未接通，可用下方卡种页签筛选');
+                        // 次卡状态 / 车辆项目的筛选依赖次卡和订单数据，面板里这两项只提示（TODO）。
+                        unawaited(MemberFlow.filter.open());
+                        openRoute(context, 'MemberFilter');
                         return;
                       }
                       openRoute(context, 'MemberFilter');
@@ -378,9 +426,28 @@ class _MembersPageState extends State<MembersPage> {
                     ),
             ),
           ),
+          if (_live && _liveList != null && _liveList!.length < _matched)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+              child: Center(
+                child: LoadingButton(
+                  label: '加载更多',
+                  loadingLabel: '加载中…',
+                  style: LoadingButtonStyle.secondary,
+                  onPressed: () => _load(more: true),
+                ),
+              ),
+            ),
         ],
       ),
     );
+  }
+
+  /// 储值余额合计：不到 1 万显示整数，否则 `¥48.6万`。
+  static String _compactMoney(num v) {
+    if (v < 10000) return '¥${formatMoney(v)}';
+    final w = (v / 10000);
+    return '¥${w >= 100 ? w.round() : w.toStringAsFixed(1)}万';
   }
 
   Widget _liveChip(String label, bool on, VoidCallback onTap) =>
@@ -457,9 +524,14 @@ class _MembersPageState extends State<MembersPage> {
             ),
           ),
           const SizedBox(width: 5),
-          Text(
-            _filters[4],
-            style: ts(13, w: FontWeight.w500, color: C.redInk, h: 18),
+          ValueListenableBuilder<int>(
+            valueListenable: MemberFlow.reminderTick,
+            builder: (_, _, _) => Text(
+              _live && MemberFlow.reminders != null
+                  ? '待回访 ${MemberFlow.reminders!['pending']}'
+                  : _filters[4],
+              style: ts(13, w: FontWeight.w500, color: C.redInk, h: 18),
+            ),
           ),
         ],
       ),
@@ -568,8 +640,7 @@ class _MembersPageState extends State<MembersPage> {
                             spacing: -1,
                           ),
                         ),
-                        // TODO: “本月新增”需要按开卡时间统计，后端暂未提供，登录后不显示。
-                        if (!_live) ...[
+                        if (!_live || _newThisMonth > 0) ...[
                           const SizedBox(height: 4),
                           Container(
                             height: 20,
@@ -588,7 +659,7 @@ class _MembersPageState extends State<MembersPage> {
                                 ),
                                 const SizedBox(width: 3),
                                 Text(
-                                  '本月新增 42',
+                                  _live ? '本月新增 $_newThisMonth' : '本月新增 42',
                                   style: ts(
                                     11,
                                     w: FontWeight.w600,
@@ -618,7 +689,7 @@ class _MembersPageState extends State<MembersPage> {
                     C.gold,
                     '储值余额',
                     Text(
-                      _live ? '—' : '¥48.6万',
+                      _live ? _compactMoney(_totalBalance) : '¥48.6万',
                       style: ts(
                         17,
                         w: FontWeight.w600,

@@ -106,9 +106,10 @@ class MemberRecordsPage extends StatelessWidget {
                                 ),
                                 textAlign: TextAlign.center,
                               ),
-                              Text(
+                              hMemberText(
+                                (m) => '${m.name} · ${m.levelMember}',
                                 '王建国 · 黑金会员',
-                                style: hts(
+                                hts(
                                   12,
                                   dk(
                                     context,
@@ -245,9 +246,10 @@ class MemberRecordsPage extends StatelessWidget {
                                       lh: 16,
                                     ),
                                   ),
-                                  Text(
+                                  hMemberText(
+                                    (m) => m.totalSpentText,
                                     '¥28,450',
-                                    style: hts(
+                                    hts(
                                       17,
                                       dk(
                                         context,
@@ -320,9 +322,10 @@ class MemberRecordsPage extends StatelessWidget {
                                       lh: 16,
                                     ),
                                   ),
-                                  Text(
+                                  hMemberText(
+                                    (m) => m.totalRechargedText,
                                     '¥32,000',
-                                    style: hts(
+                                    hts(
                                       17,
                                       dk(
                                         context,
@@ -395,9 +398,10 @@ class MemberRecordsPage extends StatelessWidget {
                                       lh: 16,
                                     ),
                                   ),
-                                  Text(
+                                  hMemberText(
+                                    (m) => m.visitText,
                                     '46 次',
-                                    style: hts(
+                                    hts(
                                       17,
                                       dk(
                                         context,

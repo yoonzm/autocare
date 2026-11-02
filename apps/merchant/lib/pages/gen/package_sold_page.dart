@@ -134,9 +134,10 @@ class PackageSoldPage extends StatelessWidget {
                             lh: 28,
                           ),
                         ),
-                        Text(
+                        hRechargeText(
+                          (r) => r.soldPaid,
                           '¥1,080.00',
-                          style: hts(
+                          hts(
                             34,
                             dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
                             w: FontWeight.w600,
@@ -144,9 +145,10 @@ class PackageSoldPage extends StatelessWidget {
                             ls: -0.5,
                           ),
                         ),
-                        Text(
+                        hRechargeText(
+                          (r) => r.soldSubtitle,
                           '精致洗车年卡 · 王建国 · 微信支付 · 14:32',
-                          style: hts(
+                          hts(
                             13,
                             dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
                             lh: 19,
@@ -291,9 +293,10 @@ class PackageSoldPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            Text(
+                            hRechargeText(
+                              (r) => r.soldName,
                               '精致洗车年卡',
-                              style: hts(
+                              hts(
                                 14,
                                 dk(
                                   context,
@@ -333,9 +336,10 @@ class PackageSoldPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            Text(
+                            hRechargeText(
+                              (r) => r.soldCount,
                               '20 次',
-                              style: hts(
+                              hts(
                                 14,
                                 dk(
                                   context,
@@ -375,9 +379,10 @@ class PackageSoldPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            Text(
+                            hRechargeText(
+                              (r) => r.soldExpiry,
                               '至 2027.11.01',
-                              style: hts(
+                              hts(
                                 14,
                                 dk(
                                   context,
@@ -417,9 +422,10 @@ class PackageSoldPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            Text(
+                            hRechargeText(
+                              (r) => r.soldSaving,
                               '−¥280.00',
-                              style: hts(
+                              hts(
                                 14,
                                 dk(
                                   context,
@@ -459,9 +465,10 @@ class PackageSoldPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            Text(
+                            hRechargeText(
+                              (r) => r.soldPaid,
                               '¥1,080.00',
-                              style: hts(
+                              hts(
                                 14,
                                 dk(
                                   context,

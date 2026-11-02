@@ -1,5 +1,11 @@
 import { admin, fail, json, uuid } from './shared.ts';
-import { parseMember, parseVehicle } from './member_rules.ts';
+import {
+  parseAdjust,
+  parseMember,
+  parseRecharge,
+  parseVehicle,
+  RECHARGE_PRESETS,
+} from './member_rules.ts';
 import type { Input } from './types.ts';
 
 const MEMBER_SELECT =
@@ -15,15 +21,42 @@ function uniqueProblem(message: string): string {
   return '保存失败';
 }
 
+/** 经办人：门店联系人和身份，如“陈明（店长）”。 */
+export async function operatorOf(storeId: string): Promise<string> {
+  const { data } = await admin.from('stores').select('contact_name, contact_role').eq('id', storeId).single();
+  const name = String(data?.contact_name ?? '').trim();
+  const role = String(data?.contact_role ?? '').trim();
+  return name ? (role ? `${name}（${role}）` : name) : '店主';
+}
+
 export async function handleMembers(input: Input, storeId: string): Promise<Response> {
   if (input.action === 'list') {
-    const limit = Math.min(Math.max(Number(input.limit) || 100, 1), MAX_LIST);
-    let query = admin.from('members').select(MEMBER_SELECT)
+    const limit = Math.min(Math.max(Number(input.limit) || 50, 1), MAX_LIST);
+    const offset = Math.max(Number(input.offset) || 0, 0);
+    let query = admin.from('members').select(MEMBER_SELECT, { count: 'exact' })
       .eq('store_id', storeId).is('deleted_at', null)
-      .order('created_at', { ascending: false }).limit(limit);
+      .order('created_at', { ascending: false }).range(offset, offset + limit - 1);
     if (input.card_type_id != null) {
       if (!uuid(input.card_type_id)) return fail('卡种无效');
       query = query.eq('card_type_id', input.card_type_id);
+    }
+    if (Array.isArray(input.card_type_ids) && input.card_type_ids.length) {
+      if (!input.card_type_ids.every(uuid)) return fail('卡种无效');
+      query = query.in('card_type_id', input.card_type_ids as string[]);
+    }
+    // 储值余额区间
+    const min = input.balance_min == null ? null : Number(input.balance_min);
+    const max = input.balance_max == null ? null : Number(input.balance_max);
+    if ((min != null && !Number.isFinite(min)) || (max != null && !Number.isFinite(max))) return fail('余额范围无效');
+    if (min != null) query = query.gte('balance', min);
+    if (max != null) query = query.lt('balance', max);
+    // 最近到店：N 天内 / 超过 N 天（没到过店的算超过）
+    const within = input.visited_within_days == null ? null : Number(input.visited_within_days);
+    const over = input.visited_over_days == null ? null : Number(input.visited_over_days);
+    if ((within != null && !(within > 0)) || (over != null && !(over > 0))) return fail('到店时间范围无效');
+    if (within != null) query = query.gte('last_visit_at', new Date(Date.now() - within * 86400000).toISOString());
+    if (over != null) {
+      query = query.or(`last_visit_at.is.null,last_visit_at.lt.${new Date(Date.now() - over * 86400000).toISOString()}`);
     }
     const q = typeof input.q === 'string' ? safeLike(input.q) : '';
     if (q) {
@@ -35,14 +68,28 @@ export async function handleMembers(input: Input, storeId: string): Promise<Resp
       if (ids.length) parts.push(`id.in.(${ids.join(',')})`);
       query = query.or(parts.join(','));
     }
-    const { data, error } = await query;
+    const { data, error, count: matched } = await query;
     if (error) return fail('读取失败', 500);
-    // 各卡种的会员数（不受搜索影响），用于筛选条上的数字
-    const { data: all } = await admin.from('members').select('card_type_id')
+    // 各卡种的会员数、总数、储值余额合计、本月新增（不受搜索和筛选影响）
+    const { data: all } = await admin.from('members').select('card_type_id, balance, created_at')
       .eq('store_id', storeId).is('deleted_at', null).limit(100000);
     const counts: Record<string, number> = {};
-    for (const r of all ?? []) counts[r.card_type_id as string] = (counts[r.card_type_id as string] ?? 0) + 1;
-    return json({ items: data ?? [], counts, total: all?.length ?? 0 });
+    let totalBalance = 0;
+    let newThisMonth = 0;
+    const monthStart = new Date();
+    monthStart.setUTCDate(1);
+    monthStart.setUTCHours(0, 0, 0, 0);
+    // 以东八区的月初为准
+    const cnMonthStart = new Date(Date.UTC(monthStart.getUTCFullYear(), monthStart.getUTCMonth(), 1) - 8 * 3600000);
+    for (const r of all ?? []) {
+      counts[r.card_type_id as string] = (counts[r.card_type_id as string] ?? 0) + 1;
+      totalBalance += Number(r.balance);
+      if (new Date(r.created_at as string) >= cnMonthStart) newThisMonth++;
+    }
+    return json({
+      items: data ?? [], counts, total: all?.length ?? 0, matched: matched ?? 0,
+      total_balance: Math.round(totalBalance * 100) / 100, new_this_month: newThisMonth,
+    });
   }
   if (input.action === 'get') {
     if (!uuid(input.id)) return fail('记录 ID 无效');
@@ -88,6 +135,52 @@ export async function handleMembers(input: Input, storeId: string): Promise<Resp
     const { data, error: readError } = await admin.from('members').select(MEMBER_SELECT)
       .eq('id', input.id).eq('store_id', storeId).single();
     return readError ? fail('保存失败', 500) : json({ item: data });
+  }
+  if (input.action === 'recharge_options') {
+    return json({ items: RECHARGE_PRESETS.map((p) => ({ ...p })) });
+  }
+  if (input.action === 'recharge') {
+    if (!uuid(input.id)) return fail('会员无效');
+    const values = parseRecharge(input);
+    if (typeof values === 'string') return fail(values);
+    const { data, error } = await admin.rpc('recharge_member', {
+      p_store: storeId, p_member: input.id, p_amount: values.amount, p_gift: values.gift,
+      p_method: values.method, p_operator: await operatorOf(storeId), p_note: values.note,
+      p_request: typeof input.__request === 'string' ? input.__request : null,
+    });
+    if (error) {
+      if (error.code === 'P0002') return fail('会员不存在', 404);
+      return fail('充值失败', 400);
+    }
+    return json({ item: data });
+  }
+  if (input.action === 'adjust') {
+    if (!uuid(input.id)) return fail('会员无效');
+    const values = parseAdjust(input);
+    if (typeof values === 'string') return fail(values);
+    const { data, error } = await admin.rpc('adjust_member', {
+      p_store: storeId, p_member: input.id, p_tier: values.tier_id, p_points: values.points,
+      p_reason: values.reason, p_note: values.note, p_operator: await operatorOf(storeId),
+    });
+    if (error) {
+      if (error.code === 'P0001') return fail('积分不足，不能扣减这么多', 400);
+      if (error.code === 'P0002') {
+        return fail(error.message.includes('tier') ? '卡种不存在' : '会员不存在', 404);
+      }
+      return fail('调整失败', 400);
+    }
+    return json({ item: data });
+  }
+  if (input.action === 'ledger') {
+    if (!uuid(input.id)) return fail('会员无效');
+    const limit = Math.min(Math.max(Number(input.limit) || 30, 1), 100);
+    const offset = Math.max(Number(input.offset) || 0, 0);
+    let query = admin.from('member_ledger').select('*', { count: 'exact' })
+      .eq('store_id', storeId).eq('member_id', input.id)
+      .order('created_at', { ascending: false }).range(offset, offset + limit - 1);
+    if (input.filter === 'recharge') query = query.eq('kind', 'recharge');
+    const { data, error, count } = await query;
+    return error ? fail('读取失败', 500) : json({ items: data ?? [], total: count ?? 0 });
   }
   if (input.action === 'delete') {
     if (!uuid(input.id)) return fail('记录 ID 无效');

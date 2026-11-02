@@ -21,6 +21,24 @@ const supabasePublishableKey = String.fromEnvironment(
 final ValueNotifier<int> authExpired = ValueNotifier(0);
 
 /// Only calls the V1 cloud function. Business tables are never written here.
+/// [MerchantApi.members] 的结果。
+class MemberPage {
+  final List<Map<String, dynamic>> items;
+  final Map<String, int> counts;
+  final int total;
+  final int matched;
+  final num totalBalance;
+  final int newThisMonth;
+  const MemberPage({
+    required this.items,
+    this.counts = const {},
+    this.total = 0,
+    int? matched,
+    this.totalBalance = 0,
+    this.newThisMonth = 0,
+  }) : matched = matched ?? items.length;
+}
+
 class MerchantApi {
   SupabaseClient get client => Supabase.instance.client;
 
@@ -42,7 +60,13 @@ class MerchantApi {
   };
 
   /// 只读、可重复的请求：失败时静默重试 1 次；写请求不自动重试。
-  static const _readActions = {'list', 'get', 'get_store', 'check_code'};
+  static const _readActions = {
+    'list',
+    'get',
+    'get_store',
+    'check_code',
+    'reminders',
+  };
 
   static final _rand = Random.secure();
 
@@ -257,19 +281,35 @@ class MerchantApi {
     });
   }
 
-  /// 会员列表：可按姓名 / 手机号 / 车牌搜索，可按卡种筛选。
-  /// [counts] 是各卡种的会员数（不受搜索影响），[total] 是会员总数。
-  Future<
-    ({List<Map<String, dynamic>> items, Map<String, int> counts, int total})
-  >
-  members({String? query, String? cardTypeId}) async {
+  /// 会员列表：可按姓名 / 手机号 / 车牌搜索，按卡种、储值余额、最近到店筛选，分页。
+  /// [counts] 是各卡种的会员数、[total] 是会员总数、[totalBalance] 是储值余额合计、
+  /// [newThisMonth] 是本月新增（这几项不受搜索和筛选影响）；[matched] 是符合条件的总数。
+  Future<MemberPage> members({
+    String? query,
+    String? cardTypeId,
+    List<String>? cardTypeIds,
+    num? balanceMin,
+    num? balanceMax,
+    int? visitedWithinDays,
+    int? visitedOverDays,
+    int offset = 0,
+    int limit = 50,
+  }) async {
     final data = await invoke({
       'action': 'list',
       'kind': 'members',
       if (query != null && query.trim().isNotEmpty) 'q': query.trim(),
       'card_type_id': ?cardTypeId,
+      if (cardTypeIds != null && cardTypeIds.isNotEmpty)
+        'card_type_ids': cardTypeIds,
+      'balance_min': ?balanceMin,
+      'balance_max': ?balanceMax,
+      'visited_within_days': ?visitedWithinDays,
+      'visited_over_days': ?visitedOverDays,
+      'offset': offset,
+      'limit': limit,
     });
-    return (
+    return MemberPage(
       items: List<Map<String, dynamic>>.from(data['items'] as List),
       counts: {
         for (final e in Map<String, dynamic>.from(
@@ -277,6 +317,198 @@ class MerchantApi {
         ).entries)
           e.key: (e.value as num).toInt(),
       },
+      total: (data['total'] as num?)?.toInt() ?? 0,
+      matched: (data['matched'] as num?)?.toInt() ?? 0,
+      totalBalance: (data['total_balance'] as num?) ?? 0,
+      newThisMonth: (data['new_this_month'] as num?)?.toInt() ?? 0,
+    );
+  }
+
+  // ───────── 次卡（会员名下） ─────────
+  Future<List<Map<String, dynamic>>> memberPackages(String memberId) async {
+    final data = await invoke({
+      'action': 'list',
+      'kind': 'member_packages',
+      'member_id': memberId,
+    });
+    return List<Map<String, dynamic>>.from(data['items'] as List);
+  }
+
+  Future<Map<String, dynamic>> memberPackage(String id) async {
+    final data = await invoke({
+      'action': 'get',
+      'kind': 'member_packages',
+      'id': id,
+    });
+    return Map<String, dynamic>.from(data['item'] as Map);
+  }
+
+  /// 购买次卡：价格、次数、有效期、限购都由云函数决定；收款方式只是记账。
+  Future<Map<String, dynamic>> sellPackage({
+    required String memberId,
+    required String packageId,
+    required String method,
+  }) async {
+    final data = await invoke({
+      'action': 'sell',
+      'kind': 'member_packages',
+      'member_id': memberId,
+      'package_id': packageId,
+      'method': method,
+    });
+    return Map<String, dynamic>.from(data['item'] as Map);
+  }
+
+  Future<Map<String, dynamic>> extendPackage({
+    required String id,
+    required int days,
+    required String reason,
+  }) async {
+    final data = await invoke({
+      'action': 'extend',
+      'kind': 'member_packages',
+      'id': id,
+      'days': days,
+      'reason': reason,
+    });
+    return Map<String, dynamic>.from(data['item'] as Map);
+  }
+
+  Future<Map<String, dynamic>> refundPackage({
+    required String id,
+    required String to,
+    required String reason,
+  }) async {
+    final data = await invoke({
+      'action': 'refund',
+      'kind': 'member_packages',
+      'id': id,
+      'to': to,
+      'reason': reason,
+    });
+    return Map<String, dynamic>.from(data['item'] as Map);
+  }
+
+  // ───────── 开单收银 ─────────
+  /// [lines]: `[{service_id, qty, member_package_id?}]`。价格、折扣、次卡抵扣、扣款都由云函数算。
+  Future<Map<String, dynamic>> checkout({
+    required String memberId,
+    required List<Map<String, dynamic>> lines,
+    required String method,
+    num? balancePart,
+    String? other,
+    String plate = '',
+    String remark = '',
+  }) async {
+    final data = await invoke({
+      'action': 'checkout',
+      'kind': 'orders',
+      'member_id': memberId,
+      'lines': lines,
+      'method': method,
+      'balance_part': ?balancePart,
+      'other': ?other,
+      'plate': plate,
+      'remark': remark,
+    });
+    return Map<String, dynamic>.from(data['item'] as Map);
+  }
+
+  // ───────── 回访 ─────────
+  Future<List<Map<String, dynamic>>> followUps(String memberId) async {
+    final data = await invoke({
+      'action': 'list',
+      'kind': 'follow_ups',
+      'member_id': memberId,
+    });
+    return List<Map<String, dynamic>>.from(data['items'] as List);
+  }
+
+  Future<void> saveFollowUp({
+    required String memberId,
+    required String method,
+    required String result,
+    String content = '',
+    String? nextAt,
+  }) async {
+    await invoke({
+      'action': 'save',
+      'kind': 'follow_ups',
+      'member_id': memberId,
+      'method': method,
+      'result': result,
+      'content': content,
+      'next_at': ?nextAt,
+    });
+  }
+
+  Future<void> markFollowedUp(String memberId, {String content = ''}) async {
+    await invoke({
+      'action': 'mark',
+      'kind': 'follow_ups',
+      'member_id': memberId,
+      'content': content,
+    });
+  }
+
+  /// 回访提醒：次卡到期 / 生日 / 沉睡客户，今天回访过的不再出现。
+  Future<Map<String, dynamic>> reminders() =>
+      invoke({'action': 'reminders', 'kind': 'follow_ups'});
+
+  /// 储值充值：赠送金额由云函数按规则算出；返回到账后的余额、赠送、获得积分、是否升级。
+  Future<Map<String, dynamic>> recharge({
+    required String memberId,
+    required num amount,
+    required String method,
+    String note = '',
+  }) async {
+    final data = await invoke({
+      'action': 'recharge',
+      'kind': 'members',
+      'id': memberId,
+      'amount': amount,
+      'method': method,
+      'note': note,
+    });
+    return Map<String, dynamic>.from(data['item'] as Map);
+  }
+
+  /// 手动调整卡种 / 积分（必须带原因）。
+  Future<void> adjustMember({
+    required String memberId,
+    String? tierId,
+    int points = 0,
+    required String reason,
+    String note = '',
+  }) async {
+    await invoke({
+      'action': 'adjust',
+      'kind': 'members',
+      'id': memberId,
+      'tier_id': ?tierId,
+      'points': points,
+      'reason': reason,
+      'note': note,
+    });
+  }
+
+  /// 会员的流水（充值、调整、升级），新的在前。
+  Future<({List<Map<String, dynamic>> items, int total})> ledger(
+    String memberId, {
+    String filter = 'all',
+    int offset = 0,
+    int limit = 30,
+  }) async {
+    final data = await invoke({
+      'action': 'ledger',
+      'kind': 'members',
+      'id': memberId,
+      'filter': filter,
+      'offset': offset,
+      'limit': limit,
+    });
+    return (
+      items: List<Map<String, dynamic>>.from(data['items'] as List),
       total: (data['total'] as num?)?.toInt() ?? 0,
     );
   }

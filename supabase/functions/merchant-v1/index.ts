@@ -2,6 +2,7 @@ import { handleAccount } from './account.ts';
 import { handleAuth } from './auth.ts';
 import { handleCards } from './cards.ts';
 import { handleMembers, handleVehicles } from './members.ts';
+import { handleFollowUps, handleMemberPackages, handleOrders } from './ops.ts';
 import { handlePackages } from './packages.ts';
 import { handleServices } from './services.ts';
 import { cors, fail, isInput, storeFor } from './shared.ts';
@@ -24,11 +25,16 @@ Deno.serve(async (request: Request): Promise<Response> => {
     return handleAccount(input, request);
   }
   if (!isCatalogKind(input.kind)) return fail('不支持的业务类型');
+  // 幂等标识只取请求头（客户端对同一次点击带同一个 X-Request-Id），不接受放在 body 里的值
+  input.__request = request.headers.get('x-request-id');
   const storeId = await storeFor(request);
   if (storeId instanceof Response) return storeId;
   if (input.kind === 'packages') return handlePackages(input, storeId);
   if (input.kind === 'members') return handleMembers(input, storeId);
   if (input.kind === 'vehicles') return handleVehicles(input, storeId);
+  if (input.kind === 'member_packages') return handleMemberPackages(input, storeId);
+  if (input.kind === 'orders') return handleOrders(input, storeId);
+  if (input.kind === 'follow_ups') return handleFollowUps(input, storeId);
   return input.kind === 'services'
     ? handleServices(input, storeId)
     : handleCards(input, storeId);

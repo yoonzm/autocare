@@ -28,6 +28,11 @@ class StoreProfile extends ChangeNotifier {
     return d.length >= 11 ? d.substring(d.length - 11) : d;
   }
 
+  /// 经办人：`陈明（店长）`；没填联系人时是“店主”。
+  String get operatorText => contactName.isEmpty
+      ? '店主'
+      : (contactRole.isEmpty ? contactName : '$contactName（$contactRole）');
+
   /// `139 **** 8812`
   String get maskedPhone {
     final p = localPhone;

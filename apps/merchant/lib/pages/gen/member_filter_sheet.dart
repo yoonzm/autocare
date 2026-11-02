@@ -1226,9 +1226,9 @@ class MemberFilterSheet extends StatelessWidget {
                         child: Align(
                           alignment: Alignment(0, 0),
                           widthFactor: 1,
-                          child: Text(
+                          child: hFilterCountText(
                             '查看 64 位会员',
-                            style: hts(
+                            hts(
                               15,
                               Color(0xFFFFFFFF),
                               w: FontWeight.w600,

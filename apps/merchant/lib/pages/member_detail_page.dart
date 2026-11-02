@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../backend/catalog_draft.dart';
 import '../backend/member_flow.dart';
 import '../backend/merchant_api.dart';
+import '../backend/package_calc.dart' show formatMoney;
 import '../kit/async_kit.dart';
 import '../kit/kit.dart' show hToast;
 import '../mock/mock_data.dart';
@@ -44,6 +47,7 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
     try {
       final row = await merchantApi.member(member.id!);
       if (!mounted) return;
+      unawaited(_loadPacks());
       MemberFlow.current = row;
       setState(() {
         member = memberFromRow(row);
@@ -121,11 +125,12 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
                 children: [
                   Expanded(
                     flex: 10,
-                    child: _bottomBtn('余额充值', C.chip, C.ink, () {
-                      // TODO: 余额充值依赖支付模块，预期接口：merchant-v1 `recharge`。
-                      if (_live) return _todo('余额充值');
-                      openRoute(context, 'Recharge');
-                    }),
+                    child: _bottomBtn(
+                      '余额充值',
+                      C.chip,
+                      C.ink,
+                      () => openRoute(context, 'Recharge'),
+                    ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
@@ -134,11 +139,7 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
                       '为他开单',
                       C.primary,
                       Colors.white,
-                      () {
-                        // TODO: 开单依赖订单模块。
-                        if (_live) return _todo('开单');
-                        push(context, OrderPage(member: member));
-                      },
+                      () => push(context, OrderPage(member: member)),
                       icon: 'receipt',
                       bold: true,
                     ),
@@ -283,8 +284,7 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
               ),
               const SizedBox(height: 2),
               Text(
-                // TODO: 储值余额依赖充值 / 订单模块，登录后暂不显示。
-                _live ? '—' : '3,680.00',
+                _live ? _numText('balance', money: true) : '3,680.00',
                 style: ts(
                   32,
                   w: FontWeight.w600,
@@ -302,10 +302,16 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
                 ),
                 child: Row(
                   children: [
-                    // TODO: 累计消费 / 到店次数 / 积分依赖订单模块，登录后暂不显示。
-                    stat('累计消费', _live ? '—' : '¥28,450'),
-                    stat('到店次数', _live ? '—' : '46 次'),
-                    stat('积分', _live ? '—' : '12,450'),
+                    // 累计消费 / 到店次数来自开单（订单模块接入后才会增长）；积分来自充值和手动调整
+                    stat(
+                      '累计消费',
+                      _live ? '¥${_numText('total_spent')}' : '¥28,450',
+                    ),
+                    stat(
+                      '到店次数',
+                      _live ? '${_numText('visit_count')} 次' : '46 次',
+                    ),
+                    stat('积分', _live ? _numText('points') : '12,450'),
                   ],
                 ),
               ),
@@ -411,6 +417,12 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
             (memberVehicles[i], i == 1),
         ];
 
+  /// 会员记录里的数字：`3680` -> `3,680`；[money] 时保留两位小数。
+  String _numText(String key, {bool money = false}) {
+    final v = num.tryParse('${member.data?[key] ?? 0}') ?? 0;
+    return money ? money2(v) : formatMoney(v);
+  }
+
   String _heroSub() {
     final p = member.phone;
     final masked = p.length == 11
@@ -498,15 +510,20 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _sectionHead('次卡套餐', '购买次卡', () {
-          // TODO: 购买次卡依赖支付 / 订单模块，预期接口：merchant-v1 `package_sell`。
-          if (_live) return _todo('购买次卡');
-          openRoute(context, 'RechargeCard');
-        }),
-        if (_live) ...[
+        _sectionHead('次卡套餐', '购买次卡', () => openRoute(context, 'RechargeCard')),
+        if (_live && _packs0.isEmpty) ...[
           const SizedBox(height: 12),
           Text('暂无次卡', style: ts(13, color: C.muted, h: 18)),
-        ] else
+        ] else if (_live)
+          for (var i = 0; i < _packs0.length; i++) ...[
+            const SizedBox(height: 14),
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => _openPack('${_packs0[i]['id']}'),
+              child: _pack(_livePack(_packs0[i]), i),
+            ),
+          ],
+        if (!_live)
           for (var i = 0; i < memberPacks.length; i++) ...[
             const SizedBox(height: 14),
             GestureDetector(
@@ -518,6 +535,43 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
       ],
     ),
   );
+
+  /// 登录后：会员名下的真实次卡（不含已退款的）。
+  List<Map<String, dynamic>> _packs0 = const [];
+
+  Future<void> _loadPacks() async {
+    try {
+      final rows = await merchantApi.memberPackages(member.id!);
+      if (!mounted) return;
+      setState(
+        () => _packs0 = [
+          for (final r in rows)
+            if (r['refunded_at'] == null) r,
+        ],
+      );
+    } catch (_) {
+      // 次卡读取失败时保留已有内容，下次进入 / 刷新会再试
+    }
+  }
+
+  Future<void> _openPack(String id) async {
+    try {
+      await MemberFlow.openPackage(id);
+      if (mounted) openRoute(context, 'PackageDetail');
+    } catch (e) {
+      if (mounted) AppToast.error(context, e);
+    }
+  }
+
+  CardPack _livePack(Map<String, dynamic> r) {
+    final total = (num.tryParse('${r['total_count']}') ?? 1).toInt();
+    final used = (num.tryParse('${r['used_count']}') ?? 0).toInt();
+    final exp = DateTime.tryParse('${r['expires_at'] ?? ''}')?.toLocal();
+    final text = exp == null
+        ? '永久有效'
+        : '${exp.year}.${exp.month.toString().padLeft(2, '0')}.${exp.day.toString().padLeft(2, '0')} 到期';
+    return CardPack('${r['name']}', total - used, total, text);
+  }
 
   Widget _pack(CardPack p, int i) {
     final amber = i == 1;
@@ -582,11 +636,7 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
 
   Widget _recordsRow(BuildContext context) => GestureDetector(
     behavior: HitTestBehavior.opaque,
-    onTap: () {
-      // TODO: 消费与充值记录依赖订单 / 充值模块。
-      if (_live) return _todo('消费与充值记录');
-      openRoute(context, 'MemberRecords');
-    },
+    onTap: () => openRoute(context, 'MemberRecords'),
     child: AppCard(
       radius: 20,
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -610,7 +660,7 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
               child: Text('消费与充值记录', style: ts(15, w: FontWeight.w500, h: 22)),
             ),
             Text(
-              _live ? '暂无记录' : '最近 今天',
+              _live ? '全部记录' : '最近 今天',
               style: ts(13, color: C.muted, h: 18),
             ),
             const SizedBox(width: 4),

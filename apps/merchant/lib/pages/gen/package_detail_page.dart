@@ -113,84 +113,25 @@ class PackageDetailPage extends StatelessWidget {
                       [
                         hrow(
                           [
-                            hbox(
-                              w: 84,
-                              h: 84,
-                              child: hstack(
-                                hrow(
-                                  [
-                                    Flexible(
-                                      flex: 30,
-                                      child: IntrinsicWidth(
-                                        child: hcol(
-                                          [
-                                            hcol(
-                                              [
-                                                Text(
-                                                  '8',
-                                                  style: hts(
-                                                    24,
-                                                    Color(0xFFFAFAFA),
-                                                    w: FontWeight.w600,
-                                                    lh: 26,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  '剩余次',
-                                                  style: hts(
-                                                    10,
-                                                    dk(
-                                                      context,
-                                                      Color(0xFFA1A1AA),
-                                                      Color(0xFF80808A),
-                                                    ),
-                                                    w: FontWeight.w600,
-                                                    lh: 14,
-                                                  ),
-                                                ),
-                                              ],
-                                              main: MainAxisAlignment.start,
-                                              cross: CrossAxisAlignment.center,
-                                              gap: 0,
-                                            ),
-                                          ],
-                                          main: MainAxisAlignment.start,
-                                          cross: CrossAxisAlignment.stretch,
-                                          gap: 0,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                  main: MainAxisAlignment.center,
-                                  cross: CrossAxisAlignment.center,
-                                  gap: 0,
-                                ),
-                                [],
-                                behind: [
-                                  Positioned(
-                                    left: 0,
-                                    top: 0,
-                                    child: hsvg(Svgs.s273, w: 84, h: 84),
-                                  ),
-                                ],
-                              ),
-                            ),
+                            hPackageRing(),
                             Expanded(
                               flex: 1,
                               child: hcol(
                                 [
-                                  Text(
+                                  hPackageText(
+                                    (k) => k.name,
                                     '精致洗车年卡',
-                                    style: hts(
+                                    hts(
                                       19,
                                       Color(0xFFFFFFFF),
                                       w: FontWeight.w600,
                                       lh: 26,
                                     ),
                                   ),
-                                  Text(
+                                  hPackageText(
+                                    (k) => k.owner,
                                     '王建国 · 黑金会员',
-                                    style: hts(
+                                    hts(
                                       12,
                                       dk(
                                         context,
@@ -220,9 +161,10 @@ class PackageDetailPage extends StatelessWidget {
                                               8,
                                               0,
                                             ),
-                                            child: Text(
+                                            child: hPackageText(
+                                              (k) => k.status,
                                               '使用中',
-                                              style: hts(
+                                              hts(
                                                 11,
                                                 Color(0xFF5FD48C),
                                                 w: FontWeight.w600,
@@ -249,9 +191,10 @@ class PackageDetailPage extends StatelessWidget {
                                               8,
                                               0,
                                             ),
-                                            child: Text(
+                                            child: hPackageText(
+                                              (k) => k.expiryNote,
                                               '150 天后到期',
-                                              style: hts(
+                                              hts(
                                                 11,
                                                 Color(0xFFF0C46A),
                                                 w: FontWeight.w600,
@@ -304,9 +247,10 @@ class PackageDetailPage extends StatelessWidget {
                                           lh: 16,
                                         ),
                                       ),
-                                      Text(
+                                      hPackageText(
+                                        (k) => k.purchasedAt,
                                         '2026.03.31',
-                                        style: hts(
+                                        hts(
                                           14,
                                           Color(0xFFFAFAFA),
                                           w: FontWeight.w600,
@@ -335,9 +279,10 @@ class PackageDetailPage extends StatelessWidget {
                                           lh: 16,
                                         ),
                                       ),
-                                      Text(
+                                      hPackageText(
+                                        (k) => k.expiresAt,
                                         '2027.03.31',
-                                        style: hts(
+                                        hts(
                                           14,
                                           Color(0xFFFAFAFA),
                                           w: FontWeight.w600,
@@ -366,9 +311,10 @@ class PackageDetailPage extends StatelessWidget {
                                           lh: 16,
                                         ),
                                       ),
-                                      Text(
+                                      hPackageText(
+                                        (k) => k.paidText,
                                         '¥1,080',
-                                        style: hts(
+                                        hts(
                                           14,
                                           Color(0xFFFAFAFA),
                                           w: FontWeight.w600,
@@ -404,594 +350,8 @@ class PackageDetailPage extends StatelessWidget {
                     ],
                   ),
                 ),
-                hcol(
-                  [
-                    hbox(
-                      pad: EdgeInsets.fromLTRB(4, 0, 0, 0),
-                      child: Text(
-                        '包含服务',
-                        style: hts(
-                          13,
-                          dk(context, Color(0xFF52525B), Color(0xFFA8A8B3)),
-                          w: FontWeight.w500,
-                          lh: 18,
-                        ),
-                      ),
-                    ),
-                    hbox(
-                      bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                      radius: BorderRadius.circular(24),
-                      shadow: dk(
-                        context,
-                        [
-                          BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 0),
-                            blurRadius: 1,
-                            spreadRadius: 0,
-                          ),
-                          BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 1),
-                            blurRadius: 2,
-                            spreadRadius: 0,
-                          ),
-                          BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.04),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
-                            spreadRadius: 0,
-                          ),
-                        ],
-                        [
-                          BoxShadow(
-                            color: Color(0xFF26262B),
-                            offset: Offset(0, 0),
-                            blurRadius: 0,
-                            spreadRadius: 1,
-                          ),
-                        ],
-                      ),
-                      pad: EdgeInsets.fromLTRB(0, 4, 0, 4),
-                      child: hcol(
-                        [
-                          hbox(
-                            minH: 64,
-                            pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                            child: hrow(
-                              [
-                                hbox(
-                                  w: 32,
-                                  h: 32,
-                                  bg: dk(
-                                    context,
-                                    Color(0xFFE1F0FE),
-                                    Color.fromRGBO(4, 133, 247, 0.18),
-                                  ),
-                                  radius: BorderRadius.circular(10),
-                                  child: hrow(
-                                    [
-                                      hsvg(
-                                        dk(context, Svgs.s274, Svgs.s275),
-                                        w: 18,
-                                        h: 18,
-                                      ),
-                                    ],
-                                    main: MainAxisAlignment.center,
-                                    cross: CrossAxisAlignment.center,
-                                    gap: 0,
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 1,
-                                  child: hcol(
-                                    [
-                                      Text(
-                                        '精致洗车',
-                                        style: hts(
-                                          15,
-                                          dk(
-                                            context,
-                                            Color(0xFF18181B),
-                                            Color(0xFFFAFAFA),
-                                          ),
-                                          lh: 22,
-                                        ),
-                                      ),
-                                      Text(
-                                        '剩余 8 次 / 共 20 次',
-                                        style: hts(
-                                          12,
-                                          dk(
-                                            context,
-                                            Color(0xFF71717A),
-                                            Color(0xFF9A9AA3),
-                                          ),
-                                          lh: 16,
-                                        ),
-                                      ),
-                                    ],
-                                    main: MainAxisAlignment.start,
-                                    cross: CrossAxisAlignment.stretch,
-                                    gap: 1,
-                                  ),
-                                ),
-                                Text(
-                                  '已用 12',
-                                  style: hts(
-                                    13,
-                                    dk(
-                                      context,
-                                      Color(0xFF71717A),
-                                      Color(0xFF9A9AA3),
-                                    ),
-                                    w: FontWeight.w500,
-                                    lh: 19,
-                                  ),
-                                ),
-                              ],
-                              main: MainAxisAlignment.start,
-                              cross: CrossAxisAlignment.center,
-                              gap: 12,
-                            ),
-                          ),
-                        ],
-                        main: MainAxisAlignment.start,
-                        cross: CrossAxisAlignment.stretch,
-                        gap: 0,
-                      ),
-                    ),
-                  ],
-                  main: MainAxisAlignment.start,
-                  cross: CrossAxisAlignment.stretch,
-                  gap: 8,
-                ),
-                hbox(
-                  bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                  radius: BorderRadius.circular(24),
-                  shadow: dk(
-                    context,
-                    [
-                      BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
-                        spreadRadius: 0,
-                      ),
-                      BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 1),
-                        blurRadius: 2,
-                        spreadRadius: 0,
-                      ),
-                      BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
-                        spreadRadius: 0,
-                      ),
-                    ],
-                    [
-                      BoxShadow(
-                        color: Color(0xFF26262B),
-                        offset: Offset(0, 0),
-                        blurRadius: 0,
-                        spreadRadius: 1,
-                      ),
-                    ],
-                  ),
-                  pad: EdgeInsets.fromLTRB(16, 16, 16, 16),
-                  child: hcol(
-                    [
-                      Text(
-                        '使用记录',
-                        style: hts(
-                          15,
-                          dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                          w: FontWeight.w600,
-                          lh: 22,
-                        ),
-                      ),
-                      hbox(
-                        pad: EdgeInsets.fromLTRB(0, 0, 0, 14),
-                        child: hstack(
-                          hrow(
-                            [
-                              UnconstrainedBox(
-                                alignment: Alignment.topLeft,
-                                constrainedAxis: Axis.horizontal,
-                                child: hbox(
-                                  w: 12,
-                                  h: 12,
-                                  bg: Color(0xFF0485F7),
-                                  radius: BorderRadius.circular(6),
-                                  shadow: [
-                                    BoxShadow(
-                                      color: Color(0xFFE1F0FE),
-                                      offset: Offset(0, 0),
-                                      blurRadius: 0,
-                                      spreadRadius: 3,
-                                    ),
-                                  ],
-                                  margin: EdgeInsets.fromLTRB(0, 5, 0, 0),
-                                ),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: hcol(
-                                  [
-                                    Text(
-                                      '核销 1 次',
-                                      style: hts(
-                                        14,
-                                        dk(
-                                          context,
-                                          Color(0xFF18181B),
-                                          Color(0xFFFAFAFA),
-                                        ),
-                                        w: FontWeight.w500,
-                                        lh: 20,
-                                      ),
-                                    ),
-                                    Text(
-                                      '沪A·8K29M · 技师 老周',
-                                      style: hts(
-                                        12,
-                                        dk(
-                                          context,
-                                          Color(0xFF71717A),
-                                          Color(0xFF9A9AA3),
-                                        ),
-                                        lh: 17,
-                                      ),
-                                    ),
-                                  ],
-                                  main: MainAxisAlignment.start,
-                                  cross: CrossAxisAlignment.stretch,
-                                  gap: 2,
-                                ),
-                              ),
-                              Text(
-                                '今天 12:05',
-                                style: hts(
-                                  12,
-                                  dk(
-                                    context,
-                                    Color(0xFFA1A1AA),
-                                    Color(0xFF80808A),
-                                  ),
-                                  lh: 17,
-                                ),
-                              ),
-                            ],
-                            main: MainAxisAlignment.start,
-                            cross: CrossAxisAlignment.stretch,
-                            gap: 14,
-                            intrinsic: true,
-                          ),
-                          [
-                            Positioned(
-                              left: 5,
-                              top: 16,
-                              bottom: -14,
-                              width: 2,
-                              child: hbox(
-                                w: 2,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFE4E4E7),
-                                  Color(0xFF3A3A40),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      hbox(
-                        pad: EdgeInsets.fromLTRB(0, 0, 0, 14),
-                        child: hstack(
-                          hrow(
-                            [
-                              UnconstrainedBox(
-                                alignment: Alignment.topLeft,
-                                constrainedAxis: Axis.horizontal,
-                                child: hbox(
-                                  w: 12,
-                                  h: 12,
-                                  bg: Color(0xFF0485F7),
-                                  radius: BorderRadius.circular(6),
-                                  shadow: [
-                                    BoxShadow(
-                                      color: Color(0xFFE1F0FE),
-                                      offset: Offset(0, 0),
-                                      blurRadius: 0,
-                                      spreadRadius: 3,
-                                    ),
-                                  ],
-                                  margin: EdgeInsets.fromLTRB(0, 5, 0, 0),
-                                ),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: hcol(
-                                  [
-                                    Text(
-                                      '核销 1 次',
-                                      style: hts(
-                                        14,
-                                        dk(
-                                          context,
-                                          Color(0xFF18181B),
-                                          Color(0xFFFAFAFA),
-                                        ),
-                                        w: FontWeight.w500,
-                                        lh: 20,
-                                      ),
-                                    ),
-                                    Text(
-                                      '沪A·8K29M · 技师 小林',
-                                      style: hts(
-                                        12,
-                                        dk(
-                                          context,
-                                          Color(0xFF71717A),
-                                          Color(0xFF9A9AA3),
-                                        ),
-                                        lh: 17,
-                                      ),
-                                    ),
-                                  ],
-                                  main: MainAxisAlignment.start,
-                                  cross: CrossAxisAlignment.stretch,
-                                  gap: 2,
-                                ),
-                              ),
-                              Text(
-                                '10.20 16:40',
-                                style: hts(
-                                  12,
-                                  dk(
-                                    context,
-                                    Color(0xFFA1A1AA),
-                                    Color(0xFF80808A),
-                                  ),
-                                  lh: 17,
-                                ),
-                              ),
-                            ],
-                            main: MainAxisAlignment.start,
-                            cross: CrossAxisAlignment.stretch,
-                            gap: 14,
-                            intrinsic: true,
-                          ),
-                          [
-                            Positioned(
-                              left: 5,
-                              top: 16,
-                              bottom: -14,
-                              width: 2,
-                              child: hbox(
-                                w: 2,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFE4E4E7),
-                                  Color(0xFF3A3A40),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      hbox(
-                        pad: EdgeInsets.fromLTRB(0, 0, 0, 14),
-                        child: hstack(
-                          hrow(
-                            [
-                              UnconstrainedBox(
-                                alignment: Alignment.topLeft,
-                                constrainedAxis: Axis.horizontal,
-                                child: hbox(
-                                  w: 12,
-                                  h: 12,
-                                  bg: Color(0xFF0485F7),
-                                  radius: BorderRadius.circular(6),
-                                  shadow: [
-                                    BoxShadow(
-                                      color: Color(0xFFE1F0FE),
-                                      offset: Offset(0, 0),
-                                      blurRadius: 0,
-                                      spreadRadius: 3,
-                                    ),
-                                  ],
-                                  margin: EdgeInsets.fromLTRB(0, 5, 0, 0),
-                                ),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: hcol(
-                                  [
-                                    Text(
-                                      '核销 1 次',
-                                      style: hts(
-                                        14,
-                                        dk(
-                                          context,
-                                          Color(0xFF18181B),
-                                          Color(0xFFFAFAFA),
-                                        ),
-                                        w: FontWeight.w500,
-                                        lh: 20,
-                                      ),
-                                    ),
-                                    Text(
-                                      '沪AF·09316 · 技师 老周',
-                                      style: hts(
-                                        12,
-                                        dk(
-                                          context,
-                                          Color(0xFF71717A),
-                                          Color(0xFF9A9AA3),
-                                        ),
-                                        lh: 17,
-                                      ),
-                                    ),
-                                  ],
-                                  main: MainAxisAlignment.start,
-                                  cross: CrossAxisAlignment.stretch,
-                                  gap: 2,
-                                ),
-                              ),
-                              Text(
-                                '09.28 10:12',
-                                style: hts(
-                                  12,
-                                  dk(
-                                    context,
-                                    Color(0xFFA1A1AA),
-                                    Color(0xFF80808A),
-                                  ),
-                                  lh: 17,
-                                ),
-                              ),
-                            ],
-                            main: MainAxisAlignment.start,
-                            cross: CrossAxisAlignment.stretch,
-                            gap: 14,
-                            intrinsic: true,
-                          ),
-                          [
-                            Positioned(
-                              left: 5,
-                              top: 16,
-                              bottom: -14,
-                              width: 2,
-                              child: hbox(
-                                w: 2,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFE4E4E7),
-                                  Color(0xFF3A3A40),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      hbox(
-                        pad: EdgeInsets.fromLTRB(0, 0, 0, 14),
-                        child: hstack(
-                          hrow(
-                            [
-                              UnconstrainedBox(
-                                alignment: Alignment.topLeft,
-                                constrainedAxis: Axis.horizontal,
-                                child: hbox(
-                                  w: 12,
-                                  h: 12,
-                                  bg: Color(0xFF0485F7),
-                                  radius: BorderRadius.circular(6),
-                                  shadow: [
-                                    BoxShadow(
-                                      color: Color(0xFFE1F0FE),
-                                      offset: Offset(0, 0),
-                                      blurRadius: 0,
-                                      spreadRadius: 3,
-                                    ),
-                                  ],
-                                  margin: EdgeInsets.fromLTRB(0, 5, 0, 0),
-                                ),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: hcol(
-                                  [
-                                    Text(
-                                      '核销 1 次',
-                                      style: hts(
-                                        14,
-                                        dk(
-                                          context,
-                                          Color(0xFF18181B),
-                                          Color(0xFFFAFAFA),
-                                        ),
-                                        w: FontWeight.w500,
-                                        lh: 20,
-                                      ),
-                                    ),
-                                    Text(
-                                      '沪A·8K29M · 技师 老周',
-                                      style: hts(
-                                        12,
-                                        dk(
-                                          context,
-                                          Color(0xFF71717A),
-                                          Color(0xFF9A9AA3),
-                                        ),
-                                        lh: 17,
-                                      ),
-                                    ),
-                                  ],
-                                  main: MainAxisAlignment.start,
-                                  cross: CrossAxisAlignment.stretch,
-                                  gap: 2,
-                                ),
-                              ),
-                              Text(
-                                '09.05 15:30',
-                                style: hts(
-                                  12,
-                                  dk(
-                                    context,
-                                    Color(0xFFA1A1AA),
-                                    Color(0xFF80808A),
-                                  ),
-                                  lh: 17,
-                                ),
-                              ),
-                            ],
-                            main: MainAxisAlignment.start,
-                            cross: CrossAxisAlignment.stretch,
-                            gap: 14,
-                            intrinsic: true,
-                          ),
-                          [
-                            Positioned(
-                              left: 5,
-                              top: 16,
-                              bottom: -14,
-                              width: 2,
-                              child: hbox(
-                                w: 2,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFE4E4E7),
-                                  Color(0xFF3A3A40),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.topCenter,
-                        child: hTap(
-                          context,
-                          hbox(
-                            margin: EdgeInsets.fromLTRB(0, 2, 0, 0),
-                            child: Text(
-                              '查看全部 12 条记录',
-                              style: hts(13, Color(0xFF0485F7)),
-                            ),
-                          ),
-                          to: 'MemberRecords',
-                        ),
-                      ),
-                    ],
-                    main: MainAxisAlignment.start,
-                    cross: CrossAxisAlignment.stretch,
-                    gap: 14,
-                  ),
-                ),
+                hPackageServices(),
+                hPackageRecords(),
               ],
               main: MainAxisAlignment.start,
               cross: CrossAxisAlignment.stretch,

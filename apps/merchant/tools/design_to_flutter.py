@@ -34,6 +34,8 @@ LIVE_TEXT = {
     ('RegDone', '手机号 139 **** 8812'): "'手机号 ${p.maskedPhone}'",
     ('RegDone', '已按主营业务生成 12 项'): "'已按主营业务生成 ${p.seededServices} 项'",
     ('Security', '139 **** 8812'): 'p.maskedPhone',
+    ('Recharge', '陈明（店长）'): 'p.operatorText',
+    ('RechargeCard', '陈明（店长）'): 'p.operatorText',
     ('DeleteAccount', '验证码将发送至当前账号绑定的手机号 138 **** 1234'): "'验证码将发送至当前账号绑定的手机号 ${p.maskedPhone}'",
     ('ChangePhone', '验证码将发送至 139 **** 8812'): "'验证码将发送至 ${p.maskedPhone}'",
     ('StoreInfo', '驰光汽车美容 · 徐汇店'): 'p.name',
@@ -49,6 +51,99 @@ PKG_TEXT = {
     ('PackageEdit', '省 ¥280 · 约 7.9 折'): 'PackageCalc.savingText',
 }
 
+# 充值表单 / 结果驱动的文字：(页面, 设计稿文字) -> RechargeView 的取值（r 是 RechargeView）
+RECHARGE_TEXT = {
+    ('Recharge', '¥5,980.00'): 'r.afterText',
+    ('RechargeCard', '¥1,360'): 'r.saleOriginal',
+    ('RechargeCard', '−¥280'): 'r.saleSaving',
+    ('RechargeCard', '¥1,080.00'): 'r.saleDue',
+    ('RechargeCard', '确认收款 ¥1,080'): 'r.saleConfirm',
+    ('RechargeCard', '储值余额 ¥3,680'): 'r.saleBalanceChip',
+    ('RechargeCard', '查看全部 5 个在售套餐'): 'r.saleAll',
+    ('PackageSold', '¥1,080.00'): 'r.soldPaid',
+    ('PackageSold', '精致洗车年卡 · 王建国 · 微信支付 · 14:32'): 'r.soldSubtitle',
+    ('PackageSold', '精致洗车年卡'): 'r.soldName',
+    ('PackageSold', '20 次'): 'r.soldCount',
+    ('PackageSold', '至 2027.11.01'): 'r.soldExpiry',
+    ('PackageSold', '−¥280.00'): 'r.soldSaving',
+    ('Recharge', '¥2,000.00'): 'r.amountText',
+    ('Recharge', '实收 · 到账 ¥2,300 + 洗车 2 次'): 'r.payLine',
+    # 档位上设计稿的赠品（洗车 2 次 / 镀晶 1 次）暂未实现，登录后只显示赠送金额
+    ('Recharge', '送 ¥300 + 洗车 2 次'): "RechargeView.giftLabel(1)",
+    ('Recharge', '送 ¥2,500 + 镀晶 1 次'): "RechargeView.giftLabel(3)",
+    ('MemberAdjust', '12,950'): 'r.adjustAfter',
+    ('RechargeSuccess', '¥2,000.00'): 'r.doneAmount',
+    ('RechargeSuccess', '王建国 · 微信支付 · 14:38'): 'r.doneSubtitle',
+    ('RechargeSuccess', '+¥300.00'): 'r.doneGift',
+    ('RechargeSuccess', '¥2,300.00'): 'r.doneTotal',
+    ('RechargeSuccess', '¥5,980.00'): 'r.doneBalance',
+    ('RechargeSuccess', '+2,000'): 'r.donePoints',
+}
+
+# 直接换成手写的“活”控件的节点：(页面, role=radiogroup 的 aria-labelledby) -> Dart 表达式
+# 回访提醒页里随提醒数据变化的文字（f 是 FollowView）
+FOLLOW_TEXT = {
+    ('MemberFollowUp', '全部 18'): 'f.chipAll',
+    ('MemberFollowUp', '次卡到期 5'): 'f.chipExpire',
+    ('MemberFollowUp', '养护到期 6'): 'f.chipCare',
+    ('MemberFollowUp', '生日 2'): 'f.chipBirthday',
+    ('MemberFollowUp', '沉睡 5'): 'f.chipSleep',
+}
+FOLLOW_RICH = {
+    ('MemberFollowUp', '已完成 5 / 23'): ["'已完成 '", "'${f.done}'", "' / ${f.done + f.pending}'"],
+    ('MemberFollowUp', '18 位客户'): ["'${f.pending} '", "'位客户'"],
+}
+# 提醒卡片列表：容器的第一个子元素是 <article>
+LIVE_ARTICLES = {'MemberFollowUp': 'hReminderList()'}
+
+LIVE_SECTIONS = {
+    ('MemberVisit', '历史回访'): 'hVisitHistory()',
+    ('PackageDetail', '包含服务'): 'hPackageServices()',
+    ('PackageDetail', '使用记录'): 'hPackageRecords()',
+}
+
+# 开单结果驱动的文字：(页面, 设计稿文字[#第几次出现]) -> OrderView 的取值（o 是 OrderView）
+ORDER_TEXT = {
+    ('PaySuccess', '¥1,422.00'): 'o.payable',
+    ('PaySuccess', '¥1,422.00#2'): 'o.balancePaid',
+    ('PaySuccess', '沪A·8K826 · 王建国 · 储值支付 · 14:32'): 'o.subtitle',
+    ('PaySuccess', '镀晶养护 · 内饰精洗'): 'o.items',
+    ('PaySuccess', '黑金 9 折 −¥158.00'): 'o.discountLine',
+    ('PaySuccess', '¥2,258.00'): 'o.balance',
+    ('PaySuccess', '+1,422'): 'o.points',
+}
+
+# 次卡（正在查看的）驱动的文字：(页面, 设计稿文字) -> PackageView 的取值（k 是 PackageView）
+PACKAGE_TEXT = {
+    ('PackageDetail', '精致洗车年卡'): 'k.name',
+    ('PackageDetail', '王建国 · 黑金会员'): 'k.owner',
+    ('PackageDetail', '使用中'): 'k.status',
+    ('PackageDetail', '150 天后到期'): 'k.expiryNote',
+    ('PackageDetail', '2026.03.31'): 'k.purchasedAt',
+    ('PackageDetail', '2027.03.31'): 'k.expiresAt',
+    ('PackageDetail', '¥1,080'): 'k.paidText',
+    ('PackageExtend', '精致洗车年卡 · 当前到期日 2027.03.31'): 'k.extendSubtitle',
+    ('PackageExtend', '2027.05.30'): 'k.extendedExpiry',
+    ('PackageRefund', '精致洗车年卡 · 已用 12 次，剩余 8 次'): 'k.refundSubtitle',
+    ('PackageRefund', '¥1,080.00'): 'k.paidMoney',
+    ('PackageRefund', '已用 12 次 × 单次 ¥54'): 'k.usedLine',
+    ('PackageRefund', '−¥648.00'): 'k.usedDeductText',
+    ('PackageRefund', '¥432.00'): 'k.refundableText',
+    ('PackageRefund', '确认退款 ¥432'): 'k.refundConfirm',
+}
+
+LIVE_NODES = {
+    ('PackageDetail', 'aria:40%'): 'hPackageRing()',
+    ('MemberFollowUp', 'aria:回访完成度'): 'hFollowProgress()',
+    ('RechargeCard', 'sl-t'): 'hPackagePicker(limit: 3)',
+    ('RechargePick', 'sh-t'): 'hPackagePicker()',
+}
+
+# 同一行里样式不同的几段文字（如“姓名 · 手机号”）：(页面, 合并后的文字) -> 每一段的取值
+MEMBER_RICH = {
+    ('Recharge', '王建国 · 138 **** 6021'): ["'${m.name} '", "'· ${m.maskedPhone}'"],
+}
+
 # 当前会员（办卡成功的 / 正在查看的）驱动的文字：(页面, 设计稿文字) -> MemberView 的取值（m 是 MemberView）
 MEMBER_TEXT = {
     ('MemberAddDone', '李'): 'm.avatar',
@@ -61,6 +156,28 @@ MEMBER_TEXT = {
     ('MemberAddDone', '宝马 5系 525Li'): 'm.vehicleModel',
     ('MemberAddDone', '已登记车辆'): 'm.vehicleLabel',
     ('MemberAddDone', '已为李女士建立会员档案，当前为普通会员'): "'已为${m.honorificName}建立会员档案，当前为${m.levelMember}'",
+    ('RechargeCard', '王'): 'm.avatar',
+    ('RechargeCard', '王建国 '): "'${m.name} '",
+    ('RechargeCard', '138 **** 6021 · 沪A·8K29M'): "'${m.maskedPhone} · ${m.plate}'",
+    ('RechargeCard', '黑金会员'): 'm.levelMember',
+    ('Recharge', '王'): 'm.avatar',
+    ('Recharge', '王建国 '): 'm.name',
+    ('Recharge', '· 138 **** 6021'): "'· ${m.maskedPhone}'",
+    ('Recharge', '黑金会员'): 'm.levelMember',
+    ('Recharge', '¥3,680.00'): 'm.balanceText',
+    ('MemberVisit', '王'): 'm.avatar',
+    ('MemberVisit', '王建国'): 'm.name',
+    ('MemberVisit', '138 **** 6021 · 沪A·8K29M'): "'${m.maskedPhone} · ${m.plate}'",
+    ('MemberVisit', '黑金会员'): 'm.levelMember',
+    ('MemberAdjust', '王'): 'm.avatar',
+    ('MemberAdjust', '王建国'): 'm.name',
+    ('MemberAdjust', '138 **** 6021 · 沪A·8K29M'): "'${m.maskedPhone} · ${m.plate}'",
+    ('MemberAdjust', '黑金会员'): 'm.levelMember',
+    ('MemberAdjust', '12,450'): 'm.pointsText',
+    ('MemberRecords', '王建国 · 黑金会员'): "'${m.name} · ${m.levelMember}'",
+    ('MemberRecords', '¥28,450'): 'm.totalSpentText',
+    ('MemberRecords', '¥32,000'): 'm.totalRechargedText',
+    ('MemberRecords', '46 次'): 'm.visitText',
     ('MemberMore', '王'): 'm.avatar',
     ('MemberMore', '王建国'): 'm.name',
     ('MemberMore', '黑金会员 · 138 **** 6021'): "'${m.levelMember} · ${m.maskedPhone}'",
@@ -82,11 +199,22 @@ ASYNC_ACTIONS = {
     ('DeleteAccount', 'Login'), ('Security', 'Login'),
     ('ServiceEdit', 'Services'), ('CardTierEdit', 'CardTiers'), ('PackageEdit', 'CardPackages'),
     ('MemberEdit', 'MemberDetail'), ('VehicleAdd', 'MemberDetail'), ('MemberDelete', 'Members'),
-    ('MemberAdd', 'MemberAddDone'),
+    ('MemberAdd', 'MemberAddDone'), ('Recharge', 'RechargeSuccess'),
+    ('MemberAdjust', 'MemberDetail'), ('RechargeCard', 'PackageSold'),
+    ('PackageExtend', 'PackageDetail'), ('PackageRefund', 'MemberDetail'),
+    ('MemberVisit', 'MemberDetail'),
     ('ForgotVerify', 'ForgotReset'), ('ForgotReset', 'ForgotDone'),
 }
 # 这些页面里“取消 / 保存”都指向同一个目标页，只有文字是“保存”的才是提交按钮。
-SAVE_ONLY = {'ServiceEdit', 'CardTierEdit', 'PackageEdit', 'MemberEdit', 'VehicleAdd'}
+SAVE_ONLY = {'ServiceEdit', 'CardTierEdit', 'PackageEdit', 'MemberEdit', 'VehicleAdd', 'MemberAdjust', 'RechargeCard',
+             'PackageExtend', 'PackageRefund', 'MemberVisit'}
+# SAVE_ONLY 页面里提交按钮上的文字（默认是“保存”）
+SUBMIT_LABEL = {'MemberAdjust': '确认调整', 'RechargeCard': '确认收款', 'PackageExtend': '确认延期', 'PackageRefund': '确认退款', 'MemberVisit': '保存回访'}
+# 同一个路由里的几个页面（页签）共用的动作键前缀：RechargeCard 是 Recharge 路由里的第二个页签
+KEY_PAGE = {'RechargeCard': 'Recharge'}
+
+# 网格（grid）里的单选组做成可点选的页面：这些页面已接后端，需要读到选中项
+GRID_SELECT_PAGES = {'Recharge', 'RechargeCard'}
 
 SKIP = {'ForgotNote', 'AppIcon', 'DarkTokens', 'PageTransitions'}
 # 设计稿里的深色版本只是参考，深色效果由同一套页面自动适配
@@ -460,6 +588,7 @@ class Gen:
     def __init__(self, svg_registry):
         self.svgs = svg_registry
         self.sel_counter = 0
+        self.occurrence = {}
         self.refs = {}
         self.global_refs = {}
         self.shared = {}
@@ -628,10 +757,34 @@ class Gen:
             if flow:
                 return 'hFlowText((f) => f.live ? (%s) : %s, %s%s)' % (
                     flow, dstr(text), self.ts(segs[0][1]), ''.join(', ' + e for e in extra))
+            if self.page_name == 'MemberFilter' and text == '查看 64 位会员':
+                return 'hFilterCountText(%s, %s)' % (dstr(text), self.ts(segs[0][1]))
+            if self.page_name == 'MemberAdjust' and text in ('普通', '银卡', '金卡', '黑金'):
+                return 'hTierName(%d, %s, %s)' % (['普通', '银卡', '金卡', '黑金'].index(text), dstr(text), self.ts(segs[0][1]))
+            rch = RECHARGE_TEXT.get((self.page_name, text))
+            if rch:
+                return 'hRechargeText((r) => %s, %s, %s%s)' % (
+                    rch, dstr(text), self.ts(segs[0][1]), ''.join(', ' + e for e in extra))
             member = MEMBER_TEXT.get((self.page_name, text))
             if member:
                 return 'hMemberText((m) => %s, %s, %s%s)' % (
                     member, dstr(text), self.ts(segs[0][1]), ''.join(', ' + e for e in extra))
+            occ = self.occurrence.get((self.page_name, text), 0) + 1
+            self.occurrence[(self.page_name, text)] = occ
+            od = ORDER_TEXT.get((self.page_name, '%s#%d' % (text, occ))) or ORDER_TEXT.get((self.page_name, text))
+            if od:
+                return 'hOrderText((o) => %s, %s, %s%s)' % (
+                    od, dstr(text), self.ts(segs[0][1]), ''.join(', ' + e for e in extra))
+            fw = FOLLOW_TEXT.get((self.page_name, text))
+            if fw:
+                return 'hFollowText((f) => %s, %s, %s%s)' % (
+                    fw, dstr(text), self.ts(segs[0][1]), ''.join(', ' + e for e in extra))
+            if self.page_name == 'MemberVisit' and text == '11.08 周日':
+                return 'hVisitNext(%s, %s)' % (dstr(text), self.ts(segs[0][1]))
+            pk = PACKAGE_TEXT.get((self.page_name, text))
+            if pk:
+                return 'hPackageText((k) => %s, %s, %s%s)' % (
+                    pk, dstr(text), self.ts(segs[0][1]), ''.join(', ' + e for e in extra))
             pkg = PKG_TEXT.get((self.page_name, text))
             if pkg:
                 return 'hPkgText(() => %s, %s, %s%s)' % (
@@ -641,6 +794,20 @@ class Gen:
                 return 'hLiveText((p) => p.live ? (%s) : %s, %s%s)' % (
                     live, dstr(text), self.ts(segs[0][1]), ''.join(', ' + e for e in extra))
             return 'Text(%s, style: %s%s)' % (dstr(text), self.ts(segs[0][1]), ''.join(', ' + e for e in extra))
+        frich = FOLLOW_RICH.get((self.page_name, ''.join(t for t, _ in segs)))
+        if frich and len(frich) == len(segs):
+            return 'hFollowRich([%s], [%s], [%s]%s)' % (
+                ', '.join('(f) => %s' % e for e in frich),
+                ', '.join(dstr(t) for t, _ in segs),
+                ', '.join(self.ts(i) for _, i in segs),
+                ''.join(', ' + e for e in extra))
+        rich = MEMBER_RICH.get((self.page_name, ''.join(t for t, _ in segs)))
+        if rich and len(rich) == len(segs):
+            return 'hMemberRich([%s], [%s], [%s]%s)' % (
+                ', '.join('(m) => %s' % e for e in rich),
+                ', '.join(dstr(t) for t, _ in segs),
+                ', '.join(self.ts(i) for _, i in segs),
+                ''.join(', ' + e for e in extra))
         spans = []
         for t, i in segs:
             spans.append('TextSpan(text: %s, style: %s)' % (dstr(t), self.ts(i)))
@@ -865,9 +1032,9 @@ class Gen:
         label = n.attrs.get('aria-label', '')
         if any(k in label for k in ('返回', '关闭', '取消')) or self.has_back_icon(n):
             return None  # 返回 / 取消按钮不是提交按钮，不转圈
-        if self.page_name in SAVE_ONLY and self.tree_text(n).strip() != '保存':
+        if self.page_name in SAVE_ONLY and not self.tree_text(n).strip().startswith(SUBMIT_LABEL.get(self.page_name, '保存')):
             return None
-        return '%s>%s' % (self.page_name, m.group(1))
+        return '%s>%s' % (KEY_PAGE.get(self.page_name, self.page_name), m.group(1))
 
     def busy_wrap(self, code, style=None, icon=False):
         """提交按钮里的文字 / 图标：忙碌时隐藏并显示转圈（按钮尺寸不变）。"""
@@ -913,6 +1080,24 @@ class Gen:
         # 卡种编辑页的“卡面预览”：换成随名称 / 折扣 / 颜色实时变化的组件
         if self.page_name == 'CardTierEdit' and n.attrs.get('aria-label') == '卡面预览':
             return 'hCardPreview()'
+        # 整段换成手写的“活”控件（次卡详情里的包含服务 / 使用记录）
+        if n.tag == 'article' and self.page_name in LIVE_ARTICLES:
+            return LIVE_ARTICLES[self.page_name]
+        if n.tag == 'section':
+            h2 = next((c for c in n.children if isinstance(c, Node) and c.tag in ('h2', 'span')), None)
+            if h2 is not None:
+                live = LIVE_SECTIONS.get((self.page_name, self.tree_text(h2).strip()))
+                if live:
+                    return live
+        if self.page_name in ('PackageDetail', 'MemberFollowUp') and n.attrs.get('role') in ('img', 'progressbar'):
+            live = LIVE_NODES.get((self.page_name, 'aria:' + n.attrs.get('aria-label', '')))
+            if live:
+                return live
+        # 换成手写的“活”控件（购买次卡页的套餐列表等）
+        if n.attrs.get('role') == 'radiogroup':
+            live = LIVE_NODES.get((self.page_name, n.attrs.get('aria-labelledby', '')))
+            if live:
+                return live
         # 套餐编辑页：预览卡、“包含服务”列表随套餐草稿变化
         if self.page_name == 'PackageEdit':
             if n.attrs.get('aria-label') == '套餐预览':
@@ -1536,6 +1721,8 @@ class Gen:
     def link_filters(self, n, kids):
         """容器 n 内：前面的标签条与后面的列表联动 -> 返回需要在 n 处创建的分组 [(init, multi)]。"""
         out = []
+        if self.page_name in LIVE_ARTICLES:
+            return out  # 提醒列表是手写的“活”控件，页签只记录选中项，不再联动静态列表
         els = [c for c in kids if isinstance(c, Node)]
         for i, X in enumerate(els):
             for P in self.find_all(X, lambda x: self.tab_labels(x) is not None):
@@ -1561,6 +1748,16 @@ class Gen:
     def emit_flex(self, n, inh, direction, disp, parent):
         st = n.style
         kids = self.kids(n)
+        if self.page_name in LIVE_ARTICLES:
+            # 提醒卡片列表换成一个“活”控件：只保留第一张卡片的位置
+            seen, kept = False, []
+            for c in kids:
+                if isinstance(c, Node) and c.tag == 'article':
+                    if seen:
+                        continue
+                    seen = True
+                kept.append(c)
+            kids = kept
         holders = self.setup_widgets(n, kids)
         links = self.link_filters(n, kids)
         groups, mapping = self.find_groups(kids)
@@ -1783,6 +1980,10 @@ class Gen:
         # 带 row-span 的特例：左列跨两行
         if any('span' in (c.style.get('grid-row', '')) for c in kids):
             return self.emit_grid_rowspan(n, inh, kids, ncols, cgap, rgap, rows_def)
+        # 网格里的单选组（如充值金额档位）：和 flex 里的一样做成可点选的 HSel 分组
+        # 只对已接后端的页面开启，其他模块的页面保持设计稿原样（后续接入时再加进来）
+        groups, mapping = self.find_groups(kids) if self.page_name in GRID_SELECT_PAGES else ([], {})
+        gname = self.new_ctrl('g') if groups else None
         cells = []
         for c in kids:
             gc = c.style.get('grid-column', '')
@@ -1802,7 +2003,15 @@ class Gen:
         for ri, row in enumerate(rows):
             items = []
             for c, span in row:
-                items.append('Expanded(flex: %d, child: %s)' % (span, self.emit(c, inh, 'grid')))
+                if groups and id(c) in mapping:
+                    gi, idx = mapping[id(c)]
+                    g = groups[gi]
+                    on = self.emit(self.variant(c, g, True), inh, 'grid')
+                    off = self.emit(self.variant(c, g, False), inh, 'grid')
+                    cell = 'HSel(ctrl: %s[%d], index: %d, on: %s, off: %s)' % (gname, gi, idx, on, off)
+                else:
+                    cell = self.emit(c, inh, 'grid')
+                items.append('Expanded(flex: %d, child: %s)' % (span, cell))
             used = sum(s for _, s in row)
             if used < ncols:
                 items.append('Spacer(flex: %d)' % (ncols - used))
@@ -1810,7 +2019,11 @@ class Gen:
             if ri < len(rows_def) and px(rows_def[ri]):
                 code = 'SizedBox(height: %s, child: %s)' % (num(px(rows_def[ri])), code)
             row_codes.append(code)
-        return 'hcol([%s], gap: %s)' % (', '.join(row_codes), num(rgap))
+        layout = 'hcol([%s], gap: %s)' % (', '.join(row_codes), num(rgap))
+        if groups:
+            gl = ', '.join('({%s}, %s)' % (', '.join(map(str, g['initial'])), 'true' if g['multi'] else 'false') for g in groups)
+            layout = 'HSelHolder(groups: [%s], builder: (context, %s) => %s)' % (gl, gname, layout)
+        return layout
 
     def emit_grid_rowspan(self, n, inh, kids, ncols, cgap, rgap, rows_def):
         # 约定：kids[0] 跨两行（第 1 列），kids[1], kids[2] 位于第 2 列的第 1/2 行，kids[3] 跨整行

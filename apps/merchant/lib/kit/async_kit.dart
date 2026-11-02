@@ -969,6 +969,12 @@ const asyncActionKeys = {
   'MemberEdit>MemberDetail',
   'VehicleAdd>MemberDetail',
   'MemberDelete>Members',
+  'Recharge>RechargeSuccess',
+  'Recharge>PackageSold',
+  'PackageExtend>PackageDetail',
+  'PackageRefund>MemberDetail',
+  'MemberVisit>MemberDetail',
+  'MemberAdjust>MemberDetail',
 };
 
 /// 执行异步动作并标记 [key] 为忙碌（loading 至少停留 500ms，重复触发被忽略）。

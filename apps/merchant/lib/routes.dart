@@ -20,6 +20,7 @@ import 'pages/login_page.dart';
 import 'pages/member_detail_page.dart';
 import 'pages/card_packages_live_page.dart';
 import 'pages/member_add_page.dart';
+import 'pages/member_records_live_page.dart';
 import 'pages/order_page.dart';
 import 'pages/package_svc_pick_live.dart';
 import 'pages/services_page.dart';
@@ -53,7 +54,13 @@ Widget? pageFor(String name) {
     case 'Login':
       return const LoginPage();
     case 'Order':
-      return const OrderPage();
+      // 登录后从会员详情 / 次卡详情 / 收款成功页进入时，沿用当前会员
+      final cur = MemberFlow.current;
+      return OrderPage(
+        member: merchantApi.hasSession && cur != null
+            ? memberFromRow(cur)
+            : null,
+      );
     case 'Appointments':
       return const AppointmentsPage();
     case 'AppointmentSchedule':
@@ -69,6 +76,9 @@ Widget? pageFor(String name) {
       );
     case 'MemberAdd':
       return const MemberAddPage();
+    case 'MemberRecords':
+      // 登录后看真实流水；设计预览沿用设计稿的示例记录
+      if (merchantApi.hasSession) return const MemberRecordsLivePage();
     case 'Services':
       return const ServicesPage();
     case 'Settings':
@@ -288,6 +298,30 @@ void openRoute(BuildContext context, String name) {
       name == 'PackageEdit' &&
       CatalogDraft.current?.kind != 'packages') {
     CatalogDraft.begin('packages');
+  }
+  // 记录回访 / 回访提醒：进入时读取历史回访 / 今日提醒
+  if (merchantApi.hasSession && name == 'MemberVisit') {
+    unawaited(MemberFlow.beginVisit());
+  }
+  if (merchantApi.hasSession && name == 'MemberFollowUp') {
+    MemberFlow.reminderTab.value = 0;
+    unawaited(MemberFlow.loadReminders());
+  }
+  // 次卡延期 / 退款：每次打开都重新开始（原因要自己选）
+  if (merchantApi.hasSession && name == 'PackageExtend') {
+    MemberFlow.beginExtend();
+  }
+  if (merchantApi.hasSession && name == 'PackageRefund') {
+    MemberFlow.beginRefund();
+  }
+  // 调整卡种与积分：每次进入都重新开始，并读取本店卡种
+  if (merchantApi.hasSession && name == 'MemberAdjust') {
+    unawaited(MemberFlow.beginAdjust());
+  }
+  // 充值表单每次进入都重新开始（默认 ¥2,000、微信）
+  if (merchantApi.hasSession &&
+      (name == 'Recharge' || name == 'RechargeCard')) {
+    MemberFlow.beginRecharge();
   }
   // 新增会员从任何入口进入都从空白草稿开始（上次没保存的内容不带过来）
   if (merchantApi.hasSession && name == 'MemberAdd') MemberFlow.beginAdd();

@@ -98,9 +98,10 @@ class MemberVisitPage extends StatelessWidget {
                         bg: Color(0xFFF5D78E),
                         radius: BorderRadius.circular(22),
                         align: Alignment(0, 0),
-                        child: Text(
+                        child: hMemberText(
+                          (m) => m.avatar,
                           '王',
-                          style: hts(
+                          hts(
                             17,
                             dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
                             w: FontWeight.w600,
@@ -111,18 +112,20 @@ class MemberVisitPage extends StatelessWidget {
                         flex: 1,
                         child: hcol(
                           [
-                            Text(
+                            hMemberText(
+                              (m) => m.name,
                               '王建国',
-                              style: hts(
+                              hts(
                                 16,
                                 Color(0xFFFAFAFA),
                                 w: FontWeight.w600,
                                 lh: 22,
                               ),
                             ),
-                            Text(
+                            hMemberText(
+                              (m) => '${m.maskedPhone} · ${m.plate}',
                               '138 **** 6021 · 沪A·8K29M',
-                              style: hts(
+                              hts(
                                 12,
                                 dk(
                                   context,
@@ -142,9 +145,10 @@ class MemberVisitPage extends StatelessWidget {
                         bg: Color(0xFFF5D78E),
                         radius: BorderRadius.circular(9),
                         pad: EdgeInsets.fromLTRB(8, 0, 8, 0),
-                        child: Text(
+                        child: hMemberText(
+                          (m) => m.levelMember,
                           '黑金会员',
-                          style: hts(
+                          hts(
                             11,
                             dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
                             w: FontWeight.w600,
@@ -790,9 +794,9 @@ class MemberVisitPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            Text(
+                            hVisitNext(
                               '11.08 周日',
-                              style: hts(
+                              hts(
                                 15,
                                 dk(
                                   context,
@@ -859,190 +863,7 @@ class MemberVisitPage extends StatelessWidget {
                     gap: 0,
                   ),
                 ),
-                hbox(
-                  bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                  radius: BorderRadius.circular(24),
-                  shadow: dk(
-                    context,
-                    [
-                      BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
-                        spreadRadius: 0,
-                      ),
-                      BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 1),
-                        blurRadius: 2,
-                        spreadRadius: 0,
-                      ),
-                      BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
-                        spreadRadius: 0,
-                      ),
-                    ],
-                    [
-                      BoxShadow(
-                        color: Color(0xFF26262B),
-                        offset: Offset(0, 0),
-                        blurRadius: 0,
-                        spreadRadius: 1,
-                      ),
-                    ],
-                  ),
-                  pad: EdgeInsets.fromLTRB(16, 16, 16, 16),
-                  child: hcol(
-                    [
-                      Text(
-                        '历史回访',
-                        style: hts(
-                          15,
-                          dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                          w: FontWeight.w600,
-                          lh: 22,
-                        ),
-                      ),
-                      hcol(
-                        [
-                          hbox(
-                            border: dk(
-                              context,
-                              Border(
-                                bottom: BorderSide(
-                                  color: Color(0xFFEFEFF1),
-                                  width: 1,
-                                ),
-                              ),
-                              Border(
-                                bottom: BorderSide(
-                                  color: Color(0xFF2A2A2E),
-                                  width: 1,
-                                ),
-                              ),
-                            ),
-                            pad: EdgeInsets.fromLTRB(0, 12, 0, 12),
-                            child: hcol(
-                              [
-                                hrow(
-                                  [
-                                    Text(
-                                      '电话 · 已接通',
-                                      style: hts(
-                                        14,
-                                        dk(
-                                          context,
-                                          Color(0xFF18181B),
-                                          Color(0xFFFAFAFA),
-                                        ),
-                                        w: FontWeight.w500,
-                                        lh: 20,
-                                      ),
-                                    ),
-                                    Expanded(flex: 1, child: SizedBox.shrink()),
-                                    Text(
-                                      '10.12',
-                                      style: hts(
-                                        12,
-                                        dk(
-                                          context,
-                                          Color(0xFF71717A),
-                                          Color(0xFF9A9AA3),
-                                        ),
-                                        lh: 16,
-                                      ),
-                                    ),
-                                  ],
-                                  main: MainAxisAlignment.start,
-                                  cross: CrossAxisAlignment.center,
-                                  gap: 0,
-                                ),
-                                Text(
-                                  '询问车辆使用情况，对服务满意。',
-                                  style: hts(
-                                    12,
-                                    dk(
-                                      context,
-                                      Color(0xFF52525B),
-                                      Color(0xFFA8A8B3),
-                                    ),
-                                    lh: 17,
-                                  ),
-                                ),
-                              ],
-                              main: MainAxisAlignment.start,
-                              cross: CrossAxisAlignment.stretch,
-                              gap: 3,
-                            ),
-                          ),
-                          hbox(
-                            pad: EdgeInsets.fromLTRB(0, 12, 0, 12),
-                            child: hcol(
-                              [
-                                hrow(
-                                  [
-                                    Text(
-                                      '微信 · 已发送',
-                                      style: hts(
-                                        14,
-                                        dk(
-                                          context,
-                                          Color(0xFF18181B),
-                                          Color(0xFFFAFAFA),
-                                        ),
-                                        w: FontWeight.w500,
-                                        lh: 20,
-                                      ),
-                                    ),
-                                    Expanded(flex: 1, child: SizedBox.shrink()),
-                                    Text(
-                                      '08.03',
-                                      style: hts(
-                                        12,
-                                        dk(
-                                          context,
-                                          Color(0xFF71717A),
-                                          Color(0xFF9A9AA3),
-                                        ),
-                                        lh: 16,
-                                      ),
-                                    ),
-                                  ],
-                                  main: MainAxisAlignment.start,
-                                  cross: CrossAxisAlignment.center,
-                                  gap: 0,
-                                ),
-                                Text(
-                                  '发送续卡优惠，会员已读未回复。',
-                                  style: hts(
-                                    12,
-                                    dk(
-                                      context,
-                                      Color(0xFF52525B),
-                                      Color(0xFFA8A8B3),
-                                    ),
-                                    lh: 17,
-                                  ),
-                                ),
-                              ],
-                              main: MainAxisAlignment.start,
-                              cross: CrossAxisAlignment.stretch,
-                              gap: 3,
-                            ),
-                          ),
-                        ],
-                        main: MainAxisAlignment.start,
-                        cross: CrossAxisAlignment.stretch,
-                        gap: 0,
-                      ),
-                    ],
-                    main: MainAxisAlignment.start,
-                    cross: CrossAxisAlignment.stretch,
-                    gap: 4,
-                  ),
-                ),
+                hVisitHistory(),
               ],
               main: MainAxisAlignment.start,
               cross: CrossAxisAlignment.stretch,
@@ -1120,14 +941,24 @@ class MemberVisitPage extends StatelessWidget {
                       child: Align(
                         alignment: Alignment(0, 0),
                         widthFactor: 1,
-                        child: Text(
-                          '保存回访',
+                        child: hBusy(
+                          'MemberVisit>MemberDetail',
+                          Text(
+                            '保存回访',
+                            style: hts(
+                              15,
+                              Color(0xFFFFFFFF),
+                              w: FontWeight.w600,
+                              lh: 22,
+                            ),
+                          ),
                           style: hts(
                             15,
                             Color(0xFFFFFFFF),
                             w: FontWeight.w600,
                             lh: 22,
                           ),
+                          label: '提交中…',
                         ),
                       ),
                     ),

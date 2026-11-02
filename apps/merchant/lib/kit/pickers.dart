@@ -368,7 +368,7 @@ class _LiveMemberPickerState extends State<_LiveMemberPicker> {
   late Future<List<Member>> _future = _fetch();
 
   Future<List<Member>> _fetch() async {
-    final page = await merchantApi.members(query: _q);
+    final page = await merchantApi.members(query: _q, limit: 50);
     return [for (final r in page.items) memberFromRow(r)];
   }
 

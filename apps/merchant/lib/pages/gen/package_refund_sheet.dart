@@ -36,13 +36,10 @@ class PackageRefundSheet extends StatelessWidget {
               lh: 28,
             ),
           ),
-          Text(
+          hPackageText(
+            (k) => k.refundSubtitle,
             '精致洗车年卡 · 已用 12 次，剩余 8 次',
-            style: hts(
-              13,
-              dk(context, Color(0xFF52525B), Color(0xFFA8A8B3)),
-              lh: 20,
-            ),
+            hts(13, dk(context, Color(0xFF52525B), Color(0xFFA8A8B3)), lh: 20),
           ),
           hcol(
             [
@@ -60,9 +57,10 @@ class PackageRefundSheet extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Text(
+                    hPackageText(
+                      (k) => k.paidMoney,
                       '¥1,080.00',
-                      style: hts(
+                      hts(
                         15,
                         dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
                         w: FontWeight.w500,
@@ -81,17 +79,19 @@ class PackageRefundSheet extends StatelessWidget {
                   [
                     Expanded(
                       flex: 1,
-                      child: Text(
+                      child: hPackageText(
+                        (k) => k.usedLine,
                         '已用 12 次 × 单次 ¥54',
-                        style: hts(
+                        hts(
                           14,
                           dk(context, Color(0xFF52525B), Color(0xFFA8A8B3)),
                         ),
                       ),
                     ),
-                    Text(
+                    hPackageText(
+                      (k) => k.usedDeductText,
                       '−¥648.00',
-                      style: hts(
+                      hts(
                         15,
                         dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
                         w: FontWeight.w500,
@@ -118,9 +118,10 @@ class PackageRefundSheet extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Text(
+                    hPackageText(
+                      (k) => k.refundableText,
                       '¥432.00',
-                      style: hts(
+                      hts(
                         15,
                         dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
                         w: FontWeight.w600,
@@ -488,14 +489,29 @@ class PackageRefundSheet extends StatelessWidget {
                         child: Align(
                           alignment: Alignment(0, 0),
                           widthFactor: 1,
-                          child: Text(
-                            '确认退款 ¥432',
+                          child: hBusy(
+                            'PackageRefund>MemberDetail',
+                            hPackageText(
+                              (k) => k.refundConfirm,
+                              '确认退款 ¥432',
+                              hts(
+                                15,
+                                dk(
+                                  context,
+                                  Color(0xFFA43433),
+                                  Color(0xFFFF7B7E),
+                                ),
+                                w: FontWeight.w500,
+                                lh: 22,
+                              ),
+                            ),
                             style: hts(
                               15,
                               dk(context, Color(0xFFA43433), Color(0xFFFF7B7E)),
                               w: FontWeight.w500,
                               lh: 22,
                             ),
+                            label: '提交中…',
                           ),
                         ),
                       ),

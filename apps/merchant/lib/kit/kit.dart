@@ -16,7 +16,27 @@ import 'async_kit.dart';
 export '../widgets/card_face.dart' show hCardPreview;
 export 'async_kit.dart' show hBusy;
 export '../backend/package_calc.dart' show PackageCalc;
-export '../widgets/member_widgets.dart' show hMemberText;
+export '../widgets/member_widgets.dart'
+    show
+        hMemberText,
+        hMemberRich,
+        hFilterCountText,
+        hOrderText,
+        hPackageText,
+        hRechargeText,
+        hTierName,
+        RechargeView;
+export '../widgets/sale_widgets.dart' show hPackagePicker;
+export '../widgets/follow_widgets.dart'
+    show
+        hFollowProgress,
+        hFollowRich,
+        hFollowText,
+        hReminderList,
+        hVisitHistory,
+        hVisitNext;
+export '../widgets/package_detail_widgets.dart'
+    show hPackageRing, hPackageServices, hPackageRecords;
 export '../widgets/package_widgets.dart'
     show hPackagePreview, hPackageItems, hPkgText;
 import '../backend/forgot_flow.dart';
@@ -166,6 +186,95 @@ Widget hTap(
         );
         return;
       }
+      // 记录回访：保存后写入回访记录
+      if (merchantApi.hasSession &&
+          route == 'MemberVisit' &&
+          to == 'MemberDetail' &&
+          _hasConfirmLabel(child, '保存回访')) {
+        unawaited(
+          runBusy(
+            'MemberVisit>MemberDetail',
+            () => MemberFlow.saveVisit(context),
+          ),
+        );
+        return;
+      }
+      // 次卡延期 / 退款：“取消”“再想想”只关闭弹层，确认后由云函数执行
+      if (merchantApi.hasSession &&
+          to == 'PackageDetail' &&
+          route == 'sheet:PackageExtend') {
+        if (_hasConfirmLabel(child, '取消')) {
+          Navigator.of(context).maybePop();
+        } else {
+          unawaited(
+            runBusy(
+              'PackageExtend>PackageDetail',
+              () => MemberFlow.extendPackage(context),
+            ),
+          );
+        }
+        return;
+      }
+      if (merchantApi.hasSession &&
+          route == 'sheet:PackageRefund' &&
+          (to == 'PackageDetail' || to == 'MemberDetail')) {
+        if (to == 'PackageDetail' || _hasConfirmLabel(child, '再想想')) {
+          Navigator.of(context).maybePop();
+        } else {
+          unawaited(
+            runBusy(
+              'PackageRefund>MemberDetail',
+              () => MemberFlow.refundPackage(context),
+            ),
+          );
+        }
+        return;
+      }
+      // 筛选会员：“查看”应用条件并关闭面板，“取消”丢弃修改
+      if (merchantApi.hasSession &&
+          route == 'sheet:MemberFilter' &&
+          to == 'Members') {
+        if (_hasConfirmLabel(child, '取消')) {
+          MemberFlow.filter.discard();
+        } else {
+          MemberFlow.filter.apply();
+        }
+        Navigator.of(context).maybePop();
+        return;
+      }
+      // 调整卡种与积分：必须选原因，由云函数写流水
+      if (merchantApi.hasSession &&
+          route == 'MemberAdjust' &&
+          _hasConfirmLabel(child, '确认调整')) {
+        unawaited(
+          runBusy(
+            'MemberAdjust>MemberDetail',
+            () => MemberFlow.adjust(context),
+          ),
+        );
+        return;
+      }
+      // 购买次卡：由云函数算价格、次数、有效期，检查限购和余额
+      if (merchantApi.hasSession &&
+          route == 'Recharge' &&
+          to == 'PackageSold') {
+        unawaited(
+          runBusy('Recharge>PackageSold', () => MemberFlow.sell(context)),
+        );
+        return;
+      }
+      // 储值充值：确认收款后由云函数入账、算赠送和自动升级
+      if (merchantApi.hasSession &&
+          route == 'Recharge' &&
+          to == 'RechargeSuccess') {
+        unawaited(
+          runBusy(
+            'Recharge>RechargeSuccess',
+            () => MemberFlow.recharge(context),
+          ),
+        );
+        return;
+      }
       // 删除会员：确认后由云函数软删除，并回到会员列表
       if (merchantApi.hasSession &&
           route == 'sheet:MemberDelete' &&
@@ -248,20 +357,23 @@ Widget hTap(
   return tap;
 }
 
-bool _hasSaveLabel(Widget widget) {
-  if (widget is Text) return widget.data == '保存';
+bool _hasSaveLabel(Widget widget) => _hasConfirmLabel(widget, '保存');
+
+/// 按钮里有没有这个文字（含加载中被 hBusy 包着的）。
+bool _hasConfirmLabel(Widget widget, String label) {
+  if (widget is Text) return widget.data == label;
   if (widget is Container && widget.child != null) {
-    return _hasSaveLabel(widget.child!);
+    return _hasConfirmLabel(widget.child!, label);
   }
   if (widget is Align && widget.child != null) {
-    return _hasSaveLabel(widget.child!);
+    return _hasConfirmLabel(widget.child!, label);
   }
   if (widget is Padding && widget.child != null) {
-    return _hasSaveLabel(widget.child!);
+    return _hasConfirmLabel(widget.child!, label);
   }
   // 提交按钮里的文字被 hBusy（忙碌态）包了一层
   if (widget is ValueListenableBuilder<Set<String>> && widget.child != null) {
-    return _hasSaveLabel(widget.child!);
+    return _hasConfirmLabel(widget.child!, label);
   }
   return false;
 }
@@ -1068,6 +1180,9 @@ class HInputState extends State<HInput> {
       ('MemberEdit', '1985.06.12') => ('members', 'birthday'),
       ('VehicleAdd', '[17 位 VIN]') => ('vehicles', 'vin'),
       ('VehicleAdd', '18,600') => ('vehicles', 'mileage'),
+      ('Recharge', '') when hint == '输入金额，不享赠送' => ('recharge', 'custom'),
+      ('MemberAdjust', '') when hint == '补充说明，将记入操作记录' => ('adjust', 'note'),
+      ('MemberVisit', '客户表示下周有空，想预约镀晶复养。') => ('visit', 'content'),
       ('PackageEdit', '精致洗车年卡') => ('packages', 'name'),
       ('PackageEdit', '1,080') => ('packages', 'price'),
       ('PackageEdit', '') when hint == '如：仅限精致洗车项目，节假日通用' => (
@@ -1089,6 +1204,7 @@ class HInputState extends State<HInput> {
         RegistrationDraft.set(route, hint, text, _slot);
         if (catalogField != null) {
           CatalogDraft.set(catalogField.$1, catalogField.$2, text);
+          if (catalogField.$1 == 'recharge') MemberFlow.customAmountTyped(text);
         }
       },
       textInputAction: widget.obscure || widget.maxLines == 1
@@ -1232,6 +1348,16 @@ class _PasswordEyeState extends State<PasswordEye> {
 class SelCtrl extends ChangeNotifier {
   final Set<int> selected;
   final bool multi;
+
+  /// 取消全部选中（如输入了自定义金额后取消档位）。
+  void clear() {
+    selected.clear();
+    notifyListeners();
+  }
+
+  /// 外部直接改了 [selected] 后刷新选中显示。
+  void refresh() => notifyListeners();
+
   void Function(int)? onSelect;
   SelCtrl(this.selected, this.multi);
   void tap(int i) {
@@ -1323,6 +1449,260 @@ class _HSelHolderState extends State<HSelHolder> {
         ModalRoute.of(context)?.settings.name == 'CardTierEdit' &&
         widget.groups.length == 1) {
       _bindCardGroup();
+      return;
+    }
+    // 记录回访：回访方式 / 回访结果
+    if (merchantApi.hasSession &&
+        ModalRoute.of(context)?.settings.name == 'MemberVisit' &&
+        widget.groups.length == 1) {
+      _slotKey = 'sel:MemberVisit';
+      final slot = RegistrationDraft.claim(_slotKey, this);
+      final ctrl = ctrls.first;
+      if (slot == 0) {
+        ctrl.selected
+          ..clear()
+          ..add(0);
+        ctrl.addListener(() {
+          if (ctrl.selected.isEmpty) return;
+          CatalogDraft.set('visit', 'method_index', ctrl.selected.first);
+        });
+      } else {
+        ctrl.selected.clear();
+        ctrl.addListener(() {
+          if (ctrl.selected.isEmpty) return;
+          CatalogDraft.set('visit', 'result_index', ctrl.selected.first);
+        });
+      }
+      return;
+    }
+    // 回访提醒：页签（全部 / 次卡到期 / 养护到期 / 生日 / 沉睡）
+    if (merchantApi.hasSession &&
+        ModalRoute.of(context)?.settings.name == 'MemberFollowUp' &&
+        widget.groups.length == 1) {
+      final ctrl = ctrls.first;
+      ctrl.selected
+        ..clear()
+        ..add(MemberFlow.reminderTab.value);
+      ctrl.addListener(() {
+        if (ctrl.selected.isEmpty) return;
+        MemberFlow.reminderTab.value = ctrl.selected.first;
+      });
+      return;
+    }
+    // 次卡延期：延长时间 / 延期原因
+    if (merchantApi.hasSession &&
+        ModalRoute.of(context)?.settings.name == 'sheet:PackageExtend' &&
+        widget.groups.length == 1) {
+      _slotKey = 'sel:PackageExtend';
+      final slot = RegistrationDraft.claim(_slotKey, this);
+      final ctrl = ctrls.first;
+      if (slot == 0) {
+        ctrl.selected
+          ..clear()
+          ..add(0);
+        ctrl.onSelect = (i) {
+          if (i >= MemberFlow.extendDays.length) {
+            // TODO: 自定义延期天数，预期接口：extend 的 days 参数已支持 1–3650，界面还没有输入入口。
+            hToast(context, '自定义天数暂未接通，请选择 30 / 60 / 90 天');
+          }
+        };
+        ctrl.addListener(() {
+          if (ctrl.selected.isEmpty) return;
+          final i = ctrl.selected.first;
+          if (i >= MemberFlow.extendDays.length) {
+            ctrl.selected
+              ..clear()
+              ..add(0);
+            CatalogDraft.set('pkg_extend', 'days_index', 0);
+            return;
+          }
+          CatalogDraft.set('pkg_extend', 'days_index', i);
+        });
+      } else {
+        ctrl.selected.clear();
+        ctrl.addListener(() {
+          if (ctrl.selected.isEmpty) return;
+          CatalogDraft.set(
+            'pkg_extend',
+            'reason',
+            MemberFlow.extendReasons[ctrl.selected.first],
+          );
+        });
+      }
+      return;
+    }
+    // 次卡退款：退回方式 / 退款原因
+    if (merchantApi.hasSession &&
+        ModalRoute.of(context)?.settings.name == 'sheet:PackageRefund' &&
+        widget.groups.length == 1) {
+      _slotKey = 'sel:PackageRefund';
+      final slot = RegistrationDraft.claim(_slotKey, this);
+      final ctrl = ctrls.first;
+      if (slot == 0) {
+        ctrl.selected
+          ..clear()
+          ..add(0);
+        ctrl.addListener(() {
+          if (ctrl.selected.isEmpty) return;
+          CatalogDraft.set('pkg_refund', 'to_index', ctrl.selected.first);
+        });
+      } else {
+        ctrl.selected.clear();
+        ctrl.addListener(() {
+          if (ctrl.selected.isEmpty) return;
+          CatalogDraft.set(
+            'pkg_refund',
+            'reason',
+            MemberFlow.refundReasons[ctrl.selected.first],
+          );
+        });
+      }
+      return;
+    }
+    // 筛选会员：卡种（多选）/ 储值余额 / 最近到店 / 次卡状态 / 车辆与项目
+    if (merchantApi.hasSession &&
+        ModalRoute.of(context)?.settings.name == 'sheet:MemberFilter' &&
+        widget.groups.length == 1) {
+      _slotKey = 'sel:MemberFilter';
+      final slot = RegistrationDraft.claim(_slotKey, this);
+      final ctrl = ctrls.first;
+      final f = MemberFlow.filter;
+      ctrl.selected.clear();
+      if (slot == 0) {
+        ctrl.selected.addAll(f.tierSel);
+        ctrl.onSelect = (i) {
+          if (i >= f.tiers.length) hToast(context, '本店没有这个卡种');
+        };
+        ctrl.addListener(() {
+          f.tierSel = {...ctrl.selected}
+            ..removeWhere((i) => i >= f.tiers.length);
+          f.changed();
+        });
+      } else if (slot == 1) {
+        ctrl.selected.add(f.balanceSel);
+        ctrl.addListener(() {
+          if (ctrl.selected.isEmpty) return;
+          f.balanceSel = ctrl.selected.first;
+          f.changed();
+        });
+      } else if (slot == 2) {
+        if (f.visitSel >= 0) ctrl.selected.add(f.visitSel);
+        ctrl.addListener(() {
+          f.visitSel = ctrl.selected.isEmpty ? -1 : ctrl.selected.first;
+          f.changed();
+        });
+      } else {
+        // TODO: 次卡状态 / 车辆与项目依赖次卡和订单数据，预期接口：members list 的 filters 参数。
+        var busy = false;
+        ctrl.addListener(() {
+          if (busy || ctrl.selected.isEmpty) return;
+          busy = true;
+          hToast(context, '次卡状态、车辆与项目筛选暂未接通');
+          ctrl.clear();
+          busy = false;
+        });
+      }
+      return;
+    }
+    // 调整卡种与积分：三组选项依次是卡种 / 增加或扣减 / 调整原因
+    if (merchantApi.hasSession &&
+        ModalRoute.of(context)?.settings.name == 'MemberAdjust' &&
+        widget.groups.length == 1) {
+      _slotKey = 'sel:MemberAdjust';
+      final slot = RegistrationDraft.claim(_slotKey, this);
+      final ctrl = ctrls.first;
+      if (slot == 0) {
+        void showCurrent() {
+          final i =
+              int.tryParse('${CatalogDraft.current?.fields['tier_index']}') ??
+              -1;
+          ctrl.selected
+            ..clear()
+            ..addAll(i >= 0 ? {i} : <int>{});
+          ctrl.refresh();
+        }
+
+        showCurrent();
+        // 卡种列表异步读取，读到后再回填当前卡种
+        CatalogDraft.preview.addListener(showCurrent);
+        ctrl.onSelect = (i) {
+          if (i >= MemberFlow.tiers.length) {
+            hToast(context, '这个卡种按钮在本店没有对应的卡种');
+            return;
+          }
+          CatalogDraft.set('adjust', 'tier_index', i);
+        };
+      } else if (slot == 1) {
+        ctrl.addListener(() {
+          if (ctrl.selected.isEmpty) return;
+          CatalogDraft.set(
+            'adjust',
+            'dir',
+            ctrl.selected.first == 0 ? 'add' : 'sub',
+          );
+        });
+      } else {
+        ctrl.selected.clear();
+        ctrl.addListener(() {
+          if (ctrl.selected.isEmpty) return;
+          CatalogDraft.set(
+            'adjust',
+            'reason',
+            MemberFlow.adjustReasons[ctrl.selected.first],
+          );
+        });
+      }
+      return;
+    }
+    // 充值页：第一组是金额档位，第二组是收款方式
+    if (merchantApi.hasSession &&
+        ModalRoute.of(context)?.settings.name == 'Recharge' &&
+        widget.groups.length == 1) {
+      _slotKey = 'sel:Recharge';
+      final slot = RegistrationDraft.claim(_slotKey, this);
+      final ctrl = ctrls.first;
+      if (slot == 0) {
+        final i =
+            int.tryParse('${CatalogDraft.current?.fields['preset']}') ?? 1;
+        ctrl.selected
+          ..clear()
+          ..add(i);
+        MemberFlow.clearPresetSelection = ctrl.clear;
+        ctrl.addListener(() {
+          if (ctrl.selected.isEmpty) return;
+          CatalogDraft.set('recharge', 'preset', ctrl.selected.first);
+          CatalogDraft.set('recharge', 'mode', 'preset');
+        });
+      } else if (slot == 2) {
+        // 购买次卡页签的收款方式（含“储值余额”）
+        final i = MemberFlow.saleMethods.indexOf(MemberFlow.saleMethod);
+        ctrl.selected
+          ..clear()
+          ..add(i < 0 ? 0 : i);
+        ctrl.addListener(() {
+          if (ctrl.selected.isEmpty) return;
+          CatalogDraft.set(
+            'recharge',
+            'sale_method',
+            MemberFlow.saleMethods[ctrl.selected.first],
+          );
+        });
+      } else {
+        final i = MemberFlow.payMethods.indexOf(
+          CatalogDraft.text('recharge', 'method', MemberFlow.payMethods.first),
+        );
+        ctrl.selected
+          ..clear()
+          ..add(i < 0 ? 0 : i);
+        ctrl.addListener(() {
+          if (ctrl.selected.isEmpty) return;
+          CatalogDraft.set(
+            'recharge',
+            'method',
+            MemberFlow.payMethods[ctrl.selected.first],
+          );
+        });
+      }
       return;
     }
     // 编辑会员资料：唯一一组选项是称呼（先生 / 女士）
@@ -1457,7 +1837,18 @@ class _HHolderState extends State<HHolder> {
                   100)
               .round()
         : null;
-    ctrls = [for (final i in widget.inits) ValCtrl(initial ?? i)];
+    final adjustPoints =
+        merchantApi.hasSession &&
+        ModalRoute.of(context)?.settings.name == 'MemberAdjust' &&
+        widget.inits.length == 1;
+    ctrls = [
+      for (final i in widget.inits) ValCtrl(adjustPoints ? 0 : (initial ?? i)),
+    ];
+    if (adjustPoints) {
+      ctrls[0].addListener(
+        () => CatalogDraft.set('adjust', 'points', ctrls[0].v),
+      );
+    }
     if (cardDiscount) {
       CatalogDraft.set('cards', 'discount', ctrls[0].v / 100);
       ctrls[0].addListener(
