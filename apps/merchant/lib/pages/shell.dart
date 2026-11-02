@@ -2,14 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../theme.dart';
 import '../widgets/app_icon.dart';
-import '../widgets/common.dart';
 import 'home_page.dart';
 import 'inventory_page.dart';
 import 'members_page.dart';
 import '../mock/app_state.dart';
 import '../routes.dart';
 import 'gen/plan_expired_page.dart';
-import 'order_page.dart';
 import 'stats_page.dart';
 
 /// 全局切换底部 Tab 的入口（首页快捷入口使用）
@@ -62,7 +60,7 @@ class _ShellState extends State<Shell> {
         bottomNavigationBar: _BottomBar(
           index: idx,
           onTab: (i) => tabIndex.value = i,
-          onOrder: () => push(context, const OrderPage()),
+          onOrder: () => openRoute(context, 'FindScanPlate'),
         ),
       ),
     );
@@ -120,7 +118,7 @@ class _BottomBar extends StatelessWidget {
               child: GestureDetector(
                 onTap: onOrder,
                 child: Semantics(
-                  label: '开单收银',
+                  label: '扫码找会员',
                   button: true,
                   child: Container(
                     width: 56,
@@ -150,7 +148,11 @@ class _BottomBar extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: const AppIcon('add', color: Colors.white, size: 26),
+                    child: const AppIcon(
+                      'scanPlate',
+                      color: Colors.white,
+                      size: 26,
+                    ),
                   ),
                 ),
               ),

@@ -11,6 +11,7 @@ import '../backend/merchant_api.dart';
 import '../backend/registration_draft.dart';
 import '../backend/store_profile.dart';
 import '../backend/catalog_draft.dart';
+import '../backend/scan_flow.dart';
 import '../backend/member_flow.dart' show memberFromRow;
 import '../mock/mock_data.dart';
 import 'keyboard.dart';
@@ -1272,7 +1273,9 @@ class _HPlateState extends State<HPlate> {
     if (!merchantApi.hasSession || kind == null) {
       return PlateCtrl(widget.initial, widget.green);
     }
-    final c = PlateCtrl('', widget.green);
+    // 从“扫码找会员 · 没找到”进来办卡时，车牌用识别出的那个
+    final prefill = kind == 'members' ? ScanFlow.takePrefillPlate() : null;
+    final c = PlateCtrl(prefill ?? '', widget.green);
     void write() {
       CatalogDraft.set(kind, 'plate', c.text);
       CatalogDraft.set(kind, 'energy', c.green ? 'ev' : 'fuel');

@@ -174,12 +174,22 @@ const Map<String, List<String>> _pairs = {
 final Map<String, ValueNotifier<int>> pairTabs = {
   for (final k in _pairs.keys) k: ValueNotifier<int>(0),
 };
+
+/// 未选会员时的充值页：两个页签是 RechargeEmpty / RechargeEmptyCard，和 Recharge / RechargeCard 共用一个页面。
+const Map<String, (String, int)> _pairAlias = {
+  'RechargeEmpty': ('Recharge', 0),
+  'RechargeEmptyCard': ('Recharge', 1),
+};
 String? _pairOf(String name) {
+  if (_pairAlias.containsKey(name)) return _pairAlias[name]!.$1;
   for (final e in _pairs.entries) {
     if (e.value.contains(name)) return e.key;
   }
   return null;
 }
+
+int _pairIndex(String pairId, String name) =>
+    _pairAlias[name]?.$2 ?? _pairs[pairId]!.indexOf(name);
 
 class PairPage extends StatefulWidget {
   final String id;
@@ -203,7 +213,16 @@ class _PairPageState extends State<PairPage> {
       return ListenableBuilder(
         listenable: MemberFlow.memberTick,
         builder: (context, _) => MemberFlow.current == null
-            ? Builder(builder: genRoutes['RechargeEmpty']!)
+            ? ValueListenableBuilder<int>(
+                valueListenable: pairTabs[widget.id]!,
+                builder: (context, i, _) => IndexedStack(
+                  index: i,
+                  children: [
+                    Builder(builder: genRoutes['RechargeEmpty']!),
+                    Builder(builder: genRoutes['RechargeEmptyCard']!),
+                  ],
+                ),
+              )
             : _tabs(),
       );
     }
@@ -595,10 +614,16 @@ void _openRouteCore(BuildContext context, String name) {
         (cur == 'sheet:ThemeSheet' && name == 'Settings')) {
       return; // 点遮罩 / 取消：回到所属页面
     }
+    // 选择会员弹层的关闭按钮指向“未选会员的充值页”；不是从充值页打开的（如开单页），只关闭弹层
+    if (cur == 'sheet:MemberPicker' &&
+        name == 'RechargeEmpty' &&
+        !navTracker.has('Recharge')) {
+      return;
+    }
   }
   final pairId = _pairOf(name);
   if (pairId != null) {
-    final idx = _pairs[pairId]!.indexOf(name);
+    final idx = _pairIndex(pairId, name);
     if (navTracker.has(pairId)) {
       nav.popUntil((r) => r.settings.name == pairId || r.isFirst);
       pairTabs[pairId]!.value = idx;

@@ -121,6 +121,7 @@ export type ApiResponse =
   | { ok: true }
   | { ok: true; services: number; cards: number; packages: number }
   | { code: string; mock: true }
+  | { matched: boolean; mock: true; plate: string; member?: unknown; package_summary?: string; last_visit_text?: string }
   | { access_token: string; refresh_token: string }
   | { store: StoreProfileRow }
   | { items: ServiceItemRow[] | CardTypeRow[] | PackageRow[] | unknown[]; counts?: Record<string, number>; total?: number; matched?: number; total_balance?: number; new_this_month?: number }

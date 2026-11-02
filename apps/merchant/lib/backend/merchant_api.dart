@@ -393,6 +393,13 @@ class MerchantApi {
     return Map<String, dynamic>.from(data['item'] as Map);
   }
 
+  // ───────── 扫码找会员（车牌识别） ─────────
+  /// 车牌识别。目前是开发环境的 mock（云函数不看照片）：约一半概率返回门店里已有的会员，
+  /// 否则返回一个库里没有的随机车牌。返回 `matched`、`plate`，匹配时还有 `member`、`package_summary`、`last_visit_text`。
+  // TODO: 真实识别要先把照片上传到存储，再按存储路径请求识别服务。
+  Future<Map<String, dynamic>> recognizePlate() =>
+      invoke({'action': 'recognize_plate', 'kind': 'members'});
+
   // ───────── 开单收银 ─────────
   /// [lines]: `[{service_id, qty, member_package_id?}]`。价格、折扣、次卡抵扣、扣款都由云函数算。
   Future<Map<String, dynamic>> checkout({
@@ -420,6 +427,27 @@ class MerchantApi {
     return Map<String, dynamic>.from(data['item'] as Map);
   }
 
+  /// 散客开单：不记会员、没有折扣和次卡抵扣，只能用微信 / 支付宝 / 现金 / POS 刷卡。
+  Future<Map<String, dynamic>> checkoutWalkIn({
+    required List<Map<String, dynamic>> lines,
+    required String method,
+    String plate = '',
+    String remark = '',
+    String? holdId,
+  }) async {
+    final data = await invoke({
+      'action': 'checkout',
+      'kind': 'orders',
+      'walk_in': true,
+      'hold_id': ?holdId,
+      'lines': lines,
+      'method': method,
+      'plate': plate,
+      'remark': remark,
+    });
+    return Map<String, dynamic>.from(data['item'] as Map);
+  }
+
   // ───────── 挂单 ─────────
   /// 待处理的挂单（含明细、会员、云函数按当时价格算的估价 `estimate`）。
   Future<List<Map<String, dynamic>>> holds() async {
@@ -430,7 +458,9 @@ class MerchantApi {
   /// 挂起 / 修改一张挂单。[holdId] 为空 = 新挂单，否则整单替换明细。
   Future<Map<String, dynamic>> saveHold({
     String? holdId,
-    required String memberId,
+
+    /// 为空 = 散客挂单（不记会员，没有折扣和次卡）。
+    String? memberId,
     required List<Map<String, dynamic>> lines,
     String status = '待施工',
     String note = '',
@@ -441,7 +471,7 @@ class MerchantApi {
       'action': 'hold',
       'kind': 'orders',
       'hold_id': ?holdId,
-      'member_id': memberId,
+      if (memberId == null) 'walk_in': true else 'member_id': memberId,
       'lines': lines,
       'status': status,
       'note': note,

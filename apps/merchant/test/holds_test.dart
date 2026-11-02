@@ -2,6 +2,7 @@ import 'package:autocare_merchant/backend/catalog_draft.dart';
 import 'package:autocare_merchant/backend/hold_flow.dart';
 import 'package:autocare_merchant/backend/member_flow.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
+
 import 'package:autocare_merchant/pages/order_page.dart';
 import 'package:autocare_merchant/routes.dart';
 import 'package:flutter/material.dart';
@@ -26,11 +27,12 @@ Map<String, dynamic> hold({
   num estimate = 342,
   int updatedMinutesAgo = 5,
   String plate = 'A8K29M',
+  bool walkIn = false,
 }) {
   final at = DateTime.now().subtract(Duration(minutes: updatedMinutesAgo));
   return {
     'id': id,
-    'member_id': 'm1',
+    'member_id': walkIn ? null : 'm1',
     'status': status,
     'note': note,
     'remind': '完工时',
@@ -38,11 +40,13 @@ Map<String, dynamic> hold({
     'estimate': estimate,
     'created_at': at.toUtc().toIso8601String(),
     'updated_at': at.toUtc().toIso8601String(),
-    'member': {
-      'id': 'm1',
-      'name': name,
-      'card': {'name': level},
-    },
+    'member': walkIn
+        ? null
+        : {
+            'id': 'm1',
+            'name': name,
+            'card': {'name': level},
+          },
     'items': [
       for (var i = 0; i < items.length; i++)
         {'position': i, 'service_id': 's${i + 1}', 'name': items[i], 'qty': 1},
@@ -364,6 +368,66 @@ void main() {
       await t.pump(const Duration(milliseconds: 300));
       expect(find.text('请先选择服务项目'), findsOneWidget);
       expect(fake.checkouts, isEmpty);
+    });
+  });
+
+  group('散客挂单', () {
+    testWidgets('散客挂单：只提交选择（不带会员、次卡、价格），列表里显示“散客 · 非会员”', (t) async {
+      phone(t);
+      seedOrder();
+      MemberFlow.current = null;
+      await t.pumpWidget(appNamed('Order', const OrderPage()));
+      await t.pumpAndSettle();
+      await t.tap(find.text('散客开单'));
+      await t.pumpAndSettle();
+      await t.enterText(find.byType(TextField).first, '苏K5F218');
+      await t.tap(find.text('精致洗车'));
+      await t.pump();
+      await t.tap(find.text('挂单').last);
+      await t.pumpAndSettle();
+      expect(find.text('挂单保存'), findsOneWidget);
+      expect(find.text('散客'), findsWidgets);
+      expect(find.text('客'), findsOneWidget);
+      expect(find.text('苏K5F218'), findsWidgets);
+      await t.tap(find.text('确认挂单'));
+      await t.pumpAndSettle();
+      final sent = fake.heldSaves.single;
+      expect(sent['member'], isNull);
+      expect(sent['plate'], '苏K5F218');
+      expect(sent['lines'], [
+        {'service_id': 's1', 'qty': 1},
+      ]);
+      expect(sent.toString().contains('price'), isFalse);
+      expect(find.text('挂单待收款'), findsOneWidget);
+      expect(find.text('散客'), findsOneWidget);
+      expect(find.text('非会员'), findsOneWidget);
+      expect(find.text('苏K·5F218'), findsOneWidget);
+    });
+
+    testWidgets('取单结算散客挂单：回到散客状态（含车牌、项目），收款带着挂单 ID 走散客收款', (t) async {
+      phone(t);
+      fake.holdRows.add(hold(walkIn: true, items: ['精致洗车'], plate: 'K5F218'));
+      seedOrder();
+      MemberFlow.current = null;
+      await t.pumpWidget(appNamed('Order', const OrderPage()));
+      await t.pumpAndSettle();
+      await t.tap(find.text('挂单').first);
+      await t.pumpAndSettle();
+      expect(find.text('散客'), findsOneWidget);
+      await t.tap(find.text('取单结算'));
+      await t.pumpAndSettle();
+      expect(find.text('开单收银'), findsOneWidget);
+      expect(find.text('不记会员'), findsOneWidget);
+      expect(find.text('¥68.00'), findsWidgets); // 原价，没有折扣
+      await t.tap(find.text('现金'));
+      await t.pump();
+      await t.tap(find.text('确认收款'));
+      await t.pumpAndSettle();
+      final sent = fake.walkIns.single;
+      expect(sent['hold'], 'h1');
+      expect(sent['method'], '现金');
+      expect(fake.checkouts, isEmpty);
+      expect(fake.holdRows, isEmpty);
     });
   });
 

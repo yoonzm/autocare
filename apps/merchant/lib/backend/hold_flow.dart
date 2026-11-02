@@ -9,7 +9,8 @@ import 'member_flow.dart' show plateText;
 
 /// 开单页准备挂起的一单（只有选择，没有价格：估价由云函数按服务端价格算）。
 class HoldDraft {
-  final String memberId;
+  /// 为空 = 散客挂单。
+  final String? memberId;
   final String memberName;
   final String level;
 
@@ -22,7 +23,7 @@ class HoldDraft {
   final String payableText;
   final String? holdId;
   const HoldDraft({
-    required this.memberId,
+    this.memberId,
     required this.memberName,
     required this.level,
     required this.plateLabel,

@@ -1,4 +1,4 @@
-import { parseCheckout, parseHold, parseExtend, parseFollowUp, parseRefund, parseSell } from './ops_rules.ts';
+import { parseCheckout, parseHold, parseWalkIn, parseExtend, parseFollowUp, parseRefund, parseSell } from './ops_rules.ts';
 
 const eq = (a: unknown, b: unknown, msg: string) => {
   if (JSON.stringify(a) !== JSON.stringify(b)) throw new Error(`${msg}: ${JSON.stringify(a)} != ${JSON.stringify(b)}`);
@@ -82,4 +82,24 @@ Deno.test('follow-up: method / result from the design, date not in the past', ()
   eq(typeof parseFollowUp({ ...base, result: '随便' }, today), 'string', 'result');
   eq(typeof parseFollowUp({ ...base, content: 'a'.repeat(501) }, today), 'string', 'long');
   eq(typeof parseFollowUp(base, today), 'object', 'no date is fine');
+});
+
+Deno.test('walk-in: no member, no package, cash-type methods only', () => {
+  const ok = parseWalkIn({ method: '微信', lines: [{ service_id: S1, price: 1 }], plate: '苏k 5f218' });
+  if (typeof ok === 'string') throw new Error(ok);
+  eq([ok.method, ok.plate, ok.lines], ['微信', '苏K5F218', [{ service_id: S1, qty: 1, member_package_id: null }]], 'values');
+  eq(typeof parseWalkIn({ method: '会员余额', lines: [{ service_id: S1 }] }), 'string', 'balance');
+  eq(typeof parseWalkIn({ method: '组合支付', lines: [{ service_id: S1 }] }), 'string', 'combo');
+  eq(typeof parseWalkIn({ method: '现金', lines: [{ service_id: S1, member_package_id: P }] }), 'string', 'package');
+  eq(typeof parseWalkIn({ method: '现金', lines: [] }), 'string', 'empty');
+});
+
+Deno.test('walk-in hold: no member needed, no package, hold_id optional on walk-in checkout', () => {
+  const h = parseHold({ walk_in: true, lines: [{ service_id: S1 }], plate: '苏k5f218' });
+  if (typeof h === 'string') throw new Error(h);
+  eq([h.member_id, h.plate], [null, '苏K5F218'], 'walk-in hold');
+  eq(typeof parseHold({ walk_in: true, lines: [{ service_id: S1, member_package_id: P }] }), 'string', 'package');
+  eq(typeof parseHold({ lines: [{ service_id: S1 }] }), 'string', 'member still required without walk_in');
+  const w = parseWalkIn({ method: '现金', lines: [{ service_id: S1 }], hold_id: P });
+  eq(typeof w === 'object' && w.hold_id, P, 'settle walk-in hold');
 });

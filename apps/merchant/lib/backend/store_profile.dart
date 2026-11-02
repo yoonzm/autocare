@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 
+import 'hold_flow.dart';
 import 'merchant_api.dart';
+import 'scan_flow.dart';
 
 /// The signed-in owner's store as stored in the backend.
 ///
@@ -89,6 +91,9 @@ class StoreProfile extends ChangeNotifier {
     plan = 'trial';
     businessTypes = const [];
     trialEndsAt = null;
+    // 换账号 / 退出登录后不保留上一家店的挂单和识别结果
+    HoldFlow.reset();
+    ScanFlow.last = null;
     notifyListeners();
   }
 }

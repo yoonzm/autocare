@@ -7,6 +7,7 @@ import {
   parseHold,
   parseRefund,
   parseSell,
+  parseWalkIn,
 } from './ops_rules.ts';
 import type { Input } from './types.ts';
 
@@ -95,6 +96,7 @@ const holdFail = (error: { code?: string; message: string }) => {
     return fail(m.includes('hold') ? '挂单不存在或已处理' : m.includes('member') ? '会员不存在' : '服务项目不存在或已下架', 404);
   }
   if (error.code === 'P0001') {
+    if (error.message.includes('walkin_package')) return fail('散客不能使用次卡', 400);
     return fail(error.message.includes('hold_closed') ? '这张挂单已经处理过了' : '请先选择服务项目', 400);
   }
   return fail('保存失败', 400);
@@ -132,6 +134,31 @@ export async function handleOrders(input: Input, storeId: string): Promise<Respo
       .eq('id', input.id).eq('store_id', storeId).is('settled_at', null).is('cancelled_at', null).select('id');
     if (error) return fail('删除失败', 400);
     return data && data.length > 0 ? json({ ok: true }) : fail('挂单不存在或已处理', 404);
+  }
+  if (input.action === 'checkout' && input.walk_in === true) {
+    const w = parseWalkIn(input);
+    if (typeof w === 'string') return fail(w);
+    const request = typeof input.__request === 'string' ? input.__request : null;
+    const operator = await operatorOf(storeId);
+    // 取单结算散客挂单：挂单关闭和收款在同一个数据库事务里完成
+    const { data, error } = w.hold_id
+      ? await admin.rpc('settle_held_order', {
+        p_store: storeId, p_hold: w.hold_id, p_lines: w.lines, p_method: w.method, p_balance_part: null,
+        p_other: null, p_plate: w.plate, p_remark: w.remark, p_operator: operator, p_request: request,
+      })
+      : await admin.rpc('checkout_walkin', {
+        p_store: storeId, p_lines: w.lines, p_method: w.method, p_plate: w.plate, p_remark: w.remark,
+        p_operator: operator, p_request: request,
+      });
+    if (error) {
+      if (error.code === 'P0002') {
+        const m = error.message;
+        return fail(m.includes('hold') ? '挂单不存在或已处理' : m.includes('service') ? '服务项目不存在或已下架' : '请先选择服务项目', 404);
+      }
+      if (error.code === 'P0001') return fail(error.message.includes('hold_closed') ? '这张挂单已经处理过了' : '收款方式无效', 400);
+      return fail('收款失败', 400);
+    }
+    return json({ item: data });
   }
   if (input.action === 'checkout') {
     const v = parseCheckout(input);

@@ -4,6 +4,9 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../backend/member_flow.dart';
+import '../backend/merchant_api.dart';
+import '../backend/scan_flow.dart';
 import '../kit/kit.dart';
 import '../routes.dart';
 import '../theme.dart';
@@ -235,15 +238,42 @@ class _ScanPageState extends State<ScanPage>
     if (ok && mounted) await _recognize();
   }
 
-  /// 识别过程为 mock：扫描线来回扫动一小段时间后进入结果。
+  /// 车牌找会员：登录后调用云函数识别（目前云函数内部是开发环境的 mock，不看照片）；
+  /// 其余扫描类型仍是示例识别。识别过程中扫描线来回扫动，至少 1.3 秒。
   Future<void> _recognize() async {
     if (!mounted) return;
     setState(() => _busy = true);
     _sweep.repeat(reverse: true);
-    await Future<void>.delayed(const Duration(milliseconds: 1300));
+    final started = DateTime.now();
+    var result = _result;
+    String? failure;
+    if (merchantApi.hasSession && kind == ScanKind.findPlate) {
+      try {
+        final res = await ScanFlow.recognize();
+        if (res['matched'] == true && ScanFlow.member != null) {
+          MemberFlow.current = ScanFlow.member;
+          MemberFlow.memberTick.value++;
+          result = 'FindResult';
+        } else {
+          result = 'FindNotFound';
+        }
+      } catch (e) {
+        failure = AppError.from(e).message;
+      }
+    }
+    final left =
+        const Duration(milliseconds: 1300) - DateTime.now().difference(started);
+    if (left > Duration.zero) await Future<void>.delayed(left);
     if (!mounted) return;
     _sweep.stop();
-    final result = _result;
+    if (failure != null) {
+      setState(() => _busy = false);
+      hToast(context, failure);
+      try {
+        await _ctrl?.resumePreview();
+      } catch (_) {}
+      return;
+    }
     openRoute(context, result);
     setState(() => _busy = false);
     // 结果弹层关闭后恢复取景

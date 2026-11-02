@@ -14,8 +14,9 @@ import '../routes.dart' show openRoute;
 class HoldView {
   const HoldView();
   HoldDraft get _d => HoldFlow.draft!;
-  String get avatar =>
-      _d.memberName.isEmpty ? '客' : _d.memberName.substring(0, 1);
+  String get avatar => _d.memberId == null || _d.memberName.isEmpty
+      ? '客'
+      : _d.memberName.substring(0, 1);
   String get name => _d.memberName;
   String get plate => _d.plateLabel;
   String get countText => '${_d.lines.length} 项服务';
@@ -135,7 +136,8 @@ String holdTimeText(DateTime at, [DateTime? now]) {
 _HoldCard _cardOf(Map<String, dynamic> h) {
   final member = Map<String, dynamic>.from((h['member'] as Map?) ?? const {});
   final card = Map<String, dynamic>.from((member['card'] as Map?) ?? const {});
-  final name = '${member['name'] ?? ''}';
+  final walkIn = h['member_id'] == null && member.isEmpty;
+  final name = walkIn ? '散客' : '${member['name'] ?? ''}';
   final items =
       List<Map<String, dynamic>>.from((h['items'] as List?) ?? const [])..sort(
         (a, b) => ((a['position'] ?? 0) as num).compareTo(
@@ -147,9 +149,9 @@ _HoldCard _cardOf(Map<String, dynamic> h) {
   return _HoldCard(
     id: '${h['id']}',
     row: h,
-    initial: name.isEmpty ? '客' : name.substring(0, 1),
+    initial: walkIn || name.isEmpty ? '客' : name.substring(0, 1),
     name: name,
-    level: '${card['name'] ?? ''}',
+    level: walkIn ? '非会员' : '${card['name'] ?? ''}',
     plate: HoldFlow.plateOf(h),
     // 新能源车牌（8 位）用绿牌样式
     plateGreen: plate.length >= 8,

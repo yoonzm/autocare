@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../backend/catalog_draft.dart';
 import '../backend/member_flow.dart';
 import '../backend/merchant_api.dart';
+import '../backend/scan_flow.dart';
 import '../backend/package_calc.dart' show PackageRowInfo, formatMoney;
 
 /// 当前会员（办卡成功的 / 正在查看的）在生成页里用到的各种文字。
@@ -346,8 +347,11 @@ class OrderView {
 
   String get payable => '¥${money2(_n('payable'))}';
   String get balancePaid => '¥${money2(_n('balance_paid'))}';
-  String get balance => '¥${money2(_n('balance'))}';
-  String get points => '+${formatMoney(_n('points_gained'))}';
+  // 散客没有储值余额和积分
+  String get balance =>
+      _o['balance'] == null ? '—' : '¥${money2(_n('balance'))}';
+  String get points =>
+      _o['balance'] == null ? '—' : '+${formatMoney(_n('points_gained'))}';
   String get items => '${_o['items'] ?? ''}';
 
   String get _payText {
@@ -387,6 +391,24 @@ class OrderView {
     return parts.isEmpty ? '无优惠' : parts.join(' · ');
   }
 }
+
+/// 扫码找会员（车牌识别）结果里的文字；没有识别结果（设计预览）时显示示例。
+Widget hScanText(
+  String Function(ScanView s) text,
+  String sample,
+  TextStyle style, {
+  TextAlign? textAlign,
+  bool? softWrap,
+  int? maxLines,
+}) => Text(
+  merchantApi.hasSession && ScanFlow.last != null
+      ? text(const ScanView())
+      : sample,
+  style: style,
+  textAlign: textAlign,
+  softWrap: softWrap,
+  maxLines: maxLines,
+);
 
 Widget hOrderText(
   String Function(OrderView o) text,

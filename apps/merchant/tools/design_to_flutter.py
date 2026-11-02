@@ -123,6 +123,17 @@ HOLD_TEXT = {
     ('HoldSheet', '¥1,422.00'): 'h.payableText',
 }
 
+# 扫码找会员（车牌识别）结果驱动的文字：(页面, 设计稿文字) -> ScanView 的取值（s 是 ScanView）
+SCAN_TEXT = {
+    ('FindResult', '沪A·8K29M'): 's.plate',
+    ('FindResult', '蓝牌'): 's.plateKind',
+    ('FindResult', '宝马 5系 525Li · 黑'): 's.vehicleModel',
+    ('FindResult', '洗车年卡 8 次 · 内饰清洁 2 次'): 's.packageSummary',
+    ('FindResult', '10.31 · 精致洗车'): 's.lastVisit',
+    ('FindNotFound', '沪A·8K29M'): 's.plate',
+    ('FindNotFound', '车牌 沪A·8K29M 将自动带入'): "'车牌 ${s.plate} 将自动带入'",
+}
+
 # 次卡（正在查看的）驱动的文字：(页面, 设计稿文字) -> PackageView 的取值（k 是 PackageView）
 PACKAGE_TEXT = {
     ('PackageDetail', '精致洗车年卡'): 'k.name',
@@ -171,6 +182,12 @@ MEMBER_TEXT = {
     ('PackageSold', '王建国 · 微信 · 次卡购买通知'): "'${m.name} · 微信 · 次卡购买通知'",
     ('PaySuccess', '王建国 · 微信 · 消费通知'): "'${m.name} · 微信 · 消费通知'",
     ('MemberSendMsg', '接收人 · 王建国'): "'接收人 · ${m.name}'",
+    # 扫码找会员 · 识别到会员：用识别出的那位会员
+    ('FindResult', '王'): 'm.avatar',
+    ('FindResult', '王建国'): 'm.name',
+    ('FindResult', '黑金会员'): 'm.levelMember',
+    ('FindResult', '138 **** 6021'): 'm.maskedPhone',
+    ('FindResult', '¥3,680'): 'm.balanceText',
     ('RechargeCard', '王'): 'm.avatar',
     ('RechargeCard', '王建国'): 'm.name',
     ('RechargeCard', '138 **** 6021 · 沪A·8K29M'): "'${m.maskedPhone} · ${m.plate}'",
@@ -231,7 +248,12 @@ KEY_PAGE = {'RechargeCard': 'Recharge'}
 # 网格（grid）里的单选组做成可点选的页面：这些页面已接后端，需要读到选中项
 GRID_SELECT_PAGES = {'Recharge', 'RechargeCard'}
 
-SKIP = {'ForgotNote', 'AppIcon', 'DarkTokens', 'PageTransitions'}
+# 设计稿里的“状态页”不单独成页：开单页的“未选客户 / 散客”是 Order 的不同状态，“选择会员 · 无结果”是选择会员弹层的空状态；
+# PickerNote 只是使用约定说明。
+SKIP = {'ForgotNote', 'AppIcon', 'DarkTokens', 'PageTransitions', 'MemberPickerEmpty', 'OrderEmpty', 'OrderWalkIn',
+        'PickerNote'}
+# 链接目标改写：设计稿里单独画出来的状态页 -> 实际所在的页面
+LINK_REMAP = {'OrderWalkIn': 'Order', 'OrderEmpty': 'Order'}
 # 设计稿里的深色版本只是参考，深色效果由同一套页面自动适配
 SKIP_SUFFIX = ('Dark',)
 
@@ -790,6 +812,10 @@ class Gen:
             if od:
                 return 'hOrderText((o) => %s, %s, %s%s)' % (
                     od, dstr(text), self.ts(segs[0][1]), ''.join(', ' + e for e in extra))
+            sc = SCAN_TEXT.get((self.page_name, text))
+            if sc:
+                return 'hScanText((s) => %s, %s, %s%s)' % (
+                    sc, dstr(text), self.ts(segs[0][1]), ''.join(', ' + e for e in extra))
             hd = HOLD_TEXT.get((self.page_name, text))
             if hd:
                 return 'hHoldText((h) => %s, %s, %s%s)' % (
@@ -1281,7 +1307,7 @@ class Gen:
         if self.page_name == 'PackageEdit' and label == '删除套餐':
             return 'hTap(context, %s, onTap: () => hConfirmPop(context, %s))' % (code, dstr(label))
         if m:
-            return 'hTap(context, %s, to: %s)' % (code, dstr(m.group(1)))
+            return 'hTap(context, %s, to: %s)' % (code, dstr(LINK_REMAP.get(m.group(1), m.group(1))))
         if re.search(r'(删除此|停用|解除绑定|退出所有|注销账号)', label):
             return 'hTap(context, %s, onTap: () => hConfirmPop(context, %s))' % (code, dstr(label[:14]))
         if href.startswith('tel:'):
@@ -2260,7 +2286,7 @@ def _cut(src, cls):
 
 def split_variants(name, src):
     """设计稿里用 CSS 单选框 / 复选框切换的页面（目前只有 Recharge），按状态拆成独立页面。"""
-    if name != 'Recharge':
+    if name not in ('Recharge', 'RechargeEmpty'):
         return [(name, src)]
     sel = 'background:#FFFFFF;color:#18181B;box-shadow:0 2px 4px rgba(0,0,0,.04),0 1px 2px rgba(0,0,0,.06);'
 
@@ -2293,6 +2319,13 @@ def split_variants(name, src):
                 out.append(tok)
         return ''.join(out)
 
+    if name == 'RechargeEmpty':
+        # 未选会员的充值页：两个页签各一个状态（储值充值 / 购买次卡），都是置灰的占位内容
+        ea = _cut(src, 'p2').replace('class="p1"', 'style="display:flex;flex-direction:column;gap:16px"')
+        ea = tidy(ea, 'rt1', 'RechargeEmptyCard', 'RechargeEmptyCard')
+        eb = _cut(src, 'p1').replace('class="p2"', 'style="display:flex;flex-direction:column;gap:16px"')
+        eb = tidy(eb, 'rt2', 'RechargeEmpty', 'RechargeEmpty')
+        return [('RechargeEmpty', fix_close(ea)), ('RechargeEmptyCard', fix_close(eb))]
     base = re.sub(r'class="(p1|p2|b1|b2|sh)"', lambda m: 'data-v="%s"' % m.group(1), src)
     base = re.sub(r'<div data-v=', '<div class=', base)  # 保持后面按 class 查找
     base = src

@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 
 import '../backend/hold_flow.dart';
 import '../backend/member_flow.dart';
+import '../backend/scan_flow.dart';
 import '../backend/merchant_api.dart';
 import '../kit/async_kit.dart';
 
 import '../kit/keyboard.dart';
+import '../kit/kit.dart' show dk;
 import '../kit/pickers.dart';
 import '../backend/catalog_draft.dart';
 import '../mock/mock_data.dart';
@@ -50,16 +52,26 @@ class _OrderPageState extends State<OrderPage> {
         ]
       : _mockCats;
 
-  bool _covered(int i) =>
-      _live ? _cover.containsKey(_svcs[i].id) : _svcs[i].mockCovered;
+  /// 散客开单：不记会员，没有会员折扣和次卡抵扣（设计稿“开单收银 · 散客”）。
+  bool _walkIn = false;
+  final _walkPlateCtl = TextEditingController();
+
+  /// 登录后还没选客户：既没选会员也没选散客开单（设计稿“开单收银 · 未选客户”）。
+  bool get _noCustomer => _live && !_walkIn && customer.id == null;
+
+  bool _covered(int i) => _live
+      ? (!_walkIn && _cover.containsKey(_svcs[i].id))
+      : _svcs[i].mockCovered;
 
   /// 会员卡折扣（0.9 = 9 折）；没有折扣时 1。
   double get _discount => _live
-      ? (num.tryParse(
-                  '${(customer.data?['card'] as Map?)?['discount'] ?? 1}',
-                ) ??
-                1)
-            .toDouble()
+      ? _walkIn
+            ? 1
+            : (num.tryParse(
+                        '${(customer.data?['card'] as Map?)?['discount'] ?? 1}',
+                      ) ??
+                      1)
+                  .toDouble()
       : 0.9;
 
   String get _discountN {
@@ -80,6 +92,11 @@ class _OrderPageState extends State<OrderPage> {
       // 挂单：数量显示在“挂单”按钮上；取单 / 挂单成功 / 新开一单时要改动这一页
       HoldFlow.eventTick.addListener(_onHoldEvent);
       HoldFlow.loadSoon();
+      // 从“扫码找会员 · 没找到”点“散客结账”进来：直接是散客开单
+      if (ScanFlow.takeWalkIn()) {
+        _walkIn = true;
+        customer = _noMember;
+      }
       if (HoldFlow.event != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) => _onHoldEvent());
       }
@@ -90,6 +107,8 @@ class _OrderPageState extends State<OrderPage> {
   void dispose() {
     HoldFlow.eventTick.removeListener(_onHoldEvent);
     _searchCtl.dispose();
+    _walkPlateCtl.dispose();
+    MemberFlow.memberTick.removeListener(_onPickedMember);
     super.dispose();
   }
 
@@ -105,6 +124,7 @@ class _OrderPageState extends State<OrderPage> {
         setState(() {
           picked.clear();
           _holdId = null;
+          _walkPlateCtl.clear();
         });
       case 'removed':
         if (_holdId == e.id) setState(() => _holdId = null);
@@ -116,10 +136,11 @@ class _OrderPageState extends State<OrderPage> {
   /// 取单：会员、项目放回开单页，结算时由云函数按当前价格重新计算。
   Future<void> _resumeHold(Map<String, dynamic> row) async {
     final memberId = '${(row['member'] as Map?)?['id'] ?? row['member_id']}';
+    final walkIn = row['member_id'] == null && row['member'] == null;
     try {
-      final m = await merchantApi.member(memberId);
+      final m = walkIn ? null : await merchantApi.member(memberId);
       if (!mounted) return;
-      MemberFlow.current = m;
+      if (m != null) MemberFlow.current = m;
       if (_liveSvcs.isEmpty) await _loadServices();
       if (!mounted) return;
       final ids = {
@@ -131,14 +152,17 @@ class _OrderPageState extends State<OrderPage> {
           if (ids.contains(_liveSvcs[i].id)) i,
       };
       setState(() {
-        customer = memberFromRow(m);
+        _walkIn = walkIn;
+        customer = m == null ? _noMember : memberFromRow(m);
         _cover = {};
+        pay = 0;
+        if (walkIn) _walkPlateCtl.text = '${row['vehicle_plate'] ?? ''}';
         picked
           ..clear()
           ..addAll(next);
         _holdId = '${row['id']}';
       });
-      unawaited(_loadCover());
+      if (!walkIn) unawaited(_loadCover());
       if (next.length < ids.length) {
         toast(context, '部分服务项目已下架，已跳过');
       }
@@ -153,18 +177,25 @@ class _OrderPageState extends State<OrderPage> {
       toast(context, '请先选择服务项目');
       return;
     }
+    // 散客挂单：不记会员，没有折扣和次卡；车牌用开单页上填的车牌号
     final id = customer.id;
-    if (id == null) {
-      toast(context, '请先选择会员');
+    if (!_walkIn && id == null) {
+      toast(context, '请先选择客户');
       return;
     }
     HoldFlow.begin(
       HoldDraft(
-        memberId: id,
-        memberName: customer.name,
-        level: customer.level,
-        plateLabel: customer.plate,
-        plate: customer.plate.contains('·')
+        memberId: _walkIn ? null : id,
+        memberName: _walkIn ? '散客' : customer.name,
+        level: _walkIn ? '非会员' : customer.level,
+        plateLabel: _walkIn
+            ? (_walkPlateCtl.text.trim().isEmpty
+                  ? '未登记车辆'
+                  : _walkPlateCtl.text.trim())
+            : customer.plate,
+        plate: _walkIn
+            ? _walkPlateCtl.text.trim()
+            : customer.plate.contains('·')
             ? customer.plate.replaceAll('·', '')
             : '',
         lines: [
@@ -237,12 +268,14 @@ class _OrderPageState extends State<OrderPage> {
     }
   }
 
-  List<(String, String)> get _pays => [
-    ('会员余额', '可用 $_balanceText'),
-    ('微信 / 支付宝', '扫码收款'),
-    ('现金', '可找零'),
-    ('组合支付', '余额 + 其他'),
-  ];
+  List<(String, String)> get _pays => _walkIn
+      ? const [('微信 / 支付宝', '扫码收款'), ('现金', '可找零'), ('银行卡', 'POS 刷卡')]
+      : [
+          ('会员余额', '可用 $_balanceText'),
+          ('微信 / 支付宝', '扫码收款'),
+          ('现金', '可找零'),
+          ('组合支付', '余额 + 其他'),
+        ];
   int cat = 0;
   bool searching = false;
   String query = '';
@@ -251,10 +284,7 @@ class _OrderPageState extends State<OrderPage> {
   String finish = '今天 15:30';
   static const _bays = ['1 号工位', '2 号工位', '3 号工位', '4 号工位', '5 号工位', '贴膜间'];
   late Member customer =
-      widget.member ??
-      (merchantApi.hasSession
-          ? const Member('请选择会员', '', '', '', '—', '', {})
-          : members.first);
+      widget.member ?? (merchantApi.hasSession ? _noMember : members.first);
   int pay = 0;
   final Set<int> picked = {0, 1};
   final Set<String> techs = {'李国强 · 镀晶', '王磊 · 洗车'};
@@ -286,12 +316,62 @@ class _OrderPageState extends State<OrderPage> {
     openRoute(context, customer.bound ? 'PaySuccess' : 'PayUnbound');
   }
 
+  /// 散客收款：不记会员，没有折扣和次卡抵扣；价格由云函数按价目表算，收款方式只是记账。
+  Future<void> _checkoutWalkIn() async {
+    final String method;
+    if (pay == 0) {
+      final r = await pickFromList(context, '选择收款方式', ['微信', '支付宝'], '微信');
+      if (r == null || !mounted) return;
+      method = r;
+    } else {
+      method = pay == 1 ? '现金' : 'POS 刷卡';
+    }
+    setState(() => _busy = true);
+    final started = DateTime.now();
+    try {
+      final plate = _walkPlateCtl.text.trim();
+      final res = await merchantApi.checkoutWalkIn(
+        lines: [
+          for (final i in picked) {'service_id': _svcs[i].id, 'qty': 1},
+        ],
+        method: method,
+        plate: plate,
+        holdId: _holdId,
+      );
+      final left = kIndicatorMinShow - DateTime.now().difference(started);
+      if (left > Duration.zero) await Future<void>.delayed(left);
+      MemberFlow.lastOrder = {
+        ...res,
+        'member_name': '散客',
+        'plate': plate,
+        'at': DateTime.now(),
+      };
+      CatalogDraft.changed.value++;
+      if (_holdId != null) {
+        _holdId = null;
+        unawaited(HoldFlow.load()); // 这张挂单已结清，刷新挂单数量
+      }
+      if (mounted) {
+        setState(() {
+          picked.clear();
+          _walkPlateCtl.clear();
+        });
+        openRoute(context, 'PaySuccess');
+      }
+    } catch (e) {
+      if (mounted) AppToast.error(context, e);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
   /// 真实收款：价格、折扣、次卡抵扣、扣款都由云函数算，这里只传选择；收款方式只是记账。
   Future<void> _checkoutLive() async {
     if (_busy) return;
+    if (_walkIn) return _checkoutWalkIn();
     final id = customer.id;
     if (id == null) {
-      toast(context, '请先选择会员');
+      toast(context, '请先选择客户');
       return;
     }
     String method;
@@ -456,11 +536,19 @@ class _OrderPageState extends State<OrderPage> {
                 children: [
                   _customer(context),
                   const SizedBox(height: 16),
-                  _servicesCard(),
-                  const SizedBox(height: 16),
-                  _jobCard(),
-                  const SizedBox(height: 16),
-                  _payCard(),
+                  // 未选客户：服务项目置灰不可点，施工安排和结算不显示（设计稿“开单收银 · 未选客户”）
+                  if (_noCustomer)
+                    Opacity(
+                      opacity: .45,
+                      child: IgnorePointer(child: _servicesCard()),
+                    )
+                  else ...[
+                    _servicesCard(),
+                    const SizedBox(height: 16),
+                    _jobCard(),
+                    const SizedBox(height: 16),
+                    _payCard(),
+                  ],
                 ],
               ),
             ),
@@ -489,7 +577,9 @@ class _OrderPageState extends State<OrderPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '应收 · 已优惠 ¥${money(cardOff + vipOff)}',
+                          _noCustomer || _walkIn
+                              ? '应收'
+                              : '应收 · 已优惠 ¥${money(cardOff + vipOff)}',
                           style: ts(12, color: C.muted, h: 16),
                         ),
                         Text(
@@ -500,27 +590,34 @@ class _OrderPageState extends State<OrderPage> {
                             h: 30,
                             spacing: -0.4,
                             tabular: true,
+                            color: _noCustomer ? C.faint : null,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  PrimaryButton(
-                    '挂单',
-                    bg: C.chip,
-                    fg: C.ink,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    onTap: _live
-                        ? _hold
-                        : () => openRoute(context, 'HoldSheet'),
-                  ),
-                  const SizedBox(width: 12),
-                  PrimaryButton(
-                    '确认收款',
-                    onTap: checkout,
-                    loading: _busy,
-                    loadingText: '提交中…',
-                  ),
+                  if (_noCustomer) ...[
+                    const _DisabledButton('挂单', horizontal: 16, size: 15),
+                    const SizedBox(width: 12),
+                    const _DisabledButton('请先选择客户', horizontal: 20, size: 16),
+                  ] else ...[
+                    PrimaryButton(
+                      '挂单',
+                      bg: C.chip,
+                      fg: C.ink,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      onTap: _live
+                          ? _hold
+                          : () => openRoute(context, 'HoldSheet'),
+                    ),
+                    const SizedBox(width: 12),
+                    PrimaryButton(
+                      '确认收款',
+                      onTap: checkout,
+                      loading: _busy,
+                      loadingText: '提交中…',
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -533,24 +630,262 @@ class _OrderPageState extends State<OrderPage> {
   String get _balanceText =>
       customer.amountNote == '余额' ? customer.amount : '¥0';
 
+  static const _noMember = Member('请选择会员', '', '', '', '—', '', {});
+  bool _awaitPicker = false;
+
   Future<void> _pickCustomer() async {
-    final m = _live
-        ? await pickLiveMember(context)
-        : await pickMember(context, current: customer);
-    if (m != null && mounted) {
-      setState(() {
-        customer = m;
-        picked.clear();
-        _cover = {};
-      });
-      if (_live) {
-        MemberFlow.current = m.data;
-        unawaited(_loadCover());
+    if (!_live) {
+      final m = await pickMember(context, current: customer);
+      if (m != null && mounted) {
+        setState(() {
+          customer = m;
+          picked.clear();
+          _cover = {};
+        });
       }
+      return;
     }
+    // 登录后：打开“选择会员”弹层，选中后由 MemberFlow.pickMember 写入当前会员
+    _awaitPicker = true;
+    MemberFlow.memberTick.removeListener(_onPickedMember);
+    MemberFlow.memberTick.addListener(_onPickedMember);
+    openRoute(context, 'MemberPicker');
+    unawaited(_watchPicker());
   }
 
-  Widget _customer(BuildContext context) => AppCard(
+  /// 弹层关闭（没选人）后不再等待选择结果。
+  Future<void> _watchPicker() async {
+    await Future<void>.delayed(const Duration(milliseconds: 300));
+    while (mounted && navTracker.has('sheet:MemberPicker')) {
+      await Future<void>.delayed(const Duration(milliseconds: 200));
+    }
+    _awaitPicker = false;
+    MemberFlow.memberTick.removeListener(_onPickedMember);
+  }
+
+  void _onPickedMember() {
+    final row = MemberFlow.current;
+    if (!_awaitPicker || !mounted || row == null) return;
+    _awaitPicker = false;
+    MemberFlow.memberTick.removeListener(_onPickedMember);
+    setState(() {
+      _walkIn = false;
+      customer = memberFromRow(row);
+      picked.clear();
+      _cover = {};
+      pay = 0;
+      _holdId = null;
+    });
+    unawaited(_loadCover());
+  }
+
+  /// 散客开单：不记会员，没有折扣和次卡抵扣。
+  void _startWalkIn() => setState(() {
+    _walkIn = true;
+    customer = _noMember;
+    picked.clear();
+    _cover = {};
+    pay = 0;
+    _holdId = null;
+  });
+
+  /// 散客页点“更换”：回到“选择客户”。
+  void _clearCustomer() => setState(() {
+    _walkIn = false;
+    customer = _noMember;
+    MemberFlow.current = null;
+    picked.clear();
+    _cover = {};
+    pay = 0;
+    _holdId = null;
+  });
+
+  Widget _customer(BuildContext context) {
+    if (_noCustomer) return _chooseCustomer();
+    if (_walkIn) return _walkInCard();
+    return _memberCard(context);
+  }
+
+  /// 未选客户：选择会员 / 散客开单。
+  Widget _chooseCustomer() => AppCard(
+    padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('选择客户', style: ts(15, w: FontWeight.w600, h: 22)),
+        const SizedBox(height: 12),
+        GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: _pickCustomer,
+          child: Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: C.primarySoft,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: AppIcon('search', size: 18, color: C.primaryInk),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '选择会员',
+                        style: ts(
+                          14,
+                          w: FontWeight.w600,
+                          color: C.primaryInk,
+                          h: 20,
+                        ),
+                      ),
+                      Text(
+                        '车牌 / 手机号',
+                        style: ts(12, color: C.primaryInk, h: 16),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: _startWalkIn,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: C.inset,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: AppIcon('person', size: 18, color: C.sub),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('散客开单', style: ts(14, w: FontWeight.w600, h: 20)),
+                      Text(
+                        '不记会员，无折扣和次卡抵扣',
+                        style: ts(12, color: C.muted, h: 16),
+                      ),
+                    ],
+                  ),
+                ),
+                AppIcon('chevronRight', size: 18, color: C.faint),
+              ],
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+
+  /// 散客：不记会员，车牌号选填。
+  Widget _walkInCard() => AppCard(
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    child: Column(
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: dk(
+                  context,
+                  const Color(0xFFE4E4E7),
+                  const Color(0xFF34343A),
+                ),
+                shape: BoxShape.circle,
+              ),
+              child: Center(child: AppIcon('person', size: 22, color: C.sub)),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text('散客', style: ts(15, w: FontWeight.w500, h: 22)),
+                      const SizedBox(width: 6),
+                      Pill('不记会员', bg: C.inset, fg: C.sub, size: 11),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text('无会员折扣与次卡抵扣', style: ts(12, color: C.muted, h: 16)),
+                ],
+              ),
+            ),
+            GestureDetector(
+              onTap: _clearCustomer,
+              child: Text(
+                '更换',
+                style: ts(13, w: FontWeight.w500, color: C.primaryInk, h: 18),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Container(
+          constraints: const BoxConstraints(minHeight: 44),
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          decoration: BoxDecoration(
+            color: C.inset,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Row(
+            children: [
+              Text('车牌号', style: ts(13, color: C.sub)),
+              const SizedBox(width: 10),
+              Expanded(
+                child: TextField(
+                  controller: _walkPlateCtl,
+                  onTapOutside: onTapOutsideDismiss,
+                  textCapitalization: TextCapitalization.characters,
+                  style: ts(14, h: 20),
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    isCollapsed: true,
+                    hintText: '选填，便于施工与取车',
+                    hintStyle: ts(14, color: C.muted),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+
+  Widget _memberCard(BuildContext context) => AppCard(
     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     child: Row(
       children: [
@@ -771,7 +1106,7 @@ class _OrderPageState extends State<OrderPage> {
                         ),
                       ],
                     )
-                  else if (on)
+                  else if (on && !_walkIn)
                     Row(
                       children: [
                         Text(
@@ -1020,4 +1355,39 @@ class _Svc {
   final Set<String> cats;
   final bool mockCovered;
   const _Svc(this.id, this.name, this.price, this.cats, this.mockCovered);
+}
+
+/// 未选客户时底部栏上置灰的按钮（设计稿：#E4E4E7 底、#A1A1AA 字）。
+class _DisabledButton extends StatelessWidget {
+  final String text;
+  final double horizontal, size;
+  const _DisabledButton(
+    this.text, {
+    required this.horizontal,
+    required this.size,
+  });
+  @override
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    enabled: false,
+    label: text,
+    child: Container(
+      height: 50,
+      padding: EdgeInsets.symmetric(horizontal: horizontal),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: dk(context, const Color(0xFFE4E4E7), const Color(0xFF27272A)),
+        borderRadius: BorderRadius.circular(25),
+      ),
+      child: Text(
+        text,
+        style: ts(
+          size,
+          w: size == 16 ? FontWeight.w600 : FontWeight.w500,
+          color: const Color(0xFFA1A1AA),
+          h: size == 16 ? 24 : 22,
+        ),
+      ),
+    ),
+  );
 }

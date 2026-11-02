@@ -47,9 +47,10 @@ class FindResultSheet extends StatelessWidget {
                           width: 1,
                         ),
                         pad: EdgeInsets.fromLTRB(4, 2, 4, 2),
-                        child: Text(
+                        child: hScanText(
+                          (s) => s.plate,
                           '沪A·8K29M',
-                          style: hts(9, Color(0xFFFFFFFF), w: FontWeight.w600),
+                          hts(9, Color(0xFFFFFFFF), w: FontWeight.w600),
                         ),
                       ),
                     ),
@@ -139,9 +140,10 @@ class FindResultSheet extends StatelessWidget {
                   bg: Color(0xFFF5D78E),
                   radius: BorderRadius.circular(22),
                   align: Alignment(0, 0),
-                  child: Text(
+                  child: hMemberText(
+                    (m) => m.avatar,
                     '王',
-                    style: hts(
+                    hts(
                       17,
                       dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
                       w: FontWeight.w600,
@@ -156,9 +158,10 @@ class FindResultSheet extends StatelessWidget {
                         [
                           Flexible(
                             flex: 48,
-                            child: Text(
+                            child: hMemberText(
+                              (m) => m.name,
                               '王建国',
-                              style: hts(
+                              hts(
                                 16,
                                 Color(0xFFFAFAFA),
                                 w: FontWeight.w600,
@@ -172,9 +175,10 @@ class FindResultSheet extends StatelessWidget {
                               bg: Color(0xFFF5D78E),
                               radius: BorderRadius.circular(9),
                               pad: EdgeInsets.fromLTRB(7, 0, 7, 0),
-                              child: Text(
+                              child: hMemberText(
+                                (m) => m.levelMember,
                                 '黑金会员',
-                                style: hts(
+                                hts(
                                   11,
                                   dk(
                                     context,
@@ -192,9 +196,10 @@ class FindResultSheet extends StatelessWidget {
                         cross: CrossAxisAlignment.center,
                         gap: 6,
                       ),
-                      Text(
+                      hMemberText(
+                        (m) => m.maskedPhone,
                         '138 **** 6021',
-                        style: hts(
+                        hts(
                           12,
                           dk(context, Color(0xFFA1A1AA), Color(0xFF80808A)),
                           lh: 16,
@@ -215,14 +220,10 @@ class FindResultSheet extends StatelessWidget {
                         dk(context, Color(0xFFA1A1AA), Color(0xFF80808A)),
                       ),
                     ),
-                    Text(
+                    hMemberText(
+                      (m) => m.balanceText,
                       '¥3,680',
-                      style: hts(
-                        17,
-                        Color(0xFFFAFAFA),
-                        w: FontWeight.w600,
-                        lh: 24,
-                      ),
+                      hts(17, Color(0xFFFAFAFA), w: FontWeight.w600, lh: 24),
                     ),
                   ],
                   main: MainAxisAlignment.start,
@@ -269,9 +270,10 @@ class FindResultSheet extends StatelessWidget {
                               width: 1.5,
                             ),
                             pad: EdgeInsets.fromLTRB(9, 2, 9, 2),
-                            child: Text(
+                            child: hScanText(
+                              (s) => s.plate,
                               '沪A·8K29M',
-                              style: hts(
+                              hts(
                                 14,
                                 Color(0xFFFFFFFF),
                                 w: FontWeight.w600,
@@ -288,9 +290,10 @@ class FindResultSheet extends StatelessWidget {
                         gap: 0,
                       ),
                     ),
-                    Text(
+                    hScanText(
+                      (s) => s.plateKind,
                       '蓝牌',
-                      style: hts(
+                      hts(
                         12,
                         dk(context, Color(0xFFA1A1AA), Color(0xFF80808A)),
                       ),
@@ -319,9 +322,10 @@ class FindResultSheet extends StatelessWidget {
                     ),
                     Expanded(
                       flex: 1,
-                      child: Text(
+                      child: hScanText(
+                        (s) => s.vehicleModel,
                         '宝马 5系 525Li · 黑',
-                        style: hts(
+                        hts(
                           15,
                           dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
                           w: FontWeight.w500,
@@ -353,9 +357,10 @@ class FindResultSheet extends StatelessWidget {
                     ),
                     Expanded(
                       flex: 1,
-                      child: Text(
+                      child: hScanText(
+                        (s) => s.packageSummary,
                         '洗车年卡 8 次 · 内饰清洁 2 次',
-                        style: hts(
+                        hts(
                           15,
                           dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
                           w: FontWeight.w500,
@@ -387,9 +392,10 @@ class FindResultSheet extends StatelessWidget {
                     ),
                     Expanded(
                       flex: 1,
-                      child: Text(
+                      child: hScanText(
+                        (s) => s.lastVisit,
                         '10.31 · 精致洗车',
-                        style: hts(
+                        hts(
                           15,
                           dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
                           w: FontWeight.w500,

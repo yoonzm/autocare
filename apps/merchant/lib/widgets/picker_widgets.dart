@@ -8,6 +8,7 @@ import '../backend/package_calc.dart' show formatMoney;
 import '../kit/async_kit.dart';
 import '../kit/keyboard.dart';
 import '../kit/kit.dart';
+import '../routes.dart' show openRoute;
 
 /// “选择会员”弹层的搜索行：车牌 / 手机号 / 姓名 + 扫码找会员。
 /// 没登录（设计预览）时是设计稿的静态样子。
@@ -25,10 +26,19 @@ class _PickerSearchState extends State<_PickerSearch> {
   void initState() {
     super.initState();
     MemberFlow.pickerQuery.value = '';
+    MemberFlow.pickerQuery.addListener(_sync);
+  }
+
+  /// “清除搜索”按钮清掉搜索词时，输入框里的字也要清掉。
+  void _sync() {
+    if (MemberFlow.pickerQuery.value.isEmpty && _ctl.text.isNotEmpty) {
+      _ctl.clear();
+    }
   }
 
   @override
   void dispose() {
+    MemberFlow.pickerQuery.removeListener(_sync);
     _ctl.dispose();
     super.dispose();
   }
@@ -81,34 +91,6 @@ class _PickerSearchState extends State<_PickerSearch> {
                   ),
                 ),
               ],
-            ),
-          ),
-        ),
-        const SizedBox(width: 10),
-        Semantics(
-          button: true,
-          label: '扫码找会员',
-          child: GestureDetector(
-            onTap: () {
-              // TODO: 扫车牌 / 会员码识别依赖识别服务和会员端小程序，目前只有示例识别结果。
-              hToast(context, '扫码找会员暂未接通');
-            },
-            child: Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: dk(
-                  context,
-                  const Color(0xFF18181B),
-                  const Color(0xFF34343A),
-                ),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.qr_code_scanner_rounded,
-                size: 20,
-                color: Color(0xFFFAFAFA),
-              ),
             ),
           ),
         ),
@@ -206,6 +188,104 @@ class _PickerListState extends State<_PickerList> {
     [Color(0xFFF5B547), Color(0xFFE08A1E)],
   ];
 
+  /// 搜索没有结果（设计稿“选择会员 · 无结果”）：可以清除搜索，或直接新增会员。
+  Widget _noResult(BuildContext context) {
+    final ink = dk(context, const Color(0xFF18181B), const Color(0xFFFAFAFA));
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 40),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              color: dk(
+                context,
+                const Color(0xFFE1F0FE),
+                const Color.fromRGBO(4, 133, 247, 0.18),
+              ),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.search_rounded,
+              size: 36,
+              color: dk(
+                context,
+                const Color(0xFF1E63AE),
+                const Color(0xFF6AB4FA),
+              ),
+            ),
+          ),
+          const SizedBox(height: 14),
+          Text(
+            '没有找到「$_q」',
+            textAlign: TextAlign.center,
+            style: hts(17, ink, w: FontWeight.w600, lh: 24),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            '请检查车牌或手机号，也可以新增为会员',
+            textAlign: TextAlign.center,
+            style: hts(
+              13,
+              dk(context, const Color(0xFF52525B), const Color(0xFFA8A8B3)),
+              lh: 19,
+            ),
+          ),
+          const SizedBox(height: 18),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              GestureDetector(
+                onTap: () => MemberFlow.pickerQuery.value = '',
+                child: Container(
+                  height: 44,
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: dk(
+                      context,
+                      const Color(0xFFF4F4F5),
+                      const Color(0xFF27272A),
+                    ),
+                    borderRadius: BorderRadius.circular(22),
+                  ),
+                  child: Text(
+                    '清除搜索',
+                    style: hts(14, ink, w: FontWeight.w600, lh: 20),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              GestureDetector(
+                onTap: () => openRoute(context, 'MemberAdd'),
+                child: Container(
+                  height: 44,
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0485F7),
+                    borderRadius: BorderRadius.circular(22),
+                  ),
+                  child: Text(
+                    '新增会员',
+                    style: hts(
+                      14,
+                      const Color(0xFFFFFFFF),
+                      w: FontWeight.w600,
+                      lh: 20,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!merchantApi.hasSession) return const SizedBox.shrink();
@@ -216,10 +296,10 @@ class _PickerListState extends State<_PickerList> {
       return _skeleton ? const SkeletonList(count: 5) : const SizedBox.shrink();
     }
     if (_all.isEmpty) {
-      return EmptyView(
-        title: _q.isEmpty ? '还没有会员' : '没有找到会员',
-        message: _q.isEmpty ? '点下面的“新增会员”办卡' : '换个车牌、手机号或姓名试试',
-      );
+      if (_q.isEmpty) {
+        return const EmptyView(title: '还没有会员', message: '点下面的“新增会员”办卡');
+      }
+      return _noResult(context);
     }
     final muted = dk(context, const Color(0xFF71717A), const Color(0xFF9A9AA3));
     Widget heading(String t) => Padding(

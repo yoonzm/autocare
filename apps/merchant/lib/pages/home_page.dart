@@ -1,5 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
+import '../backend/hold_flow.dart';
+import '../backend/merchant_api.dart';
+import '../kit/async_kit.dart';
+import '../widgets/hold_widgets.dart' show holdTimeText;
+import '../backend/member_flow.dart' show plateText;
 import '../backend/store_profile.dart';
 import '../mock/app_state.dart';
 import '../mock/mock_data.dart';
@@ -34,17 +41,7 @@ class HomePage extends StatelessWidget {
           const SizedBox(height: 20),
           _quick(context),
           const SizedBox(height: 20),
-          SectionTitle(
-            '施工中',
-            sub: '2 个工位',
-            action: '全部',
-            onAction: () => openRoute(context, 'HoldList'),
-          ),
-          const SizedBox(height: 12),
-          for (final j in workJobs) ...[
-            _job(context, j),
-            const SizedBox(height: 12),
-          ],
+          const _WorkSection(),
         ],
       ),
     );
@@ -516,64 +513,235 @@ class HomePage extends StatelessWidget {
       ],
     );
   }
+}
 
-  Widget _job(BuildContext context, WorkJob j) => AppCard(
-    radius: 22,
-    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-    onTap: () => openRoute(context, 'HoldList'),
-    child: Column(
+/// 首页“施工中”：登录后取挂单里状态为“施工中”的单子；没登录（设计预览）时是设计稿示例。
+///
+/// TODO: 卡片上的工位、技师、施工进度、预计完工依赖员工和工位模块，目前没有数据，不显示。
+class _WorkSection extends StatefulWidget {
+  const _WorkSection();
+  @override
+  State<_WorkSection> createState() => _WorkSectionState();
+}
+
+class _WorkSectionState extends State<_WorkSection> {
+  Timer? _timer;
+  bool _slow = false;
+  bool _wasLoading = false;
+
+  bool get _live => merchantApi.hasSession;
+
+  @override
+  void initState() {
+    super.initState();
+    if (_live) {
+      HoldFlow.tick.addListener(_onTick);
+      HoldFlow.loadSoon();
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    HoldFlow.tick.removeListener(_onTick);
+    super.dispose();
+  }
+
+  void _onTick() {
+    if (!mounted) return;
+    final loading = HoldFlow.loading;
+    if (loading && !_wasLoading && HoldFlow.holds == null) {
+      // 300ms 内什么都不显示，之后才出骨架
+      _slow = false;
+      _timer?.cancel();
+      _timer = Timer(kIndicatorDelay, () {
+        if (mounted && HoldFlow.loading) setState(() => _slow = true);
+      });
+    }
+    _wasLoading = loading;
+    setState(() {});
+  }
+
+  List<Map<String, dynamic>> get _working => [
+    for (final h in HoldFlow.holds ?? const <Map<String, dynamic>>[])
+      if (h['status'] == '施工中') h,
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final live = _live;
+    final working = live ? _working : const <Map<String, dynamic>>[];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            PlateTag(j.plate, green: !j.blue),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(j.car, style: ts(13, color: C.muted, h: 18)),
-            ),
-            Pill(
-              j.station,
-              bg: j.blue ? C.primarySoft : C.amberSoft,
-              fg: j.blue ? C.primaryInk : C.amberInk,
-            ),
-          ],
+        SectionTitle(
+          '施工中',
+          sub: live
+              ? (HoldFlow.holds == null ? null : '${working.length} 单')
+              : '2 个工位',
+          action: '全部',
+          onAction: () => openRoute(context, 'HoldList'),
         ),
         const SizedBox(height: 12),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
-          children: [
-            Expanded(
-              child: Text(j.service, style: ts(15, w: FontWeight.w500, h: 22)),
+        if (!live)
+          for (final j in workJobs) ...[_MockJob(j), const SizedBox(height: 12)]
+        else if (HoldFlow.holds == null && HoldFlow.error != null)
+          SizedBox(
+            height: 220,
+            child: ErrorView(
+              error: HoldFlow.error!,
+              retrying: HoldFlow.loading,
+              onRetry: () => unawaited(HoldFlow.load()),
             ),
-            Text(j.eta, style: ts(12, color: C.muted, h: 16)),
+          )
+        else if (HoldFlow.holds == null)
+          _slow ? const SkeletonList(count: 2) : const SizedBox(height: 120)
+        else if (working.isEmpty)
+          const EmptyView(
+            title: '暂无施工中的车辆',
+            message: '开单页挂单并选择“施工中”后会显示在这里',
+            inline: true,
+          )
+        else
+          for (final h in working.take(5)) ...[
+            _LiveJob(h),
+            const SizedBox(height: 12),
           ],
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(3),
-                child: LinearProgressIndicator(
-                  value: j.progress / 100,
-                  minHeight: 6,
-                  backgroundColor: C.chip,
-                  valueColor: AlwaysStoppedAnimation(
-                    j.blue ? C.primary : C.amber,
+      ],
+    );
+  }
+}
+
+class _LiveJob extends StatelessWidget {
+  final Map<String, dynamic> hold;
+  const _LiveJob(this.hold);
+
+  @override
+  Widget build(BuildContext context) {
+    final member = Map<String, dynamic>.from(
+      (hold['member'] as Map?) ?? const {},
+    );
+    final plate = '${hold['vehicle_plate'] ?? ''}';
+    final items =
+        List<Map<String, dynamic>>.from((hold['items'] as List?) ?? const [])
+          ..sort(
+            (a, b) => ((a['position'] ?? 0) as num).compareTo(
+              (b['position'] ?? 0) as num,
+            ),
+          );
+    final created = DateTime.tryParse('${hold['created_at'] ?? ''}');
+    return AppCard(
+      radius: 22,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      onTap: () => openRoute(context, 'HoldList'),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              if (plate.isNotEmpty) ...[
+                PlateTag(plateText(plate), green: plate.length >= 8),
+                const SizedBox(width: 12),
+              ],
+              Expanded(
+                child: Text(
+                  member.isEmpty ? '散客' : '${member['name'] ?? ''}',
+                  style: ts(13, color: C.muted, h: 18),
+                ),
+              ),
+              Pill('施工中', bg: C.primarySoft, fg: C.primaryInk),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Expanded(
+                child: Text(
+                  items.map((e) => '${e['name']}').join(' · '),
+                  style: ts(15, w: FontWeight.w500, h: 22),
+                ),
+              ),
+              if (created != null)
+                Text(
+                  holdTimeText(created),
+                  style: ts(12, color: C.muted, h: 16),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MockJob extends StatelessWidget {
+  final WorkJob job;
+  const _MockJob(this.job);
+  @override
+  Widget build(BuildContext context) {
+    final j = job;
+    return AppCard(
+      radius: 22,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      onTap: () => openRoute(context, 'HoldList'),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              PlateTag(j.plate, green: !j.blue),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(j.car, style: ts(13, color: C.muted, h: 18)),
+              ),
+              Pill(
+                j.station,
+                bg: j.blue ? C.primarySoft : C.amberSoft,
+                fg: j.blue ? C.primaryInk : C.amberInk,
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Expanded(
+                child: Text(
+                  j.service,
+                  style: ts(15, w: FontWeight.w500, h: 22),
+                ),
+              ),
+              Text(j.eta, style: ts(12, color: C.muted, h: 16)),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(3),
+                  child: LinearProgressIndicator(
+                    value: j.progress / 100,
+                    minHeight: 6,
+                    backgroundColor: C.chip,
+                    valueColor: AlwaysStoppedAnimation(
+                      j.blue ? C.primary : C.amber,
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(width: 10),
-            Text(
-              '${j.progress}%',
-              style: ts(12, w: FontWeight.w500, h: 16, tabular: true),
-            ),
-            const SizedBox(width: 10),
-            Avatar(j.tech, size: 24, bg: C.stroke, fg: C.ink),
-          ],
-        ),
-      ],
-    ),
-  );
+              const SizedBox(width: 10),
+              Text(
+                '${j.progress}%',
+                style: ts(12, w: FontWeight.w500, h: 16, tabular: true),
+              ),
+              const SizedBox(width: 10),
+              Avatar(j.tech, size: 24, bg: C.stroke, fg: C.ink),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }

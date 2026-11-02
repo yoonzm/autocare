@@ -78,6 +78,36 @@ class MemberFakeApi extends MerchantApi {
     };
   }
 
+  final walkIns = <Map<String, dynamic>>[];
+  @override
+  Future<Map<String, dynamic>> checkoutWalkIn({
+    required List<Map<String, dynamic>> lines,
+    required String method,
+    String plate = '',
+    String remark = '',
+    String? holdId,
+  }) async {
+    walkIns.add({
+      'lines': lines,
+      'method': method,
+      'plate': plate,
+      'hold': holdId,
+    });
+    if (holdId != null) holdRows.removeWhere((h) => h['id'] == holdId);
+    return {
+      'items': '精致洗车',
+      'subtotal': 68,
+      'card_off': 0,
+      'discount_off': 0,
+      'discount': 1,
+      'card_name': '散客',
+      'payable': 68,
+      'balance_paid': 0,
+      'pay_method': method,
+      'points_gained': 0,
+    };
+  }
+
   // 挂单
   final holdRows = <Map<String, dynamic>>[];
   final heldSaves = <Map<String, dynamic>>[];
@@ -93,7 +123,7 @@ class MemberFakeApi extends MerchantApi {
   @override
   Future<Map<String, dynamic>> saveHold({
     String? holdId,
-    required String memberId,
+    String? memberId,
     required List<Map<String, dynamic>> lines,
     String status = '待施工',
     String note = '',
@@ -120,11 +150,13 @@ class MemberFakeApi extends MerchantApi {
       'estimate': 342,
       'created_at': DateTime.now().toUtc().toIso8601String(),
       'updated_at': DateTime.now().toUtc().toIso8601String(),
-      'member': {
-        'id': memberId,
-        'name': '王建国',
-        'card': {'name': '金卡'},
-      },
+      'member': memberId == null
+          ? null
+          : {
+              'id': memberId,
+              'name': '王建国',
+              'card': {'name': '金卡'},
+            },
       'items': [
         for (var i = 0; i < lines.length; i++)
           {
@@ -1184,7 +1216,7 @@ void main() {
       await openFromHome(t);
       expect(MemberFlow.current, isNull);
       expect(find.text('选择会员'), findsOneWidget);
-      expect(find.text('输入车牌、手机号，或扫码找会员'), findsOneWidget);
+      expect(find.text('输入车牌、手机号或姓名查找'), findsOneWidget);
       expect(find.text('请先选择会员'), findsOneWidget);
       expect(find.text('确认收款'), findsNothing);
       expect(find.text('王建国'), findsNothing);

@@ -24,6 +24,12 @@ export const phoneOf = (value: unknown) =>
     ? `+86${value.trim()}`
     : null;
 export const mockSmsEnabled = () => Deno.env.get('ALLOW_MOCK_SMS') === 'true';
+/**
+ * 车牌识别 mock：仅开发环境。真实识别服务接入前，开发项目设置 `ALLOW_MOCK_RECOGNITION=true`
+ * （或已有的开发开关 `ALLOW_MOCK_SMS=true`）。**生产环境不得设置。**
+ */
+export const mockRecognitionEnabled = () =>
+  Deno.env.get('ALLOW_MOCK_RECOGNITION') === 'true' || mockSmsEnabled();
 export const isInput = (value: unknown): value is Input =>
   value != null && typeof value === 'object' && !Array.isArray(value);
 

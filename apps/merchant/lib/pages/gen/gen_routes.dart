@@ -118,8 +118,12 @@ import 'scan_result_sheet.dart';
 import 'staff_enable_sheet.dart';
 import 'staff_transfer_sheet.dart';
 import 'store_switch_sheet.dart';
+import 'find_not_found_sheet.dart';
+import 'service_picker_sheet.dart';
+import 'recharge_empty_card_page.dart';
 
 final Map<String, WidgetBuilder> genRoutes = {
+  'RechargeEmptyCard': (_) => const RechargeEmptyCardPage(),
   'AboutApp': (_) => const AboutAppPage(),
   'AppointmentDetail': (_) => const AppointmentDetailPage(),
   'AppointmentSchedule': (_) => const AppointmentSchedulePage(),
@@ -215,6 +219,8 @@ final Map<String, WidgetBuilder> genRoutes = {
 
 /// 底部弹层（设计稿中叠在其他页面上的界面）。
 final Map<String, WidgetBuilder> genSheets = {
+  'FindNotFound': (_) => const FindNotFoundSheet(),
+  'ServicePicker': (_) => const ServicePickerSheet(),
   'AppointmentReschedule': (_) => const AppointmentRescheduleSheet(),
   'BackupFreq': (_) => const BackupFreqSheet(),
   'BindInvite': (_) => const BindInviteSheet(),
@@ -245,6 +251,8 @@ final Map<String, WidgetBuilder> genSheets = {
 
 /// 弹层所属的页面（设计稿里的遮罩点击目标）。
 const Map<String, String> sheetParents = {
+  'FindNotFound': 'FindScanPlate',
+  'ServicePicker': 'Order',
   'AppointmentReschedule': 'AppointmentDetail',
   'BackupFreq': 'DataBackup',
   'BindInvite': 'PayUnbound',

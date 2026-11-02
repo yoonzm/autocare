@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../backend/registration_draft.dart';
+import '../backend/scan_flow.dart';
 import '../backend/catalog_draft.dart';
 import '../backend/hold_flow.dart';
 import '../backend/member_flow.dart';
@@ -25,6 +26,7 @@ export '../widgets/member_widgets.dart'
         hOrderText,
         hPackageText,
         hRechargeText,
+        hScanText,
         hTierName,
         RechargeView;
 export '../widgets/sale_widgets.dart' show hPackagePicker;
@@ -216,6 +218,14 @@ Widget hTap(
           }),
         );
         return;
+      }
+      // 没找到该车牌的会员：创建会员把车牌带入办卡页；散客结账直接进入散客开单
+      if (merchantApi.hasSession && route == 'sheet:FindNotFound') {
+        if (to == 'MemberAdd') ScanFlow.prefillPlateForAdd();
+        if (to == 'Order') {
+          MemberFlow.current = null;
+          ScanFlow.startWalkInOrder();
+        }
       }
       // 新开一单（挂单列表里唯一跳到开单页的按钮）：开单页回到空白
       if (merchantApi.hasSession && route == 'HoldList' && to == 'Order') {

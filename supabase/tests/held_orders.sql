@@ -37,3 +37,19 @@ select 'balance=' || balance from public.members where id=:'mid';
 select count(*) || ' orders' from public.orders;
 -- 已结算的挂单不能再修改
 do $$ begin perform public.hold_order((select id from public.stores where name='测试店C'),(select id from public.members limit 1),jsonb_build_array(jsonb_build_object('service_id',(select id from public.service_items limit 1),'qty',1)),'待施工','','不提醒','',(select id from public.held_orders limit 1)); exception when sqlstate 'P0002' then raise notice 'closed hold not editable: %', sqlerrm; end $$;
+-- 散客开单：不关联会员、没有折扣，只能用微信 / 支付宝 / 现金 / POS 刷卡；重试不重复。
+select public.checkout_walkin(:'sid', jsonb_build_array(jsonb_build_object('service_id',:'s2','qty',1)), '微信', '苏K5F218', '', '陈明', 'w1') ->> 'payable' as walkin_380;
+select public.checkout_walkin(:'sid', jsonb_build_array(jsonb_build_object('service_id',:'s2','qty',1)), '微信', '苏K5F218', '', '陈明', 'w1') ->> 'repeated' as walkin_retry;
+select count(*) || ' walk-in orders, member null=' || bool_and(member_id is null) from public.orders where request_id = 'w1';
+do $$ begin perform public.checkout_walkin((select id from public.stores where name='测试店C'), jsonb_build_array(jsonb_build_object('service_id',(select id from public.service_items limit 1),'qty',1)), '会员余额', '', '', 'x', 'w2'); exception when sqlstate 'P0001' then raise notice 'walk-in balance method blocked: %', sqlerrm; end $$;
+-- 散客挂单：原价估价、不能带次卡、取单结算走散客收款（不能用余额）、同一 request 重试不重复。
+select public.hold_order(:'sid', null, jsonb_build_array(jsonb_build_object('service_id',:'s2','qty',1)), '施工中', '', '不提醒', '苏K5F218', null) as wid \gset
+select 'walk-in hold: estimate=' || estimate || ' member null=' || (member_id is null) from public.held_orders where id=:'wid';
+do $$ begin perform public.hold_order((select id from public.stores where name='测试店C'), null, jsonb_build_array(jsonb_build_object('service_id',(select id from public.service_items limit 1),'qty',1,'member_package_id','aaaaaaaa-0000-0000-0000-0000000000ff')), '待施工', '', '不提醒', '', null); exception when sqlstate 'P0001' then raise notice 'walk-in package blocked: %', sqlerrm; end $$;
+select public.hold_order(:'sid', null, jsonb_build_array(jsonb_build_object('service_id',:'s2','qty',1), jsonb_build_object('service_id',:'s1','qty',1)), '待结算', '', '不提醒', '苏K5F218', :'wid') = :'wid'::uuid as walkin_updated;
+select 'walk-in hold: estimate=' || estimate from public.held_orders where id=:'wid';
+do $$ begin perform public.hold_order((select id from public.stores where name='测试店C'), (select id from public.members limit 1), jsonb_build_array(jsonb_build_object('service_id',(select id from public.service_items limit 1),'qty',1)), '待施工', '', '不提醒', '', (select id from public.held_orders where member_id is null limit 1)); exception when sqlstate 'P0002' then raise notice 'walk-in hold cannot become member hold: %', sqlerrm; end $$;
+do $$ begin perform public.settle_held_order((select id from public.stores where name='测试店C'), (select id from public.held_orders where member_id is null and settled_at is null limit 1), jsonb_build_array(jsonb_build_object('service_id',(select id from public.service_items limit 1),'qty',1)), '会员余额', null, null, '', '', 'x', 'wh0'); exception when sqlstate 'P0001' then raise notice 'walk-in hold balance method blocked: %', sqlerrm; end $$;
+select public.settle_held_order(:'sid', :'wid', jsonb_build_array(jsonb_build_object('service_id',:'s2','qty',1), jsonb_build_object('service_id',:'s1','qty',1)), '现金', null, null, '苏K5F218', '', '陈明', 'wh1') ->> 'payable' as walkin_settled;
+select public.settle_held_order(:'sid', :'wid', jsonb_build_array(jsonb_build_object('service_id',:'s2','qty',1), jsonb_build_object('service_id',:'s1','qty',1)), '现金', null, null, '苏K5F218', '', '陈明', 'wh1') ->> 'repeated' as walkin_retry;
+select 'closed=' || (settled_at is not null) from public.held_orders where id=:'wid';
