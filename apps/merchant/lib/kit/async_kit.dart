@@ -1009,6 +1009,10 @@ Widget hBusy(
   /// 全宽底栏按钮的加载文案（设计稿“提交中…”）：转圈在左、文字在右，整体居中。
   /// 顶部的小按钮不传，只显示转圈。
   String? label,
+
+  /// 顶部的“保存”胶囊按钮：加载时变成设计稿图标按钮的样子（44×44 的圆 + 20px 转圈）。
+  /// 胶囊左右各有 18px 内边距，内容收成 8px 宽，整个按钮正好是 44 宽。
+  bool round = false,
 }) => ValueListenableBuilder<Set<String>>(
   valueListenable: busyActions,
   child: child,
@@ -1016,6 +1020,45 @@ Widget hBusy(
     if (!keys.contains(actionKey)) return child!;
     // 文字按钮的转圈和文字同色（主按钮是白色）；图标按钮按设计稿用主色
     final color = icon ? C.primary : (style?.color ?? C.ink);
+    if (round && spinner && !icon) {
+      return SizedBox(
+        width: 8,
+        height: 20,
+        child: OverflowBox(
+          maxWidth: 20,
+          maxHeight: 20,
+          child: Semantics(
+            label: '处理中',
+            liveRegion: true,
+            child: AppSpinner(size: 20, color: color),
+          ),
+        ),
+      );
+    }
+    if (label != null && spinner && !icon) {
+      // 转圈 + 文字（设计稿：“提交中…”“保存中…”）。原内容仍隐藏着占位，
+      // 加载内容比原内容宽时按钮随之撑开，不会比原来更小。
+      return Stack(
+        fit: StackFit.passthrough,
+        alignment: Alignment.center,
+        children: [
+          Opacity(opacity: 0, child: child),
+          Semantics(
+            label: '处理中',
+            liveRegion: true,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                AppSpinner(size: 18, color: color),
+                const SizedBox(width: 8),
+                Text(label, style: style, softWrap: false, maxLines: 1),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
     return Stack(
       // passthrough：沿用外层给的约束，按钮不会因为内容变成转圈而缩成小圆
       fit: StackFit.passthrough,
@@ -1029,25 +1072,7 @@ Widget hBusy(
               child: Semantics(
                 label: '处理中',
                 liveRegion: true,
-                child: label == null || icon
-                    ? AppSpinner(size: icon ? 20 : 18, color: color)
-                    // 文字比原按钮文字宽时向两侧溢出，不改变按钮尺寸
-                    : OverflowBox(
-                        maxWidth: double.infinity,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            AppSpinner(size: 18, color: color),
-                            const SizedBox(width: 8),
-                            Text(
-                              label,
-                              style: style,
-                              softWrap: false,
-                              maxLines: 1,
-                            ),
-                          ],
-                        ),
-                      ),
+                child: AppSpinner(size: icon ? 20 : 18, color: color),
               ),
             ),
           ),

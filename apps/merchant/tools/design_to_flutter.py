@@ -849,9 +849,13 @@ class Gen:
             extra += ', style: %s' % style
         if icon:
             extra += ', icon: true'
-        # 全宽底栏按钮（高度 ≥ 48）：转圈 + “提交中…”；顶部的小按钮只转圈
-        if first and not icon and getattr(self, 'busy_wide', False):
-            extra += ", label: '提交中…'"
+        # 加载样式按设计稿：全宽底栏按钮（高度 ≥ 48）= 转圈 + “提交中…”；
+        # 顶部的“保存”胶囊按钮 = 图标按钮的加载样式（44×44 的圆 + 20px 转圈）
+        busy_label = getattr(self, 'busy_label', None)
+        if first and not icon and busy_label == 'ROUND':
+            extra += ', round: true'
+        elif first and not icon and busy_label:
+            extra += ", label: %s" % dstr(busy_label)
         if not first:
             extra += ', spinner: false'
         return 'hBusy(%s, %s%s)' % (dstr(key), code, extra)
@@ -861,13 +865,14 @@ class Gen:
         if key is None:
             return self._emit(n, inh, parent)
         prev = (getattr(self, 'busy_key', None), getattr(self, 'busy_first_done', False),
-                getattr(self, 'busy_wide', False))
+                getattr(self, 'busy_label', None))
         self.busy_key, self.busy_first_done = key, False
-        self.busy_wide = (px(n.style.get('height'), 0) or 0) >= 48
+        wide = (px(n.style.get('height'), 0) or 0) >= 48
+        self.busy_label = '提交中…' if wide else ('ROUND' if self.tree_text(n).strip() == '保存' else None)
         try:
             return self._emit(n, inh, parent)
         finally:
-            self.busy_key, self.busy_first_done, self.busy_wide = prev
+            self.busy_key, self.busy_first_done, self.busy_label = prev
 
     def _emit(self, n, inh, parent):
         """parent: 'row' | 'col' | 'block' | 'grid' | 'abs' | 'root'"""

@@ -107,6 +107,7 @@ class CardTierEditPage extends StatelessWidget {
                               w: FontWeight.w600,
                               lh: 20,
                             ),
+                            round: true,
                           ),
                         ),
                       ),

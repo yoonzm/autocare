@@ -147,17 +147,42 @@ void main() {
       expect(t.getSize(button), before);
     });
 
-    testWidgets('保存页：只有“保存”转圈，左上角取消 ✕ 不转圈（只是不可点）', (t) async {
-      await openGen(t, 'ServiceEdit');
-      final save = find
-          .ancestor(of: find.text('保存'), matching: find.byType(Container))
-          .first;
-      final before = t.getSize(save);
-      busyActions.value = {'ServiceEdit>Services'};
-      await t.pump();
-      expect(find.byType(AppSpinner), findsOneWidget); // 只有保存按钮一个
-      expect(find.text('提交中…'), findsNothing); // 顶部小按钮只转圈
-      expect(t.getSize(save), before);
+    testWidgets('保存页：“保存”加载时和设计稿图标按钮一样：44×44 的圆 + 20px 转圈，取消 ✕ 不转圈', (t) async {
+      for (final route in ['ServiceEdit', 'CardTierEdit', 'PackageEdit']) {
+        await t.pumpWidget(const SizedBox());
+        await openGen(t, route);
+        final key = {
+          'ServiceEdit': 'ServiceEdit>Services',
+          'CardTierEdit': 'CardTierEdit>CardTiers',
+          'PackageEdit': 'PackageEdit>CardPackages',
+        }[route]!;
+        final save = find
+            .ancestor(of: find.text('保存'), matching: find.byType(Container))
+            .first;
+        expect(t.getSize(save).width, greaterThan(50), reason: route);
+        busyActions.value = {key};
+        await t.pump();
+        expect(find.byType(AppSpinner), findsOneWidget, reason: route);
+        expect(find.text('保存中…'), findsNothing);
+        // 加载时“保存”两个字已经换成转圈，从转圈往外找按钮
+        final pill = find
+            .ancestor(
+              of: find.byType(AppSpinner),
+              matching: find.byType(Container),
+            )
+            .first;
+        expect(t.getSize(pill), const Size(44, 44), reason: route);
+        expect(t.getSize(find.byType(AppSpinner)), const Size(20, 20));
+        final c = t.getCenter(pill);
+        expect(
+          (t.getCenter(find.byType(AppSpinner)) - c).distance,
+          lessThan(0.5),
+        );
+        busyActions.value = const {};
+        await t.pump();
+        expect(find.text('保存'), findsOneWidget, reason: route);
+        expect(t.getSize(save).width, greaterThan(50), reason: route);
+      }
     });
 
     testWidgets('每个提交按钮都有 loading：逐页检查生成页里的转圈', (t) async {
