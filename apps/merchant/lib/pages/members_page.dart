@@ -610,11 +610,17 @@ class _MembersPageState extends State<MembersPage> {
               ],
       ),
       child: Stack(
+        clipBehavior: Clip.none,
         children: [
           const Positioned(
             right: -98,
             top: -128,
-            child: Rings(size: 240, color: Color(0xFF3A3226)),
+            child: Rings(
+              size: 240,
+              viewBox: 240,
+              radii: [60, 90, 118],
+              colors: [Color(0xFF3A3226), Color(0xFF2E2A24), Color(0xFF27272A)],
+            ),
           ),
           Column(
             children: [

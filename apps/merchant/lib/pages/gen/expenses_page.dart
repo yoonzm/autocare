@@ -431,13 +431,9 @@ class ExpensesPage extends StatelessWidget {
                     [],
                     behind: [
                       Positioned(
-                        top: -90,
-                        right: -90,
-                        child: hsvg(
-                          dk(context, Svgs.s7, Svgs.s8),
-                          w: 240,
-                          h: 240,
-                        ),
+                        top: -110,
+                        right: -110,
+                        child: hsvg(Svgs.s7, w: 240, h: 240),
                       ),
                     ],
                   ),

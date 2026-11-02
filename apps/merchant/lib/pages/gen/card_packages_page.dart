@@ -404,8 +404,8 @@ class CardPackagesPage extends StatelessWidget {
                     [],
                     behind: [
                       Positioned(
-                        top: -100,
-                        right: -80,
+                        top: -118,
+                        right: -98,
                         child: hsvg(Svgs.s60, w: 220, h: 220),
                       ),
                     ],

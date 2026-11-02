@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../backend/catalog_draft.dart';
 import '../backend/store_profile.dart';
 import '../kit/kit.dart';
-import '../pages/gen/svgs.dart';
+import 'common.dart' show Rings;
 import '../theme.dart' show softShadow;
 
 class CardPalette {
@@ -143,12 +143,22 @@ class CardTileFace extends StatelessWidget {
           boxShadow: p.shadow ? softShadow : null,
         ),
         child: Stack(
+          clipBehavior: Clip.none,
           children: [
             if (p.rings)
               Positioned(
                 top: -98,
                 right: -80,
-                child: hsvg(dk(context, Svgs.s83, Svgs.s84), w: 200, h: 200),
+                child: Rings(
+                  size: 200,
+                  viewBox: 200,
+                  radii: const [55, 80, 98],
+                  colors: const [
+                    Color(0xFF3A3226),
+                    Color(0xFF2E2A24),
+                    Color(0xFF27272A),
+                  ],
+                ),
               ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -243,12 +253,23 @@ Widget hCardPreview() => ListenableBuilder(
         borderRadius: BorderRadius.circular(24),
       ),
       child: Stack(
+        clipBehavior: Clip.none,
         children: [
+          // 设计稿：right -80 / bottom -110，半径 64 / 94 / 118；Stack 在内边距（20）之内
           if (p.rings)
-            Positioned(
-              top: -110,
-              right: -90,
-              child: hsvg(dk(context, Svgs.s83, Svgs.s84), w: 240, h: 240),
+            const Positioned(
+              bottom: -130,
+              right: -100,
+              child: Rings(
+                size: 240,
+                viewBox: 240,
+                radii: [64, 94, 118],
+                colors: [
+                  Color(0xFF3A3226),
+                  Color(0xFF2E2A24),
+                  Color(0xFF27272A),
+                ],
+              ),
             ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,

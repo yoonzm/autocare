@@ -380,13 +380,9 @@ class StaffDetailPage extends StatelessWidget {
                     [],
                     behind: [
                       Positioned(
-                        top: -90,
-                        right: -80,
-                        child: hsvg(
-                          dk(context, Svgs.s354, Svgs.s355),
-                          w: 220,
-                          h: 220,
-                        ),
+                        top: -110,
+                        right: -100,
+                        child: hsvg(Svgs.s354, w: 220, h: 220),
                       ),
                     ],
                   ),

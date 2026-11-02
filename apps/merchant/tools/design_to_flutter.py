@@ -1327,9 +1327,12 @@ class Gen:
         cur = inh.get('color') or (0, 0, 0, 1)
         dcur = inh.get('dcolor') or cur
         raw = re.sub(r'currentColor', scolor(cur), raw0)
+        # 装饰性的同心圆（卡片背景的圈圈）：描边是卡片自己的暗色，深色模式下不能按文字色映射（否则会变成一圈亮白线）
+        rings_only = raw0.count('<circle') >= 3 and '<path' not in raw0 and '<rect' not in raw0
         # 深色模式：currentColor 取深色文字色，描边里的灰色按文字色表映射（装饰性填充保持不变）
-        draw = re.sub(r'(stroke=")(#[0-9A-Fa-f]{6})(")',
-                      lambda m: m.group(1) + FG_DARK.get(m.group(2).upper(), m.group(2)) + m.group(3), raw0)
+        draw = raw0 if rings_only else re.sub(
+            r'(stroke=")(#[0-9A-Fa-f]{6})(")',
+            lambda m: m.group(1) + FG_DARK.get(m.group(2).upper(), m.group(2)) + m.group(3), raw0)
         draw = re.sub(r'currentColor', scolor(dcur), draw)
         if 'id="abg"' in raw:
             # 设计稿里这个图标的子元素被误写入了外层的 width/height/style，这里还原为 1024 画布
@@ -1897,9 +1900,9 @@ class Gen:
                 # CSS 绘制顺序：DOM 中排在后面的 position:relative 子项会盖在前面的绝对定位元素之上
                 later = kids[kids.index(c) + 1:]
                 if any(isinstance(x, Node) and x.style.get('position') == 'relative' and not self.is_abs(x) for x in later):
-                    behind.append(self.emit_abs(c, inh))
+                    behind.append(self.emit_abs(c, inh, pads=self.pad_codes(st)))
                 else:
-                    absn.append(self.emit_abs(c, inh))
+                    absn.append(self.emit_abs(c, inh, pads=self.pad_codes(st)))
                 continue
             if id(c) in mapping:
                 gi, idx = mapping[id(c)]
@@ -2104,14 +2107,24 @@ class Gen:
         return 'hcol([%s], gap: %s)' % (', '.join(out), num(rgap))
 
     # ── 绝对定位 ──
-    def emit_abs(self, c, inh, root=False):
+    def emit_abs(self, c, inh, root=False, pads=None):
+        """绝对定位子项。CSS 里 left/top/right/bottom 相对容器的“内边距盒”，而 Flutter 里 Stack 在内边距之内，
+        所以要减去容器的内边距（pads 是 上、右、下、左 四个 Dart 表达式或数字）。"""
         st = c.style
         body = self.emit(c, inh, 'root_abs' if root else 'abs')
         pos = []
+        side_idx = {'top': 0, 'right': 1, 'bottom': 2, 'left': 3}
         for k in ('left', 'top', 'right', 'bottom'):
             v = px(st.get(k))
             if v is not None or st.get(k) == '0':
-                pos.append('%s: %s' % (k, num(v if v is not None else 0)))
+                v = v if v is not None else 0
+                pc = pads[side_idx[k]] if pads else None
+                if pc is None or pc == '0':
+                    pos.append('%s: %s' % (k, num(v)))
+                elif re.fullmatch(r'-?[\d.]+', pc):
+                    pos.append('%s: %s' % (k, num(v - float(pc))))
+                else:
+                    pos.append('%s: %s - %s' % (k, num(v), pc))
         w = st.get('width'); h = st.get('height')
         if w and px(w) is not None and not w.endswith('%'):
             pos.append('width: %s' % num(px(w)))
@@ -2120,6 +2133,15 @@ class Gen:
         if not pos:
             pos = ['left: 0', 'top: 0']
         return 'Positioned(%s, child: %s)' % (', '.join(pos), body)
+
+    def pad_codes(self, st):
+        """容器内边距（上、右、下、左），和 box_args 里生成 pad 的逻辑一致（含状态栏 / 底部安全区）。"""
+        pads = [px(st.get('padding-' + sd), 0.0) or 0.0 for sd in ('top', 'right', 'bottom', 'left')]
+        top = 'topInset(context)' if st.get('padding-top') == '56px' else num(pads[0])
+        bottom = num(pads[2])
+        if st.get('padding-bottom') == '30px' and st.get('position') == 'absolute':
+            bottom = 'bottomInset(context)'
+        return [top, num(pads[1]), bottom, num(pads[3])]
 
     # ── 根 ──
     def emit_body_after_tabs(self, root, name):

@@ -7,6 +7,7 @@ import '../backend/member_flow.dart' show money2;
 import '../backend/merchant_api.dart';
 import '../kit/async_kit.dart';
 import '../kit/kit.dart';
+import 'common.dart' show Rings;
 import '../pages/gen/svgs.dart';
 import '../routes.dart' show openRoute;
 
@@ -409,10 +410,11 @@ class _HoldBoardState extends State<_HoldBoard> {
         ], gap: 14),
         const [],
         behind: [
-          Positioned(
-            top: -90,
-            right: -90,
-            child: hsvg(dk(context, Svgs.s7, Svgs.s8), w: 240, h: 240),
+          // 设计稿 top -90 / right -90，容器内边距 20
+          const Positioned(
+            top: -110,
+            right: -110,
+            child: Rings(size: 240, viewBox: 240, radii: [60, 90, 118]),
           ),
         ],
       ),

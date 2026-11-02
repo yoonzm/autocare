@@ -319,13 +319,9 @@ class CardTiersPage extends StatelessWidget {
                       [],
                       behind: [
                         Positioned(
-                          top: -80,
-                          right: -60,
-                          child: hsvg(
-                            dk(context, Svgs.s83, Svgs.s84),
-                            w: 200,
-                            h: 200,
-                          ),
+                          top: -98,
+                          right: -80,
+                          child: hsvg(Svgs.s83, w: 200, h: 200),
                         ),
                       ],
                     ),

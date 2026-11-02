@@ -393,13 +393,9 @@ class RechargePage extends StatelessWidget {
                         [],
                         behind: [
                           Positioned(
-                            right: -80,
-                            bottom: -110,
-                            child: hsvg(
-                              dk(context, Svgs.s323, Svgs.s324),
-                              w: 220,
-                              h: 220,
-                            ),
+                            right: -100,
+                            bottom: -128,
+                            child: hsvg(Svgs.s323, w: 220, h: 220),
                           ),
                         ],
                       ),
@@ -591,8 +587,8 @@ class RechargePage extends StatelessWidget {
                                     ),
                                     [
                                       Positioned(
-                                        top: -8,
-                                        right: 12,
+                                        top: -22,
+                                        right: -4,
                                         child: hbox(
                                           bg: dk(
                                             context,
@@ -691,8 +687,8 @@ class RechargePage extends StatelessWidget {
                                     ),
                                     [
                                       Positioned(
-                                        top: -8,
-                                        right: 12,
+                                        top: -22,
+                                        right: -4,
                                         child: hbox(
                                           bg: dk(
                                             context,

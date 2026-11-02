@@ -647,13 +647,9 @@ class ChannelConfigPage extends StatelessWidget {
                         [],
                         behind: [
                           Positioned(
-                            top: -80,
-                            right: -70,
-                            child: hsvg(
-                              dk(context, Svgs.s90, Svgs.s91),
-                              w: 200,
-                              h: 200,
-                            ),
+                            top: -98,
+                            right: -90,
+                            child: hsvg(Svgs.s90, w: 200, h: 200),
                           ),
                         ],
                       ),

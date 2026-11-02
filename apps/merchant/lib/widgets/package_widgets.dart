@@ -30,10 +30,12 @@ Widget hPackagePreview() => ListenableBuilder(
         ),
       ),
       child: Stack(
+        clipBehavior: Clip.none,
         children: [
+          // 设计稿：right -70 / top -90，Stack 在内边距（20 / 18）之内
           Positioned(
-            top: -100,
-            right: -80,
+            top: -108,
+            right: -90,
             child: hsvg(Svgs.s276, w: 220, h: 220),
           ),
           Column(

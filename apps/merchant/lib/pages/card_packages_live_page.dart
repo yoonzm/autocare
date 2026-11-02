@@ -742,9 +742,10 @@ class _CardPackagesLivePageState extends State<CardPackagesLivePage> {
                       ),
                       [],
                       behind: [
+                        // 设计稿 top -100 / right -80，容器内边距 18
                         Positioned(
-                          top: -100,
-                          right: -80,
+                          top: -118,
+                          right: -98,
                           child: hsvg(Svgs.s60, w: 220, h: 220),
                         ),
                       ],

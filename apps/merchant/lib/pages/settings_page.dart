@@ -236,9 +236,13 @@ class SettingsPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(28),
       ),
       child: Stack(
-        clipBehavior: Clip.hardEdge,
+        clipBehavior: Clip.none,
         children: [
-          const Positioned(right: -90, top: -100, child: Rings(size: 240)),
+          const Positioned(
+            right: -110,
+            top: -110,
+            child: Rings(size: 240, viewBox: 240, radii: [60, 90, 118]),
+          ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [

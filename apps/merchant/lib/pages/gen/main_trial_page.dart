@@ -546,13 +546,9 @@ class MainTrialPage extends StatelessWidget {
                     [],
                     behind: [
                       Positioned(
-                        top: -80,
-                        right: -70,
-                        child: hsvg(
-                          dk(context, Svgs.s178, Svgs.s179),
-                          w: 220,
-                          h: 220,
-                        ),
+                        top: -100,
+                        right: -90,
+                        child: hsvg(Svgs.s178, w: 220, h: 220),
                       ),
                     ],
                   ),
@@ -627,8 +623,8 @@ class MainTrialPage extends StatelessWidget {
                                 [],
                                 behind: [
                                   Positioned(
-                                    right: -80,
-                                    bottom: -80,
+                                    right: -96,
+                                    bottom: -96,
                                     child: hsvg(Svgs.s189, w: 190, h: 190),
                                   ),
                                 ],
@@ -707,8 +703,8 @@ class MainTrialPage extends StatelessWidget {
                                     [],
                                     behind: [
                                       Positioned(
-                                        right: -8,
-                                        bottom: -10,
+                                        right: -22,
+                                        bottom: -24,
                                         child: hsvg(
                                           dk(context, Svgs.s181, Svgs.s182),
                                           w: 64,
@@ -789,8 +785,8 @@ class MainTrialPage extends StatelessWidget {
                                     [],
                                     behind: [
                                       Positioned(
-                                        right: -8,
-                                        bottom: -10,
+                                        right: -22,
+                                        bottom: -24,
                                         child: hsvg(
                                           dk(context, Svgs.s185, Svgs.s186),
                                           w: 64,
@@ -912,12 +908,8 @@ class MainTrialPage extends StatelessWidget {
                           behind: [
                             Positioned(
                               top: -70,
-                              right: -50,
-                              child: hsvg(
-                                dk(context, Svgs.s191, Svgs.s192),
-                                w: 190,
-                                h: 190,
-                              ),
+                              right: -66,
+                              child: hsvg(Svgs.s191, w: 190, h: 190),
                             ),
                           ],
                         ),
@@ -1693,14 +1685,14 @@ class MainTrialPage extends StatelessWidget {
                           ),
                         ],
                         child: hrow(
-                          [hsvg(Svgs.s204, w: 26, h: 26)],
+                          [hsvg(Svgs.s425, w: 26, h: 26)],
                           main: MainAxisAlignment.center,
                           cross: CrossAxisAlignment.center,
                           gap: 0,
                         ),
                       ),
                     ),
-                    to: 'Order',
+                    to: 'FindScanPlate',
                   ),
                 ),
               ],

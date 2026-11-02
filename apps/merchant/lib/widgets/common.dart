@@ -419,33 +419,66 @@ class PrimaryButton extends StatelessWidget {
 }
 
 /// 圆环装饰（深色卡片背景）
+/// 卡片背景的同心圆装饰。和设计稿的 SVG 一致：[viewBox] 是 SVG 的画布边长，[radii] 是各圈半径（画布单位），
+/// 描边宽度 1.5（画布单位，随 [size] / [viewBox] 缩放）。[colors] 给每一圈单独指定颜色；[dot] 是画布里的一个实心小圆点。
+///
+/// 放进卡片时要注意：卡片有内边距时，Stack 里的 Positioned 是相对内边距之内的区域，
+/// 设计稿的 right / top 要减去内边距；Stack 本身要 `clipBehavior: Clip.none`（由卡片外层的 Container 裁圆角），
+/// 否则圈会被内边距处截断。
 class Rings extends StatelessWidget {
   final double size;
   final Color color;
-  const Rings({super.key, this.size = 220, this.color = C.dark2});
+  final List<Color>? colors;
+  final double viewBox;
+  final List<double> radii;
+  final (Offset, double, Color)? dot;
+  const Rings({
+    super.key,
+    this.size = 220,
+    this.color = C.dark2,
+    this.colors,
+    this.viewBox = 220,
+    this.radii = const [60, 85, 108],
+    this.dot,
+  });
   @override
   Widget build(BuildContext context) => IgnorePointer(
-    child: CustomPaint(size: Size(size, size), painter: _RingsPainter(color)),
+    child: CustomPaint(
+      size: Size(size, size),
+      painter: _RingsPainter(color, colors, viewBox, radii, dot),
+    ),
   );
 }
 
 class _RingsPainter extends CustomPainter {
   final Color color;
-  _RingsPainter(this.color);
+  final List<Color>? colors;
+  final double viewBox;
+  final List<double> radii;
+  final (Offset, double, Color)? dot;
+  _RingsPainter(this.color, this.colors, this.viewBox, this.radii, this.dot);
   @override
   void paint(Canvas canvas, Size size) {
-    final p = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
+    final k = size.width / viewBox;
     final c = size.center(Offset.zero);
-    for (final f in [0.27, 0.39, 0.49]) {
-      canvas.drawCircle(c, size.width * f, p);
+    for (var i = 0; i < radii.length; i++) {
+      final p = Paint()
+        ..color = colors != null && i < colors!.length ? colors![i] : color
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.5 * k;
+      canvas.drawCircle(c, radii[i] * k, p);
+    }
+    if (dot != null) {
+      canvas.drawCircle(dot!.$1 * k, dot!.$2 * k, Paint()..color = dot!.$3);
     }
   }
 
   @override
-  bool shouldRepaint(covariant _RingsPainter old) => old.color != color;
+  bool shouldRepaint(covariant _RingsPainter old) =>
+      old.color != color ||
+      old.viewBox != viewBox ||
+      old.radii != radii ||
+      old.colors != colors;
 }
 
 class Divider1 extends StatelessWidget {

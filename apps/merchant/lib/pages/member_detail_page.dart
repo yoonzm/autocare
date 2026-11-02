@@ -217,12 +217,17 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
         borderRadius: BorderRadius.circular(28),
       ),
       child: Stack(
-        clipBehavior: Clip.hardEdge,
+        clipBehavior: Clip.none,
         children: [
           const Positioned(
-            right: -90,
-            bottom: -120,
-            child: Rings(size: 260, color: Color(0xFF3A3226)),
+            right: -110,
+            bottom: -140,
+            child: Rings(
+              size: 260,
+              viewBox: 260,
+              radii: [70, 100, 128],
+              colors: [Color(0xFF3A3226), Color(0xFF2E2A24), Color(0xFF27272A)],
+            ),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,

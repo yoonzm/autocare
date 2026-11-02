@@ -154,7 +154,7 @@ class MemberAddDonePage extends StatelessWidget {
                     behind: [
                       Positioned(
                         left: 38,
-                        top: 30,
+                        top: 4,
                         width: 8,
                         height: 8,
                         child: hbox(
@@ -166,7 +166,7 @@ class MemberAddDonePage extends StatelessWidget {
                       ),
                       Positioned(
                         left: 300,
-                        top: 52,
+                        top: 26,
                         width: 6,
                         height: 6,
                         child: hbox(
@@ -178,7 +178,7 @@ class MemberAddDonePage extends StatelessWidget {
                       ),
                       Positioned(
                         left: 70,
-                        top: 150,
+                        top: 124,
                         width: 5,
                         height: 5,
                         child: hbox(
@@ -190,7 +190,7 @@ class MemberAddDonePage extends StatelessWidget {
                       ),
                       Positioned(
                         left: 318,
-                        top: 140,
+                        top: 114,
                         width: 9,
                         height: 9,
                         child: hbox(
@@ -202,7 +202,7 @@ class MemberAddDonePage extends StatelessWidget {
                       ),
                       Positioned(
                         left: 24,
-                        top: 100,
+                        top: 74,
                         width: 6,
                         height: 6,
                         child: hbox(
@@ -214,7 +214,7 @@ class MemberAddDonePage extends StatelessWidget {
                       ),
                       Positioned(
                         left: 344,
-                        top: 98,
+                        top: 72,
                         width: 5,
                         height: 5,
                         child: hbox(
@@ -1035,7 +1035,7 @@ class MemberAddDonePage extends StatelessWidget {
                           [],
                           behind: [
                             Positioned(
-                              top: 15,
+                              top: 13,
                               height: 2,
                               child: hbox(
                                 h: 2,

@@ -343,8 +343,8 @@ class PackageDetailPage extends StatelessWidget {
                     [],
                     behind: [
                       Positioned(
-                        right: -90,
-                        bottom: -120,
+                        right: -108,
+                        bottom: -138,
                         child: hsvg(Svgs.s272, w: 240, h: 240),
                       ),
                     ],

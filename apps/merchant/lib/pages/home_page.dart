@@ -205,7 +205,7 @@ class HomePage extends StatelessWidget {
         borderRadius: BorderRadius.circular(28),
       ),
       child: Stack(
-        clipBehavior: Clip.hardEdge,
+        clipBehavior: Clip.none,
         children: [
           const Positioned(right: -90, top: -100, child: Rings(size: 220)),
           Column(
@@ -370,12 +370,17 @@ class HomePage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(28),
                     ),
                     child: Stack(
-                      clipBehavior: Clip.hardEdge,
+                      clipBehavior: Clip.none,
                       children: [
                         const Positioned(
-                          right: -100,
-                          bottom: -100,
-                          child: Rings(size: 190, color: Color(0xFF3B9DF9)),
+                          right: -96,
+                          bottom: -96,
+                          child: Rings(
+                            size: 190,
+                            viewBox: 240,
+                            radii: [60, 90, 118],
+                            color: Color(0xFF3B9DF9),
+                          ),
                         ),
                         Column(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -463,12 +468,12 @@ class HomePage extends StatelessWidget {
               borderRadius: BorderRadius.circular(24),
             ),
             child: Stack(
-              clipBehavior: Clip.hardEdge,
+              clipBehavior: Clip.none,
               children: [
                 const Positioned(
-                  right: -120,
-                  top: -110,
-                  child: Rings(size: 190),
+                  right: -66,
+                  top: -70,
+                  child: Rings(size: 190, viewBox: 240, radii: [60, 90, 118]),
                 ),
                 Row(
                   children: [

@@ -219,7 +219,17 @@ class _LoginPageState extends State<LoginPage> {
     child: Stack(
       clipBehavior: Clip.none,
       children: [
-        const Positioned(right: -178, top: -100, child: Rings(size: 360)),
+        // 设计稿：right -150 / top -60（相对整个区块），这里的 Stack 在内边距之内，要减掉内边距
+        Positioned(
+          right: -178,
+          top: -60 - (MediaQuery.of(context).padding.top + 40),
+          child: const Rings(
+            size: 360,
+            viewBox: 360,
+            radii: [80, 120, 160],
+            dot: (Offset(180, 100), 5, Color(0xFF0485F7)),
+          ),
+        ),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
