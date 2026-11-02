@@ -10,7 +10,7 @@ class CardTierEditPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return HPage(
       bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
-      height: 1140,
+      height: 1170,
       fixedHeight: false,
       flow: hcol(
         [
@@ -204,262 +204,51 @@ class CardTierEditPage extends StatelessWidget {
                         margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
                       ),
                       hbox(
-                        minH: 60,
-                        pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                        child: hrow(
+                        pad: EdgeInsets.fromLTRB(16, 12, 16, 12),
+                        child: hcol(
                           [
-                            Expanded(
-                              flex: 1,
-                              child: Text(
-                                '卡面颜色',
-                                style: hts(
-                                  14,
-                                  dk(
-                                    context,
-                                    Color(0xFF52525B),
-                                    Color(0xFFA8A8B3),
-                                  ),
-                                  lh: 20,
-                                ),
-                              ),
-                            ),
-                            HSelHolder(
-                              groups: [
-                                ({0}, false),
-                              ],
-                              builder: (context, g1) => hrow(
+                            hbox(
+                              minH: 36,
+                              child: hrow(
                                 [
-                                  UnconstrainedBox(
-                                    alignment: Alignment.topLeft,
-                                    constrainedAxis: Axis.horizontal,
-                                    child: HSel(
-                                      ctrl: g1[0],
-                                      index: 0,
-                                      on: hbox(
-                                        w: 32,
-                                        h: 32,
-                                        bg: dk(
+                                  Expanded(
+                                    flex: 1,
+                                    child: Text(
+                                      '卡面颜色',
+                                      style: hts(
+                                        14,
+                                        dk(
                                           context,
-                                          Color(0xFF18181B),
-                                          Color(0xFF34343A),
+                                          Color(0xFF52525B),
+                                          Color(0xFFA8A8B3),
                                         ),
-                                        radius: BorderRadius.circular(16),
-                                        shadow: dk(
-                                          context,
-                                          [
-                                            BoxShadow(
-                                              color: Color(0xFF0485F7),
-                                              offset: Offset(0, 0),
-                                              blurRadius: 0,
-                                              spreadRadius: 4,
-                                            ),
-                                            BoxShadow(
-                                              color: Color(0xFFFFFFFF),
-                                              offset: Offset(0, 0),
-                                              blurRadius: 0,
-                                              spreadRadius: 2,
-                                            ),
-                                          ],
-                                          [
-                                            BoxShadow(
-                                              color: Color(0xFF0485F7),
-                                              offset: Offset(0, 0),
-                                              blurRadius: 0,
-                                              spreadRadius: 4,
-                                            ),
-                                            BoxShadow(
-                                              color: Color(0xFF18181B),
-                                              offset: Offset(0, 0),
-                                              blurRadius: 0,
-                                              spreadRadius: 2,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      off: hbox(
-                                        w: 32,
-                                        h: 32,
-                                        bg: dk(
-                                          context,
-                                          Color(0xFF18181B),
-                                          Color(0xFF34343A),
-                                        ),
-                                        radius: BorderRadius.circular(16),
+                                        lh: 20,
                                       ),
                                     ),
                                   ),
-                                  UnconstrainedBox(
-                                    alignment: Alignment.topLeft,
-                                    constrainedAxis: Axis.horizontal,
-                                    child: HSel(
-                                      ctrl: g1[0],
-                                      index: 1,
-                                      on: hbox(
-                                        w: 32,
-                                        h: 32,
-                                        bg: Color(0xFFF3E2B3),
-                                        radius: BorderRadius.circular(16),
-                                        shadow: dk(
-                                          context,
-                                          [
-                                            BoxShadow(
-                                              color: Color(0xFF0485F7),
-                                              offset: Offset(0, 0),
-                                              blurRadius: 0,
-                                              spreadRadius: 4,
-                                            ),
-                                            BoxShadow(
-                                              color: Color(0xFFFFFFFF),
-                                              offset: Offset(0, 0),
-                                              blurRadius: 0,
-                                              spreadRadius: 2,
-                                            ),
-                                          ],
-                                          [
-                                            BoxShadow(
-                                              color: Color(0xFF0485F7),
-                                              offset: Offset(0, 0),
-                                              blurRadius: 0,
-                                              spreadRadius: 4,
-                                            ),
-                                            BoxShadow(
-                                              color: Color(0xFF18181B),
-                                              offset: Offset(0, 0),
-                                              blurRadius: 0,
-                                              spreadRadius: 2,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      off: hbox(
-                                        w: 32,
-                                        h: 32,
-                                        bg: Color(0xFFF3E2B3),
-                                        radius: BorderRadius.circular(16),
-                                      ),
-                                    ),
-                                  ),
-                                  UnconstrainedBox(
-                                    alignment: Alignment.topLeft,
-                                    constrainedAxis: Axis.horizontal,
-                                    child: HSel(
-                                      ctrl: g1[0],
-                                      index: 2,
-                                      on: hbox(
-                                        w: 32,
-                                        h: 32,
-                                        bg: dk(
-                                          context,
-                                          Color(0xFFD4D4D8),
-                                          Color(0xFF3F3F46),
-                                        ),
-                                        radius: BorderRadius.circular(16),
-                                        shadow: dk(
-                                          context,
-                                          [
-                                            BoxShadow(
-                                              color: Color(0xFF0485F7),
-                                              offset: Offset(0, 0),
-                                              blurRadius: 0,
-                                              spreadRadius: 4,
-                                            ),
-                                            BoxShadow(
-                                              color: Color(0xFFFFFFFF),
-                                              offset: Offset(0, 0),
-                                              blurRadius: 0,
-                                              spreadRadius: 2,
-                                            ),
-                                          ],
-                                          [
-                                            BoxShadow(
-                                              color: Color(0xFF0485F7),
-                                              offset: Offset(0, 0),
-                                              blurRadius: 0,
-                                              spreadRadius: 4,
-                                            ),
-                                            BoxShadow(
-                                              color: Color(0xFF18181B),
-                                              offset: Offset(0, 0),
-                                              blurRadius: 0,
-                                              spreadRadius: 2,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      off: hbox(
-                                        w: 32,
-                                        h: 32,
-                                        bg: dk(
-                                          context,
-                                          Color(0xFFD4D4D8),
-                                          Color(0xFF3F3F46),
-                                        ),
-                                        radius: BorderRadius.circular(16),
-                                      ),
-                                    ),
-                                  ),
-                                  UnconstrainedBox(
-                                    alignment: Alignment.topLeft,
-                                    constrainedAxis: Axis.horizontal,
-                                    child: HSel(
-                                      ctrl: g1[0],
-                                      index: 3,
-                                      on: hbox(
-                                        w: 32,
-                                        h: 32,
-                                        bg: Color(0xFF0B5FD6),
-                                        radius: BorderRadius.circular(16),
-                                        shadow: dk(
-                                          context,
-                                          [
-                                            BoxShadow(
-                                              color: Color(0xFF0485F7),
-                                              offset: Offset(0, 0),
-                                              blurRadius: 0,
-                                              spreadRadius: 4,
-                                            ),
-                                            BoxShadow(
-                                              color: Color(0xFFFFFFFF),
-                                              offset: Offset(0, 0),
-                                              blurRadius: 0,
-                                              spreadRadius: 2,
-                                            ),
-                                          ],
-                                          [
-                                            BoxShadow(
-                                              color: Color(0xFF0485F7),
-                                              offset: Offset(0, 0),
-                                              blurRadius: 0,
-                                              spreadRadius: 4,
-                                            ),
-                                            BoxShadow(
-                                              color: Color(0xFF18181B),
-                                              offset: Offset(0, 0),
-                                              blurRadius: 0,
-                                              spreadRadius: 2,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      off: hbox(
-                                        w: 32,
-                                        h: 32,
-                                        bg: Color(0xFF0B5FD6),
-                                        radius: BorderRadius.circular(16),
-                                      ),
-                                    ),
-                                  ),
+                                  hCardColorChoices(),
                                 ],
                                 main: MainAxisAlignment.start,
-                                cross: CrossAxisAlignment.stretch,
-                                gap: 10,
-                                intrinsic: true,
+                                cross: CrossAxisAlignment.center,
+                                gap: 12,
+                              ),
+                            ),
+                            Text(
+                              '前四个为系统默认卡种配色，文字颜色会按底色自动调整',
+                              style: hts(
+                                12,
+                                dk(
+                                  context,
+                                  Color(0xFF71717A),
+                                  Color(0xFF9A9AA3),
+                                ),
+                                lh: 17,
                               ),
                             ),
                           ],
                           main: MainAxisAlignment.start,
-                          cross: CrossAxisAlignment.center,
-                          gap: 12,
+                          cross: CrossAxisAlignment.stretch,
+                          gap: 6,
                         ),
                       ),
                     ],
@@ -754,7 +543,7 @@ class CardTierEditPage extends StatelessWidget {
                                 HHolder(
                                   inits: [90],
                                   builder: (context, ctrls) {
-                                    final c2 = ctrls[0];
+                                    final c1 = ctrls[0];
                                     return hrow(
                                       [
                                         hTap(
@@ -783,13 +572,13 @@ class CardTierEditPage extends StatelessWidget {
                                               ),
                                             ),
                                           ),
-                                          onTap: () => c2.add(-1),
+                                          onTap: () => c1.add(-1),
                                         ),
                                         hbox(
                                           w: 52,
                                           align: Alignment.center,
                                           child: hCount(
-                                            c2,
+                                            c1,
                                             hts(
                                               15,
                                               dk(
@@ -827,7 +616,7 @@ class CardTierEditPage extends StatelessWidget {
                                               ),
                                             ),
                                           ),
-                                          onTap: () => c2.add(1),
+                                          onTap: () => c1.add(1),
                                         ),
                                       ],
                                       main: MainAxisAlignment.start,
@@ -853,7 +642,7 @@ class CardTierEditPage extends StatelessWidget {
                           ),
                           HStrHolder(
                             initial: '2 倍',
-                            builder: (context, s3) => hTap(
+                            builder: (context, s2) => hTap(
                               context,
                               hbox(
                                 minH: 58,
@@ -898,7 +687,7 @@ class CardTierEditPage extends StatelessWidget {
                                       ),
                                     ),
                                     hStr(
-                                      s3,
+                                      s2,
                                       hts(
                                         15,
                                         dk(
@@ -922,7 +711,7 @@ class CardTierEditPage extends StatelessWidget {
                                 ),
                               ),
                               onTap: () =>
-                                  hPick(context, 'multiplier', '积分倍率', s3),
+                                  hPick(context, 'multiplier', '积分倍率', s2),
                             ),
                           ),
                           hbox(
@@ -936,7 +725,7 @@ class CardTierEditPage extends StatelessWidget {
                           ),
                           HStrHolder(
                             initial: '赠精致洗车 2 次',
-                            builder: (context, s4) => hTap(
+                            builder: (context, s3) => hTap(
                               context,
                               hbox(
                                 minH: 58,
@@ -982,7 +771,7 @@ class CardTierEditPage extends StatelessWidget {
                                             ),
                                           ),
                                           hStr(
-                                            s4,
+                                            s3,
                                             hts(
                                               12,
                                               dk(
@@ -1010,7 +799,7 @@ class CardTierEditPage extends StatelessWidget {
                                   gap: 12,
                                 ),
                               ),
-                              onTap: () => hPick(context, 'gift', '生日礼', s4),
+                              onTap: () => hPick(context, 'gift', '生日礼', s3),
                             ),
                           ),
                           hbox(
@@ -1136,7 +925,7 @@ class CardTierEditPage extends StatelessWidget {
                           groups: [
                             ({0}, false),
                           ],
-                          builder: (context, g5) => hrow(
+                          builder: (context, g4) => hrow(
                             [
                               Expanded(
                                 flex: 1,
@@ -1144,7 +933,7 @@ class CardTierEditPage extends StatelessWidget {
                                   alignment: Alignment.topLeft,
                                   constrainedAxis: Axis.horizontal,
                                   child: HSel(
-                                    ctrl: g5[0],
+                                    ctrl: g4[0],
                                     index: 0,
                                     on: hbox(
                                       h: 32,
@@ -1231,7 +1020,7 @@ class CardTierEditPage extends StatelessWidget {
                                   alignment: Alignment.topLeft,
                                   constrainedAxis: Axis.horizontal,
                                   child: HSel(
-                                    ctrl: g5[0],
+                                    ctrl: g4[0],
                                     index: 1,
                                     on: hbox(
                                       h: 32,
@@ -1292,7 +1081,7 @@ class CardTierEditPage extends StatelessWidget {
                                   alignment: Alignment.topLeft,
                                   constrainedAxis: Axis.horizontal,
                                   child: HSel(
-                                    ctrl: g5[0],
+                                    ctrl: g4[0],
                                     index: 2,
                                     on: hbox(
                                       h: 32,

@@ -97,38 +97,45 @@ void main() {
     expect(look(t, '黑金').$2, C.gold);
   });
 
-  testWidgets('车身颜色：五色单选，色值固定，选中环跟随点击（深色模式同样）', (t) async {
+  testWidgets('车身颜色：11 个色块 + 自定义，色值固定，选中环跟随点击（深色模式同样）', (t) async {
     for (final dark in [false, true]) {
       C.dark = dark;
       await openAdd(t);
-      final dots = find.descendant(
-        of: find.ancestor(
-          of: find.byType(AnimatedContainer).first,
-          matching: find.byType(Scaffold),
-        ),
-        matching: find.byWidgetPredicate(
-          (w) =>
-              w is AnimatedContainer &&
-              w.constraints?.maxWidth == 26 &&
-              w.constraints?.maxHeight == 26,
-        ),
+      final sem = t.ensureSemantics();
+      Finder dot(String label) => find.descendant(
+        of: find.bySemanticsLabel(label),
+        matching: find.byType(AnimatedContainer),
       );
-      expect(dots, findsNWidgets(5));
-      BoxDecoration deco(int i) =>
-          t.widget<AnimatedContainer>(dots.at(i)).decoration as BoxDecoration;
-      await t.ensureVisible(dots.at(0));
-      expect(deco(0).boxShadow, isNotNull);
-      for (var i = 1; i < 5; i++) {
-        expect(deco(i).boxShadow, isNull);
+      BoxDecoration deco(String label) =>
+          t.widget<AnimatedContainer>(dot(label)).decoration as BoxDecoration;
+      await t.ensureVisible(dot('黑色'));
+      expect(deco('黑色').boxShadow, isNotNull); // 默认选中黑色
+      for (final n in [
+        '白色',
+        '银色',
+        '灰色',
+        '红色',
+        '蓝色',
+        '棕色',
+        '香槟金',
+        '绿色',
+        '橙色',
+        '紫色',
+      ]) {
+        expect(dot(n), findsOneWidget);
+        expect(deco(n).boxShadow, isNull);
       }
-      await t.tap(dots.at(4));
+      await t.tap(find.bySemanticsLabel('红色'));
       await t.pumpAndSettle();
-      expect(deco(4).boxShadow, isNotNull);
-      expect(deco(0).boxShadow, isNull);
+      expect(deco('红色').boxShadow, isNotNull);
+      expect(deco('黑色').boxShadow, isNull);
       // 车漆颜色是真实颜色，深色模式下白车仍是白色、黑车仍是黑色
-      expect(deco(1).color, const Color(0xFFFFFFFF));
-      expect(deco(0).color, const Color(0xFF18181B));
-      expect(deco(4).color, const Color(0xFFB91C1C));
+      expect(deco('白色').color, const Color(0xFFFFFFFF));
+      expect(deco('黑色').color, const Color(0xFF18181B));
+      expect(deco('红色').color, const Color(0xFFC0392B));
+      expect(find.bySemanticsLabel('自定义颜色'), findsOneWidget);
+      sem.dispose();
     }
+    C.dark = false;
   });
 }

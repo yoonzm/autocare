@@ -1,4 +1,4 @@
-// 新增会员页的选择类控件：称呼（分段）、车身颜色、会员等级、客户来源。
+// 新增会员页的选择类控件：称呼（分段）、会员等级、客户来源。
 //
 // 这些控件原先由设计稿自动转换生成，转换时把「选中 / 未选中」两套样式拼错了
 // （嵌套的按钮、白字叠在浅灰底上、品牌色被深色模式反转等），这里改为手写：
@@ -114,68 +114,6 @@ List<BoxShadow> _ring(Color gap) => [
   const BoxShadow(color: C.primary, spreadRadius: 4),
   BoxShadow(color: gap, spreadRadius: 2),
 ];
-
-/// 车身颜色：品牌色是真实车漆颜色，不随深色模式反转。
-class HColorDots extends StatefulWidget {
-  final int initial;
-  final ValueChanged<int>? onChanged;
-  const HColorDots({super.key, this.initial = 0, this.onChanged});
-
-  static const names = ['黑色', '白色', '灰色', '蓝色', '红色'];
-  static const colors = [
-    Color(0xFF18181B),
-    Color(0xFFFFFFFF),
-    Color(0xFF8E8E93),
-    Color(0xFF1E40AF),
-    Color(0xFFB91C1C),
-  ];
-
-  @override
-  State<HColorDots> createState() => _HColorDotsState();
-}
-
-class _HColorDotsState extends State<HColorDots> {
-  late int sel = widget.initial;
-
-  @override
-  Widget build(BuildContext context) => Row(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      for (var i = 0; i < HColorDots.colors.length; i++)
-        _selectable(
-          selected: sel == i,
-          label: HColorDots.names[i],
-          onTap: () {
-            setState(() => sel = i);
-            widget.onChanged?.call(i);
-          },
-          // 间距 8 = 左右各 4 的点击余量；上下补到 44 的可点高度
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 9),
-            child: AnimatedContainer(
-              duration: _kAnim,
-              width: 26,
-              height: 26,
-              decoration: BoxDecoration(
-                color: HColorDots.colors[i],
-                shape: BoxShape.circle,
-                // 黑 / 白两色与卡片底色接近，补一圈描边
-                border: i == 0 || i == 1
-                    ? Border.all(
-                        color: C.dark
-                            ? const Color(0xFF3F3F46)
-                            : const Color(0xFFD4D4D8),
-                        width: 1.5,
-                      )
-                    : null,
-                boxShadow: sel == i ? _ring(C.card) : null,
-              ),
-            ),
-          ),
-        ),
-    ],
-  );
-}
 
 /// 会员等级：普通 / 银卡 / 金卡 / 黑金，选中项带主色环并标注「当前」。
 class HTierPicker extends StatefulWidget {

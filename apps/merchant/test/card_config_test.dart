@@ -175,7 +175,7 @@ void main() {
         ),
       );
       await openEdit(t);
-      expect(CatalogDraft.colorIndex, -1);
+      expect(CatalogDraft.colorIndex, 3); // 普通会员配色是第 4 个系统默认配色
       expect(CatalogDraft.cardColor, 'white');
       await t.tap(find.text('保存').first);
       await t.pump(const Duration(milliseconds: 800));
@@ -188,27 +188,32 @@ void main() {
     testWidgets('白色卡面的卡种可以改成别的颜色', (t) async {
       CatalogDraft.begin('cards', _card(color: 'white'));
       await openEdit(t);
-      await t.tap(find.byType(HSel).at(2)); // 银灰
+      final sem = t.ensureSemantics();
+      await t.tap(find.bySemanticsLabel('银卡配色'));
       await t.pumpAndSettle();
       expect(CatalogDraft.cardColor, 'silver');
+      sem.dispose();
     });
 
     testWidgets('选卡面颜色 / 有效期 / 预约优先：写回草稿并刷新预览', (t) async {
       CatalogDraft.begin('cards', _card(validity: 'forever', priority: false));
       await openEdit(t);
+      final sem = t.ensureSemantics();
       expect(CatalogDraft.colorIndex, 0);
-      final chips = find.byType(HSel);
-      // 前 4 个是卡面颜色，后 3 个是有效期
-      await t.tap(chips.at(3));
+      await t.tap(find.bySemanticsLabel('金卡配色'));
       await t.pumpAndSettle();
-      expect(CatalogDraft.cardColors[CatalogDraft.colorIndex], 'blue');
-      await t.tap(chips.at(5));
+      expect(CatalogDraft.cardColors[CatalogDraft.colorIndex], 'champagne');
+      // 卡面颜色换成了通用色块组，页面里的 HSel 只剩有效期 3 个
+      final chips = find.byType(HSel);
+      expect(chips, findsNWidgets(3));
+      await t.tap(chips.at(1));
       await t.pumpAndSettle();
       expect(CatalogDraft.cardValidities[CatalogDraft.validityIndex], '1y');
       await t.ensureVisible(find.byType(HSwitch));
       await t.tap(find.byType(HSwitch));
       await t.pumpAndSettle();
       expect(CatalogDraft.priorityBooking, isTrue);
+      sem.dispose();
     });
 
     testWidgets('积分倍率 / 生日礼的选择器可以打开，不再提示未接通', (t) async {

@@ -39,7 +39,32 @@ class CardPalette {
   });
 }
 
+/// 自定义卡面颜色：文字颜色按底色深浅自动调整（深底用浅字，浅底用深字）。
+CardPalette _customPalette(Color bg) {
+  final dark = bg.computeLuminance() < 0.45;
+  if (dark) {
+    return CardPalette(
+      bg: bg,
+      title: const Color(0xFFFFFFFF),
+      sub: const Color(0xCCFFFFFF),
+      strong: const Color(0xFFFFFFFF),
+      label: const Color(0xB3FFFFFF),
+    );
+  }
+  return CardPalette(
+    bg: bg,
+    title: const Color(0xFF18181B),
+    sub: const Color(0xCC18181B),
+    strong: const Color(0xFF18181B),
+    label: const Color(0xA618181B),
+    // 接近白色的底色需要一圈柔和阴影才能和页面底色区分
+    shadow: bg.computeLuminance() > 0.85,
+  );
+}
+
 CardPalette cardPalette(BuildContext context, String color) {
+  final custom = CatalogDraft.customCardColor(color);
+  if (custom != null) return _customPalette(custom);
   switch (color) {
     case 'champagne':
       return const CardPalette(

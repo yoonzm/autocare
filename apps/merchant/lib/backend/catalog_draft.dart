@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../kit/async_kit.dart';
+import '../kit/color_picker.dart' show colorFromHex;
 import 'merchant_api.dart';
 
 /// Non-visual adapter for the existing generated catalog forms.
@@ -14,12 +15,15 @@ class CatalogDraft {
   static final preview = ValueNotifier<int>(0);
   static bool _busy = false;
 
-  /// 卡面颜色，顺序与设计稿的 4 个色块一致：黑金 / 香槟金 / 银灰 / 海蓝。
-  static const cardColors = ['black', 'champagne', 'silver', 'blue'];
+  /// 系统默认卡种配色，顺序与设计稿的 4 个色块一致：黑金卡 / 金卡 / 银卡 / 普通会员（白）。
+  static const cardColors = ['black', 'champagne', 'silver', 'white'];
 
-  /// 所有合法颜色。新门店的“普通会员”是白色卡面，编辑页的 4 个色块里没有它，
-  /// 编辑这张卡时不选色块、保存时保持白色不变。
-  static const allCardColors = [...cardColors, 'white'];
+  /// 所有合法的预设颜色（含旧版的“海蓝”）；另外还可以是自定义的 `#RRGGBB`。
+  static const allCardColors = [...cardColors, 'blue'];
+
+  /// 自定义卡面颜色（`#RRGGBB`）；不是自定义颜色时返回 null。
+  static Color? customCardColor(String v) =>
+      RegExp(r'^#[0-9a-fA-F]{6}$').hasMatch(v) ? colorFromHex(v) : null;
 
   /// 有效期，顺序与设计稿一致：永久有效 / 1 年 / 2 年。
   static const cardValidities = ['forever', '1y', '2y'];
@@ -85,13 +89,15 @@ class CatalogDraft {
   static num get cardDiscount =>
       num.tryParse(_field('discount')?.toString() ?? '') ?? 0.9;
 
-  /// 当前卡面颜色（含白色）。
+  /// 当前卡面颜色：预设名或自定义的 `#RRGGBB`。
   static String get cardColor {
     final c = _field('color')?.toString() ?? '';
-    return allCardColors.contains(c) ? c : 'black';
+    return allCardColors.contains(c) || customCardColor(c) != null
+        ? c
+        : 'black';
   }
 
-  /// 在 4 个色块里的序号；白色卡面不在其中，返回 -1。
+  /// 在 4 个系统默认配色里的序号；旧版“海蓝”和自定义颜色不在其中，返回 -1。
   static int get colorIndex => cardColors.indexOf(cardColor);
 
   static int get validityIndex {

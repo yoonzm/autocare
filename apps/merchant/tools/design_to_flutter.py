@@ -158,6 +158,8 @@ LIVE_NODES = {
     ('MemberFollowUp', 'aria:回访完成度'): 'hFollowProgress()',
     ('RechargeCard', 'sl-t'): 'hPackagePicker(limit: 3)',
     ('RechargePick', 'sh-t'): 'hPackagePicker()',
+    # 卡面颜色：4 个系统默认配色 + 自定义颜色（通用颜色选择组件）
+    ('CardTierEdit', 'c-color'): 'hCardColorChoices()',
 }
 
 # 同一行里样式不同的几段文字（如“姓名 · 手机号”）：(页面, 合并后的文字) -> 每一段的取值
@@ -251,7 +253,9 @@ GRID_SELECT_PAGES = {'Recharge', 'RechargeCard'}
 # 设计稿里的“状态页”不单独成页：开单页的“未选客户 / 散客”是 Order 的不同状态，“选择会员 · 无结果”是选择会员弹层的空状态；
 # PickerNote 只是使用约定说明。
 SKIP = {'ForgotNote', 'AppIcon', 'DarkTokens', 'PageTransitions', 'MemberPickerEmpty', 'OrderEmpty', 'OrderWalkIn',
-        'PickerNote'}
+        'PickerNote',
+        # 自定义颜色选择器是通用组件（lib/kit/color_picker.dart），不生成页面
+        'ColorPicker', 'ColorPickerCard'}
 # 链接目标改写：设计稿里单独画出来的状态页 -> 实际所在的页面
 LINK_REMAP = {'OrderWalkIn': 'Order', 'OrderEmpty': 'Order'}
 # 设计稿里的深色版本只是参考，深色效果由同一套页面自动适配

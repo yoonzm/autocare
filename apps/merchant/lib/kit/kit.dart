@@ -33,6 +33,7 @@ export '../widgets/sale_widgets.dart' show hPackagePicker;
 export '../widgets/picker_widgets.dart'
     show hMemberPickerList, hMemberPickerSearch;
 export '../widgets/hold_widgets.dart' show hHoldBoard, hHoldText;
+export '../widgets/color_fields.dart' show hCardColorChoices;
 export '../widgets/follow_widgets.dart'
     show
         hFollowProgress,
@@ -1438,39 +1439,23 @@ class _HSelHolderState extends State<HSelHolder> {
     super.dispose();
   }
 
-  /// 卡种编辑页：第一组是卡面颜色，第二组是有效期；选中项来自正在编辑的卡种，
-  /// 点选后写回草稿（卡面预览、保存都读草稿）。
+  /// 卡种编辑页：这里只剩有效期一组（卡面颜色换成了 [hCardColorChoices]，支持自定义颜色）；
+  /// 选中项来自正在编辑的卡种，点选后写回草稿（卡面预览、保存都读草稿）。
   void _bindCardGroup() {
     _slotKey = 'sel:CardTierEdit';
-    final slot = RegistrationDraft.claim(_slotKey, this);
+    RegistrationDraft.claim(_slotKey, this);
     final ctrl = ctrls.first;
-    if (slot == 0) {
-      // 白色卡面（普通会员）不在 4 个色块里：一个都不选，保存时保持白色
-      ctrl.selected.clear();
-      if (CatalogDraft.colorIndex >= 0) {
-        ctrl.selected.add(CatalogDraft.colorIndex);
-      }
-      ctrl.addListener(() {
-        if (ctrl.selected.isNotEmpty) {
-          CatalogDraft.set(
-            'cards',
-            'color',
-            CatalogDraft.cardColors[ctrl.selected.first],
-          );
-        }
-      });
-    } else if (slot == 1) {
-      ctrl.selected
-        ..clear()
-        ..add(CatalogDraft.validityIndex);
-      ctrl.addListener(
-        () => CatalogDraft.set(
-          'cards',
-          'validity',
-          CatalogDraft.cardValidities[ctrl.selected.first],
-        ),
+    ctrl.selected
+      ..clear()
+      ..add(CatalogDraft.validityIndex);
+    ctrl.addListener(() {
+      if (ctrl.selected.isEmpty) return;
+      CatalogDraft.set(
+        'cards',
+        'validity',
+        CatalogDraft.cardValidities[ctrl.selected.first],
       );
-    }
+    });
   }
 
   @override

@@ -5,6 +5,7 @@ import '../backend/member_flow.dart';
 import '../backend/merchant_api.dart';
 import '../kit/kit.dart';
 import '../widgets/choice_controls.dart';
+import '../widgets/color_fields.dart';
 import 'gen/svgs.dart';
 
 class MemberAddPage extends StatelessWidget {
@@ -611,40 +612,7 @@ class MemberAddPage extends StatelessWidget {
                                 ),
                                 margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
                               ),
-                              hbox(
-                                minH: 54,
-                                pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                                child: hrow(
-                                  [
-                                    Expanded(
-                                      flex: 1,
-                                      child: Text(
-                                        '车身颜色',
-                                        style: hts(
-                                          14,
-                                          dk(
-                                            context,
-                                            Color(0xFF52525B),
-                                            Color(0xFFA8A8B3),
-                                          ),
-                                          lh: 20,
-                                        ),
-                                      ),
-                                    ),
-                                    HColorDots(
-                                      initial: 0,
-                                      onChanged: (i) => CatalogDraft.set(
-                                        'members',
-                                        'color',
-                                        MemberFlow.colors[i],
-                                      ),
-                                    ),
-                                  ],
-                                  main: MainAxisAlignment.start,
-                                  cross: CrossAxisAlignment.center,
-                                  gap: 12,
-                                ),
-                              ),
+                              const HVehicleColor(),
                             ],
                             main: MainAxisAlignment.start,
                             cross: CrossAxisAlignment.stretch,

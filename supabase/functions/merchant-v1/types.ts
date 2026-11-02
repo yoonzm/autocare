@@ -29,7 +29,8 @@ export interface ServiceItemRow {
   created_at: string;
 }
 
-export type CardColor = 'black' | 'champagne' | 'silver' | 'blue' | 'white';
+/** 预设名（black / champagne / silver / blue / white）或自定义的 `#RRGGBB`。 */
+export type CardColor = string;
 export type CardValidity = 'forever' | '1y' | '2y';
 
 export interface CardTypeRow {

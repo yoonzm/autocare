@@ -1,7 +1,7 @@
 import { admin, fail, json, nameOf, uuid } from './shared.ts';
-import type { CardColor, CardRules, CardTypeRow, CardValidity, Input } from './types.ts';
+import { isCardColor, normalizeCardColor } from './color_rules.ts';
+import type { CardRules, CardTypeRow, CardValidity, Input } from './types.ts';
 
-const COLORS: CardColor[] = ['black', 'champagne', 'silver', 'blue', 'white'];
 const VALIDITIES: CardValidity[] = ['forever', '1y', '2y'];
 const MAX_MONEY = 99_999_999;
 
@@ -17,8 +17,8 @@ function money(value: unknown): number | null | undefined {
 function configOf(input: Input): Record<string, unknown> | string {
   const out: Record<string, unknown> = {};
   if (input.color !== undefined) {
-    if (!COLORS.includes(input.color as CardColor)) return '卡面颜色无效';
-    out.color = input.color;
+    if (!isCardColor(input.color)) return '卡面颜色无效';
+    out.color = normalizeCardColor(input.color);
   }
   for (const [key, label] of [['upgrade_recharge', '单次充值满'], ['upgrade_cumulative', '累计消费满']] as const) {
     if (input[key] === undefined) continue;
