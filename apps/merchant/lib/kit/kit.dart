@@ -10,11 +10,13 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../backend/registration_draft.dart';
 import '../backend/catalog_draft.dart';
+import '../backend/member_flow.dart';
 import '../backend/merchant_api.dart';
 import 'async_kit.dart';
 export '../widgets/card_face.dart' show hCardPreview;
 export 'async_kit.dart' show hBusy;
 export '../backend/package_calc.dart' show PackageCalc;
+export '../widgets/member_widgets.dart' show hMemberText;
 export '../widgets/package_widgets.dart'
     show hPackagePreview, hPackageItems, hPkgText;
 import '../backend/forgot_flow.dart';
@@ -122,7 +124,9 @@ Widget hTap(
   if (label == '显示密码' && onTap == null && to == null && !back) {
     return PasswordEye(child: child);
   }
-  final route0 = ModalRoute.of(context)?.settings.name;
+  // 底部弹层的路由名是 `sheet:页面名`，忙碌键按页面名
+  final route0 = ModalRoute.of(context)?.settings.name
+      ?.replaceFirst('sheet:', '');
   final busyKey = to == null || route0 == null ? null : '$route0>$to';
   final tap = GestureDetector(
     behavior: HitTestBehavior.opaque,
@@ -150,6 +154,60 @@ Widget hTap(
             () => CatalogDraft.save(context, 'cards'),
           ),
         );
+        return;
+      }
+      // TODO: 开卡成功页的“去充值”和微信绑定依赖支付 / 微信模块，目前只提示，不假装成功。
+      if (merchantApi.hasSession &&
+          route == 'MemberAddDone' &&
+          (to == 'Recharge' || to == 'BindInvite' || to == 'BindH5')) {
+        hToast(
+          context,
+          to == 'Recharge' ? '余额充值暂未接通（依赖支付模块）' : '微信绑定暂未接通（依赖微信模块）',
+        );
+        return;
+      }
+      // 删除会员：确认后由云函数软删除，并回到会员列表
+      if (merchantApi.hasSession &&
+          route == 'sheet:MemberDelete' &&
+          to == 'Members') {
+        unawaited(
+          runBusy('MemberDelete>Members', () async {
+            final nav = Navigator.of(context);
+            final messenger = ScaffoldMessenger.of(context);
+            try {
+              await MemberFlow.deleteCurrent();
+              nav.popUntil((r) => r.isFirst);
+              AppToast.showOn(messenger, '已删除', kind: ToastKind.success);
+            } catch (e) {
+              AppToast.showOn(
+                messenger,
+                AppError.from(e).message,
+                kind: ToastKind.error,
+              );
+            }
+          }),
+        );
+        return;
+      }
+      if (merchantApi.hasSession &&
+          to == 'MemberAddDone' &&
+          route == 'MemberAdd' &&
+          _hasSaveLabel(child)) {
+        unawaited(
+          runBusy('$route>MemberAddDone', () => MemberFlow.create(context)),
+        );
+        return;
+      }
+      if (merchantApi.hasSession &&
+          route == 'MemberEdit' &&
+          _hasSaveLabel(child)) {
+        unawaited(runBusy('$route>$to', () => MemberFlow.update(context)));
+        return;
+      }
+      if (merchantApi.hasSession &&
+          route == 'VehicleAdd' &&
+          _hasSaveLabel(child)) {
+        unawaited(runBusy('$route>$to', () => MemberFlow.saveVehicle(context)));
         return;
       }
       if (merchantApi.hasSession &&
@@ -1000,6 +1058,16 @@ class HInputState extends State<HInput> {
       ('CardTierEdit', '黑金卡') => ('cards', 'name'),
       ('CardTierEdit', '10,000') => ('cards', 'upgrade_recharge'),
       ('CardTierEdit', '30,000') => ('cards', 'upgrade_cumulative'),
+      ('MemberAdd', '139 1688 5530') ||
+      ('MemberAdd', '') when hint == '请输入手机号' => ('members', 'phone'),
+      ('MemberEdit', '13812346021') => ('members', 'phone'),
+      ('MemberAdd', '') when hint == '请输入客户姓名' => ('members', 'name'),
+      ('MemberEdit', '王建国') => ('members', 'name'),
+      ('MemberAdd', '') when hint == '如：车主偏好、车辆旧伤位置' => ('members', 'note'),
+      ('MemberEdit', '喜欢下午到店，爱车偏好镀晶养护。') => ('members', 'note'),
+      ('MemberEdit', '1985.06.12') => ('members', 'birthday'),
+      ('VehicleAdd', '[17 位 VIN]') => ('vehicles', 'vin'),
+      ('VehicleAdd', '18,600') => ('vehicles', 'mileage'),
       ('PackageEdit', '精致洗车年卡') => ('packages', 'name'),
       ('PackageEdit', '1,080') => ('packages', 'price'),
       ('PackageEdit', '') when hint == '如：仅限精致洗车项目，节假日通用' => (
@@ -1244,6 +1312,26 @@ class _HSelHolderState extends State<HSelHolder> {
         ModalRoute.of(context)?.settings.name == 'CardTierEdit' &&
         widget.groups.length == 1) {
       _bindCardGroup();
+      return;
+    }
+    // 编辑会员资料：唯一一组选项是称呼（先生 / 女士）
+    if (merchantApi.hasSession &&
+        ModalRoute.of(context)?.settings.name == 'MemberEdit' &&
+        widget.groups.length == 1) {
+      final ctrl = ctrls.first;
+      final i = MemberFlow.honorifics.indexOf(
+        CatalogDraft.text('members', 'honorific', ''),
+      );
+      ctrl.selected.clear();
+      if (i >= 0) ctrl.selected.add(i);
+      ctrl.addListener(() {
+        if (ctrl.selected.isEmpty) return;
+        CatalogDraft.set(
+          'members',
+          'honorific',
+          MemberFlow.honorifics[ctrl.selected.first],
+        );
+      });
       return;
     }
     // 套餐编辑页：唯一一组选项是有效期

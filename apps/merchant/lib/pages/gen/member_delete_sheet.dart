@@ -27,22 +27,20 @@ class MemberDeleteSheet extends StatelessWidget {
               radius: BorderRadius.circular(3),
             ),
           ),
-          Text(
+          hMemberText(
+            (m) => '删除会员 ${m.name}？',
             '删除会员 王建国？',
-            style: hts(
+            hts(
               20,
               dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
               w: FontWeight.w600,
               lh: 28,
             ),
           ),
-          Text(
+          hMemberText(
+            (m) => '将永久删除会员 ${m.name} 的档案、车辆与次卡。以下数据无法随会员一并删除：',
             '将永久删除会员 王建国 的档案、车辆与次卡。以下数据无法随会员一并删除：',
-            style: hts(
-              13,
-              dk(context, Color(0xFF52525B), Color(0xFFA8A8B3)),
-              lh: 20,
-            ),
+            hts(13, dk(context, Color(0xFF52525B), Color(0xFFA8A8B3)), lh: 20),
           ),
           hcol(
             [
@@ -54,9 +52,10 @@ class MemberDeleteSheet extends StatelessWidget {
                   lh: 19,
                 ),
               ),
-              Text(
+              hMemberText(
+                (m) => '· 储值余额将作废，请先线下退还或转为消费',
                 '· 储值余额 ¥3,680.00 将作废，请先线下退还或转为消费',
-                style: hts(
+                hts(
                   13,
                   dk(context, Color(0xFFA43433), Color(0xFFFF7B7E)),
                   lh: 19,
@@ -124,14 +123,24 @@ class MemberDeleteSheet extends StatelessWidget {
                       child: Align(
                         alignment: Alignment(0, 0),
                         widthFactor: 1,
-                        child: Text(
-                          '确认删除',
+                        child: hBusy(
+                          'MemberDelete>Members',
+                          Text(
+                            '确认删除',
+                            style: hts(
+                              15,
+                              dk(context, Color(0xFFA43433), Color(0xFFFF7B7E)),
+                              w: FontWeight.w500,
+                              lh: 22,
+                            ),
+                          ),
                           style: hts(
                             15,
                             dk(context, Color(0xFFA43433), Color(0xFFFF7B7E)),
                             w: FontWeight.w500,
                             lh: 22,
                           ),
+                          label: '提交中…',
                         ),
                       ),
                     ),

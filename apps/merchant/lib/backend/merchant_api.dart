@@ -42,7 +42,7 @@ class MerchantApi {
   };
 
   /// 只读、可重复的请求：失败时静默重试 1 次；写请求不自动重试。
-  static const _readActions = {'list', 'get_store', 'check_code'};
+  static const _readActions = {'list', 'get', 'get_store', 'check_code'};
 
   static final _rand = Random.secure();
 
@@ -255,6 +255,35 @@ class MerchantApi {
       'auto_upgrade': autoUpgrade,
       'balance_refundable': balanceRefundable,
     });
+  }
+
+  /// 会员列表：可按姓名 / 手机号 / 车牌搜索，可按卡种筛选。
+  /// [counts] 是各卡种的会员数（不受搜索影响），[total] 是会员总数。
+  Future<
+    ({List<Map<String, dynamic>> items, Map<String, int> counts, int total})
+  >
+  members({String? query, String? cardTypeId}) async {
+    final data = await invoke({
+      'action': 'list',
+      'kind': 'members',
+      if (query != null && query.trim().isNotEmpty) 'q': query.trim(),
+      'card_type_id': ?cardTypeId,
+    });
+    return (
+      items: List<Map<String, dynamic>>.from(data['items'] as List),
+      counts: {
+        for (final e in Map<String, dynamic>.from(
+          (data['counts'] as Map?) ?? const {},
+        ).entries)
+          e.key: (e.value as num).toInt(),
+      },
+      total: (data['total'] as num?)?.toInt() ?? 0,
+    );
+  }
+
+  Future<Map<String, dynamic>> member(String id) async {
+    final data = await invoke({'action': 'get', 'kind': 'members', 'id': id});
+    return Map<String, dynamic>.from(data['item'] as Map);
   }
 
   Future<Map<String, dynamic>> save(String kind, Map<String, dynamic> values) =>

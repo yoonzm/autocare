@@ -134,9 +134,11 @@ class MemberAddDonePage extends StatelessWidget {
                             lh: 28,
                           ),
                         ),
-                        Text(
+                        hMemberText(
+                          (m) =>
+                              '已为${m.honorificName}建立会员档案，当前为${m.levelMember}',
                           '已为李女士建立会员档案，当前为普通会员',
-                          style: hts(
+                          hts(
                             13,
                             dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
                             lh: 19,
@@ -282,9 +284,10 @@ class MemberAddDonePage extends StatelessWidget {
                                   ),
                                   radius: BorderRadius.circular(24),
                                   align: Alignment(0, 0),
-                                  child: Text(
+                                  child: hMemberText(
+                                    (m) => m.avatar,
                                     '李',
-                                    style: hts(
+                                    hts(
                                       19,
                                       Color(0xFF5C3D0A),
                                       w: FontWeight.w600,
@@ -299,9 +302,10 @@ class MemberAddDonePage extends StatelessWidget {
                                         [
                                           Flexible(
                                             flex: 48,
-                                            child: Text(
+                                            child: hMemberText(
+                                              (m) => m.honorificName,
                                               '李女士',
-                                              style: hts(
+                                              hts(
                                                 16,
                                                 dk(
                                                   context,
@@ -328,9 +332,10 @@ class MemberAddDonePage extends StatelessWidget {
                                                 8,
                                                 0,
                                               ),
-                                              child: Text(
+                                              child: hMemberText(
+                                                (m) => m.levelMember,
                                                 '普通会员',
-                                                style: hts(
+                                                hts(
                                                   11,
                                                   dk(
                                                     context,
@@ -350,9 +355,10 @@ class MemberAddDonePage extends StatelessWidget {
                                         cross: CrossAxisAlignment.center,
                                         gap: 8,
                                       ),
-                                      Text(
+                                      hMemberText(
+                                        (m) => m.maskedPhone,
                                         '139 **** 5530',
-                                        style: hts(
+                                        hts(
                                           12,
                                           dk(
                                             context,
@@ -400,9 +406,10 @@ class MemberAddDonePage extends StatelessWidget {
                                               ),
                                             ),
                                           ),
-                                          Text(
+                                          hMemberText(
+                                            (m) => m.benefits,
                                             '服务原价 · 积分 1 倍',
-                                            style: hts(
+                                            hts(
                                               15,
                                               dk(
                                                 context,
@@ -438,9 +445,10 @@ class MemberAddDonePage extends StatelessWidget {
                                               ),
                                             ),
                                           ),
-                                          Text(
+                                          hMemberText(
+                                            (m) => m.openedAt,
                                             '11月1日 12:02',
-                                            style: hts(
+                                            hts(
                                               15,
                                               dk(
                                                 context,
@@ -580,9 +588,10 @@ class MemberAddDonePage extends StatelessWidget {
                                             width: 1.5,
                                           ),
                                           pad: EdgeInsets.fromLTRB(7, 1, 7, 1),
-                                          child: Text(
+                                          child: hMemberText(
+                                            (m) => m.plate,
                                             '沪A·8K29M',
-                                            style: hts(
+                                            hts(
                                               12,
                                               Color(0xFFFFFFFF),
                                               w: FontWeight.w600,
@@ -594,9 +603,10 @@ class MemberAddDonePage extends StatelessWidget {
                                           ),
                                         ),
                                       ),
-                                      Text(
+                                      hMemberText(
+                                        (m) => m.vehicleModel,
                                         '宝马 5系 525Li',
-                                        style: hts(
+                                        hts(
                                           13,
                                           dk(
                                             context,
@@ -621,9 +631,10 @@ class MemberAddDonePage extends StatelessWidget {
                                   ),
                                   radius: BorderRadius.circular(9),
                                   pad: EdgeInsets.fromLTRB(8, 0, 8, 0),
-                                  child: Text(
+                                  child: hMemberText(
+                                    (m) => m.vehicleLabel,
                                     '已登记车辆',
-                                    style: hts(
+                                    hts(
                                       11,
                                       dk(
                                         context,

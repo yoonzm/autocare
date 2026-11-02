@@ -141,13 +141,13 @@ enum ToastKind { success, error, info, loading }
 class AppToast {
   AppToast._();
 
-  /// 成功 / 信息 2s，失败 3s（带操作 5s）；同一时刻最多一条，新的替换旧的。
+  /// 成功 / 信息 3s，失败 5s（带操作 8s）；同一时刻最多一条，新的替换旧的。
   static Duration durationOf(ToastKind kind, {bool hasAction = false}) {
-    if (hasAction) return const Duration(seconds: 5);
+    if (hasAction) return const Duration(seconds: 8);
     return switch (kind) {
-      ToastKind.error => const Duration(seconds: 3),
+      ToastKind.error => const Duration(seconds: 5),
       ToastKind.loading => const Duration(seconds: 10),
-      _ => const Duration(seconds: 2),
+      _ => const Duration(seconds: 3),
     };
   }
 
@@ -965,6 +965,10 @@ const asyncActionKeys = {
   'ServiceEdit>Services',
   'CardTierEdit>CardTiers',
   'PackageEdit>CardPackages',
+  'MemberAdd>MemberAddDone',
+  'MemberEdit>MemberDetail',
+  'VehicleAdd>MemberDetail',
+  'MemberDelete>Members',
 };
 
 /// 执行异步动作并标记 [key] 为忙碌（loading 至少停留 500ms，重复触发被忽略）。

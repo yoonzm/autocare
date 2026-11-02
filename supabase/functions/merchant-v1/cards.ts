@@ -94,6 +94,10 @@ export async function handleCards(input: Input, storeId: string): Promise<Respon
   }
   if (input.action === 'delete') {
     if (!uuid(input.id)) return fail('记录 ID 无效');
+    // 卡种下还有会员时不能停用：会员的卡种不能悬空
+    const { count } = await admin.from('members').select('id', { count: 'exact', head: true })
+      .eq('store_id', storeId).eq('card_type_id', input.id).is('deleted_at', null);
+    if ((count ?? 0) > 0) return fail('该卡种下还有会员，不能停用', 409);
     // Existing UI says "停用此卡种"; soft-delete to preserve future member history.
     const { data, error } = await admin.from('card_types').update({ active: false })
       .eq('id', input.id).eq('store_id', storeId).eq('active', true)

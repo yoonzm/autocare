@@ -19,6 +19,10 @@ class Member {
   final Set<String> tags;
   final bool bound;
   final String phone;
+
+  /// 登录后来自后端的会员：记录 ID 和整条记录（含卡种、车辆）。设计预览用的示例会员没有这两项。
+  final String? id;
+  final Map<String, dynamic>? data;
   const Member(
     this.name,
     this.level,
@@ -29,6 +33,8 @@ class Member {
     this.tags, {
     this.bound = true,
     this.phone = '',
+    this.id,
+    this.data,
   });
 }
 

@@ -171,7 +171,13 @@ class CatalogDraft {
       'price' ||
       'upgrade_recharge' ||
       'upgrade_cumulative' ||
-      'description' => '',
+      'description' ||
+      'phone' ||
+      'note' ||
+      'birthday' ||
+      'plate' ||
+      'vin' ||
+      'mileage' => '',
       _ => fallback,
     };
   }

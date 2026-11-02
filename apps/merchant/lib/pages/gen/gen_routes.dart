@@ -29,12 +29,14 @@ import 'expense_budget_page.dart';
 import 'expense_detail_page.dart';
 import 'expenses_page.dart';
 import 'feedback_page.dart';
+import 'forgot_done_page.dart';
+import 'forgot_reset_page.dart';
+import 'forgot_verify_page.dart';
 import 'hold_list_page.dart';
 import 'holiday_edit_page.dart';
 import 'invoices_page.dart';
 import 'main_expiring_page.dart';
 import 'main_trial_page.dart';
-import 'member_add_page.dart';
 import 'member_add_done_page.dart';
 import 'member_adjust_page.dart';
 import 'member_edit_page.dart';
@@ -72,7 +74,12 @@ import 'role_permission_page.dart';
 import 'security_page.dart';
 import 'service_edit_page.dart';
 import 'staff_page.dart';
+import 'staff_add_page.dart';
+import 'staff_commission_page.dart';
 import 'staff_detail_page.dart';
+import 'staff_detail_off_page.dart';
+import 'staff_edit_page.dart';
+import 'staff_invite_page.dart';
 import 'staff_records_page.dart';
 import 'stock_check_page.dart';
 import 'stock_in_page.dart';
@@ -106,27 +113,11 @@ import 'recharge_pick_sheet.dart';
 import 'renew_sheet.dart';
 import 'scan_plate_result_sheet.dart';
 import 'scan_result_sheet.dart';
-import 'store_switch_sheet.dart';
-import 'staff_add_page.dart';
-import 'staff_commission_page.dart';
-import 'staff_detail_off_page.dart';
-import 'staff_edit_page.dart';
-import 'staff_invite_page.dart';
 import 'staff_enable_sheet.dart';
 import 'staff_transfer_sheet.dart';
-import 'forgot_done_page.dart';
-import 'forgot_reset_page.dart';
-import 'forgot_verify_page.dart';
+import 'store_switch_sheet.dart';
 
 final Map<String, WidgetBuilder> genRoutes = {
-  'ForgotDone': (_) => const ForgotDonePage(),
-  'ForgotReset': (_) => const ForgotResetPage(),
-  'ForgotVerify': (_) => const ForgotVerifyPage(),
-  'StaffAdd': (_) => const StaffAddPage(),
-  'StaffCommission': (_) => const StaffCommissionPage(),
-  'StaffDetailOff': (_) => const StaffDetailOffPage(),
-  'StaffEdit': (_) => const StaffEditPage(),
-  'StaffInvite': (_) => const StaffInvitePage(),
   'AboutApp': (_) => const AboutAppPage(),
   'AppointmentDetail': (_) => const AppointmentDetailPage(),
   'AppointmentSchedule': (_) => const AppointmentSchedulePage(),
@@ -155,12 +146,14 @@ final Map<String, WidgetBuilder> genRoutes = {
   'ExpenseDetail': (_) => const ExpenseDetailPage(),
   'Expenses': (_) => const ExpensesPage(),
   'Feedback': (_) => const FeedbackPage(),
+  'ForgotDone': (_) => const ForgotDonePage(),
+  'ForgotReset': (_) => const ForgotResetPage(),
+  'ForgotVerify': (_) => const ForgotVerifyPage(),
   'HoldList': (_) => const HoldListPage(),
   'HolidayEdit': (_) => const HolidayEditPage(),
   'Invoices': (_) => const InvoicesPage(),
   'MainExpiring': (_) => const MainExpiringPage(),
   'MainTrial': (_) => const MainTrialPage(),
-  'MemberAdd': (_) => const MemberAddPage(),
   'MemberAddDone': (_) => const MemberAddDonePage(),
   'MemberAdjust': (_) => const MemberAdjustPage(),
   'MemberEdit': (_) => const MemberEditPage(),
@@ -198,7 +191,12 @@ final Map<String, WidgetBuilder> genRoutes = {
   'Security': (_) => const SecurityPage(),
   'ServiceEdit': (_) => const ServiceEditPage(),
   'Staff': (_) => const StaffPage(),
+  'StaffAdd': (_) => const StaffAddPage(),
+  'StaffCommission': (_) => const StaffCommissionPage(),
   'StaffDetail': (_) => const StaffDetailPage(),
+  'StaffDetailOff': (_) => const StaffDetailOffPage(),
+  'StaffEdit': (_) => const StaffEditPage(),
+  'StaffInvite': (_) => const StaffInvitePage(),
   'StaffRecords': (_) => const StaffRecordsPage(),
   'StockCheck': (_) => const StockCheckPage(),
   'StockIn': (_) => const StockInPage(),
@@ -214,8 +212,6 @@ final Map<String, WidgetBuilder> genRoutes = {
 
 /// 底部弹层（设计稿中叠在其他页面上的界面）。
 final Map<String, WidgetBuilder> genSheets = {
-  'StaffEnable': (_) => const StaffEnableSheet(),
-  'StaffTransfer': (_) => const StaffTransferSheet(),
   'AppointmentReschedule': (_) => const AppointmentRescheduleSheet(),
   'BackupFreq': (_) => const BackupFreqSheet(),
   'BindInvite': (_) => const BindInviteSheet(),
@@ -238,13 +234,13 @@ final Map<String, WidgetBuilder> genSheets = {
   'Renew': (_) => const RenewSheet(),
   'ScanPlateResult': (_) => const ScanPlateResultSheet(),
   'ScanResult': (_) => const ScanResultSheet(),
+  'StaffEnable': (_) => const StaffEnableSheet(),
+  'StaffTransfer': (_) => const StaffTransferSheet(),
   'StoreSwitch': (_) => const StoreSwitchSheet(),
 };
 
 /// 弹层所属的页面（设计稿里的遮罩点击目标）。
 const Map<String, String> sheetParents = {
-  'StaffEnable': 'StaffDetailOff',
-  'StaffTransfer': 'DisableStaff',
   'AppointmentReschedule': 'AppointmentDetail',
   'BackupFreq': 'DataBackup',
   'BindInvite': 'PayUnbound',
@@ -267,5 +263,7 @@ const Map<String, String> sheetParents = {
   'Renew': 'Subscription',
   'ScanPlateResult': 'ScanPlate',
   'ScanResult': 'ScanLicense',
+  'StaffEnable': 'StaffDetailOff',
+  'StaffTransfer': 'DisableStaff',
   'StoreSwitch': 'Main',
 };

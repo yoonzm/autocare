@@ -21,6 +21,7 @@ HANDWRITTEN = {
     'Main', 'Members', 'MemberDetail', 'Inventory', 'Stats', 'Login',
     'LoginPwd',  # 密码登录与验证码登录是同一个手写登录页的两个标签
     'Settings', 'Order', 'Appointments', 'AppointmentAdd', 'Services',
+    'MemberAdd',  # 称呼 / 车身颜色 / 客户来源是手写单选控件，保存按钮直接接后端
     'ThemeSheet',
     'FindScanPlate', 'FindScanCode', 'ScanLicense', 'ScanPlate',  # 相机扫描页：手写  # 外观选择：手写，直接作用于全局主题
 }
@@ -47,6 +48,27 @@ PKG_TEXT = {
     ('PackageEdit', '省 ¥280 · 约 7.9 折'): 'PackageCalc.savingText',
 }
 
+# 当前会员（办卡成功的 / 正在查看的）驱动的文字：(页面, 设计稿文字) -> MemberView 的取值（m 是 MemberView）
+MEMBER_TEXT = {
+    ('MemberAddDone', '李'): 'm.avatar',
+    ('MemberAddDone', '李女士'): 'm.honorificName',
+    ('MemberAddDone', '普通会员'): 'm.levelMember',
+    ('MemberAddDone', '139 **** 5530'): 'm.maskedPhone',
+    ('MemberAddDone', '服务原价 · 积分 1 倍'): 'm.benefits',
+    ('MemberAddDone', '11月1日 12:02'): 'm.openedAt',
+    ('MemberAddDone', '沪A·8K29M'): 'm.plate',
+    ('MemberAddDone', '宝马 5系 525Li'): 'm.vehicleModel',
+    ('MemberAddDone', '已登记车辆'): 'm.vehicleLabel',
+    ('MemberAddDone', '已为李女士建立会员档案，当前为普通会员'): "'已为${m.honorificName}建立会员档案，当前为${m.levelMember}'",
+    ('MemberMore', '王'): 'm.avatar',
+    ('MemberMore', '王建国'): 'm.name',
+    ('MemberMore', '黑金会员 · 138 **** 6021'): "'${m.levelMember} · ${m.maskedPhone}'",
+    ('MemberDelete', '删除会员 王建国？'): "'删除会员 ${m.name}？'",
+    ('MemberDelete', '将永久删除会员 王建国 的档案、车辆与次卡。以下数据无法随会员一并删除：'): "'将永久删除会员 ${m.name} 的档案、车辆与次卡。以下数据无法随会员一并删除：'",
+    # TODO: 储值余额依赖充值模块，目前没有余额数据，不显示具体金额。
+    ('MemberDelete', '· 储值余额 ¥3,680.00 将作废，请先线下退还或转为消费'): "'· 储值余额将作废，请先线下退还或转为消费'",
+}
+
 LIVE_FLOW = {
     ('ForgotReset', '手机号 138 **** 1234 已验证通过'): "'手机号 ${f.maskedPhone} 已验证通过'",
 }
@@ -58,10 +80,12 @@ ASYNC_ACTIONS = {
     ('ChangePassword', 'Security'), ('ChangePhone', 'Security'),
     ('DeleteAccount', 'Login'), ('Security', 'Login'),
     ('ServiceEdit', 'Services'), ('CardTierEdit', 'CardTiers'), ('PackageEdit', 'CardPackages'),
+    ('MemberEdit', 'MemberDetail'), ('VehicleAdd', 'MemberDetail'), ('MemberDelete', 'Members'),
+    ('MemberAdd', 'MemberAddDone'),
     ('ForgotVerify', 'ForgotReset'), ('ForgotReset', 'ForgotDone'),
 }
 # 这些页面里“取消 / 保存”都指向同一个目标页，只有文字是“保存”的才是提交按钮。
-SAVE_ONLY = {'ServiceEdit', 'CardTierEdit', 'PackageEdit'}
+SAVE_ONLY = {'ServiceEdit', 'CardTierEdit', 'PackageEdit', 'MemberEdit', 'VehicleAdd'}
 
 SKIP = {'ForgotNote', 'AppIcon', 'DarkTokens', 'PageTransitions'}
 # 设计稿里的深色版本只是参考，深色效果由同一套页面自动适配
@@ -603,6 +627,10 @@ class Gen:
             if flow:
                 return 'hFlowText((f) => f.live ? (%s) : %s, %s%s)' % (
                     flow, dstr(text), self.ts(segs[0][1]), ''.join(', ' + e for e in extra))
+            member = MEMBER_TEXT.get((self.page_name, text))
+            if member:
+                return 'hMemberText((m) => %s, %s, %s%s)' % (
+                    member, dstr(text), self.ts(segs[0][1]), ''.join(', ' + e for e in extra))
             pkg = PKG_TEXT.get((self.page_name, text))
             if pkg:
                 return 'hPkgText(() => %s, %s, %s%s)' % (

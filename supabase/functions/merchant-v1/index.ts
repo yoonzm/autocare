@@ -1,6 +1,7 @@
 import { handleAccount } from './account.ts';
 import { handleAuth } from './auth.ts';
 import { handleCards } from './cards.ts';
+import { handleMembers, handleVehicles } from './members.ts';
 import { handlePackages } from './packages.ts';
 import { handleServices } from './services.ts';
 import { cors, fail, isInput, storeFor } from './shared.ts';
@@ -26,6 +27,8 @@ Deno.serve(async (request: Request): Promise<Response> => {
   const storeId = await storeFor(request);
   if (storeId instanceof Response) return storeId;
   if (input.kind === 'packages') return handlePackages(input, storeId);
+  if (input.kind === 'members') return handleMembers(input, storeId);
+  if (input.kind === 'vehicles') return handleVehicles(input, storeId);
   return input.kind === 'services'
     ? handleServices(input, storeId)
     : handleCards(input, storeId);

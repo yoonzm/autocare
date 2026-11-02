@@ -52,26 +52,29 @@ class MemberMoreSheet extends StatelessWidget {
                   ),
                   radius: BorderRadius.circular(22),
                   align: Alignment(0, 0),
-                  child: Text(
+                  child: hMemberText(
+                    (m) => m.avatar,
                     '王',
-                    style: hts(17, Color(0xFF5C3D0A), w: FontWeight.w600),
+                    hts(17, Color(0xFF5C3D0A), w: FontWeight.w600),
                   ),
                 ),
                 Expanded(
                   flex: 1,
                   child: hcol(
                     [
-                      Text(
+                      hMemberText(
+                        (m) => m.name,
                         '王建国',
-                        style: hts(
+                        hts(
                           16,
                           dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
                           w: FontWeight.w600,
                         ),
                       ),
-                      Text(
+                      hMemberText(
+                        (m) => '${m.levelMember} · ${m.maskedPhone}',
                         '黑金会员 · 138 **** 6021',
-                        style: hts(
+                        hts(
                           12,
                           dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
                         ),

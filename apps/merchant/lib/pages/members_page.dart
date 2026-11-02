@@ -1,5 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
+import '../backend/catalog_draft.dart';
+import '../backend/member_flow.dart';
+import '../backend/merchant_api.dart';
+import '../kit/async_kit.dart';
+import '../kit/kit.dart' show hToast;
 import '../kit/pickers.dart';
 import '../mock/mock_data.dart';
 import '../kit/keyboard.dart';
@@ -21,14 +28,128 @@ class _MembersPageState extends State<MembersPage> {
   int filter = 0;
   String query = '';
 
+  // ───────── 登录后：会员来自后端 ─────────
+  bool get _live => merchantApi.hasSession;
+  List<Member>? _liveList;
+  List<Map<String, dynamic>> _tiers = const [];
+  Map<String, int> _counts = const {};
+  int _total = 0;
+  AppError? _error;
+  bool _loading = false;
+  bool _showSkeleton = false;
+  DateTime? _skeletonAt;
+  Timer? _debounce;
+
+  /// 当前选中的卡种（null = 全部）。
+  String? _tierId;
+
+  @override
+  void initState() {
+    super.initState();
+    if (_live) {
+      CatalogDraft.changed.addListener(_load);
+      _load();
+    }
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    if (_live) CatalogDraft.changed.removeListener(_load);
+    super.dispose();
+  }
+
+  Future<void> _load() async {
+    if (!_live || _loading) return;
+    setState(() {
+      _loading = true;
+      _showSkeleton = false;
+      _skeletonAt = null;
+    });
+    final timer = Timer(kIndicatorDelay, () {
+      if (mounted && _loading) {
+        setState(() {
+          _showSkeleton = true;
+          _skeletonAt = DateTime.now();
+        });
+      }
+    });
+    List<Member>? rows;
+    List<Map<String, dynamic>>? tiers;
+    Map<String, int>? counts;
+    int? total;
+    AppError? failed;
+    final asked = (query: query, tier: _tierId);
+    try {
+      final res = await Future.wait<Object>([
+        merchantApi.members(query: asked.query, cardTypeId: asked.tier),
+        merchantApi.list('cards'),
+      ]);
+      final page = res[0] as dynamic;
+      rows = [for (final r in page.items) memberFromRow(r)];
+      counts = page.counts as Map<String, int>;
+      total = page.total as int;
+      tiers = res[1] as List<Map<String, dynamic>>;
+    } catch (e) {
+      failed = AppError.from(e);
+    }
+    timer.cancel();
+    final at = _skeletonAt;
+    if (at != null) {
+      final left = kIndicatorMinShow - DateTime.now().difference(at);
+      if (left > Duration.zero) await Future<void>.delayed(left);
+    }
+    if (!mounted) return;
+    setState(() {
+      _loading = false;
+      _showSkeleton = false;
+      if (failed == null) {
+        _liveList = rows;
+        _counts = counts!;
+        _total = total!;
+        _tiers = tiers!;
+        _error = null;
+      } else if (_liveList == null) {
+        _error = failed;
+      }
+    });
+    if (failed != null && _liveList != null) {
+      AppToast.show(
+        context,
+        failed.message,
+        kind: ToastKind.error,
+        actionLabel: failed.retryable ? '重试' : null,
+        onAction: failed.retryable ? _load : null,
+      );
+    } else if (failed == null &&
+        (asked.query != query || asked.tier != _tierId)) {
+      // 请求期间又改了搜索 / 筛选：按最新条件再取一次
+      unawaited(_load());
+    }
+  }
+
+  void _onQuery(String v) {
+    setState(() => query = v.trim());
+    if (!_live) return;
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 300), _load);
+  }
+
+  void _pickTier(String? id) {
+    setState(() => _tierId = id);
+    _load();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final list = members.where((m) {
-      final k = _keys[filter];
-      if (k != null && !m.tags.contains(k)) return false;
-      if (query.isEmpty) return true;
-      return memberMatches(m, query);
-    }).toList();
+    final list = _live
+        ? (_liveList ?? const <Member>[])
+        : members.where((m) {
+            final k = _keys[filter];
+            if (k != null && !m.tags.contains(k)) return false;
+            if (query.isEmpty) return true;
+            return memberMatches(m, query);
+          }).toList();
 
     return Scaffold(
       body: ListView(
@@ -54,7 +175,15 @@ class _MembersPageState extends State<MembersPage> {
                   button: true,
                   label: '筛选会员',
                   child: GestureDetector(
-                    onTap: () => openRoute(context, 'MemberFilter'),
+                    onTap: () {
+                      if (_live) {
+                        // TODO: 储值余额 / 最近到店 / 次卡状态 / 车辆项目的筛选依赖储值、订单、次卡数据，
+                        // 预期接口：merchant-v1 `members` list 的 filters 参数。卡种筛选用下面的页签。
+                        hToast(context, '高级筛选暂未接通，可用下方卡种页签筛选');
+                        return;
+                      }
+                      openRoute(context, 'MemberFilter');
+                    },
                     child: Container(
                       width: 40,
                       height: 40,
@@ -71,7 +200,10 @@ class _MembersPageState extends State<MembersPage> {
                 ),
                 const SizedBox(width: 12),
                 GestureDetector(
-                  onTap: () => openRoute(context, 'MemberAdd'),
+                  onTap: () {
+                    if (_live) MemberFlow.beginAdd();
+                    openRoute(context, 'MemberAdd');
+                  },
                   child: Container(
                     height: 40,
                     padding: const EdgeInsets.fromLTRB(12, 0, 16, 0),
@@ -117,7 +249,7 @@ class _MembersPageState extends State<MembersPage> {
                   Expanded(
                     child: TextField(
                       onTapOutside: onTapOutsideDismiss,
-                      onChanged: (v) => setState(() => query = v.trim()),
+                      onChanged: _onQuery,
                       style: ts(14),
                       decoration: InputDecoration(
                         border: InputBorder.none,
@@ -160,14 +292,33 @@ class _MembersPageState extends State<MembersPage> {
             child: ListView(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              children: [
-                for (var i = 0; i < 4; i++) ...[
-                  if (i > 0) const SizedBox(width: 8),
-                  _chip(i),
-                ],
-                const SizedBox(width: 8),
-                _followChip(),
-              ],
+              children: _live
+                  ? [
+                      _liveChip(
+                        '全部 $_total',
+                        _tierId == null,
+                        () => _pickTier(null),
+                      ),
+                      for (final t in _tiers) ...[
+                        const SizedBox(width: 8),
+                        _liveChip(
+                          '${t['name']} ${_counts['${t['id']}'] ?? 0}',
+                          _tierId == '${t['id']}',
+                          () => _pickTier('${t['id']}'),
+                        ),
+                      ],
+                      // TODO: “次卡将到期”“待回访”依赖次卡与回访模块，目前不是真实数据。
+                      const SizedBox(width: 8),
+                      _followChip(),
+                    ]
+                  : [
+                      for (var i = 0; i < 4; i++) ...[
+                        if (i > 0) const SizedBox(width: 8),
+                        _chip(i),
+                      ],
+                      const SizedBox(width: 8),
+                      _followChip(),
+                    ],
             ),
           ),
           const SizedBox(height: 16),
@@ -176,7 +327,41 @@ class _MembersPageState extends State<MembersPage> {
             child: AppCard(
               radius: 24,
               padding: const EdgeInsets.symmetric(vertical: 4),
-              child: list.isEmpty
+              child: _live && _liveList == null
+                  ? (_error != null
+                        ? SizedBox(
+                            height: 300,
+                            child: ErrorView(
+                              error: _error!,
+                              retrying: _loading,
+                              onRetry: _load,
+                            ),
+                          )
+                        : (_showSkeleton
+                              ? const SkeletonList(count: 5)
+                              : const SizedBox(height: 120)))
+                  : _live && list.isEmpty
+                  ? SizedBox(
+                      height: 280,
+                      child: (query.isEmpty && _tierId == null)
+                          ? EmptyView.firstTime(
+                              title: '还没有会员',
+                              message: '办理第一张会员卡，建立会员档案',
+                              actionLabel: '新增会员',
+                              onAction: () {
+                                MemberFlow.beginAdd();
+                                openRoute(context, 'MemberAdd');
+                              },
+                            )
+                          : EmptyView.filtered(
+                              onAction: () {
+                                setState(() => query = '');
+                                _tierId = null;
+                                _load();
+                              },
+                            ),
+                    )
+                  : list.isEmpty
                   ? Padding(
                       padding: const EdgeInsets.all(32),
                       child: Center(
@@ -197,6 +382,32 @@ class _MembersPageState extends State<MembersPage> {
       ),
     );
   }
+
+  Widget _liveChip(String label, bool on, VoidCallback onTap) =>
+      GestureDetector(
+        onTap: onTap,
+        child: Container(
+          height: 34,
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          decoration: BoxDecoration(
+            color: on ? C.btn : (C.dark ? C.chip : C.card),
+            borderRadius: BorderRadius.circular(17),
+            border: on || C.dark ? null : Border.all(color: C.stroke),
+          ),
+          child: Center(
+            widthFactor: 1,
+            child: Text(
+              label,
+              style: ts(
+                13,
+                w: FontWeight.w500,
+                color: on ? C.btnFg : C.sub,
+                h: 18,
+              ),
+            ),
+          ),
+        ),
+      );
 
   Widget _chip(int i) {
     final on = filter == i;
@@ -347,7 +558,7 @@ class _MembersPageState extends State<MembersPage> {
                           style: ts(12, color: const Color(0xFFA1A1AA), h: 16),
                         ),
                         Text(
-                          '1,286',
+                          _live ? '$_total' : '1,286',
                           style: ts(
                             34,
                             w: FontWeight.w600,
@@ -357,34 +568,37 @@ class _MembersPageState extends State<MembersPage> {
                             spacing: -1,
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        Container(
-                          height: 20,
-                          padding: const EdgeInsets.fromLTRB(6, 0, 8, 0),
-                          decoration: BoxDecoration(
-                            color: const Color(0x2917C964),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              AppIcon(
-                                'trendUp',
-                                size: 11,
-                                color: const Color(0xFF5FD48C),
-                              ),
-                              const SizedBox(width: 3),
-                              Text(
-                                '本月新增 42',
-                                style: ts(
-                                  11,
-                                  w: FontWeight.w600,
+                        // TODO: “本月新增”需要按开卡时间统计，后端暂未提供，登录后不显示。
+                        if (!_live) ...[
+                          const SizedBox(height: 4),
+                          Container(
+                            height: 20,
+                            padding: const EdgeInsets.fromLTRB(6, 0, 8, 0),
+                            decoration: BoxDecoration(
+                              color: const Color(0x2917C964),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                AppIcon(
+                                  'trendUp',
+                                  size: 11,
                                   color: const Color(0xFF5FD48C),
                                 ),
-                              ),
-                            ],
+                                const SizedBox(width: 3),
+                                Text(
+                                  '本月新增 42',
+                                  style: ts(
+                                    11,
+                                    w: FontWeight.w600,
+                                    color: const Color(0xFF5FD48C),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
+                        ],
                       ],
                     ),
                   ),
@@ -404,7 +618,7 @@ class _MembersPageState extends State<MembersPage> {
                     C.gold,
                     '储值余额',
                     Text(
-                      '¥48.6万',
+                      _live ? '—' : '¥48.6万',
                       style: ts(
                         17,
                         w: FontWeight.w600,
@@ -425,7 +639,7 @@ class _MembersPageState extends State<MembersPage> {
                       textBaseline: TextBaseline.alphabetic,
                       children: [
                         Text(
-                          '63%',
+                          _live ? '—' : '63%',
                           style: ts(
                             17,
                             w: FontWeight.w600,
@@ -435,15 +649,16 @@ class _MembersPageState extends State<MembersPage> {
                           ),
                         ),
                         const SizedBox(width: 5),
-                        Text(
-                          '↑4%',
-                          style: ts(
-                            11,
-                            w: FontWeight.w600,
-                            color: const Color(0xFF5FD48C),
-                            h: 14,
+                        if (!_live)
+                          Text(
+                            '↑4%',
+                            style: ts(
+                              11,
+                              w: FontWeight.w600,
+                              color: const Color(0xFF5FD48C),
+                              h: 14,
+                            ),
                           ),
-                        ),
                       ],
                     ),
                   ),

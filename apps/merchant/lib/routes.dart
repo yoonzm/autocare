@@ -6,6 +6,7 @@ import 'backend/merchant_api.dart';
 import 'kit/async_kit.dart';
 import 'kit/kit.dart' show hToast;
 import 'backend/catalog_draft.dart';
+import 'backend/member_flow.dart';
 import 'backend/forgot_flow.dart';
 import 'backend/registration_draft.dart';
 import 'backend/store_profile.dart';
@@ -18,6 +19,7 @@ import 'pages/gen/gen_routes.dart';
 import 'pages/login_page.dart';
 import 'pages/member_detail_page.dart';
 import 'pages/card_packages_live_page.dart';
+import 'pages/member_add_page.dart';
 import 'pages/order_page.dart';
 import 'pages/package_svc_pick_live.dart';
 import 'pages/services_page.dart';
@@ -59,7 +61,14 @@ Widget? pageFor(String name) {
     case 'AppointmentAdd':
       return const AppointmentAddPage();
     case 'MemberDetail':
-      return MemberDetailPage(member: members.first);
+      final live = MemberFlow.current;
+      return MemberDetailPage(
+        member: merchantApi.hasSession && live != null
+            ? memberFromRow(live)
+            : members.first,
+      );
+    case 'MemberAdd':
+      return const MemberAddPage();
     case 'Services':
       return const ServicesPage();
     case 'Settings':
@@ -279,6 +288,14 @@ void openRoute(BuildContext context, String name) {
       name == 'PackageEdit' &&
       CatalogDraft.current?.kind != 'packages') {
     CatalogDraft.begin('packages');
+  }
+  // 新增会员从任何入口进入都从空白草稿开始（上次没保存的内容不带过来）
+  if (merchantApi.hasSession && name == 'MemberAdd') MemberFlow.beginAdd();
+  if (merchantApi.hasSession &&
+      name == 'MemberEdit' &&
+      MemberFlow.current != null &&
+      CatalogDraft.current?.id != MemberFlow.current!['id']) {
+    MemberFlow.beginEdit(MemberFlow.current!);
   }
   _openRouteCore(context, name);
 }

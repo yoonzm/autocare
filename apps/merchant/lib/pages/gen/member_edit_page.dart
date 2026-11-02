@@ -88,13 +88,22 @@ class MemberEditPage extends StatelessWidget {
                         child: Align(
                           alignment: Alignment(1, 0),
                           widthFactor: 1,
-                          child: Text(
-                            '保存',
+                          child: hBusy(
+                            'MemberEdit>MemberDetail',
+                            Text(
+                              '保存',
+                              style: hts(
+                                15,
+                                Color(0xFF0485F7),
+                                w: FontWeight.w600,
+                              ),
+                            ),
                             style: hts(
                               15,
                               Color(0xFF0485F7),
                               w: FontWeight.w600,
                             ),
+                            round: true,
                           ),
                         ),
                       ),

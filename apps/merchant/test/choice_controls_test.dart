@@ -1,4 +1,4 @@
-import 'package:autocare_merchant/pages/gen/gen_routes.dart';
+import 'package:autocare_merchant/routes.dart';
 import 'package:autocare_merchant/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -16,9 +16,7 @@ void main() {
     };
     addTearDown(() => FlutterError.onError = old);
     await t.pumpWidget(const SizedBox()); // 丢弃上一次的 State
-    await t.pumpWidget(
-      MaterialApp(home: Builder(builder: genRoutes['MemberAdd']!)),
-    );
+    await t.pumpWidget(MaterialApp(home: pageFor('MemberAdd')!));
     await t.pumpAndSettle();
   }
 

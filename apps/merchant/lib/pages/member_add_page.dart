@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../../kit/kit.dart';
-import '../../widgets/choice_controls.dart';
-import 'svgs.dart';
+import '../backend/catalog_draft.dart';
+import '../backend/member_flow.dart';
+import '../backend/merchant_api.dart';
+import '../kit/kit.dart';
+import '../widgets/choice_controls.dart';
+import 'gen/svgs.dart';
 
 class MemberAddPage extends StatelessWidget {
   const MemberAddPage({super.key});
@@ -91,14 +94,23 @@ class MemberAddPage extends StatelessWidget {
                         child: Align(
                           alignment: Alignment(-1, 0),
                           widthFactor: 1,
-                          child: Text(
-                            '保存',
+                          child: hBusy(
+                            'MemberAdd>MemberAddDone',
+                            Text(
+                              '保存',
+                              style: hts(
+                                14,
+                                Color(0xFFFFFFFF),
+                                w: FontWeight.w600,
+                                lh: 20,
+                              ),
+                            ),
                             style: hts(
                               14,
                               Color(0xFFFFFFFF),
                               w: FontWeight.w600,
-                              lh: 20,
                             ),
+                            round: true,
                           ),
                         ),
                       ),
@@ -279,7 +291,6 @@ class MemberAddPage extends StatelessWidget {
                                       lh: 22,
                                     ),
                                     hint: '请输入手机号',
-                                    value: '139 1688 5530',
                                     keyboard: TextInputType.phone,
                                     align: TextAlign.right,
                                   ),
@@ -396,9 +407,14 @@ class MemberAddPage extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                                const HSegmented(
-                                  labels: ['先生', '女士'],
+                                HSegmented(
+                                  labels: MemberFlow.honorifics,
                                   initial: 0,
+                                  onChanged: (i) => CatalogDraft.set(
+                                    'members',
+                                    'honorific',
+                                    MemberFlow.honorifics[i],
+                                  ),
                                 ),
                               ],
                               main: MainAxisAlignment.start,
@@ -615,7 +631,14 @@ class MemberAddPage extends StatelessWidget {
                                         ),
                                       ),
                                     ),
-                                    const HColorDots(initial: 0),
+                                    HColorDots(
+                                      initial: 0,
+                                      onChanged: (i) => CatalogDraft.set(
+                                        'members',
+                                        'color',
+                                        MemberFlow.colors[i],
+                                      ),
+                                    ),
                                   ],
                                   main: MainAxisAlignment.start,
                                   cross: CrossAxisAlignment.center,
@@ -786,9 +809,15 @@ class MemberAddPage extends StatelessWidget {
                           lh: 22,
                         ),
                       ),
-                      const HChipGroup(
-                        labels: ['到店自然客', '老客推荐', '团购平台', '短视频'],
-                        initial: 1,
+                      HChipGroup(
+                        labels: MemberFlow.sources,
+                        // 登录后办卡：来源要自己选，不沿用设计稿示例里选中的“老客推荐”
+                        initial: merchantApi.hasSession ? -1 : 1,
+                        onChanged: (i) => CatalogDraft.set(
+                          'members',
+                          'source',
+                          MemberFlow.sources[i],
+                        ),
                       ),
                       HStrHolder(
                         initial: '王建国 · 黑金',

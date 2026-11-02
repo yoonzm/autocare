@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../backend/catalog_draft.dart';
+import '../backend/member_flow.dart';
+import '../backend/merchant_api.dart';
+import '../kit/async_kit.dart';
+import '../kit/kit.dart' show hToast;
 import '../mock/mock_data.dart';
 import '../theme.dart';
 import '../routes.dart';
@@ -7,9 +12,55 @@ import '../widgets/app_icon.dart';
 import '../widgets/common.dart';
 import 'order_page.dart';
 
-class MemberDetailPage extends StatelessWidget {
+class MemberDetailPage extends StatefulWidget {
   final Member member;
   const MemberDetailPage({super.key, required this.member});
+  @override
+  State<MemberDetailPage> createState() => _MemberDetailPageState();
+}
+
+class _MemberDetailPageState extends State<MemberDetailPage> {
+  // 登录后（会员来自后端）：进入页面和资料 / 车辆变化后重新读取，保证是最新的
+  late Member member = widget.member;
+  bool get _live => member.id != null;
+
+  @override
+  void initState() {
+    super.initState();
+    if (_live) {
+      MemberFlow.current = member.data;
+      CatalogDraft.changed.addListener(_refresh);
+      _refresh();
+    }
+  }
+
+  @override
+  void dispose() {
+    if (_live) CatalogDraft.changed.removeListener(_refresh);
+    super.dispose();
+  }
+
+  Future<void> _refresh() async {
+    try {
+      final row = await merchantApi.member(member.id!);
+      if (!mounted) return;
+      MemberFlow.current = row;
+      setState(() {
+        member = memberFromRow(row);
+      });
+    } catch (e) {
+      if (!mounted) return;
+      final err = AppError.from(e);
+      // 会员已被删除：回到列表；其他失败保留已有内容并提示
+      if (err.type == AppErrorType.notFound) {
+        Navigator.of(context).maybePop();
+        return;
+      }
+      AppToast.show(context, err.message, kind: ToastKind.error);
+    }
+  }
+
+  void _todo(String what) => hToast(context, '$what暂未接通（依赖储值 / 订单 / 微信模块）');
 
   @override
   Widget build(BuildContext context) {
@@ -70,12 +121,11 @@ class MemberDetailPage extends StatelessWidget {
                 children: [
                   Expanded(
                     flex: 10,
-                    child: _bottomBtn(
-                      '余额充值',
-                      C.chip,
-                      C.ink,
-                      () => openRoute(context, 'Recharge'),
-                    ),
+                    child: _bottomBtn('余额充值', C.chip, C.ink, () {
+                      // TODO: 余额充值依赖支付模块，预期接口：merchant-v1 `recharge`。
+                      if (_live) return _todo('余额充值');
+                      openRoute(context, 'Recharge');
+                    }),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
@@ -84,7 +134,11 @@ class MemberDetailPage extends StatelessWidget {
                       '为他开单',
                       C.primary,
                       Colors.white,
-                      () => push(context, OrderPage(member: member)),
+                      () {
+                        // TODO: 开单依赖订单模块。
+                        if (_live) return _todo('开单');
+                        push(context, OrderPage(member: member));
+                      },
                       icon: 'receipt',
                       bold: true,
                     ),
@@ -203,7 +257,7 @@ class MemberDetailPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          '138 **** 6021 · 入会 2023.04',
+                          _live ? _heroSub() : '138 **** 6021 · 入会 2023.04',
                           style: ts(12, color: const Color(0xFFA1A1AA), h: 16),
                         ),
                       ],
@@ -216,7 +270,7 @@ class MemberDetailPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(11),
                     ),
                     child: Text(
-                      '${member.level}会员',
+                      _live ? member.level : '${member.level}会员',
                       style: ts(12, w: FontWeight.w600, color: C.onGold, h: 22),
                     ),
                   ),
@@ -229,7 +283,8 @@ class MemberDetailPage extends StatelessWidget {
               ),
               const SizedBox(height: 2),
               Text(
-                '3,680.00',
+                // TODO: 储值余额依赖充值 / 订单模块，登录后暂不显示。
+                _live ? '—' : '3,680.00',
                 style: ts(
                   32,
                   w: FontWeight.w600,
@@ -247,9 +302,10 @@ class MemberDetailPage extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    stat('累计消费', '¥28,450'),
-                    stat('到店次数', '46 次'),
-                    stat('积分', '12,450'),
+                    // TODO: 累计消费 / 到店次数 / 积分依赖订单模块，登录后暂不显示。
+                    stat('累计消费', _live ? '—' : '¥28,450'),
+                    stat('到店次数', _live ? '—' : '46 次'),
+                    stat('积分', _live ? '—' : '12,450'),
                   ],
                 ),
               ),
@@ -262,7 +318,11 @@ class MemberDetailPage extends StatelessWidget {
 
   Widget _wechat(BuildContext context) => GestureDetector(
     behavior: HitTestBehavior.opaque,
-    onTap: () => openRoute(context, member.bound ? 'NotifyLog' : 'BindInvite'),
+    onTap: () {
+      // TODO: 微信绑定 / 通知记录依赖微信模块，预期接口：merchant-v1 `wechat_bind`。
+      if (_live) return _todo('微信绑定');
+      openRoute(context, member.bound ? 'NotifyLog' : 'BindInvite');
+    },
     child: AppCard(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: SizedBox(
@@ -325,17 +385,63 @@ class MemberDetailPage extends StatelessWidget {
     ],
   );
 
+  /// 登录后：会员名下的真实车辆；否则是设计预览的示例车辆。
+  List<Map<String, dynamic>> get _liveVehicles =>
+      List<Map<String, dynamic>>.from(
+        (member.data?['vehicles'] as List?) ?? const [],
+      );
+
+  List<(Vehicle, bool)> get _vehicleList => _live
+      ? [
+          for (final v in _liveVehicles)
+            (
+              Vehicle(
+                '${v['brand_model']}'.isEmpty ? '未填写车型' : '${v['brand_model']}',
+                plateText('${v['plate']}'),
+                [
+                  if ('${v['color']}'.isNotEmpty) '${v['color']}',
+                  if (v['mileage'] != null) '${v['mileage']} km',
+                ].join(' · '),
+              ),
+              v['energy'] == 'ev',
+            ),
+        ]
+      : [
+          for (var i = 0; i < memberVehicles.length; i++)
+            (memberVehicles[i], i == 1),
+        ];
+
+  String _heroSub() {
+    final p = member.phone;
+    final masked = p.length == 11
+        ? '${p.substring(0, 3)} **** ${p.substring(7)}'
+        : p;
+    final at = DateTime.tryParse('${member.data?['created_at'] ?? ''}')
+        ?.toLocal();
+    final joined = at == null
+        ? ''
+        : ' · 入会 ${at.year}.${at.month.toString().padLeft(2, '0')}';
+    return '$masked$joined';
+  }
+
   Widget _vehicles(BuildContext context) => AppCard(
     padding: const EdgeInsets.all(16),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _sectionHead('名下车辆', '添加车辆', () => openRoute(context, 'VehicleAdd')),
-        for (var i = 0; i < memberVehicles.length; i++) ...[
+        _sectionHead('名下车辆', '添加车辆', () {
+          if (_live) MemberFlow.beginVehicle(member.id!);
+          openRoute(context, 'VehicleAdd');
+        }),
+        if (_live && _liveVehicles.isEmpty) ...[
           const SizedBox(height: 12),
-          if (i > 0) ...[const Divider1(), const SizedBox(height: 12)],
-          _vehicle(memberVehicles[i], green: i == 1),
-        ],
+          Text('还没有登记车辆', style: ts(13, color: C.muted, h: 18)),
+        ] else
+          for (var i = 0; i < _vehicleList.length; i++) ...[
+            const SizedBox(height: 12),
+            if (i > 0) ...[const Divider1(), const SizedBox(height: 12)],
+            _vehicle(_vehicleList[i].$1, green: _vehicleList[i].$2),
+          ],
       ],
     ),
   );
@@ -392,15 +498,23 @@ class MemberDetailPage extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _sectionHead('次卡套餐', '购买次卡', () => openRoute(context, 'RechargeCard')),
-        for (var i = 0; i < memberPacks.length; i++) ...[
-          const SizedBox(height: 14),
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () => openRoute(context, 'PackageDetail'),
-            child: _pack(memberPacks[i], i),
-          ),
-        ],
+        _sectionHead('次卡套餐', '购买次卡', () {
+          // TODO: 购买次卡依赖支付 / 订单模块，预期接口：merchant-v1 `package_sell`。
+          if (_live) return _todo('购买次卡');
+          openRoute(context, 'RechargeCard');
+        }),
+        if (_live) ...[
+          const SizedBox(height: 12),
+          Text('暂无次卡', style: ts(13, color: C.muted, h: 18)),
+        ] else
+          for (var i = 0; i < memberPacks.length; i++) ...[
+            const SizedBox(height: 14),
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => openRoute(context, 'PackageDetail'),
+              child: _pack(memberPacks[i], i),
+            ),
+          ],
       ],
     ),
   );
@@ -468,7 +582,11 @@ class MemberDetailPage extends StatelessWidget {
 
   Widget _recordsRow(BuildContext context) => GestureDetector(
     behavior: HitTestBehavior.opaque,
-    onTap: () => openRoute(context, 'MemberRecords'),
+    onTap: () {
+      // TODO: 消费与充值记录依赖订单 / 充值模块。
+      if (_live) return _todo('消费与充值记录');
+      openRoute(context, 'MemberRecords');
+    },
     child: AppCard(
       radius: 20,
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -491,7 +609,10 @@ class MemberDetailPage extends StatelessWidget {
             Expanded(
               child: Text('消费与充值记录', style: ts(15, w: FontWeight.w500, h: 22)),
             ),
-            Text('最近 今天', style: ts(13, color: C.muted, h: 18)),
+            Text(
+              _live ? '暂无记录' : '最近 今天',
+              style: ts(13, color: C.muted, h: 18),
+            ),
             const SizedBox(width: 4),
             AppIcon('chevronRight', size: 16, color: C.faint),
           ],

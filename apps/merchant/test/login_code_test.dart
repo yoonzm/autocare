@@ -102,7 +102,7 @@ void main() {
     expect(toast, findsOneWidget);
     final y = t.getCenter(toast).dy;
     expect(y, lessThan(120), reason: '屏幕高 844，提示条应在顶部');
-    await t.pump(const Duration(seconds: 4));
+    await t.pump(const Duration(seconds: 6)); // 失败提示停留 5 秒
     final left = [
       for (var i = 0; i < toast.evaluate().length; i++)
         t.getCenter(toast.at(i)).dy,

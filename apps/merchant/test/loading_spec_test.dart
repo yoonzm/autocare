@@ -96,16 +96,16 @@ void main() {
       expect(AppError.from(StateError('boom')).type, AppErrorType.server);
     });
 
-    test('Toast 时长：成功 / 信息 2s，失败 3s，带操作 5s', () {
+    test('Toast 时长：成功 / 信息 3s，失败 5s，带操作 8s', () {
       expect(
         AppToast.durationOf(ToastKind.success),
-        const Duration(seconds: 2),
+        const Duration(seconds: 3),
       );
-      expect(AppToast.durationOf(ToastKind.info), const Duration(seconds: 2));
-      expect(AppToast.durationOf(ToastKind.error), const Duration(seconds: 3));
+      expect(AppToast.durationOf(ToastKind.info), const Duration(seconds: 3));
+      expect(AppToast.durationOf(ToastKind.error), const Duration(seconds: 5));
       expect(
         AppToast.durationOf(ToastKind.error, hasAction: true),
-        const Duration(seconds: 5),
+        const Duration(seconds: 8),
       );
     });
   });

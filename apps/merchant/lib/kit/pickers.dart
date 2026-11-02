@@ -11,6 +11,7 @@ import '../backend/merchant_api.dart';
 import '../backend/registration_draft.dart';
 import '../backend/store_profile.dart';
 import '../backend/catalog_draft.dart';
+import '../backend/member_flow.dart' show memberFromRow;
 import '../mock/mock_data.dart';
 import 'keyboard.dart';
 
@@ -35,6 +36,34 @@ class StrCtrl extends ChangeNotifier {
     }
   }
 }
+
+/// 会员 / 车辆表单里的选择项（生日、品牌车型、推荐人）对应的草稿字段。
+({String kind, String field, String placeholder})? _memberField(
+  String? route,
+  String initial,
+) => switch ((route, initial)) {
+  ('MemberAdd', '选填，用于生日礼') => (
+    kind: 'members',
+    field: 'birthday',
+    placeholder: '选填，用于生日礼',
+  ),
+  ('MemberAdd', '宝马 5系 525Li') => (
+    kind: 'members',
+    field: 'brand_model',
+    placeholder: '请选择品牌车型',
+  ),
+  ('MemberAdd', '王建国 · 黑金') => (
+    kind: 'members',
+    field: 'referrer_label',
+    placeholder: '选填',
+  ),
+  ('VehicleAdd', '理想 L7 · 灰') => (
+    kind: 'vehicles',
+    field: 'brand_model',
+    placeholder: '请选择品牌车型',
+  ),
+  _ => null,
+};
 
 class HStrHolder extends StatefulWidget {
   final String initial;
@@ -73,6 +102,20 @@ class _HStrHolderState extends State<HStrHolder> {
           () => multiplier
               ? CatalogDraft.setMultiplier(ctrl.v)
               : CatalogDraft.setGift(ctrl.v),
+        );
+      } else if (merchantApi.hasSession &&
+          _memberField(route, widget.initial) != null) {
+        // 会员 / 车辆表单里的选择项：开始是占位文字，选择后写回草稿
+        final f = _memberField(route, widget.initial)!;
+        ctrl = StrCtrl(f.placeholder, placeholder: f.placeholder);
+        final saved = CatalogDraft.text(f.kind, f.field, '');
+        if (saved.isNotEmpty) ctrl.v = saved;
+        ctrl.addListener(
+          () => CatalogDraft.set(
+            f.kind,
+            f.field,
+            ctrl.v == f.placeholder ? '' : ctrl.v,
+          ),
         );
       } else if (merchantApi.hasSession &&
           route == 'PackageEdit' &&
@@ -298,6 +341,147 @@ Future<Member?> pickMember(
     ),
     builder: (ctx) => _MemberPicker(current: current, title: title),
   );
+}
+
+/// 登录后的会员选择：搜索 / 列表来自后端（姓名、手机号、车牌）。
+Future<Member?> pickLiveMember(BuildContext context, {String title = '选择客户'}) =>
+    showModalBottomSheet<Member>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: C.card,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (ctx) => _LiveMemberPicker(title: title),
+    );
+
+class _LiveMemberPicker extends StatefulWidget {
+  final String title;
+  const _LiveMemberPicker({required this.title});
+  @override
+  State<_LiveMemberPicker> createState() => _LiveMemberPickerState();
+}
+
+class _LiveMemberPickerState extends State<_LiveMemberPicker> {
+  Timer? _debounce;
+  String _q = '';
+  late Future<List<Member>> _future = _fetch();
+
+  Future<List<Member>> _fetch() async {
+    final page = await merchantApi.members(query: _q);
+    return [for (final r in page.items) memberFromRow(r)];
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final h = MediaQuery.of(context).size.height;
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: SafeArea(
+        child: SizedBox(
+          height: h * 0.72,
+          child: Column(
+            children: [
+              _handle(),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 6, 20, 10),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        widget.title,
+                        style: _ts(17, w: FontWeight.w600),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: Text(
+                        '取消',
+                        style: _ts(15, w: FontWeight.w500, c: _muted),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+                child: Container(
+                  height: 44,
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  decoration: BoxDecoration(
+                    color: C.inset,
+                    borderRadius: BorderRadius.circular(22),
+                  ),
+                  child: TextField(
+                    onChanged: (v) {
+                      _debounce?.cancel();
+                      _debounce = Timer(const Duration(milliseconds: 300), () {
+                        setState(() {
+                          _q = v.trim();
+                          _future = _fetch();
+                        });
+                      });
+                    },
+                    style: _ts(14),
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      isCollapsed: true,
+                      hintText: '姓名 / 手机号 / 车牌号',
+                      hintStyle: _ts(14, c: _muted),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: FutureBuilder<List<Member>>(
+                  future: _future,
+                  builder: (context, snap) {
+                    if (snap.hasError) {
+                      return ErrorView(
+                        error: AppError.from(snap.error!),
+                        onRetry: () => setState(() => _future = _fetch()),
+                      );
+                    }
+                    if (!snap.hasData) return const SkeletonList(count: 5);
+                    final list = snap.data!;
+                    if (list.isEmpty) {
+                      return const EmptyView(
+                        title: '没有找到会员',
+                        message: '换个姓名、手机号或车牌试试',
+                        inline: true,
+                      );
+                    }
+                    return ListView(
+                      children: [
+                        for (final m in list)
+                          ListTile(
+                            onTap: () => Navigator.pop(context, m),
+                            title: Text(m.name, style: _ts(15)),
+                            subtitle: Text(
+                              '${m.level} · ${m.plate}',
+                              style: _ts(12, c: _muted),
+                            ),
+                          ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _MemberPicker extends StatefulWidget {
@@ -883,8 +1067,17 @@ Future<void> hPick(
     case 'amount':
       r = await pickAmount(context, label, c.v);
     case 'referrer':
-      final m = await pickMember(context, title: '选择推荐人');
-      if (m != null) r = '${m.name} · ${m.level}';
+      if (merchantApi.hasSession) {
+        // 推荐人是本店已有的会员，选中后保存会员 ID（云函数校验属于本店）
+        final m = await pickLiveMember(context, title: '选择推荐人');
+        if (m != null) {
+          CatalogDraft.set('members', 'referrer_id', m.id);
+          r = '${m.name} · ${m.level}';
+        }
+      } else {
+        final m = await pickMember(context, title: '选择推荐人');
+        if (m != null) r = '${m.name} · ${m.level}';
+      }
     case 'category':
       r = await pickFromList(context, '选择分类', [
         '镀晶镀膜',
@@ -1019,6 +1212,9 @@ class PlateCtrl extends ChangeNotifier {
 
   int get length => green ? 8 : 7;
 
+  /// 已输入的车牌（不含空位）。
+  String get text => chars.take(length).join();
+
   void setGreen(bool g) {
     if (g == green) return;
     green = g;
@@ -1062,8 +1258,30 @@ class HPlate extends StatefulWidget {
 }
 
 class _HPlateState extends State<HPlate> {
-  late final PlateCtrl ctrl = PlateCtrl(widget.initial, widget.green);
+  late final PlateCtrl ctrl = _make();
   bool _sheetOpen = false;
+
+  /// 办卡 / 添加车辆页：从空白开始，输入的车牌和车牌类型写回草稿；其他页面沿用设计稿示例。
+  PlateCtrl _make() {
+    final route = ModalRoute.of(context)?.settings.name;
+    final kind = route == 'MemberAdd'
+        ? 'members'
+        : route == 'VehicleAdd'
+        ? 'vehicles'
+        : null;
+    if (!merchantApi.hasSession || kind == null) {
+      return PlateCtrl(widget.initial, widget.green);
+    }
+    final c = PlateCtrl('', widget.green);
+    void write() {
+      CatalogDraft.set(kind, 'plate', c.text);
+      CatalogDraft.set(kind, 'energy', c.green ? 'ev' : 'fuel');
+    }
+
+    write();
+    c.addListener(write);
+    return c;
+  }
 
   @override
   void initState() {

@@ -9,7 +9,6 @@ import 'package:autocare_merchant/pages/home_page.dart';
 import 'package:autocare_merchant/pages/login_page.dart';
 import 'package:autocare_merchant/pages/settings_page.dart';
 import 'package:autocare_merchant/routes.dart';
-import 'package:autocare_merchant/pages/gen/gen_routes.dart';
 
 void phone(WidgetTester t) {
   t.view.physicalSize = const Size(390 * 3, 900 * 3);
@@ -19,7 +18,7 @@ void phone(WidgetTester t) {
 
 Future<void> open(WidgetTester t, String name) async {
   phone(t);
-  await t.pumpWidget(MaterialApp(home: Builder(builder: genRoutes[name]!)));
+  await t.pumpWidget(MaterialApp(home: pageFor(name)!));
   await t.pump(const Duration(milliseconds: 100));
 }
 
