@@ -1115,6 +1115,17 @@ class HInputState extends State<HInput> {
   }
 }
 
+/// 注销账号的“申请注销”：验证码填好并勾选后才是可点样式，否则是设计稿的置灰样式，
+/// 置灰时点一下说明原因（不能只置灰）。
+Widget hDeleteGate({required Widget on, required Widget off}) =>
+    ValueListenableBuilder<int>(
+      valueListenable: RegistrationDraft.changes,
+      builder: (_, _, _) => RegistrationDraft.deleteError() == null ? on : off,
+    );
+
+/// 注销账号按钮置灰时点击给出的原因。
+String hDeleteReason() => RegistrationDraft.deleteError() ?? '暂时无法申请注销';
+
 /// 门店资料（登录后从后端读取）驱动的文字；未加载时由调用方给出设计稿的示例文字。
 Widget hLiveText(
   String Function(StoreProfile p) text,

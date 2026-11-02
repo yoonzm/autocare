@@ -1557,6 +1557,11 @@ void hSendCode(BuildContext context, CodeCtrl c) {
     );
     return;
   }
+  if (merchantApi.hasSession && route == 'DeleteAccount') {
+    // 注销账号：验证码发到当前账号绑定的手机号
+    unawaited(sendCodeTo(context, c, storeProfile.localPhone));
+    return;
+  }
   if (merchantApi.hasSession && route == 'ChangePhone') {
     // 第一个按钮发到当前手机号，第二个发到新手机号。
     final phone = c.slot == 0

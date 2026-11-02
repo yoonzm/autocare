@@ -34,6 +34,7 @@ LIVE_TEXT = {
     ('RegDone', '手机号 139 **** 8812'): "'手机号 ${p.maskedPhone}'",
     ('RegDone', '已按主营业务生成 12 项'): "'已按主营业务生成 ${p.seededServices} 项'",
     ('Security', '139 **** 8812'): 'p.maskedPhone',
+    ('DeleteAccount', '验证码将发送至当前账号绑定的手机号 138 **** 1234'): "'验证码将发送至当前账号绑定的手机号 ${p.maskedPhone}'",
     ('ChangePhone', '验证码将发送至 139 **** 8812'): "'验证码将发送至 ${p.maskedPhone}'",
     ('StoreInfo', '驰光汽车美容 · 徐汇店'): 'p.name',
     ('StoreInfo', '上海市徐汇区[详细地址]'): 'p.addressText',
@@ -855,6 +856,9 @@ class Gen:
         """n 是“点击后要等后端”的提交按钮时返回动作键（页面>目标页），否则 None。"""
         if isinstance(n, str):
             return None
+        # 注销账号：设计稿里“申请注销”是置灰的 <button>（没有链接），提交后回到登录页
+        if self.page_name == 'DeleteAccount' and n.tag == 'button' and self.tree_text(n).strip() == '申请注销':
+            return 'DeleteAccount>Login'
         m = re.match(r'([A-Za-z]+)\.dc\.html', n.attrs.get('href', ''))
         if not m or (self.page_name, m.group(1)) not in ASYNC_ACTIONS:
             return None
@@ -1045,6 +1049,12 @@ class Gen:
             return "hTap(context, %s, onTap: () => hPickImage(context, 'ProfileEdit_avatar'))" % code
         if n.attrs.get('_notap'):
             return code
+        # 注销账号的“申请注销”：验证码 + 勾选齐了才是可点样式（红色），否则是设计稿的置灰样式
+        if self.page_name == 'DeleteAccount' and n.tag == 'button' and txt0 == '申请注销':
+            on = (code.replace('Color(0xFFE4E4E7), Color(0xFF3A3A40)', 'Color(0xFFFFE1E2), Color.fromRGBO(255, 56, 60, 0.18)')
+                      .replace('Color(0xFFA1A1AA), Color(0xFF80808A)', 'Color(0xFFA43433), Color(0xFFFF7B7E)'))
+            return ('hDeleteGate(on: hTap(context, %s, to: \'Login\'), '
+                    'off: hTap(context, %s, onTap: () => hToast(context, hDeleteReason())))') % (on, code)
         if '_tap' in n.attrs:
             return 'hTap(context, %s, onTap: %s)' % (code, n.attrs['_tap'])
         href = n.attrs.get('href', '')

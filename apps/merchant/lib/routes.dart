@@ -484,14 +484,6 @@ Future<void> _deleteAccount(BuildContext context) async {
   var ok = false;
   await runBusy('DeleteAccount>Login', () async {
     try {
-      if (RegistrationDraft.get('DeleteAccount', '6 位数字').isEmpty) {
-        final code = await merchantApi.sendMockCode(storeProfile.localPhone);
-        AppToast.showOn(
-          messenger,
-          '验证码已发送至 ${storeProfile.maskedPhone}（开发环境：$code），填写后再次点击“申请注销”',
-        );
-        return;
-      }
       final problem = RegistrationDraft.deleteError();
       if (problem != null) {
         AppToast.showOn(messenger, problem, kind: ToastKind.error);

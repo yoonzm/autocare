@@ -235,21 +235,57 @@ void main() {
     expect(api.calls.last, 'phone:111222:13500001111:333444');
   });
 
-  testWidgets('注销账号：空验证码先发验证码，勾选并填写后才提交，随后退出登录', (t) async {
+  testWidgets('注销账号：有“获取验证码”按钮；填好验证码并勾选前按钮置灰，点了说明原因', (t) async {
     await open(t, 'DeleteAccount');
-    await tapText(t, '申请注销');
+    // 验证码发到当前账号绑定的手机号（页面上的脱敏号码来自门店资料）
+    expect(
+      find.textContaining('验证码将发送至当前账号绑定的手机号 139 **** 8812'),
+      findsOneWidget,
+    );
+    expect(find.textContaining('138 **** 1234'), findsNothing);
+    await t.ensureVisible(find.text('获取验证码'));
+    await t.tap(find.text('获取验证码'));
+    await t.pump();
+    expect(find.text('发送中…'), findsOneWidget);
+    await t.pump(const Duration(milliseconds: 700));
     expect(api.calls, ['send:13988888812']);
+    await t.pump(const Duration(seconds: 6));
 
+    // 没填验证码：按钮是置灰样式，点一下说明原因，不提交
+    await tapText(t, '申请注销');
+    expect(find.text('请输入 6 位短信验证码'), findsOneWidget);
+    expect(api.calls.where((c) => c.startsWith('delete')), isEmpty);
+    await t.pump(const Duration(seconds: 6));
+
+    // 填了验证码但没勾选
     await t.enterText(input('6 位数字'), '111222');
     await tapText(t, '申请注销');
-    await t.pump(const Duration(seconds: 4));
-    // 设计稿默认未勾选“我已了解注销后果”
     expect(find.textContaining('请先勾选'), findsOneWidget);
     expect(api.calls.where((c) => c.startsWith('delete')), isEmpty);
+    await t.pump(const Duration(seconds: 6));
 
+    // 置灰样式（设计稿）：#E4E4E7；填好并勾选后变成可点的红色样式（#FFE1E2）
+    Color? bg() {
+      final box = t
+          .widgetList<Container>(
+            find.ancestor(
+              of: find.text('申请注销'),
+              matching: find.byType(Container),
+            ),
+          )
+          .map((c) => c.decoration)
+          .whereType<BoxDecoration>()
+          .map((d) => d.color)
+          .whereType<Color>();
+      return box.isEmpty ? null : box.first;
+    }
+
+    expect(bg(), const Color(0xFFE4E4E7));
     await t.ensureVisible(find.byType(HCheck));
     await t.tap(find.byType(HCheck));
     await t.pump();
+    await t.pump();
+    expect(bg(), const Color(0xFFFFE1E2));
     await tapText(t, '申请注销');
     expect(api.calls.skip(1), ['delete:111222', 'signOut']);
   });

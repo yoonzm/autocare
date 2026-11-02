@@ -1,3 +1,7 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+
 /// Holds input from the existing generated screens (sign-up, change password,
 /// change phone, delete account) without changing their layout or modifying
 /// generated page source.
@@ -55,8 +59,25 @@ class RegistrationDraft {
     if (formRoutes.contains(route)) _fields[_key(route, hint, slot)] = '';
   }
 
+  /// 表单内容有变化（按钮的可点状态据此刷新，如注销账号的“申请注销”）。
+  static final changes = ValueNotifier<int>(0);
+  static bool _notifyQueued = false;
+
+  /// 输入框 / 勾选框可能在构建期间写入草稿，通知延后到微任务里，避免“构建中刷新”。
+  static void _notifyChanged() {
+    if (_notifyQueued) return;
+    _notifyQueued = true;
+    scheduleMicrotask(() {
+      _notifyQueued = false;
+      changes.value++;
+    });
+  }
+
   static void set(String route, String hint, String value, [int slot = 0]) {
-    if (formRoutes.contains(route)) _fields[_key(route, hint, slot)] = value;
+    if (formRoutes.contains(route)) {
+      _fields[_key(route, hint, slot)] = value;
+      _notifyChanged();
+    }
   }
 
   static String get(String route, String hint, [int slot = 0]) =>
@@ -67,7 +88,11 @@ class RegistrationDraft {
       _fields[_key(route, hint, slot)] ?? '';
 
   // ───────── 勾选框（同意协议 / 同意注销） ─────────
-  static void setChecked(String route, bool on) => _checks[route] = on;
+  static void setChecked(String route, bool on) {
+    _checks[route] = on;
+    _notifyChanged();
+  }
+
   static bool checked(String route) => _checks[route] ?? false;
 
   /// Whether the user ticked 《用户服务协议》/《隐私政策》 on RegPhone.
