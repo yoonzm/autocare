@@ -52,6 +52,7 @@ class MemberFakeApi extends MerchantApi {
     String? other,
     String plate = '',
     String remark = '',
+    String? holdId,
   }) async {
     if (checkoutError != null) throw checkoutError!;
     checkouts.add({
@@ -59,7 +60,9 @@ class MemberFakeApi extends MerchantApi {
       'lines': lines,
       'method': method,
       'plate': plate,
+      'hold': holdId,
     });
+    if (holdId != null) holdRows.removeWhere((h) => h['id'] == holdId);
     return {
       'items': '精致洗车 · 内饰深度清洁',
       'subtotal': 448,
@@ -73,6 +76,75 @@ class MemberFakeApi extends MerchantApi {
       'balance': 3319,
       'points_gained': 541,
     };
+  }
+
+  // 挂单
+  final holdRows = <Map<String, dynamic>>[];
+  final heldSaves = <Map<String, dynamic>>[];
+  final heldCancelled = <String>[];
+  Object? holdsError;
+  Object? holdSaveError;
+  @override
+  Future<List<Map<String, dynamic>>> holds() async {
+    if (holdsError != null) throw holdsError!;
+    return [...holdRows];
+  }
+
+  @override
+  Future<Map<String, dynamic>> saveHold({
+    String? holdId,
+    required String memberId,
+    required List<Map<String, dynamic>> lines,
+    String status = '待施工',
+    String note = '',
+    String remind = '不提醒',
+    String plate = '',
+  }) async {
+    if (holdSaveError != null) throw holdSaveError!;
+    heldSaves.add({
+      'hold': holdId,
+      'member': memberId,
+      'lines': lines,
+      'status': status,
+      'note': note,
+      'remind': remind,
+      'plate': plate,
+    });
+    final row = {
+      'id': holdId ?? 'h${holdRows.length + 1}',
+      'member_id': memberId,
+      'status': status,
+      'note': note,
+      'remind': remind,
+      'vehicle_plate': plate,
+      'estimate': 342,
+      'created_at': DateTime.now().toUtc().toIso8601String(),
+      'updated_at': DateTime.now().toUtc().toIso8601String(),
+      'member': {
+        'id': memberId,
+        'name': '王建国',
+        'card': {'name': '金卡'},
+      },
+      'items': [
+        for (var i = 0; i < lines.length; i++)
+          {
+            'position': i,
+            'service_id': lines[i]['service_id'],
+            'name': '项目${i + 1}',
+            'qty': 1,
+          },
+      ],
+    };
+    holdRows
+      ..removeWhere((h) => h['id'] == row['id'])
+      ..insert(0, row);
+    return row;
+  }
+
+  @override
+  Future<void> cancelHold(String id) async {
+    heldCancelled.add(id);
+    holdRows.removeWhere((h) => h['id'] == id);
   }
 
   final packages = <Map<String, dynamic>>[];

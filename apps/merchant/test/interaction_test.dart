@@ -27,18 +27,12 @@ void main() {
     await open(t, 'HoldList');
     expect(find.textContaining('王建国'), findsWidgets);
     expect(find.textContaining('李女士'), findsWidgets);
-    await t.tap(
-      find
-          .descendant(of: find.byType(HSel), matching: find.text('待施工 1'))
-          .first,
-    );
+    await t.tap(find.text('待施工 1'));
     await t.pump();
     expect(find.textContaining('王建国'), findsNothing);
     expect(find.textContaining('李女士'), findsNothing);
     expect(find.textContaining('苏K·5F218'), findsWidgets);
-    await t.tap(
-      find.descendant(of: find.byType(HSel), matching: find.text('全部 4')).first,
-    );
+    await t.tap(find.text('全部 4'));
     await t.pump();
     expect(find.textContaining('王建国'), findsWidgets);
   });

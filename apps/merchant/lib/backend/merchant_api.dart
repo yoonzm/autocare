@@ -54,6 +54,8 @@ class MerchantApi {
   static const _publicActions = {
     'send_mock_code',
     'check_code',
+    'holds',
+    'hold_get',
     'register',
     'login_password',
     'login_code',
@@ -401,6 +403,7 @@ class MerchantApi {
     String? other,
     String plate = '',
     String remark = '',
+    String? holdId,
   }) async {
     final data = await invoke({
       'action': 'checkout',
@@ -412,8 +415,44 @@ class MerchantApi {
       'other': ?other,
       'plate': plate,
       'remark': remark,
+      'hold_id': ?holdId,
     });
     return Map<String, dynamic>.from(data['item'] as Map);
+  }
+
+  // ───────── 挂单 ─────────
+  /// 待处理的挂单（含明细、会员、云函数按当时价格算的估价 `estimate`）。
+  Future<List<Map<String, dynamic>>> holds() async {
+    final data = await invoke({'action': 'holds', 'kind': 'orders'});
+    return List<Map<String, dynamic>>.from(data['items'] as List);
+  }
+
+  /// 挂起 / 修改一张挂单。[holdId] 为空 = 新挂单，否则整单替换明细。
+  Future<Map<String, dynamic>> saveHold({
+    String? holdId,
+    required String memberId,
+    required List<Map<String, dynamic>> lines,
+    String status = '待施工',
+    String note = '',
+    String remind = '不提醒',
+    String plate = '',
+  }) async {
+    final data = await invoke({
+      'action': 'hold',
+      'kind': 'orders',
+      'hold_id': ?holdId,
+      'member_id': memberId,
+      'lines': lines,
+      'status': status,
+      'note': note,
+      'remind': remind,
+      'plate': plate,
+    });
+    return Map<String, dynamic>.from(data['item'] as Map);
+  }
+
+  Future<void> cancelHold(String id) async {
+    await invoke({'action': 'hold_cancel', 'kind': 'orders', 'id': id});
   }
 
   // ───────── 回访 ─────────

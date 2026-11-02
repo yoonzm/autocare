@@ -1,4 +1,4 @@
-import { parseCheckout, parseExtend, parseFollowUp, parseRefund, parseSell } from './ops_rules.ts';
+import { parseCheckout, parseHold, parseExtend, parseFollowUp, parseRefund, parseSell } from './ops_rules.ts';
 
 const eq = (a: unknown, b: unknown, msg: string) => {
   if (JSON.stringify(a) !== JSON.stringify(b)) throw new Error(`${msg}: ${JSON.stringify(a)} != ${JSON.stringify(b)}`);
@@ -54,6 +54,22 @@ Deno.test('checkout: combined payment needs a balance part and another method', 
   eq(typeof parseCheckout({ member_id: M, method: '组合支付', lines, other: '微信' }), 'string', 'no balance');
   eq(typeof parseCheckout({ member_id: M, method: '组合支付', lines, balance_part: 100 }), 'string', 'no other');
   eq(typeof parseCheckout({ member_id: M, method: '组合支付', lines, balance_part: 10.123, other: '现金' }), 'string', 'cents');
+});
+
+Deno.test('hold: lines + status / remind from the design; hold_id optional; no prices', () => {
+  const ok = parseHold({ member_id: M, lines: [{ service_id: S1, price: 1 }], status: '施工中', remind: '1 小时', plate: '沪a 8k29m', note: ' 划痕 ' });
+  if (typeof ok === 'string') throw new Error(ok);
+  eq([ok.hold_id, ok.status, ok.remind, ok.plate, ok.note], [null, '施工中', '1 小时', '沪A8K29M', '划痕'], 'fields');
+  eq(ok.lines, [{ service_id: S1, qty: 1, member_package_id: null }], 'no price');
+  const d = parseHold({ member_id: M, lines: [{ service_id: S1 }] });
+  eq(typeof d === 'object' && [d.status, d.remind], ['待施工', '不提醒'], 'defaults');
+  eq(typeof parseHold({ member_id: M, lines: [] }), 'string', 'empty');
+  eq(typeof parseHold({ member_id: M, lines: [{ service_id: S1 }], status: '已完成' }), 'string', 'status');
+  eq(typeof parseHold({ member_id: M, lines: [{ service_id: S1 }], remind: '明天' }), 'string', 'remind');
+  eq(typeof parseHold({ member_id: M, lines: [{ service_id: S1 }], hold_id: 'x' }), 'string', 'hold id');
+  eq(typeof parseHold({ member_id: M, lines: [{ service_id: S1 }], note: 'a'.repeat(201) }), 'string', 'note');
+  const c = parseCheckout({ member_id: M, method: '现金', lines: [{ service_id: S1 }], hold_id: P });
+  eq(typeof c === 'object' && c.hold_id, P, 'checkout hold id');
 });
 
 Deno.test('follow-up: method / result from the design, date not in the past', () => {

@@ -114,6 +114,15 @@ ORDER_TEXT = {
     ('PaySuccess', '+1,422'): 'o.points',
 }
 
+# 挂单保存弹层里的文字（来自开单页准备挂起的一单）：(页面, 设计稿文字) -> HoldView 的取值（h 是 HoldView）
+HOLD_TEXT = {
+    ('HoldSheet', '王'): 'h.avatar',
+    ('HoldSheet', '王建国'): 'h.name',
+    ('HoldSheet', '沪A·8K29M'): 'h.plate',
+    ('HoldSheet', '2 项服务'): 'h.countText',
+    ('HoldSheet', '¥1,422.00'): 'h.payableText',
+}
+
 # 次卡（正在查看的）驱动的文字：(页面, 设计稿文字) -> PackageView 的取值（k 是 PackageView）
 PACKAGE_TEXT = {
     ('PackageDetail', '精致洗车年卡'): 'k.name',
@@ -208,14 +217,14 @@ ASYNC_ACTIONS = {
     ('MemberAdd', 'MemberAddDone'), ('Recharge', 'RechargeSuccess'),
     ('MemberAdjust', 'MemberDetail'), ('RechargeCard', 'PackageSold'),
     ('PackageExtend', 'PackageDetail'), ('PackageRefund', 'MemberDetail'),
-    ('MemberVisit', 'MemberDetail'),
+    ('MemberVisit', 'MemberDetail'), ('HoldSheet', 'HoldList'),
     ('ForgotVerify', 'ForgotReset'), ('ForgotReset', 'ForgotDone'),
 }
 # 这些页面里“取消 / 保存”都指向同一个目标页，只有文字是“保存”的才是提交按钮。
 SAVE_ONLY = {'ServiceEdit', 'CardTierEdit', 'PackageEdit', 'MemberEdit', 'VehicleAdd', 'MemberAdjust', 'RechargeCard',
-             'PackageExtend', 'PackageRefund', 'MemberVisit'}
+             'PackageExtend', 'PackageRefund', 'MemberVisit', 'HoldSheet'}
 # SAVE_ONLY 页面里提交按钮上的文字（默认是“保存”）
-SUBMIT_LABEL = {'MemberAdjust': '确认调整', 'RechargeCard': '确认收款', 'PackageExtend': '确认延期', 'PackageRefund': '确认退款', 'MemberVisit': '保存回访'}
+SUBMIT_LABEL = {'MemberAdjust': '确认调整', 'RechargeCard': '确认收款', 'PackageExtend': '确认延期', 'PackageRefund': '确认退款', 'MemberVisit': '保存回访', 'HoldSheet': '确认挂单'}
 # 同一个路由里的几个页面（页签）共用的动作键前缀：RechargeCard 是 Recharge 路由里的第二个页签
 KEY_PAGE = {'RechargeCard': 'Recharge'}
 
@@ -781,6 +790,10 @@ class Gen:
             if od:
                 return 'hOrderText((o) => %s, %s, %s%s)' % (
                     od, dstr(text), self.ts(segs[0][1]), ''.join(', ' + e for e in extra))
+            hd = HOLD_TEXT.get((self.page_name, text))
+            if hd:
+                return 'hHoldText((h) => %s, %s, %s%s)' % (
+                    hd, dstr(text), self.ts(segs[0][1]), ''.join(', ' + e for e in extra))
             fw = FOLLOW_TEXT.get((self.page_name, text))
             if fw:
                 return 'hFollowText((f) => %s, %s, %s%s)' % (
@@ -1097,6 +1110,9 @@ class Gen:
                 return 'hMemberPickerList()'
         if n.tag == 'article' and self.page_name in LIVE_ARTICLES:
             return LIVE_ARTICLES[self.page_name]
+        # 挂单列表：概况卡片、状态页签和挂单卡片合成一个“活”控件（页签、卡片在 emit_flex 里去掉）
+        if self.page_name == 'HoldList' and n.tag == 'section' and n.attrs.get('aria-label') == '挂单概况':
+            return 'hHoldBoard()'
         if n.tag == 'section':
             h2 = next((c for c in n.children if isinstance(c, Node) and c.tag in ('h2', 'span')), None)
             if h2 is not None:
@@ -1772,6 +1788,9 @@ class Gen:
                     seen = True
                 kept.append(c)
             kids = kept
+        if self.page_name == 'HoldList':
+            kids = [c for c in kids if not (isinstance(c, Node) and (
+                c.attrs.get('role') == 'tablist' or (c.tag == 'section' and not c.attrs.get('aria-label'))))]
         holders = self.setup_widgets(n, kids)
         links = self.link_filters(n, kids)
         groups, mapping = self.find_groups(kids)

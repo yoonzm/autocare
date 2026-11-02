@@ -48,18 +48,20 @@ class HoldSheetSheet extends StatelessWidget {
                   bg: dk(context, Color(0xFF18181B), Color(0xFF34343A)),
                   radius: BorderRadius.circular(20),
                   align: Alignment(0, 0),
-                  child: Text(
+                  child: hHoldText(
+                    (h) => h.avatar,
                     '王',
-                    style: hts(16, Color(0xFFF5D78E), w: FontWeight.w600),
+                    hts(16, Color(0xFFF5D78E), w: FontWeight.w600),
                   ),
                 ),
                 Expanded(
                   flex: 1,
                   child: hcol(
                     [
-                      Text(
+                      hHoldText(
+                        (h) => h.name,
                         '王建国',
-                        style: hts(
+                        hts(
                           15,
                           dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
                           w: FontWeight.w600,
@@ -76,9 +78,10 @@ class HoldSheetSheet extends StatelessWidget {
                             width: 1.5,
                           ),
                           pad: EdgeInsets.fromLTRB(5, 1, 5, 1),
-                          child: Text(
+                          child: hHoldText(
+                            (h) => h.plate,
                             '沪A·8K29M',
-                            style: hts(
+                            hts(
                               11,
                               Color(0xFFFFFFFF),
                               w: FontWeight.w600,
@@ -95,17 +98,19 @@ class HoldSheetSheet extends StatelessWidget {
                 ),
                 hcol(
                   [
-                    Text(
+                    hHoldText(
+                      (h) => h.countText,
                       '2 项服务',
-                      style: hts(
+                      hts(
                         12,
                         dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
                         lh: 16,
                       ),
                     ),
-                    Text(
+                    hHoldText(
+                      (h) => h.payableText,
                       '¥1,422.00',
-                      style: hts(
+                      hts(
                         16,
                         dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
                         w: FontWeight.w600,
@@ -622,14 +627,28 @@ class HoldSheetSheet extends StatelessWidget {
                         child: Align(
                           alignment: Alignment(0, 0),
                           widthFactor: 1,
-                          child: Text(
-                            '确认挂单',
+                          child: hBusy(
+                            'HoldSheet>HoldList',
+                            Text(
+                              '确认挂单',
+                              style: hts(
+                                15,
+                                dk(
+                                  context,
+                                  Color(0xFFFFFFFF),
+                                  Color(0xFF18181B),
+                                ),
+                                w: FontWeight.w600,
+                                lh: 22,
+                              ),
+                            ),
                             style: hts(
                               15,
                               dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
                               w: FontWeight.w600,
                               lh: 22,
                             ),
+                            label: '提交中…',
                           ),
                         ),
                       ),

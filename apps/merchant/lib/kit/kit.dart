@@ -10,6 +10,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../backend/registration_draft.dart';
 import '../backend/catalog_draft.dart';
+import '../backend/hold_flow.dart';
 import '../backend/member_flow.dart';
 import '../backend/merchant_api.dart';
 import 'async_kit.dart';
@@ -29,6 +30,7 @@ export '../widgets/member_widgets.dart'
 export '../widgets/sale_widgets.dart' show hPackagePicker;
 export '../widgets/picker_widgets.dart'
     show hMemberPickerList, hMemberPickerSearch;
+export '../widgets/hold_widgets.dart' show hHoldBoard, hHoldText;
 export '../widgets/follow_widgets.dart'
     show
         hFollowProgress,
@@ -200,6 +202,24 @@ Widget hTap(
           ),
         );
         return;
+      }
+      // 挂单保存：确认后由云函数估价并保存；取消 / 点遮罩照常关闭弹层
+      if (merchantApi.hasSession &&
+          route == 'sheet:HoldSheet' &&
+          to == 'HoldList' &&
+          _hasConfirmLabel(child, '确认挂单')) {
+        unawaited(
+          runBusy('HoldSheet>HoldList', () async {
+            if (await HoldFlow.save(context) && context.mounted) {
+              openRoute(context, 'HoldList');
+            }
+          }),
+        );
+        return;
+      }
+      // 新开一单（挂单列表里唯一跳到开单页的按钮）：开单页回到空白
+      if (merchantApi.hasSession && route == 'HoldList' && to == 'Order') {
+        HoldFlow.startNew();
       }
       // 次卡延期 / 退款：“取消”“再想想”只关闭弹层，确认后由云函数执行
       if (merchantApi.hasSession &&
@@ -1185,6 +1205,7 @@ class HInputState extends State<HInput> {
       ('Recharge', '') when hint == '输入金额，不享赠送' => ('recharge', 'custom'),
       ('MemberAdjust', '') when hint == '补充说明，将记入操作记录' => ('adjust', 'note'),
       ('MemberVisit', '客户表示下周有空，想预约镀晶复养。') => ('visit', 'content'),
+      ('sheet:HoldSheet', '客户去开会，17:00 取车') => ('hold', 'note'),
       ('PackageEdit', '精致洗车年卡') => ('packages', 'name'),
       ('PackageEdit', '1,080') => ('packages', 'price'),
       ('PackageEdit', '') when hint == '如：仅限精致洗车项目，节假日通用' => (
@@ -1488,6 +1509,23 @@ class _HSelHolderState extends State<HSelHolder> {
       ctrl.addListener(() {
         if (ctrl.selected.isEmpty) return;
         MemberFlow.reminderTab.value = ctrl.selected.first;
+      });
+      return;
+    }
+    // 挂单保存：车辆状态 / 到点提醒（两个单选组，按出现顺序认领）
+    if (merchantApi.hasSession &&
+        ModalRoute.of(context)?.settings.name == 'sheet:HoldSheet' &&
+        widget.groups.length == 1) {
+      _slotKey = 'sel:HoldSheet';
+      final slot = RegistrationDraft.claim(_slotKey, this);
+      final ctrl = ctrls.first;
+      final field = slot == 0 ? 'status_index' : 'remind_index';
+      ctrl.selected
+        ..clear()
+        ..add(slot == 0 ? HoldFlow.statusIndex : HoldFlow.remindIndex);
+      ctrl.addListener(() {
+        if (ctrl.selected.isEmpty) return;
+        CatalogDraft.set('hold', field, ctrl.selected.first);
       });
       return;
     }

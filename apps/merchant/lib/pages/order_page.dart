@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../backend/hold_flow.dart';
 import '../backend/member_flow.dart';
 import '../backend/merchant_api.dart';
 import '../kit/async_kit.dart';
@@ -76,7 +77,109 @@ class _OrderPageState extends State<OrderPage> {
       if (widget.member != null) MemberFlow.current ??= widget.member!.data;
       unawaited(_loadServices());
       unawaited(_loadCover());
+      // 挂单：数量显示在“挂单”按钮上；取单 / 挂单成功 / 新开一单时要改动这一页
+      HoldFlow.eventTick.addListener(_onHoldEvent);
+      HoldFlow.loadSoon();
+      if (HoldFlow.event != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) => _onHoldEvent());
+      }
     }
+  }
+
+  @override
+  void dispose() {
+    HoldFlow.eventTick.removeListener(_onHoldEvent);
+    _searchCtl.dispose();
+    super.dispose();
+  }
+
+  /// 正在处理的挂单（取单后继续加项 / 结算）；新开一单时为空。
+  String? _holdId;
+
+  Future<void> _onHoldEvent() async {
+    final e = HoldFlow.event;
+    if (e == null || !mounted) return;
+    HoldFlow.event = null;
+    switch (e.kind) {
+      case 'reset':
+        setState(() {
+          picked.clear();
+          _holdId = null;
+        });
+      case 'removed':
+        if (_holdId == e.id) setState(() => _holdId = null);
+      case 'resume':
+        await _resumeHold(e.row!);
+    }
+  }
+
+  /// 取单：会员、项目放回开单页，结算时由云函数按当前价格重新计算。
+  Future<void> _resumeHold(Map<String, dynamic> row) async {
+    final memberId = '${(row['member'] as Map?)?['id'] ?? row['member_id']}';
+    try {
+      final m = await merchantApi.member(memberId);
+      if (!mounted) return;
+      MemberFlow.current = m;
+      if (_liveSvcs.isEmpty) await _loadServices();
+      if (!mounted) return;
+      final ids = {
+        for (final it in (row['items'] as List? ?? const []))
+          '${(it as Map)['service_id']}',
+      };
+      final next = <int>{
+        for (var i = 0; i < _liveSvcs.length; i++)
+          if (ids.contains(_liveSvcs[i].id)) i,
+      };
+      setState(() {
+        customer = memberFromRow(m);
+        _cover = {};
+        picked
+          ..clear()
+          ..addAll(next);
+        _holdId = '${row['id']}';
+      });
+      unawaited(_loadCover());
+      if (next.length < ids.length) {
+        toast(context, '部分服务项目已下架，已跳过');
+      }
+    } catch (e) {
+      if (mounted) AppToast.error(context, e);
+    }
+  }
+
+  /// 挂单：把这一单交给挂单弹层（价格、折扣、次卡抵扣由云函数估算）。
+  void _hold() {
+    if (picked.isEmpty) {
+      toast(context, '请先选择服务项目');
+      return;
+    }
+    final id = customer.id;
+    if (id == null) {
+      toast(context, '请先选择会员');
+      return;
+    }
+    HoldFlow.begin(
+      HoldDraft(
+        memberId: id,
+        memberName: customer.name,
+        level: customer.level,
+        plateLabel: customer.plate,
+        plate: customer.plate.contains('·')
+            ? customer.plate.replaceAll('·', '')
+            : '',
+        lines: [
+          for (final i in picked)
+            {
+              'service_id': _svcs[i].id,
+              'qty': 1,
+              if (_covered(i)) 'member_package_id': _cover[_svcs[i].id]!.$1,
+            },
+        ],
+        payableText: money(payable, digits: 2),
+        holdId: _holdId,
+      ),
+    );
+    openRoute(context, 'HoldSheet');
   }
 
   Future<void> _loadServices() async {
@@ -244,6 +347,7 @@ class _OrderPageState extends State<OrderPage> {
         plate: customer.plate.contains('·')
             ? customer.plate.replaceAll('·', '')
             : '',
+        holdId: _holdId,
       );
       // 加载指示至少停留 500ms
       final left = kIndicatorMinShow - DateTime.now().difference(started);
@@ -258,6 +362,10 @@ class _OrderPageState extends State<OrderPage> {
       CatalogDraft.changed.value++;
       if (res['upgraded_to'] != null && mounted) {
         toast(context, '已自动升级为${res['upgraded_to']}');
+      }
+      if (_holdId != null) {
+        _holdId = null;
+        unawaited(HoldFlow.load()); // 这张挂单已结清，刷新挂单数量
       }
       if (mounted) {
         setState(() => picked.clear());
@@ -308,22 +416,30 @@ class _OrderPageState extends State<OrderPage> {
                         children: [
                           Text('挂单', style: ts(14, w: FontWeight.w500, h: 20)),
                           const SizedBox(width: 6),
-                          Container(
-                            constraints: const BoxConstraints(minWidth: 18),
-                            height: 18,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: C.red,
-                              borderRadius: BorderRadius.circular(9),
-                            ),
-                            child: Text(
-                              '4',
-                              style: ts(
-                                11,
-                                w: FontWeight.w600,
-                                color: Colors.white,
-                              ),
-                            ),
+                          ListenableBuilder(
+                            listenable: HoldFlow.tick,
+                            builder: (_, _) {
+                              // 登录后显示真实的挂单数量（没有挂单时不显示红点）
+                              final n = _live ? HoldFlow.count : 4;
+                              if (n == 0) return const SizedBox.shrink();
+                              return Container(
+                                constraints: const BoxConstraints(minWidth: 18),
+                                height: 18,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  color: C.red,
+                                  borderRadius: BorderRadius.circular(9),
+                                ),
+                                child: Text(
+                                  '$n',
+                                  style: ts(
+                                    11,
+                                    w: FontWeight.w600,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                         ],
                       ),
@@ -394,7 +510,9 @@ class _OrderPageState extends State<OrderPage> {
                     bg: C.chip,
                     fg: C.ink,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    onTap: () => openRoute(context, 'HoldSheet'),
+                    onTap: _live
+                        ? _hold
+                        : () => openRoute(context, 'HoldSheet'),
                   ),
                   const SizedBox(width: 12),
                   PrimaryButton(
