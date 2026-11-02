@@ -2,6 +2,7 @@ import 'package:autocare_merchant/backend/forgot_flow.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/backend/registration_draft.dart';
 import 'package:autocare_merchant/backend/store_profile.dart';
+import 'package:autocare_merchant/kit/async_kit.dart' show AppSpinner;
 import 'package:autocare_merchant/pages/gen/gen_routes.dart';
 import 'package:autocare_merchant/pages/login_page.dart';
 import 'package:autocare_merchant/routes.dart';
@@ -126,8 +127,15 @@ void main() {
       await t.enterText(input('请输入手机号'), '13800001234');
       await t.tap(find.text('获取验证码'));
       await t.pump();
-      await t.pump(const Duration(milliseconds: 400));
-      expect(api.calls, ['send:13800001234']);
+      // 点击后立即有加载效果：转圈 + “发送中…”，期间不能再点
+      expect(find.text('发送中…'), findsOneWidget);
+      expect(find.byType(AppSpinner), findsOneWidget);
+      expect(find.text('获取验证码'), findsNothing);
+      await t.tap(find.text('发送中…'));
+      await t.pump(const Duration(milliseconds: 600));
+      await t.pumpAndSettle(); // 等旧提示条退场、新提示条出现
+      expect(api.calls, ['send:13800001234']); // 连点只发一次
+      expect(find.text('发送中…'), findsNothing);
       expect(find.text('开发环境验证码：246810'), findsOneWidget);
       expect(find.textContaining('秒后重发'), findsOneWidget);
       await t.pump(const Duration(seconds: 61));
@@ -139,7 +147,7 @@ void main() {
       await t.enterText(input('请输入手机号'), '13800001234');
       await t.tap(find.text('获取验证码'));
       await t.pump();
-      await t.pump(const Duration(milliseconds: 400));
+      await t.pump(const Duration(milliseconds: 600));
       expect(find.text('今日发送次数已达上限'), findsOneWidget);
       expect(find.text('获取验证码'), findsOneWidget); // 失败立即恢复可点
       await t.pump(const Duration(seconds: 4));

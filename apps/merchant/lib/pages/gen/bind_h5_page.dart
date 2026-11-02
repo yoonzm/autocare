@@ -508,36 +508,38 @@ class BindH5Page extends StatelessWidget {
                               UnconstrainedBox(
                                 alignment: Alignment.topLeft,
                                 constrainedAxis: Axis.horizontal,
-                                child: hTap(
-                                  context,
-                                  hbox(
-                                    h: 48,
-                                    bg: dk(
-                                      context,
-                                      Color(0xFFE1F0FE),
-                                      Color.fromRGBO(4, 133, 247, 0.18),
-                                    ),
-                                    radius: BorderRadius.circular(16),
-                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      widthFactor: 1,
-                                      child: Text(
-                                        '52 秒后重发',
-                                        style: hts(
-                                          13,
-                                          dk(
-                                            context,
-                                            Color(0xFF1E63AE),
-                                            Color(0xFF6AB4FA),
+                                child: HCodeHolder(
+                                  builder: (context, k1) => hTap(
+                                    context,
+                                    hbox(
+                                      h: 48,
+                                      bg: dk(
+                                        context,
+                                        Color(0xFFE1F0FE),
+                                        Color.fromRGBO(4, 133, 247, 0.18),
+                                      ),
+                                      radius: BorderRadius.circular(16),
+                                      pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                      child: Align(
+                                        alignment: Alignment.center,
+                                        widthFactor: 1,
+                                        child: hCodeText(
+                                          k1,
+                                          hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFF1E63AE),
+                                              Color(0xFF6AB4FA),
+                                            ),
+                                            w: FontWeight.w600,
+                                            lh: 18,
                                           ),
-                                          w: FontWeight.w600,
-                                          lh: 18,
                                         ),
                                       ),
                                     ),
+                                    onTap: () => hSendCode(context, k1),
                                   ),
-                                  label: '52 秒后重发',
                                 ),
                               ),
                             ],

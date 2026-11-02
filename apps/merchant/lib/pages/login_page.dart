@@ -93,7 +93,12 @@ class _LoginPageState extends State<LoginPage> {
     }
     setState(() => sending = true);
     try {
-      final mockCode = await merchantApi.sendMockCode(phone.text.trim());
+      // 加载指示至少停留 500ms，避免一闪而过
+      final results = await Future.wait<Object?>([
+        merchantApi.sendMockCode(phone.text.trim()),
+        Future<void>.delayed(kIndicatorMinShow),
+      ]);
+      final mockCode = results[0] as String;
       if (!mounted) return;
       AppToast.show(context, '开发环境验证码：$mockCode');
     } catch (e) {
@@ -394,21 +399,33 @@ class _LoginPageState extends State<LoginPage> {
                       borderRadius: BorderRadius.circular(18),
                       boxShadow: softShadow,
                     ),
-                    child: Text(
-                      sending
-                          ? '发送中…'
-                          : countdown > 0
-                          ? '$countdown 秒后重发'
-                          : '获取验证码',
-                      style: ts(
-                        13,
-                        w: FontWeight.w500,
-                        color: countdown > 0 || sending
-                            ? C.muted
-                            : C.primaryInk,
-                        h: 18,
-                      ),
-                    ),
+                    child: sending
+                        // 设计稿的验证码按钮加载态：转圈 + “发送中…”
+                        ? Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              AppSpinner(size: 16, color: C.muted),
+                              const SizedBox(width: 6),
+                              Text(
+                                '发送中…',
+                                style: ts(
+                                  13,
+                                  w: FontWeight.w500,
+                                  color: C.muted,
+                                  h: 18,
+                                ),
+                              ),
+                            ],
+                          )
+                        : Text(
+                            countdown > 0 ? '$countdown 秒后重发' : '获取验证码',
+                            style: ts(
+                              13,
+                              w: FontWeight.w500,
+                              color: countdown > 0 ? C.muted : C.primaryInk,
+                              h: 18,
+                            ),
+                          ),
                   ),
                 ),
               ],

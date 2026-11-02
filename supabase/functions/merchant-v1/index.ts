@@ -1,6 +1,7 @@
 import { handleAccount } from './account.ts';
 import { handleAuth } from './auth.ts';
 import { handleCards } from './cards.ts';
+import { handlePackages } from './packages.ts';
 import { handleServices } from './services.ts';
 import { cors, fail, isInput, storeFor } from './shared.ts';
 import { isCatalogKind } from './types.ts';
@@ -24,6 +25,7 @@ Deno.serve(async (request: Request): Promise<Response> => {
   if (!isCatalogKind(input.kind)) return fail('不支持的业务类型');
   const storeId = await storeFor(request);
   if (storeId instanceof Response) return storeId;
+  if (input.kind === 'packages') return handlePackages(input, storeId);
   return input.kind === 'services'
     ? handleServices(input, storeId)
     : handleCards(input, storeId);

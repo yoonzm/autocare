@@ -884,13 +884,22 @@ class SecurityPage extends StatelessWidget {
                     child: Align(
                       alignment: Alignment(0, 0),
                       widthFactor: 1,
-                      child: Text(
-                        '退出所有设备',
+                      child: hBusy(
+                        'Security>Login',
+                        Text(
+                          '退出所有设备',
+                          style: hts(
+                            15,
+                            dk(context, Color(0xFFA43433), Color(0xFFFF7B7E)),
+                            w: FontWeight.w500,
+                          ),
+                        ),
                         style: hts(
                           15,
                           dk(context, Color(0xFFA43433), Color(0xFFFF7B7E)),
                           w: FontWeight.w500,
                         ),
+                        label: '提交中…',
                       ),
                     ),
                   ),

@@ -13,6 +13,10 @@ import '../backend/catalog_draft.dart';
 import '../backend/merchant_api.dart';
 import 'async_kit.dart';
 export '../widgets/card_face.dart' show hCardPreview;
+export 'async_kit.dart' show hBusy;
+export '../backend/package_calc.dart' show PackageCalc;
+export '../widgets/package_widgets.dart'
+    show hPackagePreview, hPackageItems, hPkgText;
 import '../backend/forgot_flow.dart';
 import '../backend/store_profile.dart';
 import '../routes.dart';
@@ -148,6 +152,18 @@ Widget hTap(
         );
         return;
       }
+      if (merchantApi.hasSession &&
+          to == 'CardPackages' &&
+          route == 'PackageEdit' &&
+          _hasSaveLabel(child)) {
+        unawaited(
+          runBusy(
+            '$route>CardPackages',
+            () => CatalogDraft.save(context, 'packages'),
+          ),
+        );
+        return;
+      }
       if (onTap != null) {
         onTap();
       } else if (back) {
@@ -183,6 +199,10 @@ bool _hasSaveLabel(Widget widget) {
     return _hasSaveLabel(widget.child!);
   }
   if (widget is Padding && widget.child != null) {
+    return _hasSaveLabel(widget.child!);
+  }
+  // 提交按钮里的文字被 hBusy（忙碌态）包了一层
+  if (widget is ValueListenableBuilder<Set<String>> && widget.child != null) {
     return _hasSaveLabel(widget.child!);
   }
   return false;
@@ -341,13 +361,9 @@ Future<bool> hConfirm(
                               borderRadius: BorderRadius.circular(23),
                             ),
                             child: busy
-                                ? const SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Colors.white,
-                                    ),
+                                ? const AppSpinner(
+                                    size: 20,
+                                    color: Colors.white,
                                   )
                                 : Text(
                                     ok,
@@ -380,11 +396,14 @@ Future<void> hConfirmPop(BuildContext context, String label) async {
   final nav = Navigator.of(context);
   final messenger = ScaffoldMessenger.of(context);
   final route = ModalRoute.of(context)?.settings.name;
-  final kind =
-      merchantApi.hasSession &&
-          (route == 'ServiceEdit' || route == 'CardTierEdit')
-      ? (route == 'ServiceEdit' ? 'services' : 'cards')
-      : null;
+  final kind = !merchantApi.hasSession
+      ? null
+      : switch (route) {
+          'ServiceEdit' => 'services',
+          'CardTierEdit' => 'cards',
+          'PackageEdit' => 'packages',
+          _ => null,
+        };
   if (kind != null && !CatalogDraft.canRemove(kind)) {
     AppToast.show(context, '尚未保存，无需删除');
     return;
@@ -760,10 +779,27 @@ class _HSwitchState extends State<HSwitch> {
     if (_bound) return;
     _bound = true;
     // 卡种编辑页唯一的开关是“预约优先排期”，值来自正在编辑的卡种
-    if (merchantApi.hasSession &&
-        ModalRoute.of(context)?.settings.name == 'CardTierEdit') {
+    final route = ModalRoute.of(context)?.settings.name;
+    if (merchantApi.hasSession && route == 'CardTierEdit') {
       on = CatalogDraft.priorityBooking;
     }
+    // 套餐编辑页两个开关：第一个“在会员小程序展示”，第二个“上架销售”
+    if (merchantApi.hasSession && route == 'PackageEdit') {
+      _slotKey = 'sw:PackageEdit';
+      _slot = RegistrationDraft.claim(_slotKey, this);
+      on = _slot == 0
+          ? CatalogDraft.packageShowInMini
+          : CatalogDraft.packageActive;
+    }
+  }
+
+  String _slotKey = '';
+  int _slot = 0;
+
+  @override
+  void dispose() {
+    if (_slotKey.isNotEmpty) RegistrationDraft.release(_slotKey, this);
+    super.dispose();
   }
 
   @override
@@ -782,6 +818,13 @@ class _HSwitchState extends State<HSwitch> {
       setState(() => on = !on);
       if (merchantApi.hasSession && route == 'CardTierEdit') {
         CatalogDraft.set('cards', 'priority_booking', on);
+      }
+      if (merchantApi.hasSession && route == 'PackageEdit') {
+        CatalogDraft.set(
+          'packages',
+          _slot == 0 ? 'show_in_mini' : 'active',
+          on,
+        );
       }
     },
     child: AnimatedContainer(
@@ -957,6 +1000,12 @@ class HInputState extends State<HInput> {
       ('CardTierEdit', '黑金卡') => ('cards', 'name'),
       ('CardTierEdit', '10,000') => ('cards', 'upgrade_recharge'),
       ('CardTierEdit', '30,000') => ('cards', 'upgrade_cumulative'),
+      ('PackageEdit', '精致洗车年卡') => ('packages', 'name'),
+      ('PackageEdit', '1,080') => ('packages', 'price'),
+      ('PackageEdit', '') when hint == '如：仅限精致洗车项目，节假日通用' => (
+        'packages',
+        'description',
+      ),
       _ => null,
     };
     final initial = isForm
@@ -1195,6 +1244,24 @@ class _HSelHolderState extends State<HSelHolder> {
         ModalRoute.of(context)?.settings.name == 'CardTierEdit' &&
         widget.groups.length == 1) {
       _bindCardGroup();
+      return;
+    }
+    // 套餐编辑页：唯一一组选项是有效期
+    if (merchantApi.hasSession &&
+        ModalRoute.of(context)?.settings.name == 'PackageEdit' &&
+        widget.groups.length == 1) {
+      final ctrl = ctrls.first;
+      ctrl.selected
+        ..clear()
+        ..add(CatalogDraft.packageValidityIndex);
+      ctrl.addListener(() {
+        if (ctrl.selected.isEmpty) return;
+        CatalogDraft.set(
+          'packages',
+          'validity_months',
+          CatalogDraft.packageValidities[ctrl.selected.first],
+        );
+      });
       return;
     }
     // 注册第二页的三组选项（身份 / 工位数量 / 主营业务）：让提交时能读到选中项。

@@ -40,9 +40,28 @@ LIVE_TEXT = {
 }
 
 # 由“忘记密码”流程状态驱动的文字（f 是 ForgotFlow）。
+# 套餐编辑页里随草稿计算的文字：(页面, 设计稿文字) -> PackageCalc 的取值
+PKG_TEXT = {
+    ('PackageEdit', '¥1,360'): 'PackageCalc.originalText',
+    ('PackageEdit', '相当于单次 ¥54'): 'PackageCalc.perUseText',
+    ('PackageEdit', '省 ¥280 · 约 7.9 折'): 'PackageCalc.savingText',
+}
+
 LIVE_FLOW = {
     ('ForgotReset', '手机号 138 **** 1234 已验证通过'): "'手机号 ${f.maskedPhone} 已验证通过'",
 }
+
+# 点击后要等后端返回的按钮：(页面, 目标页)。命中的按钮在 loading 时只显示转圈、尺寸不变。
+# 必须和 lib/kit/async_kit.dart 的 asyncActionKeys 保持一致（有测试检查）。
+ASYNC_ACTIONS = {
+    ('RegPhone', 'RegShop'), ('RegShop', 'RegDone'),
+    ('ChangePassword', 'Security'), ('ChangePhone', 'Security'),
+    ('DeleteAccount', 'Login'), ('Security', 'Login'),
+    ('ServiceEdit', 'Services'), ('CardTierEdit', 'CardTiers'), ('PackageEdit', 'CardPackages'),
+    ('ForgotVerify', 'ForgotReset'), ('ForgotReset', 'ForgotDone'),
+}
+# 这些页面里“取消 / 保存”都指向同一个目标页，只有文字是“保存”的才是提交按钮。
+SAVE_ONLY = {'ServiceEdit', 'CardTierEdit', 'PackageEdit'}
 
 SKIP = {'ForgotNote', 'AppIcon', 'DarkTokens', 'PageTransitions'}
 # 设计稿里的深色版本只是参考，深色效果由同一套页面自动适配
@@ -584,6 +603,10 @@ class Gen:
             if flow:
                 return 'hFlowText((f) => f.live ? (%s) : %s, %s%s)' % (
                     flow, dstr(text), self.ts(segs[0][1]), ''.join(', ' + e for e in extra))
+            pkg = PKG_TEXT.get((self.page_name, text))
+            if pkg:
+                return 'hPkgText(() => %s, %s, %s%s)' % (
+                    pkg, dstr(text), self.ts(segs[0][1]), ''.join(', ' + e for e in extra))
             live = LIVE_TEXT.get((self.page_name, text))
             if live:
                 return 'hLiveText((p) => p.live ? (%s) : %s, %s%s)' % (
@@ -800,15 +823,68 @@ class Gen:
         return max(parts) + pad
 
     # ── 主入口：元素 ──
+    def async_key(self, n):
+        """n 是“点击后要等后端”的提交按钮时返回动作键（页面>目标页），否则 None。"""
+        if isinstance(n, str):
+            return None
+        m = re.match(r'([A-Za-z]+)\.dc\.html', n.attrs.get('href', ''))
+        if not m or (self.page_name, m.group(1)) not in ASYNC_ACTIONS:
+            return None
+        label = n.attrs.get('aria-label', '')
+        if any(k in label for k in ('返回', '关闭', '取消')) or self.has_back_icon(n):
+            return None  # 返回 / 取消按钮不是提交按钮，不转圈
+        if self.page_name in SAVE_ONLY and self.tree_text(n).strip() != '保存':
+            return None
+        return '%s>%s' % (self.page_name, m.group(1))
+
+    def busy_wrap(self, code, style=None, icon=False):
+        """提交按钮里的文字 / 图标：忙碌时隐藏并显示转圈（按钮尺寸不变）。"""
+        key = getattr(self, 'busy_key', None)
+        if not key:
+            return code
+        first = not getattr(self, 'busy_first_done', False)
+        self.busy_first_done = True
+        extra = ''
+        if style:
+            extra += ', style: %s' % style
+        if icon:
+            extra += ', icon: true'
+        # 全宽底栏按钮（高度 ≥ 48）：转圈 + “提交中…”；顶部的小按钮只转圈
+        if first and not icon and getattr(self, 'busy_wide', False):
+            extra += ", label: '提交中…'"
+        if not first:
+            extra += ', spinner: false'
+        return 'hBusy(%s, %s%s)' % (dstr(key), code, extra)
+
     def emit(self, n, inh, parent):
+        key = self.async_key(n)
+        if key is None:
+            return self._emit(n, inh, parent)
+        prev = (getattr(self, 'busy_key', None), getattr(self, 'busy_first_done', False),
+                getattr(self, 'busy_wide', False))
+        self.busy_key, self.busy_first_done = key, False
+        self.busy_wide = (px(n.style.get('height'), 0) or 0) >= 48
+        try:
+            return self._emit(n, inh, parent)
+        finally:
+            self.busy_key, self.busy_first_done, self.busy_wide = prev
+
+    def _emit(self, n, inh, parent):
         """parent: 'row' | 'col' | 'block' | 'grid' | 'abs' | 'root'"""
         if isinstance(n, str):
-            return 'Text(%s, style: %s)' % (dstr(re.sub(r'\s+', ' ', n).strip()), self.ts(inh))
+            return self.busy_wrap('Text(%s, style: %s)' % (dstr(re.sub(r'\s+', ' ', n).strip()), self.ts(inh)), style=self.ts(inh))
         # 卡种编辑页的“卡面预览”：换成随名称 / 折扣 / 颜色实时变化的组件
         if self.page_name == 'CardTierEdit' and n.attrs.get('aria-label') == '卡面预览':
             return 'hCardPreview()'
+        # 套餐编辑页：预览卡、“包含服务”列表随套餐草稿变化
+        if self.page_name == 'PackageEdit':
+            if n.attrs.get('aria-label') == '套餐预览':
+                return 'hPackagePreview()'
+            if n.tag == 'div' and any(isinstance(c, Node) and c.tag == 'a' and
+                                      c.attrs.get('href', '').startswith('PackageSvcPick') for c in n.children):
+                return 'hPackageItems()'
         if n.tag == 'svg':
-            return self.emit_svg(n, inh, parent)
+            return self.busy_wrap(self.emit_svg(n, inh, parent), icon=True)
         if n.tag == 'input':
             return self.emit_input(n, inh, parent)
         if n.tag == 'textarea':
@@ -838,7 +914,7 @@ class Gen:
         elif is_text and '_pwd' in n.attrs:
             content = 'hPwdLabel(%s, %s)' % (n.attrs['_pwd'], self.ts(inh2))
         elif is_text:
-            content = self.emit_text(n, inh2)
+            content = self.busy_wrap(self.emit_text(n, inh2), style=self.ts(inh2))
         elif not kids:
             content = None
         elif disp == 'grid':
@@ -944,6 +1020,8 @@ class Gen:
         back = any(k in label for k in ('返回', '关闭')) or self.has_back_icon(n)
         if back:
             return 'hTap(context, %s, back: true)' % code
+        if self.page_name == 'PackageEdit' and label == '删除套餐':
+            return 'hTap(context, %s, onTap: () => hConfirmPop(context, %s))' % (code, dstr(label))
         if m:
             return 'hTap(context, %s, to: %s)' % (code, dstr(m.group(1)))
         if re.search(r'(删除此|停用|解除绑定|退出所有|注销账号)', label):
@@ -1217,6 +1295,7 @@ class Gen:
         (r'^支付(账户|方式)', 'account'), (r'^推荐人', 'referrer'), (r'^工位', 'station'),
         (r'^(领用|默认)?技师', 'tech'), (r'^关联工单', 'workorder'), (r'^积分倍率', 'multiplier'),
         (r'^生日礼', 'gift'), (r'^(开始|结束)日期$', 'datefull'), (r'^运费', 'amount'), (r'^(入库|出库)?日期', 'date'), (r'^从 ', 'budgetFrom'),
+        (r'^每人限购', 'packageLimit'), (r'^适用车型', 'vehicleScope'),
     ]
 
     def leaf_texts(self, n, out=None):

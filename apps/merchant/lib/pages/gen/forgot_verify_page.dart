@@ -370,14 +370,24 @@ class ForgotVerifyPage extends StatelessWidget {
                     child: Align(
                       alignment: Alignment(0, 0),
                       widthFactor: 1,
-                      child: Text(
-                        '下一步',
+                      child: hBusy(
+                        'ForgotVerify>ForgotReset',
+                        Text(
+                          '下一步',
+                          style: hts(
+                            15,
+                            Color(0xFFFFFFFF),
+                            w: FontWeight.w600,
+                            lh: 22,
+                          ),
+                        ),
                         style: hts(
                           15,
                           Color(0xFFFFFFFF),
                           w: FontWeight.w600,
                           lh: 22,
                         ),
+                        label: '提交中…',
                       ),
                     ),
                   ),

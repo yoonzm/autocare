@@ -86,6 +86,7 @@ class _CardTiersLivePageState extends State<CardTiersLivePage> {
       showSkeleton = false;
       if (failed == null) {
         cards = rows;
+        CatalogCounts.cards = rows!.length;
         autoUpgrade = rules!.autoUpgrade;
         balanceRefundable = rules.balanceRefundable;
         error = null;
@@ -158,7 +159,7 @@ class _CardTiersLivePageState extends State<CardTiersLivePage> {
       }
       return [
         showSkeleton
-            ? const SkeletonList(count: 3)
+            ? const SkeletonList(count: 5)
             : const SizedBox(height: 120),
       ];
     }
@@ -334,7 +335,7 @@ class _CardTiersLivePageState extends State<CardTiersLivePage> {
                                 alignment: Alignment.center,
                                 widthFactor: 1,
                                 child: Text(
-                                  '等级储值卡 ${cards?.length ?? 0}',
+                                  tabLabel('等级储值卡', cards?.length),
                                   style: hts(
                                     14,
                                     dk(
@@ -355,7 +356,7 @@ class _CardTiersLivePageState extends State<CardTiersLivePage> {
                                 alignment: Alignment.center,
                                 widthFactor: 1,
                                 child: Text(
-                                  '等级储值卡 ${cards?.length ?? 0}',
+                                  tabLabel('等级储值卡', cards?.length),
                                   style: hts(
                                     13,
                                     dk(
@@ -386,7 +387,7 @@ class _CardTiersLivePageState extends State<CardTiersLivePage> {
                                 alignment: Alignment(0, 0),
                                 widthFactor: 1,
                                 child: Text(
-                                  '次卡套餐 6',
+                                  tabLabel('次卡套餐', CatalogCounts.packages),
                                   style: hts(
                                     14,
                                     dk(

@@ -1,6 +1,6 @@
-export type CatalogKind = 'services' | 'cards';
+export type CatalogKind = 'services' | 'cards' | 'packages';
 export const isCatalogKind = (value: unknown): value is CatalogKind =>
-  value === 'services' || value === 'cards';
+  value === 'services' || value === 'cards' || value === 'packages';
 
 export interface StoreRow {
   id: string;
@@ -38,6 +38,27 @@ export interface CardTypeRow {
   birthday_gift: string;
   priority_booking: boolean;
   validity: CardValidity;
+}
+
+export interface PackageRow {
+  id: string;
+  store_id: string;
+  name: string;
+  price: number;
+  validity_months: number;
+  purchase_limit: number | null;
+  vehicle_scope: string;
+  show_in_mini: boolean;
+  description: string;
+  active: boolean;
+  deleted_at: string | null;
+  created_at: string;
+  items: {
+    service_id: string;
+    count: number;
+    position: number;
+    service: { name: string; price: number; active: boolean } | null;
+  }[];
 }
 
 export interface CardRules {
@@ -93,7 +114,7 @@ export type ApiResponse =
   | { code: string; mock: true }
   | { access_token: string; refresh_token: string }
   | { store: StoreProfileRow }
-  | { items: ServiceItemRow[] | CardTypeRow[] }
+  | { items: ServiceItemRow[] | CardTypeRow[] | PackageRow[] }
   | { rules: CardRules }
-  | { item: ServiceItemRow | CardTypeRow }
+  | { item: ServiceItemRow | CardTypeRow | PackageRow }
   | { error: string };

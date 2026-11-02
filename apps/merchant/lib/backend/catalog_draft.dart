@@ -35,6 +35,33 @@ class CatalogDraft {
 
   static void begin(String kind, [Map<String, dynamic>? row]) {
     final fields = {...?row};
+    if (kind == 'packages') {
+      // 后端返回的 items 是 [{service_id, count, position, service: {name, price}}]，
+      // 编辑时统一成扁平的 [{service_id, name, price, count}]
+      final raw = (row?['items'] as List?) ?? const [];
+      final items = [
+        for (final e
+            in (List<Map>.from(raw)..sort(
+              (a, b) => ((a['position'] ?? 0) as num).compareTo(
+                (b['position'] ?? 0) as num,
+              ),
+            )))
+          {
+            'service_id': e['service_id'],
+            'name': (e['service'] as Map?)?['name'] ?? e['name'] ?? '',
+            'price': (e['service'] as Map?)?['price'] ?? e['price'] ?? 0,
+            'count': e['count'] ?? 1,
+          },
+      ];
+      fields['items'] = items;
+      // 新建套餐的默认值
+      fields.putIfAbsent('validity_months', () => 12);
+      fields.putIfAbsent('purchase_limit', () => null);
+      fields.putIfAbsent('vehicle_scope', () => '全部车型');
+      fields.putIfAbsent('show_in_mini', () => true);
+      fields.putIfAbsent('active', () => true);
+      fields.putIfAbsent('description', () => '');
+    }
     if (kind == 'cards') {
       // 新建卡种的默认值（已有记录来自后端，字段齐全）
       fields.putIfAbsent('color', () => 'black');
@@ -92,6 +119,44 @@ class CatalogDraft {
   static void setGift(String label) =>
       set('cards', 'birthday_gift', label == noGift ? '' : label);
 
+  // ───────── 次卡套餐字段 <-> 界面文字 ─────────
+  /// 有效期（月），顺序与设计稿一致：3 / 6 / 12 / 24 个月、永久（0）。
+  static const packageValidities = [3, 6, 12, 24, 0];
+
+  /// 每人限购的选项；`不限` 对应 null。
+  static const packageLimits = [null, 1, 2, 3, 5, 10];
+
+  static List<Map<String, dynamic>> get packageItems => [
+    for (final e in (_field('items') as List? ?? const []))
+      Map<String, dynamic>.from(e as Map),
+  ];
+
+  static void setPackageItems(List<Map<String, dynamic>> items) =>
+      set('packages', 'items', items);
+
+  static int get packageValidityIndex {
+    final i = packageValidities.indexOf(
+      int.tryParse('${_field('validity_months') ?? 12}') ?? 12,
+    );
+    return i < 0 ? 2 : i;
+  }
+
+  static bool get packageShowInMini => _field('show_in_mini') != false;
+  static bool get packageActive => _field('active') != false;
+  static String get packageVehicleScope =>
+      _field('vehicle_scope')?.toString() ?? '全部车型';
+
+  /// `2 份` / `不限`
+  static String get packageLimitLabel {
+    final v = int.tryParse('${_field('purchase_limit') ?? ''}');
+    return v == null ? '不限' : '$v 份';
+  }
+
+  static void setPackageLimit(String label) {
+    final v = int.tryParse(label.replaceAll('份', '').trim());
+    set('packages', 'purchase_limit', v);
+  }
+
   /// 去掉多余的小数：`2.0` -> `2`，`1.5` -> `1.5`。
   static String formatNumber(num n) =>
       n == n.roundToDouble() ? n.round().toString() : n.toString();
@@ -102,7 +167,11 @@ class CatalogDraft {
     final value = draft.fields[field];
     if (value != null) return value.toString();
     return switch (field) {
-      'name' || 'price' || 'upgrade_recharge' || 'upgrade_cumulative' => '',
+      'name' ||
+      'price' ||
+      'upgrade_recharge' ||
+      'upgrade_cumulative' ||
+      'description' => '',
       _ => fallback,
     };
   }
@@ -131,7 +200,35 @@ class CatalogDraft {
     }
     final values = <String, dynamic>{'name': name};
     if (draft.id != null) values['id'] = draft.id;
-    if (kind == 'services') {
+    if (kind == 'packages') {
+      final price = num.tryParse(
+        (draft.fields['price'] ?? '').toString().replaceAll(',', '').trim(),
+      );
+      if (price == null || price < 0) {
+        fail('请输入正确的套餐售价');
+        return;
+      }
+      final items = packageItems;
+      if (items.isEmpty) {
+        fail('请至少添加一个包含服务');
+        return;
+      }
+      values.addAll({
+        'price': price,
+        'validity_months': packageValidities[packageValidityIndex],
+        'purchase_limit': int.tryParse(
+          '${draft.fields['purchase_limit'] ?? ''}',
+        ),
+        'vehicle_scope': packageVehicleScope,
+        'show_in_mini': packageShowInMini,
+        'active': packageActive,
+        'description': (draft.fields['description'] ?? '').toString().trim(),
+        'items': [
+          for (final e in items)
+            {'service_id': e['service_id'], 'count': e['count']},
+        ],
+      });
+    } else if (kind == 'services') {
       final price = num.tryParse(
         (draft.fields['price'] ?? '').toString().replaceAll(',', ''),
       );
@@ -216,3 +313,13 @@ class CatalogDraft {
     changed.value++;
   }
 }
+
+/// 两个页签（等级储值卡 / 次卡套餐）上显示的数量；还没加载过时为 null，不显示数字。
+class CatalogCounts {
+  CatalogCounts._();
+  static int? cards;
+  static int? packages;
+}
+
+String tabLabel(String name, int? count) =>
+    count == null ? name : '$name $count';

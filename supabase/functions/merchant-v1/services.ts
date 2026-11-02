@@ -27,6 +27,8 @@ export async function handleServices(input: Input, storeId: string): Promise<Res
     if (!uuid(input.id)) return fail('记录 ID 无效');
     const { data, error } = await admin.from('service_items').delete()
       .eq('id', input.id).eq('store_id', storeId).select('id').maybeSingle();
+    // 23503: a package still includes this service
+    if (error?.code === '23503') return fail('该服务项目已被次卡套餐使用，请先从套餐中移除', 409);
     return error ? fail('删除失败', 400) : data ? json({ ok: true }) : fail('记录不存在', 404);
   }
   return fail('不支持的操作');

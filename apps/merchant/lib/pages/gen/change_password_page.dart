@@ -716,14 +716,24 @@ class ChangePasswordPage extends StatelessWidget {
                       child: Align(
                         alignment: Alignment(0, 0),
                         widthFactor: 1,
-                        child: Text(
-                          '确认修改',
+                        child: hBusy(
+                          'ChangePassword>Security',
+                          Text(
+                            '确认修改',
+                            style: hts(
+                              15,
+                              dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                              w: FontWeight.w600,
+                              lh: 22,
+                            ),
+                          ),
                           style: hts(
                             15,
                             dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
                             w: FontWeight.w600,
                             lh: 22,
                           ),
+                          label: '提交中…',
                         ),
                       ),
                     ),

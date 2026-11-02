@@ -277,7 +277,7 @@ void main() {
       await t.pump();
       // 点击后立即 loading：文字换成转圈，不能再点
       expect(find.text('重试'), findsNothing);
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(AppSpinner), findsOneWidget);
       await t.pump(const Duration(milliseconds: 100));
       expect(n, 2);
       await t.pump(const Duration(seconds: 1));
@@ -382,7 +382,7 @@ void main() {
       await t.tap(find.text('提交'));
       await t.pump();
       expect(find.text('提交中…'), findsOneWidget);
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(AppSpinner), findsOneWidget);
       await t.tap(find.text('提交中…'));
       await t.tap(find.text('提交中…'));
       await t.pump();
@@ -390,7 +390,7 @@ void main() {
       done.complete();
       await t.pump(const Duration(milliseconds: 600));
       expect(find.text('提交'), findsOneWidget);
-      expect(find.byType(CircularProgressIndicator), findsNothing);
+      expect(find.byType(AppSpinner), findsNothing);
     });
 
     testWidgets('失败：恢复可点，用 Toast 说明原因', (t) async {

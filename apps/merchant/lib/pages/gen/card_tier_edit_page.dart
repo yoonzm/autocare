@@ -90,8 +90,17 @@ class CardTierEditPage extends StatelessWidget {
                         child: Align(
                           alignment: Alignment(-1, 0),
                           widthFactor: 1,
-                          child: Text(
-                            '保存',
+                          child: hBusy(
+                            'CardTierEdit>CardTiers',
+                            Text(
+                              '保存',
+                              style: hts(
+                                14,
+                                Color(0xFFFFFFFF),
+                                w: FontWeight.w600,
+                                lh: 20,
+                              ),
+                            ),
                             style: hts(
                               14,
                               Color(0xFFFFFFFF),

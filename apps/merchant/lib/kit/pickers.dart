@@ -74,6 +74,21 @@ class _HStrHolderState extends State<HStrHolder> {
               ? CatalogDraft.setMultiplier(ctrl.v)
               : CatalogDraft.setGift(ctrl.v),
         );
+      } else if (merchantApi.hasSession &&
+          route == 'PackageEdit' &&
+          (widget.initial == '2 份' || widget.initial == '全部车型')) {
+        // 套餐编辑页的每人限购 / 适用车型：值来自正在编辑的套餐，选择后写回草稿
+        final limit = widget.initial == '2 份';
+        ctrl = StrCtrl(
+          limit
+              ? CatalogDraft.packageLimitLabel
+              : CatalogDraft.packageVehicleScope,
+        );
+        ctrl.addListener(
+          () => limit
+              ? CatalogDraft.setPackageLimit(ctrl.v)
+              : CatalogDraft.set('packages', 'vehicle_scope', ctrl.v),
+        );
       } else {
         ctrl = StrCtrl(
           route == 'ServiceEdit' && widget.initial == '镀晶镀膜'
@@ -945,6 +960,23 @@ Future<void> hPick(
         '赠精致洗车 2 次',
         '赠 50 元券',
       ], c.v);
+    case 'packageLimit':
+      r = await pickFromList(context, '每人限购', [
+        '不限',
+        '1 份',
+        '2 份',
+        '3 份',
+        '5 份',
+        '10 份',
+      ], c.v);
+    case 'vehicleScope':
+      r = await pickFromList(context, '适用车型', [
+        '全部车型',
+        '仅轿车',
+        '仅 SUV',
+        '仅 MPV',
+        '新能源车',
+      ], c.v);
     case 'budgetFrom':
       r = await pickFromList(context, '调剂来源', [
         '营销',
@@ -1233,6 +1265,15 @@ class CodeCtrl extends ChangeNotifier {
   /// 同一页有多个“获取验证码”时的序号（按出现顺序，0 起）。
   int slot = 0;
   int seconds = 0;
+
+  /// 请求验证码中：按钮显示转圈和“发送中…”，期间不可再点；失败立即恢复。
+  bool sending = false;
+  void setSending(bool v) {
+    if (sending == v) return;
+    sending = v;
+    notifyListeners();
+  }
+
   Timer? _timer;
   void start() {
     seconds = 60;
@@ -1285,7 +1326,7 @@ class _HCodeHolderState extends State<HCodeHolder> {
 }
 
 void hSendCode(BuildContext context, CodeCtrl c) {
-  if (c.seconds > 0) return;
+  if (c.seconds > 0 || c.sending) return;
   final route = ModalRoute.of(context)?.settings.name;
   if (route == 'RegPhone') {
     _sendRegistrationCode(context, c);
@@ -1315,16 +1356,25 @@ Future<void> _sendRegistrationCode(BuildContext context, CodeCtrl c) =>
 
 /// 向 [phone] 获取验证码（开发环境由后端 mock 返回并直接提示）。
 Future<void> sendCodeTo(BuildContext context, CodeCtrl c, String phone) async {
+  if (c.sending) return;
   if (!RegExp(r'^1[3-9]\d{9}$').hasMatch(phone)) {
     hToastOn(ScaffoldMessenger.of(context), '请输入正确的 11 位手机号');
     return;
   }
+  c.setSending(true);
   try {
-    final code = await merchantApi.sendMockCode(phone);
+    // 加载指示至少停留 500ms，避免一闪而过
+    final results = await Future.wait<Object?>([
+      merchantApi.sendMockCode(phone),
+      Future<void>.delayed(kIndicatorMinShow),
+    ]);
+    final code = results[0] as String;
+    c.setSending(false);
     if (!context.mounted) return;
     c.start();
     hToastOn(ScaffoldMessenger.of(context), '开发环境验证码：$code');
   } catch (e) {
+    c.setSending(false);
     // 失败立即恢复可点，直接展示服务端的原因（如“今日发送次数已达上限”）
     if (context.mounted) AppToast.error(context, e);
   }
@@ -1332,8 +1382,22 @@ Future<void> sendCodeTo(BuildContext context, CodeCtrl c, String phone) async {
 
 Widget hCodeText(CodeCtrl c, TextStyle style) => ListenableBuilder(
   listenable: c,
-  builder: (_, _) => Text(
-    c.seconds > 0 ? '${c.seconds} 秒后重发' : '获取验证码',
-    style: c.seconds > 0 ? style.copyWith(color: _muted) : style,
-  ),
+  builder: (_, _) {
+    if (c.sending) {
+      // 设计稿的验证码按钮加载态：转圈（16）+ “发送中…”，灰色
+      final grey = style.copyWith(color: _muted);
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AppSpinner(size: 16, color: _muted),
+          const SizedBox(width: 6),
+          Text('发送中…', style: grey),
+        ],
+      );
+    }
+    return Text(
+      c.seconds > 0 ? '${c.seconds} 秒后重发' : '获取验证码',
+      style: c.seconds > 0 ? style.copyWith(color: _muted) : style,
+    );
+  },
 );

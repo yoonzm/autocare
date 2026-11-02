@@ -17,7 +17,9 @@ import 'pages/card_tiers_live_page.dart';
 import 'pages/gen/gen_routes.dart';
 import 'pages/login_page.dart';
 import 'pages/member_detail_page.dart';
+import 'pages/card_packages_live_page.dart';
 import 'pages/order_page.dart';
+import 'pages/package_svc_pick_live.dart';
 import 'pages/services_page.dart';
 import 'pages/settings_page.dart';
 import 'pages/scan_page.dart';
@@ -27,6 +29,10 @@ import 'pages/theme_sheet.dart';
 final Map<String, WidgetBuilder> _allSheets = {
   ...genSheets,
   'ThemeSheet': (_) => const ThemeSheet(),
+  // 登录后用真实服务项目；未登录（设计预览）仍用设计稿的示例数据
+  'PackageSvcPick': (ctx) => merchantApi.hasSession
+      ? const PackageSvcPickLive()
+      : genSheets['PackageSvcPick']!(ctx),
 };
 
 /// 主 Tab 页面（首页 / 会员 / 库存 / 统计）。
@@ -180,6 +186,8 @@ class _PairPageState extends State<PairPage> {
         for (final n in _pairs[widget.id]!)
           n == 'CardTiers' && merchantApi.hasSession
               ? const CardTiersLivePage()
+              : n == 'CardPackages' && merchantApi.hasSession
+              ? const CardPackagesLivePage()
               : Builder(builder: genRoutes[n]!),
       ],
     ),
@@ -267,10 +275,10 @@ void openRoute(BuildContext context, String name) {
       CatalogDraft.current?.kind != 'cards') {
     CatalogDraft.begin('cards');
   }
-  if (name == 'CardPackages' && merchantApi.hasSession) {
-    // TODO: Package cards are outside the V1 tier-card scope.
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('次卡套餐暂为设计预览，尚未接通')));
+  if (merchantApi.hasSession &&
+      name == 'PackageEdit' &&
+      CatalogDraft.current?.kind != 'packages') {
+    CatalogDraft.begin('packages');
   }
   _openRouteCore(context, name);
 }

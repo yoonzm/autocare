@@ -75,7 +75,9 @@ void main() {
     await t.ensureVisible(find.text('获取验证码'));
     await t.tap(find.text('获取验证码'));
     await t.pump();
-    await t.pump(const Duration(milliseconds: 400));
+    expect(find.text('发送中…'), findsOneWidget); // 点击后立即显示加载中
+    await t.pump(const Duration(milliseconds: 600));
+    await t.pumpAndSettle(); // 等旧提示条退场、新提示条出现
     expect(find.text('开发环境验证码：482910'), findsOneWidget);
     await t.pump(const Duration(seconds: 4));
     await t.enterText(find.byType(TextField).at(1), '482910');

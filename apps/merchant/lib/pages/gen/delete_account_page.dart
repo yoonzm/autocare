@@ -717,14 +717,24 @@ class DeleteAccountPage extends StatelessWidget {
                       child: Align(
                         alignment: Alignment(0, 0),
                         widthFactor: 1,
-                        child: Text(
-                          '申请注销',
+                        child: hBusy(
+                          'DeleteAccount>Login',
+                          Text(
+                            '申请注销',
+                            style: hts(
+                              15,
+                              dk(context, Color(0xFFA43433), Color(0xFFFF7B7E)),
+                              w: FontWeight.w500,
+                              lh: 22,
+                            ),
+                          ),
                           style: hts(
                             15,
                             dk(context, Color(0xFFA43433), Color(0xFFFF7B7E)),
                             w: FontWeight.w500,
                             lh: 22,
                           ),
+                          label: '提交中…',
                         ),
                       ),
                     ),

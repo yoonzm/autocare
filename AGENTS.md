@@ -6,4 +6,5 @@
 - 当前环境无法安全实现的流程可以暂缓；在对应调用处写明 `TODO`、阻碍原因和预期后端接口，不能用看似成功的前端假操作冒充已接通。
 - 第一版范围仅为商户端注册/登录、服务项目、会员卡种。会员、订单、库存等其余业务保持现状，不接入 Supabase。短信暂不接服务商，允许**仅开发环境**后端 mock，并须明确禁止用于生产。
 - 所有会请求网络的界面（加载、空数据、错误、重试、按钮提交、Toast）必须遵循 `docs/frontend-loading-feedback.md`，统一使用 `apps/merchant/lib/kit/async_kit.dart` 里的组件，不各页自己写。**所有表单输入框没值时都必须有 placeholder**；生成页面缺失时改 `tools/design_to_flutter.py` 重新生成，不手改 `gen/`，`test/placeholder_test.dart` 会检查。
+- 加载态（骨架屏、按钮 loading、验证码按钮、图标按钮）有一组曾经出错的通用要求，写在 `docs/frontend-loading-feedback.md` 的“加载态的通用要求”，新增页面和按钮必须逐条满足，不得再出现。
 - 每个接入 PR 都要列出：保持不变的界面、真正接通的动作、仍为 mock/TODO 的动作，并验证前端视觉与关键流程。

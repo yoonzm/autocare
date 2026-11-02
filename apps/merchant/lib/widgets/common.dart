@@ -1,3 +1,4 @@
+import '../kit/async_kit.dart' show AppSpinner;
 import '../kit/kit.dart';
 
 import 'package:flutter/material.dart';
@@ -403,11 +404,7 @@ class PrimaryButton extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (loading) ...[
-              SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(strokeWidth: 2, color: fg),
-              ),
+              AppSpinner(size: 18, color: fg),
               const SizedBox(width: 8),
             ],
             Text(

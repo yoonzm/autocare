@@ -90,8 +90,17 @@ class PackageEditPage extends StatelessWidget {
                         child: Align(
                           alignment: Alignment(-1, 0),
                           widthFactor: 1,
-                          child: Text(
-                            '保存',
+                          child: hBusy(
+                            'PackageEdit>CardPackages',
+                            Text(
+                              '保存',
+                              style: hts(
+                                14,
+                                Color(0xFFFFFFFF),
+                                w: FontWeight.w600,
+                                lh: 20,
+                              ),
+                            ),
                             style: hts(
                               14,
                               Color(0xFFFFFFFF),
@@ -108,106 +117,7 @@ class PackageEditPage extends StatelessWidget {
                   cross: CrossAxisAlignment.center,
                   gap: 8,
                 ),
-                hbox(
-                  grad: LinearGradient(
-                    begin: Alignment(-0.707, -0.707),
-                    end: Alignment(0.707, 0.707),
-                    colors: [
-                      Color(0xFF1E63AE),
-                      Color(0xFF0485F7),
-                      Color(0xFF4DB0FF),
-                    ],
-                    stops: [0, 0.7, 1],
-                  ),
-                  radius: BorderRadius.circular(24),
-                  pad: EdgeInsets.fromLTRB(20, 18, 20, 18),
-                  clip: true,
-                  child: hstack(
-                    hcol(
-                      [
-                        hrow(
-                          [
-                            Text(
-                              '驰光汽车美容',
-                              style: hts(
-                                12,
-                                Color.fromRGBO(255, 255, 255, 0.8),
-                                w: FontWeight.w500,
-                                lh: 17,
-                              ),
-                            ),
-                            Expanded(flex: 1, child: SizedBox.shrink()),
-                            Text(
-                              '套餐预览',
-                              style: hts(
-                                11,
-                                Color.fromRGBO(255, 255, 255, 0.7),
-                                lh: 16,
-                              ),
-                            ),
-                          ],
-                          main: MainAxisAlignment.start,
-                          cross: CrossAxisAlignment.center,
-                          gap: 8,
-                        ),
-                        hrow(
-                          [
-                            Expanded(
-                              flex: 1,
-                              child: hcol(
-                                [
-                                  Text(
-                                    '精致洗车年卡',
-                                    style: hts(
-                                      20,
-                                      Color(0xFFFFFFFF),
-                                      w: FontWeight.w600,
-                                      lh: 28,
-                                    ),
-                                  ),
-                                  Text(
-                                    '20 次 · 12 个月有效',
-                                    style: hts(
-                                      12,
-                                      Color.fromRGBO(255, 255, 255, 0.85),
-                                      lh: 17,
-                                    ),
-                                  ),
-                                ],
-                                main: MainAxisAlignment.start,
-                                cross: CrossAxisAlignment.stretch,
-                                gap: 2,
-                              ),
-                            ),
-                            Text(
-                              '¥1,080',
-                              style: hts(
-                                26,
-                                Color(0xFFFFFFFF),
-                                w: FontWeight.w600,
-                                lh: 32,
-                              ),
-                            ),
-                          ],
-                          main: MainAxisAlignment.start,
-                          cross: CrossAxisAlignment.end,
-                          gap: 8,
-                        ),
-                      ],
-                      main: MainAxisAlignment.start,
-                      cross: CrossAxisAlignment.stretch,
-                      gap: 22,
-                    ),
-                    [],
-                    behind: [
-                      Positioned(
-                        top: -90,
-                        right: -70,
-                        child: hsvg(Svgs.s276, w: 220, h: 220),
-                      ),
-                    ],
-                  ),
-                ),
+                hPackagePreview(),
                 hbox(
                   bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
                   radius: BorderRadius.circular(24),
@@ -346,253 +256,7 @@ class PackageEditPage extends StatelessWidget {
                         ),
                       ),
                     ),
-                    hbox(
-                      bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                      radius: BorderRadius.circular(24),
-                      shadow: dk(
-                        context,
-                        [
-                          BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 0),
-                            blurRadius: 1,
-                            spreadRadius: 0,
-                          ),
-                          BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 1),
-                            blurRadius: 2,
-                            spreadRadius: 0,
-                          ),
-                          BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.04),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
-                            spreadRadius: 0,
-                          ),
-                        ],
-                        [
-                          BoxShadow(
-                            color: Color(0xFF26262B),
-                            offset: Offset(0, 0),
-                            blurRadius: 0,
-                            spreadRadius: 1,
-                          ),
-                        ],
-                      ),
-                      pad: EdgeInsets.fromLTRB(0, 4, 0, 4),
-                      child: hcol(
-                        [
-                          hbox(
-                            minH: 60,
-                            pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                            child: hrow(
-                              [
-                                hbox(
-                                  w: 36,
-                                  h: 36,
-                                  bg: dk(
-                                    context,
-                                    Color(0xFFE1F0FE),
-                                    Color.fromRGBO(4, 133, 247, 0.18),
-                                  ),
-                                  radius: BorderRadius.circular(12),
-                                  child: hrow(
-                                    [
-                                      hsvg(
-                                        dk(context, Svgs.s274, Svgs.s275),
-                                        w: 18,
-                                        h: 18,
-                                      ),
-                                    ],
-                                    main: MainAxisAlignment.center,
-                                    cross: CrossAxisAlignment.center,
-                                    gap: 0,
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 1,
-                                  child: hcol(
-                                    [
-                                      Text(
-                                        '精致洗车',
-                                        style: hts(
-                                          15,
-                                          dk(
-                                            context,
-                                            Color(0xFF18181B),
-                                            Color(0xFFFAFAFA),
-                                          ),
-                                          w: FontWeight.w500,
-                                          lh: 22,
-                                        ),
-                                      ),
-                                      Text(
-                                        '单次 ¥68',
-                                        style: hts(
-                                          12,
-                                          dk(
-                                            context,
-                                            Color(0xFF71717A),
-                                            Color(0xFF9A9AA3),
-                                          ),
-                                          lh: 17,
-                                        ),
-                                      ),
-                                    ],
-                                    main: MainAxisAlignment.start,
-                                    cross: CrossAxisAlignment.stretch,
-                                    gap: 1,
-                                  ),
-                                ),
-                                HHolder(
-                                  inits: [20],
-                                  builder: (context, ctrls) {
-                                    final c1 = ctrls[0];
-                                    return hrow(
-                                      [
-                                        hTap(
-                                          context,
-                                          hbox(
-                                            w: 32,
-                                            h: 32,
-                                            bg: dk(
-                                              context,
-                                              Color(0xFFF4F4F5),
-                                              Color(0xFF27272A),
-                                            ),
-                                            radius: BorderRadius.circular(16),
-                                            child: hrow(
-                                              [
-                                                hsvg(
-                                                  dk(
-                                                    context,
-                                                    Svgs.s16,
-                                                    Svgs.s17,
-                                                  ),
-                                                  w: 14,
-                                                  h: 14,
-                                                ),
-                                              ],
-                                              main: MainAxisAlignment.center,
-                                              cross: CrossAxisAlignment.center,
-                                              gap: 0,
-                                            ),
-                                          ),
-                                          onTap: () => c1.add(-1),
-                                        ),
-                                        Flexible(
-                                          flex: 17,
-                                          child: hbox(
-                                            minW: 36,
-                                            child: Align(
-                                              alignment: Alignment.center,
-                                              widthFactor: 1,
-                                              child: hCount(
-                                                c1,
-                                                hts(
-                                                  15,
-                                                  dk(
-                                                    context,
-                                                    Color(0xFF18181B),
-                                                    Color(0xFFFAFAFA),
-                                                  ),
-                                                  w: FontWeight.w600,
-                                                  lh: 22,
-                                                  tab: true,
-                                                ),
-                                                0,
-                                                '',
-                                                false,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        hTap(
-                                          context,
-                                          hbox(
-                                            w: 32,
-                                            h: 32,
-                                            bg: dk(
-                                              context,
-                                              Color(0xFFF4F4F5),
-                                              Color(0xFF27272A),
-                                            ),
-                                            radius: BorderRadius.circular(16),
-                                            child: hrow(
-                                              [
-                                                hsvg(
-                                                  dk(
-                                                    context,
-                                                    Svgs.s18,
-                                                    Svgs.s19,
-                                                  ),
-                                                  w: 14,
-                                                  h: 14,
-                                                ),
-                                              ],
-                                              main: MainAxisAlignment.center,
-                                              cross: CrossAxisAlignment.center,
-                                              gap: 0,
-                                            ),
-                                          ),
-                                          onTap: () => c1.add(1),
-                                        ),
-                                      ],
-                                      main: MainAxisAlignment.start,
-                                      cross: CrossAxisAlignment.center,
-                                      gap: 4,
-                                    );
-                                  },
-                                ),
-                              ],
-                              main: MainAxisAlignment.start,
-                              cross: CrossAxisAlignment.center,
-                              gap: 12,
-                            ),
-                          ),
-                          hbox(
-                            h: 1,
-                            bg: dk(
-                              context,
-                              Color(0xFFEFEFF1),
-                              Color(0xFF2A2A2E),
-                            ),
-                            margin: EdgeInsets.fromLTRB(64, 0, 0, 0),
-                          ),
-                          hTap(
-                            context,
-                            hbox(
-                              minH: 54,
-                              pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                              child: hrow(
-                                [
-                                  hsvg(Svgs.s277, w: 18, h: 18),
-                                  Flexible(
-                                    flex: 84,
-                                    child: Text(
-                                      '添加服务项目',
-                                      style: hts(
-                                        14,
-                                        Color(0xFF0485F7),
-                                        w: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                                main: MainAxisAlignment.start,
-                                cross: CrossAxisAlignment.center,
-                                gap: 8,
-                              ),
-                            ),
-                            to: 'PackageSvcPick',
-                          ),
-                        ],
-                        main: MainAxisAlignment.start,
-                        cross: CrossAxisAlignment.stretch,
-                        gap: 0,
-                      ),
-                    ),
+                    hPackageItems(),
                   ],
                   main: MainAxisAlignment.start,
                   cross: CrossAxisAlignment.stretch,
@@ -669,9 +333,10 @@ class PackageEditPage extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                                Text(
+                                hPkgText(
+                                  () => PackageCalc.originalText,
                                   '¥1,360',
-                                  style: hts(
+                                  hts(
                                     15,
                                     dk(
                                       context,
@@ -797,9 +462,10 @@ class PackageEditPage extends StatelessWidget {
                               [
                                 Expanded(
                                   flex: 1,
-                                  child: Text(
+                                  child: hPkgText(
+                                    () => PackageCalc.perUseText,
                                     '相当于单次 ¥54',
-                                    style: hts(
+                                    hts(
                                       13,
                                       dk(
                                         context,
@@ -818,9 +484,10 @@ class PackageEditPage extends StatelessWidget {
                                   ),
                                   radius: BorderRadius.circular(9),
                                   pad: EdgeInsets.fromLTRB(8, 0, 8, 0),
-                                  child: Text(
+                                  child: hPkgText(
+                                    () => PackageCalc.savingText,
                                     '省 ¥280 · 约 7.9 折',
-                                    style: hts(
+                                    hts(
                                       11,
                                       dk(
                                         context,
@@ -901,10 +568,10 @@ class PackageEditPage extends StatelessWidget {
                         groups: [
                           ({2}, false),
                         ],
-                        builder: (context, g2) => hwrap(
+                        builder: (context, g1) => hwrap(
                           [
                             HSel(
-                              ctrl: g2[0],
+                              ctrl: g1[0],
                               index: 0,
                               on: hbox(
                                 h: 34,
@@ -966,7 +633,7 @@ class PackageEditPage extends StatelessWidget {
                               ),
                             ),
                             HSel(
-                              ctrl: g2[0],
+                              ctrl: g1[0],
                               index: 1,
                               on: hbox(
                                 h: 34,
@@ -1028,7 +695,7 @@ class PackageEditPage extends StatelessWidget {
                               ),
                             ),
                             HSel(
-                              ctrl: g2[0],
+                              ctrl: g1[0],
                               index: 2,
                               on: hbox(
                                 h: 34,
@@ -1090,7 +757,7 @@ class PackageEditPage extends StatelessWidget {
                               ),
                             ),
                             HSel(
-                              ctrl: g2[0],
+                              ctrl: g1[0],
                               index: 3,
                               on: hbox(
                                 h: 34,
@@ -1152,7 +819,7 @@ class PackageEditPage extends StatelessWidget {
                               ),
                             ),
                             HSel(
-                              ctrl: g2[0],
+                              ctrl: g1[0],
                               index: 4,
                               on: hbox(
                                 h: 34,
@@ -1284,47 +951,55 @@ class PackageEditPage extends StatelessWidget {
                       pad: EdgeInsets.fromLTRB(0, 4, 0, 4),
                       child: hcol(
                         [
-                          hbox(
-                            minH: 54,
-                            pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                            child: hrow(
-                              [
-                                Expanded(
-                                  flex: 1,
-                                  child: Text(
-                                    '每人限购',
-                                    style: hts(
-                                      14,
-                                      dk(
-                                        context,
-                                        Color(0xFF52525B),
-                                        Color(0xFFA8A8B3),
+                          HStrHolder(
+                            initial: '2 份',
+                            builder: (context, s2) => hTap(
+                              context,
+                              hbox(
+                                minH: 54,
+                                pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                                child: hrow(
+                                  [
+                                    Expanded(
+                                      flex: 1,
+                                      child: Text(
+                                        '每人限购',
+                                        style: hts(
+                                          14,
+                                          dk(
+                                            context,
+                                            Color(0xFF52525B),
+                                            Color(0xFFA8A8B3),
+                                          ),
+                                          lh: 20,
+                                        ),
                                       ),
-                                      lh: 20,
                                     ),
-                                  ),
-                                ),
-                                Text(
-                                  '2 份',
-                                  style: hts(
-                                    15,
-                                    dk(
-                                      context,
-                                      Color(0xFF18181B),
-                                      Color(0xFFFAFAFA),
+                                    hStr(
+                                      s2,
+                                      hts(
+                                        15,
+                                        dk(
+                                          context,
+                                          Color(0xFF18181B),
+                                          Color(0xFFFAFAFA),
+                                        ),
+                                        lh: 22,
+                                      ),
                                     ),
-                                    lh: 22,
-                                  ),
+                                    hsvg(
+                                      dk(context, Svgs.s3, Svgs.s4),
+                                      w: 16,
+                                      h: 16,
+                                    ),
+                                  ],
+                                  main: MainAxisAlignment.start,
+                                  cross: CrossAxisAlignment.center,
+                                  gap: 12,
                                 ),
-                                hsvg(
-                                  dk(context, Svgs.s3, Svgs.s4),
-                                  w: 16,
-                                  h: 16,
-                                ),
-                              ],
-                              main: MainAxisAlignment.start,
-                              cross: CrossAxisAlignment.center,
-                              gap: 12,
+                              ),
+                              onTap: () =>
+                                  hPick(context, 'packageLimit', '每人限购', s2),
                             ),
                           ),
                           hbox(
@@ -1336,47 +1011,55 @@ class PackageEditPage extends StatelessWidget {
                             ),
                             margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
                           ),
-                          hbox(
-                            minH: 54,
-                            pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                            child: hrow(
-                              [
-                                Expanded(
-                                  flex: 1,
-                                  child: Text(
-                                    '适用车型',
-                                    style: hts(
-                                      14,
-                                      dk(
-                                        context,
-                                        Color(0xFF52525B),
-                                        Color(0xFFA8A8B3),
+                          HStrHolder(
+                            initial: '全部车型',
+                            builder: (context, s3) => hTap(
+                              context,
+                              hbox(
+                                minH: 54,
+                                pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                                child: hrow(
+                                  [
+                                    Expanded(
+                                      flex: 1,
+                                      child: Text(
+                                        '适用车型',
+                                        style: hts(
+                                          14,
+                                          dk(
+                                            context,
+                                            Color(0xFF52525B),
+                                            Color(0xFFA8A8B3),
+                                          ),
+                                          lh: 20,
+                                        ),
                                       ),
-                                      lh: 20,
                                     ),
-                                  ),
-                                ),
-                                Text(
-                                  '全部车型',
-                                  style: hts(
-                                    15,
-                                    dk(
-                                      context,
-                                      Color(0xFF18181B),
-                                      Color(0xFFFAFAFA),
+                                    hStr(
+                                      s3,
+                                      hts(
+                                        15,
+                                        dk(
+                                          context,
+                                          Color(0xFF18181B),
+                                          Color(0xFFFAFAFA),
+                                        ),
+                                        lh: 22,
+                                      ),
                                     ),
-                                    lh: 22,
-                                  ),
+                                    hsvg(
+                                      dk(context, Svgs.s3, Svgs.s4),
+                                      w: 16,
+                                      h: 16,
+                                    ),
+                                  ],
+                                  main: MainAxisAlignment.start,
+                                  cross: CrossAxisAlignment.center,
+                                  gap: 12,
                                 ),
-                                hsvg(
-                                  dk(context, Svgs.s3, Svgs.s4),
-                                  w: 16,
-                                  h: 16,
-                                ),
-                              ],
-                              main: MainAxisAlignment.start,
-                              cross: CrossAxisAlignment.center,
-                              gap: 12,
+                              ),
+                              onTap: () =>
+                                  hPick(context, 'vehicleScope', '适用车型', s3),
                             ),
                           ),
                           hbox(
@@ -1619,7 +1302,7 @@ class PackageEditPage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  to: 'CardPackages',
+                  onTap: () => hConfirmPop(context, '删除套餐'),
                 ),
               ],
               main: MainAxisAlignment.start,

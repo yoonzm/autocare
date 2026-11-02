@@ -184,14 +184,7 @@ class AppToast {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (kind == ToastKind.loading) ...[
-                const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Colors.white,
-                  ),
-                ),
+                const AppSpinner(size: 16, color: Colors.white),
                 const SizedBox(width: 8),
               ],
               Flexible(
@@ -513,13 +506,21 @@ class _PillButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
           ),
           child: busy
-              ? SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: filled ? Colors.white : C.ink,
-                  ),
+              ? Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AppSpinner(size: 14, color: filled ? Colors.white : C.ink),
+                    const SizedBox(width: 6),
+                    Text(
+                      '$label中…',
+                      style: ts(
+                        14,
+                        w: FontWeight.w600,
+                        color: filled ? Colors.white : C.ink,
+                        h: 20,
+                      ),
+                    ),
+                  ],
                 )
               : Text(
                   label,
@@ -762,11 +763,7 @@ class _LoadingButtonState extends State<LoadingButton> {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (_busy) ...[
-                SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: fg),
-                ),
+                AppSpinner(size: 18, color: fg),
                 const SizedBox(width: 8),
               ],
               Text(
@@ -800,6 +797,7 @@ const asyncActionKeys = {
   'Security>Login',
   'ServiceEdit>Services',
   'CardTierEdit>CardTiers',
+  'PackageEdit>CardPackages',
 };
 
 /// 执行异步动作并标记 [key] 为忙碌（loading 至少停留 500ms，重复触发被忽略）。
@@ -813,7 +811,9 @@ Future<void> runBusy(String key, Future<void> Function() action) async {
   }
 }
 
-/// 给按钮套上忙碌态：忙碌时内容变淡、中间转圈、不响应点击；尺寸不变。
+/// 异步动作进行中时拦截点击（防连点），尺寸和外观不变。
+/// loading 的视觉由 [hBusy] 画在按钮内容上；同一动作的其他按钮（如取消 ✕）
+/// 只是不可点，不显示转圈。
 class BusyOverlay extends StatelessWidget {
   final String actionKey;
   final Widget child;
@@ -822,27 +822,157 @@ class BusyOverlay extends StatelessWidget {
   Widget build(BuildContext context) => ValueListenableBuilder<Set<String>>(
     valueListenable: busyActions,
     child: child,
-    builder: (_, keys, child) {
-      if (!keys.contains(actionKey)) return child!;
-      return Semantics(
-        label: '处理中',
-        liveRegion: true,
-        child: AbsorbPointer(
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Opacity(opacity: 0.55, child: child),
-              const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
-            ],
-          ),
-        ),
-      );
-    },
+    builder: (_, keys, child) =>
+        AbsorbPointer(absorbing: keys.contains(actionKey), child: child),
   );
+}
+
+/// 按钮内容在 [actionKey] 忙碌时的 loading（设计稿“按钮提交”规范）：
+/// 原内容（文字 / 图标）隐藏，只显示转圈，按钮的宽高和背景保持不变。
+///
+/// 生成页面里的按钮不能改代码，由生成脚本把它们的文字 / 图标包进这个组件。
+/// [spinner] 为 false 时只隐藏内容（同一个按钮里有多个子元素时，只有第一个画转圈）。
+Widget hBusy(
+  String actionKey,
+  Widget child, {
+  TextStyle? style,
+  bool icon = false,
+  bool spinner = true,
+
+  /// 全宽底栏按钮的加载文案（设计稿“提交中…”）：转圈在左、文字在右，整体居中。
+  /// 顶部的小按钮不传，只显示转圈。
+  String? label,
+}) => ValueListenableBuilder<Set<String>>(
+  valueListenable: busyActions,
+  child: child,
+  builder: (_, keys, child) {
+    if (!keys.contains(actionKey)) return child!;
+    // 文字按钮的转圈和文字同色（主按钮是白色）；图标按钮按设计稿用主色
+    final color = icon ? C.primary : (style?.color ?? C.ink);
+    return Stack(
+      // passthrough：沿用外层给的约束，按钮不会因为内容变成转圈而缩成小圆
+      fit: StackFit.passthrough,
+      alignment: Alignment.center,
+      children: [
+        Opacity(opacity: 0, child: child),
+        // Positioned 不参与 Stack 的尺寸计算，转圈只是画在原内容的位置上
+        if (spinner)
+          Positioned.fill(
+            child: Center(
+              child: Semantics(
+                label: '处理中',
+                liveRegion: true,
+                child: label == null || icon
+                    ? AppSpinner(size: icon ? 20 : 18, color: color)
+                    // 文字比原按钮文字宽时向两侧溢出，不改变按钮尺寸
+                    : OverflowBox(
+                        maxWidth: double.infinity,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            AppSpinner(size: 18, color: color),
+                            const SizedBox(width: 8),
+                            Text(
+                              label,
+                              style: style,
+                              softWrap: false,
+                              maxLines: 1,
+                            ),
+                          ],
+                        ),
+                      ),
+              ),
+            ),
+          ),
+      ],
+    );
+  },
+);
+
+/// 转圈指示，样式与设计稿一致：淡色圆环 + 一段 1/4 圆弧，0.8s 一圈。
+/// 系统开启“减少动态效果”时不转动。
+class AppSpinner extends StatefulWidget {
+  final double size;
+  final Color color;
+  const AppSpinner({super.key, this.size = 18, required this.color});
+  @override
+  State<AppSpinner> createState() => _AppSpinnerState();
+}
+
+class _AppSpinnerState extends State<AppSpinner>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 800),
+  );
+  bool _spinning = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final still = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    if (still) {
+      _c.stop();
+      _spinning = false;
+    } else if (!_spinning) {
+      _c.repeat();
+      _spinning = true;
+    }
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    width: widget.size,
+    height: widget.size,
+    child: RotationTransition(
+      turns: _c,
+      child: CustomPaint(painter: _SpinnerPainter(widget.color)),
+    ),
+  );
+}
+
+class _SpinnerPainter extends CustomPainter {
+  final Color color;
+  const _SpinnerPainter(this.color);
+  @override
+  void paint(Canvas canvas, Size size) {
+    final unit = size.width / 24; // 设计稿的图标是 24 的坐标系
+    final stroke = 3 * unit;
+    final rect = Rect.fromCircle(
+      center: Offset(size.width / 2, size.height / 2),
+      radius: 9 * unit,
+    );
+    canvas.drawArc(
+      rect,
+      0,
+      2 * 3.141592653589793,
+      false,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = stroke
+        ..color = color.withValues(alpha: 0.3),
+    );
+    canvas.drawArc(
+      rect,
+      -3.141592653589793 / 2,
+      3.141592653589793 / 2,
+      false,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = stroke
+        ..strokeCap = StrokeCap.round
+        ..color = color,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_SpinnerPainter old) => old.color != color;
 }
 
 // ───────── AsyncView ─────────
@@ -1021,6 +1151,12 @@ class AsyncViewState<T> extends State<AsyncView<T>> {
     }
     return AnimatedSwitcher(
       duration: kFadeIn,
+      // 默认的布局是居中；骨架屏 / 内容要贴着顶部并占满区域，否则会出现一大块空白
+      layoutBuilder: (current, previous) => Stack(
+        fit: StackFit.expand,
+        alignment: Alignment.topCenter,
+        children: [...previous, ?current],
+      ),
       child: KeyedSubtree(key: key, child: body),
     );
   }
