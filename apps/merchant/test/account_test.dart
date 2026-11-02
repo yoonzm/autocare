@@ -12,6 +12,9 @@ class _FakeApi extends MerchantApi {
   Map<String, dynamic>? registered;
   @override
   bool get hasSession => true;
+  // 登录后会预加载服务项目（全局缓存）：这里没有服务项目
+  @override
+  Future<List<Map<String, dynamic>>> list(String kind) async => const [];
   @override
   Future<String> sendMockCode(String phone) async {
     calls.add('send:$phone');

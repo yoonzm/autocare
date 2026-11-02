@@ -140,8 +140,14 @@ class RechargeView {
   String get payLine => '实收 · 到账 ¥${formatMoney(amount + gift)}';
 
   /// 档位上的赠送文案；设计稿里的“+ 洗车 2 次”等赠品暂未实现，只显示赠送金额。
-  static String giftLabel(int i) =>
-      '送 ¥${formatMoney(MemberFlow.rechargeGifts[i])}';
+  static String giftLabel(int i) => i < MemberFlow.rechargeGifts.length
+      ? '送 ¥${formatMoney(MemberFlow.rechargeGifts[i])}'
+      : '';
+
+  /// 档位金额：`¥1,000`。
+  static String amountLabel(int i) => i < MemberFlow.rechargePresets.length
+      ? '¥${formatMoney(MemberFlow.rechargePresets[i])}'
+      : '';
 
   // 购买次卡（表单）
   PackageRowInfo? get _salePkg {
@@ -213,7 +219,10 @@ Widget hRechargeText(
   bool? softWrap,
   int? maxLines,
 }) => ListenableBuilder(
-  listenable: CatalogDraft.preview,
+  listenable: Listenable.merge([
+    CatalogDraft.preview,
+    MemberFlow.rechargeOptionsTick,
+  ]),
   builder: (_, _) => Text(
     merchantApi.hasSession ? text(const RechargeView()) : sample,
     style: style,

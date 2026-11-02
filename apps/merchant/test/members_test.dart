@@ -31,14 +31,19 @@ class MemberFakeApi extends MerchantApi {
   @override
   bool get hasSession => true;
 
+  int serviceCalls = 0;
   @override
-  Future<List<Map<String, dynamic>>> list(String kind) async => kind == 'cards'
-      ? tiers
-      : kind == 'packages'
-      ? packages
-      : kind == 'services'
-      ? services
-      : const [];
+  Future<List<Map<String, dynamic>>> list(String kind) async {
+    if (kind == 'services') serviceCalls++;
+    // 真实接口每次返回新的列表
+    return kind == 'cards'
+        ? [...tiers]
+        : kind == 'packages'
+        ? [...packages]
+        : kind == 'services'
+        ? [...services]
+        : const [];
+  }
 
   final services = <Map<String, dynamic>>[];
   final checkouts = <Map<String, dynamic>>[];
@@ -180,6 +185,16 @@ class MemberFakeApi extends MerchantApi {
   }
 
   final packages = <Map<String, dynamic>>[];
+  List<Map<String, dynamic>> rechargeOpts = [
+    {'amount': 1000, 'gift': 100},
+    {'amount': 2000, 'gift': 300},
+    {'amount': 5000, 'gift': 1000},
+    {'amount': 10000, 'gift': 2500},
+  ];
+  @override
+  Future<List<Map<String, dynamic>>> rechargeOptions() async => [
+    ...rechargeOpts,
+  ];
   final visits = <Map<String, dynamic>>[];
   final followHistory = <Map<String, dynamic>>[];
   final marked = <String>[];
@@ -1222,6 +1237,47 @@ void main() {
       expect(find.text('王建国'), findsNothing);
       expect(find.text('陈明（店长）'), findsNothing); // 经办人来自门店资料，不是示例
       expect(find.text('阳光（老板）'), findsOneWidget);
+    });
+
+    testWidgets('没选会员时储值档位和次卡套餐也是真实数据（置灰、不可操作），各部分有间距', (t) async {
+      phone(t);
+      fake.rechargeOpts = [
+        {'amount': 1000, 'gift': 150},
+        {'amount': 2000, 'gift': 350},
+        {'amount': 5000, 'gift': 1100},
+        {'amount': 10000, 'gift': 2600},
+      ];
+      fake.packages.addAll([
+        pkgRow(id: 'p1', name: '精致洗车年卡', price: 1080),
+        pkgRow(id: 'p2', name: '精致洗车 10 次卡', price: 580, validity: 6),
+        pkgRow(id: 'p3', name: '下架套餐', price: 99, active: false),
+      ]);
+      await openFromHome(t);
+      // 储值档位的赠送来自云函数（不是设计稿的 ¥100 / ¥300 / ¥1,000 / ¥2,500）
+      expect(find.text('送 ¥150'), findsOneWidget);
+      expect(find.text('送 ¥350'), findsOneWidget);
+      expect(find.text('送 ¥1,100'), findsOneWidget);
+      expect(find.text('送 ¥2,600'), findsOneWidget);
+      expect(find.text('送 ¥300 + 洗车 2 次'), findsNothing);
+      // 档位卡片和下面的“收款方式 / 经办人”卡片之间有间距（不再挨在一起）
+      final tiles = t.getRect(find.text('¥5,000'));
+      final pay = t.getRect(find.text('收款方式'));
+      expect(pay.top - tiles.bottom, greaterThan(40));
+      // 购买次卡：真实在售套餐，不含已下架的；置灰不可点选
+      await t.tap(find.text('购买次卡').first);
+      await t.pumpAndSettle();
+      expect(find.text('精致洗车年卡'), findsOneWidget);
+      expect(find.text('精致洗车 10 次卡'), findsOneWidget);
+      expect(find.text('下架套餐'), findsNothing);
+      expect(find.text('查看全部 2 个在售套餐'), findsOneWidget);
+      expect(find.text('¥1,080'), findsOneWidget);
+      final first = t.getRect(find.text('精致洗车年卡'));
+      final second = t.getRect(find.text('精致洗车 10 次卡'));
+      expect(second.top - first.bottom, greaterThan(20)); // 套餐行之间有间距
+      await t.tap(find.text('精致洗车 10 次卡'));
+      await t.pump();
+      expect(CatalogDraft.current!.fields['sale_package_id'], isNot('p2'));
+      expect(find.text('请先选择会员'), findsOneWidget);
     });
 
     testWidgets('选择会员弹层：最近使用 / 全部会员、搜索；选中后进入充值页，还能再更换', (t) async {

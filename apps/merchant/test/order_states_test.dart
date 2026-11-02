@@ -2,6 +2,8 @@ import 'package:autocare_merchant/backend/catalog_draft.dart';
 import 'package:autocare_merchant/backend/hold_flow.dart';
 import 'package:autocare_merchant/backend/member_flow.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
+import 'package:autocare_merchant/backend/service_store.dart';
+import 'package:autocare_merchant/kit/async_kit.dart' show SkeletonList;
 import 'package:autocare_merchant/pages/order_page.dart';
 import 'package:autocare_merchant/routes.dart';
 import 'package:flutter/material.dart';
@@ -46,7 +48,7 @@ void main() {
     navTracker.stack.clear();
   });
 
-  Future<void> openOrder(WidgetTester t) async {
+  Future<void> openOrder(WidgetTester t, {bool settle = true}) async {
     phone(t);
     await t.pumpWidget(
       MaterialApp(
@@ -56,7 +58,7 @@ void main() {
             MaterialPageRoute(settings: s, builder: (_) => const OrderPage()),
       ),
     );
-    await t.pumpAndSettle();
+    if (settle) await t.pumpAndSettle();
   }
 
   testWidgets('未选客户：选择会员 / 散客开单；服务项目置灰，没有施工安排和结算，收款按钮不可用', (t) async {
@@ -178,5 +180,37 @@ void main() {
       ),
     ).pop();
     await t.pump(const Duration(seconds: 1));
+  });
+
+  testWidgets('服务项目走全局缓存：缓存里有时打开开单页不再请求、不闪骨架屏', (t) async {
+    await ServiceStore.load(); // 登录后预加载
+    final calls = fake.serviceCalls;
+    await openOrder(t, settle: false);
+    await t.pump();
+    expect(find.byType(SkeletonList), findsNothing);
+    expect(find.text('精致洗车'), findsOneWidget);
+    await t.pumpAndSettle();
+    expect(fake.serviceCalls, calls);
+  });
+
+  testWidgets('后台刷新服务项目后，开单页已选的项目按 ID 保留，不会选错', (t) async {
+    await openOrder(t);
+    await t.tap(find.text('散客开单')); // 未选客户时服务项目是置灰的
+    await t.pumpAndSettle();
+    await t.tap(find.text('内饰深度清洁'));
+    await t.pump();
+    expect(find.text('¥380.00'), findsWidgets);
+    // 门店又新增了一个排在最前面的项目
+    fake.services.insert(0, {
+      'id': 's0',
+      'name': '新增项目',
+      'price': 20,
+      'category': '洗车',
+      'active': true,
+    });
+    await ServiceStore.refresh();
+    await t.pump();
+    expect(find.text('新增项目'), findsOneWidget);
+    expect(find.text('¥380.00'), findsWidgets); // 选中的还是内饰深度清洁
   });
 }

@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import 'hold_flow.dart';
 import 'merchant_api.dart';
 import 'scan_flow.dart';
+import 'service_store.dart';
 
 /// The signed-in owner's store as stored in the backend.
 ///
@@ -80,6 +83,8 @@ class StoreProfile extends ChangeNotifier {
     if (!merchantApi.hasSession) return;
     try {
       apply(await merchantApi.getStore());
+      // 服务项目几乎每个页面都要用：读到门店资料后预加载进全局缓存
+      unawaited(ServiceStore.load().then((_) {}, onError: (_) {}));
     } catch (e) {
       debugPrint('store profile unavailable: $e');
     }
@@ -94,6 +99,7 @@ class StoreProfile extends ChangeNotifier {
     // 换账号 / 退出登录后不保留上一家店的挂单和识别结果
     HoldFlow.reset();
     ScanFlow.last = null;
+    ServiceStore.clear();
     notifyListeners();
   }
 }

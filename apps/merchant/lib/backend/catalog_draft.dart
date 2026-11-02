@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../kit/async_kit.dart';
 import '../kit/color_picker.dart' show colorFromHex;
 import 'merchant_api.dart';
+import 'service_store.dart';
 
 /// Non-visual adapter for the existing generated catalog forms.
 class CatalogDraft {
@@ -302,6 +303,8 @@ class CatalogDraft {
     _busy = true;
     try {
       await merchantApi.save(kind, values);
+      // 服务项目有变化：先刷新全局缓存，各页面再重新读取
+      if (kind == 'services') await _refreshServices();
       changed.value++;
       AppToast.showOn(messenger, '已保存', kind: ToastKind.success);
       if (context.mounted) Navigator.of(context).maybePop();
@@ -323,7 +326,16 @@ class CatalogDraft {
       throw const AppError('尚未保存，无需删除');
     }
     await merchantApi.delete(kind, draft.id!);
+    if (kind == 'services') await _refreshServices();
     changed.value++;
+  }
+
+  static Future<void> _refreshServices() async {
+    try {
+      await ServiceStore.refresh();
+    } catch (_) {
+      // 刷新失败时缓存保留旧数据，下次读取会重新请求
+    }
   }
 }
 

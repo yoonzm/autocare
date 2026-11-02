@@ -393,6 +393,15 @@ class MerchantApi {
     return Map<String, dynamic>.from(data['item'] as Map);
   }
 
+  /// 充值档位和赠送金额：`[{amount, gift}]`。
+  Future<List<Map<String, dynamic>>> rechargeOptions() async {
+    final data = await invoke({
+      'action': 'recharge_options',
+      'kind': 'members',
+    });
+    return List<Map<String, dynamic>>.from(data['items'] as List);
+  }
+
   // ───────── 扫码找会员（车牌识别） ─────────
   /// 车牌识别。目前是开发环境的 mock（云函数不看照片）：约一半概率返回门店里已有的会员，
   /// 否则返回一个库里没有的随机车牌。返回 `matched`、`plate`，匹配时还有 `member`、`package_summary`、`last_visit_text`。

@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 
 import '../backend/catalog_draft.dart';
-import '../backend/merchant_api.dart';
+import '../backend/service_store.dart';
 import '../backend/package_calc.dart';
 import '../kit/async_kit.dart';
 import '../kit/kit.dart';
@@ -119,8 +119,9 @@ class _PackageSvcPickLiveState extends State<PackageSvcPickLive> {
           SizedBox(
             height: 340,
             child: AsyncView<List<Map<String, dynamic>>>(
+              // 服务项目走全局缓存（在售的）
               load: () async => [
-                for (final s in await merchantApi.list('services'))
+                for (final s in await ServiceStore.load())
                   if (s['active'] != false) s,
               ],
               isEmpty: (rows) => rows.isEmpty,

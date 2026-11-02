@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../backend/hold_flow.dart';
 import '../backend/member_flow.dart';
 import '../backend/scan_flow.dart';
+import '../backend/service_store.dart';
 import '../backend/merchant_api.dart';
 import '../kit/async_kit.dart';
 
@@ -87,6 +88,7 @@ class _OrderPageState extends State<OrderPage> {
     if (_live) {
       picked.clear();
       if (widget.member != null) MemberFlow.current ??= widget.member!.data;
+      ServiceStore.changed.addListener(_onServiceStore);
       unawaited(_loadServices());
       unawaited(_loadCover());
       // 挂单：数量显示在“挂单”按钮上；取单 / 挂单成功 / 新开一单时要改动这一页
@@ -106,6 +108,7 @@ class _OrderPageState extends State<OrderPage> {
   @override
   void dispose() {
     HoldFlow.eventTick.removeListener(_onHoldEvent);
+    ServiceStore.changed.removeListener(_onServiceStore);
     _searchCtl.dispose();
     _walkPlateCtl.dispose();
     MemberFlow.memberTick.removeListener(_onPickedMember);
@@ -213,26 +216,61 @@ class _OrderPageState extends State<OrderPage> {
     openRoute(context, 'HoldSheet');
   }
 
+  /// 服务项目走全局缓存：有缓存时打开就有数据（不闪骨架屏），后台刷新完成后更新列表。
+  List<_Svc> _svcsOf(List<Map<String, dynamic>> rows) => [
+    for (final r in rows)
+      if (r['active'] != false)
+        _Svc(
+          '${r['id']}',
+          '${r['name']}',
+          (num.tryParse('${r['price']}') ?? 0).toDouble(),
+          {'${r['category'] ?? '其他'}'},
+          false,
+        ),
+  ];
+
+  /// 列表变了（后台刷新）：已选项目按服务 ID 保留，不会因为顺序变化选错。
+  void _applyServices(List<Map<String, dynamic>> rows) {
+    final keep = {
+      for (final i in picked)
+        if (i < _liveSvcs.length) _liveSvcs[i].id,
+    };
+    final next = _svcsOf(rows);
+    picked
+      ..clear()
+      ..addAll([
+        for (var i = 0; i < next.length; i++)
+          if (keep.contains(next[i].id)) i,
+      ]);
+    _liveSvcs = next;
+  }
+
+  void _onServiceStore() {
+    final rows = ServiceStore.items;
+    if (!mounted || rows == null) return;
+    setState(() => _applyServices(rows));
+  }
+
   Future<void> _loadServices() async {
+    final cached = ServiceStore.items;
+    if (cached != null && !_loadingSvcs) {
+      // 有缓存：直接用，ServiceStore.load 在缓存过期时会后台刷新
+      setState(() {
+        _svcError = null;
+        _applyServices(cached);
+      });
+      unawaited(ServiceStore.load().then((_) {}, onError: (_) {}));
+      return;
+    }
     setState(() {
       _loadingSvcs = true;
       _svcError = null;
     });
     try {
-      final rows = await merchantApi.list('services');
+      final rows = await ServiceStore.load();
       if (!mounted) return;
       setState(() {
-        _liveSvcs = [
-          for (final r in rows)
-            if (r['active'] != false)
-              _Svc(
-                '${r['id']}',
-                '${r['name']}',
-                (num.tryParse('${r['price']}') ?? 0).toDouble(),
-                {'${r['category'] ?? '其他'}'},
-                false,
-              ),
-        ];
+        _applyServices(rows);
         _loadingSvcs = false;
       });
     } catch (e) {

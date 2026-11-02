@@ -10,7 +10,9 @@ import '../pages/gen/svgs.dart';
 /// 购买次卡页的套餐列表：在售套餐，点选后写入购买表单。
 /// [limit] 限制显示几个（购买页只显示前 3 个，其余在“选择次卡套餐”弹层里）；选中的套餐一定显示。
 /// 没登录（设计预览）时显示设计稿的示例套餐。
-Widget hPackagePicker({int? limit}) => ListenableBuilder(
+///
+/// [readOnly]（还没选会员时的置灰预览）：只显示真实套餐，不能点选，也不显示选中状态。
+Widget hPackagePicker({int? limit, bool readOnly = false}) => ListenableBuilder(
   listenable: CatalogDraft.preview,
   builder: (context, _) {
     if (!merchantApi.hasSession) return _samplePackages(context, limit);
@@ -28,7 +30,9 @@ Widget hPackagePicker({int? limit}) => ListenableBuilder(
         ),
       );
     }
-    final selected = '${CatalogDraft.current?.fields['sale_package_id'] ?? ''}';
+    final selected = readOnly
+        ? ''
+        : '${CatalogDraft.current?.fields['sale_package_id'] ?? ''}';
     var shown = limit == null ? all : all.take(limit).toList();
     if (limit != null && !shown.any((p) => '${p['id']}' == selected)) {
       final sel = all.where((p) => '${p['id']}' == selected);
@@ -42,11 +46,13 @@ Widget hPackagePicker({int? limit}) => ListenableBuilder(
             row: shown[i],
             selected: '${shown[i]['id']}' == selected,
             hot: i == 0 && all.length > 1,
-            onTap: () => CatalogDraft.set(
-              'recharge',
-              'sale_package_id',
-              '${shown[i]['id']}',
-            ),
+            onTap: () => readOnly
+                ? null
+                : CatalogDraft.set(
+                    'recharge',
+                    'sale_package_id',
+                    '${shown[i]['id']}',
+                  ),
           ),
         ],
       ],

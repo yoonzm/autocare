@@ -192,8 +192,27 @@ class MemberFlow {
 
   // ───────── 储值充值 ─────────
   /// 充值金额档位和对应的赠送金额（仅用于界面预览，实际赠送以云函数返回为准）。
-  static const rechargePresets = [1000, 2000, 5000, 10000];
-  static const rechargeGifts = [100, 300, 1000, 2500];
+  /// 充值档位和赠送金额：登录后以云函数 `recharge_options` 为准（读到之前用设计稿的默认档位）。
+  /// 赠送由云函数算，这里只用来显示。
+  static List<num> rechargePresets = [1000, 2000, 5000, 10000];
+  static List<num> rechargeGifts = [100, 300, 1000, 2500];
+  static final rechargeOptionsTick = ValueNotifier<int>(0);
+
+  static Future<void> loadRechargeOptions() async {
+    try {
+      final rows = await merchantApi.rechargeOptions();
+      if (rows.isEmpty) return;
+      rechargePresets = [
+        for (final r in rows) (num.tryParse('${r['amount']}') ?? 0),
+      ];
+      rechargeGifts = [
+        for (final r in rows) (num.tryParse('${r['gift']}') ?? 0),
+      ];
+      rechargeOptionsTick.value++;
+    } catch (_) {
+      // 读取失败时沿用默认档位（只是显示；实际赠送以云函数为准）
+    }
+  }
 
   /// 收款方式（只是记账，不接真实支付通道）。
   static const payMethods = ['微信', '支付宝', '现金', 'POS 刷卡'];
@@ -215,6 +234,7 @@ class MemberFlow {
       'sale_method': saleMethods.first,
     });
     unawaited(loadSalePackages());
+    unawaited(loadRechargeOptions());
   }
 
   static Map<String, dynamic> get _form =>

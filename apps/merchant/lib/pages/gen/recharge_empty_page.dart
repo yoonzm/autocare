@@ -334,9 +334,10 @@ class RechargeEmptyPage extends StatelessWidget {
                                   pad: EdgeInsets.fromLTRB(16, 14, 16, 14),
                                   child: hcol(
                                     [
-                                      Text(
+                                      hRechargeText(
+                                        (r) => RechargeView.amountLabel(0),
                                         '¥1,000',
-                                        style: hts(
+                                        hts(
                                           20,
                                           dk(
                                             context,
@@ -347,9 +348,10 @@ class RechargeEmptyPage extends StatelessWidget {
                                           lh: 28,
                                         ),
                                       ),
-                                      Text(
+                                      hRechargeText(
+                                        (r) => RechargeView.giftLabel(0),
                                         '送 ¥100',
-                                        style: hts(
+                                        hts(
                                           12,
                                           dk(
                                             context,
@@ -414,9 +416,10 @@ class RechargeEmptyPage extends StatelessWidget {
                                   pad: EdgeInsets.fromLTRB(16, 14, 16, 14),
                                   child: hcol(
                                     [
-                                      Text(
+                                      hRechargeText(
+                                        (r) => RechargeView.amountLabel(1),
                                         '¥2,000',
-                                        style: hts(
+                                        hts(
                                           20,
                                           dk(
                                             context,
@@ -427,9 +430,10 @@ class RechargeEmptyPage extends StatelessWidget {
                                           lh: 28,
                                         ),
                                       ),
-                                      Text(
+                                      hRechargeText(
+                                        (r) => RechargeView.giftLabel(1),
                                         '送 ¥300 + 洗车 2 次',
-                                        style: hts(
+                                        hts(
                                           12,
                                           dk(
                                             context,
@@ -502,9 +506,10 @@ class RechargeEmptyPage extends StatelessWidget {
                                   pad: EdgeInsets.fromLTRB(16, 14, 16, 14),
                                   child: hcol(
                                     [
-                                      Text(
+                                      hRechargeText(
+                                        (r) => RechargeView.amountLabel(2),
                                         '¥5,000',
-                                        style: hts(
+                                        hts(
                                           20,
                                           dk(
                                             context,
@@ -515,9 +520,10 @@ class RechargeEmptyPage extends StatelessWidget {
                                           lh: 28,
                                         ),
                                       ),
-                                      Text(
+                                      hRechargeText(
+                                        (r) => RechargeView.giftLabel(2),
                                         '送 ¥1,000',
-                                        style: hts(
+                                        hts(
                                           12,
                                           dk(
                                             context,
@@ -582,9 +588,10 @@ class RechargeEmptyPage extends StatelessWidget {
                                   pad: EdgeInsets.fromLTRB(16, 14, 16, 14),
                                   child: hcol(
                                     [
-                                      Text(
+                                      hRechargeText(
+                                        (r) => RechargeView.amountLabel(3),
                                         '¥10,000',
-                                        style: hts(
+                                        hts(
                                           20,
                                           dk(
                                             context,
@@ -595,9 +602,10 @@ class RechargeEmptyPage extends StatelessWidget {
                                           lh: 28,
                                         ),
                                       ),
-                                      Text(
+                                      hRechargeText(
+                                        (r) => RechargeView.giftLabel(3),
                                         '送 ¥2,500 + 镀晶 1 次',
-                                        style: hts(
+                                        hts(
                                           12,
                                           dk(
                                             context,
@@ -748,7 +756,7 @@ class RechargeEmptyPage extends StatelessWidget {
                     ],
                     main: MainAxisAlignment.start,
                     cross: CrossAxisAlignment.stretch,
-                    gap: 0,
+                    gap: 16,
                   ),
                 ),
               ],

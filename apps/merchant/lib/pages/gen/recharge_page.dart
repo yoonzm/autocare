@@ -426,9 +426,10 @@ class RechargePage extends StatelessWidget {
                                   pad: EdgeInsets.fromLTRB(16, 14, 16, 14),
                                   child: hcol(
                                     [
-                                      Text(
+                                      hRechargeText(
+                                        (r) => RechargeView.amountLabel(0),
                                         '¥1,000',
-                                        style: hts(
+                                        hts(
                                           20,
                                           dk(
                                             context,
@@ -439,9 +440,10 @@ class RechargePage extends StatelessWidget {
                                           lh: 28,
                                         ),
                                       ),
-                                      Text(
+                                      hRechargeText(
+                                        (r) => RechargeView.giftLabel(0),
                                         '送 ¥100',
-                                        style: hts(
+                                        hts(
                                           12,
                                           dk(
                                             context,
@@ -499,9 +501,10 @@ class RechargePage extends StatelessWidget {
                                   pad: EdgeInsets.fromLTRB(16, 14, 16, 14),
                                   child: hcol(
                                     [
-                                      Text(
+                                      hRechargeText(
+                                        (r) => RechargeView.amountLabel(0),
                                         '¥1,000',
-                                        style: hts(
+                                        hts(
                                           20,
                                           dk(
                                             context,
@@ -512,9 +515,10 @@ class RechargePage extends StatelessWidget {
                                           lh: 28,
                                         ),
                                       ),
-                                      Text(
+                                      hRechargeText(
+                                        (r) => RechargeView.giftLabel(0),
                                         '送 ¥100',
-                                        style: hts(
+                                        hts(
                                           12,
                                           dk(
                                             context,
@@ -553,9 +557,10 @@ class RechargePage extends StatelessWidget {
                                   child: hstack(
                                     hcol(
                                       [
-                                        Text(
+                                        hRechargeText(
+                                          (r) => RechargeView.amountLabel(1),
                                           '¥2,000',
-                                          style: hts(
+                                          hts(
                                             20,
                                             dk(
                                               context,
@@ -653,9 +658,10 @@ class RechargePage extends StatelessWidget {
                                   child: hstack(
                                     hcol(
                                       [
-                                        Text(
+                                        hRechargeText(
+                                          (r) => RechargeView.amountLabel(1),
                                           '¥2,000',
-                                          style: hts(
+                                          hts(
                                             20,
                                             dk(
                                               context,
@@ -740,9 +746,10 @@ class RechargePage extends StatelessWidget {
                                   pad: EdgeInsets.fromLTRB(16, 14, 16, 14),
                                   child: hcol(
                                     [
-                                      Text(
+                                      hRechargeText(
+                                        (r) => RechargeView.amountLabel(2),
                                         '¥5,000',
-                                        style: hts(
+                                        hts(
                                           20,
                                           dk(
                                             context,
@@ -753,9 +760,10 @@ class RechargePage extends StatelessWidget {
                                           lh: 28,
                                         ),
                                       ),
-                                      Text(
+                                      hRechargeText(
+                                        (r) => RechargeView.giftLabel(2),
                                         '送 ¥1,000',
-                                        style: hts(
+                                        hts(
                                           12,
                                           dk(
                                             context,
@@ -813,9 +821,10 @@ class RechargePage extends StatelessWidget {
                                   pad: EdgeInsets.fromLTRB(16, 14, 16, 14),
                                   child: hcol(
                                     [
-                                      Text(
+                                      hRechargeText(
+                                        (r) => RechargeView.amountLabel(2),
                                         '¥5,000',
-                                        style: hts(
+                                        hts(
                                           20,
                                           dk(
                                             context,
@@ -826,9 +835,10 @@ class RechargePage extends StatelessWidget {
                                           lh: 28,
                                         ),
                                       ),
-                                      Text(
+                                      hRechargeText(
+                                        (r) => RechargeView.giftLabel(2),
                                         '送 ¥1,000',
-                                        style: hts(
+                                        hts(
                                           12,
                                           dk(
                                             context,
@@ -866,9 +876,10 @@ class RechargePage extends StatelessWidget {
                                   pad: EdgeInsets.fromLTRB(16, 14, 16, 14),
                                   child: hcol(
                                     [
-                                      Text(
+                                      hRechargeText(
+                                        (r) => RechargeView.amountLabel(3),
                                         '¥10,000',
-                                        style: hts(
+                                        hts(
                                           20,
                                           dk(
                                             context,
@@ -940,9 +951,10 @@ class RechargePage extends StatelessWidget {
                                   pad: EdgeInsets.fromLTRB(16, 14, 16, 14),
                                   child: hcol(
                                     [
-                                      Text(
+                                      hRechargeText(
+                                        (r) => RechargeView.amountLabel(3),
                                         '¥10,000',
-                                        style: hts(
+                                        hts(
                                           20,
                                           dk(
                                             context,

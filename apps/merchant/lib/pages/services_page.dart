@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../backend/merchant_api.dart';
 import '../backend/catalog_draft.dart';
+import '../backend/service_store.dart';
 import '../kit/async_kit.dart';
 import '../mock/mock_data.dart';
 import '../theme.dart';
@@ -25,16 +26,21 @@ class _ServicesPageState extends State<ServicesPage> {
   @override
   void initState() {
     super.initState();
-    if (merchantApi.hasSession) CatalogDraft.changed.addListener(_reload);
+    if (merchantApi.hasSession) {
+      CatalogDraft.changed.addListener(_reload);
+      ServiceStore.changed.addListener(_reload); // 缓存在后台刷新完成
+    }
   }
 
   @override
   void dispose() {
     CatalogDraft.changed.removeListener(_reload);
+    ServiceStore.changed.removeListener(_reload);
     super.dispose();
   }
 
   /// 保存 / 删除后静默刷新：旧内容保留，只在顶部出细进度条。
+  bool _forceNext = false;
   void _reload() => _view.currentState?.reload();
 
   /// 后端记录 -> 页面条目（并记住记录，编辑时用）。
@@ -94,7 +100,12 @@ class _ServicesPageState extends State<ServicesPage> {
               child: live
                   ? AsyncView<List<Map<String, dynamic>>>(
                       key: _view,
-                      load: () => merchantApi.list('services'),
+                      // 服务项目走全局缓存：打开就有数据，后台静默刷新；下拉刷新才强制重新请求
+                      load: () {
+                        final force = _forceNext;
+                        _forceNext = false;
+                        return ServiceStore.load(force: force);
+                      },
                       isEmpty: (rows) => rows.isEmpty,
                       skeleton: const SkeletonList(count: 5),
                       empty: (_) => EmptyView.firstTime(
@@ -156,7 +167,10 @@ class _ServicesPageState extends State<ServicesPage> {
     );
     if (!merchantApi.hasSession) return view;
     return RefreshIndicator(
-      onRefresh: () async => _view.currentState?.reload(),
+      onRefresh: () async {
+        _forceNext = true;
+        await _view.currentState?.reload();
+      },
       child: view,
     );
   }

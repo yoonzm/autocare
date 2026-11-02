@@ -21,6 +21,9 @@ Future<void> main() async {
     publishableKey: supabasePublishableKey,
   );
   if (merchantApi.hasSession) unawaited(storeProfile.load());
+  // 上次选的外观（跟随系统 / 浅色 / 深色）保存在本机，启动时读回，之后每次切换都保存
+  await loadThemeMode();
+  persistThemeMode();
   runApp(const QimeiApp());
 }
 

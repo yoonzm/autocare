@@ -70,8 +70,24 @@ RECHARGE_TEXT = {
     ('Recharge', '¥2,000.00'): 'r.amountText',
     ('Recharge', '实收 · 到账 ¥2,300 + 洗车 2 次'): 'r.payLine',
     # 档位上设计稿的赠品（洗车 2 次 / 镀晶 1 次）暂未实现，登录后只显示赠送金额
+    ('Recharge', '送 ¥100'): "RechargeView.giftLabel(0)",
     ('Recharge', '送 ¥300 + 洗车 2 次'): "RechargeView.giftLabel(1)",
+    ('Recharge', '送 ¥1,000'): "RechargeView.giftLabel(2)",
     ('Recharge', '送 ¥2,500 + 镀晶 1 次'): "RechargeView.giftLabel(3)",
+    ('Recharge', '¥1,000'): "RechargeView.amountLabel(0)",
+    ('Recharge', '¥2,000'): "RechargeView.amountLabel(1)",
+    ('Recharge', '¥5,000'): "RechargeView.amountLabel(2)",
+    ('Recharge', '¥10,000'): "RechargeView.amountLabel(3)",
+    # 未选会员的充值页：档位和套餐也是真实数据（只是置灰不可操作）
+    ('RechargeEmpty', '送 ¥100'): "RechargeView.giftLabel(0)",
+    ('RechargeEmpty', '送 ¥300 + 洗车 2 次'): "RechargeView.giftLabel(1)",
+    ('RechargeEmpty', '送 ¥1,000'): "RechargeView.giftLabel(2)",
+    ('RechargeEmpty', '送 ¥2,500 + 镀晶 1 次'): "RechargeView.giftLabel(3)",
+    ('RechargeEmpty', '¥1,000'): "RechargeView.amountLabel(0)",
+    ('RechargeEmpty', '¥2,000'): "RechargeView.amountLabel(1)",
+    ('RechargeEmpty', '¥5,000'): "RechargeView.amountLabel(2)",
+    ('RechargeEmpty', '¥10,000'): "RechargeView.amountLabel(3)",
+    ('RechargeEmptyCard', '查看全部 5 个在售套餐'): 'r.saleAll',
     ('MemberAdjust', '12,950'): 'r.adjustAfter',
     ('RechargeSuccess', '¥2,000.00'): 'r.doneAmount',
     ('RechargeSuccess', '王建国 · 微信支付 · 14:38'): 'r.doneSubtitle',
@@ -1138,6 +1154,8 @@ class Gen:
                 return 'hMemberPickerSearch()'
             if first is not None and self.tree_text(first).strip() == '最近使用':
                 return 'hMemberPickerList()'
+        if self.page_name == 'RechargeEmptyCard' and n.attrs.get('aria-label') == '套餐列表':
+            return 'hPackagePicker(limit: 3, readOnly: true)'
         if n.tag == 'article' and self.page_name in LIVE_ARTICLES:
             return LIVE_ARTICLES[self.page_name]
         # 挂单列表：概况卡片、状态页签和挂单卡片合成一个“活”控件（页签、卡片在 emit_flex 里去掉）
@@ -1821,6 +1839,12 @@ class Gen:
                     seen = True
                 kept.append(c)
             kids = kept
+        if self.page_name == 'RechargeEmptyCard':
+            # 未选会员的“购买次卡”：三个示例套餐行换成真实的在售套餐（置灰、不可点选）
+            els = [c for c in kids if isinstance(c, Node)]
+            if len(els) >= 3 and self.tree_text(els[0]).strip() == '选择套餐':
+                mark = Node('div', [('aria-label', '套餐列表')])
+                kids = [els[0], mark, els[-1]]
         if self.page_name == 'HoldList':
             kids = [c for c in kids if not (isinstance(c, Node) and (
                 c.attrs.get('role') == 'tablist' or (c.tag == 'section' and not c.attrs.get('aria-label'))))]
@@ -2347,9 +2371,13 @@ def split_variants(name, src):
 
     if name == 'RechargeEmpty':
         # 未选会员的充值页：两个页签各一个状态（储值充值 / 购买次卡），都是置灰的占位内容
-        ea = _cut(src, 'p2').replace('class="p1"', 'style="display:flex;flex-direction:column;gap:16px"')
+        # 面板自己带 style（置灰的透明度），要把 flex 列布局合并进去，不能再写第二个 style
+        def pane(t, cls):
+            return re.sub(r'<div class="%s" style="([^"]*)"' % cls,
+                          r'<div style="\1 display:flex;flex-direction:column;gap:16px;"', t, count=1)
+        ea = pane(_cut(src, 'p2'), 'p1')
         ea = tidy(ea, 'rt1', 'RechargeEmptyCard', 'RechargeEmptyCard')
-        eb = _cut(src, 'p1').replace('class="p2"', 'style="display:flex;flex-direction:column;gap:16px"')
+        eb = pane(_cut(src, 'p1'), 'p2')
         eb = tidy(eb, 'rt2', 'RechargeEmpty', 'RechargeEmpty')
         return [('RechargeEmpty', fix_close(ea)), ('RechargeEmptyCard', fix_close(eb))]
     base = re.sub(r'class="(p1|p2|b1|b2|sh)"', lambda m: 'data-v="%s"' % m.group(1), src)
