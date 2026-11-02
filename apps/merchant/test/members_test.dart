@@ -1,6 +1,7 @@
 import 'package:autocare_merchant/backend/catalog_draft.dart';
 import 'package:autocare_merchant/backend/member_flow.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
+import 'package:autocare_merchant/backend/store_profile.dart';
 import 'package:autocare_merchant/kit/async_kit.dart';
 import 'package:autocare_merchant/pages/member_detail_page.dart';
 import 'package:autocare_merchant/pages/order_page.dart';
@@ -194,6 +195,7 @@ class MemberFakeApi extends MerchantApi {
     int? visitedOverDays,
     int offset = 0,
     int limit = 50,
+    bool recent = false,
   }) async {
     listCalls.add((q: query, tier: cardTypeId));
     filterCalls.add({
@@ -221,7 +223,10 @@ class MemberFakeApi extends MerchantApi {
           (counts['${r['card_type_id']}'] ?? 0) + 1;
     }
     return MemberPage(
-      items: items.skip(offset).take(limit).toList(),
+      items: (recent ? items.reversed.toList() : items)
+          .skip(offset)
+          .take(limit)
+          .toList(),
       counts: counts,
       total: rows.length,
       matched: items.length,
@@ -372,6 +377,13 @@ void phone(WidgetTester t) {
 
 Widget app(Widget home) =>
     MaterialApp(navigatorObservers: [navTracker], home: home);
+
+/// 从“会员详情”这样的有名字的页面进入（和真实流程一致：从会员详情进入充值要带着会员）。
+Widget appFromDetail(Widget home) => MaterialApp(
+  navigatorObservers: [navTracker],
+  initialRoute: 'MemberDetail',
+  onGenerateRoute: (s) => MaterialPageRoute(settings: s, builder: (_) => home),
+);
 
 void main() {
   late MerchantApi original;
@@ -794,7 +806,7 @@ void main() {
       fake.rows.add(r);
       MemberFlow.current = r;
       await t.pumpWidget(
-        app(
+        appFromDetail(
           Builder(
             builder: (context) => Scaffold(
               body: ElevatedButton(
@@ -1053,6 +1065,89 @@ void main() {
     });
   });
 
+  group('充值选择会员', () {
+    Future<void> openFromHome(WidgetTester t) async {
+      fake.tiers
+        ..clear()
+        ..addAll([
+          {'id': 't-base', 'name': '普通会员'},
+          {'id': 't-gold', 'name': '金卡'},
+        ]);
+      fake.rows.addAll([
+        row(),
+        row(
+          id: 'm2',
+          name: '林晓雯',
+          phone: '13917630412',
+          tier: 't-base',
+          tierName: '普通会员',
+        ),
+      ]);
+      MemberFlow.current = fake.rows.first; // 上次看过的会员，从首页进入时不能沿用
+      storeProfile.apply({
+        'name': '测试店',
+        'phone': '+8613900000001',
+        'contact_name': '阳光',
+        'contact_role': '老板',
+      });
+      addTearDown(storeProfile.clear);
+      await t.pumpWidget(
+        app(
+          Builder(
+            builder: (context) => Scaffold(
+              body: ElevatedButton(
+                onPressed: () => openRoute(context, 'Recharge'),
+                child: const Text('open'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await t.tap(find.text('open'));
+      await t.pumpAndSettle();
+    }
+
+    testWidgets('从首页进入没有会员：显示“请先选择会员”，不沿用上次的会员', (t) async {
+      phone(t);
+      await openFromHome(t);
+      expect(MemberFlow.current, isNull);
+      expect(find.text('选择会员'), findsOneWidget);
+      expect(find.text('输入车牌、手机号，或扫码找会员'), findsOneWidget);
+      expect(find.text('请先选择会员'), findsOneWidget);
+      expect(find.text('确认收款'), findsNothing);
+      expect(find.text('王建国'), findsNothing);
+      expect(find.text('陈明（店长）'), findsNothing); // 经办人来自门店资料，不是示例
+      expect(find.text('阳光（老板）'), findsOneWidget);
+    });
+
+    testWidgets('选择会员弹层：最近使用 / 全部会员、搜索；选中后进入充值页，还能再更换', (t) async {
+      phone(t);
+      await openFromHome(t);
+      await t.tap(find.text('选择会员'));
+      await t.pumpAndSettle();
+      expect(find.text('选择会员'), findsWidgets);
+      expect(find.text('最近使用'), findsOneWidget);
+      expect(find.text('全部会员 · 2'), findsOneWidget);
+      expect(find.text('林晓雯'), findsWidgets);
+      await t.enterText(find.widgetWithText(TextField, ''), '林晓');
+      await t.pump(const Duration(milliseconds: 400));
+      await t.pumpAndSettle();
+      expect(fake.listCalls.last.q, '林晓');
+      expect(find.text('王建国'), findsNothing);
+      await t.tap(find.text('林晓雯').last);
+      await t.pumpAndSettle();
+      // 进入充值页，显示选中的会员
+      expect(MemberFlow.current!['name'], '林晓雯');
+      expect(find.text('请先选择会员'), findsNothing);
+      expect(find.text('确认收款'), findsOneWidget);
+      expect(find.textContaining('林晓雯', findRichText: true), findsWidgets);
+      // “更换”可以再换一个会员
+      await t.tap(find.text('更换').first);
+      await t.pumpAndSettle();
+      expect(find.text('全部会员 · 2'), findsOneWidget);
+    });
+  });
+
   group('购买次卡', () {
     Future<void> openSale(WidgetTester t) async {
       final r = row(tier: 't-gold', tierName: '金卡');
@@ -1064,7 +1159,7 @@ void main() {
       ]);
       MemberFlow.current = r;
       await t.pumpWidget(
-        app(
+        appFromDetail(
           Builder(
             builder: (context) => Scaffold(
               body: ElevatedButton(
@@ -1087,6 +1182,10 @@ void main() {
       expect(find.text('精致洗车年卡'), findsWidgets);
       expect(find.text('精致洗车 10 次卡'), findsOneWidget);
       expect(find.text('下架套餐'), findsNothing); // 已下架不可售卖
+      // 会员信息是真实的，不是设计稿的“王建国 / 138 **** 6021”示例
+      expect(find.text('王建国'), findsOneWidget);
+      expect(find.text('138 **** 6021 · 未登记车辆'), findsOneWidget);
+      expect(find.text('金卡会员'), findsOneWidget);
       expect(find.text('确认收款 ¥1,080'), findsOneWidget);
       expect(find.text('¥1,080.00'), findsOneWidget);
       expect(find.text('−¥280'), findsOneWidget); // 原价 20×68 = 1360
@@ -1113,6 +1212,7 @@ void main() {
         'method': '现金',
       });
       expect(find.text('购买成功'), findsOneWidget);
+      expect(find.text('王建国 · 微信 · 次卡购买通知'), findsOneWidget);
       expect(find.text('¥1,080.00'), findsWidgets);
       expect(find.text('20 次'), findsOneWidget);
       expect(find.text('至 2027.11.01'), findsOneWidget);

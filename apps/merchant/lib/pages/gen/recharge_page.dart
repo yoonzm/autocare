@@ -280,6 +280,28 @@ class RechargePage extends StatelessWidget {
                                     ),
                                   ),
                                 ),
+                                hTap(
+                                  context,
+                                  hbox(
+                                    bg: dk(
+                                      context,
+                                      Color.fromRGBO(255, 255, 255, 0.14),
+                                      Color.fromRGBO(9, 9, 11, 0.92),
+                                    ),
+                                    radius: BorderRadius.circular(10),
+                                    pad: EdgeInsets.fromLTRB(8, 0, 8, 0),
+                                    child: Text(
+                                      '更换',
+                                      style: hts(
+                                        12,
+                                        Color(0xFFFAFAFA),
+                                        w: FontWeight.w500,
+                                        lh: 20,
+                                      ),
+                                    ),
+                                  ),
+                                  to: 'MemberPicker',
+                                ),
                               ],
                               main: MainAxisAlignment.start,
                               cross: CrossAxisAlignment.center,

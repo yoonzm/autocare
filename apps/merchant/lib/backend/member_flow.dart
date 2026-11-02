@@ -550,6 +550,20 @@ class MemberFlow {
     }
   }
 
+  // ───────── 选择会员（充值 / 开单等没带会员进入时） ─────────
+  /// 选定会员后通知页面刷新（充值页据此在“未选会员”和有会员之间切换）。
+  static final ValueNotifier<int> memberTick = ValueNotifier<int>(0);
+
+  /// 选择会员弹层里的搜索词。
+  static final ValueNotifier<String> pickerQuery = ValueNotifier<String>('');
+
+  /// 选中会员：保存为当前会员并关闭弹层。
+  static void pickMember(BuildContext context, Map<String, dynamic> row) {
+    current = row;
+    memberTick.value++;
+    Navigator.of(context).maybePop();
+  }
+
   // ───────── 回访 ─────────
   static const visitMethods = ['电话', '微信', '到店'];
   static const visitResults = ['已接通 · 有意向', '已接通 · 暂无需求', '未接通', '已预约到店'];

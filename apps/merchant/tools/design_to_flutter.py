@@ -36,6 +36,7 @@ LIVE_TEXT = {
     ('Security', '139 **** 8812'): 'p.maskedPhone',
     ('Recharge', '陈明（店长）'): 'p.operatorText',
     ('RechargeCard', '陈明（店长）'): 'p.operatorText',
+    ('RechargeEmpty', '陈明（店长）'): 'p.operatorText',
     ('DeleteAccount', '验证码将发送至当前账号绑定的手机号 138 **** 1234'): "'验证码将发送至当前账号绑定的手机号 ${p.maskedPhone}'",
     ('ChangePhone', '验证码将发送至 139 **** 8812'): "'验证码将发送至 ${p.maskedPhone}'",
     ('StoreInfo', '驰光汽车美容 · 徐汇店'): 'p.name',
@@ -156,8 +157,13 @@ MEMBER_TEXT = {
     ('MemberAddDone', '宝马 5系 525Li'): 'm.vehicleModel',
     ('MemberAddDone', '已登记车辆'): 'm.vehicleLabel',
     ('MemberAddDone', '已为李女士建立会员档案，当前为普通会员'): "'已为${m.honorificName}建立会员档案，当前为${m.levelMember}'",
+    # 成功页底部“已自动通知会员”卡片里的会员名（微信通知本身暂未接通，卡片保持设计稿样式）
+    ('RechargeSuccess', '王建国 · 微信 · 充值通知'): "'${m.name} · 微信 · 充值通知'",
+    ('PackageSold', '王建国 · 微信 · 次卡购买通知'): "'${m.name} · 微信 · 次卡购买通知'",
+    ('PaySuccess', '王建国 · 微信 · 消费通知'): "'${m.name} · 微信 · 消费通知'",
+    ('MemberSendMsg', '接收人 · 王建国'): "'接收人 · ${m.name}'",
     ('RechargeCard', '王'): 'm.avatar',
-    ('RechargeCard', '王建国 '): "'${m.name} '",
+    ('RechargeCard', '王建国'): 'm.name',
     ('RechargeCard', '138 **** 6021 · 沪A·8K29M'): "'${m.maskedPhone} · ${m.plate}'",
     ('RechargeCard', '黑金会员'): 'm.levelMember',
     ('Recharge', '王'): 'm.avatar',
@@ -1081,6 +1087,14 @@ class Gen:
         if self.page_name == 'CardTierEdit' and n.attrs.get('aria-label') == '卡面预览':
             return 'hCardPreview()'
         # 整段换成手写的“活”控件（次卡详情里的包含服务 / 使用记录）
+        # “选择会员”弹层：搜索行和会员列表换成“活”控件
+        if self.page_name == 'MemberPicker' and n.tag == 'div':
+            first = next((c for c in n.children if isinstance(c, Node)), None)
+            txt = self.tree_text(n).strip()
+            if txt.startswith('车牌 / 手机号 / 姓名') and first is not None and first.tag == 'div':
+                return 'hMemberPickerSearch()'
+            if first is not None and self.tree_text(first).strip() == '最近使用':
+                return 'hMemberPickerList()'
         if n.tag == 'article' and self.page_name in LIVE_ARTICLES:
             return LIVE_ARTICLES[self.page_name]
         if n.tag == 'section':

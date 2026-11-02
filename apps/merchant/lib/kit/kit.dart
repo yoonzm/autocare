@@ -27,6 +27,8 @@ export '../widgets/member_widgets.dart'
         hTierName,
         RechargeView;
 export '../widgets/sale_widgets.dart' show hPackagePicker;
+export '../widgets/picker_widgets.dart'
+    show hMemberPickerList, hMemberPickerSearch;
 export '../widgets/follow_widgets.dart'
     show
         hFollowProgress,

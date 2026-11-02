@@ -154,9 +154,10 @@ class MemberSendMsgPage extends StatelessWidget {
                               flex: 1,
                               child: hcol(
                                 [
-                                  Text(
+                                  hMemberText(
+                                    (m) => '接收人 · ${m.name}',
                                     '接收人 · 王建国',
-                                    style: hts(
+                                    hts(
                                       15,
                                       dk(
                                         context,

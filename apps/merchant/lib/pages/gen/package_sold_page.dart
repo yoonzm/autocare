@@ -569,9 +569,10 @@ class PackageSoldPage extends StatelessWidget {
                                     lh: 22,
                                   ),
                                 ),
-                                Text(
+                                hMemberText(
+                                  (m) => '${m.name} · 微信 · 次卡购买通知',
                                   '王建国 · 微信 · 次卡购买通知',
-                                  style: hts(
+                                  hts(
                                     12,
                                     dk(
                                       context,

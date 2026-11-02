@@ -197,7 +197,20 @@ class _PairPageState extends State<PairPage> {
   }
 
   @override
-  Widget build(BuildContext context) => ValueListenableBuilder<int>(
+  Widget build(BuildContext context) {
+    // 会员充值：从首页进入时还没选会员，显示设计稿的“未选会员”页；选了会员后换成充值页
+    if (widget.id == 'Recharge' && merchantApi.hasSession) {
+      return ListenableBuilder(
+        listenable: MemberFlow.memberTick,
+        builder: (context, _) => MemberFlow.current == null
+            ? Builder(builder: genRoutes['RechargeEmpty']!)
+            : _tabs(),
+      );
+    }
+    return _tabs();
+  }
+
+  Widget _tabs() => ValueListenableBuilder<int>(
     valueListenable: pairTabs[widget.id]!,
     builder: (context, i, _) => IndexedStack(
       index: i,
@@ -317,6 +330,14 @@ void openRoute(BuildContext context, String name) {
   // 调整卡种与积分：每次进入都重新开始，并读取本店卡种
   if (merchantApi.hasSession && name == 'MemberAdjust') {
     unawaited(MemberFlow.beginAdjust());
+  }
+  // 从首页等没带会员的入口进入充值 / 开单：不沿用上次看过的会员，先选会员
+  if (merchantApi.hasSession &&
+      (name == 'Recharge' || name == 'RechargeCard' || name == 'Order') &&
+      (current == null || current == '/') &&
+      context.findAncestorWidgetOfExactType<MemberDetailPage>() == null) {
+    MemberFlow.current = null;
+    MemberFlow.memberTick.value++;
   }
   // 充值表单每次进入都重新开始（默认 ¥2,000、微信）
   if (merchantApi.hasSession &&

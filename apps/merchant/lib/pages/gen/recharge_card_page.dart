@@ -221,9 +221,10 @@ class RechargeCardPage extends StatelessWidget {
                             flex: 1,
                             child: hcol(
                               [
-                                Text(
+                                hMemberText(
+                                  (m) => m.name,
                                   '王建国',
-                                  style: hts(
+                                  hts(
                                     16,
                                     Color(0xFFFAFAFA),
                                     w: FontWeight.w600,
@@ -269,6 +270,30 @@ class RechargeCardPage extends StatelessWidget {
                               softWrap: false,
                               maxLines: 1,
                             ),
+                          ),
+                          hTap(
+                            context,
+                            hbox(
+                              bg: dk(
+                                context,
+                                Color.fromRGBO(255, 255, 255, 0.14),
+                                Color.fromRGBO(9, 9, 11, 0.92),
+                              ),
+                              radius: BorderRadius.circular(9),
+                              pad: EdgeInsets.fromLTRB(8, 0, 8, 0),
+                              child: Text(
+                                '更换',
+                                style: hts(
+                                  12,
+                                  Color(0xFFFAFAFA),
+                                  w: FontWeight.w500,
+                                  lh: 18,
+                                ),
+                                softWrap: false,
+                                maxLines: 1,
+                              ),
+                            ),
+                            to: 'MemberPicker',
                           ),
                         ],
                         main: MainAxisAlignment.start,

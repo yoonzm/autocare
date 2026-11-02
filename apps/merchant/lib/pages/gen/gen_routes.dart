@@ -65,6 +65,7 @@ import 'product_detail_page.dart';
 import 'profile_edit_page.dart';
 import 'recharge_page.dart';
 import 'recharge_card_page.dart';
+import 'recharge_empty_page.dart';
 import 'recharge_success_page.dart';
 import 'reg_done_page.dart';
 import 'reg_phone_page.dart';
@@ -106,6 +107,7 @@ import 'hold_sheet_sheet.dart';
 import 'member_delete_sheet.dart';
 import 'member_filter_sheet.dart';
 import 'member_more_sheet.dart';
+import 'member_picker_sheet.dart';
 import 'package_extend_sheet.dart';
 import 'package_refund_sheet.dart';
 import 'package_svc_pick_sheet.dart';
@@ -182,6 +184,7 @@ final Map<String, WidgetBuilder> genRoutes = {
   'ProfileEdit': (_) => const ProfileEditPage(),
   'Recharge': (_) => const RechargePage(),
   'RechargeCard': (_) => const RechargeCardPage(),
+  'RechargeEmpty': (_) => const RechargeEmptyPage(),
   'RechargeSuccess': (_) => const RechargeSuccessPage(),
   'RegDone': (_) => const RegDonePage(),
   'RegPhone': (_) => const RegPhonePage(),
@@ -227,6 +230,7 @@ final Map<String, WidgetBuilder> genSheets = {
   'MemberDelete': (_) => const MemberDeleteSheet(),
   'MemberFilter': (_) => const MemberFilterSheet(),
   'MemberMore': (_) => const MemberMoreSheet(),
+  'MemberPicker': (_) => const MemberPickerSheet(),
   'PackageExtend': (_) => const PackageExtendSheet(),
   'PackageRefund': (_) => const PackageRefundSheet(),
   'PackageSvcPick': (_) => const PackageSvcPickSheet(),
@@ -256,6 +260,7 @@ const Map<String, String> sheetParents = {
   'MemberDelete': 'MemberMore',
   'MemberFilter': 'Members',
   'MemberMore': 'MemberDetail',
+  'MemberPicker': '',
   'PackageExtend': 'PackageDetail',
   'PackageRefund': 'PackageDetail',
   'PackageSvcPick': 'PackageEdit',

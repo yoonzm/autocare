@@ -294,10 +294,12 @@ class MerchantApi {
     int? visitedOverDays,
     int offset = 0,
     int limit = 50,
+    bool recent = false,
   }) async {
     final data = await invoke({
       'action': 'list',
       'kind': 'members',
+      if (recent) 'sort': 'recent',
       if (query != null && query.trim().isNotEmpty) 'q': query.trim(),
       'card_type_id': ?cardTypeId,
       if (cardTypeIds != null && cardTypeIds.isNotEmpty)

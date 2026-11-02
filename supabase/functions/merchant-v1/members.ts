@@ -35,7 +35,9 @@ export async function handleMembers(input: Input, storeId: string): Promise<Resp
     const offset = Math.max(Number(input.offset) || 0, 0);
     let query = admin.from('members').select(MEMBER_SELECT, { count: 'exact' })
       .eq('store_id', storeId).is('deleted_at', null)
-      .order('created_at', { ascending: false }).range(offset, offset + limit - 1);
+      // sort = recent：最近有充值 / 消费 / 购买变动的在前（“选择会员”里的最近使用）
+      .order(input.sort === 'recent' ? 'updated_at' : 'created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
     if (input.card_type_id != null) {
       if (!uuid(input.card_type_id)) return fail('卡种无效');
       query = query.eq('card_type_id', input.card_type_id);
