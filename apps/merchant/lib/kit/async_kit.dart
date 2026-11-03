@@ -1,4 +1,4 @@
-// 加载与反馈统一组件，规范见 docs/frontend-loading-feedback.md。
+// 加载与反馈统一组件，规范见 docs/frontend-guidelines.md。
 //
 // 页面不要各自写加载、空、错误处理，统一用这里的组件：
 //   AppError      请求失败的统一类型（网络 / 超时 / 服务 / 登录失效 / 无权限 / 不存在 / 业务）

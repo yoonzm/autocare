@@ -9,7 +9,7 @@ import 'package:autocare_merchant/pages/services_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// 前端加载与反馈规范（docs/frontend-loading-feedback.md）的验证。
+/// 前端规范（docs/frontend-guidelines.md）中加载与反馈要求的验证。
 
 class _Api extends MerchantApi {
   final List<String> calls = [];

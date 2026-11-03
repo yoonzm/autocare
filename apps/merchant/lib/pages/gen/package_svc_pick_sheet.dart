@@ -340,102 +340,82 @@ class PackageSvcPickSheet extends StatelessWidget {
                       inits: [20],
                       builder: (context, ctrls) {
                         final c2 = ctrls[0];
-                        return hrow(
-                          [
-                            hTap(
+                        return HNumberStepper(
+                          ctrl: c2,
+                          step: 1,
+                          minus: hbox(
+                            w: 26,
+                            h: 26,
+                            bg: Color(0xFFFFFFFF),
+                            radius: BorderRadius.circular(13),
+                            border: dk(
                               context,
-                              hbox(
-                                w: 26,
-                                h: 26,
-                                bg: Color(0xFFFFFFFF),
-                                radius: BorderRadius.circular(13),
-                                border: dk(
+                              Border.all(color: Color(0xFFD4D4D8), width: 1),
+                              Border.all(color: Color(0xFF3F3F46), width: 1),
+                            ),
+                            align: Alignment(0, 0),
+                            child: Text(
+                              '−',
+                              style: hts(
+                                16,
+                                dk(
                                   context,
-                                  Border.all(
-                                    color: Color(0xFFD4D4D8),
-                                    width: 1,
-                                  ),
-                                  Border.all(
-                                    color: Color(0xFF3F3F46),
-                                    width: 1,
-                                  ),
+                                  Color(0xFF18181B),
+                                  Color(0xFFFAFAFA),
                                 ),
-                                align: Alignment(0, 0),
-                                child: Text(
-                                  '−',
-                                  style: hts(
-                                    16,
+                                lh: 16,
+                              ),
+                            ),
+                          ),
+                          value: Flexible(
+                            flex: 34,
+                            child: hbox(
+                              minW: 34,
+                              child: Align(
+                                alignment: Alignment.center,
+                                widthFactor: 1,
+                                child: hCount(
+                                  c2,
+                                  hts(
+                                    14,
                                     dk(
                                       context,
                                       Color(0xFF18181B),
                                       Color(0xFFFAFAFA),
                                     ),
-                                    lh: 16,
+                                    w: FontWeight.w600,
                                   ),
-                                ),
-                              ),
-                              onTap: () => c2.add(-1),
-                            ),
-                            Flexible(
-                              flex: 34,
-                              child: hbox(
-                                minW: 34,
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  widthFactor: 1,
-                                  child: hCount(
-                                    c2,
-                                    hts(
-                                      14,
-                                      dk(
-                                        context,
-                                        Color(0xFF18181B),
-                                        Color(0xFFFAFAFA),
-                                      ),
-                                      w: FontWeight.w600,
-                                    ),
-                                    0,
-                                    ' 次',
-                                    false,
-                                  ),
+                                  0,
+                                  ' 次',
+                                  false,
                                 ),
                               ),
                             ),
-                            hTap(
+                          ),
+                          plus: hbox(
+                            w: 26,
+                            h: 26,
+                            bg: Color(0xFFFFFFFF),
+                            radius: BorderRadius.circular(13),
+                            border: dk(
                               context,
-                              hbox(
-                                w: 26,
-                                h: 26,
-                                bg: Color(0xFFFFFFFF),
-                                radius: BorderRadius.circular(13),
-                                border: dk(
-                                  context,
-                                  Border.all(
-                                    color: Color(0xFFD4D4D8),
-                                    width: 1,
-                                  ),
-                                  Border.all(
-                                    color: Color(0xFF3F3F46),
-                                    width: 1,
-                                  ),
-                                ),
-                                align: Alignment(0, 0),
-                                child: Text(
-                                  '+',
-                                  style: hts(
-                                    16,
-                                    dk(
-                                      context,
-                                      Color(0xFF18181B),
-                                      Color(0xFFFAFAFA),
-                                    ),
-                                    lh: 16,
-                                  ),
-                                ),
-                              ),
-                              onTap: () => c2.add(1),
+                              Border.all(color: Color(0xFFD4D4D8), width: 1),
+                              Border.all(color: Color(0xFF3F3F46), width: 1),
                             ),
-                          ],
+                            align: Alignment(0, 0),
+                            child: Text(
+                              '+',
+                              style: hts(
+                                16,
+                                dk(
+                                  context,
+                                  Color(0xFF18181B),
+                                  Color(0xFFFAFAFA),
+                                ),
+                                lh: 16,
+                              ),
+                            ),
+                          ),
                           main: MainAxisAlignment.start,
                           cross: CrossAxisAlignment.center,
                           gap: 6,

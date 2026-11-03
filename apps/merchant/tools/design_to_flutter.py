@@ -2407,11 +2407,105 @@ def split_variants(name, src):
     return [('Recharge', fix_close(a)), ('RechargeCard', fix_close(b)), ('RechargePick', fix_close(c))]
 
 
+def _balanced_end(src, start):
+    """返回从左括号开始的 Dart 表达式的右括号位置。"""
+    pairs = {'(': ')', '[': ']', '{': '}'}
+    stack, quote, escape = [], None, False
+    for i in range(start, len(src)):
+        ch = src[i]
+        if quote:
+            if escape:
+                escape = False
+            elif ch == '\\':
+                escape = True
+            elif ch == quote:
+                quote = None
+            continue
+        if ch in "'\"":
+            quote = ch
+        elif ch in pairs:
+            stack.append(pairs[ch])
+        elif stack and ch == stack[-1]:
+            stack.pop()
+            if not stack:
+                return i
+    raise ValueError('unbalanced Dart expression')
+
+
+def _dart_args(src):
+    """按顶层逗号拆分参数，保留嵌套 widget 和字符串。"""
+    parts, start, stack, quote, escape = [], 0, [], None, False
+    pairs = {'(': ')', '[': ']', '{': '}'}
+    for i, ch in enumerate(src):
+        if quote:
+            if escape:
+                escape = False
+            elif ch == '\\':
+                escape = True
+            elif ch == quote:
+                quote = None
+            continue
+        if ch in "'\"":
+            quote = ch
+        elif ch in pairs:
+            stack.append(pairs[ch])
+        elif stack and ch == stack[-1]:
+            stack.pop()
+        elif ch == ',' and not stack:
+            if src[start:i].strip():
+                parts.append(src[start:i].strip())
+            start = i + 1
+    if src[start:].strip():
+        parts.append(src[start:].strip())
+    return parts
+
+
+def rewrite_number_steppers(src):
+    """把生成器识别出的 减/数字/加 三元组收敛到统一组件。"""
+    needle, pos = 'return hrow(', 0
+    while True:
+        start = src.find(needle, pos)
+        if start < 0:
+            break
+        open_at = start + len('return hrow')
+        end = _balanced_end(src, open_at)
+        args = _dart_args(src[open_at + 1:end])
+        if not args or not args[0].startswith('['):
+            pos = start + len(needle)
+            continue
+        children = _dart_args(args[0][1:-1])
+        if len(children) != 3 or 'hCount(' not in children[1]:
+            pos = start + len(needle)
+            continue
+        buttons = []
+        for child in (children[0], children[2]):
+            if not child.startswith('hTap('):
+                break
+            tap_args = _dart_args(child[5:-1])
+            if len(tap_args) != 3 or tap_args[0] != 'context':
+                break
+            action = re.fullmatch(r'onTap:\s*\(\)\s*=>\s*(c\d+)\.add\((-?\d+)\)', tap_args[2])
+            if not action:
+                break
+            buttons.append((tap_args[1], action.group(1), int(action.group(2))))
+        if len(buttons) != 2 or buttons[0][1] != buttons[1][1] or buttons[0][2] != -buttons[1][2] or buttons[1][2] <= 0:
+            pos = start + len(needle)
+            continue
+        ctrl = buttons[0][1]
+        named = ', '.join(args[1:])
+        replacement = ('return HNumberStepper(ctrl: %s, step: %d, minus: %s, value: %s, plus: %s%s);' % (
+            ctrl, buttons[1][2], buttons[0][0], children[1], buttons[1][0], ', ' + named if named else ''))
+        # hrow 原调用的分号由外层代码保留。
+        src = src[:start] + replacement[:-1] + src[end + 1:]
+        pos = start + len(replacement) - 1
+    return src
+
+
 def _gen_one(gen, name, src, out_dir, done, sheets):
     gen.sel_counter = 0
     try:
         root = extract_page(src)
-        code = gen.emit_page(root, name)
+        code = rewrite_number_steppers(gen.emit_page(root, name))
     except Exception as e:  # noqa
         print('FAILED', name, repr(e))
         raise
@@ -2427,6 +2521,20 @@ def _gen_one(gen, name, src, out_dir, done, sheets):
 
 
 def main():
+    if len(sys.argv) == 3 and sys.argv[1] == '--rewrite-existing':
+        # 旧设计稿源文件暂不在仓库；用同一生成后处理规则升级现存 gen 文件。
+        for name in os.listdir(sys.argv[2]):
+            if not name.endswith('.dart') or name in ('svgs.dart', 'gen_routes.dart'):
+                continue
+            path = os.path.join(sys.argv[2], name)
+            with open(path, encoding='utf-8') as f:
+                old = f.read()
+            new = rewrite_number_steppers(old)
+            if new != old:
+                with open(path, 'w', encoding='utf-8') as f:
+                    f.write(new)
+                print(name, new.count('HNumberStepper(') - old.count('HNumberStepper('), 'stepper groups')
+        return
     src_dir, out_dir = sys.argv[1], sys.argv[2]
     only = set(sys.argv[3:])
     names = sorted(f[:-len('.dc.html')] for f in os.listdir(src_dir) if f.endswith('.dc.html'))

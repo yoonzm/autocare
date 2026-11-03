@@ -7,7 +7,7 @@ import 'package:autocare_merchant/pages/login_page.dart';
 import 'package:autocare_merchant/pages/member_detail_page.dart';
 import 'package:autocare_merchant/pages/order_page.dart';
 
-/// 规范：所有表单输入框没值时都必须有 placeholder（docs/frontend-loading-feedback.md）。
+/// 规范：所有表单输入框没值时都必须有 placeholder（docs/frontend-guidelines.md）。
 /// 这里把每个页面里的输入框找出来检查 hintText；已有默认值的输入框也要有，
 /// 因为用户清空后看到的就是 placeholder。
 void main() {

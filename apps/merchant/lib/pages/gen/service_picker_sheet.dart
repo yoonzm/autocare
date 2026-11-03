@@ -599,109 +599,101 @@ class ServicePickerSheet extends StatelessWidget {
                         inits: [1],
                         builder: (context, ctrls) {
                           final c2 = ctrls[0];
-                          return hrow(
-                            [
-                              hTap(
+                          return HNumberStepper(
+                            ctrl: c2,
+                            step: 1,
+                            minus: hbox(
+                              w: 32,
+                              h: 32,
+                              bg: dk(
                                 context,
-                                hbox(
-                                  w: 32,
-                                  h: 32,
-                                  bg: dk(
-                                    context,
-                                    Color(0xFFFFFFFF),
-                                    Color(0xFF18181B),
-                                  ),
-                                  radius: BorderRadius.circular(16),
-                                  shadow: dk(
-                                    context,
-                                    [
-                                      BoxShadow(
-                                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                                        offset: Offset(0, 0),
-                                        blurRadius: 1,
-                                        spreadRadius: 0,
-                                      ),
-                                      BoxShadow(
-                                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                                        offset: Offset(0, 1),
-                                        blurRadius: 2,
-                                        spreadRadius: 0,
-                                      ),
-                                      BoxShadow(
-                                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                                        offset: Offset(0, 2),
-                                        blurRadius: 4,
-                                        spreadRadius: 0,
-                                      ),
-                                    ],
-                                    [
-                                      BoxShadow(
-                                        color: Color(0xFF26262B),
-                                        offset: Offset(0, 0),
-                                        blurRadius: 0,
-                                        spreadRadius: 1,
-                                      ),
-                                    ],
-                                  ),
-                                  child: hrow(
-                                    [
-                                      hsvg(
-                                        dk(context, Svgs.s420, Svgs.s421),
-                                        w: 16,
-                                        h: 16,
-                                      ),
-                                    ],
-                                    main: MainAxisAlignment.center,
-                                    cross: CrossAxisAlignment.center,
-                                    gap: 0,
-                                  ),
-                                ),
-                                onTap: () => c2.add(-1),
+                                Color(0xFFFFFFFF),
+                                Color(0xFF18181B),
                               ),
-                              Flexible(
-                                flex: 9,
-                                child: hbox(
-                                  minW: 14,
-                                  child: Align(
-                                    alignment: Alignment.center,
-                                    widthFactor: 1,
-                                    child: hCount(
-                                      c2,
-                                      hts(
-                                        15,
-                                        dk(
-                                          context,
-                                          Color(0xFF18181B),
-                                          Color(0xFFFAFAFA),
-                                        ),
-                                        w: FontWeight.w600,
-                                        lh: 22,
-                                        tab: true,
+                              radius: BorderRadius.circular(16),
+                              shadow: dk(
+                                context,
+                                [
+                                  BoxShadow(
+                                    color: Color.fromRGBO(0, 0, 0, 0.06),
+                                    offset: Offset(0, 0),
+                                    blurRadius: 1,
+                                    spreadRadius: 0,
+                                  ),
+                                  BoxShadow(
+                                    color: Color.fromRGBO(0, 0, 0, 0.06),
+                                    offset: Offset(0, 1),
+                                    blurRadius: 2,
+                                    spreadRadius: 0,
+                                  ),
+                                  BoxShadow(
+                                    color: Color.fromRGBO(0, 0, 0, 0.04),
+                                    offset: Offset(0, 2),
+                                    blurRadius: 4,
+                                    spreadRadius: 0,
+                                  ),
+                                ],
+                                [
+                                  BoxShadow(
+                                    color: Color(0xFF26262B),
+                                    offset: Offset(0, 0),
+                                    blurRadius: 0,
+                                    spreadRadius: 1,
+                                  ),
+                                ],
+                              ),
+                              child: hrow(
+                                [
+                                  hsvg(
+                                    dk(context, Svgs.s420, Svgs.s421),
+                                    w: 16,
+                                    h: 16,
+                                  ),
+                                ],
+                                main: MainAxisAlignment.center,
+                                cross: CrossAxisAlignment.center,
+                                gap: 0,
+                              ),
+                            ),
+                            value: Flexible(
+                              flex: 9,
+                              child: hbox(
+                                minW: 14,
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: hCount(
+                                    c2,
+                                    hts(
+                                      15,
+                                      dk(
+                                        context,
+                                        Color(0xFF18181B),
+                                        Color(0xFFFAFAFA),
                                       ),
-                                      0,
-                                      '',
-                                      false,
+                                      w: FontWeight.w600,
+                                      lh: 22,
+                                      tab: true,
                                     ),
+                                    0,
+                                    '',
+                                    false,
                                   ),
                                 ),
                               ),
-                              hTap(
-                                context,
-                                hbox(
-                                  w: 32,
-                                  h: 32,
-                                  bg: Color(0xFF0485F7),
-                                  radius: BorderRadius.circular(16),
-                                  child: hrow(
-                                    [hsvg(Svgs.s422, w: 16, h: 16)],
-                                    main: MainAxisAlignment.center,
-                                    cross: CrossAxisAlignment.center,
-                                    gap: 0,
-                                  ),
-                                ),
-                                onTap: () => c2.add(1),
+                            ),
+                            plus: hbox(
+                              w: 32,
+                              h: 32,
+                              bg: Color(0xFF0485F7),
+                              radius: BorderRadius.circular(16),
+                              child: hrow(
+                                [hsvg(Svgs.s422, w: 16, h: 16)],
+                                main: MainAxisAlignment.center,
+                                cross: CrossAxisAlignment.center,
+                                gap: 0,
                               ),
-                            ],
+                            ),
                             main: MainAxisAlignment.start,
                             cross: CrossAxisAlignment.center,
                             gap: 10,
@@ -864,109 +856,101 @@ class ServicePickerSheet extends StatelessWidget {
                         inits: [1],
                         builder: (context, ctrls) {
                           final c3 = ctrls[0];
-                          return hrow(
-                            [
-                              hTap(
+                          return HNumberStepper(
+                            ctrl: c3,
+                            step: 1,
+                            minus: hbox(
+                              w: 32,
+                              h: 32,
+                              bg: dk(
                                 context,
-                                hbox(
-                                  w: 32,
-                                  h: 32,
-                                  bg: dk(
-                                    context,
-                                    Color(0xFFFFFFFF),
-                                    Color(0xFF18181B),
-                                  ),
-                                  radius: BorderRadius.circular(16),
-                                  shadow: dk(
-                                    context,
-                                    [
-                                      BoxShadow(
-                                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                                        offset: Offset(0, 0),
-                                        blurRadius: 1,
-                                        spreadRadius: 0,
-                                      ),
-                                      BoxShadow(
-                                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                                        offset: Offset(0, 1),
-                                        blurRadius: 2,
-                                        spreadRadius: 0,
-                                      ),
-                                      BoxShadow(
-                                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                                        offset: Offset(0, 2),
-                                        blurRadius: 4,
-                                        spreadRadius: 0,
-                                      ),
-                                    ],
-                                    [
-                                      BoxShadow(
-                                        color: Color(0xFF26262B),
-                                        offset: Offset(0, 0),
-                                        blurRadius: 0,
-                                        spreadRadius: 1,
-                                      ),
-                                    ],
-                                  ),
-                                  child: hrow(
-                                    [
-                                      hsvg(
-                                        dk(context, Svgs.s420, Svgs.s421),
-                                        w: 16,
-                                        h: 16,
-                                      ),
-                                    ],
-                                    main: MainAxisAlignment.center,
-                                    cross: CrossAxisAlignment.center,
-                                    gap: 0,
-                                  ),
-                                ),
-                                onTap: () => c3.add(-1),
+                                Color(0xFFFFFFFF),
+                                Color(0xFF18181B),
                               ),
-                              Flexible(
-                                flex: 9,
-                                child: hbox(
-                                  minW: 14,
-                                  child: Align(
-                                    alignment: Alignment.center,
-                                    widthFactor: 1,
-                                    child: hCount(
-                                      c3,
-                                      hts(
-                                        15,
-                                        dk(
-                                          context,
-                                          Color(0xFF18181B),
-                                          Color(0xFFFAFAFA),
-                                        ),
-                                        w: FontWeight.w600,
-                                        lh: 22,
-                                        tab: true,
+                              radius: BorderRadius.circular(16),
+                              shadow: dk(
+                                context,
+                                [
+                                  BoxShadow(
+                                    color: Color.fromRGBO(0, 0, 0, 0.06),
+                                    offset: Offset(0, 0),
+                                    blurRadius: 1,
+                                    spreadRadius: 0,
+                                  ),
+                                  BoxShadow(
+                                    color: Color.fromRGBO(0, 0, 0, 0.06),
+                                    offset: Offset(0, 1),
+                                    blurRadius: 2,
+                                    spreadRadius: 0,
+                                  ),
+                                  BoxShadow(
+                                    color: Color.fromRGBO(0, 0, 0, 0.04),
+                                    offset: Offset(0, 2),
+                                    blurRadius: 4,
+                                    spreadRadius: 0,
+                                  ),
+                                ],
+                                [
+                                  BoxShadow(
+                                    color: Color(0xFF26262B),
+                                    offset: Offset(0, 0),
+                                    blurRadius: 0,
+                                    spreadRadius: 1,
+                                  ),
+                                ],
+                              ),
+                              child: hrow(
+                                [
+                                  hsvg(
+                                    dk(context, Svgs.s420, Svgs.s421),
+                                    w: 16,
+                                    h: 16,
+                                  ),
+                                ],
+                                main: MainAxisAlignment.center,
+                                cross: CrossAxisAlignment.center,
+                                gap: 0,
+                              ),
+                            ),
+                            value: Flexible(
+                              flex: 9,
+                              child: hbox(
+                                minW: 14,
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: hCount(
+                                    c3,
+                                    hts(
+                                      15,
+                                      dk(
+                                        context,
+                                        Color(0xFF18181B),
+                                        Color(0xFFFAFAFA),
                                       ),
-                                      0,
-                                      '',
-                                      false,
+                                      w: FontWeight.w600,
+                                      lh: 22,
+                                      tab: true,
                                     ),
+                                    0,
+                                    '',
+                                    false,
                                   ),
                                 ),
                               ),
-                              hTap(
-                                context,
-                                hbox(
-                                  w: 32,
-                                  h: 32,
-                                  bg: Color(0xFF0485F7),
-                                  radius: BorderRadius.circular(16),
-                                  child: hrow(
-                                    [hsvg(Svgs.s422, w: 16, h: 16)],
-                                    main: MainAxisAlignment.center,
-                                    cross: CrossAxisAlignment.center,
-                                    gap: 0,
-                                  ),
-                                ),
-                                onTap: () => c3.add(1),
+                            ),
+                            plus: hbox(
+                              w: 32,
+                              h: 32,
+                              bg: Color(0xFF0485F7),
+                              radius: BorderRadius.circular(16),
+                              child: hrow(
+                                [hsvg(Svgs.s422, w: 16, h: 16)],
+                                main: MainAxisAlignment.center,
+                                cross: CrossAxisAlignment.center,
+                                gap: 0,
                               ),
-                            ],
+                            ),
                             main: MainAxisAlignment.start,
                             cross: CrossAxisAlignment.center,
                             gap: 10,

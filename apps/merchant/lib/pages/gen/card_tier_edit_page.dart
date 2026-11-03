@@ -544,81 +544,73 @@ class CardTierEditPage extends StatelessWidget {
                                   inits: [90],
                                   builder: (context, ctrls) {
                                     final c1 = ctrls[0];
-                                    return hrow(
-                                      [
-                                        hTap(
+                                    return HNumberStepper(
+                                      ctrl: c1,
+                                      step: 1,
+                                      minus: hbox(
+                                        w: 30,
+                                        h: 30,
+                                        bg: dk(
                                           context,
-                                          hbox(
-                                            w: 30,
-                                            h: 30,
-                                            bg: dk(
-                                              context,
-                                              Color(0xFFEEEEF0),
-                                              Color(0xFF27272A),
-                                            ),
-                                            radius: BorderRadius.circular(15),
-                                            align: Alignment.center,
-                                            child: Text(
-                                              '−',
-                                              style: hts(
-                                                17,
-                                                dk(
-                                                  context,
-                                                  Color(0xFF18181B),
-                                                  Color(0xFFFAFAFA),
-                                                ),
-                                                w: FontWeight.w500,
-                                                lh: 17,
-                                              ),
-                                            ),
-                                          ),
-                                          onTap: () => c1.add(-1),
+                                          Color(0xFFEEEEF0),
+                                          Color(0xFF27272A),
                                         ),
-                                        hbox(
-                                          w: 52,
-                                          align: Alignment.center,
-                                          child: hCount(
-                                            c1,
-                                            hts(
-                                              15,
-                                              dk(
-                                                context,
-                                                Color(0xFF18181B),
-                                                Color(0xFFFAFAFA),
-                                              ),
-                                              w: FontWeight.w600,
-                                              lh: 22,
-                                            ),
-                                            1,
-                                            ' 折',
-                                            false,
-                                          ),
-                                        ),
-                                        hTap(
-                                          context,
-                                          hbox(
-                                            w: 30,
-                                            h: 30,
-                                            bg: dk(
+                                        radius: BorderRadius.circular(15),
+                                        align: Alignment.center,
+                                        child: Text(
+                                          '−',
+                                          style: hts(
+                                            17,
+                                            dk(
                                               context,
                                               Color(0xFF18181B),
-                                              Color(0xFF34343A),
+                                              Color(0xFFFAFAFA),
                                             ),
-                                            radius: BorderRadius.circular(15),
-                                            align: Alignment.center,
-                                            child: Text(
-                                              '+',
-                                              style: hts(
-                                                17,
-                                                Color(0xFFFFFFFF),
-                                                w: FontWeight.w500,
-                                                lh: 17,
-                                              ),
-                                            ),
+                                            w: FontWeight.w500,
+                                            lh: 17,
                                           ),
-                                          onTap: () => c1.add(1),
                                         ),
-                                      ],
+                                      ),
+                                      value: hbox(
+                                        w: 52,
+                                        align: Alignment.center,
+                                        child: hCount(
+                                          c1,
+                                          hts(
+                                            15,
+                                            dk(
+                                              context,
+                                              Color(0xFF18181B),
+                                              Color(0xFFFAFAFA),
+                                            ),
+                                            w: FontWeight.w600,
+                                            lh: 22,
+                                          ),
+                                          1,
+                                          ' 折',
+                                          false,
+                                        ),
+                                      ),
+                                      plus: hbox(
+                                        w: 30,
+                                        h: 30,
+                                        bg: dk(
+                                          context,
+                                          Color(0xFF18181B),
+                                          Color(0xFF34343A),
+                                        ),
+                                        radius: BorderRadius.circular(15),
+                                        align: Alignment.center,
+                                        child: Text(
+                                          '+',
+                                          style: hts(
+                                            17,
+                                            Color(0xFFFFFFFF),
+                                            w: FontWeight.w500,
+                                            lh: 17,
+                                          ),
+                                        ),
+                                      ),
                                       main: MainAxisAlignment.start,
                                       cross: CrossAxisAlignment.center,
                                       gap: 4,

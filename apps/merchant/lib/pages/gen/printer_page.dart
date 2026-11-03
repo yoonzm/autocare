@@ -488,88 +488,80 @@ class PrinterPage extends StatelessWidget {
                                 inits: [1],
                                 builder: (context, ctrls) {
                                   final c2 = ctrls[0];
-                                  return hrow(
-                                    [
-                                      hTap(
+                                  return HNumberStepper(
+                                    ctrl: c2,
+                                    step: 1,
+                                    minus: hbox(
+                                      w: 32,
+                                      h: 32,
+                                      bg: dk(
                                         context,
-                                        hbox(
-                                          w: 32,
-                                          h: 32,
-                                          bg: dk(
-                                            context,
-                                            Color(0xFFF4F4F5),
-                                            Color(0xFF27272A),
-                                          ),
-                                          radius: BorderRadius.circular(16),
-                                          child: hrow(
-                                            [
-                                              hsvg(
-                                                dk(context, Svgs.s16, Svgs.s17),
-                                                w: 14,
-                                                h: 14,
-                                              ),
-                                            ],
-                                            main: MainAxisAlignment.center,
-                                            cross: CrossAxisAlignment.center,
-                                            gap: 0,
-                                          ),
-                                        ),
-                                        onTap: () => c2.add(-1),
+                                        Color(0xFFF4F4F5),
+                                        Color(0xFF27272A),
                                       ),
-                                      Flexible(
-                                        flex: 9,
-                                        child: hbox(
-                                          minW: 36,
-                                          child: Align(
-                                            alignment: Alignment.center,
-                                            widthFactor: 1,
-                                            child: hCount(
-                                              c2,
-                                              hts(
-                                                15,
-                                                dk(
-                                                  context,
-                                                  Color(0xFF18181B),
-                                                  Color(0xFFFAFAFA),
-                                                ),
-                                                w: FontWeight.w600,
-                                                lh: 22,
-                                                tab: true,
+                                      radius: BorderRadius.circular(16),
+                                      child: hrow(
+                                        [
+                                          hsvg(
+                                            dk(context, Svgs.s16, Svgs.s17),
+                                            w: 14,
+                                            h: 14,
+                                          ),
+                                        ],
+                                        main: MainAxisAlignment.center,
+                                        cross: CrossAxisAlignment.center,
+                                        gap: 0,
+                                      ),
+                                    ),
+                                    value: Flexible(
+                                      flex: 9,
+                                      child: hbox(
+                                        minW: 36,
+                                        child: Align(
+                                          alignment: Alignment.center,
+                                          widthFactor: 1,
+                                          child: hCount(
+                                            c2,
+                                            hts(
+                                              15,
+                                              dk(
+                                                context,
+                                                Color(0xFF18181B),
+                                                Color(0xFFFAFAFA),
                                               ),
-                                              0,
-                                              '',
-                                              false,
+                                              w: FontWeight.w600,
+                                              lh: 22,
+                                              tab: true,
                                             ),
+                                            0,
+                                            '',
+                                            false,
                                           ),
                                         ),
                                       ),
-                                      hTap(
+                                    ),
+                                    plus: hbox(
+                                      w: 32,
+                                      h: 32,
+                                      bg: dk(
                                         context,
-                                        hbox(
-                                          w: 32,
-                                          h: 32,
-                                          bg: dk(
-                                            context,
-                                            Color(0xFFF4F4F5),
-                                            Color(0xFF27272A),
-                                          ),
-                                          radius: BorderRadius.circular(16),
-                                          child: hrow(
-                                            [
-                                              hsvg(
-                                                dk(context, Svgs.s18, Svgs.s19),
-                                                w: 14,
-                                                h: 14,
-                                              ),
-                                            ],
-                                            main: MainAxisAlignment.center,
-                                            cross: CrossAxisAlignment.center,
-                                            gap: 0,
-                                          ),
-                                        ),
-                                        onTap: () => c2.add(1),
+                                        Color(0xFFF4F4F5),
+                                        Color(0xFF27272A),
                                       ),
-                                    ],
+                                      radius: BorderRadius.circular(16),
+                                      child: hrow(
+                                        [
+                                          hsvg(
+                                            dk(context, Svgs.s18, Svgs.s19),
+                                            w: 14,
+                                            h: 14,
+                                          ),
+                                        ],
+                                        main: MainAxisAlignment.center,
+                                        cross: CrossAxisAlignment.center,
+                                        gap: 0,
+                                      ),
+                                    ),
                                     main: MainAxisAlignment.start,
                                     cross: CrossAxisAlignment.center,
                                     gap: 4,

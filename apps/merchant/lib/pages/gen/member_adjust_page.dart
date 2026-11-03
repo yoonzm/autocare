@@ -763,88 +763,80 @@ class MemberAdjustPage extends StatelessWidget {
                           inits: [500],
                           builder: (context, ctrls) {
                             final c3 = ctrls[0];
-                            return hrow(
-                              [
-                                hTap(
+                            return HNumberStepper(
+                              ctrl: c3,
+                              step: 10,
+                              minus: hbox(
+                                w: 40,
+                                h: 40,
+                                bg: dk(
                                   context,
-                                  hbox(
-                                    w: 40,
-                                    h: 40,
-                                    bg: dk(
+                                  Color(0xFFF4F4F5),
+                                  Color(0xFF27272A),
+                                ),
+                                radius: BorderRadius.circular(20),
+                                align: Alignment(0, 0),
+                                child: Text(
+                                  '−',
+                                  style: hts(
+                                    16,
+                                    dk(
                                       context,
-                                      Color(0xFFF4F4F5),
-                                      Color(0xFF27272A),
+                                      Color(0xFF18181B),
+                                      Color(0xFFFAFAFA),
                                     ),
-                                    radius: BorderRadius.circular(20),
-                                    align: Alignment(0, 0),
-                                    child: Text(
-                                      '−',
-                                      style: hts(
-                                        16,
+                                  ),
+                                ),
+                              ),
+                              value: Flexible(
+                                flex: 56,
+                                child: hbox(
+                                  minW: 120,
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    widthFactor: 1,
+                                    child: hCount(
+                                      c3,
+                                      hts(
+                                        32,
                                         dk(
                                           context,
                                           Color(0xFF18181B),
                                           Color(0xFFFAFAFA),
                                         ),
+                                        w: FontWeight.w600,
+                                        lh: 38,
+                                        ls: -0.64,
                                       ),
-                                    ),
-                                  ),
-                                  onTap: () => c3.add(-10),
-                                ),
-                                Flexible(
-                                  flex: 56,
-                                  child: hbox(
-                                    minW: 120,
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      widthFactor: 1,
-                                      child: hCount(
-                                        c3,
-                                        hts(
-                                          32,
-                                          dk(
-                                            context,
-                                            Color(0xFF18181B),
-                                            Color(0xFFFAFAFA),
-                                          ),
-                                          w: FontWeight.w600,
-                                          lh: 38,
-                                          ls: -0.64,
-                                        ),
-                                        0,
-                                        '',
-                                        false,
-                                      ),
+                                      0,
+                                      '',
+                                      false,
                                     ),
                                   ),
                                 ),
-                                hTap(
+                              ),
+                              plus: hbox(
+                                w: 40,
+                                h: 40,
+                                bg: dk(
                                   context,
-                                  hbox(
-                                    w: 40,
-                                    h: 40,
-                                    bg: dk(
-                                      context,
-                                      Color(0xFFF4F4F5),
-                                      Color(0xFF27272A),
-                                    ),
-                                    radius: BorderRadius.circular(20),
-                                    child: hrow(
-                                      [
-                                        hsvg(
-                                          dk(context, Svgs.s214, Svgs.s215),
-                                          w: 18,
-                                          h: 18,
-                                        ),
-                                      ],
-                                      main: MainAxisAlignment.center,
-                                      cross: CrossAxisAlignment.center,
-                                      gap: 0,
-                                    ),
-                                  ),
-                                  onTap: () => c3.add(10),
+                                  Color(0xFFF4F4F5),
+                                  Color(0xFF27272A),
                                 ),
-                              ],
+                                radius: BorderRadius.circular(20),
+                                child: hrow(
+                                  [
+                                    hsvg(
+                                      dk(context, Svgs.s214, Svgs.s215),
+                                      w: 18,
+                                      h: 18,
+                                    ),
+                                  ],
+                                  main: MainAxisAlignment.center,
+                                  cross: CrossAxisAlignment.center,
+                                  gap: 0,
+                                ),
+                              ),
                               main: MainAxisAlignment.center,
                               cross: CrossAxisAlignment.center,
                               gap: 14,

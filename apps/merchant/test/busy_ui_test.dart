@@ -8,7 +8,7 @@ import 'package:autocare_merchant/pages/services_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// 加载态的视觉规范（docs/frontend-loading-feedback.md · 加载态的通用要求）：
+/// 加载态的视觉规范（docs/frontend-guidelines.md · 加载态的通用要求）：
 /// 骨架贴顶、行数一致、按钮 loading 尺寸不变且只显示转圈、图标按钮只显示转圈。
 class _Api extends MerchantApi {
   Duration latency = const Duration(milliseconds: 400);

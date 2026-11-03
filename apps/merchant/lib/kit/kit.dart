@@ -1959,6 +1959,49 @@ class ValCtrl extends ChangeNotifier {
   void flip() => set(on ? 0 : 1);
 }
 
+/// 数字增减控件。按钮外观和数字占位由设计稿提供，交互与排布统一在这里。
+/// [step] 与 [ValCtrl] 的存储单位一致；小数值由中间的 [hCount] 格式化。
+class HNumberStepper extends StatelessWidget {
+  final ValCtrl ctrl;
+  final int step;
+  final Widget minus, value, plus;
+  final MainAxisAlignment main;
+  final CrossAxisAlignment cross;
+  final double gap;
+
+  const HNumberStepper({
+    super.key,
+    required this.ctrl,
+    required this.step,
+    required this.minus,
+    required this.value,
+    required this.plus,
+    this.main = MainAxisAlignment.start,
+    this.cross = CrossAxisAlignment.center,
+    this.gap = 4,
+  }) : assert(step > 0);
+
+  @override
+  Widget build(BuildContext context) => hrow(
+    [
+      Semantics(
+        button: true,
+        label: '减少',
+        child: hTap(context, minus, onTap: () => ctrl.add(-step)),
+      ),
+      value,
+      Semantics(
+        button: true,
+        label: '增加',
+        child: hTap(context, plus, onTap: () => ctrl.add(step)),
+      ),
+    ],
+    main: main,
+    cross: cross,
+    gap: gap,
+  );
+}
+
 class HHolder extends StatefulWidget {
   final List<int> inits;
   final Widget Function(BuildContext, List<ValCtrl>) builder;

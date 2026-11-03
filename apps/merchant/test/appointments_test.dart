@@ -422,6 +422,23 @@ void main() {
     expect(call['capacity'], 2);
     expect(call['slot_minutes'], 30);
   });
+  testWidgets('预约设置数字增减使用通用控件并保存更新值', (t) async {
+    await open(t, const AppointmentSettingsLivePage());
+    final capacity = find.byWidgetPredicate(
+      (w) => w is BookingNumber && w.field == 'capacity',
+    );
+    await t.ensureVisible(capacity);
+    final plus = find.descendant(
+      of: capacity,
+      matching: find.bySemanticsLabel('增加'),
+    );
+    await t.tap(plus);
+    await t.pumpAndSettle();
+    await t.tap(find.text('保存设置'));
+    await t.pumpAndSettle();
+    final call = api.calls.lastWhere((c) => c['action'] == 'settings_save');
+    expect(call['capacity'], 3);
+  });
   testWidgets('预约设置保存加载时保持按钮尺寸与单次请求', (t) async {
     await open(t, const AppointmentSettingsLivePage());
     api.gate = Completer<void>();
