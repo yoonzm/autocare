@@ -1,3 +1,4 @@
+import { handleInventory } from './inventory.ts';
 import { handleAccount } from './account.ts';
 import { handleAuth } from './auth.ts';
 import { handleCards } from './cards.ts';
@@ -28,6 +29,7 @@ Deno.serve(async (request: Request): Promise<Response> => {
   }
   if (input.action === 'home_stats') return handleHomeStats(request);
   if (String(input.action).startsWith('appointment_')) return handleAppointments(input, request);
+  if (String(input.action).startsWith('inventory_')) return handleInventory(input, request);
   if (!isCatalogKind(input.kind)) return fail('不支持的业务类型');
   // 幂等标识只取请求头（客户端对同一次点击带同一个 X-Request-Id），不接受放在 body 里的值
   input.__request = request.headers.get('x-request-id');

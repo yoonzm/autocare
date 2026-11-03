@@ -1,6 +1,10 @@
+import '../widgets/inventory_bindings.dart';
+import 'inventory_live_page.dart';
+
 import 'package:flutter/material.dart';
 
-import '../mock/mock_data.dart';
+import '../backend/merchant_api.dart';
+import '../kit/async_kit.dart';
 import '../theme.dart';
 import '../routes.dart';
 import '../widgets/app_icon.dart';
@@ -15,9 +19,48 @@ class InventoryPage extends StatefulWidget {
 class _InventoryPageState extends State<InventoryPage> {
   static const _cats = ['全部', '洗护', '镀晶', '贴膜', '配件'];
   int cat = 0;
+  final _key = GlobalKey<AsyncViewState<List<InventoryProduct>>>();
+  @override
+  void initState() {
+    super.initState();
+    inventoryChanged.addListener(_reload);
+  }
+
+  void _reload() => _key.currentState?.reload();
+  @override
+  void dispose() {
+    inventoryChanged.removeListener(_reload);
+    super.dispose();
+  }
+
+  List<InventoryProduct> products = [];
+  Future<List<InventoryProduct>> _load() async {
+    if (!merchantApi.hasSession) {
+      throw const AppError('请先登录后查看库存', type: AppErrorType.auth);
+    }
+    final result = await merchantApi.invoke({'action': 'inventory_list'});
+    products = (result['items'] as List)
+        .map((v) => InventoryProduct(Map<String, dynamic>.from(v as Map)))
+        .toList();
+    return products;
+  }
 
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      body: AsyncView<List<InventoryProduct>>(
+        key: _key,
+        load: _load,
+        isEmpty: (_) => false,
+        skeleton: const SkeletonList(count: 5),
+        empty: (_) => EmptyView.firstTime(title: '还没有库存商品'),
+        onNext: () => openRoute(context, 'Login'),
+        builder: (context, data) => _content(context),
+      ),
+    );
+  }
+
+  Widget _content(BuildContext context) {
     final list = products
         .where((p) => cat == 0 || p.category == _cats[cat])
         .toList();
@@ -42,7 +85,7 @@ class _InventoryPageState extends State<InventoryPage> {
               RoundBtn(
                 'scan',
                 label: '扫码查询',
-                onTap: () => toast(context, '扫码查询（演示）'),
+                onTap: () => toast(context, '扫码查询尚未接通'),
               ),
               const SizedBox(width: 8),
               GestureDetector(
@@ -112,11 +155,11 @@ class _InventoryPageState extends State<InventoryPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '7 项低于安全库存',
+                        '${products.where((p) => p.stock < p.safe).length} 项低于安全库存',
                         style: ts(14, w: FontWeight.w500, h: 20),
                       ),
                       Text(
-                        '另有 2 项将在 30 天内过期',
+                        '另有 ${products.where((p) => p.expiring).length} 项将在 30 天内过期',
                         style: ts(12, color: C.muted, h: 16),
                       ),
                     ],
@@ -142,6 +185,10 @@ class _InventoryPageState extends State<InventoryPage> {
             ),
           ),
           const SizedBox(height: 16),
+          if (list.isEmpty)
+            EmptyView.firstTime(
+              title: products.isEmpty ? '还没有库存商品' : '请先登录后查看库存',
+            ),
           AppCard(
             padding: const EdgeInsets.symmetric(vertical: 4),
             child: Column(
@@ -159,11 +206,30 @@ class _InventoryPageState extends State<InventoryPage> {
   }
 
   Widget _overview() {
+    int share(String category) {
+      final total = products.fold<double>(
+        0,
+        (v, p) => v + (p.data['stock_value'] as num).toDouble(),
+      );
+      return total == 0
+          ? 0
+          : (100 *
+                    products
+                        .where((p) => p.category == category)
+                        .fold<double>(
+                          0,
+                          (v, p) =>
+                              v + (p.data['stock_value'] as num).toDouble(),
+                        ) /
+                    total)
+                .round();
+    }
+
     final segs = [
-      ('贴膜', 46, C.ink),
-      ('镀晶镀膜', 24, C.primary),
-      ('洗护用品', 18, Color(0xFF7CC4FB)),
-      ('配件', 12, Color(0xFFD4D4D8)),
+      ('贴膜', share('贴膜'), C.ink),
+      ('镀晶镀膜', share('镀晶'), C.primary),
+      ('洗护用品', share('洗护'), Color(0xFF7CC4FB)),
+      ('配件', share('配件'), Color(0xFFD4D4D8)),
     ];
     return AppCard(
       padding: const EdgeInsets.all(18),
@@ -179,7 +245,13 @@ class _InventoryPageState extends State<InventoryPage> {
                     Text('库存总值（元）', style: ts(12, color: C.muted, h: 16)),
                     const SizedBox(height: 2),
                     Text(
-                      '86,540',
+                      products
+                          .fold<double>(
+                            0,
+                            (v, p) =>
+                                v + (p.data['stock_value'] as num).toDouble(),
+                          )
+                          .toStringAsFixed(2),
                       style: ts(
                         28,
                         w: FontWeight.w600,
@@ -191,7 +263,10 @@ class _InventoryPageState extends State<InventoryPage> {
                   ],
                 ),
               ),
-              Text('248 个 SKU', style: ts(12, color: C.muted, h: 16)),
+              Text(
+                '${products.length} 个 SKU',
+                style: ts(12, color: C.muted, h: 16),
+              ),
             ],
           ),
           const SizedBox(height: 14),
@@ -201,11 +276,11 @@ class _InventoryPageState extends State<InventoryPage> {
               children: [
                 for (var i = 0; i < segs.length; i++)
                   Expanded(
-                    flex: segs[i].$2,
+                    flex: segs[i].$2 == 0 ? 1 : segs[i].$2,
                     child: Container(
                       margin: EdgeInsets.only(left: i == 0 ? 0 : 3),
                       decoration: BoxDecoration(
-                        color: segs[i].$3,
+                        color: segs[i].$2 == 0 ? C.chip : segs[i].$3,
                         borderRadius: BorderRadius.circular(5),
                       ),
                     ),
@@ -277,14 +352,19 @@ class _InventoryPageState extends State<InventoryPage> {
     ),
   );
 
-  Widget _row(BuildContext context, Product p) {
+  Widget _row(BuildContext context, InventoryProduct p) {
     final low = p.stock < p.safe;
     final crit = p.stock * 2 < p.safe;
     final barColor = crit ? C.red : (low ? C.amber : C.green);
     final txtColor = crit ? C.redInk : (low ? C.amberInk : C.ink);
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () => openRoute(context, 'ProductDetail'),
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) =>
+              InventoryLivePage(mode: 'detail', productId: p.data['id']),
+        ),
+      ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
@@ -356,4 +436,19 @@ class _InventoryPageState extends State<InventoryPage> {
       ),
     );
   }
+}
+
+class InventoryProduct {
+  final Map<String, dynamic> data;
+  InventoryProduct(this.data);
+  String get name => data['name'] as String;
+  String get category => data['category'] as String;
+  String get unit => data['unit'] as String;
+  num get stock => data['stock'] as num;
+  num get safe => data['safe'] as num;
+  double get cost => (data['cost'] as num).toDouble();
+  double get ratio => safe == 0
+      ? (stock > 0 ? 1 : 0)
+      : (stock / (safe * 2)).clamp(0, 1).toDouble();
+  bool get expiring => data['expiring'] == true;
 }

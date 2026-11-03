@@ -1,3 +1,5 @@
+import 'pages/inventory_live_page.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -58,6 +60,14 @@ bool shellMounted = false;
 
 Widget? pageFor(String name) {
   switch (name) {
+    case 'StockIn':
+      return const InventoryLivePage(mode: 'in');
+    case 'StockOut':
+      return const InventoryLivePage(mode: 'out');
+    case 'StockCheck':
+      return const InventoryLivePage(mode: 'check');
+    case 'ProductDetail':
+      return const InventoryLivePage(mode: 'detail');
     case 'Login':
       return const LoginPage();
     case 'Order':
