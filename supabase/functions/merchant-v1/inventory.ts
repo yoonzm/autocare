@@ -95,10 +95,10 @@ export async function handleInventory(
         (typeof payload[key] !== "string" || String(payload[key]).length > 1000)
       ) return fail("单据字段无效");
     }
-    // TODO: expense_create / attachment_upload require the expense and storage modules.
+    // Stock-linked expenses are booked atomically by the database trigger.
     // Never accept a flag that implies those external side effects have happened.
-    if (payload.sync_expense === true || payload.attachments != null) {
-      return fail("开支同步与附件上传尚未接通");
+    if (payload.attachments != null) {
+      return fail("库存附件上传尚未接通，请在开支详情补充凭证");
     }
     const { data, error } = await admin.rpc("inventory_document_save", {
       p_store: store,
@@ -110,6 +110,7 @@ export async function handleInventory(
     });
     if (error) {
       const messages: Record<string, string> = {
+        budget_exceeded: '同步开支超过分类预算，请先调整预算或取消同步开支',
         insufficient_stock: "库存不足",
         stock_changed: "库存已变化，请重新盘点",
         document_changed: "草稿已被修改，请重新打开",

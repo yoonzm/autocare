@@ -213,7 +213,7 @@ class InventoryController extends ChangeNotifier {
           '${counted.where((l) => difference(l) < 0).length} 项 · ${qty(counted.where((l) => difference(l) < 0).fold<num>(0, (n, l) => n + difference(l)))}',
       '−¥392': quoted('subtotal'),
       '提交盘点（已盘 12 项）': '提交盘点（已盘 ${counted.length} 项）',
-      '提交后将生成盘盈 / 盘亏调整单，盘亏成本 ¥392 自动计入"损耗"开支。': '提交后将生成盘盈 / 盘亏调整单并记录差异成本。',
+      '提交后将生成盘盈 / 盘亏调整单，盘亏成本 ¥392 自动计入"损耗"开支。': '提交后生成库存调整单，盘亏成本自动计入损耗开支。',
       'TPU 隐形车衣 7.5mil': '${p['name'] ?? ''}',
       'SKU TPU-75-152 · 贴膜': 'SKU ${p['sku'] ?? ''} · ${p['category'] ?? ''}',
       '2': qty(p['stock'] as num? ?? 0),
@@ -408,10 +408,11 @@ class InventoryController extends ChangeNotifier {
   }
 
   Widget expenseSwitch(BuildContext context) => HSwitchValue(
-    value: false,
+    value: payload['sync_expense'] == true,
     onChanged: (_) {
-      // TODO: expense_create is outside inventory. A disabled integration must never report success.
-      AppToast.show(context, '开支模块尚未接通，本次只记录库存单据');
+      // Posting books the linked expense in the same database transaction.
+      payload['sync_expense'] = payload['sync_expense'] != true;
+      changed();
     },
   );
   Future<void> add(BuildContext context) async {

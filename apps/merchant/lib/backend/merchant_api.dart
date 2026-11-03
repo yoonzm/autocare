@@ -63,6 +63,11 @@ class MerchantApi {
 
   /// 只读、可重复的请求：失败时静默重试 1 次；写请求不自动重试。
   static const _readActions = {
+    'expense_board',
+    'expense_source',
+    'expense_get',
+    'expense_suggest',
+    'expense_voucher',
     'inventory_list',
     'inventory_get',
     'inventory_draft',

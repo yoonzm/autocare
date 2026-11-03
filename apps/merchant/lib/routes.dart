@@ -1,4 +1,5 @@
 import 'pages/inventory_live_page.dart';
+import 'pages/expense_live_page.dart';
 
 import 'dart:async';
 
@@ -35,6 +36,7 @@ import 'pages/theme_sheet.dart';
 
 final Map<String, WidgetBuilder> _allSheets = {
   ...genSheets,
+  'BudgetAdjust': (_) => const ExpenseLivePage(mode: 'adjust'),
   // TODO: 字符串路由没有预约 ID；改期必须从真实预约卡片或详情进入。
   'AppointmentReschedule': (context) => ErrorView(
     error: const AppError('请先选择预约', type: AppErrorType.notFound),
@@ -60,6 +62,18 @@ bool shellMounted = false;
 
 Widget? pageFor(String name) {
   switch (name) {
+    case 'Expenses':
+      return const ExpenseLivePage(mode: 'list');
+    case 'ExpenseAdd':
+      return const ExpenseLivePage(mode: 'add');
+    case 'ExpenseDetail':
+      return const ExpenseLivePage(mode: 'detail');
+    case 'ExpenseBudget':
+      return const ExpenseLivePage(mode: 'budget');
+    case 'BudgetTotal':
+      return const ExpenseLivePage(mode: 'total');
+    case 'BudgetEdit':
+      return const ExpenseLivePage(mode: 'category');
     case 'StockIn':
       return const InventoryLivePage(mode: 'in');
     case 'StockOut':
