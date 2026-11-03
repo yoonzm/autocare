@@ -1,6 +1,7 @@
 import { handleAccount } from './account.ts';
 import { handleAuth } from './auth.ts';
 import { handleCards } from './cards.ts';
+import { handleHomeStats } from './home.ts';
 import { handleMembers, handleVehicles } from './members.ts';
 import { handleFollowUps, handleMemberPackages, handleOrders } from './ops.ts';
 import { handlePackages } from './packages.ts';
@@ -24,6 +25,7 @@ Deno.serve(async (request: Request): Promise<Response> => {
   if (['get_store', 'change_password', 'change_phone', 'delete_account'].includes(String(input.action))) {
     return handleAccount(input, request);
   }
+  if (input.action === 'home_stats') return handleHomeStats(request);
   if (!isCatalogKind(input.kind)) return fail('不支持的业务类型');
   // 幂等标识只取请求头（客户端对同一次点击带同一个 X-Request-Id），不接受放在 body 里的值
   input.__request = request.headers.get('x-request-id');

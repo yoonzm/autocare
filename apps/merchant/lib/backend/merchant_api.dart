@@ -63,6 +63,7 @@ class MerchantApi {
 
   /// 只读、可重复的请求：失败时静默重试 1 次；写请求不自动重试。
   static const _readActions = {
+    'home_stats',
     'list',
     'get',
     'get_store',
@@ -174,6 +175,11 @@ class MerchantApi {
   Future<Map<String, dynamic>> getStore() async {
     final data = await invoke({'action': 'get_store'});
     return Map<String, dynamic>.from(data['store'] as Map);
+  }
+
+  Future<Map<String, dynamic>> homeStats() async {
+    final data = await invoke({'action': 'home_stats'});
+    return Map<String, dynamic>.from(data['item'] as Map);
   }
 
   Future<void> changePassword(String oldPassword, String newPassword) async {

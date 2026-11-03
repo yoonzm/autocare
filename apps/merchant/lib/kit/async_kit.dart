@@ -1186,6 +1186,7 @@ class AsyncView<T> extends StatefulWidget {
   final Future<T> Function() load;
   final bool Function(T data) isEmpty;
   final Widget skeleton;
+  final EdgeInsetsGeometry skeletonPadding;
   final Widget Function(BuildContext context) empty;
   final Widget Function(BuildContext context, T data) builder;
 
@@ -1202,6 +1203,7 @@ class AsyncView<T> extends StatefulWidget {
     required this.load,
     required this.isEmpty,
     required this.skeleton,
+    this.skeletonPadding = const EdgeInsets.fromLTRB(20, 16, 20, 24),
     required this.empty,
     required this.builder,
     this.onLoaded,
@@ -1347,7 +1349,7 @@ class AsyncViewState<T> extends State<AsyncView<T>> {
       body = _showIndicator
           ? SingleChildScrollView(
               physics: const NeverScrollableScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+              padding: widget.skeletonPadding,
               child: widget.skeleton,
             )
           : const SizedBox.expand();

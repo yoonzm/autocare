@@ -3,13 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../backend/hold_flow.dart';
+import '../backend/catalog_draft.dart';
 import '../backend/merchant_api.dart';
 import '../kit/async_kit.dart';
 import '../widgets/hold_widgets.dart' show holdTimeText;
 import '../backend/member_flow.dart' show plateText;
 import '../backend/store_profile.dart';
 import '../mock/app_state.dart';
-import '../mock/mock_data.dart';
 import '../theme.dart';
 import '../routes.dart';
 import '../widgets/app_icon.dart';
@@ -19,30 +19,118 @@ import 'order_page.dart';
 import 'settings_page.dart';
 import 'shell.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
+  String _money(num value) {
+    final parts = value.toStringAsFixed(2).split('.');
+    final whole = parts[0].replaceAllMapped(
+      RegExp(r'(\d)(?=(\d{3})+$)'),
+      (m) => '${m[1]},',
+    );
+    return '$whole.${parts[1]}';
+  }
+
+  final _statsKey = GlobalKey<AsyncViewState<Map<String, dynamic>>>();
+  Map<String, dynamic>? _stats;
+  DateTime? _pausedAt;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    CatalogDraft.changed.addListener(_onDataChanged);
+  }
+
+  void _onDataChanged() => unawaited(_refresh());
+
+  Future<void> _refresh() async {
+    await _statsKey.currentState?.reload();
+  }
+
+  Future<void> _pullRefresh() async {
+    final previous = _stats;
+    await _refresh();
+    if (mounted && _stats != null && !identical(previous, _stats)) {
+      AppToast.show(context, '已更新', kind: ToastKind.success);
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) _pausedAt = DateTime.now();
+    if (state == AppLifecycleState.resumed &&
+        _pausedAt != null &&
+        DateTime.now().difference(_pausedAt!) >= const Duration(minutes: 5)) {
+      unawaited(_refresh());
+    }
+  }
+
+  @override
+  void dispose() {
+    CatalogDraft.changed.removeListener(_onDataChanged);
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: ListView(
-        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        padding: EdgeInsets.fromLTRB(
-          20,
-          MediaQuery.of(context).padding.top + 12,
-          20,
-          MediaQuery.of(context).padding.bottom + 16,
+    if (!merchantApi.hasSession) {
+      return Scaffold(
+        body: ErrorView(
+          error: const AppError('请先登录', type: AppErrorType.auth),
+          onNext: () => openRoute(context, 'Login'),
         ),
-        children: [
-          _header(context),
-          _banner(context),
-          const SizedBox(height: 20),
-          _revenue(),
-          const SizedBox(height: 20),
-          _quick(context),
-          const SizedBox(height: 20),
-          const _WorkSection(),
-        ],
+      );
+    }
+    final scaler = MediaQuery.textScalerOf(context);
+    final statsHeight =
+        81.0 +
+        (C.dark ? 2 : 0) +
+        scaler.scale(13) * 18 / 13 +
+        scaler.scale(34) * 40 / 34 +
+        scaler.scale(12) * 32 / 12 +
+        scaler.scale(18) * 26 / 18;
+    return Scaffold(
+      body: RefreshIndicator(
+        onRefresh: _pullRefresh,
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          padding: EdgeInsets.fromLTRB(
+            20,
+            MediaQuery.of(context).padding.top + 12,
+            20,
+            MediaQuery.of(context).padding.bottom + 16,
+          ),
+          children: [
+            _header(context),
+            _banner(context),
+            const SizedBox(height: 20),
+            SizedBox(
+              height: statsHeight,
+              child: AsyncView<Map<String, dynamic>>(
+                key: _statsKey,
+                load: merchantApi.homeStats,
+                isEmpty: (_) => false, // 成功的零统计仍显示原卡片。
+                skeletonPadding: EdgeInsets.zero,
+                skeleton: AppSkeleton(height: statsHeight, radius: 28),
+                empty: (_) => const SizedBox.shrink(),
+                onLoaded: (data) => setState(() => _stats = data),
+                builder: (_, data) => _revenue(data),
+              ),
+            ),
+            const SizedBox(height: 20),
+            _quick(context),
+            const SizedBox(height: 20),
+            const _WorkSection(),
+          ],
+        ),
       ),
     );
   }
@@ -137,7 +225,7 @@ class HomePage extends StatelessWidget {
                   ListenableBuilder(
                     listenable: storeProfile,
                     builder: (_, _) => Text(
-                      storeProfile.live ? storeProfile.name : '驰光汽车美容',
+                      storeProfile.live ? storeProfile.name : '—',
                       style: ts(22, w: FontWeight.w600, h: 30, spacing: -0.4),
                     ),
                   ),
@@ -176,8 +264,18 @@ class HomePage extends StatelessWidget {
     ],
   );
 
-  Widget _revenue() {
-    const bars = [30.0, 22.0, 38.0, 28.0, 44.0, 52.0, 64.0];
+  Widget _revenue(Map<String, dynamic> data) {
+    final daily = (data['daily_revenue'] as List).cast<num>();
+    final peak = daily.fold<num>(0, (a, b) => a > b ? a : b);
+    final bars = [
+      for (final value in daily) peak == 0 ? 0.0 : value / peak * 64,
+    ];
+    final change = data['change_percent'] as num?;
+    final date = DateTime.parse(data['date'] as String);
+    final weekday = '一二三四五六日'[date.weekday - 1];
+    final comparison = change == null
+        ? '较上周$weekday —'
+        : '较上周$weekday ${change >= 0 ? '+' : ''}${change.toStringAsFixed(1)}%';
     Widget stat(String l, String v) => Expanded(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -197,6 +295,7 @@ class HomePage extends StatelessWidget {
       ),
     );
     return Container(
+      key: const ValueKey('home-revenue-card'),
       clipBehavior: Clip.antiAlias,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -220,7 +319,7 @@ class HomePage extends StatelessWidget {
                         Text('今日营业额（元）', style: ts(13, color: C.faint, h: 18)),
                         const SizedBox(height: 4),
                         Text(
-                          '12,860.00',
+                          _money(data['revenue'] as num),
                           style: ts(
                             34,
                             w: FontWeight.w600,
@@ -233,14 +332,20 @@ class HomePage extends StatelessWidget {
                         const SizedBox(height: 4),
                         Row(
                           children: [
-                            AppIcon(
-                              'trendUp',
-                              size: 14,
-                              color: Color(0xFF4ADE80),
+                            Opacity(
+                              opacity: change == null ? 0 : 1,
+                              child: Transform.flip(
+                                flipY: change != null && change < 0,
+                                child: AppIcon(
+                                  'trendUp',
+                                  size: 14,
+                                  color: const Color(0xFF4ADE80),
+                                ),
+                              ),
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              '较上周六 +18.4%',
+                              comparison,
                               style: ts(
                                 12,
                                 w: FontWeight.w500,
@@ -283,9 +388,9 @@ class HomePage extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    stat('订单数', '36'),
-                    stat('新增会员', '5'),
-                    stat('客单价', '¥357'),
+                    stat('订单数', '${data['orders']}'),
+                    stat('新增会员', '${data['new_members']}'),
+                    stat('客单价', '¥${_money(data['average'] as num)}'),
                   ],
                 ),
               ),
@@ -435,7 +540,7 @@ class HomePage extends StatelessWidget {
                   children: [
                     small(
                       '会员充值',
-                      '今日 ¥12,600',
+                      '今日 ${_stats == null ? '—' : '¥${_money(_stats!['recharge'] as num)}'}',
                       'card',
                       C.greenSoft,
                       C.greenInk,
@@ -444,6 +549,7 @@ class HomePage extends StatelessWidget {
                     const SizedBox(height: 10),
                     small(
                       '商品入库',
+                      // TODO: 库存模块尚未接入；待 inventory_summary 提供待补货数量，保留现有示例。
                       '3 件待补货',
                       'box',
                       C.amberSoft,
@@ -502,6 +608,7 @@ class HomePage extends StatelessWidget {
                             ),
                           ),
                           Text(
+                            // TODO: 预约模块尚未接入；待 appointment_summary 提供待到店和下一位预约。
                             '待到店 2 · 下一位 17:30 刘先生',
                             style: ts(12, color: C.faint, h: 16),
                           ),
@@ -520,7 +627,7 @@ class HomePage extends StatelessWidget {
   }
 }
 
-/// 首页“施工中”：登录后取挂单里状态为“施工中”的单子；没登录（设计预览）时是设计稿示例。
+/// 首页“施工中”：取真实挂单里状态为“施工中”的单子。
 ///
 /// TODO: 卡片上的工位、技师、施工进度、预计完工依赖员工和工位模块，目前没有数据，不显示。
 class _WorkSection extends StatefulWidget {
@@ -534,15 +641,11 @@ class _WorkSectionState extends State<_WorkSection> {
   bool _slow = false;
   bool _wasLoading = false;
 
-  bool get _live => merchantApi.hasSession;
-
   @override
   void initState() {
     super.initState();
-    if (_live) {
-      HoldFlow.tick.addListener(_onTick);
-      HoldFlow.loadSoon();
-    }
+    HoldFlow.tick.addListener(_onTick);
+    HoldFlow.loadSoon();
   }
 
   @override
@@ -574,23 +677,18 @@ class _WorkSectionState extends State<_WorkSection> {
 
   @override
   Widget build(BuildContext context) {
-    final live = _live;
-    final working = live ? _working : const <Map<String, dynamic>>[];
+    final working = _working;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SectionTitle(
           '施工中',
-          sub: live
-              ? (HoldFlow.holds == null ? null : '${working.length} 单')
-              : '2 个工位',
+          sub: HoldFlow.holds == null ? null : '${working.length} 单',
           action: '全部',
           onAction: () => openRoute(context, 'HoldList'),
         ),
         const SizedBox(height: 12),
-        if (!live)
-          for (final j in workJobs) ...[_MockJob(j), const SizedBox(height: 12)]
-        else if (HoldFlow.holds == null && HoldFlow.error != null)
+        if (HoldFlow.holds == null && HoldFlow.error != null)
           SizedBox(
             height: 220,
             child: ErrorView(
@@ -672,77 +770,6 @@ class _LiveJob extends StatelessWidget {
                   holdTimeText(created),
                   style: ts(12, color: C.muted, h: 16),
                 ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _MockJob extends StatelessWidget {
-  final WorkJob job;
-  const _MockJob(this.job);
-  @override
-  Widget build(BuildContext context) {
-    final j = job;
-    return AppCard(
-      radius: 22,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      onTap: () => openRoute(context, 'HoldList'),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              PlateTag(j.plate, green: !j.blue),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(j.car, style: ts(13, color: C.muted, h: 18)),
-              ),
-              Pill(
-                j.station,
-                bg: j.blue ? C.primarySoft : C.amberSoft,
-                fg: j.blue ? C.primaryInk : C.amberInk,
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Expanded(
-                child: Text(
-                  j.service,
-                  style: ts(15, w: FontWeight.w500, h: 22),
-                ),
-              ),
-              Text(j.eta, style: ts(12, color: C.muted, h: 16)),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(3),
-                  child: LinearProgressIndicator(
-                    value: j.progress / 100,
-                    minHeight: 6,
-                    backgroundColor: C.chip,
-                    valueColor: AlwaysStoppedAnimation(
-                      j.blue ? C.primary : C.amber,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Text(
-                '${j.progress}%',
-                style: ts(12, w: FontWeight.w500, h: 16, tabular: true),
-              ),
-              const SizedBox(width: 10),
-              Avatar(j.tech, size: 24, bg: C.stroke, fg: C.ink),
             ],
           ),
         ],

@@ -79,13 +79,16 @@ void main() {
     );
   });
 
-  testWidgets('未登录（设计预览）时仍是设计稿的示例', (t) async {
+  testWidgets('未登录时引导登录，不展示设计稿统计或施工示例', (t) async {
     merchantApi = original;
     await openHome(t);
     expect(
       find.textContaining('施工中 · 2 个工位', findRichText: true),
-      findsOneWidget,
+      findsNothing,
     );
-    expect(find.text('3 号工位'), findsOneWidget);
+    expect(find.text('3 号工位'), findsNothing);
+    expect(find.text('12,860.00'), findsNothing);
+    expect(find.text('今日 ¥12,600'), findsNothing);
+    expect(find.text('重新登录'), findsOneWidget);
   });
 }

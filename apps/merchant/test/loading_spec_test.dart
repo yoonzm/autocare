@@ -67,6 +67,18 @@ void main() {
   setUp(() => original = merchantApi);
   tearDown(() => merchantApi = original);
 
+  test('首页统计是只读请求：失败重试且不发送写入幂等键', () async {
+    final api = _Net([
+      const AppError('网络异常', type: AppErrorType.network),
+      {
+        'item': {'orders': 3},
+      },
+    ]);
+    expect(await api.homeStats(), {'orders': 3});
+    expect(api.attempts, 2);
+    expect(api.requestIds, [null, null]);
+  });
+
   group('统一错误类型', () {
     test('HTTP 状态映射：401 登录失效，5xx 服务异常，4xx 直接展示服务端文案', () {
       expect(AppError.fromStatus(401).type, AppErrorType.auth);

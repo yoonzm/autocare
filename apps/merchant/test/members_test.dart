@@ -31,6 +31,18 @@ class MemberFakeApi extends MerchantApi {
   @override
   bool get hasSession => true;
 
+  @override
+  Future<Map<String, dynamic>> homeStats() async => {
+    'date': '2026-11-03',
+    'revenue': 0,
+    'orders': 0,
+    'new_members': 0,
+    'average': 0,
+    'change_percent': null,
+    'daily_revenue': [0, 0, 0, 0, 0, 0, 0],
+    'recharge': 0,
+  };
+
   int serviceCalls = 0;
   @override
   Future<List<Map<String, dynamic>>> list(String kind) async {
