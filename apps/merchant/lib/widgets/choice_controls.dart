@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../theme.dart';
+import 'choice_chip_group.dart';
 
 const Duration _kAnim = Duration(milliseconds: 140);
 
@@ -221,7 +222,7 @@ class _HTierPickerState extends State<HTierPicker> {
   );
 }
 
-/// 客户来源：单选标签组。选中为反白 / 深色实心，未选中为卡片内凹陷底。
+/// 客户来源：单选标签组，沿用统一 ChoiceChip 选中态。
 class HChipGroup extends StatefulWidget {
   final List<String> labels;
   final int initial;
@@ -240,44 +241,17 @@ class _HChipGroupState extends State<HChipGroup> {
   late int sel = widget.initial;
 
   @override
-  Widget build(BuildContext context) => Wrap(
-    spacing: 8,
-    runSpacing: 8,
-    children: [
+  Widget build(BuildContext context) => ChoiceChipGroup<int>(
+    semanticLabel: '客户来源',
+    kind: ChipKind.pill,
+    items: [
       for (var i = 0; i < widget.labels.length; i++)
-        _selectable(
-          selected: sel == i,
-          label: widget.labels[i],
-          onTap: () {
-            setState(() => sel = i);
-            widget.onChanged?.call(i);
-          },
-          child: AnimatedContainer(
-            duration: _kAnim,
-            height: 32,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(
-              color: sel == i ? C.btn : C.inset,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Center(
-              widthFactor: 1,
-              child: Text(
-                widget.labels[i],
-                style: ts(
-                  13,
-                  w: FontWeight.w500,
-                  color: sel == i
-                      ? C.btnFg
-                      : (C.dark
-                            ? const Color(0xFFD4D4D8)
-                            : const Color(0xFF3F3F46)),
-                  h: 18,
-                ),
-              ),
-            ),
-          ),
-        ),
+        ChoiceChipItem(value: i, label: widget.labels[i]),
     ],
+    selected: sel,
+    onChanged: (i) {
+      setState(() => sel = i);
+      widget.onChanged?.call(i);
+    },
   );
 }

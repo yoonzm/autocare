@@ -7,7 +7,7 @@ import '../backend/merchant_api.dart';
 import '../kit/async_kit.dart';
 import '../kit/kit.dart' show SelCtrl, ValCtrl, HSwitchValue, hConfirm, dk;
 import '../kit/pickers.dart';
-import '../theme.dart';
+import 'choice_chip_group.dart';
 
 /// 既有设计模板的非视觉绑定层；不向模板注入示例业务数据。
 class BookingTemplateController extends ChangeNotifier {
@@ -46,16 +46,16 @@ class BookingTemplateController extends ChangeNotifier {
   bool dirty = false;
   String activeButton = '';
   Appointment? booking;
-  int rescheduleDay = 0;
+  int? rescheduleDay;
   String selectedTime = '';
-  int cancelReason = 0;
+  int? cancelReason;
   String dateLabel(int i) {
     final day = bookingToday.add(Duration(days: i));
     return '${i == 0
         ? '今天'
         : i == 1
         ? '明天'
-        : '周${'一二三四五六日'[day.weekday - 1]}'} ${day.month}.${day.day.toString().padLeft(2, '0')}';
+        : '周${'一二三四五六日'[day.weekday - 1]}'} ${day.month.toString().padLeft(2, '0')}.${day.day.toString().padLeft(2, '0')}';
   }
 
   BookingTemplateController(this.options, this.mode, [this._initial]);
@@ -92,8 +92,9 @@ class BookingTemplateController extends ChangeNotifier {
       AppToast.show(context, 'TODO：此功能尚未接通，当前未执行该操作');
   Future<void> save(BuildContext context, {String button = '保存'}) async {
     if (busy) return;
-    if (mode == 'reschedule' && selectedTime.isEmpty) {
-      AppToast.show(context, '请选择新时间');
+    if (mode == 'reschedule' &&
+        (rescheduleDay == null || selectedTime.isEmpty)) {
+      AppToast.show(context, '请选择新日期和时间');
       return;
     }
     busy = true;
@@ -106,7 +107,7 @@ class BookingTemplateController extends ChangeNotifier {
             ? AppointmentFlow.save({
                 'id': booking!.id,
                 'starts_at':
-                    '${bookingDay(bookingToday.add(Duration(days: rescheduleDay)))}T$selectedTime:00+08:00',
+                    '${bookingDay(bookingToday.add(Duration(days: rescheduleDay!)))}T$selectedTime:00+08:00',
                 'bay_id': booking!.row['bay_id'],
                 'technician_id': booking!.row['technician_id'],
               })
@@ -137,6 +138,7 @@ class BookingTemplateController extends ChangeNotifier {
   }
 
   Future<void> cancelBooking(BuildContext context) async {
+    if (cancelReason == null) return;
     final ok = await hConfirm(
       context,
       '确认取消预约？',
@@ -145,7 +147,7 @@ class BookingTemplateController extends ChangeNotifier {
         await AppointmentFlow.change(
           booking!.id,
           'cancel',
-          reason: ['客户有事', '时间冲突', '联系不上', '其他'][cancelReason],
+          reason: ['客户有事', '时间冲突', '联系不上', '其他'][cancelReason!],
         );
       },
     );
@@ -321,8 +323,6 @@ class _SelectionsState extends State<BookingSelections> {
           if (!(c.settings['closed_days'] as List).contains(i + 1)) i,
       },
       'staff_filter' => {c.filter},
-      'reschedule_day' => {c.rescheduleDay},
-      'cancel_reason' => {c.cancelReason},
       'staff_role' => {2},
       'staff_skills' => {
         for (var i = 0; i < skills.length; i++)
@@ -342,11 +342,6 @@ class _SelectionsState extends State<BookingSelections> {
   void _change() {
     final c = widget.c, selected = ctrl.selected;
     switch (widget.field) {
-      case 'reschedule_day':
-        c.rescheduleDay = selected.first;
-        c.selectedTime = '';
-      case 'cancel_reason':
-        c.cancelReason = selected.first;
       case 'slot_minutes':
         c.settings['slot_minutes'] = [15, 30, 60][selected.first];
       case 'closed_days':
@@ -456,11 +451,11 @@ class BookingRescheduleSlots extends StatelessWidget {
   const BookingRescheduleSlots({super.key, required this.c});
   @override
   Widget build(BuildContext context) => SizedBox(
-    height: 84,
+    height: 88,
     child: AsyncView<Map<String, dynamic>>(
       key: ValueKey(c.rescheduleDay),
       load: () => merchantApi.appointment('slots', {
-        'day': bookingDay(bookingToday.add(Duration(days: c.rescheduleDay))),
+        'day': bookingDay(bookingToday.add(Duration(days: c.rescheduleDay!))),
         'service_ids': c.booking!.row['service_ids'],
         'exclude': c.booking!.id,
         'bay_id': c.booking!.row['bay_id'],
@@ -470,52 +465,36 @@ class BookingRescheduleSlots extends StatelessWidget {
       inlineError: true,
       pullToRefresh: false,
       skeletonPadding: EdgeInsets.zero,
-      skeleton: const AppSkeleton(height: 84, radius: 12),
+      skeleton: const AppSkeleton(height: 88, radius: 12),
       empty: (_) => const SizedBox.shrink(),
-      builder: (_, data) => LayoutBuilder(
-        builder: (context, limits) => SingleChildScrollView(
-          child: Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              if ((data['slots'] as List).isEmpty)
-                const EmptyView(title: '该日期没有可预约时段', inline: true),
-              for (final slot in data['slots'] as List)
-                GestureDetector(
-                  onTap: slot['available'] == true
-                      ? () {
-                          c.selectedTime = slot['time'] as String;
-                          c.edited();
-                        }
-                      : null,
-                  child: Container(
-                    width: (limits.maxWidth - 16) / 3,
-                    height: 38,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: c.selectedTime == slot['time']
-                          ? C.primarySoft
-                          : C.inset,
-                      borderRadius: BorderRadius.circular(12),
-                      border: c.selectedTime == slot['time']
-                          ? Border.all(color: C.primary, width: 1.5)
-                          : null,
+      builder: (_, data) => SingleChildScrollView(
+        child: (data['slots'] as List).isEmpty
+            ? const EmptyView(title: '该日期没有可预约时段', inline: true)
+            : ChoiceChipGroup<String>(
+                semanticLabel: '新时间',
+                kind: ChipKind.tile,
+                items: [
+                  for (final slot in data['slots'] as List)
+                    ChoiceChipItem(
+                      value: slot['time'] as String,
+                      label: slot['time'] as String,
+                      disabled: slot['available'] != true,
+                      isOriginal:
+                          bookingDay(c.booking!.start) ==
+                              bookingDay(
+                                bookingToday.add(
+                                  Duration(days: c.rescheduleDay!),
+                                ),
+                              ) &&
+                          slot['time'] == c.booking!.time,
                     ),
-                    child: Text(
-                      '${slot['time']}',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: slot['available'] == true ? C.ink : C.faint,
-                        decoration: slot['available'] == true
-                            ? null
-                            : TextDecoration.lineThrough,
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
+                ],
+                selected: c.selectedTime.isEmpty ? null : c.selectedTime,
+                onChanged: (value) {
+                  c.selectedTime = value;
+                  c.edited();
+                },
+              ),
       ),
     ),
   );

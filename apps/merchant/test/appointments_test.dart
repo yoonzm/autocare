@@ -301,6 +301,10 @@ void main() {
     await t.pump();
     expect(api.bookings.single['status'], 'waiting');
     expect(find.byType(AppSpinner), findsWidgets);
+    expect(find.text('提交中…'), findsOneWidget);
+    await t.tap(find.text('提交中…'));
+    await t.pump();
+    expect(api.calls.where((c) => c['action'] == 'arrive').length, 1);
     api.writeError = const AppError('该预约已变化');
     api.gate!.complete();
     await t.pumpAndSettle();
@@ -357,6 +361,27 @@ void main() {
     await t.pumpAndSettle();
     expect(find.text('确认改期'), findsOneWidget);
   });
+  testWidgets('预约详情到店按钮加载时保持尺寸并防重复提交', (t) async {
+    api.bookings.add(bookingRow());
+    api.gate = Completer<void>();
+    await open(t, const AppointmentDetailLivePage(id: 'a1'));
+    final button = find
+        .ancestor(of: find.text('客户到店 · 开单'), matching: find.byType(Expanded))
+        .last;
+    final size = t.getSize(button);
+    await t.tap(find.text('客户到店 · 开单'));
+    await t.pump();
+    expect(t.getSize(button), size);
+    expect(find.text('提交中…'), findsOneWidget);
+    expect(find.byType(AppSpinner), findsWidgets);
+    await t.tap(find.text('提交中…'));
+    await t.pump();
+    expect(api.calls.where((c) => c['action'] == 'arrive').length, 1);
+    api.writeError = const AppError('该预约已变化');
+    api.gate!.complete();
+    await t.pumpAndSettle();
+    expect(find.text('客户到店 · 开单'), findsOneWidget);
+  });
   testWidgets('新建工位保存真实名称，技师资料不会预填示例姓名', (t) async {
     await open(t, const BookingResourceEditor(kind: 'bay'));
     final input = find.byType(TextFormField).first;
@@ -373,6 +398,15 @@ void main() {
   });
   testWidgets('预约设置数字来自后端且保存时包含接待规则', (t) async {
     await open(t, const AppointmentSettingsLivePage());
+    await t.ensureVisible(find.text('时间间隔'));
+    await t.pumpAndSettle();
+    final fifteen = t.getCenter(find.text('15 分钟'));
+    final thirty = t.getCenter(find.text('30 分钟'));
+    final sixty = t.getCenter(find.text('60 分钟'));
+    expect(fifteen.dx, lessThan(thirty.dx));
+    expect(thirty.dx, lessThan(sixty.dx));
+    expect((fifteen.dy - thirty.dy).abs(), lessThan(2));
+    expect((thirty.dy - sixty.dy).abs(), lessThan(2));
     expect(find.text('保存'), findsNothing);
     expect(find.text('保存设置'), findsOneWidget);
     final number = find.byWidgetPredicate(
@@ -387,6 +421,27 @@ void main() {
     final call = api.calls.lastWhere((c) => c['action'] == 'settings_save');
     expect(call['capacity'], 2);
     expect(call['slot_minutes'], 30);
+  });
+  testWidgets('预约设置保存加载时保持按钮尺寸与单次请求', (t) async {
+    await open(t, const AppointmentSettingsLivePage());
+    api.gate = Completer<void>();
+    final button = find
+        .ancestor(of: find.text('保存设置'), matching: find.byType(Expanded))
+        .last;
+    final size = t.getSize(button);
+    await t.tap(find.text('保存设置'));
+    await t.pump();
+    final busyButton = find
+        .ancestor(of: find.text('提交中…'), matching: find.byType(Expanded))
+        .last;
+    expect(t.getSize(busyButton), size);
+    expect(find.text('提交中…'), findsOneWidget);
+    expect(find.byType(AppSpinner), findsWidgets);
+    expect(api.calls.where((c) => c['action'] == 'settings_save').length, 1);
+    api.writeError = const AppError('保存失败');
+    api.gate!.complete();
+    await t.pumpAndSettle();
+    expect(find.text('保存设置'), findsOneWidget);
   });
 
   testWidgets('预约设置首次加载保留标题和底栏，延迟后只在内容区显示匹配骨架', (t) async {
@@ -434,7 +489,9 @@ void main() {
     );
     await t.tap(find.text('改期入口'));
     await t.pumpAndSettle();
-    await t.tap(find.text('17:30'));
+    await t.tap(find.textContaining('今天 '));
+    await t.pumpAndSettle();
+    await t.tap(find.text('17:30 原'));
     await t.pumpAndSettle();
     await t.tap(find.text('确认改期'));
     await t.pumpAndSettle();
@@ -443,6 +500,48 @@ void main() {
     expect(call['bay_id'], 'b1');
     expect(call['technician_id'], 't1');
     expect(find.text('改期 · 真实客户'), findsNothing);
+  });
+
+  testWidgets('改期初始不预选，切换日期清空时间并重新请求时段', (t) async {
+    api.bookings.add(bookingRow());
+    await open(
+      t,
+      Builder(
+        builder: (ctx) => Scaffold(
+          body: TextButton(
+            onPressed: () => showAppointmentReschedule(
+              ctx,
+              Appointment(api.bookings.single),
+            ),
+            child: const Text('改期入口'),
+          ),
+        ),
+      ),
+    );
+    await t.tap(find.text('改期入口'));
+    await t.pumpAndSettle();
+    expect(api.calls.where((c) => c['action'] == 'slots'), isEmpty);
+    expect(find.text('请先选择新日期'), findsOneWidget);
+    await t.tap(find.text('确认改期'));
+    await t.tap(find.text('取消这个预约'));
+    await t.pumpAndSettle();
+    expect(api.calls.where((c) => c['action'] == 'save'), isEmpty);
+    expect(find.text('确认取消预约？'), findsNothing);
+    await t.tap(find.textContaining('今天 '));
+    await t.pumpAndSettle();
+    expect(api.calls.where((c) => c['action'] == 'slots'), hasLength(1));
+    expect(find.text('17:30 原'), findsOneWidget);
+    await t.tap(find.text('17:30 原'));
+    await t.pumpAndSettle();
+    expect(find.text('新时间 · 17:30'), findsOneWidget);
+    await t.tap(find.textContaining('明天 '));
+    await t.pumpAndSettle();
+    expect(api.calls.where((c) => c['action'] == 'slots'), hasLength(2));
+    expect(find.text('17:30 原'), findsNothing);
+    expect(find.textContaining('请选择时间'), findsOneWidget);
+    await t.tap(find.text('确认改期'));
+    await t.pump();
+    expect(api.calls.where((c) => c['action'] == 'save'), isEmpty);
   });
 
   testWidgets('确认改期加载时按钮不缩形，显示转圈和提交中且不可重复提交', (t) async {
@@ -464,7 +563,9 @@ void main() {
     );
     await t.tap(find.text('改期入口'));
     await t.pumpAndSettle();
-    await t.tap(find.text('17:30'));
+    await t.tap(find.textContaining('今天 '));
+    await t.pumpAndSettle();
+    await t.tap(find.text('17:30 原'));
     await t.pumpAndSettle();
     final button = find.byKey(const ValueKey('reschedule-confirm-button'));
     final before = t.getSize(button);
@@ -590,6 +691,8 @@ void main() {
       ),
     );
     await t.tap(find.text('取消入口'));
+    await t.pumpAndSettle();
+    await t.tap(find.text('客户有事'));
     await t.pumpAndSettle();
     await t.ensureVisible(find.text('取消这个预约'));
     await t.tap(find.text('取消这个预约'));

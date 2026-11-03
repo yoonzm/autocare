@@ -2726,28 +2726,31 @@ class AppointmentSettingsTemplate extends StatelessWidget {
                       radius: BorderRadius.circular(25),
                       child: Align(
                         alignment: Alignment(0, 0),
-                        widthFactor: 1,
-                        child: c.busy && c.activeButton == '保存设置'
-                            ? const AppSpinner(
-                                size: 18,
-                                color: Color(0xFF0485F7),
-                              )
-                            : Text(
-                                '保存设置',
-                                style: hts(
-                                  15,
-                                  dk(
-                                    context,
-                                    Color(0xFFFFFFFF),
-                                    Color(0xFF18181B),
-                                  ),
-                                  w: FontWeight.w600,
-                                  lh: 22,
-                                ),
-                              ),
+                        child: hBusy(
+                          'AppointmentSettings>Save',
+                          Text(
+                            '保存设置',
+                            style: hts(
+                              15,
+                              dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                              w: FontWeight.w600,
+                              lh: 22,
+                            ),
+                          ),
+                          style: hts(
+                            15,
+                            dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                            w: FontWeight.w600,
+                            lh: 22,
+                          ),
+                          label: '提交中…',
+                        ),
                       ),
                     ),
-                    onTap: () => c.save(context, button: '保存设置'),
+                    onTap: () => runBusy(
+                      'AppointmentSettings>Save',
+                      () => c.save(context, button: '保存设置'),
+                    ),
                   ),
                 ),
               ],

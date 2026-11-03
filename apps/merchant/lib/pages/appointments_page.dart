@@ -498,10 +498,14 @@ class _AppointmentsPageState extends State<AppointmentsPage>
     if (_busyId != null) return;
     setState(() => _busyId = a.id);
     try {
-      await AppointmentFlow.change(a.id, 'arrive');
-      if (mounted) AppToast.show(context, '已标记到店', kind: ToastKind.success);
-    } catch (e) {
-      if (mounted) AppToast.error(context, e);
+      await runBusy('Appointments>Arrive:${a.id}', () async {
+        try {
+          await AppointmentFlow.change(a.id, 'arrive');
+          if (mounted) AppToast.show(context, '已标记到店', kind: ToastKind.success);
+        } catch (e) {
+          if (mounted) AppToast.error(context, e);
+        }
+      });
     } finally {
       if (mounted) setState(() => _busyId = null);
     }
@@ -528,8 +532,16 @@ class _AppointmentsPageState extends State<AppointmentsPage>
             color: bg,
             borderRadius: BorderRadius.circular(20),
           ),
-          child: _busyId == a.id && t == '客户到店'
-              ? AppSpinner(size: 18, color: fg)
+          child: t == '客户到店'
+              ? hBusy(
+                  'Appointments>Arrive:${a.id}',
+                  Text(
+                    t,
+                    style: ts(14, w: FontWeight.w600, color: fg, h: 20),
+                  ),
+                  style: ts(14, w: FontWeight.w600, color: fg, h: 20),
+                  label: '提交中…',
+                )
               : Text(
                   t,
                   style: ts(14, w: FontWeight.w600, color: fg, h: 20),

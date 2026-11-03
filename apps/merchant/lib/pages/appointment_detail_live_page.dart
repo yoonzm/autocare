@@ -62,12 +62,16 @@ class _DetailState extends State<AppointmentDetailLivePage> {
     }
     setState(() => _busy = true);
     try {
-      if (a.row['status'] != 'arrived') {
-        a = Appointment(await AppointmentFlow.change(a.id, 'arrive'));
-      }
-      if (mounted) await openAppointmentOrder(context, a);
-    } catch (e) {
-      if (mounted) AppToast.error(context, e);
+      await runBusy('AppointmentDetail>Order', () async {
+        try {
+          if (a.row['status'] != 'arrived') {
+            a = Appointment(await AppointmentFlow.change(a.id, 'arrive'));
+          }
+          if (mounted) await openAppointmentOrder(context, a);
+        } catch (e) {
+          if (mounted) AppToast.error(context, e);
+        }
+      });
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -86,7 +90,6 @@ class _DetailState extends State<AppointmentDetailLivePage> {
         final a = Appointment(row);
         return AppointmentDetailTemplate(
           a: a,
-          busy: _busy,
           onOrder: () => _order(a),
           onReschedule: () => showAppointmentReschedule(context, a),
         );

@@ -14,6 +14,7 @@ import '../backend/catalog_draft.dart';
 import '../backend/hold_flow.dart';
 import '../backend/member_flow.dart';
 import '../backend/merchant_api.dart';
+import '../widgets/choice_chip_group.dart';
 import 'async_kit.dart';
 export '../widgets/card_face.dart' show hCardPreview;
 export 'async_kit.dart' show hBusy;
@@ -1864,14 +1865,71 @@ class HSel extends StatelessWidget {
     required this.on,
     required this.off,
   });
+  static String? _label(Widget widget) => switch (widget) {
+    Text(:final data, :final textSpan) => data ?? textSpan?.toPlainText(),
+    RichText(:final text) => text.toPlainText(),
+    Container(:final child) => child == null ? null : _label(child),
+    Align(:final child) => child == null ? null : _label(child),
+    Padding(:final child) => child == null ? null : _label(child),
+    SizedBox(:final child) => child == null ? null : _label(child),
+    Flexible(:final child) => _label(child),
+    Row(:final children) => _firstLabel(children),
+    Column(:final children) => _firstLabel(children),
+    Wrap(:final children) => _firstLabel(children),
+    _ => null,
+  };
+  static String? _firstLabel(List<Widget> children) {
+    for (final child in children) {
+      final label = _label(child);
+      if (label != null && label.trim().isNotEmpty) return label;
+    }
+    return null;
+  }
+
+  static double? _visualHeight(Widget widget) => switch (widget) {
+    Container(:final constraints, :final child) =>
+      constraints?.maxHeight.isFinite == true
+          ? constraints!.maxHeight
+          : child == null
+          ? null
+          : _visualHeight(child),
+    Align(:final child) => child == null ? null : _visualHeight(child),
+    Padding(:final child) => child == null ? null : _visualHeight(child),
+    _ => null,
+  };
+
   @override
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: ctrl,
-    builder: (_, _) => GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => ctrl.tap(index),
-      child: ctrl.selected.contains(index) ? on : off,
-    ),
+    builder: (_, _) {
+      // 32px 分段条 / 特色选项不是 ChoiceChip，保留原设计；34px 胶囊统一样式。
+      final label = ctrl.multi || _visualHeight(on) != 34
+          ? null
+          : (_label(off) ?? _label(on));
+      if (label != null && label.trim().isNotEmpty) {
+        final selected = ctrl.selected.contains(index);
+        return ChoiceChipGroup<int>(
+          semanticLabel: label,
+          kind: ChipKind.pill,
+          items: [
+            ChoiceChipItem(
+              value: index,
+              label: label,
+              isOriginal: label.endsWith(' 原'),
+            ),
+          ],
+          selected: selected ? index : null,
+          onChanged: (_) {
+            if (!selected) ctrl.tap(index);
+          },
+        );
+      }
+      return GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => ctrl.tap(index),
+        child: ctrl.selected.contains(index) ? on : off,
+      );
+    },
   );
 }
 

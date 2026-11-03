@@ -34,6 +34,18 @@ void main() {
     return ((box.decoration as BoxDecoration).color, style?.color);
   }
 
+  (Color?, Color?) sourceLook(WidgetTester t, String text) {
+    final box = t.widget<Container>(
+      find
+          .ancestor(of: find.text(text), matching: find.byType(Container))
+          .first,
+    );
+    return (
+      (box.decoration as BoxDecoration).color,
+      t.widget<Text>(find.text(text)).style?.color,
+    );
+  }
+
   testWidgets('称呼：先生 / 女士 互斥单选，选中项有滑块底色', (t) async {
     await openAdd(t);
     expect(look(t, '先生').$1, Colors.white);
@@ -48,22 +60,22 @@ void main() {
     expect(look(t, '女士').$1, Colors.white);
   });
 
-  testWidgets('客户来源：默认老客推荐，点选后只有一个实心选中，且文字清晰可读', (t) async {
+  testWidgets('客户来源：单选标签完整蓝色选中态且互斥', (t) async {
     await openAdd(t);
     await t.ensureVisible(find.text('短视频'));
-    expect(look(t, '老客推荐').$1, C.btn);
-    expect(look(t, '老客推荐').$2, C.btnFg);
-    expect(look(t, '到店自然客').$1, C.inset);
+    expect(sourceLook(t, '老客推荐').$1, const Color(0xFFE1F0FE));
+    expect(sourceLook(t, '老客推荐').$2, const Color(0xFF1E63AE));
+    expect(sourceLook(t, '到店自然客').$1, const Color(0xFFF4F4F5));
     await t.tap(find.text('短视频'));
     await t.pumpAndSettle();
     for (final s in ['到店自然客', '老客推荐', '团购平台']) {
-      expect(look(t, s).$1, C.inset, reason: '$s 应为未选中');
+      expect(sourceLook(t, s).$1, const Color(0xFFF4F4F5), reason: '$s 应为未选中');
     }
-    expect(look(t, '短视频').$1, C.btn);
-    expect(look(t, '短视频').$2, C.btnFg);
+    expect(sourceLook(t, '短视频').$1, const Color(0xFFE1F0FE));
+    expect(sourceLook(t, '短视频').$2, const Color(0xFF1E63AE));
     // 任何状态下文字色都不能与底色相同
     for (final s in ['到店自然客', '老客推荐', '团购平台', '短视频']) {
-      expect(look(t, s).$1, isNot(look(t, s).$2), reason: s);
+      expect(sourceLook(t, s).$1, isNot(sourceLook(t, s).$2), reason: s);
     }
   });
 
@@ -71,11 +83,11 @@ void main() {
     C.dark = true;
     await openAdd(t);
     await t.ensureVisible(find.text('老客推荐'));
-    final on = look(t, '老客推荐');
-    expect(on.$1, C.btn); // 反白
+    final on = sourceLook(t, '老客推荐');
+    expect(on.$1, const Color.fromRGBO(4, 133, 247, 0.18));
     expect(on.$1, isNot(C.card));
-    expect(on.$2, C.btnFg);
-    expect(look(t, '团购平台').$1, C.inset);
+    expect(on.$2, const Color(0xFF6AB4FA));
+    expect(sourceLook(t, '团购平台').$1, const Color(0xFF27272A));
   });
 
   testWidgets('会员等级：点选后「当前」跟随选中项，其余显示升级门槛', (t) async {

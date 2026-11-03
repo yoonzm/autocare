@@ -9,13 +9,11 @@ import 'gen/svgs.dart';
 class AppointmentDetailTemplate extends StatelessWidget {
   final Appointment a;
   final VoidCallback onReschedule, onOrder;
-  final bool busy;
   const AppointmentDetailTemplate({
     super.key,
     required this.a,
     required this.onReschedule,
     required this.onOrder,
-    required this.busy,
   });
 
   @override
@@ -1371,30 +1369,30 @@ class AppointmentDetailTemplate extends StatelessWidget {
                       radius: BorderRadius.circular(25),
                       child: Align(
                         alignment: Alignment(0, 0),
-                        widthFactor: 1,
-                        child: busy
-                            ? AppSpinner(
-                                size: 18,
-                                color: dk(context, Colors.white, Colors.black),
-                              )
-                            : Text(
-                                switch (a.row['status']) {
-                                  'done' => '预约已完成',
-                                  'cancelled' => '预约已取消',
-                                  'arrived' => '去开单',
-                                  _ => '客户到店 · 开单',
-                                },
-                                style: hts(
-                                  15,
-                                  dk(
-                                    context,
-                                    Color(0xFFFFFFFF),
-                                    Color(0xFF18181B),
-                                  ),
-                                  w: FontWeight.w600,
-                                  lh: 22,
-                                ),
-                              ),
+                        child: hBusy(
+                          'AppointmentDetail>Order',
+                          Text(
+                            switch (a.row['status']) {
+                              'done' => '预约已完成',
+                              'cancelled' => '预约已取消',
+                              'arrived' => '去开单',
+                              _ => '客户到店 · 开单',
+                            },
+                            style: hts(
+                              15,
+                              dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                              w: FontWeight.w600,
+                              lh: 22,
+                            ),
+                          ),
+                          style: hts(
+                            15,
+                            dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                            w: FontWeight.w600,
+                            lh: 22,
+                          ),
+                          label: '提交中…',
+                        ),
                       ),
                     ),
                     onTap: onOrder,

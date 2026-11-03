@@ -16,6 +16,7 @@ import '../kit/keyboard.dart';
 import '../theme.dart';
 import '../widgets/app_icon.dart';
 import '../widgets/common.dart';
+import '../widgets/choice_chip_group.dart';
 
 class AppointmentAddPage extends StatefulWidget {
   const AppointmentAddPage({super.key});
@@ -64,7 +65,7 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
           ? '今天'
           : i == 1
           ? '明天'
-          : '周${'一二三四五六日'[bookingToday.add(Duration(days: i)).weekday - 1]}'} ${bookingToday.add(Duration(days: i)).month}.${bookingToday.add(Duration(days: i)).day.toString().padLeft(2, '0')}',
+          : '周${'一二三四五六日'[bookingToday.add(Duration(days: i)).weekday - 1]}'} ${bookingToday.add(Duration(days: i)).month.toString().padLeft(2, '0')}.${bookingToday.add(Duration(days: i)).day.toString().padLeft(2, '0')}',
   ];
   Member customer = const Member('请选择会员', '', '', '未选择', '—', '', {});
 
@@ -738,19 +739,22 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
       children: [
         Text('到店时间', style: ts(15, w: FontWeight.w600, h: 22)),
         const SizedBox(height: 12),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
+        ChoiceChipGroup<int>(
+          semanticLabel: '到店日期',
+          kind: ChipKind.pill,
+          items: [
             for (var i = 0; i < _dates.length; i++)
-              _chip(_dates[i], dateIdx == i, () {
-                setState(() {
-                  dateIdx = i;
-                  time = '';
-                });
-                _changed();
-              }),
+              ChoiceChipItem(value: i, label: _dates[i]),
           ],
+          selected: dateIdx,
+          onChanged: (i) {
+            if (dateIdx == i) return;
+            setState(() {
+              dateIdx = i;
+              time = '';
+            });
+            _changed();
+          },
         ),
         const SizedBox(height: 12),
         Row(
@@ -818,69 +822,34 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
                 }
               }),
               builder: (_, data) => SingleChildScrollView(
-                child: Column(
-                  children: [
-                    if (_slots.isEmpty)
-                      EmptyView(
+                child: _slots.isEmpty
+                    ? EmptyView(
                         title: picked.isEmpty ? '请先选择服务项目' : '所选日期没有可预约时段',
                         inline: true,
+                      )
+                    : ChoiceChipGroup<String>(
+                        semanticLabel: '到店时间',
+                        kind: ChipKind.tile,
+                        items: [
+                          for (final slot in _slots)
+                            ChoiceChipItem(
+                              value: slot['time'] as String,
+                              label: slot['time'] as String,
+                              disabled: slot['available'] != true,
+                            ),
+                        ],
+                        selected: time.isEmpty ? null : time,
+                        onChanged: (value) => setState(() {
+                          time = value;
+                          _dirty = true;
+                        }),
                       ),
-                    for (var r = 0; r < (_slots.length / 4).ceil(); r++)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Row(
-                          children: [
-                            for (var c = 0; c < 4; c++) ...[
-                              if (c > 0) const SizedBox(width: 8),
-                              Expanded(
-                                child: r * 4 + c < _slots.length
-                                    ? _slot('${_slots[r * 4 + c]['time']}')
-                                    : const SizedBox(),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                  ],
-                ),
               ),
             ),
           ),
       ],
     ),
   );
-
-  Widget _slot(String t) {
-    final off = !_slots.any((s) => s['time'] == t && s['available'] == true);
-    final on = time == t;
-    return GestureDetector(
-      onTap: off
-          ? null
-          : () => setState(() {
-              time = t;
-              _dirty = true;
-            }),
-      child: Container(
-        height: 40,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: on ? C.primarySoft : C.inset,
-          borderRadius: BorderRadius.circular(12),
-          border: on ? Border.all(color: C.primary, width: 1.5) : null,
-        ),
-        child: Text(
-          t,
-          style: ts(
-            14,
-            w: FontWeight.w500,
-            color: off ? C.faint : (on ? C.primaryInk : C.ink),
-            h: 20,
-            tabular: true,
-          ).copyWith(decoration: off ? TextDecoration.lineThrough : null),
-        ),
-      ),
-    );
-  }
 
   Widget _pickRow(String label, String value, VoidCallback onTap) =>
       GestureDetector(
