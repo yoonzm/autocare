@@ -21,6 +21,34 @@ export function defaultBays(range: string) {
   }));
 }
 
+export interface DefaultProduct {
+  name: string;
+  category: '洗护' | '镀晶' | '贴膜' | '配件';
+  unit: string;
+  stock: number;
+  safe: number;
+  cost: number;
+}
+
+// Starter catalogue only: never invent on-hand quantities, safety thresholds or purchase costs.
+// 保养维修暂归入现有“配件”分类，不改动已设计的库存筛选与编辑界面。
+const STARTER_PRODUCTS: (Omit<DefaultProduct, 'stock' | 'safe' | 'cost'> & { businesses: readonly BusinessType[] })[] = [
+  { name: '中性洗车液 20L', category: '洗护', unit: '桶', businesses: ['洗车美容'] },
+  { name: '超细纤维擦车巾', category: '洗护', unit: '条', businesses: ['洗车美容', '镀晶镀膜'] },
+  { name: '9H 陶瓷镀晶液 50ml', category: '镀晶', unit: '瓶', businesses: ['镀晶镀膜'] },
+  { name: '玻璃镀膜剂', category: '镀晶', unit: '瓶', businesses: ['镀晶镀膜'] },
+  { name: 'TPU 隐形车衣 7.5mil', category: '贴膜', unit: '卷', businesses: ['隐形车衣'] },
+  { name: '改色膜 · 哑光灰', category: '贴膜', unit: '卷', businesses: ['改色膜'] },
+  { name: '机油滤芯', category: '配件', unit: '个', businesses: ['保养维修'] },
+  { name: '空气滤芯', category: '配件', unit: '个', businesses: ['保养维修'] },
+];
+
+export function defaultProducts(types: readonly string[]): DefaultProduct[] {
+  const selected = new Set(types);
+  return STARTER_PRODUCTS.filter((p) => p.businesses.some((type) => selected.has(type)))
+    .map(({ businesses: _businesses, ...p }) => ({ ...p, stock: 0, safe: 0, cost: 0 }));
+}
+
 export interface DefaultService {
   name: string;
   category: string;

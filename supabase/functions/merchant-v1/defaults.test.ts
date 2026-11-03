@@ -1,4 +1,4 @@
-import { BAY_COUNTS, BUSINESS_TYPES, DEFAULT_CARDS, DEFAULT_PACKAGES, defaultBays, defaultPackages, defaultServices } from './defaults.ts';
+import { BAY_COUNTS, BUSINESS_TYPES, DEFAULT_CARDS, DEFAULT_PACKAGES, defaultBays, defaultPackages, defaultProducts, defaultServices } from './defaults.ts';
 
 const eq = (a: unknown, b: unknown, msg: string) => {
   if (JSON.stringify(a) !== JSON.stringify(b)) throw new Error(`${msg}: ${JSON.stringify(a)} != ${JSON.stringify(b)}`);
@@ -14,6 +14,23 @@ Deno.test('registration creates sequential bays up to the selected range maximum
     eq(bays.every((b) => b.kind === 'bay'), true, `${range} kind`);
   }
   eq(defaultBays('unknown'), [], 'invalid range');
+});
+
+Deno.test('registration creates inventory catalogue by selected businesses without fake stock or cost', () => {
+  const names = (types: string[]) => defaultProducts(types).map((p) => p.name);
+  eq(names(['洗车美容']), ['中性洗车液 20L', '超细纤维擦车巾'], 'wash');
+  eq(names(['镀晶镀膜']), ['超细纤维擦车巾', '9H 陶瓷镀晶液 50ml', '玻璃镀膜剂'], 'coating');
+  eq(names(['隐形车衣']), ['TPU 隐形车衣 7.5mil'], 'ppf');
+  eq(names(['改色膜']), ['改色膜 · 哑光灰'], 'wrap');
+  eq(defaultProducts(['保养维修']).map((p) => [p.name, p.category]),
+    [['机油滤芯', '配件'], ['空气滤芯', '配件']], 'maintenance');
+  const all = defaultProducts([...BUSINESS_TYPES]);
+  eq(all.length, 8, 'all count');
+  eq(new Set(all.map((p) => p.name)).size, all.length, 'multi-select deduplicates shared items');
+  eq(all.every((p) => p.stock === 0 && p.safe === 0 && p.cost === 0), true, 'zero quantities and cost');
+  eq(all.every((p) => ['洗护', '镀晶', '贴膜', '配件'].includes(p.category)), true, 'existing categories');
+  eq(defaultProducts(['不存在']), [], 'unknown');
+  eq(defaultProducts([]), [], 'no businesses');
 });
 
 Deno.test('the default business types give the design\'s 10 services, in the design order', () => {

@@ -120,7 +120,7 @@ export type Input = Record<string, unknown>;
 
 export type ApiResponse =
   | { ok: true }
-  | { ok: true; services: number; cards: number; packages: number; bays: number }
+  | { ok: true; services: number; products: number; cards: number; packages: number; bays: number }
   | { code: string; mock: true }
   | { matched: boolean; mock: true; plate: string; member?: unknown; package_summary?: string; last_visit_text?: string }
   | { access_token: string; refresh_token: string }

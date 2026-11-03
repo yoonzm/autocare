@@ -168,7 +168,7 @@ class MerchantApi {
   }
 
   /// 开通门店。返回云函数给新门店初始化的数据量：
-  /// `{'services': 服务项目数, 'cards': 会员卡种数, 'packages': 次卡套餐数, 'bays': 工位数}`。
+  /// `{'services': 服务项目数, 'products': 零库存商品数, 'cards': 会员卡种数, 'packages': 次卡套餐数, 'bays': 工位数}`。
   Future<Map<String, dynamic>> register({
     required String phone,
     required String code,
