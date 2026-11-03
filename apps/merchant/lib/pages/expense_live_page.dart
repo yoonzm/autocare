@@ -88,7 +88,20 @@ class _ExpenseLiveState extends State<ExpenseLivePage> {
     key: key,
     load: load,
     isEmpty: (_) => false,
-    skeleton: const SkeletonList(count: 5),
+    skeletonPadding: EdgeInsets.zero,
+    skeleton: SkeletonDataPage(
+      title: switch (widget.mode) {
+        'list' => '开支管理',
+        'add' => '记一笔开支',
+        'detail' => '开支详情',
+        'budget' => '月度预算',
+        'total' => '调整预算',
+        'edit' => '材料采购预算',
+        'adjust' => '追加预算',
+        _ => '开支管理',
+      },
+      detail: listing,
+    ),
     empty: (_) => const SizedBox(),
     onNext: () => merchantApi.hasSession
         ? Navigator.of(context).maybePop()

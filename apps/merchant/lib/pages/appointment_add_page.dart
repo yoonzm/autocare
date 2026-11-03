@@ -2,6 +2,8 @@ import 'dart:async';
 
 import '../backend/appointment_flow.dart';
 import '../backend/merchant_api.dart';
+import '../backend/member_flow.dart';
+import '../backend/service_store.dart';
 import '../kit/async_kit.dart';
 import '../routes.dart';
 import 'booking_resources_page.dart';
@@ -28,15 +30,20 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
   String time = '';
   Map<String, dynamic>? _bay, _tech;
   Map<String, dynamic> _options = {};
-  List<Map<String, dynamic>> get _services =>
-      List<Map<String, dynamic>>.from(_options['services'] as List? ?? []);
+  List<Map<String, dynamic>> get _services => List<Map<String, dynamic>>.from(
+    _options['services'] as List? ?? ServiceStore.sellable,
+  );
   List<Map<String, dynamic>> get _resources =>
       List<Map<String, dynamic>>.from(_options['resources'] as List? ?? []);
-  final _optionsKey = GlobalKey<AsyncViewState<Map<String, dynamic>>>();
   final _slotsKey = GlobalKey<AsyncViewState<Map<String, dynamic>>>();
+  bool _optionsLoading = false;
+  bool _optionsReady = false;
+  bool _showOptionsSkeleton = false;
+  AppError? _optionsError;
   List<Map<String, dynamic>> _slots = [];
   final _note = TextEditingController();
   bool _busy = false;
+  bool _awaitPicker = false;
   bool _dirty = false;
   int _revision = 0;
   bool notify = false, remind = false, deposit = false;
@@ -60,14 +67,85 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
           : '周${'一二三四五六日'[bookingToday.add(Duration(days: i)).weekday - 1]}'} ${bookingToday.add(Duration(days: i)).month}.${bookingToday.add(Duration(days: i)).day.toString().padLeft(2, '0')}',
   ];
   Member customer = const Member('请选择会员', '', '', '未选择', '—', '', {});
-  Future<void> _pickCustomer() async {
-    final m = await pickLiveMember(context);
-    if (m != null && mounted) {
-      setState(() {
-        customer = m;
-        _dirty = true;
-      });
+
+  Future<void> _loadOptions() async {
+    if (_optionsLoading) return;
+    setState(() {
+      _optionsLoading = true;
+      _showOptionsSkeleton = false;
+      _optionsError = null;
+    });
+    DateTime? shownAt;
+    final timer = Timer(kIndicatorDelay, () {
+      if (mounted && _optionsLoading && !_optionsReady) {
+        setState(() => _showOptionsSkeleton = true);
+        shownAt = DateTime.now();
+      }
+    });
+    Map<String, dynamic>? data;
+    AppError? failed;
+    try {
+      data = await merchantApi.appointment('options');
+    } catch (e) {
+      failed = AppError.from(e);
     }
+    timer.cancel();
+    if (shownAt != null) {
+      final left = kIndicatorMinShow - DateTime.now().difference(shownAt!);
+      if (left > Duration.zero) await Future<void>.delayed(left);
+    }
+    if (!mounted) return;
+    final oldServices = _services;
+    final selectedIds = {
+      for (final i in picked)
+        if (i < oldServices.length) oldServices[i]['id'],
+    };
+    setState(() {
+      _optionsLoading = false;
+      _showOptionsSkeleton = false;
+      if (failed == null) {
+        _options = data!;
+        _optionsReady = true;
+        _optionsError = null;
+        picked
+          ..clear()
+          ..addAll([
+            for (var i = 0; i < _services.length; i++)
+              if (selectedIds.contains(_services[i]['id'])) i,
+          ]);
+      } else if (!_optionsReady) {
+        _optionsError = failed;
+      }
+    });
+    if (failed != null && _optionsReady) AppToast.error(context, failed);
+  }
+
+  void _pickCustomer() {
+    if (_awaitPicker) return;
+    _awaitPicker = true;
+    MemberFlow.memberTick.addListener(_onPickedMember);
+    openRoute(context, 'MemberPicker');
+    unawaited(_watchPicker());
+  }
+
+  Future<void> _watchPicker() async {
+    await Future<void>.delayed(const Duration(milliseconds: 300));
+    while (mounted && navTracker.has('sheet:MemberPicker')) {
+      await Future<void>.delayed(const Duration(milliseconds: 200));
+    }
+    _awaitPicker = false;
+    MemberFlow.memberTick.removeListener(_onPickedMember);
+  }
+
+  void _onPickedMember() {
+    final row = MemberFlow.current;
+    if (!_awaitPicker || !mounted || row == null) return;
+    _awaitPicker = false;
+    MemberFlow.memberTick.removeListener(_onPickedMember);
+    setState(() {
+      customer = memberFromRow(row);
+      _dirty = true;
+    });
   }
 
   num get total =>
@@ -143,6 +221,10 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
 
   void submit() => unawaited(_submit());
   Future<void> _pickResource(String kind) async {
+    if (!_optionsReady) {
+      AppToast.show(context, '工位和技师资料尚未加载完成');
+      return;
+    }
     final rows = _resources
         .where((r) => r['kind'] == kind && r['active'] == true)
         .toList();
@@ -185,6 +267,7 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
   @override
   void initState() {
     super.initState();
+    if (merchantApi.hasSession) unawaited(_loadOptions());
     _note.addListener(() {
       if (mounted) setState(() => _dirty = true);
     });
@@ -192,6 +275,7 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
 
   @override
   void dispose() {
+    MemberFlow.memberTick.removeListener(_onPickedMember);
     _note.dispose();
     super.dispose();
   }
@@ -215,17 +299,7 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
           child: Column(
             children: [
               const SubHeader('新建预约', close: true),
-              Expanded(
-                child: AsyncView<Map<String, dynamic>>(
-                  key: _optionsKey,
-                  load: () => merchantApi.appointment('options'),
-                  isEmpty: (_) => false,
-                  skeleton: const SkeletonList(count: 5),
-                  empty: (_) => const SizedBox.shrink(),
-                  onLoaded: (data) => setState(() => _options = data),
-                  builder: (_, data) => _form(),
-                ),
-              ),
+              Expanded(child: _form()),
             ],
           ),
         ),
@@ -617,24 +691,41 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
           ],
         ),
         const SizedBox(height: 12),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            for (var i = 0; i < _services.length; i++)
-              _chip(
-                '${_services[i]['name']} ¥${_services[i]['price']}',
-                picked.contains(i),
-                () {
-                  setState(() {
-                    picked.contains(i) ? picked.remove(i) : picked.add(i);
-                    time = '';
-                  });
-                  _changed();
-                },
-              ),
-          ],
-        ),
+        if (_services.isEmpty &&
+            !_optionsReady &&
+            ServiceStore.items == null &&
+            _optionsError == null)
+          SizedBox(
+            height: 36,
+            child: _showOptionsSkeleton && _optionsError == null
+                ? const Row(
+                    children: [
+                      AppSkeleton(width: 112, height: 34, radius: 17),
+                      SizedBox(width: 8),
+                      AppSkeleton(width: 96, height: 34, radius: 17),
+                    ],
+                  )
+                : const SizedBox.shrink(),
+          )
+        else
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (var i = 0; i < _services.length; i++)
+                _chip(
+                  '${_services[i]['name']} ¥${_services[i]['price']}',
+                  picked.contains(i),
+                  () {
+                    setState(() {
+                      picked.contains(i) ? picked.remove(i) : picked.add(i);
+                      time = '';
+                    });
+                    _changed();
+                  },
+                ),
+            ],
+          ),
       ],
     ),
   );
@@ -673,7 +764,23 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
           ],
         ),
         const SizedBox(height: 12),
-        if (!_resources.any((r) => r['kind'] == 'bay' && r['active'] == true))
+        if (!_optionsReady)
+          SizedBox(
+            height: 136,
+            child: _optionsError != null
+                ? ErrorView(
+                    inline: true,
+                    error: _optionsError!,
+                    retrying: _optionsLoading,
+                    onRetry: _loadOptions,
+                  )
+                : _showOptionsSkeleton
+                ? const AppSkeleton(height: 120, radius: 12)
+                : const SizedBox.shrink(),
+          )
+        else if (!_resources.any(
+          (r) => r['kind'] == 'bay' && r['active'] == true,
+        ))
           EmptyView(
             title: '还没有可预约工位',
             message: '先添加真实工位，再安排预约',
@@ -686,7 +793,7 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
                 ),
               );
               if (mounted) {
-                await _optionsKey.currentState?.reload();
+                await _loadOptions();
                 _changed();
               }
             },

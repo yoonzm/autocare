@@ -129,7 +129,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 load: merchantApi.homeStats,
                 isEmpty: (_) => false, // 成功的零统计仍显示原卡片。
                 skeletonPadding: EdgeInsets.zero,
-                skeleton: AppSkeleton(height: statsHeight, radius: 28),
+                skeleton: SkeletonDashboardCard(
+                  height: statsHeight,
+                  radius: 28,
+                ),
                 empty: (_) => const SizedBox.shrink(),
                 onLoaded: (data) => setState(() => _stats = data),
                 builder: (_, data) => _revenue(data),
@@ -580,7 +583,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             load: () => merchantApi.appointment('summary'),
             isEmpty: (_) => false,
             skeletonPadding: EdgeInsets.zero,
-            skeleton: const AppSkeleton(height: 64, radius: 24),
+            skeleton: const SkeletonDashboardCard(height: 64, radius: 24),
             inlineError: true,
             pullToRefresh: false,
             empty: (_) => const SizedBox.shrink(),

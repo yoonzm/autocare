@@ -107,7 +107,7 @@ class _ServicesPageState extends State<ServicesPage> {
                         return ServiceStore.load(force: force);
                       },
                       isEmpty: (rows) => rows.isEmpty,
-                      skeleton: const SkeletonList(count: 5),
+                      skeleton: const SkeletonServiceList(),
                       empty: (_) => EmptyView.firstTime(
                         title: '还没有服务项目',
                         message: '添加第一个服务项目，开始设置价格',

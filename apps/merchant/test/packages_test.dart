@@ -167,10 +167,13 @@ void main() {
         ..add(pkgRow(id: 'p2', name: '新客体验卡', price: 99, active: false));
       await t.pumpWidget(app(const CardPackagesLivePage()));
       await t.pump(const Duration(milliseconds: 400));
-      expect(find.byType(SkeletonList), findsOneWidget);
-      expect(t.widget<SkeletonList>(find.byType(SkeletonList)).count, 5);
+      expect(find.byType(SkeletonTileList), findsOneWidget);
+      expect(
+        t.widget<SkeletonTileList>(find.byType(SkeletonTileList)).count,
+        5,
+      );
       await t.pumpAndSettle();
-      expect(find.byType(SkeletonList), findsNothing);
+      expect(find.byType(SkeletonTileList), findsNothing);
       expect(find.text('精致洗车年卡'), findsOneWidget);
       expect(find.text('20 次 · 12 个月有效'), findsNWidgets(2));
       expect(find.text('¥99'), findsOneWidget);

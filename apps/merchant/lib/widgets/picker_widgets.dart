@@ -125,6 +125,7 @@ class _PickerListState extends State<_PickerList> {
   AppError? _error;
   bool _loading = true;
   bool _skeleton = false;
+  bool _loaded = false;
   Timer? _debounce;
   String _q = '';
 
@@ -155,7 +156,7 @@ class _PickerListState extends State<_PickerList> {
     setState(() {
       _loading = true;
       _skeleton = false;
-      _error = null;
+      if (!_loaded) _error = null;
     });
     final timer = Timer(kIndicatorDelay, () {
       if (mounted && _loading) setState(() => _skeleton = true);
@@ -171,9 +172,17 @@ class _PickerListState extends State<_PickerList> {
         _all = all.items;
         _total = all.matched;
         _recent = recent?.items ?? const [];
+        _loaded = true;
+        _error = null;
       });
     } catch (e) {
-      if (mounted) setState(() => _error = AppError.from(e));
+      if (mounted) {
+        if (_loaded) {
+          AppToast.error(context, e);
+        } else {
+          setState(() => _error = AppError.from(e));
+        }
+      }
     } finally {
       timer.cancel();
       if (mounted) setState(() => _loading = false);
@@ -289,13 +298,21 @@ class _PickerListState extends State<_PickerList> {
   @override
   Widget build(BuildContext context) {
     if (!merchantApi.hasSession) return const SizedBox.shrink();
-    if (_error != null && _all.isEmpty) {
+    if (_error != null && !_loaded) {
       return ErrorView(error: _error!, retrying: _loading, onRetry: _load);
     }
-    if (_loading && _all.isEmpty) {
+    if (_loading && !_loaded) {
       return _skeleton ? const SkeletonList(count: 5) : const SizedBox.shrink();
     }
     if (_all.isEmpty) {
+      if (_loading && _skeleton) {
+        return Center(
+          child: AppSpinner(
+            size: 20,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        );
+      }
       if (_q.isEmpty) {
         return const EmptyView(title: '还没有会员', message: '点下面的“新增会员”办卡');
       }
@@ -306,15 +323,27 @@ class _PickerListState extends State<_PickerList> {
       padding: const EdgeInsets.fromLTRB(20, 10, 20, 4),
       child: Text(t, style: hts(12, muted, w: FontWeight.w500, lh: 17)),
     );
-    return ListView(
-      padding: EdgeInsets.zero,
+    return Stack(
       children: [
-        if (_recent.isNotEmpty) ...[
-          heading('最近使用'),
-          for (var i = 0; i < _recent.length; i++) _row(context, _recent[i], i),
-        ],
-        heading('全部会员 · $_total'),
-        for (var i = 0; i < _all.length; i++) _row(context, _all[i], i + 2),
+        ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            if (_recent.isNotEmpty) ...[
+              heading('最近使用'),
+              for (var i = 0; i < _recent.length; i++)
+                _row(context, _recent[i], i),
+            ],
+            heading('全部会员 · $_total'),
+            for (var i = 0; i < _all.length; i++) _row(context, _all[i], i + 2),
+          ],
+        ),
+        if (_loading && _skeleton)
+          const Positioned(
+            left: 0,
+            right: 0,
+            top: 0,
+            child: LinearProgressIndicator(minHeight: 2),
+          ),
       ],
     );
   }

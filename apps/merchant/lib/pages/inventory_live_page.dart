@@ -64,7 +64,16 @@ class _InventoryLiveState extends State<InventoryLivePage> {
       key: key,
       load: load,
       isEmpty: (_) => false,
-      skeleton: const SkeletonList(count: 5),
+      skeletonPadding: EdgeInsets.zero,
+      skeleton: SkeletonDataPage(
+        title: switch (widget.mode) {
+          'in' => '商品入库',
+          'out' => '商品出库',
+          'check' => '库存盘点',
+          _ => '商品详情',
+        },
+        detail: widget.mode == 'detail',
+      ),
       empty: (_) => const SizedBox.shrink(),
       onNext: () => openRoute(context, 'Login'),
       onLoaded: (data) {

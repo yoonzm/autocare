@@ -158,9 +158,7 @@ class _CardTiersLivePageState extends State<CardTiersLivePage> {
         ];
       }
       return [
-        showSkeleton
-            ? const SkeletonList(count: 5)
-            : const SizedBox(height: 120),
+        showSkeleton ? const SkeletonTierList() : const SizedBox(height: 120),
       ];
     }
     if (rows.isEmpty) {

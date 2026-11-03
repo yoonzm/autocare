@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:autocare_merchant/backend/appointment_flow.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
+import 'package:autocare_merchant/backend/member_flow.dart';
 import 'package:autocare_merchant/backend/hold_flow.dart';
 import 'package:autocare_merchant/backend/service_store.dart';
 import 'package:autocare_merchant/kit/async_kit.dart';
@@ -12,9 +13,11 @@ import 'package:autocare_merchant/pages/appointment_add_page.dart';
 import 'package:autocare_merchant/pages/appointment_detail_live_page.dart';
 import 'package:autocare_merchant/pages/appointment_settings_live_page.dart';
 import 'package:autocare_merchant/pages/booking_resources_page.dart';
+import 'package:autocare_merchant/pages/gen/member_picker_sheet.dart';
+import 'package:autocare_merchant/routes.dart' show navTracker;
 import 'package:autocare_merchant/widgets/booking_template_bindings.dart';
 
-import 'members_test.dart' show MemberFakeApi, phone;
+import 'members_test.dart' show MemberFakeApi, phone, row;
 
 Map<String, dynamic> bookingRow({
   String id = 'a1',
@@ -80,6 +83,7 @@ class BookingApi extends MemberFakeApi {
     'closed_days': <int>[],
   };
   Completer<void>? gate;
+  Completer<void>? optionsGate;
   Object? readError, writeError;
   BookingApi() {
     services.add({
@@ -98,6 +102,7 @@ class BookingApi extends MemberFakeApi {
   ]) async {
     calls.add({'action': action, ...values});
     if (action == 'options') {
+      await optionsGate?.future;
       return {
         'settings': {...settings},
         'resources': [
@@ -188,16 +193,19 @@ void main() {
     merchantApi = api = BookingApi();
     HoldFlow.reset();
     ServiceStore.clear();
+    navTracker.stack.clear();
   });
   tearDown(() {
     merchantApi = original;
     HoldFlow.reset();
     ServiceStore.clear();
+    navTracker.stack.clear();
   });
   Future<void> open(WidgetTester t, Widget page) async {
     phone(t);
     await t.pumpWidget(
       MaterialApp(
+        navigatorObservers: [navTracker],
         onGenerateRoute: (_) =>
             MaterialPageRoute(builder: (_) => const Scaffold()),
         onGenerateInitialRoutes: (_) => [
@@ -230,6 +238,36 @@ void main() {
     await t.pumpAndSettle();
     expect(find.text('当天还没有预约'), findsOneWidget);
     expect(find.text('新建预约'), findsOneWidget);
+  });
+  testWidgets('新建预约立即显示客户与缓存服务，只在时段区等待预约选项', (t) async {
+    phone(t);
+    await ServiceStore.refresh();
+    api.optionsGate = Completer<void>();
+    await t.pumpWidget(const MaterialApp(home: AppointmentAddPage()));
+    expect(find.text('客户'), findsOneWidget);
+    expect(find.text('真实洗车 ¥68.0'), findsOneWidget);
+    expect(find.byType(SkeletonFormFields), findsNothing);
+    expect(find.byType(AppSkeleton), findsNothing);
+    await t.pump(const Duration(milliseconds: 350));
+    expect(find.text('客户'), findsOneWidget);
+    expect(find.text('真实洗车 ¥68.0'), findsOneWidget);
+    expect(find.byType(AppSkeleton), findsOneWidget);
+    api.optionsGate!.complete();
+    await t.pump(const Duration(milliseconds: 600));
+    await t.pumpAndSettle();
+    expect(find.byType(AppSkeleton), findsNothing);
+  });
+  testWidgets('新建预约选择客户复用结账和充值的会员选择弹层', (t) async {
+    api.rows.add(row());
+    MemberFlow.current = null;
+    await open(t, const AppointmentAddPage());
+    await t.tap(find.text('请选择会员'));
+    await t.pumpAndSettle();
+    expect(find.byType(MemberPickerSheet), findsOneWidget);
+    await t.tap(find.text('王建国').last);
+    await t.pumpAndSettle();
+    expect(find.byType(MemberPickerSheet), findsNothing);
+    expect(find.text('王建国'), findsWidgets);
   });
   testWidgets('到店按钮等待后端响应，不提前修改状态，失败保留预约', (t) async {
     api.bookings.add(bookingRow());

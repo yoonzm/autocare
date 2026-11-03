@@ -48,9 +48,9 @@ void main() {
       phone(t);
       await t.pumpWidget(const MaterialApp(home: ServicesPage()));
       await t.pump(const Duration(milliseconds: 350));
-      expect(find.byType(SkeletonList), findsOneWidget);
+      expect(find.byType(SkeletonServiceList), findsOneWidget);
       final chipsBottom = t.getBottomLeft(find.textContaining('全部')).dy;
-      final skeletonTop = t.getTopLeft(find.byType(SkeletonList)).dy;
+      final skeletonTop = t.getTopLeft(find.byType(SkeletonServiceList)).dy;
       expect(skeletonTop - chipsBottom, lessThan(60));
       await t.pumpAndSettle();
     });
@@ -83,13 +83,31 @@ void main() {
       phone(t);
       await t.pumpWidget(const MaterialApp(home: ServicesPage()));
       await t.pump(const Duration(milliseconds: 350));
-      expect(find.byType(SkeletonRow), findsNWidgets(5));
+      expect(
+        find.byWidgetPredicate(
+          (w) =>
+              w.key is ValueKey<String> &&
+              (w.key! as ValueKey<String>).value.startsWith(
+                'skeleton-service-row-',
+              ),
+        ),
+        findsNWidgets(5),
+      );
       await t.pumpAndSettle();
 
       await t.pumpWidget(const SizedBox());
       await t.pumpWidget(const MaterialApp(home: CardTiersLivePage()));
       await t.pump(const Duration(milliseconds: 350));
-      expect(find.byType(SkeletonRow), findsNWidgets(5));
+      expect(
+        find.byWidgetPredicate(
+          (w) =>
+              w.key is ValueKey<String> &&
+              (w.key! as ValueKey<String>).value.startsWith(
+                'skeleton-tier-card-',
+              ),
+        ),
+        findsNWidgets(5),
+      );
       await t.pumpAndSettle();
     });
   });

@@ -383,17 +383,58 @@ class _LiveMemberPicker extends StatefulWidget {
 
 class _LiveMemberPickerState extends State<_LiveMemberPicker> {
   Timer? _debounce;
+  Timer? _indicatorTimer;
+  bool _showIndicator = false;
+  DateTime? _indicatorAt;
+  List<Member>? _lastMembers;
+  Object? _reportedError;
+  int _generation = 0;
   String _q = '';
-  late Future<List<Member>> _future = _fetch();
+  late Future<List<Member>> _future;
 
-  Future<List<Member>> _fetch() async {
-    final page = await merchantApi.members(query: _q, limit: 50);
-    return [for (final r in page.items) memberFromRow(r)];
+  @override
+  void initState() {
+    super.initState();
+    _startFetch();
+  }
+
+  void _startFetch() {
+    final generation = ++_generation;
+    _future = _fetch(_q, generation);
+    _showIndicator = false;
+    _indicatorAt = null;
+    _reportedError = null;
+    _indicatorTimer?.cancel();
+    _indicatorTimer = Timer(kIndicatorDelay, () {
+      if (mounted && generation == _generation) {
+        setState(() {
+          _showIndicator = true;
+          _indicatorAt = DateTime.now();
+        });
+      }
+    });
+  }
+
+  Future<List<Member>> _fetch(String query, int generation) async {
+    try {
+      final page = await merchantApi.members(query: query, limit: 50);
+      return [for (final r in page.items) memberFromRow(r)];
+    } finally {
+      if (generation == _generation) {
+        _indicatorTimer?.cancel();
+        final at = _indicatorAt;
+        if (at != null) {
+          final left = kIndicatorMinShow - DateTime.now().difference(at);
+          if (left > Duration.zero) await Future<void>.delayed(left);
+        }
+      }
+    }
   }
 
   @override
   void dispose() {
     _debounce?.cancel();
+    _indicatorTimer?.cancel();
     super.dispose();
   }
 
@@ -445,7 +486,7 @@ class _LiveMemberPickerState extends State<_LiveMemberPicker> {
                       _debounce = Timer(const Duration(milliseconds: 300), () {
                         setState(() {
                           _q = v.trim();
-                          _future = _fetch();
+                          _startFetch();
                         });
                       });
                     },
@@ -464,31 +505,71 @@ class _LiveMemberPickerState extends State<_LiveMemberPicker> {
                 child: FutureBuilder<List<Member>>(
                   future: _future,
                   builder: (context, snap) {
+                    if (snap.connectionState == ConnectionState.done &&
+                        snap.hasData) {
+                      _lastMembers = snap.data;
+                    }
                     if (snap.hasError) {
-                      return ErrorView(
-                        error: AppError.from(snap.error!),
-                        onRetry: () => setState(() => _future = _fetch()),
-                      );
+                      if (_lastMembers == null) {
+                        return ErrorView(
+                          error: AppError.from(snap.error!),
+                          onRetry: () => setState(_startFetch),
+                        );
+                      }
+                      if (!identical(_reportedError, snap.error)) {
+                        _reportedError = snap.error;
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          if (mounted) AppToast.error(context, snap.error!);
+                        });
+                      }
                     }
-                    if (!snap.hasData) return const SkeletonList(count: 5);
-                    final list = snap.data!;
+                    final list = snap.data ?? _lastMembers;
+                    if (list == null) {
+                      return _showIndicator
+                          ? const SkeletonList(count: 5)
+                          : const SizedBox.shrink();
+                    }
                     if (list.isEmpty) {
-                      return const EmptyView(
-                        title: '没有找到会员',
-                        message: '换个姓名、手机号或车牌试试',
-                        inline: true,
+                      return Stack(
+                        children: [
+                          const EmptyView(
+                            title: '没有找到会员',
+                            message: '换个姓名、手机号或车牌试试',
+                            inline: true,
+                          ),
+                          if (snap.connectionState == ConnectionState.waiting &&
+                              _showIndicator)
+                            const Positioned(
+                              left: 0,
+                              right: 0,
+                              top: 0,
+                              child: LinearProgressIndicator(minHeight: 2),
+                            ),
+                        ],
                       );
                     }
-                    return ListView(
+                    return Stack(
                       children: [
-                        for (final m in list)
-                          ListTile(
-                            onTap: () => Navigator.pop(context, m),
-                            title: Text(m.name, style: _ts(15)),
-                            subtitle: Text(
-                              '${m.level} · ${m.plate}',
-                              style: _ts(12, c: _muted),
-                            ),
+                        ListView(
+                          children: [
+                            for (final m in list)
+                              ListTile(
+                                onTap: () => Navigator.pop(context, m),
+                                title: Text(m.name, style: _ts(15)),
+                                subtitle: Text(
+                                  '${m.level} · ${m.plate}',
+                                  style: _ts(12, c: _muted),
+                                ),
+                              ),
+                          ],
+                        ),
+                        if (snap.connectionState == ConnectionState.waiting &&
+                            _showIndicator)
+                          const Positioned(
+                            left: 0,
+                            right: 0,
+                            top: 0,
+                            child: LinearProgressIndicator(minHeight: 2),
                           ),
                       ],
                     );

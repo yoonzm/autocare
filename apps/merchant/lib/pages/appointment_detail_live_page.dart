@@ -79,7 +79,8 @@ class _DetailState extends State<AppointmentDetailLivePage> {
       key: _key,
       load: () => merchantApi.appointment('get', {'id': widget.id}),
       isEmpty: (_) => false,
-      skeleton: const SkeletonList(count: 5),
+      skeletonPadding: EdgeInsets.zero,
+      skeleton: const SkeletonDataPage(title: '预约详情', detail: true),
       empty: (_) => const SizedBox.shrink(),
       builder: (_, row) {
         final a = Appointment(row);

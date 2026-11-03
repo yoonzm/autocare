@@ -475,11 +475,11 @@ void main() {
       ];
       await t.pumpWidget(const MaterialApp(home: ServicesPage()));
       await t.pump(const Duration(milliseconds: 350));
-      expect(find.byType(SkeletonList), findsOneWidget);
+      expect(find.byType(SkeletonServiceList), findsOneWidget);
       await t.pump(const Duration(seconds: 2));
       await t.pumpAndSettle();
       expect(find.text('精致洗车'), findsOneWidget);
-      expect(find.byType(SkeletonList), findsNothing);
+      expect(find.byType(SkeletonServiceList), findsNothing);
     });
 
     testWidgets('服务项目：已下架的项目显示“已下架”', (t) async {

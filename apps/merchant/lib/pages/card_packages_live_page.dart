@@ -112,7 +112,7 @@ class _CardPackagesLivePageState extends State<CardPackagesLivePage> {
         );
       }
       return showSkeleton
-          ? const SkeletonList(count: 5)
+          ? const SkeletonTileList(count: 5)
           : const SizedBox(height: 120);
     }
     if (rows.isEmpty) {

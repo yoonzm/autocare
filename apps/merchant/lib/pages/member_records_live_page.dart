@@ -762,6 +762,7 @@ class _MemberRecordsLivePageState extends State<MemberRecordsLivePage> {
   bool _loading = false;
   bool _loadingMore = false;
   bool _showSkeleton = false;
+  DateTime? _skeletonAt;
   AppError? _error;
   bool _loaded = false;
 
@@ -789,18 +790,22 @@ class _MemberRecordsLivePageState extends State<MemberRecordsLivePage> {
       });
       return;
     }
+    final hadLoaded = _loaded;
     setState(() {
       if (more) {
         _loadingMore = true;
       } else {
         _loading = true;
         _showSkeleton = false;
-        _items.clear();
-        _error = null;
       }
     });
     final timer = Timer(kIndicatorDelay, () {
-      if (mounted && _loading) setState(() => _showSkeleton = true);
+      if (mounted && _loading && !hadLoaded) {
+        setState(() {
+          _showSkeleton = true;
+          _skeletonAt = DateTime.now();
+        });
+      }
     });
     AppError? failed;
     ({List<Map<String, dynamic>> items, int total})? page;
@@ -814,19 +819,35 @@ class _MemberRecordsLivePageState extends State<MemberRecordsLivePage> {
       failed = AppError.from(e);
     }
     timer.cancel();
+    if (_skeletonAt != null) {
+      final left = kIndicatorMinShow - DateTime.now().difference(_skeletonAt!);
+      if (left > Duration.zero) await Future<void>.delayed(left);
+    }
     if (!mounted) return;
     setState(() {
       _loading = false;
       _loadingMore = false;
       _showSkeleton = false;
+      _skeletonAt = null;
       _loaded = true;
       if (failed != null) {
-        _error = failed;
+        if (!hadLoaded) _error = failed;
       } else {
+        if (!more) _items.clear();
         _items.addAll(page!.items);
         _total = page.total;
+        _error = null;
       }
     });
+    if (failed != null && hadLoaded) {
+      AppToast.show(
+        context,
+        failed.message,
+        kind: ToastKind.error,
+        actionLabel: failed.retryable ? '重试' : null,
+        onAction: failed.retryable ? _load : null,
+      );
+    }
   }
 
   static String _two(int n) => n.toString().padLeft(2, '0');
@@ -883,7 +904,7 @@ class _MemberRecordsLivePageState extends State<MemberRecordsLivePage> {
         ),
       ];
     }
-    if (!_loaded || (_loading && _items.isEmpty)) {
+    if (!_loaded) {
       return [
         _showSkeleton
             ? const SkeletonList(count: 5)

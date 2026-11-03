@@ -36,6 +36,7 @@ class _OrderPageState extends State<OrderPage> {
   bool get _live => merchantApi.hasSession;
   List<_Svc> _liveSvcs = const [];
   bool _loadingSvcs = false;
+  bool _showSvcSkeleton = false;
   AppError? _svcError;
 
   /// 会员名下可用次卡：服务 ID -> (次卡 ID, 剩余次数)。
@@ -283,22 +284,38 @@ class _OrderPageState extends State<OrderPage> {
     }
     setState(() {
       _loadingSvcs = true;
+      _showSvcSkeleton = false;
       _svcError = null;
     });
+    DateTime? shownAt;
+    final timer = Timer(kIndicatorDelay, () {
+      if (mounted && _loadingSvcs && _liveSvcs.isEmpty) {
+        setState(() => _showSvcSkeleton = true);
+        shownAt = DateTime.now();
+      }
+    });
+    List<Map<String, dynamic>>? rows;
+    AppError? failed;
     try {
-      final rows = await ServiceStore.load();
-      if (!mounted) return;
-      setState(() {
-        _applyServices(rows);
-        _loadingSvcs = false;
-      });
+      rows = await ServiceStore.load();
     } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _loadingSvcs = false;
-        _svcError = AppError.from(e);
-      });
+      failed = AppError.from(e);
     }
+    timer.cancel();
+    if (shownAt != null) {
+      final left = kIndicatorMinShow - DateTime.now().difference(shownAt!);
+      if (left > Duration.zero) await Future<void>.delayed(left);
+    }
+    if (!mounted) return;
+    setState(() {
+      _loadingSvcs = false;
+      _showSvcSkeleton = false;
+      if (failed == null) {
+        _applyServices(rows!);
+      } else {
+        _svcError = failed;
+      }
+    });
   }
 
   Future<void> _loadCover() async {
@@ -1149,7 +1166,9 @@ class _OrderPageState extends State<OrderPage> {
         ),
         const SizedBox(height: 8),
         if (_live && _loadingSvcs && _liveSvcs.isEmpty)
-          const SkeletonList(count: 5)
+          _showSvcSkeleton
+              ? const SkeletonServiceList()
+              : const SizedBox(height: 120)
         else if (_live && _svcError != null && _liveSvcs.isEmpty)
           SizedBox(
             height: 220,
