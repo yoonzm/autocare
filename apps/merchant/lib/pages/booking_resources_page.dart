@@ -11,6 +11,7 @@ import 'staff_list_template.dart';
 import 'staff_add_template.dart';
 import 'staff_edit_template.dart';
 import 'bay_edit_template.dart';
+import 'appointment_settings_skeleton.dart';
 
 class BookingResourcesPage extends StatelessWidget {
   final String kind;
@@ -78,16 +79,22 @@ class _HostState extends State<BookingLiveHost> {
       load: () => merchantApi.appointment('options'),
       isEmpty: (_) => false,
       skeletonPadding: EdgeInsets.zero,
-      skeleton: SkeletonDataPage(
-        title: switch (widget.mode) {
-          'business' => '营业时间与工位',
-          'staff_list' => '员工与权限',
-          'bay' => '编辑工位',
-          'staff' => widget.row == null ? '新增员工' : '编辑员工',
-          _ => '',
-        },
-        detail: listing,
-      ),
+      waiting: widget.mode == 'settings'
+          ? const AppointmentSettingsSkeleton(showBlocks: false)
+          : null,
+      skeletonScrollable: widget.mode != 'settings',
+      skeleton: widget.mode == 'settings'
+          ? const AppointmentSettingsSkeleton()
+          : SkeletonDataPage(
+              title: switch (widget.mode) {
+                'business' => '营业时间与工位',
+                'staff_list' => '员工与权限',
+                'bay' => '编辑工位',
+                'staff' => widget.row == null ? '新增员工' : '编辑员工',
+                _ => '',
+              },
+              detail: listing,
+            ),
       empty: (_) => const SizedBox.shrink(),
       onLoaded: (data) {
         c ??= BookingTemplateController(data, widget.mode, widget.row);

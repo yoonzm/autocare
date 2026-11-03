@@ -26,34 +26,45 @@ class _AppointmentsPageState extends State<AppointmentsPage>
   ApptStatus? filter;
   final _key = GlobalKey<AsyncViewState<Map<String, dynamic>>>();
   int _weekOffset = 0;
+  static const _initialWeekPage = 10000;
+  final _weekController = PageController(initialPage: _initialWeekPage);
+  bool _restoringWeek = false;
   int _revision = 0;
-  double _weekDrag = 0;
   DateTime? _pausedAt;
   DateTime? _displayMonday;
   Map<String, dynamic> _settings = {};
   List<Appointment> _rows = [];
   List<Map<String, dynamic>> _resources = [];
-  DateTime get _monday {
+  DateTime get _monday => _mondayFor(_weekOffset);
+  DateTime _mondayFor(int offset) {
     final d = bookingToday;
-    return DateTime.utc(d.year, d.month, d.day)
-        .subtract(Duration(days: d.weekday - 1))
-        .add(Duration(days: _weekOffset * 7));
+    return DateTime.utc(
+      d.year,
+      d.month,
+      d.day,
+    ).subtract(Duration(days: d.weekday - 1)).add(Duration(days: offset * 7));
   }
 
-  List<(String, String, int)> get _days => [
-    for (var i = 0; i < 7; i++)
-      (
-        '一二三四五六日'[i],
-        '${_monday.add(Duration(days: i)).day}',
-        _rows
-            .where(
-              (a) =>
-                  bookingDay(a.start) ==
-                  bookingDay(_monday.add(Duration(days: i))),
-            )
-            .length,
-      ),
-  ];
+  List<(String, String, int?)> _daysFor(int offset) {
+    final monday = _mondayFor(offset);
+    return [
+      for (var i = 0; i < 7; i++)
+        (
+          '一二三四五六日'[i],
+          '${monday.add(Duration(days: i)).day}',
+          _displayMonday == monday
+              ? _rows
+                    .where(
+                      (a) =>
+                          bookingDay(a.start) ==
+                          bookingDay(monday.add(Duration(days: i))),
+                    )
+                    .length
+              : null,
+        ),
+    ];
+  }
+
   Future<Map<String, dynamic>> _load() async {
     while (true) {
       if (!mounted) throw StateError('页面已关闭');
@@ -76,10 +87,14 @@ class _AppointmentsPageState extends State<AppointmentsPage>
           if (mounted &&
               _displayMonday != null &&
               bookingDay(_displayMonday!) != bookingDay(_monday)) {
-            final base = _monday.subtract(Duration(days: _weekOffset * 7));
-            setState(
-              () => _weekOffset = _displayMonday!.difference(base).inDays ~/ 7,
-            );
+            final previous =
+                _displayMonday!.difference(_mondayFor(0)).inDays ~/ 7;
+            _restoringWeek = true;
+            if (_weekController.hasClients) {
+              _weekController.jumpToPage(_initialWeekPage + previous);
+            }
+            _restoringWeek = false;
+            setState(() => _weekOffset = previous);
           }
           rethrow;
         }
@@ -87,9 +102,9 @@ class _AppointmentsPageState extends State<AppointmentsPage>
     }
   }
 
-  void _stepWeek(int direction) {
-    if (_key.currentState?.busy == true) return;
-    setState(() => _weekOffset += direction);
+  void _showWeek(int page) {
+    if (_restoringWeek) return;
+    setState(() => _weekOffset = page - _initialWeekPage);
     _refresh();
   }
 
@@ -114,6 +129,7 @@ class _AppointmentsPageState extends State<AppointmentsPage>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     AppointmentFlow.changed.removeListener(_refresh);
+    _weekController.dispose();
     super.dispose();
   }
 
@@ -193,17 +209,15 @@ class _AppointmentsPageState extends State<AppointmentsPage>
                         ScrollViewKeyboardDismissBehavior.onDrag,
                     padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
                     children: [
-                      GestureDetector(
+                      SizedBox(
                         key: const ValueKey('appointment-week'),
-                        onHorizontalDragStart: (_) => _weekDrag = 0,
-                        onHorizontalDragUpdate: (details) =>
-                            _weekDrag += details.delta.dx,
-                        onHorizontalDragEnd: (_) {
-                          if (_weekDrag.abs() >= 40) {
-                            _stepWeek(_weekDrag > 0 ? -1 : 1);
-                          }
-                        },
-                        child: _week(),
+                        height: 86,
+                        child: PageView.builder(
+                          controller: _weekController,
+                          onPageChanged: _showWeek,
+                          itemBuilder: (_, page) =>
+                              _week(page - _initialWeekPage),
+                        ),
                       ),
                       const SizedBox(height: 16),
                       Segmented(
@@ -340,52 +354,67 @@ class _AppointmentsPageState extends State<AppointmentsPage>
     );
   }
 
-  Widget _week() => AppCard(
-    padding: const EdgeInsets.all(8),
-    radius: 24,
-    child: Row(
-      children: [
-        for (var i = 0; i < _days.length; i++) ...[
-          if (i > 0) const SizedBox(width: 2),
-          Expanded(
-            child: GestureDetector(
-              onTap: () => setState(() => day = i),
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                decoration: BoxDecoration(
-                  color: day == i ? C.btn : Colors.transparent,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                  children: [
-                    Text(
-                      _days[i].$1,
-                      style: ts(11, color: day == i ? C.faint : C.muted, h: 14),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      _days[i].$2,
-                      style: ts(
-                        17,
-                        w: FontWeight.w600,
-                        color: day == i ? C.btnFg : C.ink,
-                        h: 24,
+  Widget _week(int offset) {
+    final days = _daysFor(offset);
+    return AppCard(
+      padding: const EdgeInsets.all(8),
+      radius: 24,
+      child: Row(
+        children: [
+          for (var i = 0; i < 7; i++) ...[
+            if (i > 0) const SizedBox(width: 2),
+            Expanded(
+              child: GestureDetector(
+                onTap: () => setState(() => day = i),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  decoration: BoxDecoration(
+                    color: day == i ? C.btn : Colors.transparent,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        days[i].$1,
+                        style: ts(
+                          11,
+                          color: day == i ? C.faint : C.muted,
+                          h: 14,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      _days[i].$3 == 0 ? '—' : '${_days[i].$3} 单',
-                      style: ts(10, color: day == i ? C.faint : C.muted, h: 12),
-                    ),
-                  ],
+                      const SizedBox(height: 2),
+                      Text(
+                        days[i].$2,
+                        style: ts(
+                          17,
+                          w: FontWeight.w600,
+                          color: day == i ? C.btnFg : C.ink,
+                          h: 24,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        days[i].$3 == null
+                            ? ' '
+                            : days[i].$3 == 0
+                            ? '—'
+                            : '${days[i].$3} 单',
+                        style: ts(
+                          10,
+                          color: day == i ? C.faint : C.muted,
+                          h: 12,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
+          ],
         ],
-      ],
-    ),
-  );
+      ),
+    );
+  }
 
   Widget _stat(String label, int n, Color bg, Color fg, ApptStatus st) =>
       Expanded(
@@ -539,12 +568,14 @@ class _AppointmentsPageState extends State<AppointmentsPage>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  width: 52,
+                  width: 64,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         a.time,
+                        maxLines: 1,
+                        softWrap: false,
                         style: ts(
                           18,
                           w: FontWeight.w600,
@@ -568,8 +599,10 @@ class _AppointmentsPageState extends State<AppointmentsPage>
                           Expanded(
                             child: Row(
                               children: [
-                                _plate(a.plate),
-                                const SizedBox(width: 6),
+                                if (a.plate.trim().isNotEmpty) ...[
+                                  _plate(a.plate),
+                                  const SizedBox(width: 6),
+                                ],
                                 Flexible(
                                   child: Text(
                                     a.customer,

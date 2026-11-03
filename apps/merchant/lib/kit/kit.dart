@@ -469,12 +469,34 @@ Future<bool> hConfirm(
   _confirming = true;
   var busy = false;
   try {
-    final r = await showDialog<bool>(
+    final reduceMotion =
+        MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    final r = await showGeneralDialog<bool>(
       context: context,
       useRootNavigator: true,
       barrierDismissible: false,
+      barrierLabel: '确认弹窗',
       barrierColor: const Color(0x73000000),
-      builder: (ctx) => StatefulBuilder(
+      transitionDuration: reduceMotion
+          ? Duration.zero
+          : const Duration(milliseconds: 260),
+      transitionBuilder: (ctx, animation, _, child) {
+        if (reduceMotion) return child;
+        return FadeTransition(
+          opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
+          child: ScaleTransition(
+            scale: Tween<double>(begin: 0.94, end: 1).animate(
+              CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeOutBack,
+                reverseCurve: Curves.easeInCubic,
+              ),
+            ),
+            child: child,
+          ),
+        );
+      },
+      pageBuilder: (ctx, _, _) => StatefulBuilder(
         builder: (ctx, setS) => PopScope(
           canPop: !busy,
           child: Dialog(

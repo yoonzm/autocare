@@ -84,31 +84,7 @@ class AppointmentSettingsTemplate extends StatelessWidget {
                         textAlign: TextAlign.center,
                       ),
                     ),
-                    hTap(
-                      context,
-                      hbox(
-                        h: 44,
-                        minW: 44,
-                        child: Align(
-                          alignment: Alignment(1, 0),
-                          widthFactor: 1,
-                          child: c.busy && c.activeButton == '保存'
-                              ? const AppSpinner(
-                                  size: 18,
-                                  color: Color(0xFF0485F7),
-                                )
-                              : Text(
-                                  '保存',
-                                  style: hts(
-                                    15,
-                                    Color(0xFF0485F7),
-                                    w: FontWeight.w600,
-                                  ),
-                                ),
-                        ),
-                      ),
-                      onTap: () => c.save(context, button: '保存'),
-                    ),
+                    const SizedBox(width: 44, height: 44),
                   ],
                   main: MainAxisAlignment.start,
                   cross: CrossAxisAlignment.center,

@@ -12,6 +12,7 @@ import 'package:autocare_merchant/pages/appointments_page.dart';
 import 'package:autocare_merchant/pages/appointment_add_page.dart';
 import 'package:autocare_merchant/pages/appointment_detail_live_page.dart';
 import 'package:autocare_merchant/pages/appointment_settings_live_page.dart';
+import 'package:autocare_merchant/pages/appointment_settings_skeleton.dart';
 import 'package:autocare_merchant/pages/booking_resources_page.dart';
 import 'package:autocare_merchant/pages/gen/member_picker_sheet.dart';
 import 'package:autocare_merchant/routes.dart' show navTracker;
@@ -228,6 +229,29 @@ void main() {
     await t.pumpAndSettle();
     expect(find.text('真实工位'), findsOneWidget);
     expect(find.textContaining('真实客户'), findsOneWidget);
+    expect(find.text('沪B·3D82'), findsNothing); // 旧设计稿的静态假预约不能混进真实时间表
+    expect(find.text('赵女士'), findsNothing);
+  });
+
+  testWidgets('预约列表时间保持单行，无车牌时不出现空蓝框', (t) async {
+    api.bookings.add({
+      ...bookingRow(),
+      'starts_at': '${bookingDay(bookingToday)}T09:00:00+08:00',
+      'vehicle_plate': '',
+    });
+    await open(t, const AppointmentsPage());
+    final time = t.widget<Text>(find.text('09:00'));
+    expect(time.maxLines, 1);
+    expect(t.getSize(find.text('09:00')).height, lessThanOrEqualTo(24));
+    expect(
+      find.byWidgetPredicate(
+        (w) =>
+            w is Container &&
+            w.decoration is BoxDecoration &&
+            (w.decoration! as BoxDecoration).color == const Color(0xFF0B5FD6),
+      ),
+      findsNothing,
+    );
   });
   testWidgets('预约读取失败可重试，成功为空显示引导新建', (t) async {
     api.readError = const AppError('网络错误', type: AppErrorType.network);
@@ -317,6 +341,22 @@ void main() {
     expect(find.text('已送达'), findsNothing);
     expect(find.text('刘先生'), findsNothing);
   });
+  testWidgets('预约详情仅保留底部改期取消入口', (t) async {
+    api.bookings.add(bookingRow());
+    await open(t, const AppointmentDetailLivePage(id: 'a1'));
+    final title = t.getCenter(find.text('预约详情'));
+    await t.tapAt(
+      Offset(
+        t.view.physicalSize.width / t.view.devicePixelRatio - 42,
+        title.dy,
+      ),
+    );
+    await t.pumpAndSettle();
+    expect(find.text('确认改期'), findsNothing);
+    await t.tap(find.text('改期 / 取消'));
+    await t.pumpAndSettle();
+    expect(find.text('确认改期'), findsOneWidget);
+  });
   testWidgets('新建工位保存真实名称，技师资料不会预填示例姓名', (t) async {
     await open(t, const BookingResourceEditor(kind: 'bay'));
     final input = find.byType(TextFormField).first;
@@ -333,6 +373,8 @@ void main() {
   });
   testWidgets('预约设置数字来自后端且保存时包含接待规则', (t) async {
     await open(t, const AppointmentSettingsLivePage());
+    expect(find.text('保存'), findsNothing);
+    expect(find.text('保存设置'), findsOneWidget);
     final number = find.byWidgetPredicate(
       (w) => w is BookingNumber && w.field == 'capacity',
     );
@@ -340,11 +382,39 @@ void main() {
       find.descendant(of: number, matching: find.text('2')),
       findsOneWidget,
     );
-    await t.tap(find.text('保存').first);
+    await t.tap(find.text('保存设置'));
     await t.pumpAndSettle();
     final call = api.calls.lastWhere((c) => c['action'] == 'settings_save');
     expect(call['capacity'], 2);
     expect(call['slot_minutes'], 30);
+  });
+
+  testWidgets('预约设置首次加载保留标题和底栏，延迟后只在内容区显示匹配骨架', (t) async {
+    phone(t);
+    api.optionsGate = Completer<void>();
+    await t.pumpWidget(const MaterialApp(home: AppointmentSettingsLivePage()));
+    expect(find.text('预约设置'), findsOneWidget);
+    expect(find.text('保存设置'), findsOneWidget);
+    expect(find.byType(AppSkeleton), findsNothing);
+    await t.pump(const Duration(milliseconds: 500));
+    expect(find.byType(AppointmentSettingsSkeleton), findsOneWidget);
+    expect(find.text('在线预约'), findsOneWidget);
+    expect(find.text('可预约时间'), findsOneWidget);
+    expect(find.text('接待规则'), findsOneWidget);
+    expect(find.byType(AppSkeleton), findsWidgets);
+    final sectionTops = {
+      for (final title in ['在线预约', '可预约时间', '接待规则', '预约通知'])
+        title: t.getTopLeft(find.text(title)).dy,
+    };
+    await t.tap(find.text('保存设置'));
+    expect(api.calls.where((c) => c['action'] == 'settings_save'), isEmpty);
+    api.optionsGate!.complete();
+    await t.pumpAndSettle();
+    expect(find.byType(AppointmentSettingsSkeleton), findsNothing);
+    expect(find.text('预约设置'), findsOneWidget);
+    for (final entry in sectionTops.entries) {
+      expect(t.getTopLeft(find.text(entry.key)).dy, entry.value);
+    }
   });
   testWidgets('改期使用真实预约 ID、可用时段与保留的工位技师', (t) async {
     api.bookings.add(bookingRow());
@@ -375,6 +445,49 @@ void main() {
     expect(find.text('改期 · 真实客户'), findsNothing);
   });
 
+  testWidgets('确认改期加载时按钮不缩形，显示转圈和提交中且不可重复提交', (t) async {
+    api.bookings.add(bookingRow());
+    api.gate = Completer<void>();
+    await open(
+      t,
+      Builder(
+        builder: (ctx) => Scaffold(
+          body: TextButton(
+            onPressed: () => showAppointmentReschedule(
+              ctx,
+              Appointment(api.bookings.single),
+            ),
+            child: const Text('改期入口'),
+          ),
+        ),
+      ),
+    );
+    await t.tap(find.text('改期入口'));
+    await t.pumpAndSettle();
+    await t.tap(find.text('17:30'));
+    await t.pumpAndSettle();
+    final button = find.byKey(const ValueKey('reschedule-confirm-button'));
+    final before = t.getSize(button);
+    await t.tap(find.text('确认改期'));
+    await t.pump();
+    expect(t.getSize(button), before);
+    expect(
+      find.descendant(of: button, matching: find.text('提交中…')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: button, matching: find.byType(AppSpinner)),
+      findsOneWidget,
+    );
+    expect(find.text('确认改期'), findsNothing);
+    expect(find.text('取消'), findsOneWidget);
+    await t.tapAt(t.getCenter(button));
+    await t.pump();
+    expect(api.calls.where((c) => c['action'] == 'save'), hasLength(1));
+    api.gate!.complete();
+    await t.pumpAndSettle();
+  });
+
   testWidgets('日期条左右滑动切周，按新的周起始日期请求后端', (t) async {
     await open(t, const AppointmentsPage());
     final first = DateTime.parse(
@@ -397,6 +510,65 @@ void main() {
     expect(
       api.calls.lastWhere((c) => c['action'] == 'board')['day'],
       bookingDay(first),
+    );
+  });
+
+  testWidgets('日期条跟手滑动并在松手后衔接到相邻周', (t) async {
+    await open(t, const AppointmentsPage());
+    final pager = t.widget<PageView>(find.byType(PageView));
+    final controller = pager.controller!;
+    final start = controller.page!;
+    final gesture = await t.startGesture(
+      t.getCenter(find.byKey(const ValueKey('appointment-week'))),
+    );
+    await gesture.moveBy(const Offset(-40, 0));
+    await t.pump();
+    await gesture.moveBy(const Offset(-120, 0));
+    await t.pump();
+    expect(controller.page, greaterThan(start));
+    expect(controller.page, lessThan(start + 1));
+    await gesture.moveBy(const Offset(-400, 0));
+    await t.pump();
+    await gesture.up();
+    await t.pumpAndSettle();
+    expect(controller.page, start + 1);
+  });
+
+  testWidgets('切周请求失败时日期条回到上次成功加载的周', (t) async {
+    await open(t, const AppointmentsPage());
+    api.readError = const AppError('读取失败');
+    await t.drag(
+      find.byKey(const ValueKey('appointment-week')),
+      const Offset(-200, 0),
+    );
+    await t.pumpAndSettle();
+    final pager = t.widget<PageView>(find.byType(PageView));
+    expect(pager.controller!.page, 10000);
+  });
+
+  testWidgets('切周加载中继续滑动，以最后停留的周请求并展示数据', (t) async {
+    await open(t, const AppointmentsPage());
+    final first = DateTime.parse(
+      api.calls.firstWhere((c) => c['action'] == 'board')['day'] as String,
+    );
+    api.optionsGate = Completer<void>();
+    await t.drag(
+      find.byKey(const ValueKey('appointment-week')),
+      const Offset(-600, 0),
+    );
+    await t.pump(const Duration(milliseconds: 300));
+    await t.drag(
+      find.byKey(const ValueKey('appointment-week')),
+      const Offset(-600, 0),
+    );
+    await t.pump(const Duration(milliseconds: 300));
+    api.optionsGate!.complete();
+    await t.pumpAndSettle();
+    final page = t.widget<PageView>(find.byType(PageView)).controller!.page!;
+    expect(page, greaterThanOrEqualTo(10002));
+    expect(
+      api.calls.lastWhere((c) => c['action'] == 'board')['day'],
+      bookingDay(first.add(Duration(days: (page.toInt() - 10000) * 7))),
     );
   });
 

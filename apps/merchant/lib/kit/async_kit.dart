@@ -1485,6 +1485,8 @@ class AsyncView<T> extends StatefulWidget {
   final Future<T> Function() load;
   final bool Function(T data) isEmpty;
   final Widget skeleton;
+  final Widget? waiting;
+  final bool skeletonScrollable;
   final EdgeInsetsGeometry skeletonPadding;
   final Widget Function(BuildContext context) empty;
   final Widget Function(BuildContext context, T data) builder;
@@ -1503,6 +1505,8 @@ class AsyncView<T> extends StatefulWidget {
     required this.load,
     required this.isEmpty,
     required this.skeleton,
+    this.waiting,
+    this.skeletonScrollable = true,
     this.skeletonPadding = const EdgeInsets.fromLTRB(20, 16, 20, 24),
     required this.empty,
     required this.builder,
@@ -1648,12 +1652,14 @@ class AsyncViewState<T> extends State<AsyncView<T>> {
       key = const ValueKey('loading');
       // 300ms 内什么都不显示，之后才出骨架
       body = _showIndicator
-          ? SingleChildScrollView(
-              physics: const NeverScrollableScrollPhysics(),
-              padding: widget.skeletonPadding,
-              child: widget.skeleton,
-            )
-          : const SizedBox.expand();
+          ? widget.skeletonScrollable
+                ? SingleChildScrollView(
+                    physics: const NeverScrollableScrollPhysics(),
+                    padding: widget.skeletonPadding,
+                    child: widget.skeleton,
+                  )
+                : widget.skeleton
+          : widget.waiting ?? const SizedBox.expand();
     }
     return AnimatedSwitcher(
       duration: kFadeIn,
