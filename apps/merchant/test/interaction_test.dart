@@ -15,6 +15,67 @@ import 'package:autocare_merchant/backend/hold_flow.dart';
 
 import 'appointments_test.dart' show BookingApi, bookingRow;
 
+class StockInteractionApi extends MerchantApi {
+  StockInteractionApi({this.signedIn = true});
+  final bool signedIn;
+  final actions = <String>[];
+  num? quotedQuantity;
+
+  @override
+  bool get hasSession => signedIn;
+
+  @override
+  Future<Map<String, dynamic>> invoke(
+    Map<String, dynamic> body, {
+    Duration timeout = const Duration(seconds: 20),
+  }) async {
+    actions.add(body['action'] as String);
+    switch (body['action']) {
+      case 'inventory_list':
+        return {
+          'items': [
+            {
+              'id': 'product-1',
+              'name': '接口库存商品',
+              'stock': 8,
+              'safe': 2,
+              'unit': '卷',
+              'cost': 10,
+              'version': 1,
+            },
+          ],
+        };
+      case 'inventory_draft':
+        return {
+          'item': {
+            'id': 'draft-0001',
+            'revision': 1,
+            'payload': {
+              'supplier': '',
+              'date': '2026-11-03',
+              'freight': 0,
+              'payment': '现金',
+              'note': '',
+              'lines': [
+                {'id': 'product-1', 'quantity': 2.5, 'cost': 10, 'version': 1},
+              ],
+            },
+          },
+        };
+      case 'inventory_quote':
+        quotedQuantity = body['payload']['lines'][0]['quantity'] as num;
+        return {
+          'item': {
+            'subtotal': quotedQuantity! * 10,
+            'total': quotedQuantity! * 10,
+          },
+        };
+      default:
+        throw StateError('Unexpected action: ${body['action']}');
+    }
+  }
+}
+
 BookingApi useLiveApi(WidgetTester t) {
   final original = merchantApi;
   final api = BookingApi();
@@ -55,19 +116,45 @@ void main() {
     expect(find.textContaining('王建国'), findsWidgets);
   });
 
-  testWidgets('商品入库：数量步进器可增减', (t) async {
+  testWidgets('商品入库：接口草稿的小数数量可增减并重新询价', (t) async {
+    final original = merchantApi;
+    final api = StockInteractionApi();
+    merchantApi = api;
+    addTearDown(() => merchantApi = original);
     await open(t, 'StockIn');
-    final six = find.text('6');
-    expect(six, findsOneWidget);
-    final c = t.getCenter(six);
+    await t.pumpAndSettle();
+    expect(find.text('接口库存商品'), findsOneWidget);
+    expect(find.text('6'), findsNothing);
+    expect(find.text('2.5'), findsOneWidget);
+    final c = t.getCenter(find.text('2.5'));
     await t.tapAt(c + const Offset(36, 0));
     await t.pump();
-    expect(find.text('7'), findsOneWidget);
+    expect(find.text('3.5'), findsOneWidget);
     await t.tapAt(c + const Offset(-36, 0));
     await t.pump();
     await t.tapAt(c + const Offset(-36, 0));
     await t.pump();
-    expect(find.text('5'), findsOneWidget);
+    expect(find.text('1.5'), findsOneWidget);
+    await t.pump(const Duration(milliseconds: 350));
+    await t.pumpAndSettle();
+    expect(
+      api.actions,
+      containsAll(['inventory_list', 'inventory_draft', 'inventory_quote']),
+    );
+    expect(api.quotedQuantity, 1.5);
+    await t.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('商品入库：未登录引导登录，不显示示例库存或请求接口', (t) async {
+    final original = merchantApi;
+    final api = StockInteractionApi(signedIn: false);
+    merchantApi = api;
+    addTearDown(() => merchantApi = original);
+    await open(t, 'StockIn');
+    await t.pumpAndSettle();
+    expect(find.text('重新登录'), findsOneWidget);
+    expect(find.text('TPU 隐形车衣 7.5mil'), findsNothing);
+    expect(api.actions, isEmpty);
   });
 
   testWidgets('开关可切换', (t) async {
