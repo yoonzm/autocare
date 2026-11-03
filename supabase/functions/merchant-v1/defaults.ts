@@ -4,6 +4,23 @@
 export const BUSINESS_TYPES = ['洗车美容', '镀晶镀膜', '隐形车衣', '改色膜', '保养维修'] as const;
 export type BusinessType = typeof BUSINESS_TYPES[number];
 
+// The sign-up form collects a range, so provision its upper bound. "10 个以上"
+// uses the appointment resource limit of 20 bays.
+export const BAY_COUNTS: Record<string, number> = {
+  '1-3 个': 3,
+  '4-6 个': 6,
+  '7-10 个': 10,
+  '10 个以上': 20,
+};
+
+export function defaultBays(range: string) {
+  return Array.from({ length: BAY_COUNTS[range] ?? 0 }, (_, i) => ({
+    kind: 'bay' as const,
+    name: `${i + 1} 号工位`,
+    position: i + 1,
+  }));
+}
+
 export interface DefaultService {
   name: string;
   category: string;

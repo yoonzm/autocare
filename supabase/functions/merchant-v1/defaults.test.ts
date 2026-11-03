@@ -1,8 +1,20 @@
-import { BUSINESS_TYPES, DEFAULT_CARDS, DEFAULT_PACKAGES, defaultPackages, defaultServices } from './defaults.ts';
+import { BAY_COUNTS, BUSINESS_TYPES, DEFAULT_CARDS, DEFAULT_PACKAGES, defaultBays, defaultPackages, defaultServices } from './defaults.ts';
 
 const eq = (a: unknown, b: unknown, msg: string) => {
   if (JSON.stringify(a) !== JSON.stringify(b)) throw new Error(`${msg}: ${JSON.stringify(a)} != ${JSON.stringify(b)}`);
 };
+
+Deno.test('registration creates sequential bays up to the selected range maximum', () => {
+  eq(BAY_COUNTS, { '1-3 个': 3, '4-6 个': 6, '7-10 个': 10, '10 个以上': 20 }, 'range sizes');
+  for (const [range, count] of Object.entries(BAY_COUNTS)) {
+    const bays = defaultBays(range);
+    eq(bays.length, count, `${range} count`);
+    eq(bays.map((b) => b.name), Array.from({ length: count }, (_, i) => `${i + 1} 号工位`), `${range} names`);
+    eq(bays.map((b) => b.position), Array.from({ length: count }, (_, i) => i + 1), `${range} positions`);
+    eq(bays.every((b) => b.kind === 'bay'), true, `${range} kind`);
+  }
+  eq(defaultBays('unknown'), [], 'invalid range');
+});
 
 Deno.test('the default business types give the design\'s 10 services, in the design order', () => {
   const s = defaultServices(['洗车美容', '镀晶镀膜', '隐形车衣']);

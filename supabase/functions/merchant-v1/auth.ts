@@ -1,6 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.118.0';
 import { admin, anonKey, fail, json, mockSmsEnabled, nameOf, phoneOf, url } from './shared.ts';
-import { DEFAULT_CARDS, defaultPackages, defaultServices } from './defaults.ts';
+import { BAY_COUNTS, DEFAULT_CARDS, defaultBays, defaultPackages, defaultServices } from './defaults.ts';
 import type { Input } from './types.ts';
 
 // TODO: Replace the development alias with native phone auth after SMS is configured.
@@ -63,7 +63,7 @@ const cancelDeletion = (userId: string) =>
 
 const CITY_MAX = 60;
 const ROLES = ['老板', '店长', '前台'];
-const BAYS = ['1-3 个', '4-6 个', '7-10 个', '10 个以上'];
+const BAYS = Object.keys(BAY_COUNTS);
 const BUSINESS = ['洗车美容', '镀晶镀膜', '隐形车衣', '改色膜', '保养维修'];
 
 // Validates the sign-up profile; returns the columns to store or an error message.
@@ -184,13 +184,15 @@ export async function handleAuth(input: Input): Promise<Response> {
       await admin.auth.admin.deleteUser(data.user.id);
       return fail('门店创建失败', 500);
     }
-    // Starter data: services for the chosen business types, the four default card tiers and
-    // the design's packages (only those whose services were created).
+    // Starter data: services, card tiers, packages and bays for the chosen range.
     const services = defaultServices(profile.business_types);
     const { data: createdServices, error: serviceError } = await admin.from('service_items')
       .insert(services.map((s) => ({ ...s, store_id: store.id }))).select('id, name');
     const { error: cardError } = serviceError ? { error: null } : await admin.from('card_types')
       .insert(DEFAULT_CARDS.map((c) => ({ ...c, store_id: store.id })));
+    const bays = defaultBays(profile.bay_range);
+    const { error: bayError } = await admin.from('appointment_resources')
+      .insert(bays.map((b) => ({ ...b, store_id: store.id })));
     const idByName = new Map((createdServices ?? []).map((s) => [s.name as string, s.id as string]));
     const packages = defaultPackages([...idByName.keys()]);
     let packageFailed = false;
@@ -212,13 +214,13 @@ export async function handleAuth(input: Input): Promise<Response> {
         }
       }
     }
-    if (serviceError || cardError || packageFailed) {
+    if (serviceError || cardError || packageFailed || bayError) {
       // The store and its data cascade from the user, so deleting the user rolls everything back.
       await admin.auth.admin.deleteUser(data.user.id);
       return fail('门店初始化失败，请稍后重试', 500);
     }
     await admin.from('phone_otps').delete().eq('phone', phone); // single use
-    return json({ ok: true, services: services.length, cards: DEFAULT_CARDS.length, packages: packages.length });
+    return json({ ok: true, services: services.length, cards: DEFAULT_CARDS.length, packages: packages.length, bays: bays.length });
   }
   if (input.action === 'login_password') {
     if (!phone || typeof input.password !== 'string') return fail('手机号或密码无效');
