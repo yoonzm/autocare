@@ -14,6 +14,8 @@ import 'mock/app_state.dart';
 import 'mock/mock_data.dart';
 import 'pages/appointment_add_page.dart';
 import 'pages/appointments_page.dart';
+import 'pages/appointment_settings_live_page.dart';
+import 'pages/booking_resources_page.dart';
 import 'pages/card_tiers_live_page.dart';
 import 'pages/gen/gen_routes.dart';
 import 'pages/login_page.dart';
@@ -31,6 +33,11 @@ import 'pages/theme_sheet.dart';
 
 final Map<String, WidgetBuilder> _allSheets = {
   ...genSheets,
+  // TODO: 字符串路由没有预约 ID；改期必须从真实预约卡片或详情进入。
+  'AppointmentReschedule': (context) => ErrorView(
+    error: const AppError('请先选择预约', type: AppErrorType.notFound),
+    onNext: () => Navigator.of(context).maybePop(),
+  ),
   'ThemeSheet': (_) => const ThemeSheet(),
   // 登录后用真实服务项目；未登录（设计预览）仍用设计稿的示例数据
   'PackageSvcPick': (ctx) => merchantApi.hasSession
@@ -67,6 +74,26 @@ Widget? pageFor(String name) {
       return const AppointmentsPage(initialView: 1);
     case 'AppointmentAdd':
       return const AppointmentAddPage();
+    case 'AppointmentDetail':
+      // TODO: 深链需要 appointment_id 参数；不再回退到生成页的示例客户。
+      return Builder(
+        builder: (context) => Scaffold(
+          body: ErrorView(
+            error: const AppError('请先选择预约', type: AppErrorType.notFound),
+            onNext: () => openRoute(context, 'Appointments'),
+          ),
+        ),
+      );
+    case 'AppointmentSettings':
+      return const AppointmentSettingsLivePage();
+    case 'BusinessHours':
+      return const BookingResourcesPage(kind: 'bay');
+    case 'Staff':
+      return const BookingResourcesPage(kind: 'technician');
+    case 'StaffAdd':
+      return const BookingResourceEditor(kind: 'technician');
+    case 'BayEdit':
+      return const BookingResourceEditor(kind: 'bay');
     case 'MemberDetail':
       final live = MemberFlow.current;
       return MemberDetailPage(

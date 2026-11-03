@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 
-import '../mock/mock_data.dart';
+import '../backend/appointment_flow.dart';
+import '../backend/merchant_api.dart';
+import '../kit/async_kit.dart';
+import 'appointment_detail_live_page.dart';
+import 'appointment_schedule_live.dart';
 import '../theme.dart';
 import '../routes.dart';
 import '../widgets/app_icon.dart';
 import '../widgets/common.dart';
 import 'appointment_add_page.dart';
-import 'gen/appointment_schedule_body.dart';
 
 class AppointmentsPage extends StatefulWidget {
   /// 0 = 列表，1 = 工位时间表（同一界面的两个视图）
@@ -16,61 +19,118 @@ class AppointmentsPage extends StatefulWidget {
   State<AppointmentsPage> createState() => _AppointmentsPageState();
 }
 
-class _AppointmentsPageState extends State<AppointmentsPage> {
-  int day = 5; // 周六 31 日（今天）
+class _AppointmentsPageState extends State<AppointmentsPage>
+    with WidgetsBindingObserver {
+  late int day = bookingToday.weekday - 1;
   late int view = widget.initialView;
   ApptStatus? filter;
-
-  // 其他日期的示例预约（仅展示用）
-  List<Appointment> _otherDay() {
-    final n = _days[day].$3;
-    const tpl = [
-      ('09:30', '1 小时', '沪B·3D820', '赵女士', '金卡', '基础洗车', '1 号工位 · 小陈'),
-      ('11:00', '1.5 小时', '沪A·7L305', '陈女士', '金卡', '内饰精洗', '2 号工位 · 老周'),
-      ('14:00', '1 小时', '沪C·9H318', '刘先生', '金卡', '全车精洗', '3 号工位 · 小陈'),
-    ];
-    return [
-      for (var i = 0; i < n && i < tpl.length; i++)
-        Appointment(
-          tpl[i].$1,
-          tpl[i].$2,
-          tpl[i].$3,
-          tpl[i].$4,
-          tpl[i].$5,
-          tpl[i].$6,
-          tpl[i].$7,
-          day < 5 ? ApptStatus.done : ApptStatus.waiting,
-        ),
-    ];
+  final _key = GlobalKey<AsyncViewState<Map<String, dynamic>>>();
+  int _weekOffset = 0;
+  int _revision = 0;
+  double _weekDrag = 0;
+  DateTime? _pausedAt;
+  DateTime? _displayMonday;
+  Map<String, dynamic> _settings = {};
+  List<Appointment> _rows = [];
+  List<Map<String, dynamic>> _resources = [];
+  DateTime get _monday {
+    final d = bookingToday;
+    return DateTime.utc(d.year, d.month, d.day)
+        .subtract(Duration(days: d.weekday - 1))
+        .add(Duration(days: _weekOffset * 7));
   }
 
-  static const _days = [
-    ('一', '26', 0),
-    ('二', '27', 1),
-    ('三', '28', 0),
-    ('四', '29', 2),
-    ('五', '30', 3),
-    ('六', '31', 6),
-    ('日', '1', 2),
+  List<(String, String, int)> get _days => [
+    for (var i = 0; i < 7; i++)
+      (
+        '一二三四五六日'[i],
+        '${_monday.add(Duration(days: i)).day}',
+        _rows
+            .where(
+              (a) =>
+                  bookingDay(a.start) ==
+                  bookingDay(_monday.add(Duration(days: i))),
+            )
+            .length,
+      ),
   ];
+  Future<Map<String, dynamic>> _load() async {
+    while (true) {
+      if (!mounted) throw StateError('页面已关闭');
+      final version = _revision, monday = bookingDay(_monday);
+      try {
+        final values = await Future.wait([
+          merchantApi.appointment('board', {'day': monday}),
+          merchantApi.appointment('options'),
+        ]);
+        if (version == _revision) {
+          return {
+            ...values[0],
+            'resources': values[1]['resources'],
+            'settings': values[1]['settings'],
+            'week': monday,
+          };
+        }
+      } catch (e) {
+        if (version == _revision) {
+          if (mounted &&
+              _displayMonday != null &&
+              bookingDay(_displayMonday!) != bookingDay(_monday)) {
+            final base = _monday.subtract(Duration(days: _weekOffset * 7));
+            setState(
+              () => _weekOffset = _displayMonday!.difference(base).inDays ~/ 7,
+            );
+          }
+          rethrow;
+        }
+      }
+    }
+  }
+
+  void _stepWeek(int direction) {
+    if (_key.currentState?.busy == true) return;
+    setState(() => _weekOffset += direction);
+    _refresh();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) _pausedAt = DateTime.now();
+    if (state == AppLifecycleState.resumed &&
+        _pausedAt != null &&
+        DateTime.now().difference(_pausedAt!) >= const Duration(minutes: 5)) {
+      _refresh();
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    appointmentStore.addListener(_refresh);
+    WidgetsBinding.instance.addObserver(this);
+    AppointmentFlow.changed.addListener(_refresh);
   }
 
   @override
   void dispose() {
-    appointmentStore.removeListener(_refresh);
+    WidgetsBinding.instance.removeObserver(this);
+    AppointmentFlow.changed.removeListener(_refresh);
     super.dispose();
   }
 
-  void _refresh() => setState(() {});
+  void _refresh() {
+    _revision++;
+    _key.currentState?.reload();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final items = day == 5 ? appointmentStore.items : _otherDay();
+    final items = _rows
+        .where(
+          (a) =>
+              bookingDay(a.start) ==
+              bookingDay((_displayMonday ?? _monday).add(Duration(days: day))),
+        )
+        .toList();
     int count(ApptStatus s) => items.where((a) => a.status == s).length;
     bool show(Appointment a) => filter == null || a.status == filter;
     final pending =
@@ -80,6 +140,14 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
         items.where((a) => a.status == ApptStatus.done && show(a)).toList()
           ..sort((a, b) => a.time.compareTo(b.time));
 
+    if (!merchantApi.hasSession) {
+      return Scaffold(
+        body: ErrorView(
+          error: const AppError('请先登录', type: AppErrorType.auth),
+          onNext: () => openRoute(context, 'Login'),
+        ),
+      );
+    }
     return Scaffold(
       bottomNavigationBar: _bottomBar(context),
       body: SafeArea(
@@ -98,85 +166,131 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
               ),
             ),
             Expanded(
-              child: ListView(
-                keyboardDismissBehavior:
-                    ScrollViewKeyboardDismissBehavior.onDrag,
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-                children: [
-                  _week(),
-                  const SizedBox(height: 16),
-                  Segmented(
-                    labels: const ['列表', '工位时间表'],
-                    selected: view,
-                    onChanged: (i) => setState(() => view = i),
-                  ),
-                  const SizedBox(height: 16),
-                  if (view == 1)
-                    const AppointmentScheduleBody()
-                  else ...[
-                    Row(
-                      children: [
-                        _stat(
-                          '待到店',
-                          count(ApptStatus.waiting),
-                          C.primarySoft,
-                          C.primaryInk,
-                          ApptStatus.waiting,
-                        ),
-                        const SizedBox(width: 8),
-                        _stat(
-                          '已到店',
-                          count(ApptStatus.arrived),
-                          C.greenSoft,
-                          C.greenInk,
-                          ApptStatus.arrived,
-                        ),
-                        const SizedBox(width: 8),
-                        _stat(
-                          '超时未到',
-                          count(ApptStatus.late),
-                          C.redSoft,
-                          C.redInk,
-                          ApptStatus.late,
-                        ),
-                        const SizedBox(width: 8),
-                        _stat(
-                          '已完成',
-                          count(ApptStatus.done),
-                          C.chip,
-                          C.sub,
-                          ApptStatus.done,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    if (pending.isEmpty && done.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 48),
-                        child: Center(
-                          child: Text(
-                            '当天没有符合条件的预约',
-                            style: ts(14, color: C.muted),
-                          ),
-                        ),
+              child: AsyncView<Map<String, dynamic>>(
+                key: _key,
+                load: _load,
+                isEmpty: (_) => false,
+                skeleton: const SkeletonList(count: 5),
+                empty: (_) => const SizedBox.shrink(),
+                onLoaded: (value) => setState(() {
+                  _rows = [
+                    for (final r in value['items'] as List)
+                      Appointment(Map<String, dynamic>.from(r as Map)),
+                  ];
+                  _displayMonday = DateTime.parse('${value['week']}T00:00:00Z');
+                  _settings = Map<String, dynamic>.from(
+                    value['settings'] as Map,
+                  );
+                  _resources = List<Map<String, dynamic>>.from(
+                    value['resources'] as List,
+                  );
+                }),
+                builder: (context, _) => RefreshIndicator(
+                  onRefresh: _key.currentState!.reload,
+                  child: ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    keyboardDismissBehavior:
+                        ScrollViewKeyboardDismissBehavior.onDrag,
+                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+                    children: [
+                      GestureDetector(
+                        key: const ValueKey('appointment-week'),
+                        onHorizontalDragStart: (_) => _weekDrag = 0,
+                        onHorizontalDragUpdate: (details) =>
+                            _weekDrag += details.delta.dx,
+                        onHorizontalDragEnd: (_) {
+                          if (_weekDrag.abs() >= 40) {
+                            _stepWeek(_weekDrag > 0 ? -1 : 1);
+                          }
+                        },
+                        child: _week(),
                       ),
-                    if (pending.isNotEmpty) ...[
-                      _sectionTitle('待处理 · 现在 16:47'),
-                      for (final a in pending) ...[
-                        _card(context, a),
-                        const SizedBox(height: 8),
+                      const SizedBox(height: 16),
+                      Segmented(
+                        labels: const ['列表', '工位时间表'],
+                        selected: view,
+                        onChanged: (i) => setState(() => view = i),
+                      ),
+                      const SizedBox(height: 16),
+                      if (view == 1)
+                        AppointmentScheduleLive(
+                          items: items,
+                          resources: _resources,
+                          opensAt: '${_settings['opens_at'] ?? '09:00'}',
+                          closesAt: '${_settings['closes_at'] ?? '20:00'}',
+                          onOpen: (a) => Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  AppointmentDetailLivePage(id: a.id),
+                            ),
+                          ),
+                        )
+                      else ...[
+                        Row(
+                          children: [
+                            _stat(
+                              '待到店',
+                              count(ApptStatus.waiting),
+                              C.primarySoft,
+                              C.primaryInk,
+                              ApptStatus.waiting,
+                            ),
+                            const SizedBox(width: 8),
+                            _stat(
+                              '已到店',
+                              count(ApptStatus.arrived),
+                              C.greenSoft,
+                              C.greenInk,
+                              ApptStatus.arrived,
+                            ),
+                            const SizedBox(width: 8),
+                            _stat(
+                              '超时未到',
+                              count(ApptStatus.late),
+                              C.redSoft,
+                              C.redInk,
+                              ApptStatus.late,
+                            ),
+                            const SizedBox(width: 8),
+                            _stat(
+                              '已完成',
+                              count(ApptStatus.done),
+                              C.chip,
+                              C.sub,
+                              ApptStatus.done,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        if (pending.isEmpty && done.isEmpty)
+                          EmptyView(
+                            title: filter == null ? '当天还没有预约' : '当天没有符合条件的预约',
+                            message: filter == null
+                                ? '点击下方“新建预约”安排到店服务'
+                                : '切换状态筛选查看其他预约',
+                            inline: true,
+                          ),
+                        if (pending.isNotEmpty) ...[
+                          _sectionTitle(
+                            '待处理 · 现在 ${bookingTime(bookingToday)}',
+                          ),
+                          for (final a in pending) ...[
+                            _card(context, a),
+                            const SizedBox(height: 8),
+                          ],
+                          const SizedBox(height: 8),
+                        ],
+                        if (done.isNotEmpty) ...[
+                          _sectionTitle('已完成'),
+                          for (final a in done) ...[
+                            _card(context, a),
+                            const SizedBox(height: 8),
+                          ],
+                        ],
                       ],
-                      const SizedBox(height: 8),
                     ],
-                    if (done.isNotEmpty) ...[
-                      _sectionTitle('已完成'),
-                      for (final a in done) ...[
-                        _card(context, a),
-                        const SizedBox(height: 8),
-                      ],
-                    ],
-                  ],
-                ],
+                  ),
+                ),
               ),
             ),
           ],
@@ -350,12 +464,34 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
     }
   }
 
+  String? _busyId;
+  Future<void> _arrive(Appointment a) async {
+    if (_busyId != null) return;
+    setState(() => _busyId = a.id);
+    try {
+      await AppointmentFlow.change(a.id, 'arrive');
+      if (mounted) AppToast.show(context, '已标记到店', kind: ToastKind.success);
+    } catch (e) {
+      if (mounted) AppToast.error(context, e);
+    } finally {
+      if (mounted) setState(() => _busyId = null);
+    }
+  }
+
+  void _contact(Appointment a) {
+    // TODO: 尚未接系统拨号能力；显示真实联系电话，不假装已经拨打。
+    AppToast.show(
+      context,
+      a.row['phone'] == '' ? '散客尚未登记联系方式' : '联系电话：${a.row['phone']}',
+    );
+  }
+
   Widget _card(BuildContext context, Appointment a) {
     final st = _statusStyle(a.status);
     final done = a.status == ApptStatus.done;
     Widget btn(String t, Color bg, Color fg, VoidCallback onTap) => Expanded(
       child: GestureDetector(
-        onTap: onTap,
+        onTap: _busyId == a.id ? null : onTap,
         child: Container(
           height: 40,
           alignment: Alignment.center,
@@ -363,15 +499,17 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
             color: bg,
             borderRadius: BorderRadius.circular(20),
           ),
-          child: Text(
-            t,
-            style: ts(14, w: FontWeight.w600, color: fg, h: 20),
-          ),
+          child: _busyId == a.id && t == '客户到店'
+              ? AppSpinner(size: 18, color: fg)
+              : Text(
+                  t,
+                  style: ts(14, w: FontWeight.w600, color: fg, h: 20),
+                ),
         ),
       ),
     );
     final call = GestureDetector(
-      onTap: () => toast(context, '拨打 ${a.customer} 电话（演示）'),
+      onTap: () => _contact(a),
       child: Container(
         width: 40,
         height: 40,
@@ -383,7 +521,7 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
       '改期',
       C.chip,
       C.ink,
-      () => openRoute(context, 'AppointmentReschedule'),
+      () => showAppointmentReschedule(context, a),
     );
     return AppCard(
       radius: 24,
@@ -392,7 +530,11 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
         children: [
           GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTap: () => openRoute(context, 'AppointmentDetail'),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => AppointmentDetailLivePage(id: a.id),
+              ),
+            ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -475,26 +617,18 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
                       '去开单',
                       C.btn,
                       C.btnFg,
-                      () => openRoute(context, 'Order'),
+                      () => openAppointmentOrder(context, a),
                     ),
                     const SizedBox(width: 8),
                     reschedule,
                   ] else if (a.status == ApptStatus.late) ...[
-                    btn(
-                      '联系客户',
-                      C.primary,
-                      Colors.white,
-                      () => toast(context, '拨打 ${a.customer} 电话（演示）'),
-                    ),
+                    btn('联系客户', C.primary, Colors.white, () => _contact(a)),
                     const SizedBox(width: 8),
                     reschedule,
                     const SizedBox(width: 8),
                     call,
                   ] else ...[
-                    btn('客户到店', C.btn, C.btnFg, () {
-                      appointmentStore.setStatus(a, ApptStatus.arrived);
-                      toast(context, '${a.plate} 已标记到店');
-                    }),
+                    btn('客户到店', C.btn, C.btnFg, () => _arrive(a)),
                     const SizedBox(width: 8),
                     reschedule,
                     const SizedBox(width: 8),

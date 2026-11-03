@@ -420,6 +420,38 @@ void hToastOn(ScaffoldMessengerState messenger, String msg) =>
 
 bool _confirming = false;
 
+/// 表单离开保护：提交中禁止返回，有修改时复用统一确认弹窗。
+class ConfirmDiscard extends StatefulWidget {
+  final bool dirty, busy;
+  final Widget child;
+  const ConfirmDiscard({
+    super.key,
+    required this.dirty,
+    required this.busy,
+    required this.child,
+  });
+  @override
+  State<ConfirmDiscard> createState() => _ConfirmDiscardState();
+}
+
+class _ConfirmDiscardState extends State<ConfirmDiscard> {
+  bool _allow = false;
+  @override
+  Widget build(BuildContext context) => PopScope(
+    canPop: !widget.busy && (!widget.dirty || _allow),
+    onPopInvokedWithResult: (didPop, _) async {
+      if (didPop || widget.busy || _allow || !widget.dirty) return;
+      final ok = await hConfirm(context, '放弃未保存的修改？', ok: '放弃', danger: false);
+      if (!mounted || !ok) return;
+      setState(() => _allow = true);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) Navigator.of(context).maybePop();
+      });
+    },
+    child: widget.child,
+  );
+}
+
 /// 确认弹窗：居中卡片，标题 + 说明 + 两个胶囊按钮。
 Future<bool> hConfirm(
   BuildContext context,

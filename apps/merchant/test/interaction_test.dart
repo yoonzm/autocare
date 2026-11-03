@@ -9,6 +9,24 @@ import 'package:autocare_merchant/pages/home_page.dart';
 import 'package:autocare_merchant/pages/login_page.dart';
 import 'package:autocare_merchant/pages/settings_page.dart';
 import 'package:autocare_merchant/routes.dart';
+import 'package:autocare_merchant/backend/merchant_api.dart';
+import 'package:autocare_merchant/backend/store_profile.dart';
+import 'package:autocare_merchant/backend/hold_flow.dart';
+
+import 'appointments_test.dart' show BookingApi, bookingRow;
+
+BookingApi useLiveApi(WidgetTester t) {
+  final original = merchantApi;
+  final api = BookingApi();
+  merchantApi = api;
+  HoldFlow.reset();
+  addTearDown(() {
+    merchantApi = original;
+    storeProfile.clear();
+    navTracker.stack.clear();
+  });
+  return api;
+}
 
 void phone(WidgetTester t) {
   t.view.physicalSize = const Size(390 * 3, 900 * 3);
@@ -93,6 +111,7 @@ void main() {
   });
 
   testWidgets('首页按订阅状态显示提醒条', (t) async {
+    useLiveApi(t);
     phone(t);
     await t.pumpWidget(const MaterialApp(home: HomePage()));
     expect(find.text('去订阅'), findsNothing);
@@ -132,6 +151,7 @@ void main() {
   });
 
   testWidgets('预约管理：列表 / 工位时间表是同一页面里的标签，不跳转', (t) async {
+    useLiveApi(t).bookings.add(bookingRow());
     final old = FlutterError.onError;
     FlutterError.onError = (d) {
       if (!d.exceptionAsString().contains('overflowed')) old?.call(d);
@@ -139,15 +159,16 @@ void main() {
     addTearDown(() => FlutterError.onError = old);
     phone(t);
     await t.pumpWidget(const MaterialApp(home: AppointmentsPage()));
-    expect(find.text('待处理 · 现在 16:47'), findsOneWidget);
+    await t.pumpAndSettle();
+    expect(find.textContaining('待处理 · 现在'), findsOneWidget);
     await t.tap(find.text('工位时间表'));
     await t.pump();
-    expect(find.text('待处理 · 现在 16:47'), findsNothing);
+    expect(find.textContaining('待处理 · 现在'), findsNothing);
     expect(find.text('预约管理'), findsOneWidget); // 仍是同一页面（只有一个标题）
-    expect(find.textContaining('共 6 个工位'), findsOneWidget);
+    expect(find.textContaining('共 1 个工位'), findsOneWidget);
     await t.tap(find.text('列表'));
     await t.pump();
-    expect(find.text('待处理 · 现在 16:47'), findsOneWidget);
+    expect(find.textContaining('待处理 · 现在'), findsOneWidget);
   });
 
   testWidgets('客户选择支持按姓名 / 车牌 / 手机号检索', (t) async {
@@ -330,6 +351,7 @@ void main() {
   });
 
   testWidgets('我的：各设置项都能进入对应页面', (tester) async {
+    useLiveApi(tester);
     final old = FlutterError.onError;
     FlutterError.onError = (d) {
       if (!d.exceptionAsString().contains('overflowed')) old?.call(d);

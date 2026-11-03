@@ -43,6 +43,34 @@ class MemberFakeApi extends MerchantApi {
     'recharge': 0,
   };
 
+  @override
+  Future<Map<String, dynamic>> appointment(
+    String action, [
+    Map<String, dynamic> values = const {},
+  ]) async {
+    if (action == 'summary') return {'count': 0, 'next': null};
+    if (action == 'board') return {'items': []};
+    if (action == 'options') {
+      return {
+        'services': [
+          for (final s in services) {...s, 'duration_minutes': 30},
+        ],
+        'resources': [],
+        'settings': {
+          'opens_at': '09:00',
+          'closes_at': '20:00',
+          'slot_minutes': 30,
+          'capacity': 1,
+          'lead_hours': 0,
+          'advance_days': 30,
+          'grace_minutes': 15,
+          'closed_days': [],
+        },
+      };
+    }
+    throw UnsupportedError('Unexpected appointment action: $action');
+  }
+
   int serviceCalls = 0;
   @override
   Future<List<Map<String, dynamic>>> list(String kind) async {

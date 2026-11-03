@@ -59,14 +59,12 @@ void main() {
     }
   });
 
-  testWidgets('新建预约后出现在预约列表', (tester) async {
+  testWidgets('未登录不能查看预约预览或创建假预约', (tester) async {
     phone(tester);
     await tester.pumpWidget(const MaterialApp(home: AppointmentsPage()));
-    await tester.tap(find.text('新建预约'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('确认预约'));
-    await tester.pumpAndSettle();
-    expect(appointmentStore.items.length, 7);
+    expect(find.text('重新登录'), findsOneWidget);
+    expect(find.text('新建预约'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 }

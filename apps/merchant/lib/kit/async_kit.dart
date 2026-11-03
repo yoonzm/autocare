@@ -707,6 +707,7 @@ class _PillButton extends StatelessWidget {
 // ───────── 错误 ─────────
 /// 按错误类型给出固定文案和动作：能重试的给“重试”，不能重试的给明确的下一步。
 class ErrorView extends StatelessWidget {
+  final bool inline;
   final AppError error;
   final VoidCallback? onRetry;
 
@@ -717,6 +718,7 @@ class ErrorView extends StatelessWidget {
   final VoidCallback? onNext;
   const ErrorView({
     super.key,
+    this.inline = false,
     required this.error,
     this.onRetry,
     this.retrying = false,
@@ -777,6 +779,20 @@ class ErrorView extends StatelessWidget {
       AppErrorType.forbidden || AppErrorType.notFound => '返回',
       _ => null,
     };
+    if (inline) {
+      return Row(
+        children: [
+          Icon(ic, size: 20, color: fg),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(error.title, style: ts(13, color: C.sub, h: 18)),
+          ),
+          if (retry) _PillButton('重试', onTap: onRetry, busy: retrying),
+          if (!retry && nextLabel != null && onNext != null)
+            _PillButton(nextLabel, onTap: onNext),
+        ],
+      );
+    }
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
@@ -954,6 +970,7 @@ bool isBusy(String key) => busyActions.value.contains(key);
 
 /// 带 loading 的异步动作（`当前页>目标页`）。生成页按钮命中这些键时套 [BusyOverlay]。
 const asyncActionKeys = {
+  'AppointmentAdd>Appointments',
   'RegPhone>RegShop',
   'RegShop>RegDone',
   'ForgotVerify>ForgotReset',
@@ -1183,6 +1200,7 @@ class _SpinnerPainter extends CustomPainter {
 /// 加载中（300ms 后才出骨架，出现后至少 500ms）→ 内容（150ms 淡入）/ 空 / 错误（带重试）。
 /// 已有数据时的刷新：旧内容保留并变淡 + 顶部细进度条；刷新失败只弹带“重试”的 Toast。
 class AsyncView<T> extends StatefulWidget {
+  final bool inlineError;
   final Future<T> Function() load;
   final bool Function(T data) isEmpty;
   final Widget skeleton;
@@ -1200,6 +1218,7 @@ class AsyncView<T> extends StatefulWidget {
   final VoidCallback? onNext;
   const AsyncView({
     super.key,
+    this.inlineError = false,
     required this.load,
     required this.isEmpty,
     required this.skeleton,
@@ -1337,6 +1356,7 @@ class AsyncViewState<T> extends State<AsyncView<T>> {
       key = const ValueKey('error');
       body = _scrollable(
         ErrorView(
+          inline: widget.inlineError,
           error: _error!,
           retrying: _loading,
           onRetry: reload,

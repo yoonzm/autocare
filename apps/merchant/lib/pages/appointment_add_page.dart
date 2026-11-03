@@ -1,7 +1,15 @@
+import 'dart:async';
+
+import '../backend/appointment_flow.dart';
+import '../backend/merchant_api.dart';
+import '../kit/async_kit.dart';
+import '../routes.dart';
+import 'booking_resources_page.dart';
+
 import 'package:flutter/material.dart';
 
 import '../kit/kit.dart';
-import '../mock/mock_data.dart';
+import '../mock/mock_data.dart' show Member;
 import '../kit/keyboard.dart';
 import '../theme.dart';
 import '../widgets/app_icon.dart';
@@ -15,268 +23,408 @@ class AppointmentAddPage extends StatefulWidget {
 
 class _AppointmentAddPageState extends State<AppointmentAddPage> {
   bool isMember = true;
-  final Set<int> picked = {2};
+  final Set<int> picked = {};
   int dateIdx = 0;
-  String time = '17:30';
-  int station = 3;
-  String tech = '老周';
-  bool notify = true;
-  bool remind = true;
-  bool deposit = false;
-  static const _bays = [
-    '1 号工位 · 空闲',
-    '2 号工位 · 施工中',
-    '3 号工位 · 施工中',
-    '4 号工位 · 空闲（推荐）',
-    '5 号工位 · 空闲',
-  ];
-  static const _techs = ['老周', '小陈', '张师傅'];
-  String get _bayLabel => _bays[station];
-  static const _hoursOf = [0.5, 1.0, 1.5, 1.5, 3.0, 6.0];
-  double get hours => picked.fold(0.0, (s, i) => s + _hoursOf[i]);
+  String time = '';
+  Map<String, dynamic>? _bay, _tech;
+  Map<String, dynamic> _options = {};
+  List<Map<String, dynamic>> get _services =>
+      List<Map<String, dynamic>>.from(_options['services'] as List? ?? []);
+  List<Map<String, dynamic>> get _resources =>
+      List<Map<String, dynamic>>.from(_options['resources'] as List? ?? []);
+  final _optionsKey = GlobalKey<AsyncViewState<Map<String, dynamic>>>();
+  final _slotsKey = GlobalKey<AsyncViewState<Map<String, dynamic>>>();
+  List<Map<String, dynamic>> _slots = [];
+  final _note = TextEditingController();
+  bool _busy = false;
+  bool _dirty = false;
+  int _revision = 0;
+  bool notify = false, remind = false, deposit = false;
+  String get tech => '${_tech?['name'] ?? '暂不指定'}';
+  String get _bayLabel => '${_bay?['name'] ?? '暂不指定'}';
+  int get minutes => picked.fold(
+    0,
+    (s, i) => s + (_services[i]['duration_minutes'] as num).toInt(),
+  );
+  double get hours => minutes / 60;
   String get hoursText => hours == hours.roundToDouble()
       ? hours.toStringAsFixed(0)
       : hours.toString();
-
-  static const _dates = ['今天 10.31', '明天 11.01', '周一 11.02', '周二 11.03'];
-  static const _times = [
-    '14:00',
-    '14:30',
-    '15:00',
-    '15:30',
-    '16:00',
-    '16:30',
-    '17:00',
-    '17:30',
-    '18:00',
-    '18:30',
-    '19:00',
-    '19:30',
+  DateTime get _date => bookingToday.add(Duration(days: dateIdx));
+  List<String> get _dates => [
+    for (var i = 0; i < 4; i++)
+      '${i == 0
+          ? '今天'
+          : i == 1
+          ? '明天'
+          : '周${'一二三四五六日'[bookingToday.add(Duration(days: i)).weekday - 1]}'} ${bookingToday.add(Duration(days: i)).month}.${bookingToday.add(Duration(days: i)).day.toString().padLeft(2, '0')}',
   ];
-  static const _disabled = {
-    '14:00',
-    '14:30',
-    '15:00',
-    '15:30',
-    '16:00',
-    '16:30',
-    '17:00',
-  };
-
-  Member customer = members[5]; // 刘先生
-
+  Member customer = const Member('请选择会员', '', '', '未选择', '—', '', {});
   Future<void> _pickCustomer() async {
-    final m = await pickMember(context, current: customer);
-    if (m != null && mounted) setState(() => customer = m);
+    final m = await pickLiveMember(context);
+    if (m != null && mounted) {
+      setState(() {
+        customer = m;
+        _dirty = true;
+      });
+    }
   }
 
-  int get total => picked.fold(0, (s, i) => s + apptServices[i].price);
+  num get total =>
+      picked.fold<num>(0, (s, i) => s + (_services[i]['price'] as num)) *
+      (isMember
+          ? ((customer.data?['card'] as Map?)?['discount'] as num? ?? 1)
+          : 1);
+  void _changed() {
+    _dirty = true;
+    _revision++;
+    _slotsKey.currentState?.reload();
+  }
 
-  void submit() {
-    if (picked.isEmpty) {
-      toast(context, '请至少选择一个服务项目');
+  Future<Map<String, dynamic>> _loadSlots() async {
+    while (true) {
+      if (!mounted) throw StateError('页面已关闭');
+      final version = _revision;
+      if (picked.isEmpty) return {'slots': []};
+      try {
+        final result = await merchantApi.appointment('slots', {
+          'day': bookingDay(_date),
+          'service_ids': [for (final i in picked) _services[i]['id']],
+          'bay_id': _bay?['id'],
+          'technician_id': _tech?['id'],
+        });
+        if (version == _revision) return result;
+      } catch (e) {
+        if (version == _revision) rethrow;
+      }
+    }
+  }
+
+  Future<void> _submit() async {
+    if (_busy) return;
+    if (isMember && customer.id == null) {
+      AppToast.show(context, '请选择会员或切换散客');
       return;
     }
-    appointmentStore.add(
-      Appointment(
-        time,
-        '$hoursText 小时',
-        customer.plate,
-        isMember ? customer.name : '散客',
-        isMember ? customer.level : '散客',
-        picked.map((i) => apptServices[i].name).join(' · '),
-        '${station + 1} 号工位 · $tech',
-        ApptStatus.waiting,
+    if (picked.isEmpty) {
+      AppToast.show(context, '请至少选择一个服务项目');
+      return;
+    }
+    if (time.isEmpty) {
+      AppToast.show(context, '请选择可预约时段');
+      return;
+    }
+    setState(() => _busy = true);
+    try {
+      await runBusy('AppointmentAdd>Appointments', () async {
+        await AppointmentFlow.save({
+          'member_id': isMember ? customer.id : null,
+          'service_ids': [for (final i in picked) _services[i]['id']],
+          'starts_at': '${bookingDay(_date)}T$time:00+08:00',
+          'bay_id': _bay?['id'],
+          'technician_id': _tech?['id'],
+          'note': _note.text.trim(),
+        });
+      });
+      if (mounted) {
+        final messenger = ScaffoldMessenger.of(context);
+        Navigator.of(context).pop();
+        AppToast.showOn(messenger, '预约已保存', kind: ToastKind.success);
+      }
+    } catch (e) {
+      if (mounted) {
+        AppToast.error(context, e);
+        _changed();
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  void submit() => unawaited(_submit());
+  Future<void> _pickResource(String kind) async {
+    final rows = _resources
+        .where((r) => r['kind'] == kind && r['active'] == true)
+        .toList();
+    final label = kind == 'bay' ? '工位' : '技师';
+    final name = await pickFromList(context, '选择$label', [
+      '暂不指定',
+      ...rows.map((r) => '${r['name']}'),
+    ], kind == 'bay' ? _bayLabel : tech);
+    if (name == null || !mounted) return;
+    setState(() {
+      final value = name == '暂不指定'
+          ? null
+          : rows.firstWhere((r) => r['name'] == name);
+      if (kind == 'bay') {
+        _bay = value;
+        if (value?['linked_id'] != null && _tech == null) {
+          _tech = _resources
+              .where(
+                (r) => r['id'] == value!['linked_id'] && r['active'] == true,
+              )
+              .firstOrNull;
+        }
+      } else {
+        _tech = value;
+        if (value?['linked_id'] != null) {
+          _bay = _resources
+              .where(
+                (r) => r['id'] == value!['linked_id'] && r['active'] == true,
+              )
+              .firstOrNull;
+        }
+      }
+      time = '';
+    });
+    _changed();
+  }
+
+  Future<void> _pickBay() => _pickResource('bay');
+  Future<void> _pickTech() => _pickResource('technician');
+  @override
+  void initState() {
+    super.initState();
+    _note.addListener(() {
+      if (mounted) setState(() => _dirty = true);
+    });
+  }
+
+  @override
+  void dispose() {
+    _note.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!merchantApi.hasSession) {
+      return Scaffold(
+        body: ErrorView(
+          error: const AppError('请先登录', type: AppErrorType.auth),
+          onNext: () => openRoute(context, 'Login'),
+        ),
+      );
+    }
+    return ConfirmDiscard(
+      busy: _busy,
+      dirty: _dirty,
+      child: Scaffold(
+        body: SafeArea(
+          bottom: false,
+          child: Column(
+            children: [
+              const SubHeader('新建预约', close: true),
+              Expanded(
+                child: AsyncView<Map<String, dynamic>>(
+                  key: _optionsKey,
+                  load: () => merchantApi.appointment('options'),
+                  isEmpty: (_) => false,
+                  skeleton: const SkeletonList(count: 5),
+                  empty: (_) => const SizedBox.shrink(),
+                  onLoaded: (data) => setState(() => _options = data),
+                  builder: (_, data) => _form(),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
-    Navigator.of(context).pop();
-    toast(context, '预约成功，已通知客户');
-  }
-
-  Future<void> _pickBay() async {
-    final r = await pickFromList(context, '选择工位', _bays, _bayLabel);
-    if (r != null && mounted) setState(() => station = _bays.indexOf(r));
-  }
-
-  Future<void> _pickTech() async {
-    final r = await pickFromList(context, '选择技师', _techs, tech);
-    if (r != null && mounted) setState(() => tech = r);
   }
 
   String get _endTime {
+    if (time.isEmpty) return '—';
     final p = time.split(':');
     var m = int.parse(p[0]) * 60 + int.parse(p[1]) + (hours * 60).round();
     return '${(m ~/ 60).toString().padLeft(2, '0')}:${(m % 60).toString().padLeft(2, '0')}';
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _form() {
     final bottom = MediaQuery.of(context).padding.bottom;
-    return Scaffold(
-      body: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            const SubHeader('新建预约', close: true),
-            Expanded(
-              child: ListView(
-                keyboardDismissBehavior:
-                    ScrollViewKeyboardDismissBehavior.onDrag,
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-                children: [
-                  _customerCard(),
-                  const SizedBox(height: 16),
-                  _servicesCard(),
-                  const SizedBox(height: 16),
-                  _timeCard(),
-                  const SizedBox(height: 16),
-                  _sectionLabel('安排'),
-                  AppCard(
-                    radius: 24,
-                    padding: const EdgeInsets.symmetric(vertical: 4),
-                    child: Column(
-                      children: [
-                        _pickRow('工位', _bayLabel, _pickBay),
-                        const Divider1(indent: 16),
-                        _pickRow('技师', tech, _pickTech),
-                      ],
+    return AbsorbPointer(
+      absorbing: _busy,
+      child: Scaffold(
+        body: SafeArea(
+          bottom: false,
+          child: Column(
+            children: [
+              Expanded(
+                child: ListView(
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
+                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+                  children: [
+                    _customerCard(),
+                    const SizedBox(height: 16),
+                    _servicesCard(),
+                    const SizedBox(height: 16),
+                    _timeCard(),
+                    const SizedBox(height: 16),
+                    _sectionLabel('安排'),
+                    AppCard(
+                      radius: 24,
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Column(
+                        children: [
+                          _pickRow('工位', _bayLabel, _pickBay),
+                          const Divider1(indent: 16),
+                          _pickRow('技师', tech, _pickTech),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  AppCard(
-                    radius: 24,
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text.rich(
-                          TextSpan(
-                            children: [
-                              TextSpan(
-                                text: '备注',
-                                style: ts(14, w: FontWeight.w600, h: 20),
-                              ),
-                              TextSpan(
-                                text: ' · 选填',
-                                style: ts(14, color: C.muted, h: 20),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Container(
-                          constraints: const BoxConstraints(minHeight: 64),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 10,
-                          ),
-                          decoration: BoxDecoration(
-                            color: C.inset,
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          child: TextField(
-                            onTapOutside: onTapOutsideDismiss,
-                            minLines: 2,
-                            maxLines: 4,
-                            style: ts(14, h: 20),
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              isCollapsed: true,
-                              hintText: '如：车身有划痕、需要提前洗车',
-                              hintStyle: ts(14, color: C.muted, h: 20),
+                    const SizedBox(height: 16),
+                    AppCard(
+                      radius: 24,
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: '备注',
+                                  style: ts(14, w: FontWeight.w600, h: 20),
+                                ),
+                                TextSpan(
+                                  text: ' · 选填',
+                                  style: ts(14, color: C.muted, h: 20),
+                                ),
+                              ],
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  _sectionLabel('通知与定金'),
-                  AppCard(
-                    radius: 24,
-                    padding: const EdgeInsets.symmetric(vertical: 4),
-                    child: Column(
-                      children: [
-                        _switch(
-                          '预约成功后通知客户',
-                          '微信优先，失败转短信',
-                          notify,
-                          (v) => setState(() => notify = v),
-                        ),
-                        const Divider1(indent: 16),
-                        _switch(
-                          '到店前 2 小时提醒客户',
-                          '按"通知与消息"设置发送',
-                          remind,
-                          (v) => setState(() => remind = v),
-                        ),
-                        const Divider1(indent: 16),
-                        _switch(
-                          '收取预约定金',
-                          '客户爽约将不予退还 · ¥50',
-                          deposit,
-                          (v) => setState(() => deposit = v),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              padding: EdgeInsets.fromLTRB(
-                20,
-                12,
-                20,
-                bottom > 0 ? bottom - 4 : 16,
-              ),
-              decoration: BoxDecoration(
-                color: C.card.withValues(alpha: 0.94),
-                border: Border(top: BorderSide(color: C.stroke)),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '10.31 今天 $time · ${station + 1} 号工位',
-                          style: ts(12, color: C.muted, h: 16),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          '预计 ¥${money(total)}',
-                          style: ts(20, w: FontWeight.w600, h: 26),
-                        ),
-                      ],
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: submit,
-                    child: Container(
-                      height: 50,
-                      padding: const EdgeInsets.symmetric(horizontal: 28),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: C.btn,
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                      child: Text(
-                        '确认预约',
-                        style: ts(
-                          15,
-                          w: FontWeight.w600,
-                          color: C.btnFg,
-                          h: 22,
-                        ),
+                          const SizedBox(height: 8),
+                          Container(
+                            constraints: const BoxConstraints(minHeight: 64),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 10,
+                            ),
+                            decoration: BoxDecoration(
+                              color: C.inset,
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: TextField(
+                              controller: _note,
+                              readOnly: _busy,
+                              onTapOutside: onTapOutsideDismiss,
+                              minLines: 2,
+                              maxLines: 4,
+                              style: ts(14, h: 20),
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                isCollapsed: true,
+                                hintText: '如：车身有划痕、需要提前洗车',
+                                hintStyle: ts(14, color: C.muted, h: 20),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 16),
+                    _sectionLabel('通知与定金'),
+                    AppCard(
+                      radius: 24,
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Column(
+                        children: [
+                          _switch(
+                            '预约成功后通知客户',
+                            '微信优先，失败转短信',
+                            notify,
+                            (v) => AppToast.show(
+                              context,
+                              'TODO：微信／短信通知尚未接通，未发送通知',
+                            ),
+                          ),
+                          const Divider1(indent: 16),
+                          _switch(
+                            '到店前 2 小时提醒客户',
+                            '按"通知与消息"设置发送',
+                            remind,
+                            (v) => AppToast.show(context, 'TODO：预约提醒服务尚未接通'),
+                          ),
+                          const Divider1(indent: 16),
+                          _switch(
+                            '收取预约定金',
+                            '客户爽约将不予退还 · ¥50',
+                            deposit,
+                            (v) =>
+                                AppToast.show(context, 'TODO：定金支付尚未接通，未收取定金'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+              Container(
+                padding: EdgeInsets.fromLTRB(
+                  20,
+                  12,
+                  20,
+                  bottom > 0 ? bottom - 4 : 16,
+                ),
+                decoration: BoxDecoration(
+                  color: C.card.withValues(alpha: 0.94),
+                  border: Border(top: BorderSide(color: C.stroke)),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${_date.month}.${_date.day} ${time.isEmpty ? '请选择时间' : time} · $_bayLabel',
+                            style: ts(12, color: C.muted, h: 16),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            '预计 ¥${total.toStringAsFixed(2)}',
+                            style: ts(20, w: FontWeight.w600, h: 26),
+                          ),
+                        ],
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: submit,
+                      child: Container(
+                        height: 50,
+                        padding: const EdgeInsets.symmetric(horizontal: 28),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: C.btn,
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                        child: hBusy(
+                          'AppointmentAdd>Appointments',
+                          Text(
+                            '确认预约',
+                            style: ts(
+                              15,
+                              w: FontWeight.w600,
+                              color: C.btnFg,
+                              h: 22,
+                            ),
+                          ),
+                          style: ts(
+                            15,
+                            w: FontWeight.w600,
+                            color: C.btnFg,
+                            h: 22,
+                          ),
+                          label: '提交中…',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -306,7 +454,10 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
               child: Segmented(
                 labels: const ['会员', '散客'],
                 selected: isMember ? 0 : 1,
-                onChanged: (i) => setState(() => isMember = i == 0),
+                onChanged: (i) => setState(() {
+                  isMember = i == 0;
+                  _dirty = true;
+                }),
               ),
             ),
           ],
@@ -354,7 +505,9 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
                         ),
                         const SizedBox(height: 3),
                         Text(
-                          '${customer.phone.substring(0, 3)} **** ${customer.phone.substring(7)} · ${customer.amountNote == '余额' ? '余额 ${customer.amount}' : customer.amountNote}',
+                          customer.phone.length == 11
+                              ? '${customer.phone.substring(0, 3)} **** ${customer.phone.substring(7)}'
+                              : '请选择预约会员',
                           style: ts(12, color: C.muted, h: 16),
                         ),
                       ],
@@ -387,7 +540,10 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
               if (isMember) ...[
                 _plateSmall(customer.plate),
                 const SizedBox(width: 12),
-                Text('大众 帕萨特 · 灰', style: ts(14, h: 20)),
+                Text(
+                  '${((customer.data?['vehicles'] as List?)?.firstOrNull as Map?)?['brand_model'] ?? '—'}',
+                  style: ts(14, h: 20),
+                ),
               ] else
                 Text('到店填写', style: ts(14, color: C.muted, h: 20)),
             ],
@@ -465,13 +621,17 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
           spacing: 8,
           runSpacing: 8,
           children: [
-            for (var i = 0; i < apptServices.length; i++)
+            for (var i = 0; i < _services.length; i++)
               _chip(
-                '${apptServices[i].name} ¥${money(apptServices[i].price)}',
+                '${_services[i]['name']} ¥${_services[i]['price']}',
                 picked.contains(i),
-                () => setState(
-                  () => picked.contains(i) ? picked.remove(i) : picked.add(i),
-                ),
+                () {
+                  setState(() {
+                    picked.contains(i) ? picked.remove(i) : picked.add(i);
+                    time = '';
+                  });
+                  _changed();
+                },
               ),
           ],
         ),
@@ -492,7 +652,13 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
           runSpacing: 8,
           children: [
             for (var i = 0; i < _dates.length; i++)
-              _chip(_dates[i], dateIdx == i, () => setState(() => dateIdx = i)),
+              _chip(_dates[i], dateIdx == i, () {
+                setState(() {
+                  dateIdx = i;
+                  time = '';
+                });
+                _changed();
+              }),
           ],
         ),
         const SizedBox(height: 12),
@@ -507,26 +673,86 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
           ],
         ),
         const SizedBox(height: 12),
-        for (var r = 0; r < 3; r++) ...[
-          if (r > 0) const SizedBox(height: 8),
-          Row(
-            children: [
-              for (var c = 0; c < 4; c++) ...[
-                if (c > 0) const SizedBox(width: 8),
-                Expanded(child: _slot(_times[r * 4 + c])),
-              ],
-            ],
+        if (!_resources.any((r) => r['kind'] == 'bay' && r['active'] == true))
+          EmptyView(
+            title: '还没有可预约工位',
+            message: '先添加真实工位，再安排预约',
+            actionLabel: '添加工位',
+            inline: true,
+            onAction: () async {
+              await Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const BookingResourcesPage(kind: 'bay'),
+                ),
+              );
+              if (mounted) {
+                await _optionsKey.currentState?.reload();
+                _changed();
+              }
+            },
+          )
+        else
+          SizedBox(
+            height: 136,
+            child: AsyncView<Map<String, dynamic>>(
+              key: _slotsKey,
+              inlineError: true,
+              load: _loadSlots,
+              isEmpty: (_) => false,
+              skeletonPadding: EdgeInsets.zero,
+              skeleton: const AppSkeleton(height: 120, radius: 12),
+              empty: (_) => const SizedBox.shrink(),
+              onLoaded: (data) => setState(() {
+                _slots = List<Map<String, dynamic>>.from(data['slots'] as List);
+                if (!_slots.any(
+                  (s) => s['time'] == time && s['available'] == true,
+                )) {
+                  time = '';
+                }
+              }),
+              builder: (_, data) => SingleChildScrollView(
+                child: Column(
+                  children: [
+                    if (_slots.isEmpty)
+                      EmptyView(
+                        title: picked.isEmpty ? '请先选择服务项目' : '所选日期没有可预约时段',
+                        inline: true,
+                      ),
+                    for (var r = 0; r < (_slots.length / 4).ceil(); r++)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Row(
+                          children: [
+                            for (var c = 0; c < 4; c++) ...[
+                              if (c > 0) const SizedBox(width: 8),
+                              Expanded(
+                                child: r * 4 + c < _slots.length
+                                    ? _slot('${_slots[r * 4 + c]['time']}')
+                                    : const SizedBox(),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
           ),
-        ],
       ],
     ),
   );
 
   Widget _slot(String t) {
-    final off = _disabled.contains(t);
+    final off = !_slots.any((s) => s['time'] == t && s['available'] == true);
     final on = time == t;
     return GestureDetector(
-      onTap: off ? null : () => setState(() => time = t),
+      onTap: off
+          ? null
+          : () => setState(() {
+              time = t;
+              _dirty = true;
+            }),
       child: Container(
         height: 40,
         alignment: Alignment.center,

@@ -244,6 +244,7 @@ LIVE_FLOW = {
 # 点击后要等后端返回的按钮：(页面, 目标页)。命中的按钮在 loading 时只显示转圈、尺寸不变。
 # 必须和 lib/kit/async_kit.dart 的 asyncActionKeys 保持一致（有测试检查）。
 ASYNC_ACTIONS = {
+    ('AppointmentAdd', 'Appointments'),
     ('RegPhone', 'RegShop'), ('RegShop', 'RegDone'),
     ('ChangePassword', 'Security'), ('ChangePhone', 'Security'),
     ('DeleteAccount', 'Login'), ('Security', 'Login'),

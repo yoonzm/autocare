@@ -63,6 +63,11 @@ class MerchantApi {
 
   /// 只读、可重复的请求：失败时静默重试 1 次；写请求不自动重试。
   static const _readActions = {
+    'appointment_board',
+    'appointment_get',
+    'appointment_options',
+    'appointment_slots',
+    'appointment_summary',
     'home_stats',
     'list',
     'get',
@@ -179,6 +184,14 @@ class MerchantApi {
 
   Future<Map<String, dynamic>> homeStats() async {
     final data = await invoke({'action': 'home_stats'});
+    return Map<String, dynamic>.from(data['item'] as Map);
+  }
+
+  Future<Map<String, dynamic>> appointment(
+    String action, [
+    Map<String, dynamic> values = const {},
+  ]) async {
+    final data = await invoke({...values, 'action': 'appointment_$action'});
     return Map<String, dynamic>.from(data['item'] as Map);
   }
 

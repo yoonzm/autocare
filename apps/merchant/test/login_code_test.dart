@@ -2,11 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/main.dart';
+import 'package:autocare_merchant/backend/store_profile.dart';
 
-class _FakeApi extends MerchantApi {
+import 'members_test.dart' show MemberFakeApi;
+
+class _FakeApi extends MemberFakeApi {
   final List<String> calls = [];
+  bool signedIn = false;
   @override
-  bool get hasSession => false;
+  bool get hasSession => signedIn;
+  @override
+  Future<Map<String, dynamic>> getStore() async => {'name': '验证码测试门店'};
   @override
   Future<String> sendMockCode(String phone) async {
     calls.add('send:$phone');
@@ -17,6 +23,7 @@ class _FakeApi extends MerchantApi {
   Future<void> loginCode(String phone, String code) async {
     calls.add('login:$phone:$code');
     if (code != '482910') throw const AppError('验证码错误');
+    signedIn = true;
   }
 }
 
@@ -28,7 +35,10 @@ void main() {
     api = _FakeApi();
     merchantApi = api;
   });
-  tearDown(() => merchantApi = original);
+  tearDown(() {
+    merchantApi = original;
+    storeProfile.clear();
+  });
 
   Future<void> open(WidgetTester t) async {
     t.view.physicalSize = const Size(390 * 3, 844 * 3);
@@ -72,7 +82,7 @@ void main() {
     await t.pump();
     await t.pump(const Duration(milliseconds: 600));
     expect(find.textContaining('验证码错误'), findsOneWidget);
-    expect(find.text('驰光汽车美容'), findsNothing);
+    expect(find.text('验证码测试门店'), findsNothing);
 
     await t.ensureVisible(find.text('获取验证码'));
     await t.tap(find.text('获取验证码'));
@@ -86,7 +96,7 @@ void main() {
     await t.ensureVisible(find.text('登录').first);
     await t.tap(find.text('登录').first);
     await t.pumpAndSettle();
-    expect(find.text('驰光汽车美容'), findsOneWidget);
+    expect(find.text('验证码测试门店'), findsOneWidget);
     expect(api.calls.last, 'login:13988888812:482910');
   });
 

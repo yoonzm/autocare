@@ -12,10 +12,13 @@ export async function handleServices(input: Input, storeId: string): Promise<Res
     const price = Number(input.price);
     if (!name || name.length > 100) return fail('名称长度须为 1–100 字');
     if (!Number.isFinite(price) || price < 0 || price > 99999999.99) return fail('价格无效');
+    const duration = input.duration_minutes == null ? null : Number(input.duration_minutes);
+    if (duration != null && (!Number.isInteger(duration) || duration < 15 || duration > 720)) return fail('标准工时须为 15–720 分钟');
     if (input.id != null && !uuid(input.id)) return fail('记录 ID 无效');
     const values = {
       name, price, category: nameOf(input.category) || '其他',
       description: nameOf(input.description),
+      ...(duration == null ? {} : { duration_minutes: duration }),
     };
     const query = input.id == null
       ? admin.from('service_items').insert({ ...values, store_id: storeId })

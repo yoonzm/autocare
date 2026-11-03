@@ -1,3 +1,5 @@
+import '../backend/appointment_flow.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -21,7 +23,8 @@ import '../widgets/common.dart';
 
 class OrderPage extends StatefulWidget {
   final Member? member;
-  const OrderPage({super.key, this.member});
+  final Map<String, dynamic>? appointment;
+  const OrderPage({super.key, this.member, this.appointment});
   @override
   State<OrderPage> createState() => _OrderPageState();
 }
@@ -87,19 +90,25 @@ class _OrderPageState extends State<OrderPage> {
     super.initState();
     if (_live) {
       picked.clear();
+      if (widget.appointment != null) {
+        _walkIn = widget.appointment!['member_id'] == null;
+        _walkPlateCtl.text = '${widget.appointment!['vehicle_plate'] ?? ''}';
+      }
       if (widget.member != null) MemberFlow.current ??= widget.member!.data;
       ServiceStore.changed.addListener(_onServiceStore);
       unawaited(_loadServices());
       unawaited(_loadCover());
       // 挂单：数量显示在“挂单”按钮上；取单 / 挂单成功 / 新开一单时要改动这一页
-      HoldFlow.eventTick.addListener(_onHoldEvent);
-      HoldFlow.loadSoon();
+      if (widget.appointment == null) {
+        HoldFlow.eventTick.addListener(_onHoldEvent);
+        HoldFlow.loadSoon();
+      }
       // 从“扫码找会员 · 没找到”点“散客结账”进来：直接是散客开单
-      if (ScanFlow.takeWalkIn()) {
+      if (widget.appointment == null && ScanFlow.takeWalkIn()) {
         _walkIn = true;
         customer = _noMember;
       }
-      if (HoldFlow.event != null) {
+      if (widget.appointment == null && HoldFlow.event != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) => _onHoldEvent());
       }
     }
@@ -176,6 +185,11 @@ class _OrderPageState extends State<OrderPage> {
 
   /// 挂单：把这一单交给挂单弹层（价格、折扣、次卡抵扣由云函数估算）。
   void _hold() {
+    // TODO: 预约关联挂单尚未实现；不得丢弃预约关联后冒充成功。
+    if (widget.appointment != null) {
+      AppToast.show(context, '预约订单请直接结算，暂不支持挂单');
+      return;
+    }
     if (picked.isEmpty) {
       toast(context, '请先选择服务项目');
       return;
@@ -230,12 +244,17 @@ class _OrderPageState extends State<OrderPage> {
   ];
 
   /// 列表变了（后台刷新）：已选项目按服务 ID 保留，不会因为顺序变化选错。
+  bool _bookingApplied = false;
   void _applyServices(List<Map<String, dynamic>> rows) {
     final keep = {
       for (final i in picked)
         if (i < _liveSvcs.length) _liveSvcs[i].id,
     };
     final next = _svcsOf(rows);
+    if (!_bookingApplied && widget.appointment != null && rows.isNotEmpty) {
+      keep.addAll((widget.appointment!['service_ids'] as List).cast<String>());
+      _bookingApplied = true;
+    }
     picked
       ..clear()
       ..addAll([
@@ -354,6 +373,58 @@ class _OrderPageState extends State<OrderPage> {
     openRoute(context, customer.bound ? 'PaySuccess' : 'PayUnbound');
   }
 
+  Future<Map<String, dynamic>> _sendWalkIn({
+    required List<Map<String, dynamic>> lines,
+    required String method,
+    String plate = '',
+    String? holdId,
+  }) {
+    if (widget.appointment != null) {
+      return merchantApi.appointment('checkout', {
+        'id': widget.appointment!['id'],
+        'lines': lines,
+        'method': method,
+        'plate': plate,
+      });
+    }
+    return merchantApi.checkoutWalkIn(
+      lines: lines,
+      method: method,
+      plate: plate,
+      holdId: holdId,
+    );
+  }
+
+  Future<Map<String, dynamic>> _sendMember({
+    required String memberId,
+    required List<Map<String, dynamic>> lines,
+    required String method,
+    num? balancePart,
+    String? other,
+    String plate = '',
+    String? holdId,
+  }) {
+    if (widget.appointment != null) {
+      return merchantApi.appointment('checkout', {
+        'id': widget.appointment!['id'],
+        'lines': lines,
+        'method': method,
+        'balance_part': balancePart,
+        'other': other,
+        'plate': plate,
+      });
+    }
+    return merchantApi.checkout(
+      memberId: memberId,
+      lines: lines,
+      method: method,
+      balancePart: balancePart,
+      other: other,
+      plate: plate,
+      holdId: holdId,
+    );
+  }
+
   /// 散客收款：不记会员，没有折扣和次卡抵扣；价格由云函数按价目表算，收款方式只是记账。
   Future<void> _checkoutWalkIn() async {
     final String method;
@@ -368,7 +439,7 @@ class _OrderPageState extends State<OrderPage> {
     final started = DateTime.now();
     try {
       final plate = _walkPlateCtl.text.trim();
-      final res = await merchantApi.checkoutWalkIn(
+      final res = await _sendWalkIn(
         lines: [
           for (final i in picked) {'service_id': _svcs[i].id, 'qty': 1},
         ],
@@ -385,6 +456,7 @@ class _OrderPageState extends State<OrderPage> {
         'at': DateTime.now(),
       };
       CatalogDraft.changed.value++;
+      if (widget.appointment != null) AppointmentFlow.notify();
       if (_holdId != null) {
         _holdId = null;
         unawaited(HoldFlow.load()); // 这张挂单已结清，刷新挂单数量
@@ -449,7 +521,7 @@ class _OrderPageState extends State<OrderPage> {
     setState(() => _busy = true);
     final started = DateTime.now();
     try {
-      final res = await merchantApi.checkout(
+      final res = await _sendMember(
         memberId: id,
         lines: [
           for (final i in picked)
@@ -478,6 +550,7 @@ class _OrderPageState extends State<OrderPage> {
       };
       MemberFlow.current = await merchantApi.member(id);
       CatalogDraft.changed.value++;
+      if (widget.appointment != null) AppointmentFlow.notify();
       if (res['upgraded_to'] != null && mounted) {
         toast(context, '已自动升级为${res['upgraded_to']}');
       }
@@ -672,6 +745,10 @@ class _OrderPageState extends State<OrderPage> {
   bool _awaitPicker = false;
 
   Future<void> _pickCustomer() async {
+    if (widget.appointment != null) {
+      AppToast.show(context, '预约订单的客户不能更换');
+      return;
+    }
     if (!_live) {
       final m = await pickMember(context, current: customer);
       if (m != null && mounted) {

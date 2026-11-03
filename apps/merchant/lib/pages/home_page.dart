@@ -1,3 +1,5 @@
+import '../backend/appointment_flow.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -38,6 +40,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   final _statsKey = GlobalKey<AsyncViewState<Map<String, dynamic>>>();
   Map<String, dynamic>? _stats;
+  final _appointmentKey = GlobalKey<AsyncViewState<Map<String, dynamic>>>();
   DateTime? _pausedAt;
 
   @override
@@ -45,12 +48,18 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     CatalogDraft.changed.addListener(_onDataChanged);
+    AppointmentFlow.changed.addListener(_onAppointmentsChanged);
   }
 
+  void _onAppointmentsChanged() => _appointmentKey.currentState?.reload();
   void _onDataChanged() => unawaited(_refresh());
 
   Future<void> _refresh() async {
-    await _statsKey.currentState?.reload();
+    await Future.wait([
+      if (_statsKey.currentState != null) _statsKey.currentState!.reload(),
+      if (_appointmentKey.currentState != null)
+        _appointmentKey.currentState!.reload(),
+    ]);
   }
 
   Future<void> _pullRefresh() async {
@@ -74,6 +83,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   @override
   void dispose() {
     CatalogDraft.changed.removeListener(_onDataChanged);
+    AppointmentFlow.changed.removeListener(_onAppointmentsChanged);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -563,62 +573,80 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           ),
         ),
         const SizedBox(height: 10),
-        GestureDetector(
-          onTap: () => push(context, const AppointmentsPage()),
-          child: Container(
-            height: 64,
-            clipBehavior: Clip.antiAlias,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              color: C.heroCard,
-              borderRadius: BorderRadius.circular(24),
-            ),
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                const Positioned(
-                  right: -66,
-                  top: -70,
-                  child: Rings(size: 190, viewBox: 240, radii: [60, 90, 118]),
+        SizedBox(
+          height: 64,
+          child: AsyncView<Map<String, dynamic>>(
+            key: _appointmentKey,
+            load: () => merchantApi.appointment('summary'),
+            isEmpty: (_) => false,
+            skeletonPadding: EdgeInsets.zero,
+            skeleton: const AppSkeleton(height: 64, radius: 24),
+            inlineError: true,
+            pullToRefresh: false,
+            empty: (_) => const SizedBox.shrink(),
+            builder: (_, summary) => GestureDetector(
+              onTap: () => push(context, const AppointmentsPage()),
+              child: Container(
+                height: 64,
+                clipBehavior: Clip.antiAlias,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: C.heroCard,
+                  borderRadius: BorderRadius.circular(24),
                 ),
-                Row(
+                child: Stack(
+                  clipBehavior: Clip.none,
                   children: [
-                    Container(
-                      width: 36,
-                      height: 36,
-                      decoration: const BoxDecoration(
-                        color: C.gold,
-                        shape: BoxShape.circle,
-                      ),
-                      child: AppIcon('calendar', size: 18, color: C.onGold),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '预约管理',
-                            style: ts(
-                              15,
-                              w: FontWeight.w600,
-                              color: const Color(0xFFFAFAFA),
-                              h: 20,
-                            ),
-                          ),
-                          Text(
-                            // TODO: 预约模块尚未接入；待 appointment_summary 提供待到店和下一位预约。
-                            '待到店 2 · 下一位 17:30 刘先生',
-                            style: ts(12, color: C.faint, h: 16),
-                          ),
-                        ],
+                    const Positioned(
+                      right: -66,
+                      top: -70,
+                      child: Rings(
+                        size: 190,
+                        viewBox: 240,
+                        radii: [60, 90, 118],
                       ),
                     ),
-                    AppIcon('arrowRight', size: 18, color: C.faint),
+                    Row(
+                      children: [
+                        Container(
+                          width: 36,
+                          height: 36,
+                          decoration: const BoxDecoration(
+                            color: C.gold,
+                            shape: BoxShape.circle,
+                          ),
+                          child: AppIcon('calendar', size: 18, color: C.onGold),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '预约管理',
+                                style: ts(
+                                  15,
+                                  w: FontWeight.w600,
+                                  color: const Color(0xFFFAFAFA),
+                                  h: 20,
+                                ),
+                              ),
+                              Text(
+                                summary['next'] == null
+                                    ? '待到店 ${summary['count']}'
+                                    : '待到店 ${summary['count']} · 下一位 ${bookingTime(DateTime.parse(summary['next']['starts_at'] as String).toUtc().add(const Duration(hours: 8)))} ${summary['next']['customer_name']}',
+                                style: ts(12, color: C.faint, h: 16),
+                              ),
+                            ],
+                          ),
+                        ),
+                        AppIcon('arrowRight', size: 18, color: C.faint),
+                      ],
+                    ),
                   ],
                 ),
-              ],
+              ),
             ),
           ),
         ),

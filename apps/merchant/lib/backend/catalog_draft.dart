@@ -254,6 +254,8 @@ class CatalogDraft {
         'price': price,
         'category': draft.fields['category'] ?? '镀晶镀膜',
         'description': draft.fields['description'] ?? '',
+        'duration_minutes':
+            int.tryParse('${draft.fields['duration_minutes'] ?? 30}') ?? 30,
       });
     } else {
       final discount = num.tryParse(

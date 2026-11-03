@@ -92,6 +92,24 @@ class _HStrHolderState extends State<HStrHolder> {
           RegistrationDraft.city = ctrl.v == ctrl.placeholder ? '' : ctrl.v;
         });
       } else if (merchantApi.hasSession &&
+          route == 'ServiceEdit' &&
+          widget.initial == '4 小时') {
+        final minutes =
+            int.tryParse(
+              CatalogDraft.text('services', 'duration_minutes', '30'),
+            ) ??
+            30;
+        ctrl = StrCtrl('$minutes 分钟');
+        ctrl.addListener(() {
+          final value =
+              num.tryParse(ctrl.v.replaceAll(RegExp(r'[^\d.]'), '')) ?? 30;
+          CatalogDraft.set(
+            'services',
+            'duration_minutes',
+            ctrl.v.contains('小时') ? (value * 60).round() : value.round(),
+          );
+        });
+      } else if (merchantApi.hasSession &&
           route == 'CardTierEdit' &&
           (widget.initial == '2 倍' || widget.initial == '赠精致洗车 2 次')) {
         // 卡种编辑页的积分倍率 / 生日礼：值来自正在编辑的卡种，选择后写回草稿
@@ -1035,10 +1053,6 @@ Future<void> hPick(
   StrCtrl c,
 ) async {
   final route = ModalRoute.of(context)?.settings.name;
-  if (merchantApi.hasSession && route == 'ServiceEdit' && kind == 'duration') {
-    hToast(context, '此字段暂未接通');
-    return;
-  }
   String? r;
   switch (kind) {
     case 'birthday':
@@ -1097,7 +1111,7 @@ Future<void> hPick(
         '4 小时',
         '6 小时',
         '8 小时',
-        '2 天',
+        if (!(merchantApi.hasSession && route == 'ServiceEdit')) '2 天',
       ], c.v);
     case 'supplier':
       r = await pickFromList(context, '选择供应商', [
