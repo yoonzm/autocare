@@ -1858,12 +1858,16 @@ class HSel extends StatelessWidget {
   final SelCtrl ctrl;
   final int index;
   final Widget on, off;
+
+  /// 分段条（设计稿 role=tab）：按设计稿原样显示选中 / 未选中，不套 ChoiceChip 样式。
+  final bool segment;
   const HSel({
     super.key,
     required this.ctrl,
     required this.index,
     required this.on,
     required this.off,
+    this.segment = false,
   });
   static String? _label(Widget widget) => switch (widget) {
     Text(:final data, :final textSpan) => data ?? textSpan?.toPlainText(),
@@ -1903,7 +1907,7 @@ class HSel extends StatelessWidget {
     listenable: ctrl,
     builder: (_, _) {
       // 32px 分段条 / 特色选项不是 ChoiceChip，保留原设计；34px 胶囊统一样式。
-      final label = ctrl.multi || _visualHeight(on) != 34
+      final label = segment || ctrl.multi || _visualHeight(on) != 34
           ? null
           : (_label(off) ?? _label(on));
       if (label != null && label.trim().isNotEmpty) {

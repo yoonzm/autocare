@@ -768,17 +768,26 @@ class BusinessHoursTemplate extends StatelessWidget {
                       pad: EdgeInsets.fromLTRB(0, 4, 0, 4),
                       child: hcol(
                         [
-                          const EmptyView(title: '节假日设置尚未接通', inline: true),
+                          // TODO: 节假日 / 休息日设置不在本次范围，预期后端接口：holiday_rules（列表 / 保存）。
                           hbox(
-                            h: 1,
-                            bg: dk(
-                              context,
-                              Color(0xFFEFEFF1),
-                              Color(0xFF2A2A2E),
+                            minH: 54,
+                            pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                '节假日设置尚未接通',
+                                style: hts(
+                                  14,
+                                  dk(
+                                    context,
+                                    Color(0xFF71717A),
+                                    Color(0xFF9A9AA3),
+                                  ),
+                                  lh: 20,
+                                ),
+                              ),
                             ),
-                            margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
                           ),
-
                           hbox(
                             h: 1,
                             bg: dk(

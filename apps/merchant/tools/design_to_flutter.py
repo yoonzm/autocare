@@ -1556,6 +1556,11 @@ class Gen:
         return {'multi': multi, 'on_node': on_nodes[0], 'off_node': off_nodes[0], 'cands': els,
                 'initial': [i for i, c in enumerate(els) if c in on_nodes], 'style_only': True, 'on_members': on_nodes}
 
+    def segment_arg(self, g):
+        """分段条（role=tab）不是 ChoiceChip：即使高度刚好是 34 也保持设计稿的白底分段样式。"""
+        cands = g.get('cands') or []
+        return ' segment: true,' if cands and self.kind(cands[0]) == 'tab' else ''
+
     def variant(self, c, g, want_on):
         ref = g['on_node'] if want_on else g['off_node']
         other = g['off_node'] if want_on else g['on_node']
@@ -1569,8 +1574,12 @@ class Gen:
             return n
         delta = [k for k in set(ref.style) | set(other.style) if ref.style.get(k) != other.style.get(k)]
         # 各成员本来就不同的底色（如各色圆点）不属于“选中态差异”
+        # 只排除“成员底色超出选中 / 未选中两种样式”的情况；底色正好是这两种时（标签条、芯片）必须跟着状态变，
+        # 否则未选中的项在选中时没有白底，默认选中的项取消选中后仍保留选中底色。
         members = g.get('cands', [])
-        if not g.get('style_only') and len({x.style.get('background') for x in members}) > 1 and 'background' in delta:
+        member_bgs = {x.style.get('background') for x in members}
+        state_bgs = {ref.style.get('background'), other.style.get('background')}
+        if not g.get('style_only') and not member_bgs <= state_bgs and 'background' in delta:
             delta.remove('background')
         st = dict(c.style)
         for k in delta:
@@ -1938,7 +1947,7 @@ class Gen:
                 g = groups[gi]
                 on = self.emit(self.variant(c, g, True), inh, direction)
                 off = self.emit(self.variant(c, g, False), inh, direction)
-                code = 'HSel(ctrl: %s, index: %d, on: %s, off: %s)' % (gref[gi], idx, on, off)
+                code = 'HSel(ctrl: %s, index: %d,%s on: %s, off: %s)' % (gref[gi], idx, self.segment_arg(g), on, off)
             elif self.selectable(c) and self.toggle_code(c, inh, direction):
                 code = self.toggle_code(c, inh, direction)
             else:
@@ -2099,7 +2108,7 @@ class Gen:
                     g = groups[gi]
                     on = self.emit(self.variant(c, g, True), inh, 'grid')
                     off = self.emit(self.variant(c, g, False), inh, 'grid')
-                    cell = 'HSel(ctrl: %s[%d], index: %d, on: %s, off: %s)' % (gname, gi, idx, on, off)
+                    cell = 'HSel(ctrl: %s[%d], index: %d,%s on: %s, off: %s)' % (gname, gi, idx, self.segment_arg(g), on, off)
                 else:
                     cell = self.emit(c, inh, 'grid')
                 items.append('Expanded(flex: %d, child: %s)' % (span, cell))

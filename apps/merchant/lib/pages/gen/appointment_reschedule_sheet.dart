@@ -96,11 +96,7 @@ class AppointmentRescheduleSheet extends StatelessWidget {
                       ),
                       off: hbox(
                         h: 34,
-                        bg: dk(
-                          context,
-                          Color(0xFFE1F0FE),
-                          Color.fromRGBO(4, 133, 247, 0.18),
-                        ),
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
                         radius: BorderRadius.circular(17),
                         pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
                         child: Align(
@@ -123,7 +119,11 @@ class AppointmentRescheduleSheet extends StatelessWidget {
                       index: 1,
                       on: hbox(
                         h: 34,
-                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        bg: dk(
+                          context,
+                          Color(0xFFE1F0FE),
+                          Color.fromRGBO(4, 133, 247, 0.18),
+                        ),
                         radius: BorderRadius.circular(17),
                         border: Border.all(
                           color: Color(0xFF0485F7),
@@ -169,7 +169,11 @@ class AppointmentRescheduleSheet extends StatelessWidget {
                       index: 2,
                       on: hbox(
                         h: 34,
-                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        bg: dk(
+                          context,
+                          Color(0xFFE1F0FE),
+                          Color.fromRGBO(4, 133, 247, 0.18),
+                        ),
                         radius: BorderRadius.circular(17),
                         border: Border.all(
                           color: Color(0xFF0485F7),
@@ -215,7 +219,11 @@ class AppointmentRescheduleSheet extends StatelessWidget {
                       index: 3,
                       on: hbox(
                         h: 34,
-                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        bg: dk(
+                          context,
+                          Color(0xFFE1F0FE),
+                          Color.fromRGBO(4, 133, 247, 0.18),
+                        ),
                         radius: BorderRadius.circular(17),
                         border: Border.all(
                           color: Color(0xFF0485F7),
@@ -660,11 +668,7 @@ class AppointmentRescheduleSheet extends StatelessWidget {
                       ),
                       off: hbox(
                         h: 34,
-                        bg: dk(
-                          context,
-                          Color(0xFFE1F0FE),
-                          Color.fromRGBO(4, 133, 247, 0.18),
-                        ),
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
                         radius: BorderRadius.circular(17),
                         pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
                         child: Align(
@@ -687,7 +691,11 @@ class AppointmentRescheduleSheet extends StatelessWidget {
                       index: 1,
                       on: hbox(
                         h: 34,
-                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        bg: dk(
+                          context,
+                          Color(0xFFE1F0FE),
+                          Color.fromRGBO(4, 133, 247, 0.18),
+                        ),
                         radius: BorderRadius.circular(17),
                         border: Border.all(
                           color: Color(0xFF0485F7),
@@ -733,7 +741,11 @@ class AppointmentRescheduleSheet extends StatelessWidget {
                       index: 2,
                       on: hbox(
                         h: 34,
-                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        bg: dk(
+                          context,
+                          Color(0xFFE1F0FE),
+                          Color.fromRGBO(4, 133, 247, 0.18),
+                        ),
                         radius: BorderRadius.circular(17),
                         border: Border.all(
                           color: Color(0xFF0485F7),
@@ -779,7 +791,11 @@ class AppointmentRescheduleSheet extends StatelessWidget {
                       index: 3,
                       on: hbox(
                         h: 34,
-                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        bg: dk(
+                          context,
+                          Color(0xFFE1F0FE),
+                          Color.fromRGBO(4, 133, 247, 0.18),
+                        ),
                         radius: BorderRadius.circular(17),
                         border: Border.all(
                           color: Color(0xFF0485F7),

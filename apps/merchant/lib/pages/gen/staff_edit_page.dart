@@ -434,8 +434,8 @@ class StaffEditPage extends StatelessWidget {
                               on: hbox(
                                 bg: dk(
                                   context,
-                                  Color(0xFFF4F4F5),
-                                  Color(0xFF27272A),
+                                  Color(0xFFE1F0FE),
+                                  Color.fromRGBO(4, 133, 247, 0.18),
                                 ),
                                 radius: BorderRadius.circular(18),
                                 border: Border.all(
@@ -544,8 +544,8 @@ class StaffEditPage extends StatelessWidget {
                               on: hbox(
                                 bg: dk(
                                   context,
-                                  Color(0xFFF4F4F5),
-                                  Color(0xFF27272A),
+                                  Color(0xFFE1F0FE),
+                                  Color.fromRGBO(4, 133, 247, 0.18),
                                 ),
                                 radius: BorderRadius.circular(18),
                                 border: Border.all(
@@ -709,8 +709,8 @@ class StaffEditPage extends StatelessWidget {
                               off: hbox(
                                 bg: dk(
                                   context,
-                                  Color(0xFFE1F0FE),
-                                  Color.fromRGBO(4, 133, 247, 0.18),
+                                  Color(0xFFF4F4F5),
+                                  Color(0xFF27272A),
                                 ),
                                 radius: BorderRadius.circular(18),
                                 pad: EdgeInsets.fromLTRB(14, 12, 14, 12),
@@ -842,8 +842,8 @@ class StaffEditPage extends StatelessWidget {
                                 h: 34,
                                 bg: dk(
                                   context,
-                                  Color(0xFFF4F4F5),
-                                  Color(0xFF27272A),
+                                  Color(0xFFE1F0FE),
+                                  Color.fromRGBO(4, 133, 247, 0.18),
                                 ),
                                 radius: BorderRadius.circular(17),
                                 border: Border.all(
@@ -904,8 +904,8 @@ class StaffEditPage extends StatelessWidget {
                                 h: 34,
                                 bg: dk(
                                   context,
-                                  Color(0xFFF4F4F5),
-                                  Color(0xFF27272A),
+                                  Color(0xFFE1F0FE),
+                                  Color.fromRGBO(4, 133, 247, 0.18),
                                 ),
                                 radius: BorderRadius.circular(17),
                                 border: Border.all(
@@ -997,8 +997,8 @@ class StaffEditPage extends StatelessWidget {
                                 h: 34,
                                 bg: dk(
                                   context,
-                                  Color(0xFFE1F0FE),
-                                  Color.fromRGBO(4, 133, 247, 0.18),
+                                  Color(0xFFF4F4F5),
+                                  Color(0xFF27272A),
                                 ),
                                 radius: BorderRadius.circular(17),
                                 pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
@@ -1059,8 +1059,8 @@ class StaffEditPage extends StatelessWidget {
                                 h: 34,
                                 bg: dk(
                                   context,
-                                  Color(0xFFE1F0FE),
-                                  Color.fromRGBO(4, 133, 247, 0.18),
+                                  Color(0xFFF4F4F5),
+                                  Color(0xFF27272A),
                                 ),
                                 radius: BorderRadius.circular(17),
                                 pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
@@ -1090,8 +1090,8 @@ class StaffEditPage extends StatelessWidget {
                                 h: 34,
                                 bg: dk(
                                   context,
-                                  Color(0xFFF4F4F5),
-                                  Color(0xFF27272A),
+                                  Color(0xFFE1F0FE),
+                                  Color.fromRGBO(4, 133, 247, 0.18),
                                 ),
                                 radius: BorderRadius.circular(17),
                                 border: Border.all(
@@ -1183,8 +1183,8 @@ class StaffEditPage extends StatelessWidget {
                                 h: 34,
                                 bg: dk(
                                   context,
-                                  Color(0xFFE1F0FE),
-                                  Color.fromRGBO(4, 133, 247, 0.18),
+                                  Color(0xFFF4F4F5),
+                                  Color(0xFF27272A),
                                 ),
                                 radius: BorderRadius.circular(17),
                                 pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
@@ -1214,8 +1214,8 @@ class StaffEditPage extends StatelessWidget {
                                 h: 34,
                                 bg: dk(
                                   context,
-                                  Color(0xFFF4F4F5),
-                                  Color(0xFF27272A),
+                                  Color(0xFFE1F0FE),
+                                  Color.fromRGBO(4, 133, 247, 0.18),
                                 ),
                                 radius: BorderRadius.circular(17),
                                 border: Border.all(
@@ -1350,8 +1350,8 @@ class StaffEditPage extends StatelessWidget {
                                     h: 34,
                                     bg: dk(
                                       context,
-                                      Color(0xFFF4F4F5),
-                                      Color(0xFF27272A),
+                                      Color(0xFFE1F0FE),
+                                      Color.fromRGBO(4, 133, 247, 0.18),
                                     ),
                                     radius: BorderRadius.circular(17),
                                     border: Border.all(
@@ -1412,8 +1412,8 @@ class StaffEditPage extends StatelessWidget {
                                     h: 34,
                                     bg: dk(
                                       context,
-                                      Color(0xFFF4F4F5),
-                                      Color(0xFF27272A),
+                                      Color(0xFFE1F0FE),
+                                      Color.fromRGBO(4, 133, 247, 0.18),
                                     ),
                                     radius: BorderRadius.circular(17),
                                     border: Border.all(
@@ -1505,8 +1505,8 @@ class StaffEditPage extends StatelessWidget {
                                     h: 34,
                                     bg: dk(
                                       context,
-                                      Color(0xFFE1F0FE),
-                                      Color.fromRGBO(4, 133, 247, 0.18),
+                                      Color(0xFFF4F4F5),
+                                      Color(0xFF27272A),
                                     ),
                                     radius: BorderRadius.circular(17),
                                     pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
@@ -1536,8 +1536,8 @@ class StaffEditPage extends StatelessWidget {
                                     h: 34,
                                     bg: dk(
                                       context,
-                                      Color(0xFFF4F4F5),
-                                      Color(0xFF27272A),
+                                      Color(0xFFE1F0FE),
+                                      Color.fromRGBO(4, 133, 247, 0.18),
                                     ),
                                     radius: BorderRadius.circular(17),
                                     border: Border.all(
@@ -1598,8 +1598,8 @@ class StaffEditPage extends StatelessWidget {
                                     h: 34,
                                     bg: dk(
                                       context,
-                                      Color(0xFFF4F4F5),
-                                      Color(0xFF27272A),
+                                      Color(0xFFE1F0FE),
+                                      Color.fromRGBO(4, 133, 247, 0.18),
                                     ),
                                     radius: BorderRadius.circular(17),
                                     border: Border.all(

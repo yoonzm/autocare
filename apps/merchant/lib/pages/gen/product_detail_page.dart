@@ -1026,6 +1026,7 @@ class ProductDetailPage extends StatelessWidget {
                                 child: HSel(
                                   ctrl: g2[0],
                                   index: 0,
+                                  segment: true,
                                   on: hbox(
                                     h: 32,
                                     bg: dk(
@@ -1079,11 +1080,6 @@ class ProductDetailPage extends StatelessWidget {
                                   ),
                                   off: hbox(
                                     h: 32,
-                                    bg: dk(
-                                      context,
-                                      Color(0xFFFFFFFF),
-                                      Color(0xFF18181B),
-                                    ),
                                     radius: BorderRadius.circular(16),
                                     child: Align(
                                       alignment: Alignment.center,
@@ -1114,23 +1110,40 @@ class ProductDetailPage extends StatelessWidget {
                                 child: HSel(
                                   ctrl: g2[0],
                                   index: 1,
+                                  segment: true,
                                   on: hbox(
                                     h: 32,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFFFFFFF),
+                                      Color(0xFF18181B),
+                                    ),
                                     radius: BorderRadius.circular(16),
-                                    shadow: dk(context, [
-                                      BoxShadow(
-                                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                                        offset: Offset(0, 1),
-                                        blurRadius: 2,
-                                        spreadRadius: 0,
-                                      ),
-                                      BoxShadow(
-                                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                                        offset: Offset(0, 2),
-                                        blurRadius: 4,
-                                        spreadRadius: 0,
-                                      ),
-                                    ], null),
+                                    shadow: dk(
+                                      context,
+                                      [
+                                        BoxShadow(
+                                          color: Color.fromRGBO(0, 0, 0, 0.06),
+                                          offset: Offset(0, 1),
+                                          blurRadius: 2,
+                                          spreadRadius: 0,
+                                        ),
+                                        BoxShadow(
+                                          color: Color.fromRGBO(0, 0, 0, 0.04),
+                                          offset: Offset(0, 2),
+                                          blurRadius: 4,
+                                          spreadRadius: 0,
+                                        ),
+                                      ],
+                                      [
+                                        BoxShadow(
+                                          color: Color(0xFF26262B),
+                                          offset: Offset(0, 0),
+                                          blurRadius: 0,
+                                          spreadRadius: 1,
+                                        ),
+                                      ],
+                                    ),
                                     child: Align(
                                       alignment: Alignment.center,
                                       widthFactor: 1,
@@ -1181,23 +1194,40 @@ class ProductDetailPage extends StatelessWidget {
                                 child: HSel(
                                   ctrl: g2[0],
                                   index: 2,
+                                  segment: true,
                                   on: hbox(
                                     h: 32,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFFFFFFF),
+                                      Color(0xFF18181B),
+                                    ),
                                     radius: BorderRadius.circular(16),
-                                    shadow: dk(context, [
-                                      BoxShadow(
-                                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                                        offset: Offset(0, 1),
-                                        blurRadius: 2,
-                                        spreadRadius: 0,
-                                      ),
-                                      BoxShadow(
-                                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                                        offset: Offset(0, 2),
-                                        blurRadius: 4,
-                                        spreadRadius: 0,
-                                      ),
-                                    ], null),
+                                    shadow: dk(
+                                      context,
+                                      [
+                                        BoxShadow(
+                                          color: Color.fromRGBO(0, 0, 0, 0.06),
+                                          offset: Offset(0, 1),
+                                          blurRadius: 2,
+                                          spreadRadius: 0,
+                                        ),
+                                        BoxShadow(
+                                          color: Color.fromRGBO(0, 0, 0, 0.04),
+                                          offset: Offset(0, 2),
+                                          blurRadius: 4,
+                                          spreadRadius: 0,
+                                        ),
+                                      ],
+                                      [
+                                        BoxShadow(
+                                          color: Color(0xFF26262B),
+                                          offset: Offset(0, 0),
+                                          blurRadius: 0,
+                                          spreadRadius: 1,
+                                        ),
+                                      ],
+                                    ),
                                     child: Align(
                                       alignment: Alignment.center,
                                       widthFactor: 1,
@@ -1248,23 +1278,40 @@ class ProductDetailPage extends StatelessWidget {
                                 child: HSel(
                                   ctrl: g2[0],
                                   index: 3,
+                                  segment: true,
                                   on: hbox(
                                     h: 32,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFFFFFFF),
+                                      Color(0xFF18181B),
+                                    ),
                                     radius: BorderRadius.circular(16),
-                                    shadow: dk(context, [
-                                      BoxShadow(
-                                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                                        offset: Offset(0, 1),
-                                        blurRadius: 2,
-                                        spreadRadius: 0,
-                                      ),
-                                      BoxShadow(
-                                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                                        offset: Offset(0, 2),
-                                        blurRadius: 4,
-                                        spreadRadius: 0,
-                                      ),
-                                    ], null),
+                                    shadow: dk(
+                                      context,
+                                      [
+                                        BoxShadow(
+                                          color: Color.fromRGBO(0, 0, 0, 0.06),
+                                          offset: Offset(0, 1),
+                                          blurRadius: 2,
+                                          spreadRadius: 0,
+                                        ),
+                                        BoxShadow(
+                                          color: Color.fromRGBO(0, 0, 0, 0.04),
+                                          offset: Offset(0, 2),
+                                          blurRadius: 4,
+                                          spreadRadius: 0,
+                                        ),
+                                      ],
+                                      [
+                                        BoxShadow(
+                                          color: Color(0xFF26262B),
+                                          offset: Offset(0, 0),
+                                          blurRadius: 0,
+                                          spreadRadius: 1,
+                                        ),
+                                      ],
+                                    ),
                                     child: Align(
                                       alignment: Alignment.center,
                                       widthFactor: 1,

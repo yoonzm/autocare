@@ -12,6 +12,7 @@ import 'staff_add_template.dart';
 import 'staff_edit_template.dart';
 import 'bay_edit_template.dart';
 import 'appointment_settings_skeleton.dart';
+import 'staff_skeletons.dart';
 
 class BookingResourcesPage extends StatelessWidget {
   final String kind;
@@ -27,11 +28,20 @@ class BookingResourcesPage extends StatelessWidget {
 class BookingResourceEditor extends StatelessWidget {
   final String kind;
   final Map<String, dynamic>? row;
-  const BookingResourceEditor({super.key, required this.kind, this.row});
+
+  /// 从列表页进入时带上已读到的预约选项：编辑页直接显示，不再整页等待、不出骨架。
+  final Map<String, dynamic>? options;
+  const BookingResourceEditor({
+    super.key,
+    required this.kind,
+    this.row,
+    this.options,
+  });
   @override
   Widget build(BuildContext context) => BookingLiveHost(
     mode: kind == 'bay' ? 'bay' : 'staff',
     row: row,
+    options: options,
     builder: (c) => kind == 'bay'
         ? BayEditorTemplate(c: c)
         : row == null
@@ -43,12 +53,14 @@ class BookingResourceEditor extends StatelessWidget {
 class BookingLiveHost extends StatefulWidget {
   final String mode;
   final Map<String, dynamic>? row;
+  final Map<String, dynamic>? options;
   final Widget Function(BookingTemplateController) builder;
   const BookingLiveHost({
     super.key,
     required this.mode,
     required this.builder,
     this.row,
+    this.options,
   });
   @override
   State<BookingLiveHost> createState() => _HostState();
@@ -72,8 +84,63 @@ class _HostState extends State<BookingLiveHost> {
   }
 
   void _reload() => _key.currentState?.reload();
+
+  void _bind(Map<String, dynamic> data) {
+    c ??= BookingTemplateController(data, widget.mode, widget.row);
+    c!.options.addAll(data);
+    c!.onEdit = (context, row) => Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => BookingResourceEditor(
+          kind: widget.mode == 'business' ? 'bay' : 'technician',
+          row: row,
+          options: c!.options,
+        ),
+      ),
+    );
+  }
+
+  Widget _view() => ListenableBuilder(
+    listenable: c!,
+    builder: (_, _) => ConfirmDiscard(
+      busy: c!.busy,
+      dirty: c!.dirty,
+      child: AbsorbPointer(absorbing: c!.busy, child: widget.builder(c!)),
+    ),
+  );
+
+  ResourceSkeleton? _resourceSkeleton({bool blocks = true}) =>
+      switch (widget.mode) {
+        'staff_list' => ResourceSkeleton(
+          kind: ResourceSkeletonKind.staffList,
+          showBlocks: blocks,
+        ),
+        'staff' => ResourceSkeleton(
+          kind: ResourceSkeletonKind.staffForm,
+          editing: widget.row != null,
+          showBlocks: blocks,
+        ),
+        'bay' => ResourceSkeleton(
+          kind: ResourceSkeletonKind.bayForm,
+          showBlocks: blocks,
+        ),
+        'business' => ResourceSkeleton(
+          kind: ResourceSkeletonKind.business,
+          showBlocks: blocks,
+        ),
+        _ => null,
+      };
+
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) {
+    final preset = widget.options;
+    if (preset != null) {
+      _bind(preset);
+      return Scaffold(body: _view());
+    }
+    return _asyncBuild(context);
+  }
+
+  Widget _asyncBuild(BuildContext context) => Scaffold(
     body: AsyncView<Map<String, dynamic>>(
       key: _key,
       load: () => merchantApi.appointment('options'),
@@ -81,41 +148,14 @@ class _HostState extends State<BookingLiveHost> {
       skeletonPadding: EdgeInsets.zero,
       waiting: widget.mode == 'settings'
           ? const AppointmentSettingsSkeleton(showBlocks: false)
-          : null,
-      skeletonScrollable: widget.mode != 'settings',
+          : _resourceSkeleton(blocks: false),
+      skeletonScrollable: false,
       skeleton: widget.mode == 'settings'
           ? const AppointmentSettingsSkeleton()
-          : SkeletonDataPage(
-              title: switch (widget.mode) {
-                'business' => '营业时间与工位',
-                'staff_list' => '员工与权限',
-                'bay' => '编辑工位',
-                'staff' => widget.row == null ? '新增员工' : '编辑员工',
-                _ => '',
-              },
-              detail: listing,
-            ),
+          : _resourceSkeleton() ?? SkeletonDataPage(title: '', detail: listing),
       empty: (_) => const SizedBox.shrink(),
-      onLoaded: (data) {
-        c ??= BookingTemplateController(data, widget.mode, widget.row);
-        c!.options.addAll(data);
-        c!.onEdit = (context, row) => Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => BookingResourceEditor(
-              kind: widget.mode == 'business' ? 'bay' : 'technician',
-              row: row,
-            ),
-          ),
-        );
-      },
-      builder: (_, data) => ListenableBuilder(
-        listenable: c!,
-        builder: (_, _) => ConfirmDiscard(
-          busy: c!.busy,
-          dirty: c!.dirty,
-          child: AbsorbPointer(absorbing: c!.busy, child: widget.builder(c!)),
-        ),
-      ),
+      onLoaded: _bind,
+      builder: (_, data) => _view(),
     ),
   );
 }

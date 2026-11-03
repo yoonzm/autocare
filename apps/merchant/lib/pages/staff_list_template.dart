@@ -125,23 +125,40 @@ class StaffListTemplate extends StatelessWidget {
                             child: HSel(
                               ctrl: g1[0],
                               index: 0,
+                              segment: true,
                               on: hbox(
                                 h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFFFFFFF),
+                                  Color(0xFF18181B),
+                                ),
                                 radius: BorderRadius.circular(17),
-                                shadow: dk(context, [
-                                  BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.06),
-                                    offset: Offset(0, 1),
-                                    blurRadius: 2,
-                                    spreadRadius: 0,
-                                  ),
-                                  BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.04),
-                                    offset: Offset(0, 2),
-                                    blurRadius: 4,
-                                    spreadRadius: 0,
-                                  ),
-                                ], null),
+                                shadow: dk(
+                                  context,
+                                  [
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.06),
+                                      offset: Offset(0, 1),
+                                      blurRadius: 2,
+                                      spreadRadius: 0,
+                                    ),
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.04),
+                                      offset: Offset(0, 2),
+                                      blurRadius: 4,
+                                      spreadRadius: 0,
+                                    ),
+                                  ],
+                                  [
+                                    BoxShadow(
+                                      color: Color(0xFF26262B),
+                                      offset: Offset(0, 0),
+                                      blurRadius: 0,
+                                      spreadRadius: 1,
+                                    ),
+                                  ],
+                                ),
                                 child: Align(
                                   alignment: Alignment.center,
                                   widthFactor: 1,
@@ -252,23 +269,40 @@ class StaffListTemplate extends StatelessWidget {
                             child: HSel(
                               ctrl: g1[0],
                               index: 1,
+                              segment: true,
                               on: hbox(
                                 h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFFFFFFF),
+                                  Color(0xFF18181B),
+                                ),
                                 radius: BorderRadius.circular(17),
-                                shadow: dk(context, [
-                                  BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.06),
-                                    offset: Offset(0, 1),
-                                    blurRadius: 2,
-                                    spreadRadius: 0,
-                                  ),
-                                  BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.04),
-                                    offset: Offset(0, 2),
-                                    blurRadius: 4,
-                                    spreadRadius: 0,
-                                  ),
-                                ], null),
+                                shadow: dk(
+                                  context,
+                                  [
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.06),
+                                      offset: Offset(0, 1),
+                                      blurRadius: 2,
+                                      spreadRadius: 0,
+                                    ),
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.04),
+                                      offset: Offset(0, 2),
+                                      blurRadius: 4,
+                                      spreadRadius: 0,
+                                    ),
+                                  ],
+                                  [
+                                    BoxShadow(
+                                      color: Color(0xFF26262B),
+                                      offset: Offset(0, 0),
+                                      blurRadius: 0,
+                                      spreadRadius: 1,
+                                    ),
+                                  ],
+                                ),
                                 child: Align(
                                   alignment: Alignment.center,
                                   widthFactor: 1,
@@ -379,23 +413,40 @@ class StaffListTemplate extends StatelessWidget {
                             child: HSel(
                               ctrl: g1[0],
                               index: 2,
+                              segment: true,
                               on: hbox(
                                 h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFFFFFFF),
+                                  Color(0xFF18181B),
+                                ),
                                 radius: BorderRadius.circular(17),
-                                shadow: dk(context, [
-                                  BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.06),
-                                    offset: Offset(0, 1),
-                                    blurRadius: 2,
-                                    spreadRadius: 0,
-                                  ),
-                                  BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.04),
-                                    offset: Offset(0, 2),
-                                    blurRadius: 4,
-                                    spreadRadius: 0,
-                                  ),
-                                ], null),
+                                shadow: dk(
+                                  context,
+                                  [
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.06),
+                                      offset: Offset(0, 1),
+                                      blurRadius: 2,
+                                      spreadRadius: 0,
+                                    ),
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.04),
+                                      offset: Offset(0, 2),
+                                      blurRadius: 4,
+                                      spreadRadius: 0,
+                                    ),
+                                  ],
+                                  [
+                                    BoxShadow(
+                                      color: Color(0xFF26262B),
+                                      offset: Offset(0, 0),
+                                      blurRadius: 0,
+                                      spreadRadius: 1,
+                                    ),
+                                  ],
+                                ),
                                 child: Align(
                                   alignment: Alignment.center,
                                   widthFactor: 1,
@@ -506,6 +557,7 @@ class StaffListTemplate extends StatelessWidget {
                             child: HSel(
                               ctrl: g1[0],
                               index: 3,
+                              segment: true,
                               on: hbox(
                                 h: 34,
                                 bg: dk(
@@ -589,11 +641,6 @@ class StaffListTemplate extends StatelessWidget {
                               ),
                               off: hbox(
                                 h: 34,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFFFFFFF),
-                                  Color(0xFF18181B),
-                                ),
                                 radius: BorderRadius.circular(17),
                                 child: Align(
                                   alignment: Alignment.center,
@@ -699,162 +746,10 @@ class StaffListTemplate extends StatelessWidget {
                           message: '点击右上角添加技师基础资料',
                           inline: true,
                         ),
-                      for (final r in c.visibleStaff)
-                        hTap(
-                          context,
-                          hbox(
-                            pad: EdgeInsets.fromLTRB(16, 12, 16, 12),
-                            child: hrow(
-                              [
-                                hbox(
-                                  w: 40,
-                                  h: 40,
-                                  bg: dk(
-                                    context,
-                                    Color(0xFFE1F0FE),
-                                    Color.fromRGBO(4, 133, 247, 0.18),
-                                  ),
-                                  radius: BorderRadius.circular(20),
-                                  align: Alignment(0, 0),
-                                  child: Text(
-                                    '${r['name']}'.substring(0, 1),
-                                    style: hts(
-                                      15,
-                                      dk(
-                                        context,
-                                        Color(0xFF1E63AE),
-                                        Color(0xFF6AB4FA),
-                                      ),
-                                      w: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 1,
-                                  child: hcol(
-                                    [
-                                      Text.rich(
-                                        TextSpan(
-                                          style: hts(
-                                            15,
-                                            dk(
-                                              context,
-                                              Color(0xFF18181B),
-                                              Color(0xFFFAFAFA),
-                                            ),
-                                            w: FontWeight.w500,
-                                            lh: 22,
-                                          ),
-                                          children: [
-                                            TextSpan(
-                                              text: '${r['name']} ',
-                                              style: hts(
-                                                15,
-                                                dk(
-                                                  context,
-                                                  Color(0xFF18181B),
-                                                  Color(0xFFFAFAFA),
-                                                ),
-                                                w: FontWeight.w500,
-                                                lh: 22,
-                                              ),
-                                            ),
-                                            TextSpan(
-                                              text: '· ${r['category']}',
-                                              style: hts(
-                                                12,
-                                                dk(
-                                                  context,
-                                                  Color(0xFF71717A),
-                                                  Color(0xFF9A9AA3),
-                                                ),
-                                                lh: 22,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Text(
-                                        '本月 ${r['month_orders'] ?? 0} 台次',
-                                        style: hts(
-                                          12,
-                                          dk(
-                                            context,
-                                            Color(0xFF71717A),
-                                            Color(0xFF9A9AA3),
-                                          ),
-                                          lh: 16,
-                                        ),
-                                      ),
-                                    ],
-                                    main: MainAxisAlignment.start,
-                                    cross: CrossAxisAlignment.stretch,
-                                    gap: 2,
-                                  ),
-                                ),
-                                hbox(
-                                  bg: dk(
-                                    context,
-                                    Color(0xFFE1F0FE),
-                                    Color.fromRGBO(4, 133, 247, 0.18),
-                                  ),
-                                  radius: BorderRadius.circular(10),
-                                  pad: EdgeInsets.fromLTRB(8, 0, 8, 0),
-                                  child: hrow(
-                                    [
-                                      hbox(
-                                        w: 6,
-                                        h: 6,
-                                        bg: Color(0xFF0485F7),
-                                        radius: BorderRadius.circular(3),
-                                      ),
-                                      Flexible(
-                                        flex: 36,
-                                        child: Text(
-                                          r['busy'] == true ? '已安排' : '空闲',
-                                          style: hts(
-                                            12,
-                                            dk(
-                                              context,
-                                              Color(0xFF1E63AE),
-                                              Color(0xFF6AB4FA),
-                                            ),
-                                            w: FontWeight.w500,
-                                            lh: 20,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                    main: MainAxisAlignment.start,
-                                    cross: CrossAxisAlignment.center,
-                                    gap: 5,
-                                  ),
-                                ),
-                              ],
-                              main: MainAxisAlignment.start,
-                              cross: CrossAxisAlignment.center,
-                              gap: 12,
-                            ),
-                          ),
-                          onTap: () => c.editResource(context, r),
-                        ),
-                      hbox(
-                        h: 1,
-                        bg: dk(context, Color(0xFFEFEFF1), Color(0xFF2A2A2E)),
-                        margin: EdgeInsets.fromLTRB(68, 0, 0, 0),
-                      ),
-
-                      hbox(
-                        h: 1,
-                        bg: dk(context, Color(0xFFEFEFF1), Color(0xFF2A2A2E)),
-                        margin: EdgeInsets.fromLTRB(68, 0, 0, 0),
-                      ),
-
-                      hbox(
-                        h: 1,
-                        bg: dk(context, Color(0xFFEFEFF1), Color(0xFF2A2A2E)),
-                        margin: EdgeInsets.fromLTRB(68, 0, 0, 0),
-                      ),
+                      for (var i = 0; i < c.visibleStaff.length; i++) ...[
+                        if (i > 0) _staffDivider(context),
+                        _staffRow(context, c, c.visibleStaff[i], i),
+                      ],
                     ],
                     main: MainAxisAlignment.start,
                     cross: CrossAxisAlignment.stretch,
@@ -931,146 +826,13 @@ class StaffListTemplate extends StatelessWidget {
                     c.changed();
                   },
                 ),
-                if (c.showInactive)
-                  for (final r in c.inactiveStaff)
-                    hTap(
-                      context,
-                      hbox(
-                        pad: EdgeInsets.fromLTRB(16, 12, 16, 12),
-                        child: hrow(
-                          [
-                            hbox(
-                              w: 40,
-                              h: 40,
-                              bg: dk(
-                                context,
-                                Color(0xFFE1F0FE),
-                                Color.fromRGBO(4, 133, 247, 0.18),
-                              ),
-                              radius: BorderRadius.circular(20),
-                              align: Alignment(0, 0),
-                              child: Text(
-                                '${r['name']}'.substring(0, 1),
-                                style: hts(
-                                  15,
-                                  dk(
-                                    context,
-                                    Color(0xFF1E63AE),
-                                    Color(0xFF6AB4FA),
-                                  ),
-                                  w: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              flex: 1,
-                              child: hcol(
-                                [
-                                  Text.rich(
-                                    TextSpan(
-                                      style: hts(
-                                        15,
-                                        dk(
-                                          context,
-                                          Color(0xFF18181B),
-                                          Color(0xFFFAFAFA),
-                                        ),
-                                        w: FontWeight.w500,
-                                        lh: 22,
-                                      ),
-                                      children: [
-                                        TextSpan(
-                                          text: '${r['name']} ',
-                                          style: hts(
-                                            15,
-                                            dk(
-                                              context,
-                                              Color(0xFF18181B),
-                                              Color(0xFFFAFAFA),
-                                            ),
-                                            w: FontWeight.w500,
-                                            lh: 22,
-                                          ),
-                                        ),
-                                        TextSpan(
-                                          text: '· ${r['category']}',
-                                          style: hts(
-                                            12,
-                                            dk(
-                                              context,
-                                              Color(0xFF71717A),
-                                              Color(0xFF9A9AA3),
-                                            ),
-                                            lh: 22,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Text(
-                                    '本月 ${r['month_orders'] ?? 0} 台次',
-                                    style: hts(
-                                      12,
-                                      dk(
-                                        context,
-                                        Color(0xFF71717A),
-                                        Color(0xFF9A9AA3),
-                                      ),
-                                      lh: 16,
-                                    ),
-                                  ),
-                                ],
-                                main: MainAxisAlignment.start,
-                                cross: CrossAxisAlignment.stretch,
-                                gap: 2,
-                              ),
-                            ),
-                            hbox(
-                              bg: dk(
-                                context,
-                                Color(0xFFE1F0FE),
-                                Color.fromRGBO(4, 133, 247, 0.18),
-                              ),
-                              radius: BorderRadius.circular(10),
-                              pad: EdgeInsets.fromLTRB(8, 0, 8, 0),
-                              child: hrow(
-                                [
-                                  hbox(
-                                    w: 6,
-                                    h: 6,
-                                    bg: Color(0xFF0485F7),
-                                    radius: BorderRadius.circular(3),
-                                  ),
-                                  Flexible(
-                                    flex: 36,
-                                    child: Text(
-                                      '已停用',
-                                      style: hts(
-                                        12,
-                                        dk(
-                                          context,
-                                          Color(0xFF1E63AE),
-                                          Color(0xFF6AB4FA),
-                                        ),
-                                        w: FontWeight.w500,
-                                        lh: 20,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                                main: MainAxisAlignment.start,
-                                cross: CrossAxisAlignment.center,
-                                gap: 5,
-                              ),
-                            ),
-                          ],
-                          main: MainAxisAlignment.start,
-                          cross: CrossAxisAlignment.center,
-                          gap: 12,
-                        ),
-                      ),
-                      onTap: () => c.editResource(context, r),
-                    ),
+                if (c.showInactive && c.inactiveStaff.isNotEmpty)
+                  _staffCard(context, [
+                    for (var i = 0; i < c.inactiveStaff.length; i++) ...[
+                      if (i > 0) _staffDivider(context),
+                      _staffRow(context, c, c.inactiveStaff[i], i, off: true),
+                    ],
+                  ]),
                 hbox(
                   bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
                   radius: BorderRadius.circular(24),
@@ -1476,4 +1238,175 @@ class StaffListTemplate extends StatelessWidget {
       overlays: [],
     );
   }
+}
+
+Widget _staffDivider(BuildContext context) => hbox(
+  h: 1,
+  bg: dk(context, Color(0xFFEFEFF1), Color(0xFF2A2A2E)),
+  margin: EdgeInsets.fromLTRB(68, 0, 0, 0),
+);
+
+Widget _staffCard(BuildContext context, List<Widget> rows) => hbox(
+  bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+  radius: BorderRadius.circular(24),
+  shadow: dk(
+    context,
+    [
+      BoxShadow(
+        color: Color.fromRGBO(0, 0, 0, 0.06),
+        offset: Offset(0, 0),
+        blurRadius: 1,
+        spreadRadius: 0,
+      ),
+      BoxShadow(
+        color: Color.fromRGBO(0, 0, 0, 0.06),
+        offset: Offset(0, 1),
+        blurRadius: 2,
+        spreadRadius: 0,
+      ),
+      BoxShadow(
+        color: Color.fromRGBO(0, 0, 0, 0.04),
+        offset: Offset(0, 2),
+        blurRadius: 4,
+        spreadRadius: 0,
+      ),
+    ],
+    [
+      BoxShadow(
+        color: Color(0xFF26262B),
+        offset: Offset(0, 0),
+        blurRadius: 0,
+        spreadRadius: 1,
+      ),
+    ],
+  ),
+  pad: EdgeInsets.fromLTRB(0, 4, 0, 4),
+  child: hcol(
+    rows,
+    main: MainAxisAlignment.start,
+    cross: CrossAxisAlignment.stretch,
+    gap: 0,
+  ),
+);
+
+/// 设计稿里的头像底色：按行轮换（蓝 / 黄 / 绿 / 灰）。
+const _avatarPalette = <(Color, Color, Color, Color)>[
+  (Color(0xFFE1F0FE), Color(0x2E0485F7), Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+  (Color(0xFFFDEFD6), Color(0x29F5A524), Color(0xFF855F2E), Color(0xFFF0C46A)),
+  (Color(0xFFDDF6E7), Color(0x2917C964), Color(0xFF2B7745), Color(0xFF5FD48C)),
+  (Color(0xFFEEEEF0), Color(0xFF27272A), Color(0xFF3F3F46), Color(0xFFD4D4D8)),
+];
+
+/// 一行员工：头像 + 姓名 / 擅长 + 本月台次 + 状态标签（样式取自设计稿 Staff）。
+Widget _staffRow(
+  BuildContext context,
+  BookingTemplateController c,
+  Map<String, dynamic> r,
+  int index, {
+  bool off = false,
+}) {
+  final pal = _avatarPalette[off ? 3 : index % _avatarPalette.length];
+  final muted = dk(context, Color(0xFF71717A), Color(0xFF9A9AA3));
+  final name = '${r['name']}';
+  final busy = r['busy'] == true;
+  final (chipLabel, chipBg, chipDot, chipFg) = off
+      ? (
+          '已停用',
+          dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
+          null,
+          dk(context, Color(0xFF52525B), Color(0xFFA8A8B3)),
+        )
+      : busy
+      ? (
+          '已安排',
+          dk(context, Color(0xFFE1F0FE), Color.fromRGBO(4, 133, 247, 0.18)),
+          Color(0xFF0485F7),
+          dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+        )
+      : (
+          '空闲',
+          dk(context, Color(0xFFDDF6E7), Color.fromRGBO(23, 201, 100, 0.16)),
+          Color(0xFF17C964),
+          dk(context, Color(0xFF2B7745), Color(0xFF5FD48C)),
+        );
+  return hTap(
+    context,
+    hbox(
+      pad: EdgeInsets.fromLTRB(16, 12, 16, 12),
+      child: hrow(
+        [
+          hbox(
+            w: 40,
+            h: 40,
+            bg: dk(context, pal.$1, pal.$2),
+            radius: BorderRadius.circular(20),
+            align: Alignment(0, 0),
+            child: Text(
+              name.isEmpty ? '' : name.substring(0, 1),
+              style: hts(15, dk(context, pal.$3, pal.$4), w: FontWeight.w600),
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: hcol(
+              [
+                Text.rich(
+                  TextSpan(
+                    style: hts(
+                      15,
+                      dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                      w: FontWeight.w500,
+                      lh: 22,
+                    ),
+                    children: [
+                      TextSpan(text: '$name '),
+                      if ('${r['category'] ?? ''}'.isNotEmpty)
+                        TextSpan(
+                          text: '· ${r['category']}',
+                          style: hts(12, muted, lh: 22),
+                        ),
+                    ],
+                  ),
+                ),
+                Text(
+                  '本月 ${r['month_orders'] ?? 0} 台次',
+                  style: hts(12, muted, lh: 16),
+                ),
+              ],
+              main: MainAxisAlignment.start,
+              cross: CrossAxisAlignment.stretch,
+              gap: 2,
+            ),
+          ),
+          hbox(
+            bg: chipBg,
+            radius: BorderRadius.circular(10),
+            pad: EdgeInsets.fromLTRB(8, 0, 8, 0),
+            child: hrow(
+              [
+                if (chipDot != null)
+                  hbox(
+                    w: 6,
+                    h: 6,
+                    bg: chipDot,
+                    radius: BorderRadius.circular(3),
+                  ),
+                Text(
+                  chipLabel,
+                  style: hts(12, chipFg, w: FontWeight.w500, lh: 20),
+                ),
+              ],
+              main: MainAxisAlignment.start,
+              cross: CrossAxisAlignment.center,
+              gap: 5,
+            ),
+          ),
+        ],
+        main: MainAxisAlignment.start,
+        cross: CrossAxisAlignment.center,
+        gap: 12,
+      ),
+    ),
+    onTap: () => c.editResource(context, r),
+  );
 }

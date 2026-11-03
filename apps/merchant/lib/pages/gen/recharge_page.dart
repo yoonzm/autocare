@@ -415,8 +415,8 @@ class RechargePage extends StatelessWidget {
                                 on: hbox(
                                   bg: dk(
                                     context,
-                                    Color(0xFFFFFFFF),
-                                    Color(0xFF18181B),
+                                    Color(0xFFF3F9FF),
+                                    Color.fromRGBO(4, 133, 247, 0.1),
                                   ),
                                   radius: BorderRadius.circular(20),
                                   border: Border.all(
@@ -619,8 +619,8 @@ class RechargePage extends StatelessWidget {
                                 off: hbox(
                                   bg: dk(
                                     context,
-                                    Color(0xFFF3F9FF),
-                                    Color.fromRGBO(4, 133, 247, 0.1),
+                                    Color(0xFFFFFFFF),
+                                    Color(0xFF18181B),
                                   ),
                                   radius: BorderRadius.circular(20),
                                   shadow: dk(
@@ -735,8 +735,8 @@ class RechargePage extends StatelessWidget {
                                 on: hbox(
                                   bg: dk(
                                     context,
-                                    Color(0xFFFFFFFF),
-                                    Color(0xFF18181B),
+                                    Color(0xFFF3F9FF),
+                                    Color.fromRGBO(4, 133, 247, 0.1),
                                   ),
                                   radius: BorderRadius.circular(20),
                                   border: Border.all(
@@ -865,8 +865,8 @@ class RechargePage extends StatelessWidget {
                                 on: hbox(
                                   bg: dk(
                                     context,
-                                    Color(0xFFFFFFFF),
-                                    Color(0xFF18181B),
+                                    Color(0xFFF3F9FF),
+                                    Color.fromRGBO(4, 133, 247, 0.1),
                                   ),
                                   radius: BorderRadius.circular(20),
                                   border: Border.all(
@@ -1183,8 +1183,8 @@ class RechargePage extends StatelessWidget {
                                         h: 64,
                                         bg: dk(
                                           context,
-                                          Color(0xFF18181B),
-                                          Color(0xFFFAFAFA),
+                                          Color(0xFFF4F4F5),
+                                          Color(0xFF27272A),
                                         ),
                                         radius: BorderRadius.circular(16),
                                         child: hcol(
@@ -1225,18 +1225,26 @@ class RechargePage extends StatelessWidget {
                                         h: 64,
                                         bg: dk(
                                           context,
-                                          Color(0xFFF4F4F5),
-                                          Color(0xFF27272A),
+                                          Color(0xFF18181B),
+                                          Color(0xFFFAFAFA),
                                         ),
                                         radius: BorderRadius.circular(16),
                                         child: hcol(
                                           [
-                                            hsvg(Svgs.s330, w: 20, h: 20),
+                                            hsvg(
+                                              dk(context, Svgs.s330, Svgs.s329),
+                                              w: 20,
+                                              h: 20,
+                                            ),
                                             Text(
                                               '支付宝',
                                               style: hts(
                                                 13,
-                                                Color(0xFFFAFAFA),
+                                                dk(
+                                                  context,
+                                                  Color(0xFFFAFAFA),
+                                                  Color(0xFF18181B),
+                                                ),
                                                 w: FontWeight.w500,
                                                 lh: 18,
                                               ),
@@ -1294,18 +1302,26 @@ class RechargePage extends StatelessWidget {
                                         h: 64,
                                         bg: dk(
                                           context,
-                                          Color(0xFFF4F4F5),
-                                          Color(0xFF27272A),
+                                          Color(0xFF18181B),
+                                          Color(0xFFFAFAFA),
                                         ),
                                         radius: BorderRadius.circular(16),
                                         child: hcol(
                                           [
-                                            hsvg(Svgs.s332, w: 20, h: 20),
+                                            hsvg(
+                                              dk(context, Svgs.s332, Svgs.s331),
+                                              w: 20,
+                                              h: 20,
+                                            ),
                                             Text(
                                               '现金',
                                               style: hts(
                                                 13,
-                                                Color(0xFFFAFAFA),
+                                                dk(
+                                                  context,
+                                                  Color(0xFFFAFAFA),
+                                                  Color(0xFF18181B),
+                                                ),
                                                 w: FontWeight.w500,
                                                 lh: 18,
                                               ),
@@ -1363,18 +1379,26 @@ class RechargePage extends StatelessWidget {
                                         h: 64,
                                         bg: dk(
                                           context,
-                                          Color(0xFFF4F4F5),
-                                          Color(0xFF27272A),
+                                          Color(0xFF18181B),
+                                          Color(0xFFFAFAFA),
                                         ),
                                         radius: BorderRadius.circular(16),
                                         child: hcol(
                                           [
-                                            hsvg(Svgs.s334, w: 20, h: 20),
+                                            hsvg(
+                                              dk(context, Svgs.s334, Svgs.s333),
+                                              w: 20,
+                                              h: 20,
+                                            ),
                                             Text(
                                               'POS 刷卡',
                                               style: hts(
                                                 13,
-                                                Color(0xFFFAFAFA),
+                                                dk(
+                                                  context,
+                                                  Color(0xFFFAFAFA),
+                                                  Color(0xFF18181B),
+                                                ),
                                                 w: FontWeight.w500,
                                                 lh: 18,
                                               ),

@@ -55,7 +55,11 @@ class RenewSheet extends StatelessWidget {
                   ctrl: g1[0],
                   index: 0,
                   on: hbox(
-                    bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                    bg: dk(
+                      context,
+                      Color(0xFFE1F0FE),
+                      Color.fromRGBO(4, 133, 247, 0.18),
+                    ),
                     radius: BorderRadius.circular(18),
                     border: Border.all(color: Color(0xFF0485F7), width: 1.5),
                     pad: EdgeInsets.fromLTRB(14, 12, 14, 12),
@@ -190,7 +194,11 @@ class RenewSheet extends StatelessWidget {
                   ctrl: g1[0],
                   index: 1,
                   on: hbox(
-                    bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                    bg: dk(
+                      context,
+                      Color(0xFFE1F0FE),
+                      Color.fromRGBO(4, 133, 247, 0.18),
+                    ),
                     radius: BorderRadius.circular(18),
                     border: Border.all(color: Color(0xFF0485F7), width: 1.5),
                     pad: EdgeInsets.fromLTRB(14, 12, 14, 12),
@@ -422,11 +430,7 @@ class RenewSheet extends StatelessWidget {
                     ),
                   ),
                   off: hbox(
-                    bg: dk(
-                      context,
-                      Color(0xFFE1F0FE),
-                      Color.fromRGBO(4, 133, 247, 0.18),
-                    ),
+                    bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
                     radius: BorderRadius.circular(18),
                     pad: EdgeInsets.fromLTRB(14, 12, 14, 12),
                     child: hrow(

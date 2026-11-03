@@ -413,7 +413,10 @@ class BookingInput extends StatelessWidget {
         ? 'phone'
         : 'joined_on';
     return TextFormField(
-      initialValue: '${c.draft[field] ?? ''}',
+      // 入职日期按设计稿显示为 2026.11.01；内部（以及提交）仍用 2026-11-01。
+      initialValue: field == 'joined_on'
+          ? '${c.draft[field] ?? ''}'.replaceAll('-', '.')
+          : '${c.draft[field] ?? ''}',
       readOnly: c.busy,
       style: style,
       textAlign: align,

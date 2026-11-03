@@ -205,6 +205,7 @@ class MemberFollowUpPage extends StatelessWidget {
                               child: HSel(
                                 ctrl: g1[0],
                                 index: 0,
+                                segment: true,
                                 on: hbox(
                                   h: 34,
                                   bg: dk(
@@ -237,8 +238,8 @@ class MemberFollowUpPage extends StatelessWidget {
                                   h: 34,
                                   bg: dk(
                                     context,
+                                    Color(0xFFFFFFFF),
                                     Color(0xFF18181B),
-                                    Color(0xFF34343A),
                                   ),
                                   radius: BorderRadius.circular(17),
                                   border: dk(
@@ -280,12 +281,13 @@ class MemberFollowUpPage extends StatelessWidget {
                               child: HSel(
                                 ctrl: g1[0],
                                 index: 1,
+                                segment: true,
                                 on: hbox(
                                   h: 34,
                                   bg: dk(
                                     context,
-                                    Color(0xFFFFFFFF),
                                     Color(0xFF18181B),
+                                    Color(0xFFFAFAFA),
                                   ),
                                   radius: BorderRadius.circular(17),
                                   pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
@@ -297,7 +299,11 @@ class MemberFollowUpPage extends StatelessWidget {
                                       '次卡到期 5',
                                       hts(
                                         13,
-                                        Color(0xFFFFFFFF),
+                                        dk(
+                                          context,
+                                          Color(0xFFFFFFFF),
+                                          Color(0xFF18181B),
+                                        ),
                                         w: FontWeight.w500,
                                         lh: 18,
                                       ),
@@ -351,12 +357,13 @@ class MemberFollowUpPage extends StatelessWidget {
                               child: HSel(
                                 ctrl: g1[0],
                                 index: 2,
+                                segment: true,
                                 on: hbox(
                                   h: 34,
                                   bg: dk(
                                     context,
-                                    Color(0xFFFFFFFF),
                                     Color(0xFF18181B),
+                                    Color(0xFFFAFAFA),
                                   ),
                                   radius: BorderRadius.circular(17),
                                   pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
@@ -368,7 +375,11 @@ class MemberFollowUpPage extends StatelessWidget {
                                       '养护到期 6',
                                       hts(
                                         13,
-                                        Color(0xFFFFFFFF),
+                                        dk(
+                                          context,
+                                          Color(0xFFFFFFFF),
+                                          Color(0xFF18181B),
+                                        ),
                                         w: FontWeight.w500,
                                         lh: 18,
                                       ),
@@ -422,12 +433,13 @@ class MemberFollowUpPage extends StatelessWidget {
                               child: HSel(
                                 ctrl: g1[0],
                                 index: 3,
+                                segment: true,
                                 on: hbox(
                                   h: 34,
                                   bg: dk(
                                     context,
-                                    Color(0xFFFFFFFF),
                                     Color(0xFF18181B),
+                                    Color(0xFFFAFAFA),
                                   ),
                                   radius: BorderRadius.circular(17),
                                   pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
@@ -439,7 +451,11 @@ class MemberFollowUpPage extends StatelessWidget {
                                       '生日 2',
                                       hts(
                                         13,
-                                        Color(0xFFFFFFFF),
+                                        dk(
+                                          context,
+                                          Color(0xFFFFFFFF),
+                                          Color(0xFF18181B),
+                                        ),
                                         w: FontWeight.w500,
                                         lh: 18,
                                       ),
@@ -493,12 +509,13 @@ class MemberFollowUpPage extends StatelessWidget {
                               child: HSel(
                                 ctrl: g1[0],
                                 index: 4,
+                                segment: true,
                                 on: hbox(
                                   h: 34,
                                   bg: dk(
                                     context,
-                                    Color(0xFFFFFFFF),
                                     Color(0xFF18181B),
+                                    Color(0xFFFAFAFA),
                                   ),
                                   radius: BorderRadius.circular(17),
                                   pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
@@ -510,7 +527,11 @@ class MemberFollowUpPage extends StatelessWidget {
                                       '沉睡 5',
                                       hts(
                                         13,
-                                        Color(0xFFFFFFFF),
+                                        dk(
+                                          context,
+                                          Color(0xFFFFFFFF),
+                                          Color(0xFF18181B),
+                                        ),
                                         w: FontWeight.w500,
                                         lh: 18,
                                       ),

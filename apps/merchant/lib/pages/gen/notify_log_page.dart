@@ -494,6 +494,7 @@ class NotifyLogPage extends StatelessWidget {
                               child: HSel(
                                 ctrl: g1[0],
                                 index: 0,
+                                segment: true,
                                 on: hbox(
                                   h: 36,
                                   bg: dk(
@@ -530,11 +531,6 @@ class NotifyLogPage extends StatelessWidget {
                                 ),
                                 off: hbox(
                                   h: 36,
-                                  bg: dk(
-                                    context,
-                                    Color(0xFFFFFFFF),
-                                    Color(0xFF18181B),
-                                  ),
                                   radius: BorderRadius.circular(18),
                                   child: Align(
                                     alignment: Alignment.center,
@@ -565,8 +561,14 @@ class NotifyLogPage extends StatelessWidget {
                               child: HSel(
                                 ctrl: g1[0],
                                 index: 1,
+                                segment: true,
                                 on: hbox(
                                   h: 36,
+                                  bg: dk(
+                                    context,
+                                    Color(0xFFFFFFFF),
+                                    Color(0xFF18181B),
+                                  ),
                                   radius: BorderRadius.circular(18),
                                   shadow: [
                                     BoxShadow(
@@ -626,8 +628,14 @@ class NotifyLogPage extends StatelessWidget {
                               child: HSel(
                                 ctrl: g1[0],
                                 index: 2,
+                                segment: true,
                                 on: hbox(
                                   h: 36,
+                                  bg: dk(
+                                    context,
+                                    Color(0xFFFFFFFF),
+                                    Color(0xFF18181B),
+                                  ),
                                   radius: BorderRadius.circular(18),
                                   shadow: [
                                     BoxShadow(
@@ -687,8 +695,14 @@ class NotifyLogPage extends StatelessWidget {
                               child: HSel(
                                 ctrl: g1[0],
                                 index: 3,
+                                segment: true,
                                 on: hbox(
                                   h: 36,
+                                  bg: dk(
+                                    context,
+                                    Color(0xFFFFFFFF),
+                                    Color(0xFF18181B),
+                                  ),
                                   radius: BorderRadius.circular(18),
                                   shadow: [
                                     BoxShadow(
