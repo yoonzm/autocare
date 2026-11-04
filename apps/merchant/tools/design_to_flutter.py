@@ -271,10 +271,12 @@ GRID_SELECT_PAGES = {'Recharge', 'RechargeCard'}
 # PickerNote 只是使用约定说明。
 SKIP = {'ForgotNote', 'AppIcon', 'DarkTokens', 'PageTransitions', 'MemberPickerEmpty', 'OrderEmpty', 'OrderWalkIn',
         'PickerNote',
+        # 订单：今日无订单是订单列表的一种状态，充值订单是订单详情的另一种版本；OrderNote 是开发说明文档
+        'OrderListEmpty', 'OrderDetailRecharge', 'OrderNote',
         # 自定义颜色选择器是通用组件（lib/kit/color_picker.dart），不生成页面
         'ColorPicker', 'ColorPickerCard'}
 # 链接目标改写：设计稿里单独画出来的状态页 -> 实际所在的页面
-LINK_REMAP = {'OrderWalkIn': 'Order', 'OrderEmpty': 'Order'}
+LINK_REMAP = {'OrderWalkIn': 'Order', 'OrderEmpty': 'Order', 'OrderListEmpty': 'OrderList', 'OrderDetailRecharge': 'OrderDetail'}
 # 设计稿里的深色版本只是参考，深色效果由同一套页面自动适配
 SKIP_SUFFIX = ('Dark',)
 

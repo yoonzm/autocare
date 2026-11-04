@@ -1,6 +1,11 @@
 // 由 tools/design_to_flutter.py 生成，请勿手工修改。
 import 'package:flutter/widgets.dart';
 
+import 'order_detail_page.dart';
+import 'order_list_page.dart';
+import 'order_filter_sheet.dart';
+import 'order_refund_sheet.dart';
+
 import 'about_app_page.dart';
 import 'appointment_detail_page.dart';
 import 'appointment_schedule_page.dart';
@@ -123,6 +128,8 @@ import 'service_picker_sheet.dart';
 import 'recharge_empty_card_page.dart';
 
 final Map<String, WidgetBuilder> genRoutes = {
+  'OrderDetail': (_) => const OrderDetailPage(),
+  'OrderList': (_) => const OrderListPage(),
   'RechargeEmptyCard': (_) => const RechargeEmptyCardPage(),
   'AboutApp': (_) => const AboutAppPage(),
   'AppointmentDetail': (_) => const AppointmentDetailPage(),
@@ -219,6 +226,8 @@ final Map<String, WidgetBuilder> genRoutes = {
 
 /// 底部弹层（设计稿中叠在其他页面上的界面）。
 final Map<String, WidgetBuilder> genSheets = {
+  'OrderFilter': (_) => const OrderFilterSheet(),
+  'OrderRefund': (_) => const OrderRefundSheet(),
   'FindNotFound': (_) => const FindNotFoundSheet(),
   'ServicePicker': (_) => const ServicePickerSheet(),
   'AppointmentReschedule': (_) => const AppointmentRescheduleSheet(),
@@ -251,6 +260,8 @@ final Map<String, WidgetBuilder> genSheets = {
 
 /// 弹层所属的页面（设计稿里的遮罩点击目标）。
 const Map<String, String> sheetParents = {
+  'OrderFilter': 'OrderList',
+  'OrderRefund': 'OrderDetail',
   'FindNotFound': 'FindScanPlate',
   'ServicePicker': 'Order',
   'AppointmentReschedule': 'AppointmentDetail',

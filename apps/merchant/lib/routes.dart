@@ -29,6 +29,7 @@ import 'pages/card_packages_live_page.dart';
 import 'pages/member_add_page.dart';
 import 'pages/member_records_live_page.dart';
 import 'pages/order_page.dart';
+import 'pages/order_live_pages.dart';
 import 'pages/package_svc_pick_live.dart';
 import 'pages/services_page.dart';
 import 'pages/settings_page.dart';
@@ -38,6 +39,7 @@ import 'pages/theme_sheet.dart';
 
 final Map<String, WidgetBuilder> _allSheets = {
   ...genSheets,
+  'OrderFilter': (_) => const OrderFilterLiveSheet(),
   'BudgetAdjust': (_) => const ExpenseLivePage(mode: 'adjust'),
   // TODO: 字符串路由没有预约 ID；改期必须从真实预约卡片或详情进入。
   'AppointmentReschedule': (context) => ErrorView(
@@ -64,6 +66,10 @@ bool shellMounted = false;
 
 Widget? pageFor(String name) {
   switch (name) {
+    case 'OrderList':
+      return const OrderListLivePage();
+    case 'OrderDetail':
+      return const OrderDetailLivePage();
     case 'Expenses':
       return const ExpenseLivePage(mode: 'list');
     case 'ExpenseAdd':

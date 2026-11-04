@@ -204,6 +204,15 @@ class MerchantApi {
     return Map<String, dynamic>.from(data['item'] as Map);
   }
 
+  /// 订单中心：list（统一订单列表 + 汇总）/ detail / refund。金额、状态、退回方式都由云函数计算。
+  Future<Map<String, dynamic>> orderCenter(
+    String action, [
+    Map<String, dynamic> values = const {},
+  ]) async {
+    final data = await invoke({...values, 'action': 'order_$action'});
+    return Map<String, dynamic>.from(data['item'] as Map);
+  }
+
   Future<void> changePassword(String oldPassword, String newPassword) async {
     await invoke({
       'action': 'change_password',

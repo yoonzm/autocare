@@ -161,6 +161,8 @@ class _ChipCellState<T> extends State<_ChipCell<T>> {
         child: SizedBox(
           height: 44,
           child: Center(
+            // 胶囊按内容收窄：放进 Wrap 时一行能放下多个，而不是每个标签占满一行
+            widthFactor: widget.kind == ChipKind.pill ? 1 : null,
             child: Container(
               constraints: const BoxConstraints(minWidth: 44),
               decoration: BoxDecoration(

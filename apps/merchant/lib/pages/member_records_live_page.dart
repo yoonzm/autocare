@@ -6,6 +6,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../routes.dart' show openRoute;
+import 'order_live_pages.dart' show OrderRef;
+
 import '../backend/member_flow.dart';
 import '../backend/merchant_api.dart';
 import '../backend/package_calc.dart' show formatMoney;
@@ -971,7 +974,21 @@ class _MemberRecordsLivePageState extends State<MemberRecordsLivePage> {
           ),
         );
       }
-      rows.add(_row(context, d.title, d.sub, d.amount, d.positive));
+      final entry = entries[i];
+      // 储值充值行可以点进订单详情（充值订单）；积分 / 卡种调整不是订单
+      final row = _row(context, d.title, d.sub, d.amount, d.positive);
+      rows.add(
+        entry['kind'] == 'recharge'
+            ? GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () {
+                  OrderRef.current = (kind: 'recharge', id: '${entry['id']}');
+                  openRoute(context, 'OrderDetail');
+                },
+                child: row,
+              )
+            : row,
+      );
     }
     return hcol(
       [

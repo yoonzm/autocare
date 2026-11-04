@@ -131,7 +131,7 @@ class _StatsPageState extends State<StatsPage> {
             onChanged: (i) => setState(() => range = i),
           ),
           const SizedBox(height: 16),
-          _chartCard(),
+          _chartCard(context),
           const SizedBox(height: 16),
           _composition(),
           const SizedBox(height: 16),
@@ -194,7 +194,7 @@ class _StatsPageState extends State<StatsPage> {
     ),
   );
 
-  Widget _chartCard() => AppCard(
+  Widget _chartCard(BuildContext context) => AppCard(
     padding: const EdgeInsets.all(18),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -274,6 +274,31 @@ class _StatsPageState extends State<StatsPage> {
             const SizedBox(width: 16),
             Text(r.to, style: ts(11, color: C.muted, h: 14)),
           ],
+        ),
+        const SizedBox(height: 14),
+        // 订单中心入口（设计稿 Stats：营业额卡片底部“全部订单与收款”）
+        GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => openRoute(context, 'OrderList'),
+          child: Container(
+            height: 44,
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            decoration: BoxDecoration(
+              color: C.inset,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    '全部订单与收款',
+                    style: ts(14, w: FontWeight.w500, h: 20),
+                  ),
+                ),
+                AppIcon('chevronRight', size: 16, color: C.faint),
+              ],
+            ),
+          ),
         ),
       ],
     ),
