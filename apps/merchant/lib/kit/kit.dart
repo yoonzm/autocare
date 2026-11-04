@@ -194,6 +194,14 @@ Widget hTap(
         );
         return;
       }
+      // TODO: 开通微信支付（资料提交、法人签约、审核）依赖服务商进件接口，预期后端：pay_apply_* 云函数
+      // （保存草稿、OCR、提交申请、查询状态）。接口没接通前，提交申请 / 发送授权请求不会真的发出，
+      // 也不跳到“审核中”，避免用假进度冒充已提交。
+      if (to == 'PayApplyReviewing' &&
+          (route == 'PayApplyReview' || route == 'PayApplyBind')) {
+        hToast(context, '微信支付开通暂未接通，申请还没有提交');
+        return;
+      }
       // 记录回访：保存后写入回访记录
       if (merchantApi.hasSession &&
           route == 'MemberVisit' &&

@@ -24,8 +24,7 @@ String _iso(int h, int m, {int dayOffset = 0}) {
 
 class OrderApi extends MemberFakeApi {
   final calls = <Map<String, dynamic>>[];
-  @override
-  Object? listError;
+  Object? failList;
   Completer<void>? gate;
   bool orderRefunded = false;
   List<Map<String, dynamic>> items = [
@@ -106,7 +105,7 @@ class OrderApi extends MemberFakeApi {
     calls.add({'action': action, ...values});
     await gate?.future;
     if (action == 'list') {
-      if (listError != null) throw listError!;
+      if (failList != null) throw failList!;
       final type = values['type'] ?? 'all';
       final rows = [
         for (final e in items)
@@ -260,10 +259,10 @@ void main() {
   });
 
   testWidgets('读取失败：整页错误 + 重试，重试成功后显示订单', (t) async {
-    api.listError = const AppError.network();
+    api.failList = const AppError.network();
     await open(t, const OrderListLivePage());
     expect(find.text('重试'), findsOneWidget);
-    api.listError = null;
+    api.failList = null;
     await t.tap(find.text('重试'));
     await t.pumpAndSettle();
     expect(find.text('全车镀晶 · 9H'), findsOneWidget);

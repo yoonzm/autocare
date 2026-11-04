@@ -273,10 +273,14 @@ SKIP = {'ForgotNote', 'AppIcon', 'DarkTokens', 'PageTransitions', 'MemberPickerE
         'PickerNote',
         # 订单：今日无订单是订单列表的一种状态，充值订单是订单详情的另一种版本；OrderNote 是开发说明文档
         'OrderListEmpty', 'OrderDetailRecharge', 'OrderNote',
+        # 开通微信支付的开发说明（文档页）
+        'PayApplyNote',
         # 自定义颜色选择器是通用组件（lib/kit/color_picker.dart），不生成页面
         'ColorPicker', 'ColorPickerCard'}
 # 链接目标改写：设计稿里单独画出来的状态页 -> 实际所在的页面
-LINK_REMAP = {'OrderWalkIn': 'Order', 'OrderEmpty': 'Order', 'OrderListEmpty': 'OrderList', 'OrderDetailRecharge': 'OrderDetail'}
+LINK_REMAP = {'OrderWalkIn': 'Order', 'OrderEmpty': 'Order', 'OrderListEmpty': 'OrderList', 'OrderDetailRecharge': 'OrderDetail',
+              # 支付与收款：未开通是同一个页面的一种状态（目前没有开通能力，真实状态就是未开通）
+              'PayConfigUnopened': 'PayConfig'}
 # 设计稿里的深色版本只是参考，深色效果由同一套页面自动适配
 SKIP_SUFFIX = ('Dark',)
 

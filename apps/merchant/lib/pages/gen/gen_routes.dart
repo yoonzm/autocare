@@ -1,6 +1,19 @@
 // 由 tools/design_to_flutter.py 生成，请勿手工修改。
 import 'package:flutter/widgets.dart';
 
+import 'pay_apply_bind_page.dart';
+import 'pay_apply_done_page.dart';
+import 'pay_apply_intro_page.dart';
+import 'pay_apply_rejected_page.dart';
+import 'pay_apply_review_page.dart';
+import 'pay_apply_reviewing_page.dart';
+import 'pay_apply_sign_page.dart';
+import 'pay_apply_step1_page.dart';
+import 'pay_apply_step2_page.dart';
+import 'pay_apply_step3_page.dart';
+import 'pay_apply_step4_page.dart';
+import 'pay_config_unopened_page.dart';
+
 import 'order_detail_page.dart';
 import 'order_list_page.dart';
 import 'order_filter_sheet.dart';
@@ -128,6 +141,18 @@ import 'service_picker_sheet.dart';
 import 'recharge_empty_card_page.dart';
 
 final Map<String, WidgetBuilder> genRoutes = {
+  'PayApplyBind': (_) => const PayApplyBindPage(),
+  'PayApplyDone': (_) => const PayApplyDonePage(),
+  'PayApplyIntro': (_) => const PayApplyIntroPage(),
+  'PayApplyRejected': (_) => const PayApplyRejectedPage(),
+  'PayApplyReview': (_) => const PayApplyReviewPage(),
+  'PayApplyReviewing': (_) => const PayApplyReviewingPage(),
+  'PayApplySign': (_) => const PayApplySignPage(),
+  'PayApplyStep1': (_) => const PayApplyStep1Page(),
+  'PayApplyStep2': (_) => const PayApplyStep2Page(),
+  'PayApplyStep3': (_) => const PayApplyStep3Page(),
+  'PayApplyStep4': (_) => const PayApplyStep4Page(),
+  'PayConfigUnopened': (_) => const PayConfigUnopenedPage(),
   'OrderDetail': (_) => const OrderDetailPage(),
   'OrderList': (_) => const OrderListPage(),
   'RechargeEmptyCard': (_) => const RechargeEmptyCardPage(),
