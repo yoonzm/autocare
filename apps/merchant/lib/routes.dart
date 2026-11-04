@@ -3,6 +3,7 @@ import 'pages/expense_live_page.dart';
 
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart' show CupertinoSheetRoute;
 import 'package:flutter/material.dart';
 
 import 'backend/merchant_api.dart';
@@ -190,6 +191,10 @@ const Set<String> resultPages = {
   'BindDone',
   'PackageSold',
 };
+
+/// iOS 整页 sheet（`CupertinoSheetRoute`）：从底部滑入，顶部露出缩小的上一页，下拉可关闭。
+/// 试点页面；效果确认后再逐步推广到 [_modalPages] 里的其他表单页。
+const Set<String> _cupertinoSheetPages = {'MemberAdd'};
 
 /// 表单卡片 / 全屏流程：从底部滑入，左上角是 ✕（设计稿“页面出场方式”第 3、4 类）。
 const Set<String> _modalPages = {
@@ -743,11 +748,18 @@ void _openRouteCore(BuildContext context, String name) {
   }
   // 结果页（第 5 类）禁止下拉 / 侧滑返回，只能点主按钮或 ✕
   final locked = resultPages.contains(name);
-  final route = MaterialPageRoute<void>(
-    settings: RouteSettings(name: name),
-    fullscreenDialog: locked || _modalPages.contains(name),
-    builder: (_) => locked ? PopScope(canPop: false, child: page) : page,
-  );
+  final Route<void> route = _cupertinoSheetPages.contains(name)
+      ? CupertinoSheetRoute<void>(
+          settings: RouteSettings(name: name),
+          // 页面里的滚动区域用 sheet 提供的控制器：滚到顶后继续下拉就会关闭 sheet
+          scrollableBuilder: (_, controller) =>
+              PrimaryScrollController(controller: controller, child: page),
+        )
+      : MaterialPageRoute<void>(
+          settings: RouteSettings(name: name),
+          fullscreenDialog: locked || _modalPages.contains(name),
+          builder: (_) => locked ? PopScope(canPop: false, child: page) : page,
+        );
   final found = navTracker.has(name);
   if (found) {
     nav.popUntil((r) => r.settings.name == name || r.isFirst);

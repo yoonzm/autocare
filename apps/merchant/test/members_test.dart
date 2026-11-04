@@ -722,7 +722,8 @@ void main() {
       expect(t.widget<TextFormField>(fields.at(0)).initialValue, isEmpty);
       await t.tap(find.text('保存').first);
       await t.pumpAndSettle();
-      expect(find.text('请输入正确的 11 位手机号'), findsOneWidget);
+      // 整页 sheet 下方的上一页也还在树里；测试里没有 ToastHost，会退回成两个 SnackBar
+      expect(find.text('请输入正确的 11 位手机号'), findsWidgets);
       expect(fake.saved, isEmpty);
       for (var i = 0; i < 5; i++) {
         await t.pump(const Duration(seconds: 1));
@@ -730,8 +731,8 @@ void main() {
       await t.enterText(fields.at(0), '13988888812');
       await t.tap(find.text('保存').first);
       await t.pumpAndSettle();
-      // 输入框的占位文字 + 提示条各一个
-      expect(find.text('请输入客户姓名'), findsNWidgets(2));
+      // 输入框的占位文字 + 两个 SnackBar（整页 sheet 下方的上一页也在树里，测试里没有 ToastHost）
+      expect(find.text('请输入客户姓名'), findsNWidgets(3));
       expect(fake.saved, isEmpty);
     });
 
@@ -779,7 +780,7 @@ void main() {
       await t.enterText(fields.at(1), '王建国');
       await t.tap(find.text('保存').first);
       await t.pumpAndSettle();
-      expect(find.text('该手机号已是会员'), findsOneWidget);
+      expect(find.text('该手机号已是会员'), findsWidgets);
       expect(find.text('开卡成功'), findsNothing);
       expect(find.text('新增会员'), findsWidgets);
     });
