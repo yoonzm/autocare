@@ -84,29 +84,7 @@ class BudgetEditLiveTemplate extends StatelessWidget {
                         textAlign: TextAlign.center,
                       ),
                     ),
-                    c.tap(
-                      context,
-                      hbox(
-                        h: 44,
-                        minW: 44,
-                        child: Align(
-                          alignment: Alignment(1, 0),
-                          widthFactor: 1,
-                          child: c.busyLabel(
-                            Text(
-                              c.text('保存'),
-                              style: hts(
-                                15,
-                                Color(0xFF0485F7),
-                                w: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      to: 'ExpenseBudget',
-                      action: '保存',
-                    ),
+                    hbox(w: 44),
                   ],
                   main: MainAxisAlignment.start,
                   cross: CrossAxisAlignment.center,
@@ -1641,7 +1619,7 @@ class BudgetEditLiveTemplate extends StatelessWidget {
                     context,
                     hbox(
                       h: 50,
-                      bg: dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                      bg: Color(0xFF0485F7),
                       radius: BorderRadius.circular(25),
                       child: Align(
                         alignment: Alignment(0, 0),
@@ -1651,7 +1629,7 @@ class BudgetEditLiveTemplate extends StatelessWidget {
                             c.text('保存'),
                             style: hts(
                               15,
-                              dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                              Color(0xFFFFFFFF),
                               w: FontWeight.w600,
                               lh: 22,
                             ),

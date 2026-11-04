@@ -88,22 +88,56 @@ class StockCheckLiveTemplate extends StatelessWidget {
                       context,
                       hbox(
                         h: 44,
-                        minW: 44,
+                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                        radius: BorderRadius.circular(22),
+                        shadow: dk(
+                          context,
+                          [
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
+                              spreadRadius: 0,
+                            ),
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 1),
+                              blurRadius: 2,
+                              spreadRadius: 0,
+                            ),
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
+                              spreadRadius: 0,
+                            ),
+                          ],
+                          [
+                            BoxShadow(
+                              color: Color(0xFF26262B),
+                              offset: Offset(0, 0),
+                              blurRadius: 0,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                        pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
                         child: Align(
-                          alignment: Alignment(1, 0),
+                          alignment: Alignment(-1, 0),
                           widthFactor: 1,
                           child: c.busyLabel(
                             'draft',
                             Text(
                               c.text('暂存'),
                               style: hts(
-                                15,
+                                14,
                                 dk(
                                   context,
-                                  Color(0xFF52525B),
-                                  Color(0xFFA8A8B3),
+                                  Color(0xFF18181B),
+                                  Color(0xFFFAFAFA),
                                 ),
-                                w: FontWeight.w600,
+                                w: FontWeight.w500,
+                                lh: 20,
                               ),
                             ),
                           ),
@@ -710,7 +744,7 @@ class StockCheckLiveTemplate extends StatelessWidget {
                     context,
                     hbox(
                       h: 50,
-                      bg: dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                      bg: Color(0xFF0485F7),
                       radius: BorderRadius.circular(25),
                       child: Align(
                         alignment: Alignment(0, 0),
@@ -721,7 +755,7 @@ class StockCheckLiveTemplate extends StatelessWidget {
                             c.text('提交盘点（已盘 12 项）'),
                             style: hts(
                               15,
-                              dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                              Color(0xFFFFFFFF),
                               w: FontWeight.w600,
                               lh: 22,
                             ),

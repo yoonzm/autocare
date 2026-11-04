@@ -84,16 +84,19 @@ class ChannelConfigPage extends StatelessWidget {
                       context,
                       hbox(
                         h: 44,
-                        minW: 44,
+                        bg: Color(0xFF0485F7),
+                        radius: BorderRadius.circular(22),
+                        pad: EdgeInsets.fromLTRB(18, 0, 18, 0),
                         child: Align(
-                          alignment: Alignment(1, 0),
+                          alignment: Alignment(-1, 0),
                           widthFactor: 1,
                           child: Text(
                             '保存',
                             style: hts(
-                              15,
-                              Color(0xFF0485F7),
+                              14,
+                              Color(0xFFFFFFFF),
                               w: FontWeight.w600,
+                              lh: 20,
                             ),
                           ),
                         ),
@@ -1068,11 +1071,7 @@ class ChannelConfigPage extends StatelessWidget {
                             context,
                             hbox(
                               h: 46,
-                              bg: dk(
-                                context,
-                                Color(0xFF18181B),
-                                Color(0xFFFAFAFA),
-                              ),
+                              bg: Color(0xFF0485F7),
                               radius: BorderRadius.circular(23),
                               child: Align(
                                 alignment: Alignment.center,
@@ -1081,11 +1080,7 @@ class ChannelConfigPage extends StatelessWidget {
                                   '充值 ¥270',
                                   style: hts(
                                     15,
-                                    dk(
-                                      context,
-                                      Color(0xFFFFFFFF),
-                                      Color(0xFF18181B),
-                                    ),
+                                    Color(0xFFFFFFFF),
                                     w: FontWeight.w600,
                                     lh: 22,
                                   ),

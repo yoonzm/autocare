@@ -857,86 +857,94 @@ class MemberRecordsPage extends StatelessWidget {
                             pad: EdgeInsets.fromLTRB(0, 4, 0, 4),
                             child: hcol(
                               [
-                                hbox(
-                                  pad: EdgeInsets.fromLTRB(16, 12, 16, 12),
-                                  child: hrow(
-                                    [
-                                      hbox(
-                                        w: 40,
-                                        h: 40,
-                                        bg: dk(
-                                          context,
-                                          Color(0xFFE1F0FE),
-                                          Color.fromRGBO(4, 133, 247, 0.18),
-                                        ),
-                                        radius: BorderRadius.circular(13),
-                                        child: hrow(
-                                          [
-                                            hsvg(
-                                              dk(context, Svgs.s169, Svgs.s170),
-                                              w: 18,
-                                              h: 18,
-                                            ),
-                                          ],
-                                          main: MainAxisAlignment.center,
-                                          cross: CrossAxisAlignment.center,
-                                          gap: 0,
-                                        ),
-                                      ),
-                                      Expanded(
-                                        flex: 1,
-                                        child: hcol(
-                                          [
-                                            Text(
-                                              '全车镀晶 · 9H',
-                                              style: hts(
-                                                14,
-                                                dk(
-                                                  context,
-                                                  Color(0xFF18181B),
-                                                  Color(0xFFFAFAFA),
-                                                ),
-                                                w: FontWeight.w500,
-                                                lh: 20,
-                                              ),
-                                            ),
-                                            Text(
-                                              '今天 12:05 · 余额支付 · 沪A·8K29M',
-                                              style: hts(
-                                                12,
-                                                dk(
-                                                  context,
-                                                  Color(0xFF71717A),
-                                                  Color(0xFF9A9AA3),
-                                                ),
-                                                lh: 16,
-                                              ),
-                                            ),
-                                          ],
-                                          main: MainAxisAlignment.start,
-                                          cross: CrossAxisAlignment.stretch,
-                                          gap: 2,
-                                        ),
-                                      ),
-                                      Text(
-                                        '-¥1,422',
-                                        style: hts(
-                                          15,
-                                          dk(
+                                hTap(
+                                  context,
+                                  hbox(
+                                    pad: EdgeInsets.fromLTRB(16, 12, 16, 12),
+                                    child: hrow(
+                                      [
+                                        hbox(
+                                          w: 40,
+                                          h: 40,
+                                          bg: dk(
                                             context,
-                                            Color(0xFF18181B),
-                                            Color(0xFFFAFAFA),
+                                            Color(0xFFE1F0FE),
+                                            Color.fromRGBO(4, 133, 247, 0.18),
                                           ),
-                                          w: FontWeight.w600,
-                                          lh: 22,
-                                          tab: true,
+                                          radius: BorderRadius.circular(13),
+                                          child: hrow(
+                                            [
+                                              hsvg(
+                                                dk(
+                                                  context,
+                                                  Svgs.s169,
+                                                  Svgs.s170,
+                                                ),
+                                                w: 18,
+                                                h: 18,
+                                              ),
+                                            ],
+                                            main: MainAxisAlignment.center,
+                                            cross: CrossAxisAlignment.center,
+                                            gap: 0,
+                                          ),
                                         ),
-                                      ),
-                                    ],
-                                    main: MainAxisAlignment.start,
-                                    cross: CrossAxisAlignment.center,
-                                    gap: 12,
+                                        Expanded(
+                                          flex: 1,
+                                          child: hcol(
+                                            [
+                                              Text(
+                                                '全车镀晶 · 9H',
+                                                style: hts(
+                                                  14,
+                                                  dk(
+                                                    context,
+                                                    Color(0xFF18181B),
+                                                    Color(0xFFFAFAFA),
+                                                  ),
+                                                  w: FontWeight.w500,
+                                                  lh: 20,
+                                                ),
+                                              ),
+                                              Text(
+                                                '今天 12:05 · 余额支付 · 沪A·8K29M',
+                                                style: hts(
+                                                  12,
+                                                  dk(
+                                                    context,
+                                                    Color(0xFF71717A),
+                                                    Color(0xFF9A9AA3),
+                                                  ),
+                                                  lh: 16,
+                                                ),
+                                              ),
+                                            ],
+                                            main: MainAxisAlignment.start,
+                                            cross: CrossAxisAlignment.stretch,
+                                            gap: 2,
+                                          ),
+                                        ),
+                                        Text(
+                                          '-¥1,422',
+                                          style: hts(
+                                            15,
+                                            dk(
+                                              context,
+                                              Color(0xFF18181B),
+                                              Color(0xFFFAFAFA),
+                                            ),
+                                            w: FontWeight.w600,
+                                            lh: 22,
+                                            tab: true,
+                                          ),
+                                        ),
+                                      ],
+                                      main: MainAxisAlignment.start,
+                                      cross: CrossAxisAlignment.center,
+                                      gap: 12,
+                                    ),
                                   ),
+                                  to: 'OrderDetail',
                                 ),
                                 hbox(
                                   h: 1,
@@ -1215,86 +1223,94 @@ class MemberRecordsPage extends StatelessWidget {
                                   ),
                                   margin: EdgeInsets.fromLTRB(68, 0, 0, 0),
                                 ),
-                                hbox(
-                                  pad: EdgeInsets.fromLTRB(16, 12, 16, 12),
-                                  child: hrow(
-                                    [
-                                      hbox(
-                                        w: 40,
-                                        h: 40,
-                                        bg: dk(
-                                          context,
-                                          Color(0xFFE1F0FE),
-                                          Color.fromRGBO(4, 133, 247, 0.18),
-                                        ),
-                                        radius: BorderRadius.circular(13),
-                                        child: hrow(
-                                          [
-                                            hsvg(
-                                              dk(context, Svgs.s169, Svgs.s170),
-                                              w: 18,
-                                              h: 18,
-                                            ),
-                                          ],
-                                          main: MainAxisAlignment.center,
-                                          cross: CrossAxisAlignment.center,
-                                          gap: 0,
-                                        ),
-                                      ),
-                                      Expanded(
-                                        flex: 1,
-                                        child: hcol(
-                                          [
-                                            Text(
-                                              '漆面抛光',
-                                              style: hts(
-                                                14,
-                                                dk(
-                                                  context,
-                                                  Color(0xFF18181B),
-                                                  Color(0xFFFAFAFA),
-                                                ),
-                                                w: FontWeight.w500,
-                                                lh: 20,
-                                              ),
-                                            ),
-                                            Text(
-                                              '10.03 16:18 · 微信 · 沪AF·09316',
-                                              style: hts(
-                                                12,
-                                                dk(
-                                                  context,
-                                                  Color(0xFF71717A),
-                                                  Color(0xFF9A9AA3),
-                                                ),
-                                                lh: 16,
-                                              ),
-                                            ),
-                                          ],
-                                          main: MainAxisAlignment.start,
-                                          cross: CrossAxisAlignment.stretch,
-                                          gap: 2,
-                                        ),
-                                      ),
-                                      Text(
-                                        '-¥612',
-                                        style: hts(
-                                          15,
-                                          dk(
+                                hTap(
+                                  context,
+                                  hbox(
+                                    pad: EdgeInsets.fromLTRB(16, 12, 16, 12),
+                                    child: hrow(
+                                      [
+                                        hbox(
+                                          w: 40,
+                                          h: 40,
+                                          bg: dk(
                                             context,
-                                            Color(0xFF18181B),
-                                            Color(0xFFFAFAFA),
+                                            Color(0xFFE1F0FE),
+                                            Color.fromRGBO(4, 133, 247, 0.18),
                                           ),
-                                          w: FontWeight.w600,
-                                          lh: 22,
-                                          tab: true,
+                                          radius: BorderRadius.circular(13),
+                                          child: hrow(
+                                            [
+                                              hsvg(
+                                                dk(
+                                                  context,
+                                                  Svgs.s169,
+                                                  Svgs.s170,
+                                                ),
+                                                w: 18,
+                                                h: 18,
+                                              ),
+                                            ],
+                                            main: MainAxisAlignment.center,
+                                            cross: CrossAxisAlignment.center,
+                                            gap: 0,
+                                          ),
                                         ),
-                                      ),
-                                    ],
-                                    main: MainAxisAlignment.start,
-                                    cross: CrossAxisAlignment.center,
-                                    gap: 12,
+                                        Expanded(
+                                          flex: 1,
+                                          child: hcol(
+                                            [
+                                              Text(
+                                                '漆面抛光',
+                                                style: hts(
+                                                  14,
+                                                  dk(
+                                                    context,
+                                                    Color(0xFF18181B),
+                                                    Color(0xFFFAFAFA),
+                                                  ),
+                                                  w: FontWeight.w500,
+                                                  lh: 20,
+                                                ),
+                                              ),
+                                              Text(
+                                                '10.03 16:18 · 微信 · 沪AF·09316',
+                                                style: hts(
+                                                  12,
+                                                  dk(
+                                                    context,
+                                                    Color(0xFF71717A),
+                                                    Color(0xFF9A9AA3),
+                                                  ),
+                                                  lh: 16,
+                                                ),
+                                              ),
+                                            ],
+                                            main: MainAxisAlignment.start,
+                                            cross: CrossAxisAlignment.stretch,
+                                            gap: 2,
+                                          ),
+                                        ),
+                                        Text(
+                                          '-¥612',
+                                          style: hts(
+                                            15,
+                                            dk(
+                                              context,
+                                              Color(0xFF18181B),
+                                              Color(0xFFFAFAFA),
+                                            ),
+                                            w: FontWeight.w600,
+                                            lh: 22,
+                                            tab: true,
+                                          ),
+                                        ),
+                                      ],
+                                      main: MainAxisAlignment.start,
+                                      cross: CrossAxisAlignment.center,
+                                      gap: 12,
+                                    ),
                                   ),
+                                  to: 'OrderDetail',
                                 ),
                               ],
                               main: MainAxisAlignment.start,
@@ -1388,86 +1404,94 @@ class MemberRecordsPage extends StatelessWidget {
                             pad: EdgeInsets.fromLTRB(0, 4, 0, 4),
                             child: hcol(
                               [
-                                hbox(
-                                  pad: EdgeInsets.fromLTRB(16, 12, 16, 12),
-                                  child: hrow(
-                                    [
-                                      hbox(
-                                        w: 40,
-                                        h: 40,
-                                        bg: dk(
-                                          context,
-                                          Color(0xFFE1F0FE),
-                                          Color.fromRGBO(4, 133, 247, 0.18),
-                                        ),
-                                        radius: BorderRadius.circular(13),
-                                        child: hrow(
-                                          [
-                                            hsvg(
-                                              dk(context, Svgs.s169, Svgs.s170),
-                                              w: 18,
-                                              h: 18,
-                                            ),
-                                          ],
-                                          main: MainAxisAlignment.center,
-                                          cross: CrossAxisAlignment.center,
-                                          gap: 0,
-                                        ),
-                                      ),
-                                      Expanded(
-                                        flex: 1,
-                                        child: hcol(
-                                          [
-                                            Text(
-                                              '轮毂翻新（4 只）',
-                                              style: hts(
-                                                14,
-                                                dk(
-                                                  context,
-                                                  Color(0xFF18181B),
-                                                  Color(0xFFFAFAFA),
-                                                ),
-                                                w: FontWeight.w500,
-                                                lh: 20,
-                                              ),
-                                            ),
-                                            Text(
-                                              '09.21 14:00 · 余额支付',
-                                              style: hts(
-                                                12,
-                                                dk(
-                                                  context,
-                                                  Color(0xFF71717A),
-                                                  Color(0xFF9A9AA3),
-                                                ),
-                                                lh: 16,
-                                              ),
-                                            ),
-                                          ],
-                                          main: MainAxisAlignment.start,
-                                          cross: CrossAxisAlignment.stretch,
-                                          gap: 2,
-                                        ),
-                                      ),
-                                      Text(
-                                        '-¥540',
-                                        style: hts(
-                                          15,
-                                          dk(
+                                hTap(
+                                  context,
+                                  hbox(
+                                    pad: EdgeInsets.fromLTRB(16, 12, 16, 12),
+                                    child: hrow(
+                                      [
+                                        hbox(
+                                          w: 40,
+                                          h: 40,
+                                          bg: dk(
                                             context,
-                                            Color(0xFF18181B),
-                                            Color(0xFFFAFAFA),
+                                            Color(0xFFE1F0FE),
+                                            Color.fromRGBO(4, 133, 247, 0.18),
                                           ),
-                                          w: FontWeight.w600,
-                                          lh: 22,
-                                          tab: true,
+                                          radius: BorderRadius.circular(13),
+                                          child: hrow(
+                                            [
+                                              hsvg(
+                                                dk(
+                                                  context,
+                                                  Svgs.s169,
+                                                  Svgs.s170,
+                                                ),
+                                                w: 18,
+                                                h: 18,
+                                              ),
+                                            ],
+                                            main: MainAxisAlignment.center,
+                                            cross: CrossAxisAlignment.center,
+                                            gap: 0,
+                                          ),
                                         ),
-                                      ),
-                                    ],
-                                    main: MainAxisAlignment.start,
-                                    cross: CrossAxisAlignment.center,
-                                    gap: 12,
+                                        Expanded(
+                                          flex: 1,
+                                          child: hcol(
+                                            [
+                                              Text(
+                                                '轮毂翻新（4 只）',
+                                                style: hts(
+                                                  14,
+                                                  dk(
+                                                    context,
+                                                    Color(0xFF18181B),
+                                                    Color(0xFFFAFAFA),
+                                                  ),
+                                                  w: FontWeight.w500,
+                                                  lh: 20,
+                                                ),
+                                              ),
+                                              Text(
+                                                '09.21 14:00 · 余额支付',
+                                                style: hts(
+                                                  12,
+                                                  dk(
+                                                    context,
+                                                    Color(0xFF71717A),
+                                                    Color(0xFF9A9AA3),
+                                                  ),
+                                                  lh: 16,
+                                                ),
+                                              ),
+                                            ],
+                                            main: MainAxisAlignment.start,
+                                            cross: CrossAxisAlignment.stretch,
+                                            gap: 2,
+                                          ),
+                                        ),
+                                        Text(
+                                          '-¥540',
+                                          style: hts(
+                                            15,
+                                            dk(
+                                              context,
+                                              Color(0xFF18181B),
+                                              Color(0xFFFAFAFA),
+                                            ),
+                                            w: FontWeight.w600,
+                                            lh: 22,
+                                            tab: true,
+                                          ),
+                                        ),
+                                      ],
+                                      main: MainAxisAlignment.start,
+                                      cross: CrossAxisAlignment.center,
+                                      gap: 12,
+                                    ),
                                   ),
+                                  to: 'OrderDetail',
                                 ),
                               ],
                               main: MainAxisAlignment.start,

@@ -88,9 +88,11 @@ class StaffEditTemplate extends StatelessWidget {
                       context,
                       hbox(
                         h: 44,
-                        minW: 44,
+                        bg: Color(0xFF0485F7),
+                        radius: BorderRadius.circular(22),
+                        pad: EdgeInsets.fromLTRB(18, 0, 18, 0),
                         child: Align(
-                          alignment: Alignment(1, 0),
+                          alignment: Alignment(-1, 0),
                           widthFactor: 1,
                           child: c.busy && c.activeButton == '保存'
                               ? const AppSpinner(
@@ -100,9 +102,10 @@ class StaffEditTemplate extends StatelessWidget {
                               : Text(
                                   '保存',
                                   style: hts(
-                                    15,
-                                    Color(0xFF0485F7),
+                                    14,
+                                    Color(0xFFFFFFFF),
                                     w: FontWeight.w600,
+                                    lh: 20,
                                   ),
                                 ),
                         ),

@@ -2116,7 +2116,7 @@ class AppointmentSettingsTemplate extends StatelessWidget {
                     context,
                     hbox(
                       h: 50,
-                      bg: dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                      bg: Color(0xFF0485F7),
                       radius: BorderRadius.circular(25),
                       child: Align(
                         alignment: Alignment(0, 0),
@@ -2126,7 +2126,7 @@ class AppointmentSettingsTemplate extends StatelessWidget {
                             '保存设置',
                             style: hts(
                               15,
-                              dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                              Color(0xFFFFFFFF),
                               w: FontWeight.w600,
                               lh: 22,
                             ),

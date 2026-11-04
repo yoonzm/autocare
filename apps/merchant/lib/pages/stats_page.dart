@@ -115,12 +115,7 @@ class _StatsPageState extends State<StatsPage> {
                   style: ts(28, w: FontWeight.w600, h: 36, spacing: -0.7),
                 ),
               ),
-              _pill(
-                '开支',
-                'card',
-                dark: true,
-                onTap: () => openRoute(context, 'Expenses'),
-              ),
+              _pill('开支', 'card', onTap: () => openRoute(context, 'Expenses')),
               const SizedBox(width: 8),
               _pill(
                 '导出',

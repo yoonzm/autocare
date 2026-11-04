@@ -88,16 +88,50 @@ class ExpenseBudgetLiveTemplate extends StatelessWidget {
                       context,
                       hbox(
                         h: 44,
-                        minW: 44,
+                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                        radius: BorderRadius.circular(22),
+                        shadow: dk(
+                          context,
+                          [
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
+                              spreadRadius: 0,
+                            ),
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 1),
+                              blurRadius: 2,
+                              spreadRadius: 0,
+                            ),
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
+                              spreadRadius: 0,
+                            ),
+                          ],
+                          [
+                            BoxShadow(
+                              color: Color(0xFF26262B),
+                              offset: Offset(0, 0),
+                              blurRadius: 0,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                        pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
                         child: Align(
-                          alignment: Alignment(1, 0),
+                          alignment: Alignment(-1, 0),
                           widthFactor: 1,
                           child: Text(
                             c.text('编辑'),
                             style: hts(
-                              15,
-                              Color(0xFF0485F7),
-                              w: FontWeight.w600,
+                              14,
+                              dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                              w: FontWeight.w500,
+                              lh: 20,
                             ),
                           ),
                         ),
@@ -1205,7 +1239,7 @@ class ExpenseBudgetLiveTemplate extends StatelessWidget {
                     context,
                     hbox(
                       h: 50,
-                      bg: dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                      bg: Color(0xFF0485F7),
                       radius: BorderRadius.circular(25),
                       child: Align(
                         alignment: Alignment(0, 0),
@@ -1214,7 +1248,7 @@ class ExpenseBudgetLiveTemplate extends StatelessWidget {
                           c.text('调整预算'),
                           style: hts(
                             15,
-                            dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                            Color(0xFFFFFFFF),
                             w: FontWeight.w600,
                             lh: 22,
                           ),

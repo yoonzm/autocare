@@ -80,26 +80,7 @@ class ExpenseAddPage extends StatelessWidget {
                         textAlign: TextAlign.center,
                       ),
                     ),
-                    hTap(
-                      context,
-                      hbox(
-                        h: 44,
-                        minW: 44,
-                        child: Align(
-                          alignment: Alignment(1, 0),
-                          widthFactor: 1,
-                          child: Text(
-                            '保存',
-                            style: hts(
-                              15,
-                              Color(0xFF0485F7),
-                              w: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-                      to: 'Expenses',
-                    ),
+                    hbox(w: 44),
                   ],
                   main: MainAxisAlignment.start,
                   cross: CrossAxisAlignment.center,
@@ -1470,7 +1451,7 @@ class ExpenseAddPage extends StatelessWidget {
                     context,
                     hbox(
                       h: 50,
-                      bg: dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                      bg: Color(0xFF0485F7),
                       radius: BorderRadius.circular(25),
                       child: Align(
                         alignment: Alignment(0, 0),
@@ -1479,7 +1460,7 @@ class ExpenseAddPage extends StatelessWidget {
                           '保存',
                           style: hts(
                             15,
-                            dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                            Color(0xFFFFFFFF),
                             w: FontWeight.w600,
                             lh: 22,
                           ),
