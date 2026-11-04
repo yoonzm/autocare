@@ -50,6 +50,27 @@ void main() {
     expect(find.text('open', skipOffstage: false), findsOneWidget);
   });
 
+  testWidgets('sheet 打开后下面的上一页不缩放、位置不变', (t) async {
+    phone(t);
+    await t.pumpWidget(
+      app(
+        Builder(
+          builder: (context) => Scaffold(
+            body: ElevatedButton(
+              onPressed: () => openRoute(context, 'MemberAdd'),
+              child: const Text('open'),
+            ),
+          ),
+        ),
+      ),
+    );
+    await t.pumpAndSettle();
+    final before = t.getRect(find.text('open'));
+    await t.tap(find.text('open'));
+    await t.pumpAndSettle();
+    expect(t.getRect(find.text('open', skipOffstage: false)), before);
+  });
+
   testWidgets('从标题栏处往下拖拽可以关闭 sheet，回到上一页', (t) async {
     await open(t);
     await t.drag(find.text('新增会员'), const Offset(0, 700));

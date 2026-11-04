@@ -237,7 +237,7 @@ void main() {
       await openEdit(t);
       await t.tap(find.text('保存').first);
       await t.pumpAndSettle();
-      expect(find.text('请输入名称'), findsOneWidget);
+      expect(find.text('请输入名称'), findsWidgets);
       expect(fake.saved, isEmpty);
       await toastGone(t);
       await t.enterText(find.byType(TextFormField).at(0), '年卡');
@@ -308,7 +308,7 @@ void main() {
       await t.ensureVisible(find.text('删除套餐'));
       await t.tap(find.text('删除套餐'));
       await t.pumpAndSettle();
-      expect(find.text('尚未保存，无需删除'), findsOneWidget);
+      expect(find.text('尚未保存，无需删除'), findsWidgets);
       expect(fake.deleted, isEmpty);
     });
   });

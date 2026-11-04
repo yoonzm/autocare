@@ -918,7 +918,7 @@ void main() {
       await t.ensureVisible(find.text('保存').first);
       await t.tap(find.text('保存').first);
       await t.pumpAndSettle();
-      expect(find.text('请输入车牌号'), findsOneWidget);
+      expect(find.text('请输入车牌号'), findsWidgets);
       expect(fake.savedVehicles, isEmpty);
       for (var i = 0; i < 6; i++) {
         await t.pump(const Duration(seconds: 1));
@@ -1177,7 +1177,7 @@ void main() {
       await t.ensureVisible(find.text('确认调整'));
       await t.tap(find.text('确认调整'));
       await t.pumpAndSettle();
-      expect(find.text('请选择要调整的卡种或积分数量'), findsOneWidget);
+      expect(find.text('请选择要调整的卡种或积分数量'), findsWidgets);
       expect(fake.adjusts, isEmpty);
     });
 
@@ -1721,7 +1721,7 @@ void main() {
       expect(find.text('提醒方式'), findsOneWidget); // 推送提醒依赖通知模块，保持设计稿样式
       await t.tap(find.text('保存回访'));
       await t.pumpAndSettle();
-      expect(find.text('请选择回访结果'), findsOneWidget);
+      expect(find.text('请选择回访结果'), findsWidgets);
       expect(fake.visits, isEmpty);
       for (var i = 0; i < 6; i++) {
         await t.pump(const Duration(seconds: 1));

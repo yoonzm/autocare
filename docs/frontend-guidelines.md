@@ -279,3 +279,18 @@ LoadingButton(
 - **修缺陷改一处**：组件有问题（样式、状态、无障碍）在组件库里改，页面自动跟着修复；不允许在页面里打补丁绕开。生成页只通过 `tools/design_to_flutter.py` 产出，其生成的控件同样引用组件库，不手改 `gen/`。
 - **验收**：新增 / 修改基础组件要覆盖选中、未选中、禁用、加载、深色模式，并检查依赖它的页面；PR 里列出复用的组件和新增到组件库的组件。
 
+## 15. 表单页的出场方式（iOS 整页 sheet）
+
+**左上角是关闭按钮（✕）的页面，一律以 iOS 整页 sheet 出场**：从底部滑入，顶部露出上一页，手势下拉可以关闭，和新增会员一致。
+
+- **统一入口**：只用 `lib/kit/sheet_route.dart` 的 `appSheetRoute`（底层是 `CupertinoSheetRoute`），不在页面里自己 new 路由或另写一套下拉关闭。生成页由 `lib/routes.dart` 的 `_cupertinoSheetPages` 名单统一打开；手写页、绑定层里直接 `Navigator.push` 的入口也要用 `appSheetRoute`。新增 ✕ 页面时，把页面名加进 `_cupertinoSheetPages`。
+- **上一页不缩放**：必须显式传顶部间距（`topGap: 0.08`），Flutter 在自定义顶部间距时不会让下层页面缩小。不要去掉。测试 `test/sheet_route_test.dart` 会检查上一页位置不变。
+- **下拉手势**：页面里的滚动区域使用 sheet 提供的滚动控制器（`appSheetRoute` 已用 `PrimaryScrollController` 包好），滚到顶后继续下拉才关闭。页面内不要再给最外层滚动区域单独指定 `controller` / `primary: false`。
+- **未保存的修改**：页面用 `ConfirmDiscard` 拦截返回时，下拉不会直接关闭，要点 ✕ 走“放弃未保存的修改？”确认，避免下拉误丢草稿。
+- **不使用的情况**：
+  - 结果页（支付成功、开卡成功、套餐售出、绑定完成、开通成功等，见 `resultPages`）：设计稿要求禁止下拉返回，保持原样。
+  - 相机扫描页（扫码找会员、扫描行驶证 / 车牌）：全屏相机，保持从底部滑入的全屏页。
+  - 左上角是返回箭头（<）的页面（详情、列表、编辑工位等）：保持原来的右侧推入。
+  - 已经是底部弹层的界面（选择会员 / 服务、挂单、主题等）：沿用 `showModalBottomSheet`。
+- **测试注意**：整页 sheet 下方的上一页仍在组件树里，单测里没有 `ToastHost` 时提示会出现两份 SnackBar，断言用 `findsWidgets` 或相应数量。
+

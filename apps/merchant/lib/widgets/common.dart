@@ -3,6 +3,8 @@ import '../kit/kit.dart';
 
 import 'package:flutter/material.dart';
 
+import '../kit/sheet_route.dart';
+
 import '../theme.dart';
 import 'app_icon.dart';
 
@@ -502,11 +504,11 @@ void push(BuildContext context, Widget page) {
     'AppointmentsPage' => 'Appointments',
     _ => null,
   };
+  final settings = name == null ? null : RouteSettings(name: name);
   Navigator.of(context).push(
-    MaterialPageRoute(
-      settings: name == null ? null : RouteSettings(name: name),
-      builder: (_) => page,
-    ),
+    name == 'AppointmentAdd'
+        ? appSheetRoute<void>(settings: settings, page: page)
+        : MaterialPageRoute(settings: settings, builder: (_) => page),
   );
 }
 

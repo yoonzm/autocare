@@ -2,6 +2,9 @@ import 'dart:convert';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+
+import '../kit/sheet_route.dart';
+
 import 'package:image_picker/image_picker.dart';
 
 import '../backend/merchant_api.dart';
@@ -186,7 +189,12 @@ class ExpenseController extends ChangeNotifier {
         ),
       );
     } else {
-      Navigator.of(context).push(MaterialPageRoute(builder: (_) => page));
+      // 记一笔 / 编辑预算 / 总预算的左上角是 ✕：整页 sheet；其余（详情、分类）保持原来的推入
+      Navigator.of(context).push(
+        const {'add', 'budget', 'total'}.contains(mode)
+            ? appSheetRoute<void>(page: page)
+            : MaterialPageRoute(builder: (_) => page),
+      );
     }
   }
 

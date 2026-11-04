@@ -2,6 +2,8 @@ import '../pages/inventory_record_templates.dart';
 
 import 'package:flutter/material.dart';
 
+import '../kit/sheet_route.dart';
+
 import 'dart:async';
 
 import '../backend/merchant_api.dart';
@@ -341,8 +343,8 @@ class InventoryController extends ChangeNotifier {
               }
               if (mode == 'detail' && to != null) {
                 Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => InventoryLivePage(
+                  appSheetRoute<void>(
+                    page: InventoryLivePage(
                       mode: to == 'StockOut'
                           ? 'out'
                           : to == 'StockIn'

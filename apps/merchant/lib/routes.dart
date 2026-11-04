@@ -3,8 +3,9 @@ import 'pages/expense_live_page.dart';
 
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart' show CupertinoSheetRoute;
 import 'package:flutter/material.dart';
+
+import 'kit/sheet_route.dart';
 
 import 'backend/merchant_api.dart';
 import 'kit/async_kit.dart';
@@ -192,29 +193,33 @@ const Set<String> resultPages = {
   'PackageSold',
 };
 
-/// iOS 整页 sheet（`CupertinoSheetRoute`）：从底部滑入，顶部露出缩小的上一页，下拉可关闭。
-/// 试点页面；效果确认后再逐步推广到 [_modalPages] 里的其他表单页。
-const Set<String> _cupertinoSheetPages = {'MemberAdd'};
-
-/// 表单卡片 / 全屏流程：从底部滑入，左上角是 ✕（设计稿“页面出场方式”第 3、4 类）。
-const Set<String> _modalPages = {
+/// 左上角是 ✕ 的表单 / 流程页：用 iOS 整页 sheet 出场（`appSheetRoute`，见 lib/kit/sheet_route.dart）。
+/// 不含结果页（禁止下拉返回）和相机扫描页（全屏相机）。
+const Set<String> _cupertinoSheetPages = {
   'MemberAdd',
   'VehicleAdd',
   'AppointmentAdd',
   'StockIn',
   'StockOut',
+  'StockCheck',
   'ExpenseAdd',
   'BudgetTotal',
   'BudgetEdit',
   'StoreEdit',
   'ServiceEdit',
   'CardTierEdit',
-  'StockCheck',
   'MemberEdit',
   'MemberAdjust',
   'MemberVisit',
   'MemberSendMsg',
   'PackageEdit',
+  'StaffAdd',
+  'StaffEdit',
+  'StaffInvite',
+};
+
+/// 全屏流程（相机扫描页）：从底部滑入，左上角是 ✕，全屏显示（设计稿“页面出场方式”第 4 类）。
+const Set<String> _modalPages = {
   'ScanLicense',
   'ScanPlate',
   'FindScanPlate',
@@ -749,11 +754,9 @@ void _openRouteCore(BuildContext context, String name) {
   // 结果页（第 5 类）禁止下拉 / 侧滑返回，只能点主按钮或 ✕
   final locked = resultPages.contains(name);
   final Route<void> route = _cupertinoSheetPages.contains(name)
-      ? CupertinoSheetRoute<void>(
+      ? appSheetRoute<void>(
           settings: RouteSettings(name: name),
-          // 页面里的滚动区域用 sheet 提供的控制器：滚到顶后继续下拉就会关闭 sheet
-          scrollableBuilder: (_, controller) =>
-              PrimaryScrollController(controller: controller, child: page),
+          page: page,
         )
       : MaterialPageRoute<void>(
           settings: RouteSettings(name: name),

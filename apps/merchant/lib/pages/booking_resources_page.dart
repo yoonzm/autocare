@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../backend/appointment_flow.dart';
 import '../backend/merchant_api.dart';
 import '../kit/async_kit.dart';
+import '../kit/sheet_route.dart';
 import '../widgets/booking_template_bindings.dart';
 import 'business_hours_template.dart';
 import 'staff_list_template.dart';
@@ -88,15 +89,20 @@ class _HostState extends State<BookingLiveHost> {
   void _bind(Map<String, dynamic> data) {
     c ??= BookingTemplateController(data, widget.mode, widget.row);
     c!.options.addAll(data);
-    c!.onEdit = (context, row) => Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => BookingResourceEditor(
-          kind: widget.mode == 'business' ? 'bay' : 'technician',
-          row: row,
-          options: c!.options,
-        ),
-      ),
-    );
+    c!.onEdit = (context, row) {
+      final bay = widget.mode == 'business';
+      final editor = BookingResourceEditor(
+        kind: bay ? 'bay' : 'technician',
+        row: row,
+        options: c!.options,
+      );
+      // 新增 / 编辑员工左上角是 ✕：整页 sheet；编辑工位是返回箭头，保持推入
+      Navigator.of(context).push(
+        bay
+            ? MaterialPageRoute<void>(builder: (_) => editor)
+            : appSheetRoute<void>(page: editor),
+      );
+    };
   }
 
   Widget _view() => ListenableBuilder(
