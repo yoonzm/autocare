@@ -126,6 +126,7 @@ export type ApiResponse =
   | { access_token: string; refresh_token: string }
   | { store: StoreProfileRow }
   | { items: ServiceItemRow[] | CardTypeRow[] | PackageRow[] | unknown[]; counts?: Record<string, number>; total?: number; matched?: number; total_balance?: number; new_this_month?: number }
+  | { active: unknown[]; items: unknown[] }
   | { rules: CardRules }
   | { item: ServiceItemRow | CardTypeRow | PackageRow | unknown }
   | { error: string };

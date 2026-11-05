@@ -7,8 +7,9 @@ const db = new PGlite();
 await db.exec(`create role anon; create role authenticated; create role service_role;
 create schema auth; create function auth.uid() returns uuid language sql as $$ select null::uuid $$;
 create table public.stores(id uuid primary key, owner_id uuid);
+grant select on public.stores to authenticated;
 insert into stores values ('00000000-0000-0000-0000-000000000001',null),('00000000-0000-0000-0000-000000000002',null);`);
-for (const name of ['202611030003_inventory.sql','202611030004_inventory_documents.sql']) {
+for (const name of ['202611030003_inventory.sql','202611030004_inventory_documents.sql','202611050001_inventory_catalog.sql']) {
   await db.exec(readFileSync(new URL('../migrations/'+name,import.meta.url),'utf8').replace(/^\uFEFF/,''));
 }
 const store='00000000-0000-0000-0000-000000000001';
@@ -47,9 +48,23 @@ assert.equal(Number((await db.query('select sum(quantity) as q from inventory_ba
 const read=(await db.query('select inventory_read($1) as result',[store])).rows[0].result;
 assert.equal(read.items.length,2); assert.equal(Number(read.items.find(p=>p.id===b).stock_value),15);
 assert.equal((await db.query('select inventory_read($1,$2) as result',[other,a])).rows[0].result.item,null);
+await db.query('update inventory_products set allow_decimal=false where id=$1',[b]);
+await assert.rejects(()=>save(id(),'out',payload([{id:b,quantity:.5}])) ,/integer_required/);
+await db.query('update inventory_products set manage_expiry=true where id=$1',[b]);
+await assert.rejects(()=>save(id(),'in',payload([{id:b,quantity:1,cost:5}])) ,/expiry_required/);
+await save(id(),'in',payload([{id:b,quantity:1,cost:5,expires_on:'2027-01-01'}]));
+await db.query('update inventory_products set active=false where id=$1',[b]);
+await assert.rejects(()=>save(id(),'out',payload([{id:b,quantity:1}])) ,/product_disabled/);
+await db.query(`insert into inventory_suppliers(id,store_id,name) values($1,$2,'Supplier')`,[a,store]);
+const voidId=id();
+const voidDraft=await save(voidId,'out',payload([{id:a,quantity:1}]),false);
+await db.query("update inventory_documents set status='void' where id=$1",[voidId]);
+await assert.rejects(()=>save(voidId,'out',payload([{id:a,quantity:1}]),true,voidDraft.revision),/document_closed/);
 await db.exec('set role authenticated');
 await assert.rejects(()=>db.query('select inventory_document_save($1,$2,$3,$4,$5,$6)',[store,id(),'in',entry,0,true]),/permission denied/);
 await assert.rejects(()=>db.exec('update inventory_products set stock=999'),/permission denied/);
+await assert.rejects(()=>db.exec("update inventory_suppliers set name='hacked'"),/permission denied/);
+assert.equal((await db.query('select * from inventory_suppliers')).rows.length,0,'supplier RLS hides other stores');
 await db.exec('reset role');
 await db.close();
 console.log('Inventory transaction tests passed: FIFO, fractional quantities, atomic rollback, replay, drafts, conflicts, tenant isolation, grants.');

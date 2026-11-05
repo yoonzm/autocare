@@ -1,3 +1,7 @@
+import '../pages/inventory_scan_page.dart';
+import '../widgets/common.dart' show AppCard, RoundBtn;
+import '../pages/inventory_catalog_page.dart';
+import '../pages/inventory_supplier_page.dart';
 import '../pages/inventory_record_templates.dart';
 
 import 'package:flutter/material.dart';
@@ -294,6 +298,12 @@ class InventoryController extends ChangeNotifier {
     }
   }
 
+  Widget editButton(BuildContext context) => RoundBtn(
+    'edit',
+    label: '编辑商品',
+    onTap: () => editProduct(context, detail),
+  );
+
   double get stockRatio => (detail['safe'] as num? ?? 0) == 0
       ? 1
       : ((detail['stock'] as num) / (detail['safe'] as num) / 2)
@@ -338,7 +348,7 @@ class InventoryController extends ChangeNotifier {
                 return;
               }
               if (label == '扫码添加' || action == '扫码添加') {
-                AppToast.show(context, '扫码设备尚未接入，请手动添加商品');
+                scanAdd(context);
                 return;
               }
               if (mode == 'detail' && to != null) {
@@ -392,6 +402,15 @@ class InventoryController extends ChangeNotifier {
       }
       return;
     }
+    if (key != 'amount') {
+      final supplier = await selectInventorySupplier(context);
+      if (supplier != null) {
+        payload['supplier'] = supplier['name'];
+        ctrl.set('${supplier['name']}');
+        changed();
+      }
+      return;
+    }
     final field = key == 'amount' ? 'freight' : 'supplier';
     final v = await inputDialog(
       context,
@@ -417,52 +436,52 @@ class InventoryController extends ChangeNotifier {
       changed();
     },
   );
+  Future<void> scanAdd(BuildContext context) async {
+    final p = await scanInventory(context);
+    if (p == null || disposed) return;
+    if (p['active'] == false) {
+      if (context.mounted) AppToast.show(context, '商品已停用');
+      return;
+    }
+    final existing = lines.where((l) => l['id'] == p['id']).firstOrNull;
+    if (existing != null) {
+      if (context.mounted) AppToast.show(context, '商品已在明细中，请调整数量');
+      return;
+    }
+    if (!products.any((v) => v['id'] == p['id'])) products.add(p);
+    lines.add({
+      'id': p['id'],
+      'name': p['name'],
+      'quantity': 1,
+      'cost': p['cost'],
+      'version': p['version'],
+    });
+    changed();
+  }
+
   Future<void> add(BuildContext context) async {
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
+    final result = await showModalBottomSheet<List<Map<String, dynamic>>>(
       context: context,
       isScrollControlled: true,
-      builder: (ctx) => SafeArea(
-        child: SizedBox(
-          height: MediaQuery.sizeOf(ctx).height * .65,
-          child: Column(
-            children: [
-              ListTile(
-                title: const Text('添加商品'),
-                trailing: TextButton(
-                  onPressed: () async {
-                    final p = await editProduct(ctx, null);
-                    if (p != null && ctx.mounted) Navigator.pop(ctx, p);
-                  },
-                  child: const Text('新增商品'),
-                ),
-              ),
-              Expanded(
-                child: ListView(
-                  children: [
-                    for (final p in products.where(
-                      (p) => !lines.any((l) => l['id'] == p['id']),
-                    ))
-                      ListTile(
-                        title: Text('${p['name']}'),
-                        subtitle: Text('${p['stock']} ${p['unit']}'),
-                        onTap: () => Navigator.pop(ctx, p),
-                      ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+      builder: (_) => SizedBox(
+        height: MediaQuery.sizeOf(context).height * .8,
+        child: InventoryCatalogPage(
+          picking: true,
+          excluded: lines.map((l) => l['id'] as String).toSet(),
         ),
       ),
     );
     if (result != null) {
-      if (!products.any((p) => p['id'] == result['id'])) products.add(result);
-      lines.add({
-        'id': result['id'],
-        'quantity': 1,
-        'cost': result['cost'],
-        'version': result['version'],
-      });
+      for (final p in result) {
+        if (!products.any((v) => v['id'] == p['id'])) products.add(p);
+        lines.add({
+          'id': p['id'],
+          'name': p['name'],
+          'quantity': 1,
+          'cost': p['cost'],
+          'version': p['version'],
+        });
+      }
       changed();
     }
   }
@@ -765,10 +784,9 @@ Future<String?> inputDialog(
 Future<Map<String, dynamic>?> editProduct(
   BuildContext context,
   Map<String, dynamic>? original,
-) => showModalBottomSheet<Map<String, dynamic>>(
-  context: context,
-  isScrollControlled: true,
-  builder: (_) => InventoryProductEditor(original: original),
+) => Navigator.push<Map<String, dynamic>>(
+  context,
+  MaterialPageRoute(builder: (_) => InventoryProductEditor(original: original)),
 );
 
 class InventoryProductEditor extends StatefulWidget {
@@ -782,91 +800,271 @@ class _ProductEditorState extends State<InventoryProductEditor> {
   late final Map<String, dynamic> fields = {
     'id': inventoryId(),
     'name': '',
-    'unit': '',
+    'unit': '件',
+    'allow_decimal': false,
+    'manage_expiry': false,
+    'active': true,
     'category': '洗护',
     'safe': 0,
     'cost': 0,
     'sku': '',
+    'barcode': '',
     'specification': '',
     'location': '',
     'supplier': '',
     ...?widget.original,
   };
   bool busy = false;
-  @override
-  Widget build(BuildContext context) => SafeArea(
-    child: Padding(
-      padding: EdgeInsets.fromLTRB(
-        20,
-        20,
-        20,
-        MediaQuery.viewInsetsOf(context).bottom + 20,
+  bool dirty = false;
+  final form = GlobalKey<FormState>();
+  Widget field(
+    String key,
+    String label,
+    String hint, {
+    bool numeric = false,
+    bool required = false,
+  }) => Padding(
+    padding: const EdgeInsets.only(top: 12),
+    child: TextFormField(
+      enabled: !busy,
+      initialValue: '${fields[key] ?? ''}',
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hint,
+        filled: true,
+        fillColor: C.bg,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide.none,
+        ),
       ),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+      keyboardType: numeric
+          ? const TextInputType.numberWithOptions(decimal: true)
+          : TextInputType.text,
+      validator: (v) {
+        if (required && (v ?? '').trim().isEmpty) return '请填写$label';
+        if (numeric && (num.tryParse(v ?? '') == null || num.parse(v!) < 0)) {
+          return '请输入非负数字';
+        }
+        return null;
+      },
+      onChanged: (v) {
+        fields[key] = numeric ? num.tryParse(v) : v;
+        setState(() => dirty = true);
+      },
+    ),
+  );
+  Widget section(String title, List<Widget> children) => Padding(
+    padding: const EdgeInsets.only(bottom: 14),
+    child: AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: ts(15, w: FontWeight.w600)),
+          ...children,
+        ],
+      ),
+    ),
+  );
+  @override
+  Widget build(BuildContext context) => ConfirmDiscard(
+    dirty: dirty,
+    busy: busy,
+    child: Scaffold(
+      backgroundColor: C.bg,
+      appBar: AppBar(
+        title: Text(widget.original == null ? '新增商品' : '商品资料'),
+        centerTitle: true,
+      ),
+      body: Form(
+        key: form,
+        child: ListView(
+          padding: const EdgeInsets.all(20),
           children: [
-            Text(
-              widget.original == null ? '新增商品' : '商品资料',
-              style: ts(18, w: FontWeight.w600),
-            ),
-            for (final e in {
-              'name': '商品名称',
-              'unit': '单位',
-              'sku': 'SKU',
-              'specification': '规格',
-              'location': '货位',
-              'supplier': '供应商',
-              'safe': '安全库存',
-              'cost': '成本单价',
-            }.entries)
-              if (e.key != 'cost' || widget.original == null)
-                TextFormField(
-                  enabled: !busy,
-                  initialValue: '${fields[e.key]}',
-                  decoration: InputDecoration(
-                    labelText: e.value,
-                    hintText: '请输入${e.value}',
-                  ),
-                  keyboardType: ['safe', 'cost'].contains(e.key)
-                      ? const TextInputType.numberWithOptions(decimal: true)
-                      : TextInputType.text,
-                  onChanged: (v) => fields[e.key] =
-                      ['safe', 'cost'].contains(e.key) ? num.tryParse(v) : v,
+            section('基本信息', [
+              field('name', '商品名称 *', '如：隐形车衣 TPU', required: true),
+              field('specification', '规格型号', '如：1.52m × 15m / 卷'),
+              field('sku', 'SKU 编码', '不填则系统自动生成'),
+              field('barcode', '商品条码', '请输入商品包装条码（选填）'),
+              const SizedBox(height: 12),
+              Text('分类 *', style: ts(12, color: C.sub)),
+              Wrap(
+                spacing: 6,
+                children: [
+                  for (final value in inventoryCategories.skip(1))
+                    ChoiceChip(
+                      showCheckmark: false,
+                      shape: const StadiumBorder(),
+                      side: BorderSide.none,
+                      selectedColor: C.primarySoft,
+                      backgroundColor: C.card,
+                      label: Text(value),
+                      selected: fields['category'] == value,
+                      onSelected: busy
+                          ? null
+                          : (_) => setState(() {
+                              fields['category'] = value;
+                              dirty = true;
+                            }),
+                    ),
+                ],
+              ),
+            ]),
+            section('单位与库存', [
+              const SizedBox(height: 12),
+              Text('计量单位 *', style: ts(12, color: C.sub)),
+              Wrap(
+                spacing: 6,
+                children: [
+                  for (final value in {
+                    '件',
+                    '瓶',
+                    '卷',
+                    '桶',
+                    '米',
+                    '升',
+                    '千克',
+                    '箱',
+                    '条',
+                    '罐',
+                    '片',
+                    '${fields['unit']}',
+                  })
+                    ChoiceChip(
+                      showCheckmark: false,
+                      shape: const StadiumBorder(),
+                      side: BorderSide.none,
+                      selectedColor: C.primarySoft,
+                      backgroundColor: C.card,
+                      label: Text(value),
+                      selected: fields['unit'] == value,
+                      onSelected: busy
+                          ? null
+                          : (_) => setState(() {
+                              fields['unit'] = value;
+                              dirty = true;
+                            }),
+                    ),
+                ],
+              ),
+              Material(
+                color: Colors.transparent,
+                child: SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('允许小数数量'),
+                  subtitle: const Text('如 0.5 卷、1.2 米'),
+                  value: fields['allow_decimal'] == true,
+                  onChanged: busy
+                      ? null
+                      : (v) => setState(() {
+                          fields['allow_decimal'] = v;
+                          dirty = true;
+                        }),
                 ),
-            DropdownButtonFormField<String>(
-              initialValue: fields['category'] as String,
-              items: [
-                for (final v in ['洗护', '镀晶', '贴膜', '配件'])
-                  DropdownMenuItem(value: v, child: Text(v)),
-              ],
-              onChanged: busy ? null : (v) => fields['category'] = v,
-            ),
-            const SizedBox(height: 16),
-            LoadingButton(
-              label: '保存',
-              onPressed: () async {
-                setState(() => busy = true);
-                try {
-                  final r = await merchantApi.invoke({
-                    ...fields,
-                    'action': widget.original == null
-                        ? 'inventory_create'
-                        : 'inventory_update',
-                  });
-                  inventoryChanged.value++;
-                  if (context.mounted) {
-                    Navigator.pop(
-                      context,
-                      Map<String, dynamic>.from(r['item'] as Map),
-                    );
-                  }
-                } finally {
-                  if (mounted) setState(() => busy = false);
-                }
-              },
-            ),
+              ),
+              Row(
+                children: [
+                  Expanded(child: field('safe', '安全库存 *', '0', numeric: true)),
+                  const SizedBox(width: 12),
+                  Expanded(child: field('location', '货位', '如 A-02')),
+                ],
+              ),
+            ]),
+            section('成本与供应商', [
+              if (widget.original == null)
+                field('cost', '参考成本价 *', '0.00', numeric: true),
+              Material(
+                color: Colors.transparent,
+                child: ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('默认供应商'),
+                  subtitle: Text(
+                    '${fields['supplier']}'.isEmpty
+                        ? '选择供应商'
+                        : '${fields['supplier']}',
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: busy
+                      ? null
+                      : () async {
+                          final supplier = await selectInventorySupplier(
+                            context,
+                          );
+                          if (supplier != null && mounted) {
+                            setState(() {
+                              fields['supplier'] = supplier['name'];
+                              dirty = true;
+                            });
+                          }
+                        },
+                ),
+              ),
+            ]),
+            section('保质期', [
+              Material(
+                color: Colors.transparent,
+                child: SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('需要管理保质期'),
+                  subtitle: const Text('开启后入库时必须填写有效期'),
+                  value: fields['manage_expiry'] == true,
+                  onChanged: busy
+                      ? null
+                      : (v) => setState(() {
+                          fields['manage_expiry'] = v;
+                          dirty = true;
+                        }),
+                ),
+              ),
+            ]),
+            if (widget.original != null)
+              section('商品状态', [
+                Material(
+                  color: Colors.transparent,
+                  child: SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('启用商品'),
+                    value: fields['active'] != false,
+                    onChanged: busy
+                        ? null
+                        : (v) => setState(() {
+                            fields['active'] = v;
+                            dirty = true;
+                          }),
+                  ),
+                ),
+              ]),
           ],
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: LoadingButton(
+            label: '保存',
+            onPressed: () async {
+              if (!form.currentState!.validate()) return;
+              setState(() => busy = true);
+              try {
+                final r = await merchantApi.invoke({
+                  ...fields,
+                  'action': widget.original == null
+                      ? 'inventory_create'
+                      : 'inventory_update',
+                });
+                dirty = false;
+                inventoryChanged.value++;
+                if (context.mounted) {
+                  Navigator.pop(
+                    context,
+                    Map<String, dynamic>.from(r['item'] as Map),
+                  );
+                }
+              } finally {
+                if (mounted) setState(() => busy = false);
+              }
+            },
+          ),
         ),
       ),
     ),

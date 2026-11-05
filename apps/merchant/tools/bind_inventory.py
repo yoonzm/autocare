@@ -1,6 +1,7 @@
 """Build live templates from the checked-in design output; never edits gen/."""
 from pathlib import Path
 import re
+import sys
 
 root = Path(__file__).resolve().parents[1] / 'lib/pages'
 
@@ -26,6 +27,8 @@ def replace_call(s, name, needle, replacement, smallest=True):
     return s[:a]+replacement+s[b:]
 
 for page in ['StockIn','StockOut','StockCheck','ProductDetail']:
+    if len(sys.argv)>1 and page not in sys.argv[1:]:
+        continue
     snake = re.sub(r'(?<!^)(?=[A-Z])','_',page).lower()
     s = (root/'gen'/f'{snake}_page.dart').read_text(encoding='utf-8')
     s=s.replace("'../../kit/kit.dart'", "'../kit/kit.dart'").replace("'svgs.dart'", "'gen/svgs.dart'")
@@ -97,6 +100,9 @@ for page in ['StockIn','StockOut','StockCheck','ProductDetail']:
         action=next((v for v in ['确认入库','确认出库','提交盘点','草稿','暂存','取消','添加商品','扫码添加'] if v in block), '')
         if action: s=s[:b-1]+f"action: '{action}',"+s[b-1:]
     s=s.replace('hTap(', 'c.tap(')
+    if page == 'ProductDetail':
+        a,b = next((a,b) for a,b in calls(s,r'c\.tap') if "to: 'StockCheck'" in s[a:b])
+        s=s[:b]+', c.editButton(context)'+s[b:]
     s=s.replace('HSwitch(initial: true)', 'c.expenseSwitch(context)')
     s=s.replace('HImageAdd(', 'InventoryAttachment(')
     # Replace label text only: style, layout and typography remain in the template.

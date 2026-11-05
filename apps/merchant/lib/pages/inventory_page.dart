@@ -1,3 +1,5 @@
+import 'inventory_scan_page.dart';
+import 'inventory_catalog_page.dart';
 import '../widgets/inventory_bindings.dart';
 import 'inventory_live_page.dart';
 
@@ -85,7 +87,20 @@ class _InventoryPageState extends State<InventoryPage> {
               RoundBtn(
                 'scan',
                 label: '扫码查询',
-                onTap: () => toast(context, '扫码查询尚未接通'),
+                onTap: () async {
+                  final p = await scanInventory(context);
+                  if (p != null && context.mounted) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => InventoryLivePage(
+                          mode: 'detail',
+                          productId: p['id'],
+                        ),
+                      ),
+                    );
+                  }
+                },
               ),
               const SizedBox(width: 8),
               GestureDetector(
@@ -129,6 +144,49 @@ class _InventoryPageState extends State<InventoryPage> {
             ],
           ),
           const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: AppCard(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const InventoryCatalogPage(),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('全部商品', style: ts(14, w: FontWeight.w600)),
+                      Text(
+                        '${products.length} 项',
+                        style: ts(12, color: C.muted),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: AppCard(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const InventoryDocumentsPage(),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('库存单据', style: ts(14, w: FontWeight.w600)),
+                      Text('入库 / 出库 / 盘点', style: ts(12, color: C.muted)),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
           Segmented(
             labels: _cats,
             selected: cat,
@@ -166,7 +224,12 @@ class _InventoryPageState extends State<InventoryPage> {
                   ),
                 ),
                 GestureDetector(
-                  onTap: () => openRoute(context, 'StockIn'),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const InventoryCatalogPage(lowOnly: true),
+                    ),
+                  ),
                   child: Container(
                     height: 32,
                     padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -187,7 +250,7 @@ class _InventoryPageState extends State<InventoryPage> {
           const SizedBox(height: 16),
           if (list.isEmpty)
             EmptyView.firstTime(
-              title: products.isEmpty ? '还没有库存商品' : '请先登录后查看库存',
+              title: products.isEmpty ? '还没有库存商品' : '当前分类下没有商品',
             ),
           AppCard(
             padding: const EdgeInsets.symmetric(vertical: 4),
