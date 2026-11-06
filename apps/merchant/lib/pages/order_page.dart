@@ -42,6 +42,11 @@ class _OrderPageState extends State<OrderPage> {
   /// 会员名下可用次卡：服务 ID -> (次卡 ID, 剩余次数)。
   Map<String, (String, int)> _cover = {};
   bool _busy = false;
+  List<Map<String, dynamic>> _technicians = const [];
+  bool _hasTechnicians = false;
+  bool _loadingTechnicians = false;
+  bool _showTechnicianSkeleton = false;
+  AppError? _technicianError;
 
   List<_Svc> get _svcs => _live
       ? _liveSvcs
@@ -91,6 +96,10 @@ class _OrderPageState extends State<OrderPage> {
     super.initState();
     if (_live) {
       picked.clear();
+      final technicianId = widget.appointment?['technician_id'];
+      if (technicianId != null) techs.add('$technicianId');
+      AppointmentFlow.changed.addListener(_refreshTechnicians);
+      unawaited(_loadTechnicians());
       if (widget.appointment != null) {
         _walkIn = widget.appointment!['member_id'] == null;
         _walkPlateCtl.text = '${widget.appointment!['vehicle_plate'] ?? ''}';
@@ -118,6 +127,7 @@ class _OrderPageState extends State<OrderPage> {
 
   @override
   void dispose() {
+    AppointmentFlow.changed.removeListener(_refreshTechnicians);
     HoldFlow.eventTick.removeListener(_onHoldEvent);
     ServiceStore.changed.removeListener(_onServiceStore);
     _searchCtl.dispose();
@@ -137,6 +147,7 @@ class _OrderPageState extends State<OrderPage> {
       case 'reset':
         setState(() {
           picked.clear();
+          techs.clear();
           _holdId = null;
           _walkPlateCtl.clear();
         });
@@ -167,6 +178,7 @@ class _OrderPageState extends State<OrderPage> {
       };
       setState(() {
         _walkIn = walkIn;
+        techs.clear();
         customer = m == null ? _noMember : memberFromRow(m);
         _cover = {};
         pay = 0;
@@ -362,7 +374,7 @@ class _OrderPageState extends State<OrderPage> {
       widget.member ?? (merchantApi.hasSession ? _noMember : members.first);
   int pay = 0;
   final Set<int> picked = {0, 1};
-  final Set<String> techs = {'李国强 · 镀晶', '王磊 · 洗车'};
+  final Set<String> techs = {}; // 按技师 ID 保存当前页面的选择。
 
   double get subtotal => picked.fold(0, (s, i) => s + _svcs[i].price);
   double get cardOff =>
@@ -1284,8 +1296,96 @@ class _OrderPageState extends State<OrderPage> {
     );
   }
 
+  void _refreshTechnicians() => unawaited(_loadTechnicians());
+
+  Future<void> _loadTechnicians() async {
+    if (_loadingTechnicians) return;
+    setState(() {
+      _loadingTechnicians = true;
+      _showTechnicianSkeleton = false;
+    });
+    DateTime? shownAt;
+    final timer = Timer(kIndicatorDelay, () {
+      if (mounted && !_hasTechnicians) {
+        setState(() => _showTechnicianSkeleton = true);
+        shownAt = DateTime.now();
+      }
+    });
+    List<Map<String, dynamic>>? rows;
+    AppError? failed;
+    try {
+      final options = await merchantApi.appointment('options');
+      rows = List<Map<String, dynamic>>.from(options['resources'] as List)
+          .where((r) => r['kind'] == 'technician' && r['active'] == true)
+          .toList();
+    } catch (e) {
+      failed = AppError.from(e);
+    }
+    timer.cancel();
+    if (shownAt != null) {
+      final left = kIndicatorMinShow - DateTime.now().difference(shownAt!);
+      if (left > Duration.zero) await Future<void>.delayed(left);
+    }
+    if (!mounted) return;
+    setState(() {
+      _loadingTechnicians = false;
+      _showTechnicianSkeleton = false;
+      if (failed == null) {
+        _technicians = rows!;
+        _hasTechnicians = true;
+        _technicianError = null;
+        final ids = rows.map((r) => '${r['id']}').toSet();
+        techs.removeWhere((id) => !ids.contains(id));
+      } else if (!_hasTechnicians) {
+        _technicianError = failed;
+      }
+    });
+    if (failed != null && _hasTechnicians) {
+      AppToast.show(
+        context,
+        failed.message,
+        kind: ToastKind.error,
+        actionLabel: failed.retryable ? '重试' : null,
+        onAction: failed.retryable ? _loadTechnicians : null,
+      );
+    }
+  }
+
+  Widget _technicianBody() {
+    final error = _live
+        ? _technicianError
+        : const AppError('请先登录', type: AppErrorType.auth);
+    if (error != null) {
+      return ErrorView(
+        inline: true,
+        error: error,
+        retrying: _loadingTechnicians,
+        onRetry: _loadTechnicians,
+        onNext: () => openRoute(context, 'Login'),
+      );
+    }
+    if (!_hasTechnicians) {
+      return _showTechnicianSkeleton
+          ? const Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                AppSkeleton(width: 180, height: 36, radius: 18),
+                AppSkeleton(width: 130, height: 36, radius: 18),
+              ],
+            )
+          : const SizedBox(height: 36);
+    }
+    if (_technicians.isEmpty) {
+      return Text(
+        '还没有可用技师，请在“员工与权限”中添加或启用',
+        style: ts(13, color: C.muted, h: 20),
+      );
+    }
+    return _technicianChips();
+  }
+
   Widget _jobCard() {
-    const all = ['李国强 · 镀晶', '王磊 · 洗车', '刘洋'];
     return AppCard(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -1293,50 +1393,7 @@ class _OrderPageState extends State<OrderPage> {
         children: [
           Text('施工安排', style: ts(15, w: FontWeight.w600, h: 22)),
           const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              for (final t in all)
-                GestureDetector(
-                  onTap: () => setState(
-                    () => techs.contains(t) ? techs.remove(t) : techs.add(t),
-                  ),
-                  child: Container(
-                    height: 36,
-                    padding: const EdgeInsets.fromLTRB(4, 0, 12, 0),
-                    decoration: BoxDecoration(
-                      color: techs.contains(t) ? C.primarySoft : C.inset,
-                      borderRadius: BorderRadius.circular(18),
-                      border: techs.contains(t)
-                          ? Border.all(color: C.primary, width: 1.5)
-                          : null,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Avatar(
-                          t.substring(0, 1),
-                          size: 28,
-                          bg: C.card,
-                          fg: C.ink,
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          t,
-                          style: ts(
-                            13,
-                            w: FontWeight.w500,
-                            color: techs.contains(t) ? C.primaryInk : C.sub,
-                            h: 18,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-            ],
-          ),
+          _technicianBody(),
           const SizedBox(height: 12),
           Row(
             children: [
@@ -1349,6 +1406,66 @@ class _OrderPageState extends State<OrderPage> {
       ),
     );
   }
+
+  String _technicianLabel(Map<String, dynamic> row) {
+    final category = '${row['category'] ?? ''}'.trim();
+    return category.isEmpty ? '${row['name']}' : '${row['name']} · $category';
+  }
+
+  // TODO: 多技师分配尚无订单/挂单保存接口；这里保持现有页面选择交互，
+  // 后续需后端校验 technician_ids 并持久化，不将此选择标记为已保存。
+  Widget _technicianChips() => Wrap(
+    spacing: 8,
+    runSpacing: 8,
+    children: [
+      for (final t in _technicians)
+        GestureDetector(
+          onTap: () => setState(
+            () => techs.contains('${t['id']}')
+                ? techs.remove('${t['id']}')
+                : techs.add('${t['id']}'),
+          ),
+          child: Container(
+            height: 36,
+            padding: const EdgeInsets.fromLTRB(4, 0, 12, 0),
+            decoration: BoxDecoration(
+              color: techs.contains('${t['id']}') ? C.primarySoft : C.inset,
+              borderRadius: BorderRadius.circular(18),
+              border: techs.contains('${t['id']}')
+                  ? Border.all(color: C.primary, width: 1.5)
+                  : null,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Avatar(
+                  '${t['name']}'.characters.first,
+                  size: 28,
+                  bg: C.card,
+                  fg: C.ink,
+                ),
+                const SizedBox(width: 6),
+                Flexible(
+                  child: Text(
+                    _technicianLabel(t),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: ts(
+                      13,
+                      w: FontWeight.w500,
+                      color: techs.contains('${t['id']}')
+                          ? C.primaryInk
+                          : C.sub,
+                      h: 18,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+    ],
+  );
 
   Future<void> _pickBay() async {
     final r = await pickFromList(context, '选择工位', _bays, bay);
