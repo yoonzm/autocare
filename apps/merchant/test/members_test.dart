@@ -3,9 +3,11 @@ import 'package:autocare_merchant/backend/member_flow.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/backend/store_profile.dart';
 import 'package:autocare_merchant/kit/async_kit.dart';
+import 'package:autocare_merchant/kit/kit.dart' show HSel;
 import 'package:autocare_merchant/pages/member_detail_page.dart';
 import 'package:autocare_merchant/pages/order_page.dart';
 import 'package:autocare_merchant/pages/members_page.dart';
+import 'package:autocare_merchant/pages/gen/member_filter_sheet.dart';
 import 'package:autocare_merchant/routes.dart';
 
 import 'packages_test.dart' show pkgRow;
@@ -691,6 +693,93 @@ void main() {
       expect(fake.filterCalls.last['max'], 2000);
       expect(fake.filterCalls.last['within'], 30);
       expect(navTracker.has('sheet:MemberFilter'), isFalse);
+    });
+    testWidgets('筛选重置同步选中状态，取消保留原条件，查看应用清空后的条件', (t) async {
+      phone(t);
+      fake.tiers
+        ..clear()
+        ..addAll([
+          {'id': 't-base', 'name': '普通会员'},
+          {'id': 't-silver', 'name': '银卡', 'upgrade_recharge': 2000},
+          {'id': 't-gold', 'name': '金卡', 'upgrade_recharge': 5000},
+          {'id': 't-black', 'name': '黑金卡', 'upgrade_recharge': 10000},
+        ]);
+      final f = MemberFlow.filter;
+      f.reset();
+      f.apply();
+      fake.rows.add(row());
+      await t.pumpWidget(app(const MembersPage()));
+      await t.pumpAndSettle();
+
+      Future<void> openFilter() async {
+        await t.tap(find.bySemanticsLabel('筛选会员'));
+        await t.pumpAndSettle();
+      }
+
+      Future<void> applyFilter() async {
+        await t.ensureVisible(find.textContaining('位会员'));
+        await t.tap(find.textContaining('位会员'));
+        await t.pumpAndSettle();
+      }
+
+      Finder option(String label) => find
+          .descendant(
+            of: find.byType(MemberFilterSheet),
+            matching: find.text(label),
+          )
+          .first;
+      Set<int> selection(String label) => t
+          .widget<HSel>(
+            find.ancestor(of: option(label), matching: find.byType(HSel)).first,
+          )
+          .ctrl
+          .selected;
+      Future<void> resetFilter() async {
+        await t.ensureVisible(find.text('重置'));
+        await t.tap(find.text('重置'));
+        await t.pump(const Duration(milliseconds: 400));
+        await t.pumpAndSettle();
+        expect(selection('金卡'), isEmpty);
+        expect(selection('¥500–2,000'), {0});
+        expect(selection('30 天内'), isEmpty);
+        expect(f.tierSel, isEmpty);
+        expect(f.balanceSel, 0);
+        expect(f.visitSel, -1);
+        expect(fake.filterCalls.last['ids'], isEmpty);
+        expect(fake.filterCalls.last['min'], isNull);
+        expect(fake.filterCalls.last['max'], isNull);
+        expect(fake.filterCalls.last['within'], isNull);
+        expect(fake.filterCalls.last['over'], isNull);
+        expect(navTracker.has('sheet:MemberFilter'), isTrue);
+        expect(find.text('重置（演示）'), findsNothing);
+      }
+
+      await openFilter();
+      await t.tap(option('金卡'));
+      await t.pump();
+      await t.tap(find.text('¥500–2,000').first);
+      await t.pump();
+      await t.tap(find.text('30 天内').first);
+      await t.pumpAndSettle();
+      await applyFilter();
+      expect(f.active, isTrue);
+      await openFilter();
+      await resetFilter();
+      await t.ensureVisible(find.text('取消'));
+      await t.tap(find.text('取消'));
+      await t.pumpAndSettle();
+      expect(f.active, isTrue);
+      await openFilter();
+      expect(selection('金卡'), {2});
+      expect(selection('¥500–2,000'), {2});
+      expect(selection('30 天内'), {1});
+      await resetFilter();
+      await applyFilter();
+      expect(f.active, isFalse);
+      expect(fake.filterCalls.last['ids'], isEmpty);
+      expect(fake.filterCalls.last['min'], isNull);
+      expect(fake.filterCalls.last['within'], isNull);
+      expect(t.takeException(), isNull);
     });
   });
 
