@@ -10,11 +10,11 @@ export '../kit/async_kit.dart' show AppError, AppErrorType;
 
 const supabaseUrl = String.fromEnvironment(
   'SUPABASE_URL',
-  defaultValue: 'https://wghsytekrmpcofpugyua.supabase.co',
+  defaultValue: 'https://autocare.mymember.ltd',
 );
 const supabasePublishableKey = String.fromEnvironment(
   'SUPABASE_PUBLISHABLE_KEY',
-  defaultValue: 'sb_publishable_tc78tqPIqF7dPAkA5oRiMg_KlE4UT2y',
+  defaultValue: 'sb_publishable_mzNkMTh1lVnIXThevC--Zj_5bG1XkCJ',
 );
 
 /// 登录态失效（刷新令牌也失败）时 +1，App 根据它回到登录页。

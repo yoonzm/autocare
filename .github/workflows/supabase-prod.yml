@@ -1,0 +1,72 @@
+name: Supabase Production
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "supabase/**"
+      - ".github/workflows/supabase-prod.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: autocare-supabase-production
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.5.4
+      - name: Check and test backend
+        working-directory: supabase/functions/merchant-v1
+        run: |
+          deno task check
+          deno test
+      - name: Test deployment validation
+        run: python3 -m unittest discover -s supabase/deploy -p 'test_*.py'
+
+  deploy:
+    needs: check
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: supabase-prod
+      url: https://autocare.mymember.ltd
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Prepare deployment SSH identity
+        env:
+          DEPLOY_KEY: ${{ secrets.SUPABASE_PROD_SSH_KEY }}
+          HOST_KEY: ${{ secrets.SUPABASE_PROD_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_KEY"
+          test -n "$HOST_KEY"
+          install -d -m 700 "$HOME/.ssh"
+          printf '%s\n' "$DEPLOY_KEY" > "$HOME/.ssh/autocare-prod"
+          printf '%s\n' "$HOST_KEY" > "$HOME/.ssh/autocare-prod-known-hosts"
+          chmod 600 "$HOME/.ssh/autocare-prod" "$HOME/.ssh/autocare-prod-known-hosts"
+      - name: Package backend
+        run: python3 supabase/deploy/package.py "$GITHUB_SHA" "$RUNNER_TEMP/autocare-backend.tar.gz"
+      - name: Deploy migrations and functions
+        run: |
+          ssh -T -i "$HOME/.ssh/autocare-prod" \
+            -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="$HOME/.ssh/autocare-prod-known-hosts" \
+            -o ConnectTimeout=15 -o ServerAliveInterval=15 -o ServerAliveCountMax=4 \
+            ubuntu@122.51.217.62 < "$RUNNER_TEMP/autocare-backend.tar.gz"
+      - name: Remove deployment identity
+        if: always()
+        run: rm -f "$HOME/.ssh/autocare-prod" "$HOME/.ssh/autocare-prod-known-hosts"

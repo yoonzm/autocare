@@ -1,4 +1,5 @@
-import { admin, fail, json, storeFor, uuid } from "./shared.ts";
+import { admin, fail, json, storeFor, url, uuid } from "./shared.ts";
+import { publicStorageUrl } from "./storage_url.ts";
 import { day, decimal } from "./inventory_rules.ts";
 import type { Input } from "./types.ts";
 
@@ -77,7 +78,11 @@ export async function handleExpenses(
     ) return fail("凭证不存在", 404);
     const { data, error } = await admin.storage.from("expense-vouchers")
       .createSignedUrl(input.path, 300);
-    return error ? fail("读取凭证失败", 500) : json({ item: data });
+    if (error) return fail("读取凭证失败", 500);
+    return json({ item: {
+      ...data,
+      signedUrl: publicStorageUrl(data.signedUrl, url, Deno.env.get('SUPABASE_PUBLIC_URL') || url),
+    } });
   }
   if (action === "board" || action === "get" || action === "suggest") {
     if (

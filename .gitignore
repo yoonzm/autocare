@@ -31,3 +31,4 @@ app.*.map.json
 !.env.example
 **/google-services.json
 **/GoogleService-Info.plist
+__pycache__/

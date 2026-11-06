@@ -4,6 +4,10 @@
 
 开发项目：`autocare-dev`（`wghsytekrmpcofpugyua`）。`supabase/` 变更推送后只运行后端检查；推送到 `main` 或当前 `feat/merchant-supabase-v1` 时，通过检查后依次验证迁移历史、执行 `supabase db push`、部署 `merchant-v1`。数据库通过 IPv4 Session Pooler 连接，密码在 GitHub Secret `SUPABASE_DEV_DB_PASSWORD`；部署令牌在 `SUPABASE_DEV_ACCESS_TOKEN`，限定开发项目，永不过期但可手动吊销。首个迁移已通过 Dashboard 应用并登记到 CLI 迁移历史，后续数据库变更必须添加新的版本化 SQL 迁移文件，不要直接修改已部署迁移。正式环境应使用独立的项目、迁移历史和凭据。
 
+正式环境为私有化实例 `https://autocare.mymember.ltd`，由 `supabase-prod.yml` 在 `main` 自动部署，支持手动触发；详见 [`docs/release.md`](../docs/release.md)。App 默认使用正式环境，Cloud 测试环境通过 `--dart-define-from-file=config/dev.json` 手动指定。两边分别维护迁移历史、账号、数据和凭据。正式部署只安装仓库结构与函数，不复制开发数据。
+
+私有化部署的环境变量由 Docker Compose 提供，生产 mock 显式禁用。保留网关的 API key 校验和现有函数运行时 JWT 校验；公开登录请求通过 publishable key 调用，受保护的业务动作继续由函数验证用户 JWT。Cloud 的 `config.toml` 不会自动改变自托管运行时配置。凭证签名链接在返回 App 前映射为公网域名，避免客户端拿到内部 `api-gw:8000` 地址。
+
 部署顺序：
 
 1. 在目标项目执行版本化迁移，先在备份/测试环境验证。旧表如已有数据，迁移前必须人工审查，不能直接删除。开发项目由 GitHub Actions 自动执行 `db push`。
