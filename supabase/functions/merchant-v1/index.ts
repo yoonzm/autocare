@@ -1,3 +1,4 @@
+import { handleRegions } from './regions.ts';
 import { handleInventory } from './inventory.ts';
 import { handleExpenses } from './expenses.ts';
 import { handleOrderCenter } from './orders_center.ts';
@@ -23,6 +24,7 @@ Deno.serve(async (request: Request): Promise<Response> => {
     return fail('Invalid JSON');
   }
   if (!isInput(input)) return fail('Invalid JSON');
+  if (input.action === 'regions') return handleRegions(input);
   if (['send_code', 'check_code', 'forgot_verify', 'reset_password', 'register', 'login_password', 'login_code'].includes(String(input.action))) {
     return handleAuth(input, request);
   }

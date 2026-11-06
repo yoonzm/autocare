@@ -119,6 +119,8 @@ export type MerchantAction = AuthAction | CatalogAction;
 export type Input = Record<string, unknown>;
 
 export type ApiResponse =
+  | { version: string; unchanged: true }
+  | { version: string; items: import('./region_rules.ts').Region[] }
   | { ok: true }
   | { ok: true; services: number; products: number; cards: number; packages: number; bays: number }
   | { ok: true; retry_after: number; expires_in: number }

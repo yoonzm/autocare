@@ -53,6 +53,7 @@ class MerchantApi {
 
   /// 不需要登录态的动作：401 是业务失败（如密码错误），不能当成登录失效。
   static const _publicActions = {
+    'regions',
     'send_code',
     'forgot_verify',
     'reset_password',
@@ -66,6 +67,7 @@ class MerchantApi {
 
   /// 只读、可重复的请求：失败时静默重试 1 次；写请求不自动重试。
   static const _readActions = {
+    'regions',
     'expense_board',
     'expense_source',
     'expense_get',

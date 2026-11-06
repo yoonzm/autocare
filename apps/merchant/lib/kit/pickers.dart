@@ -1,4 +1,4 @@
-// 表单里的选择类交互：日期、车型、城市、列表选择、金额输入、车牌输入。数据均为 mock。
+// 表单选择组件；地区来自后端公共字典。
 import 'async_kit.dart';
 import 'kit.dart';
 
@@ -8,6 +8,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../backend/merchant_api.dart';
+import '../backend/region_dictionary.dart';
 import '../backend/registration_draft.dart';
 import '../backend/store_profile.dart';
 import '../backend/catalog_draft.dart';
@@ -88,6 +89,7 @@ class _HStrHolderState extends State<HStrHolder> {
           placeholder: RegistrationDraft.cityPlaceholder,
         );
         RegistrationDraft.city = '';
+        RegistrationDraft.provinceCode = RegistrationDraft.cityCode = '';
         ctrl.addListener(() {
           RegistrationDraft.city = ctrl.v == ctrl.placeholder ? '' : ctrl.v;
         });
@@ -1005,81 +1007,124 @@ Future<String?> pickCarModel(BuildContext context, String current) {
 }
 
 // ───────── 城市 ─────────
-const cityData = <String, List<String>>{
-  '上海市': ['浦东新区', '徐汇区', '静安区', '闵行区', '杨浦区'],
-  '北京市': ['朝阳区', '海淀区', '东城区', '西城区'],
-  '杭州市': ['西湖区', '余杭区', '滨江区'],
-  '南京市': ['玄武区', '鼓楼区', '江宁区'],
-  '苏州市': ['姑苏区', '吴中区', '工业园区'],
-  '广州市': ['天河区', '越秀区', '番禺区'],
-  '深圳市': ['南山区', '福田区', '宝安区'],
-  '成都市': ['锦江区', '武侯区', '高新区'],
-  '武汉市': ['武昌区', '江汉区', '洪山区'],
-};
+Future<CitySelection?> pickCity(BuildContext context, String current) =>
+    _sheet<CitySelection>(context, (ctx) => _CitySheet(current: current));
 
-Future<String?> pickCity(BuildContext context, String current) {
-  final cities = cityData.keys.toList();
-  var ci = cities.indexWhere((c) => current.startsWith(c));
-  if (ci < 0) ci = 0;
-  var di = cityData[cities[ci]]!.indexWhere((d) => current.endsWith(d));
-  if (di < 0) di = 0;
-  return _sheet<String>(
-    context,
-    (ctx) => StatefulBuilder(
-      builder: (ctx, setS) {
-        final ds = cityData[cities[ci]]!;
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _handle(),
-            _header(
-              ctx,
-              '选择所在城市',
-              onOk: () => Navigator.pop(
-                ctx,
-                '${cities[ci]} · ${ds[di.clamp(0, ds.length - 1)]}',
-              ),
+class _CitySheet extends StatefulWidget {
+  final String current;
+  const _CitySheet({required this.current});
+  @override
+  State<_CitySheet> createState() => _CitySheetState();
+}
+
+class _CitySheetState extends State<_CitySheet> {
+  RegionDictionary? data;
+  int pi = 0, ci = 0;
+  final cityScroll = FixedExtentScrollController();
+  final provinceScroll = FixedExtentScrollController();
+  final viewKey = GlobalKey<AsyncViewState<RegionDictionary>>();
+
+  @override
+  void dispose() {
+    cityScroll.dispose();
+    provinceScroll.dispose();
+    super.dispose();
+  }
+
+  void loaded(RegionDictionary value) {
+    final provinces = value.provinces;
+    pi = provinces.indexWhere((p) => widget.current.startsWith('${p.name} · '));
+    if (pi < 0) pi = 0;
+    final cities = provinces.isEmpty
+        ? <Region>[]
+        : value.children(provinces[pi].code);
+    ci = cities.indexWhere((c) => widget.current.endsWith(' · ${c.name}'));
+    if (ci < 0) ci = 0;
+    setState(() => data = value);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (provinceScroll.hasClients) provinceScroll.jumpToItem(pi);
+      if (cityScroll.hasClients) cityScroll.jumpToItem(ci);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final provinces = data?.provinces ?? <Region>[];
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _handle(),
+        _header(
+          context,
+          '选择所在城市',
+          onOk: provinces.isEmpty
+              ? null
+              : () {
+                  final province = provinces[pi];
+                  final cities = data!.children(province.code);
+                  Navigator.pop(context, CitySelection(province, cities[ci]));
+                },
+        ),
+        SizedBox(
+          height: 216,
+          child: AsyncView<RegionDictionary>(
+            key: viewKey,
+            load: RegionDictionary.load,
+            isEmpty: (d) => d.provinces.isEmpty,
+            onLoaded: loaded,
+            pullToRefresh: false,
+            inlineError: true,
+            skeletonScrollable: false,
+            skeleton: Center(child: AppSpinner(color: C.ink)),
+            empty: (_) => EmptyView(
+              inline: true,
+              title: '地区数据尚未就绪',
+              actionLabel: '重试',
+              onAction: () => viewKey.currentState?.reload(),
             ),
-            SizedBox(
-              height: 216,
-              child: _wheelTheme(
+            builder: (_, dictionary) {
+              final ps = dictionary.provinces;
+              final cities = dictionary.children(ps[pi].code);
+              return _wheelTheme(
                 Row(
                   children: [
                     Expanded(
                       child: CupertinoPicker(
+                        scrollController: provinceScroll,
                         itemExtent: 40,
-                        scrollController: FixedExtentScrollController(
-                          initialItem: ci,
-                        ),
-                        onSelectedItemChanged: (i) => setS(() {
-                          ci = i;
-                          di = 0;
-                        }),
+                        onSelectedItemChanged: (i) {
+                          setState(() {
+                            pi = i;
+                            ci = 0;
+                          });
+                          if (cityScroll.hasClients) cityScroll.jumpToItem(0);
+                        },
                         children: [
-                          for (final c in cities) Center(child: Text(c)),
+                          for (final p in ps) Center(child: Text(p.name)),
                         ],
                       ),
                     ),
                     Expanded(
                       child: CupertinoPicker(
-                        key: ValueKey(ci),
+                        key: ValueKey(ps[pi].code),
+                        scrollController: cityScroll,
                         itemExtent: 40,
-                        scrollController: FixedExtentScrollController(
-                          initialItem: di,
-                        ),
-                        onSelectedItemChanged: (i) => di = i,
-                        children: [for (final d in ds) Center(child: Text(d))],
+                        onSelectedItemChanged: (i) => setState(() => ci = i),
+                        children: [
+                          for (final c in cities) Center(child: Text(c.name)),
+                        ],
                       ),
                     ),
                   ],
                 ),
-              ),
-            ),
-          ],
-        );
-      },
-    ),
-  );
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
 }
 
 // ───────── 金额 ─────────
@@ -1159,7 +1204,14 @@ Future<void> hPick(
     case 'car':
       r = await pickCarModel(context, c.v);
     case 'city':
-      r = await pickCity(context, c.v);
+      final selection = await pickCity(context, c.v);
+      if (selection != null) {
+        r = selection.label;
+        if (route == 'RegShop') {
+          RegistrationDraft.provinceCode = selection.province.code;
+          RegistrationDraft.cityCode = selection.city.code;
+        }
+      }
     case 'amount':
       r = await pickAmount(context, label, c.v);
     case 'referrer':

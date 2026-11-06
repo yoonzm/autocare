@@ -1,3 +1,4 @@
+import { registrationCity } from './regions.ts';
 import { createClient } from 'npm:@supabase/supabase-js@2.118.0';
 import { admin, anonKey, fail, json, nameOf, phoneOf, url, userFor } from './shared.ts';
 import { BAY_COUNTS, DEFAULT_CARDS, defaultBays, defaultPackages, defaultProducts, defaultServices } from './defaults.ts';
@@ -25,20 +26,17 @@ function passwordProblem(password: unknown, phone: string): string | null {
 const cancelDeletion = (userId: string) =>
   admin.from('stores').update({ delete_requested_at: null }).eq('owner_id', userId);
 
-const CITY_MAX = 60;
 const ROLES = ['老板', '店长', '前台'];
 const BAYS = Object.keys(BAY_COUNTS);
 const BUSINESS = ['洗车美容', '镀晶镀膜', '隐形车衣', '改色膜', '保养维修'];
 
 // Validates the sign-up profile; returns the columns to store or an error message.
 function profileOf(input: Input) {
-  const city = nameOf(input.city);
   const address = nameOf(input.address);
   const contact = nameOf(input.contact_name);
   const role = nameOf(input.contact_role);
   const bays = nameOf(input.bay_range);
   const business = Array.isArray(input.business_types) ? input.business_types : [];
-  if (!city || city.length > CITY_MAX) return '请选择所在城市';
   if (address.length > 200) return '详细地址不能超过 200 字';
   if (!contact || contact.length > 30) return '请填写联系人姓名';
   if (!ROLES.includes(role)) return '请选择您的身份';
@@ -47,7 +45,7 @@ function profileOf(input: Input) {
     return '请至少选择一项主营业务';
   }
   return {
-    city, address, contact_name: contact, contact_role: role,
+    address, contact_name: contact, contact_role: role,
     bay_range: bays, business_types: [...new Set(business as string[])],
   };
 }
@@ -124,6 +122,8 @@ export async function handleAuth(input: Input, request: Request): Promise<Respon
     }
     const profile = profileOf(input);
     if (typeof profile === 'string') return fail(profile);
+    const location = await registrationCity(input);
+    if (location instanceof Response) return location;
     const otpProblem = await checkOtp(phone, input.code, 'register', true);
     if (otpProblem) return fail(otpProblem);
     const { data, error } = await admin.auth.admin.createUser({
@@ -135,7 +135,7 @@ export async function handleAuth(input: Input, request: Request): Promise<Respon
       return fail(taken ? '该手机号已注册，请直接登录' : '注册失败，请稍后重试', taken ? 409 : 500);
     }
     const { data: store, error: storeError } = await admin.from('stores').upsert({
-      owner_id: data.user.id, name: storeName, phone, ...profile,
+      owner_id: data.user.id, name: storeName, phone, ...profile, ...location,
       plan: 'trial',
       trial_ends_at: new Date(Date.now() + TRIAL_DAYS * 86400000).toISOString(),
     }, { onConflict: 'owner_id' }).select('id').single();

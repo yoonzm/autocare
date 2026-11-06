@@ -133,7 +133,9 @@ void main() {
     await t.pump(const Duration(seconds: 4));
     expect(find.text('请选择所在城市'), findsWidgets);
 
-    RegistrationDraft.city = '杭州市 · 西湖区'; // 城市选择器是原生滚轮，直接写入选中结果
+    RegistrationDraft.city = '浙江省 · 杭州市';
+    RegistrationDraft.provinceCode = '330000';
+    RegistrationDraft.cityCode = '330100'; // 城市选择器是原生滚轮，直接写入选中结果
     await tapText(t, '开通并开始试用');
     await t.pump(const Duration(seconds: 4));
     expect(find.text('请输入联系人姓名'), findsOneWidget);
@@ -143,6 +145,8 @@ void main() {
     await tapText(t, '店长');
     await tapText(t, '7-10 个');
     final p = RegistrationDraft.profile();
+    expect(p['province_code'], '330000');
+    expect(p['city_code'], '330100');
     expect(p['contact_name'], '林');
     expect(p['address'], '文三路 1 号');
     expect(p['contact_role'], '店长');
@@ -168,7 +172,9 @@ void main() {
     RegistrationDraft.set('RegPhone', '8-20 位，含字母和数字', 'abcd1234');
     await t.enterText(input('如：驰光汽车美容'), '蓝鲸养护');
     await t.enterText(input('您的姓名'), '林');
-    RegistrationDraft.city = '杭州市 · 西湖区';
+    RegistrationDraft.city = '浙江省 · 杭州市';
+    RegistrationDraft.provinceCode = '330000';
+    RegistrationDraft.cityCode = '330100';
     await tapText(t, '开通并开始试用');
     await t.pumpAndSettle(); // 等跳转到「开通成功」页
     expect(api.registered!['store_name'], '蓝鲸养护');

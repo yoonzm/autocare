@@ -29,6 +29,8 @@ class RegistrationDraft {
 
   /// 注册第二页：城市文本，以及三组选项当前选中的序号（与界面共用同一个集合）。
   static String city = '';
+  static String provinceCode = '';
+  static String cityCode = '';
   static Set<int>? roleSel, baySel, businessSel;
 
   // ───────── 同一页里 hint 相同的输入框（如两个“6 位数字”）按出现顺序区分 ─────────
@@ -130,7 +132,12 @@ class RegistrationDraft {
 
   static String? shopStepError() {
     if (get('RegShop', '如：驰光汽车美容').isEmpty) return '请输入门店名称';
-    if (city.isEmpty || city == cityPlaceholder) return '请选择所在城市';
+    if (city.isEmpty ||
+        city == cityPlaceholder ||
+        provinceCode.isEmpty ||
+        cityCode.isEmpty) {
+      return '请选择所在城市';
+    }
     if (get('RegShop', '您的姓名').isEmpty) return '请输入联系人姓名';
     if ((businessSel ?? const <int>{}).isEmpty) return '请至少选择一项主营业务';
     return null;
@@ -139,6 +146,8 @@ class RegistrationDraft {
   /// Store profile sent along with the sign-up request.
   static Map<String, dynamic> profile() => {
     'city': city,
+    'province_code': provinceCode,
+    'city_code': cityCode,
     'address': get('RegShop', '街道、门牌号（选填）'),
     'contact_name': get('RegShop', '您的姓名'),
     'contact_role': _pick(roles, roleSel),
@@ -229,6 +238,7 @@ class RegistrationDraft {
     _fields.clear();
     _checks.clear();
     city = '';
+    provinceCode = cityCode = '';
     roleSel = baySel = businessSel = null;
   }
 }
