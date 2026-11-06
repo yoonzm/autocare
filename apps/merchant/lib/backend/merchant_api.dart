@@ -84,6 +84,7 @@ class MerchantApi {
     'appointment_slots',
     'appointment_summary',
     'home_stats',
+    'settings_stats',
     'list',
     'get',
     'get_store',
@@ -196,6 +197,14 @@ class MerchantApi {
   Future<Map<String, dynamic>> getStore() async {
     final data = await invoke({'action': 'get_store'});
     return Map<String, dynamic>.from(data['store'] as Map);
+  }
+
+  Future<Map<String, dynamic>> settingsStats() async {
+    if (!hasSession) {
+      throw const AppError('请先登录', type: AppErrorType.auth);
+    }
+    final data = await invoke({'action': 'settings_stats'});
+    return Map<String, dynamic>.from(data['item'] as Map);
   }
 
   Future<Map<String, dynamic>> homeStats() async {

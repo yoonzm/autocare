@@ -184,14 +184,11 @@ Widget hTap(
         );
         return;
       }
-      // TODO: 开卡成功页的“去充值”和微信绑定依赖支付 / 微信模块，目前只提示，不假装成功。
+      // TODO: 开卡成功页的微信绑定依赖微信模块，尚未接通。
       if (merchantApi.hasSession &&
           route == 'MemberAddDone' &&
-          (to == 'Recharge' || to == 'BindInvite' || to == 'BindH5')) {
-        hToast(
-          context,
-          to == 'Recharge' ? '余额充值暂未接通（依赖支付模块）' : '微信绑定暂未接通（依赖微信模块）',
-        );
+          (to == 'BindInvite' || to == 'BindH5')) {
+        hToast(context, '微信绑定暂未接通（依赖微信模块）');
         return;
       }
       // TODO: 开通微信支付（资料提交、法人签约、审核）依赖服务商进件接口，预期后端：pay_apply_* 云函数
@@ -270,6 +267,12 @@ Widget hTap(
             ),
           );
         }
+        return;
+      }
+      if (merchantApi.hasSession &&
+          route == 'sheet:MemberFilter' &&
+          label == '重置') {
+        MemberFlow.filter.reset();
         return;
       }
       // 筛选会员：“查看”应用条件并关闭面板，“取消”丢弃修改
@@ -1495,9 +1498,11 @@ class _HSelHolderState extends State<HSelHolder> {
   ];
   bool _registered = false;
   String _slotKey = '';
+  VoidCallback? _unbindMemberFilter;
 
   @override
   void dispose() {
+    _unbindMemberFilter?.call();
     if (_slotKey.isNotEmpty) RegistrationDraft.release(_slotKey, this);
     super.dispose();
   }
@@ -1665,6 +1670,7 @@ class _HSelHolderState extends State<HSelHolder> {
       final slot = RegistrationDraft.claim(_slotKey, this);
       final ctrl = ctrls.first;
       final f = MemberFlow.filter;
+      var syncing = false;
       ctrl.selected.clear();
       if (slot == 0) {
         ctrl.selected.addAll(f.tierSel);
@@ -1672,6 +1678,7 @@ class _HSelHolderState extends State<HSelHolder> {
           if (i >= f.tiers.length) hToast(context, '本店没有这个卡种');
         };
         ctrl.addListener(() {
+          if (syncing) return;
           f.tierSel = {...ctrl.selected}
             ..removeWhere((i) => i >= f.tiers.length);
           f.changed();
@@ -1679,6 +1686,7 @@ class _HSelHolderState extends State<HSelHolder> {
       } else if (slot == 1) {
         ctrl.selected.add(f.balanceSel);
         ctrl.addListener(() {
+          if (syncing) return;
           if (ctrl.selected.isEmpty) return;
           f.balanceSel = ctrl.selected.first;
           f.changed();
@@ -1686,6 +1694,7 @@ class _HSelHolderState extends State<HSelHolder> {
       } else if (slot == 2) {
         if (f.visitSel >= 0) ctrl.selected.add(f.visitSel);
         ctrl.addListener(() {
+          if (syncing) return;
           f.visitSel = ctrl.selected.isEmpty ? -1 : ctrl.selected.first;
           f.changed();
         });
@@ -1693,6 +1702,7 @@ class _HSelHolderState extends State<HSelHolder> {
         // TODO: 次卡状态 / 车辆与项目依赖次卡和订单数据，预期接口：members list 的 filters 参数。
         var busy = false;
         ctrl.addListener(() {
+          if (syncing) return;
           if (busy || ctrl.selected.isEmpty) return;
           busy = true;
           hToast(context, '次卡状态、车辆与项目筛选暂未接通');
@@ -1700,6 +1710,31 @@ class _HSelHolderState extends State<HSelHolder> {
           busy = false;
         });
       }
+      // 重置及重新打开面板时，从草稿同步选中显示，避免旧控件状态写回。
+      void syncSelection() {
+        final selected = switch (slot) {
+          0 => f.tierSel,
+          1 => {f.balanceSel},
+          2 => f.visitSel < 0 ? <int>{} : {f.visitSel},
+          _ => <int>{},
+        };
+        if (ctrl.selected.length == selected.length &&
+            ctrl.selected.containsAll(selected)) {
+          return;
+        }
+        syncing = true;
+        try {
+          ctrl.selected
+            ..clear()
+            ..addAll(selected);
+          ctrl.refresh();
+        } finally {
+          syncing = false;
+        }
+      }
+
+      f.addListener(syncSelection);
+      _unbindMemberFilter = () => f.removeListener(syncSelection);
       return;
     }
     // 调整卡种与积分：三组选项依次是卡种 / 增加或扣减 / 调整原因
