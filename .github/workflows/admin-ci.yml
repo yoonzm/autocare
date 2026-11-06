@@ -4,11 +4,13 @@ on:
   pull_request:
     paths:
       - "apps/admin/**"
+      - "packages/**"
       - ".github/workflows/admin-ci.yml"
   push:
     branches: [main]
     paths:
       - "apps/admin/**"
+      - "packages/**"
       - ".github/workflows/admin-ci.yml"
   workflow_dispatch:
 
@@ -33,6 +35,18 @@ jobs:
             "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.47.9-stable.tar.xz"
           tar xf "$RUNNER_TEMP/flutter.tar.xz" -C "$RUNNER_TEMP"
           echo "$RUNNER_TEMP/flutter/bin" >> "$GITHUB_PATH"
+      - name: Analyze and test async_kit
+        working-directory: packages/async_kit
+        run: |
+          flutter pub get
+          flutter analyze
+          flutter test
+      - name: Analyze and test supabase_adapter
+        working-directory: packages/supabase_adapter
+        run: |
+          flutter pub get
+          flutter analyze
+          flutter test
       - name: Analyze and test
         run: |
           flutter pub get

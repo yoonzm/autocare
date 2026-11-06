@@ -47,7 +47,10 @@ class PlansPage extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(p.name, style: ts(16, w: FontWeight.w600, h: 24)),
+                          Text(
+                            p.name,
+                            style: ts(16, w: FontWeight.w600, h: 24),
+                          ),
                           Text(
                             p.kind == PlanKind.trial
                                 ? '${p.merchants} 家商家在试用'
@@ -58,10 +61,17 @@ class PlansPage extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      p.kind == PlanKind.trial ? '${p.trialDays} 天免费' : '${money(p.fee)} / 年',
+                      p.kind == PlanKind.trial
+                          ? '${p.trialDays} 天免费'
+                          : '${money(p.fee)} / 年',
                       style: ts(15, w: FontWeight.w600, h: 22),
                     ),
-                    if (store.isSuper) Icon(Icons.chevron_right_rounded, size: 20, color: C.faint),
+                    if (store.isSuper)
+                      Icon(
+                        Icons.chevron_right_rounded,
+                        size: 20,
+                        color: C.faint,
+                      ),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -70,7 +80,11 @@ class PlansPage extends StatelessWidget {
                     padding: const EdgeInsets.only(top: 6),
                     child: Row(
                       children: [
-                        const Icon(Icons.check_circle_rounded, size: 16, color: C.green),
+                        const Icon(
+                          Icons.check_circle_rounded,
+                          size: 16,
+                          color: C.green,
+                        ),
                         const SizedBox(width: 8),
                         Text(f, style: ts(13, color: C.sub, h: 19)),
                       ],
@@ -94,9 +108,12 @@ class PlanEditPage extends StatefulWidget {
 class _PlanEditPageState extends State<PlanEditPage> {
   late final name = TextEditingController(text: widget.p.name);
   late final fee = TextEditingController(
-    text: '${widget.p.kind == PlanKind.trial ? widget.p.trialDays : widget.p.fee}',
+    text:
+        '${widget.p.kind == PlanKind.trial ? widget.p.trialDays : widget.p.fee}',
   );
-  late final staff = TextEditingController(text: widget.p.staffLimit?.toString() ?? '');
+  late final staff = TextEditingController(
+    text: widget.p.staffLimit?.toString() ?? '',
+  );
   late bool sms = widget.p.sms;
   late bool export = widget.p.export;
   late bool multi = widget.p.multiStore;
@@ -111,7 +128,7 @@ class _PlanEditPageState extends State<PlanEditPage> {
   }
 
   Future<void> _save() async {
-    final err = store.savePlan(
+    final err = await store.savePlan(
       widget.p,
       name: name.text,
       fee: fee.text,
@@ -120,6 +137,7 @@ class _PlanEditPageState extends State<PlanEditPage> {
       export: export,
       multi: multi,
     );
+    if (!mounted) return;
     setState(() => error = err);
     if (err != null) return;
     toast(context, '套餐已保存');
@@ -181,7 +199,9 @@ class _PlanEditPageState extends State<PlanEditPage> {
     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
     child: Row(
       children: [
-        Expanded(child: Text(t, style: ts(15, w: FontWeight.w500, h: 22))),
+        Expanded(
+          child: Text(t, style: ts(15, w: FontWeight.w500, h: 22)),
+        ),
         Switch1(v, on),
       ],
     ),

@@ -1,0 +1,5 @@
+{
+  "tasks": { "check": "deno check index.ts" },
+  "compilerOptions": { "strict": true },
+  "fmt": { "singleQuote": true }
+}

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../data/models.dart';
@@ -21,9 +23,9 @@ class MinePage extends StatelessWidget {
       message: '确定要退出当前账号吗？',
       ok: '退出登录',
       danger: true,
+      onConfirm: store.signOut,
     );
     if (!ok || !context.mounted) return;
-    store.signOut();
     Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => const LoginPage()),
       (_) => false,
@@ -57,7 +59,11 @@ class MinePage extends StatelessWidget {
                   ),
                   child: Text(
                     me.name.characters.first,
-                    style: ts(24, w: FontWeight.w600, color: const Color(0xFF18181B)),
+                    style: ts(
+                      24,
+                      w: FontWeight.w600,
+                      color: const Color(0xFF18181B),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 14),
@@ -71,7 +77,12 @@ class MinePage extends StatelessWidget {
                             child: Text(
                               me.name,
                               overflow: TextOverflow.ellipsis,
-                              style: ts(19, w: FontWeight.w600, color: const Color(0xFFFAFAFA), h: 28),
+                              style: ts(
+                                19,
+                                w: FontWeight.w600,
+                                color: const Color(0xFFFAFAFA),
+                                h: 28,
+                              ),
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -83,7 +94,10 @@ class MinePage extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 4),
-                      Text(me.username, style: ts(12, color: const Color(0xFFA1A1AA), h: 17)),
+                      Text(
+                        me.username,
+                        style: ts(12, color: const Color(0xFFA1A1AA), h: 17),
+                      ),
                     ],
                   ),
                 ),
@@ -92,23 +106,38 @@ class MinePage extends StatelessWidget {
           ),
           RowGroup([
             Row1(
-              leading: SoftTile(Icons.workspace_premium_outlined, C.violetInk, C.violetSoft),
+              leading: SoftTile(
+                Icons.workspace_premium_outlined,
+                C.violetInk,
+                C.violetSoft,
+              ),
               title: '套餐管理',
-              trailing: Text('${store.plans.length} 个套餐', style: ts(13, color: C.muted)),
+              trailing: Text(
+                '${store.plans.length} 个套餐',
+                style: ts(13, color: C.muted),
+              ),
               onTap: () => go(context, const PlansPage()),
             ),
             Row1(
-              leading: SoftTile(Icons.chat_bubble_outline_rounded, C.primaryInk, C.primarySoft),
+              leading: SoftTile(
+                Icons.chat_bubble_outline_rounded,
+                C.primaryInk,
+                C.primarySoft,
+              ),
               title: '工单',
               trailing: store.todoTickets > 0
-                  ? Text('${store.todoTickets} 待处理', style: ts(13, color: C.muted))
+                  ? Text(
+                      '${store.todoTickets} 待处理',
+                      style: ts(13, color: C.muted),
+                    )
                   : null,
               onTap: () => go(context, const TicketsPage()),
             ),
             Row1(
               leading: SoftTile(Icons.group_outlined, C.greenInk, C.greenSoft),
               title: '运营账号',
-              sub: '${store.accounts.length} 人 · 仅超级管理员可见',
+              sub:
+                  '${store.isSuper ? store.accounts.length : '—'} 人 · 仅超级管理员可见',
               onTap: () {
                 if (!store.isSuper) {
                   toast(context, '仅超级管理员可管理运营账号');
@@ -120,13 +149,18 @@ class MinePage extends StatelessWidget {
             Row1(
               leading: SoftTile(Icons.dark_mode_outlined, C.sub, C.chip),
               title: '外观',
-              trailing: Text(themeModeLabel(appThemeMode.value), style: ts(13, color: C.muted)),
+              trailing: Text(
+                themeModeLabel(appThemeMode.value),
+                style: ts(13, color: C.muted),
+              ),
               onTap: () => showThemeSheet(context),
             ),
           ]),
           HCard(
             padding: EdgeInsets.zero,
-            onTap: () => _logout(context),
+            onTap: () {
+              unawaited(_logout(context));
+            },
             child: Row1(
               leading: SoftTile(Icons.logout_rounded, C.redInk, C.redSoft),
               title: '退出登录',

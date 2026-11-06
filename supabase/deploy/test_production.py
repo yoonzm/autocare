@@ -1,8 +1,11 @@
 """Archive paths arrive from SSH and are extracted as root: validate the boundary."""
 import importlib.util
+import posixpath
 from pathlib import Path
+import re
 import sys
 import tarfile
+import tempfile
 import unittest
 
 # The deployment runtime is Linux; this module's archive validation is portable.
@@ -26,6 +29,30 @@ class ArchiveValidation(unittest.TestCase):
 
     def test_valid_archive(self):
         production.validate_members(self.valid() + [member('supabase/migrations/202611010002_merchant_v1.sql')])
+        production.validate_members(self.valid() + [member('supabase/functions/admin-v1/index.ts')])
+
+    def test_admin_migration_requires_function(self):
+        with self.assertRaises(ValueError):
+            production.validate_members(self.valid()+[member('supabase/migrations/202611060004_admin_platform.sql')])
+
+    def test_packaged_admin_function_contains_all_relative_imports(self):
+        package_spec = importlib.util.spec_from_file_location('backend_package', Path(__file__).with_name('package.py'))
+        package_tool = importlib.util.module_from_spec(package_spec)
+        package_spec.loader.exec_module(package_tool)
+        with tempfile.TemporaryDirectory(prefix='autocare-admin-package-') as directory:
+            archive_path = Path(directory) / 'backend.tar.gz'
+            package_tool.package('a' * 40, archive_path)
+            with tarfile.open(archive_path) as archive:
+                production.validate_members(archive.getmembers())
+                names = set(archive.getnames())
+                for name in names:
+                    if not name.startswith('supabase/functions/admin-v1/') or not name.endswith('.ts'):
+                        continue
+                    source = archive.extractfile(name).read().decode('utf-8')
+                    # Both static and literal dynamic imports must be deployable.
+                    for relative in re.findall(r'''(?:from\s*|import\s*\(\s*)['"](\.[^'"]+\.ts)['"]''', source):
+                        target = posixpath.normpath(posixpath.join(posixpath.dirname(name), relative))
+                        self.assertIn(target, names, msg=f'{name} imports missing module {relative}')
 
     def test_reject_unsafe_members(self):
         for path, kind in [

@@ -30,11 +30,17 @@ jobs:
         run: |
           deno task check
           deno test
+      - name: Check and test admin backend
+        working-directory: supabase/functions/admin-v1
+        run: |
+          deno task check
+          deno test
       - name: Test SMS and recognition migrations in isolated Postgres
         run: |
           npm install --prefix "$RUNNER_TEMP/sms-db-test" --no-package-lock --ignore-scripts --no-audit --no-fund @electric-sql/pglite@0.5.14
           node supabase/tests/sms.mjs "$RUNNER_TEMP/sms-db-test/node_modules/@electric-sql/pglite/dist/index.js"
           node supabase/tests/plate_recognition.mjs "$RUNNER_TEMP/sms-db-test/node_modules/@electric-sql/pglite/dist/index.js"
+          node supabase/tests/admin.mjs "$RUNNER_TEMP/sms-db-test/node_modules/@electric-sql/pglite/dist/index.js"
 
   deploy:
     needs: check
@@ -61,3 +67,6 @@ jobs:
         run: supabase db push --db-url "$SUPABASE_DB_URL" --yes
       - name: Deploy merchant-v1 Edge Function
         run: supabase functions deploy merchant-v1 --project-ref "$SUPABASE_PROJECT_REF" --no-verify-jwt --use-api --yes
+
+      - name: Deploy admin-v1 Edge Function
+        run: supabase functions deploy admin-v1 --project-ref "$SUPABASE_PROJECT_REF" --no-verify-jwt --use-api --yes

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../data/store.dart';
 import '../theme.dart';
+import '../ui.dart';
 import 'home_page.dart';
 import 'merchants_page.dart';
 import 'mine_page.dart';
@@ -16,7 +17,9 @@ class ShellPage extends StatefulWidget {
   State<ShellPage> createState() => _ShellPageState();
 }
 
-class _ShellPageState extends State<ShellPage> {
+class _ShellPageState extends State<ShellPage> with WidgetsBindingObserver {
+  final dataKey = GlobalKey<AsyncViewState<bool>>();
+  DateTime lastActive = DateTime.now();
   static const _items = [
     (Icons.dashboard_outlined, Icons.dashboard_rounded, '概览'),
     (Icons.storefront_outlined, Icons.storefront_rounded, '商家'),
@@ -27,7 +30,23 @@ class _ShellPageState extends State<ShellPage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     tabIndex.value = 0;
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed &&
+        DateTime.now().difference(lastActive) > const Duration(minutes: 5)) {
+      dataKey.currentState?.reload();
+    }
+    if (state != AppLifecycleState.resumed) lastActive = DateTime.now();
   }
 
   @override
@@ -38,9 +57,30 @@ class _ShellPageState extends State<ShellPage> {
         valueListenable: tabIndex,
         builder: (context, i, _) => Scaffold(
           backgroundColor: C.bg,
-          body: IndexedStack(
-            index: i,
-            children: const [HomePage(), MerchantsPage(), SubsPage(), MinePage()],
+          body: AsyncView<bool>(
+            key: dataKey,
+            load: store.refresh,
+            isEmpty: (_) => false,
+            skeleton: AdPage(
+              title: _items[i].$3,
+              back: false,
+              children: [
+                if (i == 0 || i == 2)
+                  const SkeletonDashboardCard(height: 180, radius: 24),
+                const SkeletonTileList(),
+              ],
+            ),
+            empty: (_) => const SizedBox.shrink(),
+            skeletonScrollable: false,
+            builder: (context, data) => IndexedStack(
+              index: i,
+              children: const [
+                HomePage(),
+                MerchantsPage(),
+                SubsPage(),
+                MinePage(),
+              ],
+            ),
           ),
           bottomNavigationBar: ListenableBuilder(
             listenable: store,
@@ -70,7 +110,8 @@ class _ShellPageState extends State<ShellPage> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Badge(
-                                  isLabelVisible: n == 3 && store.todoTickets > 0,
+                                  isLabelVisible:
+                                      n == 3 && store.todoTickets > 0,
                                   smallSize: 8,
                                   child: Icon(
                                     n == i ? _items[n].$2 : _items[n].$1,

@@ -1,6 +1,6 @@
 # 后台端 App（运营后台）
 
-汽美管家平台运营后台 Flutter 前端原型，依据设计稿中的 19 个 `Ad*` 页面实现，全部使用内存 mock 数据，尚未接入 Supabase。
+汽美管家平台运营后台 Flutter App，保留设计稿中的 19 个 `Ad*` 页面，通过 Supabase `admin-v1` 接入真实认证及运营数据。运行前先部署数据库迁移和函数；接口缺失时展示错误和重试，不回退演示数据。
 
 ```sh
 flutter pub get
@@ -17,15 +17,11 @@ flutter run
 
 后台 iOS App 标识为 `com.yoonzm.autocare.admin`。TestFlight 使用仓库已有的发布证书与 App Store Connect API 密钥，以及后台专用的 `ADMIN_BUILD_PROVISION_PROFILE_BASE64` 描述文件密钥。上传成功后仍需等待 Apple 处理构建版本，并在 App Store Connect 中配置内部测试人员；若 Apple 开发者协议待账号持有人接受，上传/测试可能受阻。
 
-## 演示账号
+## 账号与环境
 
-| 用户名 | 角色 | 密码 |
-| --- | --- | --- |
-| `ops_xiaoli` | 运营（默认） | `admin123` |
-| `wang_admin` | 超级管理员 | `admin123` |
-| `zhang_ops` | 已禁用，无法登录 | — |
+默认管理员用户名为 `superman`。在目标环境运行 `supabase/deploy/bootstrap_admin.py` 创建真实账号并一次性输出随机初始密码；脚本不保存密码，不重置已有账号。首次登录及密码重置后必须先修改密码。仓库没有默认通用密码或内存演示账号。
 
-新建账号、被重置密码的账号，首次登录必须先修改密码。
+默认连接私有化正式环境；可使用 `SUPABASE_URL` 和 `SUPABASE_PUBLISHABLE_KEY` 两个 `--dart-define` 指定环境，客户端不接收服务端密钥。详细边界、部署顺序及验收见 `docs/backend-integration.md` 的“运营后台”一节。
 
 ## 功能与交互
 
@@ -33,15 +29,17 @@ flutter run
 | --- | --- | --- |
 | 登录 | AdLogin | 用户名/密码校验、显隐密码、禁用账号拦截、首次登录/重置后强制改密 |
 | 概览 | AdHome | MRR 与商家统计随操作联动；待办入口（到期/工单）、本周新增跳转商家 |
-| 商家 | AdMerchants / AdMerchantDetail / AdAdjust / AdMerchantAcct | 搜索、状态筛选；延长 7 天、升级专业版（生成补差订单）、暂停/恢复；联系店主；重发验证码、重置登录、冻结/解冻 |
+| 商家 | AdMerchants / AdMerchantDetail / AdAdjust / AdMerchantAcct | 搜索、状态筛选、延长 7 天、暂停/恢复；真实验证码、重置登录、冻结/解冻；升级与外呼暂明确阻止 |
 | 到期跟进 | AdFollow / AdFollowLog | 已到期/7 日内/30 日内；新增并保存跟进记录 |
-| 订阅与收入 | AdSubs / AdOrder / AdRefund | 收入与图表联动（点柱查看）；订单详情；退款（金额校验，仅超级管理员） |
+| 订阅与收入 | AdSubs / AdOrder / AdRefund | 真实收入与趋势（点柱查看）、已支付订单详情；原路退款渠道未接通，入口明确阻止 |
 | 工单 | AdTickets / AdTicketDetail | 状态分组；回复后自动转“处理中”；标记已解决 |
-| 套餐管理 | AdPlans / AdPlanEdit | 价格、员工数上限、功能开关（仅超级管理员可改） |
+| 套餐管理 | AdPlans / AdPlanEdit | 套餐价格/试用期与版本保存；员工上限先保存配置；未实现的功能权益开关拒绝启用（仅超级管理员可改） |
 | 运营账号 | AdAccounts / AdAccountEdit / AdAccountAction | 新增账号（姓名/用户名/初始密码校验，用户名查重）、重置为临时密码、升降级、禁用/启用；不能禁用自己、至少保留一名超级管理员 |
 | 我的 | AdMine | 角色信息、各模块入口与角标、外观切换（跟随系统/浅色/深色，与商户端一致）、退出登录 |
 
-权限：运营不能退款、改套餐、管理账号；这些入口点击后给出提示。所有写操作都记入 `store.audit`（操作人 · 动作）。
+权限：运营不能退款、改套餐、管理账号；客户端提示之外，服务端对每次请求重新验证权限及会话。写操作在数据库事务中写入审计日志，失败与越权尝试另行留痕。
+
+支付升级、原路退款、外呼和工单通知尚未具备渠道闭环，在调用处明确阻止或说明 TODO，不会生成假支付、退款或通知结果。商家端工单来源 API 已提供，商家帮助页面的提交入口仍待接入。
 
 ## 结构
 
@@ -52,7 +50,9 @@ lib/
   ui.dart              通用组件（卡片、分段控件、表单、操作弹层、提示等）
   data/models.dart     数据模型
   data/theme_state.dart 全局外观模式
-  data/store.dart      mock 数据与全部业务操作（ChangeNotifier）
+  data/store.dart      真实数据缓存、分页快照与异步业务调用（ChangeNotifier）
+  data/admin_api.dart  超时、只读重试、会话刷新和写请求幂等标识
   pages/               各页面
-test/flow_test.dart    主流程 widget 测试
+test/flow_test.dart    真实数据边界、失败保留、登录、强制改密和异步提交测试
+test/visual_test.dart 手机尺寸下的浅色/深色页面回归（测试数据只存在测试文件）
 ```

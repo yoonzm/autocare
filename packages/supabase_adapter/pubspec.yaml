@@ -1,0 +1,12 @@
+name: autocare_supabase_adapter
+publish_to: none
+environment:
+  sdk: ^3.13.7
+dependencies:
+  autocare_async_kit:
+    path: ../async_kit
+  supabase_flutter: ^2.18.3
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0

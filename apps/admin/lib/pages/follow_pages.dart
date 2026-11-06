@@ -82,134 +82,155 @@ class _FollowLogPageState extends State<FollowLogPage> {
     super.dispose();
   }
 
-  void _save() {
+  Future<void> _save() async {
     if (note.text.trim().isEmpty) {
       toast(context, '请填写沟通内容');
       return;
     }
     FocusScope.of(context).unfocus();
-    store.addLog(widget.m, note.text);
+    await store.addLog(widget.m, note.text);
+    if (!mounted) return;
     note.clear();
     toast(context, '已保存跟进记录');
   }
 
   @override
   Widget build(BuildContext context) {
-    final m = widget.m;
     return ListenableBuilder(
       listenable: store,
-      builder: (context, _) => AdPage(
-        title: '跟进记录',
-        dock: Btn('保存记录', onTap: _save),
-        children: [
-          HCard(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            child: Row(
-              children: [
-                SoftTile(Icons.storefront_outlined, C.amberInk, C.amberSoft),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(m.name, style: ts(15, w: FontWeight.w600, h: 22)),
-                      Text(
-                        m.daysLeft < 0
-                            ? '已到期 ${-m.daysLeft} 天 · ${m.plan.label}'
-                            : '${m.daysLeft} 天后到期 · ${m.plan.label}',
-                        style: ts(12, color: C.muted, h: 17),
-                      ),
-                    ],
-                  ),
-                ),
-                m.plan == PlanKind.trial && m.daysLeft >= 0
-                    ? Pill('待转化', C.primaryInk, C.primarySoft)
-                    : Pill('待跟进', C.redInk, C.redSoft),
-              ],
-            ),
-          ),
-          Section(
-            '历史记录',
+      builder: (context, _) {
+        final m =
+            store.merchants.where((m) => m.id == widget.m.id).firstOrNull ??
+            widget.m;
+        return AdPage(
+          title: '跟进记录',
+          dock: Btn('保存记录', onTap: _save),
+          children: [
             HCard(
-              child: m.logs.isEmpty
-                  ? Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: Text('还没有跟进记录', style: ts(13, color: C.muted)),
-                    )
-                  : Column(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              child: Row(
+                children: [
+                  SoftTile(Icons.storefront_outlined, C.amberInk, C.amberSoft),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        for (var i = 0; i < m.logs.length; i++)
-                          IntrinsicHeight(
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Column(
-                                  children: [
-                                    Container(
-                                      width: 12,
-                                      height: 12,
-                                      margin: const EdgeInsets.only(top: 4),
-                                      decoration: BoxDecoration(
-                                        color: C.primary,
-                                        shape: BoxShape.circle,
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: C.primary.withValues(alpha: .15),
-                                            spreadRadius: 4,
+                        Text(m.name, style: ts(15, w: FontWeight.w600, h: 22)),
+                        Text(
+                          m.daysLeft < 0
+                              ? '已到期 ${-m.daysLeft} 天 · ${m.plan.label}'
+                              : '${m.daysLeft} 天后到期 · ${m.plan.label}',
+                          style: ts(12, color: C.muted, h: 17),
+                        ),
+                      ],
+                    ),
+                  ),
+                  m.plan == PlanKind.trial && m.daysLeft >= 0
+                      ? Pill('待转化', C.primaryInk, C.primarySoft)
+                      : Pill('待跟进', C.redInk, C.redSoft),
+                ],
+              ),
+            ),
+            Section(
+              '历史记录',
+              HCard(
+                child: m.logs.isEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Text('还没有跟进记录', style: ts(13, color: C.muted)),
+                      )
+                    : Column(
+                        children: [
+                          for (var i = 0; i < m.logs.length; i++)
+                            IntrinsicHeight(
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Column(
+                                    children: [
+                                      Container(
+                                        width: 12,
+                                        height: 12,
+                                        margin: const EdgeInsets.only(top: 4),
+                                        decoration: BoxDecoration(
+                                          color: C.primary,
+                                          shape: BoxShape.circle,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: C.primary.withValues(
+                                                alpha: .15,
+                                              ),
+                                              spreadRadius: 4,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      if (i < m.logs.length - 1)
+                                        Expanded(
+                                          child: Container(
+                                            width: 2,
+                                            margin: const EdgeInsets.only(
+                                              top: 8,
+                                            ),
+                                            color: C.stroke,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(
+                                        bottom: 16,
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            '${md(m.logs[i].date)} · ${m.logs[i].who}',
+                                            style: ts(
+                                              12,
+                                              w: FontWeight.w500,
+                                              color: C.muted,
+                                              h: 17,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 3),
+                                          Text(
+                                            m.logs[i].text,
+                                            style: ts(
+                                              14,
+                                              w: FontWeight.w500,
+                                              h: 21,
+                                            ),
                                           ),
                                         ],
                                       ),
                                     ),
-                                    if (i < m.logs.length - 1)
-                                      Expanded(
-                                        child: Container(
-                                          width: 2,
-                                          margin: const EdgeInsets.only(top: 8),
-                                          color: C.stroke,
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(bottom: 16),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          '${md(m.logs[i].date)} · ${m.logs[i].who}',
-                                          style: ts(12, w: FontWeight.w500, color: C.muted, h: 17),
-                                        ),
-                                        const SizedBox(height: 3),
-                                        Text(
-                                          m.logs[i].text,
-                                          style: ts(14, w: FontWeight.w500, h: 21),
-                                        ),
-                                      ],
-                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                      ],
-                    ),
-            ),
-          ),
-          Section(
-            '新增记录',
-            HCard(
-              child: Field(
-                label: '沟通内容',
-                controller: note,
-                hint: '记录本次沟通内容',
-                maxLines: 4,
+                        ],
+                      ),
               ),
             ),
-          ),
-        ],
-      ),
+            Section(
+              '新增记录',
+              HCard(
+                child: Field(
+                  label: '沟通内容',
+                  controller: note,
+                  hint: '记录本次沟通内容',
+                  maxLines: 4,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

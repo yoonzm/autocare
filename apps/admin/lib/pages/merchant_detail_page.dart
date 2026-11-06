@@ -8,33 +8,36 @@ import 'follow_pages.dart';
 import 'merchants_page.dart';
 
 class MerchantDetailPage extends StatelessWidget {
-  final Merchant m;
-  const MerchantDetailPage(this.m, {super.key});
+  final Merchant merchant;
+  const MerchantDetailPage(this.merchant, {super.key});
+  Merchant get m =>
+      store.merchants.where((m) => m.id == merchant.id).firstOrNull ?? merchant;
 
   Future<void> _adjust(BuildContext context) async {
     final pro = m.plan == PlanKind.pro;
+    String? message;
     final i = await pickOption(
       context,
       title: '调整套餐',
       subtitle: m.name,
+      onConfirm: (i) async {
+        if (i == 1 && pro) throw const AppError('该商家已是专业版');
+        message = await store.adjust(m, i);
+      },
       options: [
         SheetOption(
           m.plan == PlanKind.trial ? '延长试用 7 天' : '延长 7 天',
           '赠送，用于跟进转化',
         ),
+        SheetOption(pro ? '已是专业版' : '升级到专业版', pro ? '无需再升级' : '按差价补缴'),
         SheetOption(
-          pro ? '已是专业版' : '升级到专业版',
-          pro ? '无需再升级' : '按差价补缴',
+          m.paused ? '恢复服务' : '暂停服务',
+          m.paused ? '商家端恢复正常使用' : '商家端将提示已暂停',
         ),
-        SheetOption(m.paused ? '恢复服务' : '暂停服务', m.paused ? '商家端恢复正常使用' : '商家端将提示已暂停'),
       ],
     );
     if (i == null || !context.mounted) return;
-    if (i == 1 && pro) {
-      toast(context, '该商家已是专业版');
-      return;
-    }
-    toast(context, store.adjust(m, i));
+    toast(context, message!);
   }
 
   Future<void> _contact(BuildContext context) async {
@@ -45,15 +48,20 @@ class MerchantDetailPage extends StatelessWidget {
       ok: '呼叫',
     );
     if (ok && context.mounted) {
-      toast(context, '正在呼叫 ${m.maskedPhone}…（演示）');
+      // TODO admin_outbound_call: requires a real telephony provider and call audit.
+      toast(context, '平台外呼尚未接通，未发起呼叫');
     }
   }
 
   Future<void> _account(BuildContext context) async {
+    String? message;
     final i = await pickOption(
       context,
       title: '账号处理',
       subtitle: '${m.name} · 店主 ${m.maskedOwner}',
+      onConfirm: (i) async {
+        message = await store.account(m, i);
+      },
       options: [
         SheetOption('重发登录验证码', '向店主手机 ${m.maskedPhone} 重新发送短信'),
         const SheetOption('重置登录状态', '退出所有设备，店主需重新登录'),
@@ -66,7 +74,7 @@ class MerchantDetailPage extends StatelessWidget {
       footnote: '以上操作都会记录操作人和时间。',
     );
     if (i == null || !context.mounted) return;
-    toast(context, store.account(m, i));
+    toast(context, message!);
   }
 
   @override
@@ -91,7 +99,12 @@ class MerchantDetailPage extends StatelessWidget {
                         children: [
                           Text(
                             m.name,
-                            style: ts(17, w: FontWeight.w600, color: const Color(0xFFFAFAFA), h: 24),
+                            style: ts(
+                              17,
+                              w: FontWeight.w600,
+                              color: const Color(0xFFFAFAFA),
+                              h: 24,
+                            ),
                           ),
                           Text(
                             '店主 ${m.maskedOwner} · ${m.maskedPhone}',
@@ -121,14 +134,17 @@ class MerchantDetailPage extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    _num('${m.staff}', '员工数'),
+                    _num(m.staff?.toString() ?? '—', '员工数'),
                     _num(money(m.members).substring(1), '会员数'),
                     _num(m.plan.label, '当前套餐'),
                   ],
                 ),
                 Divider(height: 24, color: C.line),
-                KV('到期时间', dotted(m.expiry),
-                    vColor: m.daysLeft < 0 ? C.redInk : null),
+                KV(
+                  '到期时间',
+                  dotted(m.expiry),
+                  vColor: m.daysLeft < 0 ? C.redInk : null,
+                ),
                 KV('开通时间', dotted(m.opened)),
                 KV('累计付费', money(m.paidTotal)),
                 KV('本月订单', '${m.monthOrders} 单'),
@@ -137,14 +153,25 @@ class MerchantDetailPage extends StatelessWidget {
           ),
           RowGroup([
             Row1(
-              leading: SoftTile(Icons.tune_rounded, C.primaryInk, C.primarySoft),
+              leading: SoftTile(
+                Icons.tune_rounded,
+                C.primaryInk,
+                C.primarySoft,
+              ),
               title: m.plan == PlanKind.trial ? '延长试用 / 调整套餐' : '延长期限 / 调整套餐',
               onTap: () => _adjust(context),
             ),
             Row1(
-              leading: SoftTile(Icons.history_edu_outlined, C.amberInk, C.amberSoft),
+              leading: SoftTile(
+                Icons.history_edu_outlined,
+                C.amberInk,
+                C.amberSoft,
+              ),
               title: '跟进记录',
-              trailing: Text('${m.logs.length} 条', style: ts(13, color: C.muted)),
+              trailing: Text(
+                '${m.logs.length} 条',
+                style: ts(13, color: C.muted),
+              ),
               onTap: () => go(context, FollowLogPage(m)),
             ),
             Row1(
@@ -154,7 +181,11 @@ class MerchantDetailPage extends StatelessWidget {
               onTap: () => _contact(context),
             ),
             Row1(
-              leading: SoftTile(Icons.manage_accounts_outlined, C.redInk, C.redSoft),
+              leading: SoftTile(
+                Icons.manage_accounts_outlined,
+                C.redInk,
+                C.redSoft,
+              ),
               title: '账号处理',
               sub: '重发验证码 · 重置登录 · 冻结',
               onTap: () => _account(context),

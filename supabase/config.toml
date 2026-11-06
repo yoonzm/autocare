@@ -1,2 +1,5 @@
 [functions.merchant-v1]
 verify_jwt = false # Public registration/login; function verifies JWT for every business action.
+
+[functions.admin-v1]
+verify_jwt = false # Public username login; every protected request verifies JWT and a live admin session.

@@ -24,14 +24,21 @@ class HomePage extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Text('本月 MRR（元）', style: ts(13, w: FontWeight.w500, color: C.faint, h: 19)),
+                  Text(
+                    '本月 MRR（元）',
+                    style: ts(13, w: FontWeight.w500, color: C.faint, h: 19),
+                  ),
                   const Spacer(),
-                  const Pill('↑ 12.4%', Color(0xFF6EE7A8), Color(0x3317C964)),
+                  Pill(
+                    percentLabel(store.stats['mrr_change'], change: true),
+                    const Color(0xFF6EE7A8),
+                    const Color(0x3317C964),
+                  ),
                 ],
               ),
               const SizedBox(height: 14),
               Text(
-                money(store.subsRevenue),
+                money(store.mrr),
                 style: ts(34, w: FontWeight.w600, color: C.gold, h: 42),
               ),
               const SizedBox(height: 14),
@@ -39,7 +46,7 @@ class HomePage extends StatelessWidget {
                 children: [
                   _stat('${store.paidCount}', '付费商家'),
                   _stat('${store.trialCount}', '试用中'),
-                  _stat('96.2%', '续费率'),
+                  _stat(percentLabel(store.stats['renewal_rate']), '续费率'),
                 ],
               ),
             ],
@@ -69,7 +76,7 @@ class HomePage extends StatelessWidget {
                 C.primarySoft,
                 '${store.weekNew}',
                 '本周新增商家',
-                '↑ +${store.weekNew - 9}',
+                '${store.weekDelta >= 0 ? '↑ +' : '↓ '}${store.weekDelta}',
                 C.greenInk,
                 () => tabIndex.value = 1,
               ),
@@ -107,7 +114,15 @@ class HomePage extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(v, style: ts(17, w: FontWeight.w600, color: const Color(0xFFFAFAFA), h: 24)),
+        Text(
+          v,
+          style: ts(
+            17,
+            w: FontWeight.w600,
+            color: const Color(0xFFFAFAFA),
+            h: 24,
+          ),
+        ),
         Text(k, style: ts(11, color: C.faint, h: 16)),
       ],
     ),
@@ -133,7 +148,10 @@ class HomePage extends StatelessWidget {
         Text(n, style: ts(28, w: FontWeight.w600, h: 34)),
         Text(label, style: ts(12, color: C.muted, h: 17)),
         const SizedBox(height: 4),
-        Text(note, style: ts(12, w: FontWeight.w600, color: noteColor, h: 17)),
+        Text(
+          note,
+          style: ts(12, w: FontWeight.w600, color: noteColor, h: 17),
+        ),
       ],
     ),
   );

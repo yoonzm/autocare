@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart' show ValueNotifier, visibleForTesting;
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:autocare_supabase_adapter/errors.dart';
 
 import '../kit/async_kit.dart';
 import 'store_profile.dart';
@@ -130,7 +131,7 @@ class MerchantApi {
   /// 静默刷新令牌（401 时调用）。
   @visibleForTesting
   Future<void> refreshAuth() async {
-    await client.auth.refreshSession();
+    await withSupabaseErrors(() => client.auth.refreshSession());
   }
 
   /// 发出一次请求，失败统一抛 [AppError]（不含重试 / 刷新令牌逻辑）。
@@ -158,7 +159,7 @@ class MerchantApi {
       }
       return data;
     } catch (e) {
-      throw AppError.from(e);
+      throw supabaseAppError(e);
     }
   }
 
@@ -269,9 +270,11 @@ class MerchantApi {
       'phone': phone,
       'password': password,
     });
-    await client.auth.setSession(
-      data['refresh_token'] as String,
-      accessToken: data['access_token'] as String,
+    await withSupabaseErrors(
+      () => client.auth.setSession(
+        data['refresh_token'] as String,
+        accessToken: data['access_token'] as String,
+      ),
     );
   }
 
@@ -281,21 +284,25 @@ class MerchantApi {
       'phone': phone,
       'code': code,
     });
-    await client.auth.setSession(
-      data['refresh_token'] as String,
-      accessToken: data['access_token'] as String,
+    await withSupabaseErrors(
+      () => client.auth.setSession(
+        data['refresh_token'] as String,
+        accessToken: data['access_token'] as String,
+      ),
     );
   }
 
   Future<void> signOut() async {
     storeProfile.clear();
-    await client.auth.signOut();
+    await withSupabaseErrors(() => client.auth.signOut());
   }
 
   /// 退出所有设备：作废这个账号的全部会话。
   Future<void> signOutAll() async {
     storeProfile.clear();
-    await client.auth.signOut(scope: SignOutScope.global);
+    await withSupabaseErrors(
+      () => client.auth.signOut(scope: SignOutScope.global),
+    );
   }
 
   Future<List<Map<String, dynamic>>> list(String kind) async {

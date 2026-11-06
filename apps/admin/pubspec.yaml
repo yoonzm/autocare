@@ -1,5 +1,5 @@
 name: autocare_admin
-description: 汽美管家 - 平台运营后台 App（前端原型，使用 mock 数据）
+description: 汽美管家 - 平台运营后台 App
 publish_to: "none"
 version: 1.0.0+1
 
@@ -7,8 +7,13 @@ environment:
   sdk: ^3.13.7
 
 dependencies:
+  autocare_async_kit:
+    path: ../../packages/async_kit
+  autocare_supabase_adapter:
+    path: ../../packages/supabase_adapter
   flutter:
     sdk: flutter
+  supabase_flutter: ^2.18.3
   flutter_localizations:
     sdk: flutter
 

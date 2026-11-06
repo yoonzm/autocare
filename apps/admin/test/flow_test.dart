@@ -1,349 +1,291 @@
-import 'package:autocare_admin/data/models.dart';
+import 'dart:async';
+
+import 'package:autocare_admin/data/admin_api.dart';
 import 'package:autocare_admin/data/store.dart';
-import 'package:autocare_admin/data/theme_state.dart';
+import 'package:autocare_admin/data/models.dart';
 import 'package:autocare_admin/main.dart';
-import 'package:autocare_admin/theme.dart';
+import 'package:autocare_admin/pages/accounts_pages.dart';
+import 'package:autocare_admin/ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-Future<void> login(WidgetTester t, {String user = 'ops_xiaoli'}) async {
-  t.view.physicalSize = const Size(390 * 3, 844 * 3);
-  t.view.devicePixelRatio = 3;
-  addTearDown(t.view.reset);
-  store.reset();
-  await t.pumpWidget(const AdminApp());
-  await t.enterText(find.byType(TextField).at(0), user);
-  await t.enterText(find.byType(TextField).at(1), Store.demoPassword);
-  await t.tap(find.text('登录').last);
-  await t.pumpAndSettle();
-}
+// Network fixture only in tests; production Store starts with no data.
+class TestApi extends AdminApi {
+  final calls = <String>[];
+  bool fail = false;
+  bool mustChange = false;
+  Completer<Map<String, dynamic>>? pending;
+  Map<String, dynamic> get account => {
+    'id': 'a',
+    'username': 'test_admin',
+    'name': '测试管理员',
+    'role': 'superAdmin',
+    'enabled': true,
+    'must_change': mustChange,
+  };
+  @override
+  bool get hasSession => false;
+  @override
+  Future<Map<String, dynamic>> login(String username, String password) async =>
+      {'me': account};
+  @override
+  Future<void> clearSession() async {}
+  @override
+  Future<void> changePassword(String password) async {
+    await call('change_password', {'password': password});
+  }
 
-Future<void> tab(WidgetTester t, String label) async {
-  const names = ['概览', '商家', '订阅', '我的'];
-  await t.tap(find.byKey(ValueKey('nav-${names.indexOf(label)}')));
-  await t.pumpAndSettle();
+  @override
+  Future<Map<String, dynamic>> call(
+    String action, [
+    Map<String, dynamic> values = const {},
+  ]) async {
+    calls.add(action);
+    if (fail) throw const AppError('服务不可用', type: AppErrorType.server);
+    if (action == 'snapshot') {
+      if (pending != null) return pending!.future;
+      return {
+        'me': account,
+        'now': DateTime.now().toUtc().toIso8601String(),
+        'merchants': [],
+        'orders': [],
+        'tickets': [],
+        'accounts': [account],
+        'plans': [],
+        'more': false,
+        'stats': {
+          'history': List.generate(
+            6,
+            (i) => {'month': '${i + 1}月', 'value': 0},
+          ),
+        },
+      };
+    }
+    if (action == 'change_password') {
+      mustChange = false;
+      return {'ok': true};
+    }
+    if (action == 'merchant_upgrade' || action == 'refund') {
+      throw const AppError('支付渠道尚未接通');
+    }
+    return {'ok': true};
+  }
 }
 
 void main() {
-  testWidgets('密码框小眼睛：点击切换明文 / 密文', (t) async {
-    t.view.physicalSize = const Size(390 * 3, 844 * 3);
-    t.view.devicePixelRatio = 3;
-    addTearDown(t.view.reset);
-    store.reset();
-    await t.pumpWidget(const AdminApp());
-    bool obscured() =>
-        t.widget<EditableText>(find.byType(EditableText).at(1)).obscureText;
-    expect(obscured(), isTrue);
-    expect(find.byTooltip('显示密码'), findsOneWidget);
-    await t.tap(find.byTooltip('显示密码'));
-    await t.pump();
-    expect(obscured(), isFalse);
-    expect(find.byTooltip('隐藏密码'), findsOneWidget);
-    await t.tap(find.byTooltip('隐藏密码'));
-    await t.pump();
-    expect(obscured(), isTrue);
+  late TestApi api;
+  setUp(() {
+    api = TestApi();
+    store = Store(api: api);
   });
-
-  testWidgets('登录校验：错误密码、禁用账号', (t) async {
-    t.view.physicalSize = const Size(390 * 3, 844 * 3);
-    t.view.devicePixelRatio = 3;
-    addTearDown(t.view.reset);
-    store.reset();
-    await t.pumpWidget(const AdminApp());
-    await t.enterText(find.byType(TextField).at(1), 'bad');
-    await t.tap(find.text('登录').last);
-    await t.pumpAndSettle();
-    expect(find.text('用户名或密码错误'), findsOneWidget);
-
-    await t.enterText(find.byType(TextField).at(0), 'zhang_ops');
-    await t.enterText(find.byType(TextField).at(1), Store.demoPassword);
-    await t.tap(find.text('登录').last);
-    await t.pumpAndSettle();
-    expect(find.text('该账号已被禁用，请联系超级管理员'), findsOneWidget);
-  });
-
-  testWidgets('登录后进入概览，四个 Tab 可切换', (t) async {
-    await login(t);
-    expect(find.text('本月 MRR（元）'), findsOneWidget);
-    expect(find.text('待办'), findsOneWidget);
-    await tab(t, '商家');
-    expect(find.text('驰光汽车美容 · 徐汇店'), findsOneWidget);
-    await tab(t, '订阅');
-    expect(find.text('本月收入（元）'), findsOneWidget);
-    await tab(t, '我的');
-    expect(find.text('运营小李'), findsOneWidget);
-    // 名称旁的角色标签应贴合文字宽度，而不是被撑满
-    expect(t.getSize(find.text('平台运营')).width, lessThan(90));
-    final pill = find.ancestor(of: find.text('平台运营'), matching: find.byType(Container)).first;
-    expect(t.getSize(pill).width, lessThan(90));
-    expect(t.getTopLeft(pill).dx, greaterThan(t.getTopRight(find.text('运营小李')).dx));
-  });
-
-  testWidgets('商家搜索与筛选', (t) async {
-    await login(t);
-    await tab(t, '商家');
-    await t.tap(find.textContaining('已到期 3'));
-    await t.pumpAndSettle();
-    expect(find.text('车安心养护'), findsOneWidget);
-    expect(find.text('驰光汽车美容 · 徐汇店'), findsNothing);
-    await t.tap(find.textContaining('全部'));
-    await t.pumpAndSettle();
-    await t.enterText(find.byType(TextField), '蓝鲸');
-    await t.pumpAndSettle();
-    expect(find.text('蓝鲸汽车美容'), findsOneWidget);
-    expect(find.text('车安心养护'), findsNothing);
-    await t.enterText(find.byType(TextField), '不存在');
-    await t.pumpAndSettle();
-    expect(find.text('没有符合条件的商家'), findsOneWidget);
-  });
-
-  testWidgets('商家详情：延长 7 天、冻结账号', (t) async {
-    await login(t);
-    await tab(t, '商家');
-    await t.tap(find.text('蓝鲸汽车美容'));
-    await t.pumpAndSettle();
-    final m = store.merchants.firstWhere((m) => m.name == '蓝鲸汽车美容');
-    final before = m.expiry;
-    await t.tap(find.text('延长期限 / 调整套餐'));
-    await t.pumpAndSettle();
-    await t.tap(find.text('确认'));
-    await t.pumpAndSettle();
-    expect(m.expiry, before.add(const Duration(days: 7)));
-
-    await t.scrollUntilVisible(find.text('账号处理'), 200, scrollable: find.byType(Scrollable).first);
-    await t.tap(find.text('账号处理'));
-    await t.pumpAndSettle();
-    await t.tap(find.text('冻结商家账号'));
-    await t.tap(find.text('确认'));
-    await t.pumpAndSettle();
-    expect(m.frozen, isTrue);
-    expect(find.text('已冻结'), findsOneWidget);
-  });
-
-  testWidgets('到期跟进：保存跟进记录', (t) async {
-    await login(t);
-    await t.tap(find.text('到期跟进').first);
-    await t.pumpAndSettle();
-    await t.tap(find.textContaining('已到期 3'));
-    await t.pumpAndSettle();
-    await t.tap(find.text('车安心养护'));
-    await t.pumpAndSettle();
-    await t.tap(find.text('保存记录'));
-    await t.pumpAndSettle();
-    expect(find.text('请填写沟通内容'), findsOneWidget);
-    await t.enterText(find.byType(TextField), '已发送续费链接');
-    await t.tap(find.text('保存记录'));
-    await t.pumpAndSettle();
-    expect(find.text('已发送续费链接'), findsOneWidget);
-    expect(store.merchants.firstWhere((m) => m.name == '车安心养护').logs.length, 3);
-  });
-
-  testWidgets('工单：回复后进入处理中，标记已解决', (t) async {
-    await login(t);
-    await t.tap(find.text('工单').first);
-    await t.pumpAndSettle();
-    await t.tap(find.text('无法登录商家端'));
-    await t.pumpAndSettle();
-    await t.enterText(find.byType(TextField), '请尝试换用网络后重试');
-    await t.tap(find.text('发送'));
-    await t.pumpAndSettle();
-    final tk = store.tickets.first;
-    expect(tk.status, TStatus.doing);
-    expect(find.text('请尝试换用网络后重试'), findsOneWidget);
-    await t.tap(find.text('已解决'));
-    await t.pumpAndSettle();
-    await t.tap(find.text('已解决').last);
-    await t.pumpAndSettle();
-    expect(tk.status, TStatus.done);
-  });
-
-  testWidgets('权限：运营不能退款/改套餐/管理账号，超级管理员可以', (t) async {
-    await login(t);
-    await tab(t, '订阅');
-    await t.tap(find.text('驰光汽车美容 · 徐汇店').first);
-    await t.pumpAndSettle();
-    await t.tap(find.text('退款'));
-    await t.pumpAndSettle();
-    expect(find.text('退款需要超级管理员权限'), findsOneWidget);
-    expect(find.text('订单退款'), findsNothing);
-    await t.tap(find.byIcon(Icons.chevron_left_rounded));
-    await t.pumpAndSettle();
-    await tab(t, '我的');
-    await t.tap(find.text('运营账号'));
-    await t.pumpAndSettle();
-    expect(find.text('仅超级管理员可管理运营账号'), findsOneWidget);
-  });
-
-  testWidgets('超级管理员：退款金额校验与生效', (t) async {
-    await login(t, user: 'wang_admin');
-    await tab(t, '订阅');
-    final total = store.monthRevenue;
-    await t.tap(find.text('驰光汽车美容 · 徐汇店').first);
-    await t.pumpAndSettle();
-    await t.tap(find.text('退款'));
-    await t.pumpAndSettle();
-    await t.enterText(find.byType(TextField), '5000');
-    await t.tap(find.text('确认退款'));
-    await t.pumpAndSettle();
-    expect(find.textContaining('不能超过实付'), findsOneWidget);
-    await t.enterText(find.byType(TextField), '1000');
-    await t.tap(find.text('确认退款'));
-    await t.pumpAndSettle();
-    await t.tap(find.text('确认退款').last);
-    await t.pumpAndSettle();
-    expect(store.orders.first.refunded, 1000);
-    expect(store.monthRevenue, total - 1000);
-  });
-
-  testWidgets('超级管理员：新增账号校验、禁用与不能禁用自己', (t) async {
-    await login(t, user: 'wang_admin');
-    await tab(t, '我的');
-    await t.tap(find.text('运营账号'));
-    await t.pumpAndSettle();
-    expect(find.text('王主管（我）'), findsOneWidget);
-    await t.tap(find.byKey(const ValueKey('add-account')));
-    await t.pumpAndSettle();
-    await t.tap(find.text('创建账号'));
-    await t.pumpAndSettle();
-    expect(find.text('请输入姓名'), findsOneWidget);
-    await t.enterText(find.byType(TextField).at(0), '陈运营');
-    await t.enterText(find.byType(TextField).at(1), 'ops_xiaoli');
-    await t.enterText(find.byType(TextField).at(2), 'abcd1234');
-    await t.tap(find.text('创建账号'));
-    await t.pumpAndSettle();
-    expect(find.text('该用户名已存在'), findsOneWidget);
-    await t.enterText(find.byType(TextField).at(1), 'chen_ops');
-    await t.enterText(find.byType(TextField).at(2), 'short');
-    await t.tap(find.text('创建账号'));
-    await t.pumpAndSettle();
-    expect(find.text('初始密码至少 8 位'), findsOneWidget);
-    await t.enterText(find.byType(TextField).at(2), 'abcd1234');
-    await t.tap(find.text('创建账号'));
-    await t.pumpAndSettle();
-    expect(store.accounts.length, 5);
-
-    await t.tap(find.text('王主管（我）'));
-    await t.pumpAndSettle();
-    await t.tap(find.text('禁用账号'));
-    await t.tap(find.text('确认'));
-    await t.pumpAndSettle();
-    expect(store.me!.enabled, isTrue);
-    await t.tap(find.text('赵运营'));
-    await t.pumpAndSettle();
-    await t.tap(find.text('禁用账号'));
-    await t.tap(find.text('确认'));
-    await t.pumpAndSettle();
-    expect(store.accounts.firstWhere((a) => a.name == '赵运营').enabled, isFalse);
-  });
-
-  testWidgets('套餐编辑：超级管理员保存，校验空名称', (t) async {
-    await login(t, user: 'wang_admin');
-    await tab(t, '我的');
-    await t.tap(find.text('套餐管理'));
-    await t.pumpAndSettle();
-    await t.tap(find.text('基础版').first);
-    await t.pumpAndSettle();
-    await t.enterText(find.byType(TextField).at(0), '');
-    await t.tap(find.text('保存'));
-    await t.pumpAndSettle();
-    expect(find.text('请输入套餐名称'), findsOneWidget);
-    await t.enterText(find.byType(TextField).at(0), '基础版');
-    await t.enterText(find.byType(TextField).at(1), '699');
-    await t.tap(find.text('保存'));
-    await t.pumpAndSettle();
-    expect(store.plans[1].fee, 699);
-    expect(find.text('¥699 / 年'), findsOneWidget);
-  });
-
-  testWidgets('退出登录回到登录页', (t) async {
-    await login(t);
-    await tab(t, '我的');
-    await t.tap(find.text('退出登录').first);
-    await t.pumpAndSettle();
-    await t.tap(find.text('退出登录').last);
-    await t.pumpAndSettle();
-    expect(find.text('汽美管家 · 运营后台'), findsOneWidget);
+  tearDown(() => store = Store());
+  test('production state contains no mock records or revenue baselines', () {
+    expect(store.merchants, isEmpty);
+    expect(store.accounts, isEmpty);
+    expect(store.orders, isEmpty);
+    expect(store.loaded, isFalse);
     expect(store.me, isNull);
+    expect(store.monthRevenue, 0);
   });
-
-  testWidgets('新建账号首次登录必须改密；重置密码后同样', (t) async {
-    await login(t, user: 'wang_admin');
-    store.addAccount('陈运营', 'chen_ops', 'abcd1234', Role.ops);
-    await tab(t, '我的');
-    await t.tap(find.text('退出登录').first);
-    await t.pumpAndSettle();
-    await t.tap(find.text('退出登录').last);
-    await t.pumpAndSettle();
-    await t.enterText(find.byType(TextField).at(0), 'chen_ops');
-    await t.enterText(find.byType(TextField).at(1), 'abcd1234');
-    await t.tap(find.text('登录').last);
-    await t.pumpAndSettle();
-    expect(find.text('修改密码'), findsOneWidget);
-    await t.enterText(find.byType(TextField).at(0), 'abcd1234');
-    await t.enterText(find.byType(TextField).at(1), 'abcd1234');
-    await t.tap(find.text('确认修改'));
-    await t.pumpAndSettle();
-    expect(find.text('新密码不能与当前密码相同'), findsOneWidget);
-    await t.enterText(find.byType(TextField).at(0), 'newpass88');
-    await t.enterText(find.byType(TextField).at(1), 'newpass89');
-    await t.tap(find.text('确认修改'));
-    await t.pumpAndSettle();
-    expect(find.text('两次输入的密码不一致'), findsOneWidget);
-    await t.enterText(find.byType(TextField).at(1), 'newpass88');
-    await t.tap(find.text('确认修改'));
-    await t.pumpAndSettle();
-    expect(store.me?.username, 'chen_ops');
-    expect(find.text('本月 MRR（元）'), findsOneWidget);
+  test(
+    'failed refresh retains last successful state and is not reported as empty',
+    () async {
+      await store.refresh();
+      expect(store.loaded, isTrue);
+      final account = store.me;
+      api.fail = true;
+      await expectLater(store.refresh(), throwsA(isA<AppError>()));
+      expect(store.me, same(account));
+      expect(store.loaded, isTrue);
+    },
+  );
+  test(
+    'pagination failure does not publish a partially loaded snapshot',
+    () async {
+      final paged = PagedApi();
+      final state = Store(api: paged);
+      await expectLater(state.refresh(), throwsA(isA<AppError>()));
+      expect(paged.offsets, [0, 200]);
+      expect(state.loaded, isFalse);
+      expect(state.me, isNull);
+    },
+  );
+  test('merchant phone masking accepts missing and international numbers', () {
+    final m = Merchant(
+      id: 'm',
+      name: '门店',
+      city: '',
+      owner: '',
+      phone: '',
+      plan: PlanKind.trial,
+      expiry: DateTime.now(),
+      opened: DateTime.now(),
+    );
+    expect(m.maskedPhone, '—');
+    expect(m.maskedOwner, '—');
   });
-
-  testWidgets('超级管理员重置密码：生成临时密码并要求改密', (t) async {
-    await login(t, user: 'wang_admin');
-    await tab(t, '我的');
-    await t.tap(find.text('运营账号'));
-    await t.pumpAndSettle();
-    await t.tap(find.text('赵运营'));
-    await t.pumpAndSettle();
-    await t.tap(find.text('确认'));
-    await t.pumpAndSettle();
-    expect(find.text('临时密码已生成'), findsOneWidget);
-    final a = store.accounts.firstWhere((a) => a.username == 'zhao_ops');
-    expect(a.mustChange, isTrue);
-    expect(a.password, isNot(Store.demoPassword));
-    expect(find.text(a.password), findsOneWidget);
-  });
-
-  testWidgets('外观：切换深色并应用后全局变深，再切回浅色', (t) async {
-    addTearDown(() {
-      appThemeMode.value = ThemeMode.system;
-      C.dark = false;
-    });
-    await login(t);
-    await tab(t, '我的');
-    expect(C.dark, isFalse);
-    Future<void> apply(String label) async {
-      await t.tap(find.text('外观').first);
+  testWidgets(
+    'login has empty fields, placeholders and no demo credential disclosure',
+    (t) async {
+      await t.pumpWidget(const AdminApp());
       await t.pumpAndSettle();
-      await t.tap(find.text(label));
+      final fields = t.widgetList<TextField>(find.byType(TextField)).toList();
+      expect(fields.length, 2);
+      expect(fields.every((f) => f.controller!.text.isEmpty), isTrue);
+      expect(find.text('请输入用户名'), findsOneWidget);
+      expect(find.textContaining('演示账号'), findsNothing);
+      expect(find.byTooltip('显示密码'), findsOneWidget);
+      await t.tap(find.byTooltip('显示密码'));
       await t.pump();
-      await t.tap(find.text('应用'));
+      expect(find.byTooltip('隐藏密码'), findsOneWidget);
+    },
+  );
+  testWidgets(
+    'real empty snapshot displays all four existing tabs and zero chart safely',
+    (t) async {
+      await t.pumpWidget(const AdminApp());
       await t.pumpAndSettle();
-    }
+      await t.enterText(find.byType(TextField).at(0), 'test_admin');
+      await t.enterText(find.byType(TextField).at(1), 'TestPassword8');
+      await t.tap(find.text('登录'));
+      await t.pumpAndSettle();
+      expect(api.calls, contains('snapshot'));
+      expect(find.text('本月 MRR（元）'), findsOneWidget);
+      for (var i = 0; i < 4; i++) {
+        await t.tap(find.byKey(ValueKey('nav-$i')));
+        await t.pumpAndSettle();
+        expect(t.takeException(), isNull);
+      }
+    },
+  );
+  testWidgets(
+    'initial password must be changed before dashboard data is requested',
+    (t) async {
+      api.mustChange = true;
+      await t.pumpWidget(const AdminApp());
+      await t.pumpAndSettle();
+      await t.enterText(find.byType(TextField).at(0), 'test_admin');
+      await t.enterText(find.byType(TextField).at(1), 'InitialPassword8');
+      await t.tap(find.text('登录'));
+      await t.pumpAndSettle();
+      expect(find.text('修改密码'), findsOneWidget);
+      expect(api.calls, isNot(contains('snapshot')));
+      await t.enterText(find.byType(TextField).at(0), 'ChangedPassword9');
+      await t.enterText(find.byType(TextField).at(1), 'ChangedPassword9');
+      await t.tap(find.text('确认修改'));
+      await t.pumpAndSettle();
+      expect(api.calls, contains('change_password'));
+      expect(api.calls, contains('snapshot'));
+    },
+  );
+  testWidgets(
+    'designed async button preserves dimensions and prevents duplicate submission',
+    (t) async {
+      final pending = Completer<void>();
+      var calls = 0;
+      await t.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              width: 300,
+              child: Btn(
+                '保存',
+                onTap: () async {
+                  calls++;
+                  await pending.future;
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+      final size = t.getSize(find.byType(Btn));
+      await t.tap(find.text('保存'));
+      await t.pump();
+      expect(find.byType(AppSpinner), findsOneWidget);
+      expect(t.getSize(find.byType(Btn)), size);
+      await t.tap(find.byType(Btn), warnIfMissed: false);
+      expect(calls, 1);
+      pending.complete();
+      await t.pumpAndSettle();
+      expect(find.text('保存'), findsOneWidget);
+    },
+  );
+  testWidgets(
+    'expired session returns to the same form without losing its draft',
+    (t) async {
+      await t.pumpWidget(const AdminApp());
+      await t.pumpAndSettle();
+      await t.enterText(find.byType(TextField).at(0), 'test_admin');
+      await t.enterText(find.byType(TextField).at(1), 'TestPassword8');
+      await t.tap(find.text('登录'));
+      await t.pumpAndSettle();
+      final context = t.element(find.text('本月 MRR（元）'));
+      unawaited(go<void>(context, const AccountEditPage()));
+      await t.pumpAndSettle();
+      await t.enterText(find.byType(TextField).at(0), '未保存的账号草稿');
+      authExpired.value++;
+      await t.pumpAndSettle();
+      expect(find.text('汽美管家 · 运营后台'), findsOneWidget);
+      await t.enterText(find.byType(TextField).at(0), 'test_admin');
+      await t.enterText(find.byType(TextField).at(1), 'TestPassword8');
+      await t.tap(find.text('登录'));
+      await t.pumpAndSettle();
+      expect(find.text('新增运营账号'), findsOneWidget);
+      expect(find.text('未保存的账号草稿'), findsOneWidget);
+    },
+  );
+  testWidgets(
+    'failed destructive confirmation stays open and blocks cancellation during submission',
+    (t) async {
+      final pending = Completer<void>();
+      await t.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: Btn(
+                '执行',
+                onTap: () {
+                  unawaited(
+                    confirm(
+                      context,
+                      title: '确认操作',
+                      message: '测试',
+                      onConfirm: () => pending.future,
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+      await t.tap(find.text('执行'));
+      await t.pumpAndSettle();
+      await t.tap(find.text('确认'));
+      await t.pump();
+      await t.tap(find.text('取消'), warnIfMissed: false);
+      await t.pump();
+      expect(find.text('确认操作'), findsOneWidget);
+      pending.completeError(const AppError('提交失败'));
+      await t.pumpAndSettle();
+      expect(find.text('确认操作'), findsOneWidget);
+      expect(find.text('提交失败'), findsOneWidget);
+    },
+  );
+}
 
-    await apply('深色');
-    expect(appThemeMode.value, ThemeMode.dark);
-    expect(C.dark, isTrue);
-    expect(find.text('深色'), findsOneWidget); // 行右侧显示当前模式
-    expect(t.takeException(), isNull);
-    // 其它页面在深色下也能正常渲染
-    await tab(t, '商家');
-    await t.tap(find.text('驰光汽车美容 · 徐汇店'));
-    await t.pumpAndSettle();
-    expect(t.takeException(), isNull);
-    await t.tap(find.byIcon(Icons.chevron_left_rounded));
-    await t.pumpAndSettle();
-    await tab(t, '我的');
-    await apply('浅色');
-    expect(C.dark, isFalse);
-    expect(t.takeException(), isNull);
-  });
+class PagedApi extends TestApi {
+  final offsets = <int>[];
+  @override
+  Future<Map<String, dynamic>> call(
+    String action, [
+    Map<String, dynamic> values = const {},
+  ]) async {
+    offsets.add(values['offset'] as int);
+    if (values['offset'] == 200) {
+      throw const AppError('second page unavailable');
+    }
+    return {...await super.call(action, values), 'more': true};
+  }
 }

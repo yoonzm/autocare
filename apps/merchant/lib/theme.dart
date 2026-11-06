@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:autocare_async_kit/async_kit.dart' show AsyncKitTheme;
 
 /// 设计稿色板（HeroUI 风格），按深色模式令牌（DarkTokens）自动切换。
 /// [dark] 由应用根部根据当前主题亮度同步，主题切换后整棵树会重建。
@@ -101,6 +102,9 @@ ThemeData buildTheme([Brightness brightness = Brightness.light]) {
   final bg = dark ? const Color(0xFF09090B) : const Color(0xFFF4F4F5);
   return ThemeData(
     useMaterial3: true,
+    extensions: [
+      AsyncKitTheme.standard(brightness, permissionHint: '请联系店主在“角色权限”中为你开通'),
+    ],
     brightness: brightness,
     scaffoldBackgroundColor: bg,
     colorScheme: ColorScheme.fromSeed(

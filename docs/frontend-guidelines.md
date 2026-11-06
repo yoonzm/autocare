@@ -109,7 +109,7 @@
 6. **同一个动作的其他按钮不转圈**：保存页点“保存”时，只有“保存”转圈，左上角取消 ✕ / 返回只是不可点，不能也转圈。
 7. **验证码按钮点击后立即有加载效果**：转圈（16）+“发送中…”，灰色，期间不可再点；失败立即恢复“获取验证码”，成功后进入 60 秒倒计时。加载指示至少停留 500ms。
 8. **统一转圈样式**：全部使用 `AppSpinner`（淡色圆环 + 1/4 圆弧，0.8s 一圈，开启“减少动态效果”时不转），尺寸按设计稿：图标按钮 20、主要按钮 18、验证码按钮 16、行内小按钮 14。不要直接用 `CircularProgressIndicator`。
-9. **生成页里的提交按钮由生成脚本处理**：`tools/design_to_flutter.py` 的 `ASYNC_ACTIONS` 决定哪些按钮的文字 / 图标要包进 `hBusy`，必须和 `lib/kit/async_kit.dart` 的 `asyncActionKeys` 完全一致（测试会比较两边）。新增需要等后端的按钮时，两处都要登记，并重新生成对应页面。
+9. **生成页里的提交按钮由生成脚本处理**：`tools/design_to_flutter.py` 的 `ASYNC_ACTIONS` 决定哪些按钮的文字 / 图标要包进 `hBusy`，必须和商家端 `lib/kit/async_action_keys.dart` 的 `asyncActionKeys` 完全一致（原 `lib/kit/async_kit.dart` 仍导出该清单，测试会比较两边）。新增需要等后端的按钮时，两处都要登记，并重新生成对应页面；页面动作清单不进入共享 UI 包。
 
 ## 7. 反馈组件
 
@@ -269,6 +269,12 @@ LoadingButton(
 - 验收：增减一次只触发一次变化；下限不越界；所有数量、金额与折扣的单位、步长、小数位不变；页面视觉和关键流程不变。
 
 ## 14. 基础组件库（全局维护一份）
+
+商家端和后台端共用的加载、错误、空态、Toast、按钮 loading 在 `packages/async_kit/lib/src/` 按职责实现，`lib/async_kit.dart` 仅作公共导出入口。商家原路径 `lib/kit/async_kit.dart` 保留 export 兼容；后台直接依赖共享包。修复通用行为只修改共享实现，不在两端复制组件。
+
+- 共享包不包含商户路由清单、服务/卡种等业务页面模板、完整应用主题或 Supabase SDK。商户专用骨架放 `apps/merchant/lib/widgets/loading_skeletons.dart`，动作清单放 `apps/merchant/lib/kit/async_action_keys.dart`。
+- 共用组件从当前 `Theme` 的 `AsyncKitTheme` 扩展读取反馈所需颜色及权限提示；两端各自维护完整主题。禁止用同步两份全局 `C.dark` 的方式驱动共享组件，禁止在共享层写入“联系店主”等应用语义。
+- Supabase 异常在各端 API 边界通过 `packages/supabase_adapter` 转成通用 `AppError`；UI 只处理通用错误，不直接识别 SDK 异常。
 
 分段条、单选 / 多选标签、数字增减、开关、骨架屏、空 / 错误态、按钮 loading、选择器、颜色选择等**基础组件只在组件库里实现一份**，所有页面引用，不在页面、模板或绑定层里各自重写、复制一份“长得差不多”的版本。
 

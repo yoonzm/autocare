@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -6,7 +8,9 @@ import '../data/store.dart';
 import '../theme.dart';
 import '../ui.dart';
 
-String _k(int v) => v >= 10000 ? '¥${(v / 10000).toStringAsFixed(1)}万' : '¥${(v / 1000).toStringAsFixed(1)}k';
+String _k(num v) => v >= 10000
+    ? '¥${(v / 10000).toStringAsFixed(1)}万'
+    : '¥${(v / 1000).toStringAsFixed(1)}k';
 
 class SubsPage extends StatefulWidget {
   const SubsPage({super.key});
@@ -22,8 +26,10 @@ class _SubsPageState extends State<SubsPage> {
     listenable: store,
     builder: (context, _) {
       final values = [...store.history, store.monthRevenue];
-      final months = ['6月', '7月', '8月', '9月', '10月', '11月'];
-      final top = values.reduce((a, b) => a > b ? a : b);
+      final months = store.months;
+      final top = values
+          .map((v) => v.abs())
+          .fold<num>(1, (a, b) => a > b ? a : b);
       final cur = sel ?? values.length - 1;
       return AdPage(
         title: '订阅与收入',
@@ -35,13 +41,23 @@ class _SubsPageState extends State<SubsPage> {
               children: [
                 Row(
                   children: [
-                    Text('本月收入（元）', style: ts(13, w: FontWeight.w500, color: C.faint, h: 19)),
+                    Text(
+                      '本月收入（元）',
+                      style: ts(13, w: FontWeight.w500, color: C.faint, h: 19),
+                    ),
                     const Spacer(),
-                    const Pill('↑ 8.2%', Color(0xFF6EE7A8), Color(0x3317C964)),
+                    Pill(
+                      percentLabel(store.stats['revenue_change'], change: true),
+                      const Color(0xFF6EE7A8),
+                      const Color(0x3317C964),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 14),
-                Text(money(store.monthRevenue), style: ts(34, w: FontWeight.w600, color: C.gold, h: 42)),
+                Text(
+                  money(store.monthRevenue),
+                  style: ts(34, w: FontWeight.w600, color: C.gold, h: 42),
+                ),
                 const SizedBox(height: 14),
                 Row(
                   children: [
@@ -80,7 +96,7 @@ class _SubsPageState extends State<SubsPage> {
                                   AnimatedContainer(
                                     duration: const Duration(milliseconds: 200),
                                     width: 26,
-                                    height: 96 * values[i] / top,
+                                    height: 96 * values[i].abs() / top,
                                     decoration: BoxDecoration(
                                       color: i == cur ? C.primary : C.stroke,
                                       borderRadius: const BorderRadius.only(
@@ -94,7 +110,11 @@ class _SubsPageState extends State<SubsPage> {
                                   const SizedBox(height: 6),
                                   Text(
                                     months[i],
-                                    style: ts(11, color: i == cur ? C.ink : C.faint, h: 16),
+                                    style: ts(
+                                      11,
+                                      color: i == cur ? C.ink : C.faint,
+                                      h: 16,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -109,31 +129,43 @@ class _SubsPageState extends State<SubsPage> {
           ),
           Section(
             '近期订单',
-            RowGroup([
-              for (final o in store.orders.take(8))
-                Row1(
-                  leading: SoftTile(
-                    o.isRefunded ? Icons.undo_rounded : Icons.receipt_long_outlined,
-                    o.isRefunded ? C.redInk : C.greenInk,
-                    o.isRefunded ? C.redSoft : C.greenSoft,
-                  ),
-                  title: o.merchant,
-                  sub: '${o.title} · ${md(o.time)}',
-                  trailing: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        money(o.paid),
-                        style: ts(15, w: FontWeight.w600, color: o.isRefunded ? C.faint : C.ink, h: 22).copyWith(
-                          decoration: o.isRefunded ? TextDecoration.lineThrough : null,
+            store.orders.isEmpty
+                ? const Empty('还没有已支付的订阅订单')
+                : RowGroup([
+                    for (final o in store.orders.take(8))
+                      Row1(
+                        leading: SoftTile(
+                          o.isRefunded
+                              ? Icons.undo_rounded
+                              : Icons.receipt_long_outlined,
+                          o.isRefunded ? C.redInk : C.greenInk,
+                          o.isRefunded ? C.redSoft : C.greenSoft,
                         ),
+                        title: o.merchant,
+                        sub: '${o.title} · ${md(o.time)}',
+                        trailing: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              money(o.paid),
+                              style:
+                                  ts(
+                                    15,
+                                    w: FontWeight.w600,
+                                    color: o.isRefunded ? C.faint : C.ink,
+                                    h: 22,
+                                  ).copyWith(
+                                    decoration: o.isRefunded
+                                        ? TextDecoration.lineThrough
+                                        : null,
+                                  ),
+                            ),
+                            if (o.isRefunded) Pill('已退款', C.redInk, C.redSoft),
+                          ],
+                        ),
+                        onTap: () => go(context, OrderPage(o)),
                       ),
-                      if (o.isRefunded) Pill('已退款', C.redInk, C.redSoft),
-                    ],
-                  ),
-                  onTap: () => go(context, OrderPage(o)),
-                ),
-            ]),
+                  ]),
           ),
         ],
       );
@@ -144,7 +176,15 @@ class _SubsPageState extends State<SubsPage> {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(v, style: ts(17, w: FontWeight.w600, color: const Color(0xFFFAFAFA), h: 24)),
+        Text(
+          v,
+          style: ts(
+            17,
+            w: FontWeight.w600,
+            color: const Color(0xFFFAFAFA),
+            h: 24,
+          ),
+        ),
         Text(k, style: ts(11, color: C.faint, h: 16)),
       ],
     ),
@@ -182,7 +222,14 @@ class OrderPage extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 10),
-            Expanded(flex: 7, child: Btn('返回', ghost: true, onTap: () => Navigator.pop(context))),
+            Expanded(
+              flex: 7,
+              child: Btn(
+                '返回',
+                ghost: true,
+                onTap: () => Navigator.pop(context),
+              ),
+            ),
           ],
         ),
         children: [
@@ -190,7 +237,9 @@ class OrderPage extends StatelessWidget {
             child: Row(
               children: [
                 SoftTile(
-                  o.isRefunded ? Icons.undo_rounded : Icons.receipt_long_outlined,
+                  o.isRefunded
+                      ? Icons.undo_rounded
+                      : Icons.receipt_long_outlined,
                   o.isRefunded ? C.redInk : C.greenInk,
                   o.isRefunded ? C.redSoft : C.greenSoft,
                 ),
@@ -199,7 +248,10 @@ class OrderPage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(o.merchant, style: ts(15, w: FontWeight.w600, h: 22)),
+                      Text(
+                        o.merchant,
+                        style: ts(15, w: FontWeight.w600, h: 22),
+                      ),
                       Text(
                         '${md(t)} ${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')} 支付',
                         style: ts(12, color: C.muted, h: 17),
@@ -218,9 +270,11 @@ class OrderPage extends StatelessWidget {
               children: [
                 KV('套餐', o.title),
                 KV('原价', money(o.original)),
-                if (o.coupon > 0) KV('新店首购券', '-${money(o.coupon)}', vColor: C.greenInk),
-                KV('实付', '${money(o.paid)}.00', bold: true),
-                if (o.isRefunded) KV('已退款', '-${money(o.refunded)}', vColor: C.redInk),
+                if (o.coupon > 0)
+                  KV('新店首购券', '-${money(o.coupon)}', vColor: C.greenInk),
+                KV('实付', money(o.paid, decimals: true), bold: true),
+                if (o.isRefunded)
+                  KV('已退款', '-${money(o.refunded)}', vColor: C.redInk),
                 Divider(height: 16, color: C.line),
                 KV('订单号', o.id),
                 KV('支付方式', o.pay),
@@ -254,9 +308,11 @@ class _RefundPageState extends State<RefundPage> {
   Future<void> _submit() async {
     final v = int.tryParse(amount.text.trim());
     if (v == null || v <= 0 || v > widget.o.paid) {
-      setState(() => error = v != null && v > widget.o.paid
-          ? '退款金额不能超过实付 ${money(widget.o.paid)}'
-          : '请输入退款金额');
+      setState(
+        () => error = v != null && v > widget.o.paid
+            ? '退款金额不能超过实付 ${money(widget.o.paid)}'
+            : '请输入退款金额',
+      );
       return;
     }
     final ok = await confirm(
@@ -265,13 +321,12 @@ class _RefundPageState extends State<RefundPage> {
       message: '将原路退回 ${money(v)} 给「${widget.o.merchant}」，并终止对应订阅周期，操作不可撤销。',
       ok: '确认退款',
       danger: true,
+      onConfirm: () async {
+        final err = await store.refund(widget.o, amount.text);
+        if (err != null) throw AppError(err);
+      },
     );
     if (!ok || !mounted) return;
-    final err = store.refund(widget.o, amount.text);
-    if (err != null) {
-      setState(() => error = err);
-      return;
-    }
     toast(context, '已退款 ${money(v)}');
     Navigator.pop(context);
   }
@@ -281,16 +336,33 @@ class _RefundPageState extends State<RefundPage> {
     title: '订单退款',
     dock: Row(
       children: [
-        Expanded(flex: 5, child: Btn('取消', ghost: true, onTap: () => Navigator.pop(context))),
+        Expanded(
+          flex: 5,
+          child: Btn('取消', ghost: true, onTap: () => Navigator.pop(context)),
+        ),
         const SizedBox(width: 10),
-        Expanded(flex: 7, child: Btn('确认退款', danger: true, onTap: _submit)),
+        Expanded(
+          flex: 7,
+          child: Btn(
+            '确认退款',
+            danger: true,
+            onTap: () {
+              unawaited(_submit());
+            },
+          ),
+        ),
       ],
     ),
     children: [
       Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SoftTile(Icons.info_outline_rounded, C.amberInk, C.amberSoft, size: 32),
+          SoftTile(
+            Icons.info_outline_rounded,
+            C.amberInk,
+            C.amberSoft,
+            size: 32,
+          ),
           const SizedBox(width: 10),
           Expanded(
             child: Text(

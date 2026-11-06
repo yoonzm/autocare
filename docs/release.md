@@ -14,7 +14,7 @@
 - GitHub Environment `supabase-prod` 仅允许 `main`，配置 `SUPABASE_PROD_SSH_KEY` 和 `SUPABASE_PROD_KNOWN_HOSTS` 两个 Secret。部署专用 SSH key 只允许调用服务器 root 所有的 `/usr/local/lib/autocare-deploy/production.py`，禁用任意命令、终端和端口转发。数据库和服务端密钥留在服务器，不上传到 Actions。
 - 部署包由 `supabase/deploy/package.py` 生成，统一换行为 LF，保证 Windows 手动部署与 Linux Actions 的迁移校验值一致。服务器接收包前检查路径、文件类型、重复项和大小限制。
 - 部署先运行 `/usr/local/sbin/supabase-backup`，按版本逐条事务执行未应用 SQL，同时登记 `supabase_migrations.schema_migrations` 和 `autocare_deploy.migrations`。已应用迁移内容变化、遗漏历史或插入旧版本会拒绝发布。后续改表必须新增 SQL，不能修改旧文件。
-- 更新 `merchant-v1` 后重建 functions 容器并经公网 HTTPS 验证公开登录入口、未登录业务鉴权和短信输入校验。接口检查失败时恢复上一份函数代码；已成功提交的数据库迁移保留，不自动回滚数据，需评估后使用新迁移修复或从备份恢复。发布版本记录在服务器 `/opt/supabase/.autocare-release.json`。
+- 同时更新 `merchant-v1` 与 `admin-v1` 后重建 functions 容器，并经公网 HTTPS 验证公开登录入口、未登录业务鉴权和短信输入校验。接口检查失败时同时恢复上一份函数代码；已成功提交的数据库迁移保留，不自动回滚数据，需评估后使用新迁移修复或从备份恢复。发布版本记录在服务器 `/opt/supabase/.autocare-release.json`；`revision` 为来源 Git 基线，`source_sha256` 标识打包的精确后端内容（包含尚未提交的工作区变更），服务器在部署前重新校验内容摘要。
 - 初次部署或更新 `supabase/deploy/production.py` 时，需要管理员通过现有 SSH 将该文件安装到上述 root 所有的入口，再发布。此文件是服务器受信任的执行程序，不由上传包替换。手动部署和 Actions 使用同一个包格式、同一个入口。
 - 短信一期使用助通，凭据和按用途配置的模板放服务器 `.env.sms`，由 Compose 注入；所有环境均使用真实短信，移除短信 mock 配置，详见 `sms.md`。车牌识别使用服务器 `.env.recognition` 中的百炼配置，由 Compose 独立注入；随机 mock 已移除，详见 `plate-recognition.md`。更新服务器部署入口后再部署新增迁移和函数，渠道配置缺失时明确返回未启用错误。健康检查只用无效号码探测真实短信入口，不会发送付费短信。私有化发布安装结构和函数，不复制 Cloud 开发用户或业务数据。
 

@@ -26,6 +26,19 @@ export const phoneOf = (value: unknown) =>
 export const isInput = (value: unknown): value is Input =>
   value != null && typeof value === 'object' && !Array.isArray(value);
 
+// Only read session_id AFTER getUser has verified this JWT's signature.
+export function sessionId(token: string): string | null {
+  try {
+    const value=JSON.parse(atob(token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).session_id;
+    return typeof value==='string' ? value : null;
+  }catch{return null;}
+}
+export async function merchantSession(user: string,token: string,business: boolean): Promise<string|Response>{
+  const {data,error}=await admin.rpc('platform_merchant_session',{p_user:user,p_session:sessionId(token),p_business:business});
+  if(error||!data)return fail('服务状态校验失败，请稍后重试',503);
+  return data.error?fail(data.error,data.status):data.store_id as string;
+}
+
 export async function userFor(request: Request): Promise<
   { response: Response } | { user: User; token: string }
 > {
@@ -33,16 +46,13 @@ export async function userFor(request: Request): Promise<
   if (!token) return { response: fail('请先登录', 401) };
   const { data, error } = await admin.auth.getUser(token);
   if (error || !data.user) return { response: fail('登录已过期', 401) };
+  const state=await merchantSession(data.user.id,token,false);
+  if(state instanceof Response)return {response:state};
   return { user: data.user, token };
 }
 
 export async function storeFor(request: Request): Promise<string | Response> {
-  const token = request.headers.get('Authorization')?.replace(/^Bearer\s+/i, '');
-  if (!token) return fail('请先登录', 401);
-  const { data, error } = await admin.auth.getUser(token);
-  if (error || !data.user) return fail('登录已过期', 401);
-  const { data: store, error: storeError } = await admin.from('stores')
-    .select('id').eq('owner_id', data.user.id).single();
-  if (storeError || !store) return fail('门店不存在', 403);
-  return store.id as string;
+  const auth=await userFor(request);
+  if('response' in auth)return auth.response;
+  return merchantSession(auth.user.id,auth.token,true);
 }

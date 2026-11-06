@@ -1,23 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:autocare_async_kit/async_kit.dart';
+
+import 'data/store.dart';
+
+export 'package:autocare_async_kit/async_kit.dart';
 
 import 'theme.dart';
 
 // ───────── 提示与弹层 ─────────
 void toast(BuildContext context, String msg) {
-  final m = ScaffoldMessenger.of(context);
-  m.hideCurrentSnackBar();
-  m.showSnackBar(
-    SnackBar(
-      content: Text(msg, style: ts(14, color: Colors.white, h: 20)),
-      behavior: SnackBarBehavior.floating,
-      backgroundColor: C.toastBg,
-      elevation: 0,
-      duration: const Duration(milliseconds: 1800),
-      margin: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-    ),
-  );
+  AppToast.show(context, msg);
 }
 
 Future<bool> confirm(
@@ -27,45 +20,61 @@ Future<bool> confirm(
   String ok = '确认',
   String cancel = '取消',
   bool danger = false,
+  Future<void> Function()? onConfirm,
 }) async {
+  final actionKey = 'confirm-${identityHashCode(Object())}';
   final r = await showDialog<bool>(
     context: context,
-    builder: (c) => Dialog(
-      backgroundColor: C.card,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
-      insetPadding: const EdgeInsets.symmetric(horizontal: 32),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 22, 20, 18),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: ts(18, w: FontWeight.w600, h: 26)),
-            const SizedBox(height: 8),
-            Text(message, style: ts(14, color: C.sub, h: 21)),
-            const SizedBox(height: 18),
-            Row(
-              children: [
-                Expanded(
-                  flex: 5,
-                  child: Btn(
-                    cancel,
-                    ghost: true,
-                    onTap: () => Navigator.pop(c, false),
+    builder: (c) => AsyncActionScope(
+      actionKey: actionKey,
+      child: Dialog(
+        backgroundColor: C.card,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        insetPadding: const EdgeInsets.symmetric(horizontal: 32),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 22, 20, 18),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: ts(18, w: FontWeight.w600, h: 26)),
+              const SizedBox(height: 8),
+              Text(message, style: ts(14, color: C.sub, h: 21)),
+              const SizedBox(height: 18),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 5,
+                    child: Btn(
+                      cancel,
+                      ghost: true,
+                      onTap: () => Navigator.pop(c, false),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  flex: 7,
-                  child: Btn(
-                    ok,
-                    danger: danger,
-                    onTap: () => Navigator.pop(c, true),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    flex: 7,
+                    child: Btn(
+                      ok,
+                      actionKey: actionKey,
+                      danger: danger,
+                      onTap: () async {
+                        if (onConfirm != null) {
+                          await Future.wait([
+                            onConfirm(),
+                            Future<void>.delayed(kIndicatorMinShow),
+                          ]);
+                        }
+                        if (c.mounted && ModalRoute.of(c)?.isCurrent == true) {
+                          Navigator.pop(c, true);
+                        }
+                      },
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     ),
@@ -126,6 +135,7 @@ Future<int?> pickOption(
   required List<SheetOption> options,
   String? footnote,
   String ok = '确认',
+  Future<void> Function(int)? onConfirm,
 }) => showSheet<int>(context, (c) {
   return _OptionBody(
     title: title,
@@ -133,6 +143,7 @@ Future<int?> pickOption(
     options: options,
     footnote: footnote,
     ok: ok,
+    onConfirm: onConfirm,
   );
 });
 
@@ -142,12 +153,14 @@ class _OptionBody extends StatefulWidget {
   final List<SheetOption> options;
   final String? footnote;
   final String ok;
+  final Future<void> Function(int)? onConfirm;
   const _OptionBody({
     required this.title,
     required this.subtitle,
     required this.options,
     required this.footnote,
     required this.ok,
+    required this.onConfirm,
   });
   @override
   State<_OptionBody> createState() => _OptionBodyState();
@@ -155,94 +168,120 @@ class _OptionBody extends StatefulWidget {
 
 class _OptionBodyState extends State<_OptionBody> {
   int sel = 0;
+  late final actionKey = 'option-${identityHashCode(this)}';
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(widget.title, style: ts(20, w: FontWeight.w600, h: 28)),
-        if (widget.subtitle != null) ...[
-          const SizedBox(height: 2),
-          Text(widget.subtitle!, style: ts(12, color: C.muted, h: 17)),
-        ],
-        const SizedBox(height: 14),
-        for (var i = 0; i < widget.options.length; i++) ...[
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () => setState(() => sel = i),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-              decoration: BoxDecoration(
-                color: sel == i ? C.primarySoft : C.inset,
-                borderRadius: BorderRadius.circular(18),
-                border: sel == i
-                    ? Border.all(color: C.primary, width: 1.5)
-                    : null,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.options[i].title,
-                    style: ts(
-                      15,
-                      w: FontWeight.w600,
-                      h: 22,
-                      color: widget.options[i].danger ? C.redInk : C.ink,
-                    ),
-                  ),
-                  Text(
-                    widget.options[i].sub,
-                    style: ts(12, color: sel == i ? C.sub : C.muted, h: 16),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-        ],
-        if (widget.footnote != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 2, bottom: 6),
-            child: Text(
-              widget.footnote!,
-              style: ts(12, color: C.muted, h: 17),
-            ),
-          ),
-        const SizedBox(height: 6),
-        Row(
-          children: [
-            Expanded(
-              flex: 5,
-              child: Btn('取消', ghost: true, onTap: () => Navigator.pop(context)),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              flex: 7,
-              child: Btn(
-                widget.ok,
-                danger: widget.options[sel].danger,
-                onTap: () => Navigator.pop(context, sel),
-              ),
-            ),
+    return AsyncActionScope(
+      actionKey: actionKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(widget.title, style: ts(20, w: FontWeight.w600, h: 28)),
+          if (widget.subtitle != null) ...[
+            const SizedBox(height: 2),
+            Text(widget.subtitle!, style: ts(12, color: C.muted, h: 17)),
           ],
-        ),
-      ],
+          const SizedBox(height: 14),
+          for (var i = 0; i < widget.options.length; i++) ...[
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => setState(() => sel = i),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: sel == i ? C.primarySoft : C.inset,
+                  borderRadius: BorderRadius.circular(18),
+                  border: sel == i
+                      ? Border.all(color: C.primary, width: 1.5)
+                      : null,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.options[i].title,
+                      style: ts(
+                        15,
+                        w: FontWeight.w600,
+                        h: 22,
+                        color: widget.options[i].danger ? C.redInk : C.ink,
+                      ),
+                    ),
+                    Text(
+                      widget.options[i].sub,
+                      style: ts(12, color: sel == i ? C.sub : C.muted, h: 16),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+          ],
+          if (widget.footnote != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 2, bottom: 6),
+              child: Text(
+                widget.footnote!,
+                style: ts(12, color: C.muted, h: 17),
+              ),
+            ),
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              Expanded(
+                flex: 5,
+                child: Btn(
+                  '取消',
+                  ghost: true,
+                  onTap: () => Navigator.pop(context),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                flex: 7,
+                child: Btn(
+                  widget.ok,
+                  actionKey: actionKey,
+                  danger: widget.options[sel].danger,
+                  onTap: () async {
+                    final selected = sel;
+                    if (widget.onConfirm != null) {
+                      await Future.wait([
+                        widget.onConfirm!(selected),
+                        Future<void>.delayed(kIndicatorMinShow),
+                      ]);
+                    }
+                    if (context.mounted &&
+                        ModalRoute.of(context)?.isCurrent == true) {
+                      Navigator.pop(context, selected);
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
 
 // ───────── 基础组件 ─────────
 class Btn extends StatelessWidget {
+  final String? actionKey;
   final String text;
-  final VoidCallback? onTap;
+  final Function()? onTap;
   final bool ghost;
   final bool danger;
   final bool soft;
   const Btn(
     this.text, {
     super.key,
+    this.actionKey,
     this.onTap,
     this.ghost = false,
     this.danger = false,
@@ -266,19 +305,39 @@ class Btn extends StatelessWidget {
         : onTap == null
         ? C.faint
         : Colors.white;
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
+    return AsyncAction(
+      actionKey: actionKey,
       onTap: onTap,
-      child: Container(
-        height: 50,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.circular(25),
-        ),
-        child: Text(
-          text,
-          style: ts(15, w: ghost ? FontWeight.w500 : FontWeight.w600, color: fg),
+      builder: (actionKey, tap) => BusyOverlay(
+        actionKey: actionKey,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: tap,
+          child: Container(
+            height: 50,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: bg,
+              borderRadius: BorderRadius.circular(25),
+            ),
+            child: hBusy(
+              actionKey,
+              SizedBox(
+                width: double.infinity,
+                child: Text(
+                  text,
+                  textAlign: TextAlign.center,
+                  style: ts(
+                    15,
+                    w: ghost ? FontWeight.w500 : FontWeight.w600,
+                    color: fg,
+                  ),
+                ),
+              ),
+              style: ts(15, color: fg),
+              label: '提交中…',
+            ),
+          ),
         ),
       ),
     );
@@ -298,7 +357,10 @@ class Pill extends StatelessWidget {
       color: bg,
       borderRadius: BorderRadius.circular(9),
     ),
-    child: Text(text, style: ts(11, w: FontWeight.w600, color: fg, h: 18)),
+    child: Text(
+      text,
+      style: ts(11, w: FontWeight.w600, color: fg, h: 18),
+    ),
   );
 }
 
@@ -344,7 +406,10 @@ class Section extends StatelessWidget {
     children: [
       Padding(
         padding: const EdgeInsets.only(left: 4, bottom: 8),
-        child: Text(title, style: ts(13, w: FontWeight.w500, color: C.sub, h: 18)),
+        child: Text(
+          title,
+          style: ts(13, w: FontWeight.w500, color: C.sub, h: 18),
+        ),
       ),
       child,
     ],
@@ -412,38 +477,49 @@ class AdPage extends StatelessWidget {
       body: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () => FocusScope.of(context).unfocus(),
-        child: ListView(
-          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          padding: EdgeInsets.fromLTRB(20, top + 12, 20, 32),
-          children: [
-            if (title != null)
-              SizedBox(
-                height: 44,
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 44,
-                      child: back
-                          ? CircleBtn(
-                              Icons.chevron_left_rounded,
-                              () => Navigator.maybePop(context),
-                              label: '返回',
-                            )
-                          : null,
-                    ),
-                    Expanded(
-                      child: Text(
-                        title!,
-                        textAlign: TextAlign.center,
-                        style: ts(17, w: FontWeight.w600, h: 24),
+        child: RefreshIndicator(
+          onRefresh: () async {
+            try {
+              await store.refresh();
+              if (context.mounted) AppToast.show(context, '已更新');
+            } catch (e) {
+              if (context.mounted) AppToast.error(context, e);
+            }
+          },
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            padding: EdgeInsets.fromLTRB(20, top + 12, 20, 32),
+            children: [
+              if (title != null)
+                SizedBox(
+                  height: 44,
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 44,
+                        child: back
+                            ? CircleBtn(
+                                Icons.chevron_left_rounded,
+                                () => Navigator.maybePop(context),
+                                label: '返回',
+                              )
+                            : null,
                       ),
-                    ),
-                    SizedBox(width: 44, child: action),
-                  ],
+                      Expanded(
+                        child: Text(
+                          title!,
+                          textAlign: TextAlign.center,
+                          style: ts(17, w: FontWeight.w600, h: 24),
+                        ),
+                      ),
+                      SizedBox(width: 44, child: action),
+                    ],
+                  ),
                 ),
-              ),
-            for (final c in children) ...[SizedBox(height: gap), c],
-          ],
+              for (final c in children) ...[SizedBox(height: gap), c],
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: dock == null
@@ -726,75 +802,82 @@ class _FieldState extends State<Field> {
     final error = widget.error;
     final prefix = widget.prefix;
     return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text.rich(
-        TextSpan(
-          text: label,
-          children: [
-            if (required)
-              TextSpan(text: ' *', style: ts(13, color: C.redInk)),
-          ],
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text.rich(
+          TextSpan(
+            text: label,
+            children: [
+              if (required)
+                TextSpan(
+                  text: ' *',
+                  style: ts(13, color: C.redInk),
+                ),
+            ],
+          ),
+          style: ts(13, w: FontWeight.w500, h: 18),
         ),
-        style: ts(13, w: FontWeight.w500, h: 18),
-      ),
-      const SizedBox(height: 6),
-      Container(
-        constraints: const BoxConstraints(minHeight: 48),
-        padding: const EdgeInsets.symmetric(horizontal: 14),
-        decoration: BoxDecoration(
-          color: C.inset,
-          borderRadius: BorderRadius.circular(14),
-          border: error != null ? Border.all(color: C.red, width: 1.2) : null,
-        ),
-        child: Row(
-          children: [
-            if (prefix != null)
-              Padding(
-                padding: const EdgeInsets.only(right: 4),
-                child: Text(prefix, style: ts(15, color: C.muted)),
-              ),
-            Expanded(
-              child: TextField(
-                controller: widget.controller,
-                obscureText: obscure && !show,
-                keyboardType: widget.keyboard,
-                inputFormatters: widget.formatters,
-                onChanged: widget.onChanged,
-                onSubmitted: widget.onSubmitted,
-                maxLines: obscure ? 1 : widget.maxLines,
-                minLines: 1,
-                style: ts(15, h: 22),
-                cursorColor: C.primary,
-                decoration: InputDecoration(
-                  isCollapsed: true,
-                  border: InputBorder.none,
-                  hintText: widget.hint,
-                  hintStyle: ts(15, color: C.faint, h: 22),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 13),
+        const SizedBox(height: 6),
+        Container(
+          constraints: const BoxConstraints(minHeight: 48),
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          decoration: BoxDecoration(
+            color: C.inset,
+            borderRadius: BorderRadius.circular(14),
+            border: error != null ? Border.all(color: C.red, width: 1.2) : null,
+          ),
+          child: Row(
+            children: [
+              if (prefix != null)
+                Padding(
+                  padding: const EdgeInsets.only(right: 4),
+                  child: Text(prefix, style: ts(15, color: C.muted)),
+                ),
+              Expanded(
+                child: TextField(
+                  controller: widget.controller,
+                  obscureText: obscure && !show,
+                  keyboardType: widget.keyboard,
+                  inputFormatters: widget.formatters,
+                  onChanged: widget.onChanged,
+                  onSubmitted: widget.onSubmitted,
+                  maxLines: obscure ? 1 : widget.maxLines,
+                  minLines: 1,
+                  style: ts(15, h: 22),
+                  cursorColor: C.primary,
+                  decoration: InputDecoration(
+                    isCollapsed: true,
+                    border: InputBorder.none,
+                    hintText: widget.hint.isEmpty
+                        ? '请输入${widget.label}'
+                        : widget.hint,
+                    hintStyle: ts(15, color: C.faint, h: 22),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 13),
+                  ),
                 ),
               ),
-            ),
-            if (obscure)
-              IconButton(
-                onPressed: () => setState(() => show = !show),
-                tooltip: show ? '隐藏密码' : '显示密码',
-                icon: Icon(
-                  show ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                  size: 20,
-                  color: C.muted,
+              if (obscure)
+                IconButton(
+                  onPressed: () => setState(() => show = !show),
+                  tooltip: show ? '隐藏密码' : '显示密码',
+                  icon: Icon(
+                    show
+                        ? Icons.visibility_off_outlined
+                        : Icons.visibility_outlined,
+                    size: 20,
+                    color: C.muted,
+                  ),
                 ),
-              ),
-            ?widget.suffix,
-          ],
+              ?widget.suffix,
+            ],
+          ),
         ),
-      ),
-      if (error != null)
-        Padding(
-          padding: const EdgeInsets.only(top: 4, left: 2),
-          child: Text(error, style: ts(12, color: C.redInk, h: 17)),
-        ),
-    ],
+        if (error != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 4, left: 2),
+            child: Text(error, style: ts(12, color: C.redInk, h: 17)),
+          ),
+      ],
     );
   }
 }
@@ -902,21 +985,9 @@ class Empty extends StatelessWidget {
   final String text;
   const Empty(this.text, {super.key});
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.symmetric(vertical: 48),
-    child: Center(
-      child: Column(
-        children: [
-          Icon(Icons.inbox_outlined, size: 40, color: C.faint),
-          const SizedBox(height: 8),
-          Text(text, style: ts(13, color: C.muted)),
-        ],
-      ),
-    ),
-  );
+  Widget build(BuildContext context) => EmptyView(title: text);
 }
 
 /// 页面跳转。
-Future<T?> go<T>(BuildContext context, Widget page) => Navigator.of(
-  context,
-).push<T>(MaterialPageRoute(builder: (_) => page));
+Future<T?> go<T>(BuildContext context, Widget page) =>
+    Navigator.of(context).push<T>(MaterialPageRoute(builder: (_) => page));

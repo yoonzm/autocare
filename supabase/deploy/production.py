@@ -37,7 +37,7 @@ def validate_members(members):
         names.add(name)
         allowed = name == 'release.json'
         allowed |= bool(re.fullmatch(r'supabase/migrations/\d+_[A-Za-z0-9_]+\.sql', name))
-        allowed |= name.startswith('supabase/functions/merchant-v1/') and path.suffix in {'.ts', '.json', '.jsonc', '.lock'}
+        allowed |= any(name.startswith('supabase/functions/' + function + '/') for function in ('merchant-v1','admin-v1')) and path.suffix in {'.ts', '.json', '.jsonc', '.lock'}
         if not allowed:
             raise ValueError('Unexpected archive member: ' + name)
         total += member.size
@@ -45,6 +45,8 @@ def validate_members(members):
             raise ValueError('Archive exceeds deployment limits')
     if 'release.json' not in names or 'supabase/functions/merchant-v1/index.ts' not in names:
         raise ValueError('Incomplete backend archive')
+    if any(name.endswith('_admin_platform.sql') for name in names) and 'supabase/functions/admin-v1/index.ts' not in names:
+        raise ValueError('Admin migration requires the admin function')
 
 
 def run(args, **kwargs):
@@ -66,9 +68,9 @@ def literal(value):
     return "'" + value.replace("'", "''") + "'"
 
 
-def request(environment, body, key=None):
+def request(environment, body, key=None, function='merchant-v1'):
     req = urllib.request.Request(
-        environment['SUPABASE_PUBLIC_URL'] + '/functions/v1/merchant-v1',
+        environment['SUPABASE_PUBLIC_URL'] + '/functions/v1/' + function,
         data=json.dumps(body).encode(),
         headers={'apikey': key or environment['SUPABASE_PUBLISHABLE_KEY'], 'Content-Type': 'application/json'},
     )
@@ -100,12 +102,28 @@ def smoke(environment):
         if status != expected or 'error' not in result:
             raise RuntimeError('Production auth/SMS validation failed: ' + body['action'])
     print('PASS production function readiness, public login, auth guards, and SMS input validation', flush=True)
+    if (PROJECT / 'volumes/functions/admin-v1/index.ts').exists():
+        for body,expected in [({'action':'login','username':'!'},400),({'action':'snapshot'},401)]:
+            status,result=request(environment,body,function='admin-v1')
+            if status!=expected or 'error' not in result:
+                raise RuntimeError('Admin function auth readiness failed')
+        print('PASS admin function readiness and auth guards',flush=True)
 
 
 def deploy(staging):
-    revision = json.loads((staging / 'release.json').read_text())['revision']
+    source_metadata=json.loads((staging / 'release.json').read_text())
+    revision = source_metadata['revision']
     if not re.fullmatch(r'[0-9a-f]{40}', revision):
         raise ValueError('Invalid release revision')
+    source_hash=source_metadata.get('source_sha256')
+    if source_hash is not None:
+        digest=hashlib.sha256()
+        for directory in ('supabase/migrations','supabase/functions/merchant-v1','supabase/functions/admin-v1'):
+            for path in sorted((staging / directory).rglob('*')):
+                if path.is_file():
+                    digest.update(path.relative_to(staging).as_posix().encode()+b'\0'+path.read_bytes()+b'\0')
+        if digest.hexdigest()!=source_hash:
+            raise ValueError('Source digest does not match deployment files')
     migrations = sorted((staging / 'supabase/migrations').glob('*.sql'))
     if not migrations:
         raise ValueError('No database migrations')
@@ -183,29 +201,37 @@ CREATE TABLE IF NOT EXISTS supabase_migrations.schema_migrations(version text PR
 
     release = STATE / 'releases' / (revision + '-' + str(time.time_ns()))
     release.mkdir(parents=True, mode=0o700)
-    target = PROJECT / 'volumes/functions/merchant-v1'
-    next_target = PROJECT / 'volumes/functions/merchant-v1.next'
-    if next_target.exists():
-        shutil.rmtree(next_target)
-    shutil.copytree(staging / 'supabase/functions/merchant-v1', next_target)
-    next_target.chmod(0o755)
-    for path in next_target.rglob('*'):
-        path.chmod(0o755 if path.is_dir() else 0o644)
-    previous = release / 'previous-function'
-    if target.exists():
-        target.rename(previous)
-    next_target.rename(target)
+    installed=[]
     try:
+        for function in ('merchant-v1','admin-v1'):
+            source=staging / 'supabase/functions' / function
+            if not source.exists():
+                continue
+            target=PROJECT / 'volumes/functions' / function
+            next_target=target.with_name(function+'.next')
+            if next_target.exists():
+                shutil.rmtree(next_target)
+            shutil.copytree(source,next_target)
+            next_target.chmod(0o755)
+            for path in next_target.rglob('*'):
+                path.chmod(0o755 if path.is_dir() else 0o644)
+            previous=release / ('previous-'+function)
+            if target.exists():
+                target.rename(previous)
+            installed.append((target,previous))
+            next_target.rename(target)
         compose('up', '-d', '--force-recreate', '--wait', '--wait-timeout', '120', 'functions')
         smoke(environment)
     except Exception:
-        shutil.rmtree(target)
-        if previous.exists():
-            previous.rename(target)
+        for target,previous in reversed(installed):
+            if target.exists():
+                shutil.rmtree(target)
+            if previous.exists():
+                previous.rename(target)
         compose('up', '-d', '--force-recreate', '--wait', '--wait-timeout', '120', 'functions')
         print('Function code restored. Applied database migrations were retained; review the pre-deployment backup.', flush=True)
         raise
-    metadata = {'revision': revision, 'migrations': len(migrations), 'deployed_at': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}
+    metadata = {'revision': revision, 'source_sha256':source_hash, 'migrations': len(migrations), 'deployed_at': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}
     (PROJECT / '.autocare-release.json').write_text(json.dumps(metadata, indent=2) + '\n')
     (release / 'release.json').write_text(json.dumps(metadata) + '\n')
     print('Deployment successful: ' + json.dumps(metadata), flush=True)

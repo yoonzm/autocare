@@ -16,9 +16,9 @@ class AccountsPage extends StatelessWidget {
   const AccountsPage({super.key});
 
   Future<void> _act(BuildContext context, Account a) async {
-    final isMe = identical(a, store.me);
-    final i = await pickOption(
+    await pickOption(
       context,
+      onConfirm: (i) => _apply(context, a, i),
       title: '管理账号 · ${a.name}',
       subtitle: '用户名 ${a.username} · ${a.role.label}',
       options: [
@@ -32,15 +32,21 @@ class AccountsPage extends StatelessWidget {
       ],
       footnote: '以上操作都会记录操作人和时间。',
     );
-    if (i == null || !context.mounted) return;
+  }
+
+  Future<void> _apply(BuildContext context, Account a, int i) async {
+    final isMe = a.id == store.me?.id;
     switch (i) {
       case 0:
-        final tmp = store.resetPassword(a);
+        final tmp = await store.resetPassword(a);
+        if (!context.mounted) return;
         await showDialog<void>(
           context: context,
           builder: (c) => Dialog(
             backgroundColor: C.card,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(28),
+            ),
             insetPadding: const EdgeInsets.symmetric(horizontal: 32),
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 22, 20, 18),
@@ -73,7 +79,11 @@ class AccountsPage extends StatelessWidget {
                     children: [
                       Expanded(
                         flex: 5,
-                        child: Btn('关闭', ghost: true, onTap: () => Navigator.pop(c)),
+                        child: Btn(
+                          '关闭',
+                          ghost: true,
+                          onTap: () => Navigator.pop(c),
+                        ),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
@@ -97,11 +107,15 @@ class AccountsPage extends StatelessWidget {
       case 1:
         final target = a.role == Role.ops ? Role.superAdmin : Role.ops;
         if (target == Role.ops &&
-            store.accounts.where((x) => x.role == Role.superAdmin && x.enabled).length <= 1) {
+            store.accounts
+                    .where((x) => x.role == Role.superAdmin && x.enabled)
+                    .length <=
+                1) {
           toast(context, '至少需要保留一名超级管理员');
           return;
         }
-        store.setRole(a, target);
+        await store.setRole(a, target);
+        if (!context.mounted) return;
         toast(context, '已设为${target.label}');
         if (isMe && target == Role.ops) {
           toast(context, '你已降为运营，部分功能将不可用');
@@ -111,8 +125,9 @@ class AccountsPage extends StatelessWidget {
           toast(context, '不能禁用自己的账号');
           return;
         }
-        store.setEnabled(a, !a.enabled);
-        toast(context, a.enabled ? '账号已启用' : '账号已禁用');
+        await store.setEnabled(a, !a.enabled);
+        if (!context.mounted) return;
+        toast(context, a.enabled ? '账号已禁用' : '账号已启用');
     }
   }
 
@@ -129,7 +144,10 @@ class AccountsPage extends StatelessWidget {
         label: '新增账号',
       ),
       children: [
-        Text('共 ${store.accounts.length} 人 · 仅超级管理员可管理', style: ts(13, color: C.sub, h: 18)),
+        Text(
+          '共 ${store.accounts.length} 人 · 仅超级管理员可管理',
+          style: ts(13, color: C.sub, h: 18),
+        ),
         for (final (i, a) in store.accounts.indexed)
           HCard(
             onTap: () => _act(context, a),
@@ -148,8 +166,16 @@ class AccountsPage extends StatelessWidget {
                         : null,
                   ),
                   child: Text(
-                    a.name.characters.first == '运' ? a.name.characters.last : a.name.characters.first,
-                    style: ts(18, w: FontWeight.w600, color: a.enabled ? (i % 3 == 0 ? C.ink : Colors.white) : C.sub),
+                    a.name.characters.first == '运'
+                        ? a.name.characters.last
+                        : a.name.characters.first,
+                    style: ts(
+                      18,
+                      w: FontWeight.w600,
+                      color: a.enabled
+                          ? (i % 3 == 0 ? C.ink : Colors.white)
+                          : C.sub,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -161,9 +187,14 @@ class AccountsPage extends StatelessWidget {
                         children: [
                           Flexible(
                             child: Text(
-                              identical(a, store.me) ? '${a.name}（我）' : a.name,
+                              a.id == store.me?.id ? '${a.name}（我）' : a.name,
                               overflow: TextOverflow.ellipsis,
-                              style: ts(15, w: FontWeight.w600, color: a.enabled ? C.ink : C.muted, h: 22),
+                              style: ts(
+                                15,
+                                w: FontWeight.w600,
+                                color: a.enabled ? C.ink : C.muted,
+                                h: 22,
+                              ),
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -186,7 +217,12 @@ class AccountsPage extends StatelessWidget {
           '角色说明',
           RowGroup(indent: 16, [
             _role('超级管理员', C.amberInk, C.amberSoft, '全部功能，含运营账号管理、退款与套餐定价'),
-            _role('运营', C.primaryInk, C.primarySoft, '商家、订阅、开通审核、工单与到期跟进，不含账号管理'),
+            _role(
+              '运营',
+              C.primaryInk,
+              C.primarySoft,
+              '商家、订阅、开通审核、工单与到期跟进，不含账号管理',
+            ),
           ]),
         ),
       ],
@@ -200,7 +236,9 @@ class AccountsPage extends StatelessWidget {
       children: [
         Pill(n, fg, bg),
         const SizedBox(width: 12),
-        Expanded(child: Text(d, style: ts(12, color: C.sub, h: 18))),
+        Expanded(
+          child: Text(d, style: ts(12, color: C.sub, h: 18)),
+        ),
       ],
     ),
   );
@@ -227,10 +265,16 @@ class _AccountEditPageState extends State<AccountEditPage> {
     super.dispose();
   }
 
-  void _create() {
-    final err = store.addAccount(name.text, user.text, pwd.text, role);
+  Future<void> _create() async {
+    final err = await store.addAccount(name.text, user.text, pwd.text, role);
+    if (!mounted) return;
     setState(() => error = err);
-    if (err != null) return;
+    if (err != null) {
+      if (!['姓名', '用户名', '密码'].any(err.contains)) {
+        AppToast.error(context, AppError(err));
+      }
+      return;
+    }
     toast(context, '账号已创建，首次登录需修改初始密码');
     Navigator.pop(context);
   }
@@ -287,18 +331,30 @@ class _AccountEditPageState extends State<AccountEditPage> {
                   onTap: () => setState(() => role = r),
                   child: Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
                     decoration: BoxDecoration(
                       color: role == r ? C.primarySoft : C.card,
                       borderRadius: BorderRadius.circular(18),
-                      border: role == r ? Border.all(color: C.primary, width: 1.5) : null,
+                      border: role == r
+                          ? Border.all(color: C.primary, width: 1.5)
+                          : null,
                       boxShadow: role == r ? null : softShadow,
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(r.label, style: ts(15, w: FontWeight.w600, h: 22)),
-                        Text(d, style: ts(12, color: role == r ? C.sub : C.muted, h: 16)),
+                        Text(
+                          d,
+                          style: ts(
+                            12,
+                            color: role == r ? C.sub : C.muted,
+                            h: 16,
+                          ),
+                        ),
                       ],
                     ),
                   ),

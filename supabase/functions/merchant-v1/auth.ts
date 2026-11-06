@@ -1,6 +1,6 @@
 import { registrationCity } from './regions.ts';
 import { createClient } from 'npm:@supabase/supabase-js@2.118.0';
-import { admin, anonKey, fail, json, nameOf, phoneOf, url, userFor } from './shared.ts';
+import { admin, anonKey, fail, json, merchantSession, nameOf, phoneOf, url, userFor } from './shared.ts';
 import { BAY_COUNTS, DEFAULT_CARDS, defaultBays, defaultPackages, defaultProducts, defaultServices } from './defaults.ts';
 import type { Input } from './types.ts';
 import { checkOtp, otpHash, otpStore, randomOtp } from './otp.ts';
@@ -192,6 +192,8 @@ export async function handleAuth(input: Input, request: Request): Promise<Respon
       email: emailOf(phone), password: input.password,
     });
     if (error || !data.session) return fail('手机号或密码错误', 401);
+    const state=await merchantSession(data.session.user.id,data.session.access_token,false);
+    if(state instanceof Response){await admin.auth.admin.signOut(data.session.access_token,'local');return state;}
     await cancelDeletion(data.user.id);
     return json({ access_token: data.session.access_token, refresh_token: data.session.refresh_token });
   }
@@ -210,6 +212,8 @@ export async function handleAuth(input: Input, request: Request): Promise<Respon
     const publicAuth = createClient(url, anonKey, { auth: { persistSession: false } });
     const { data, error } = await publicAuth.auth.verifyOtp({ token_hash: tokenHash, type: 'magiclink' });
     if (error || !data.session) return fail('登录失败，请稍后重试', 500);
+    const state=await merchantSession(data.session.user.id,data.session.access_token,false);
+    if(state instanceof Response){await admin.auth.admin.signOut(data.session.access_token,'local');return state;}
     await cancelDeletion(data.session.user.id);
     return json({ access_token: data.session.access_token, refresh_token: data.session.refresh_token });
   }

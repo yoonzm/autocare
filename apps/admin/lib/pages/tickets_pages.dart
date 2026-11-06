@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../data/models.dart';
@@ -47,7 +49,11 @@ class _TicketsPageState extends State<TicketsPage> {
                   ),
                   title: t.title,
                   sub: '${t.merchant} · ${t.when}',
-                  trailing: Pill(t.status.label, ticketColors(t.status).$1, ticketColors(t.status).$2),
+                  trailing: Pill(
+                    t.status.label,
+                    ticketColors(t.status).$1,
+                    ticketColors(t.status).$2,
+                  ),
                   onTap: () => go(context, TicketDetailPage(t)),
                 ),
             ]),
@@ -73,12 +79,13 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
     super.dispose();
   }
 
-  void _send() {
+  Future<void> _send() async {
     if (text.text.trim().isEmpty) {
       toast(context, '请输入回复内容');
       return;
     }
-    store.reply(widget.t, text.text);
+    await store.reply(widget.t, text.text);
+    if (!mounted) return;
     text.clear();
   }
 
@@ -88,24 +95,31 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
       title: '标记为已解决',
       message: '工单关闭后商家将收到通知，不能再继续回复。',
       ok: '已解决',
+      onConfirm: () => store.resolve(widget.t),
     );
     if (!ok || !mounted) return;
-    store.resolve(widget.t);
-    toast(context, '工单已解决');
+    // TODO support_notify: no merchant notification channel/delivery callback yet.
+    toast(context, '工单已解决，通知渠道尚未接通');
     Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
-    final t = widget.t;
     return ListenableBuilder(
       listenable: store,
       builder: (context, _) {
+        final t =
+            store.tickets.where((t) => t.id == widget.t.id).firstOrNull ??
+            widget.t;
         final (fg, bg) = ticketColors(t.status);
         return AdPage(
           title: '工单详情',
           dock: t.status == TStatus.done
-              ? Text('该工单已解决', textAlign: TextAlign.center, style: ts(13, color: C.muted, h: 50))
+              ? Text(
+                  '该工单已解决',
+                  textAlign: TextAlign.center,
+                  style: ts(13, color: C.muted, h: 50),
+                )
               : Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -120,7 +134,16 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
                       children: [
                         Expanded(flex: 7, child: Btn('发送', onTap: _send)),
                         const SizedBox(width: 10),
-                        Expanded(flex: 5, child: Btn('已解决', ghost: true, onTap: _resolve)),
+                        Expanded(
+                          flex: 5,
+                          child: Btn(
+                            '已解决',
+                            ghost: true,
+                            onTap: () {
+                              unawaited(_resolve());
+                            },
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -132,22 +155,37 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
                 children: [
                   Row(
                     children: [
-                      Expanded(child: Text(t.title, style: ts(17, w: FontWeight.w600, h: 24))),
+                      Expanded(
+                        child: Text(
+                          t.title,
+                          style: ts(17, w: FontWeight.w600, h: 24),
+                        ),
+                      ),
                       Pill(t.status.label, fg, bg),
                     ],
                   ),
                   const SizedBox(height: 2),
-                  Text('${t.merchant} · ${t.when} · 店主 ${t.owner}', style: ts(12, color: C.muted, h: 17)),
+                  Text(
+                    '${t.merchant} · ${t.when} · 店主 ${t.owner}',
+                    style: ts(12, color: C.muted, h: 17),
+                  ),
                 ],
               ),
             ),
             for (final m in t.msgs)
               Align(
-                alignment: m.fromMerchant ? Alignment.centerLeft : Alignment.centerRight,
+                alignment: m.fromMerchant
+                    ? Alignment.centerLeft
+                    : Alignment.centerRight,
                 child: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * .78),
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width * .78,
+                  ),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
                       color: m.fromMerchant ? C.card : C.primary,
                       borderRadius: BorderRadius.only(
@@ -160,7 +198,11 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
                     ),
                     child: Text(
                       m.text,
-                      style: ts(14, color: m.fromMerchant ? C.ink : Colors.white, h: 21),
+                      style: ts(
+                        14,
+                        color: m.fromMerchant ? C.ink : Colors.white,
+                        h: 21,
+                      ),
                     ),
                   ),
                 ),
