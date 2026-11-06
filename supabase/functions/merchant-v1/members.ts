@@ -1,5 +1,6 @@
-import { admin, fail, json, mockRecognitionEnabled, uuid } from './shared.ts';
-import { lastVisitText, packageSummary, randomPlateNotIn, wantsExisting } from './recognize_rules.ts';
+import { admin, fail, json, uuid } from './shared.ts';
+import { recognizeAndFindMember } from './plate_lookup.ts';
+import { RecognitionError, recognitionConfig } from './plate_recognition.ts';
 import {
   parseAdjust,
   parseMember,
@@ -95,39 +96,13 @@ export async function handleMembers(input: Input, storeId: string): Promise<Resp
     });
   }
   if (input.action === 'recognize_plate') {
-    // TODO: 真实的车牌识别要接图片识别服务：客户端先把照片上传到存储，这里按存储路径识别。
-    // 目前只有开发环境的 mock（不看照片）：50% 概率随机取一位已有会员的车牌，否则随机生成一个库里没有的车牌。
-    if (!mockRecognitionEnabled()) return fail('车牌识别服务尚未启用', 501);
-    const { data: vehicles } = await admin.from('member_vehicles').select('plate, member_id')
-      .eq('store_id', storeId).limit(1000);
-    const all = vehicles ?? [];
-    if (wantsExisting() && all.length > 0) {
-      for (let tries = 0; tries < 5; tries++) {
-        const v = all[Math.floor(Math.random() * all.length)];
-        const { data: member } = await admin.from('members').select(MEMBER_SELECT)
-          .eq('id', v.member_id).eq('store_id', storeId).is('deleted_at', null).maybeSingle();
-        if (!member) continue;
-        const { data: pkgs } = await admin.from('member_packages')
-          .select('name, expires_at, items:member_package_items(total, used)')
-          .eq('store_id', storeId).eq('member_id', member.id).is('refunded_at', null);
-        const live = (pkgs ?? []).filter((p) => !p.expires_at || new Date(p.expires_at as string) > new Date());
-        const { data: last } = await admin.from('orders')
-          .select('created_at, items:order_items(name, position)')
-          .eq('store_id', storeId).eq('member_id', member.id)
-          .order('created_at', { ascending: false }).limit(1).maybeSingle();
-        const firstItem = [...((last?.items as { name: string; position: number }[] | undefined) ?? [])]
-          .sort((a, b) => a.position - b.position)[0]?.name ?? '';
-        return json({
-          matched: true, mock: true, plate: v.plate, member,
-          package_summary: packageSummary(live.map((p) => ({
-            name: String(p.name),
-            left: ((p.items as { total: number; used: number }[]) ?? []).reduce((s, i) => s + i.total - i.used, 0),
-          }))),
-          last_visit_text: lastVisitText((member.last_visit_at as string | null) ?? null, firstItem),
-        });
-      }
+    try {
+      return json(await recognizeAndFindMember(input, storeId, admin, MEMBER_SELECT,
+        () => recognitionConfig((name) => Deno.env.get(name))));
+    } catch (e) {
+      if (e instanceof RecognitionError) return fail(e.message, e.status);
+      return fail('车牌识别失败，请重试', 500);
     }
-    return json({ matched: false, mock: true, plate: randomPlateNotIn(new Set(all.map((v) => String(v.plate)))) });
   }
   if (input.action === 'get') {
     if (!uuid(input.id)) return fail('记录 ID 无效');

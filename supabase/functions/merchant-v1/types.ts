@@ -122,7 +122,7 @@ export type ApiResponse =
   | { ok: true }
   | { ok: true; services: number; products: number; cards: number; packages: number; bays: number }
   | { ok: true; retry_after: number; expires_in: number }
-  | { matched: boolean; mock: true; plate: string; member?: unknown; package_summary?: string; last_visit_text?: string }
+  | { matched: boolean; plate: string; vehicle_model: string; vehicle_color: string; plate_color: string; member?: unknown; package_summary?: string; last_visit_text?: string }
   | { access_token: string; refresh_token: string }
   | { store: StoreProfileRow }
   | { items: ServiceItemRow[] | CardTypeRow[] | PackageRow[] | unknown[]; counts?: Record<string, number>; total?: number; matched?: number; total_balance?: number; new_this_month?: number }

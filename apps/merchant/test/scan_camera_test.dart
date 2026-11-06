@@ -7,6 +7,7 @@ import 'package:autocare_merchant/backend/scan_flow.dart';
 import 'package:autocare_merchant/kit/kit.dart';
 import 'package:autocare_merchant/routes.dart';
 import 'package:autocare_merchant/widgets/app_icon.dart';
+import 'package:autocare_merchant/kit/color_picker.dart' show ColorChoices;
 import 'package:camera_platform_interface/camera_platform_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -155,6 +156,10 @@ void main() {
   });
 
   testWidgets('点快门：真实拍照 → 定格画面 → 识别 → 打开结果，关闭后恢复取景', (t) async {
+    final original = merchantApi;
+    merchantApi = _ScanApi()
+      ..result = {'matched': true, 'plate': '沪A8K29M', 'member': row()};
+    addTearDown(() => merchantApi = original);
     final cam = _FakeCamera();
     CameraPlatform.instance = cam;
     final sem = t.ensureSemantics();
@@ -180,6 +185,9 @@ void main() {
   });
 
   testWidgets('没有可用相机时给出提示，点快门不会崩溃', (t) async {
+    final original = merchantApi;
+    merchantApi = _ScanApi();
+    addTearDown(() => merchantApi = original);
     CameraPlatform.instance = _FakeCamera(cameras: 0);
     final sem = t.ensureSemantics();
     await open(t, 'ScanPlate');
@@ -209,9 +217,9 @@ void main() {
       MemberFlow.current = null;
     });
 
-    Future<void> shoot(WidgetTester t) async {
+    Future<void> shoot(WidgetTester t, [String route = 'FindScanPlate']) async {
       CameraPlatform.instance = _FakeCamera();
-      await open(t, 'FindScanPlate');
+      await open(t, route);
       await t.tap(find.bySemanticsLabel('拍摄识别'));
       await t.pump(const Duration(milliseconds: 100));
       await t.pump(const Duration(milliseconds: 1500));
@@ -242,6 +250,7 @@ void main() {
       };
       await shoot(t);
       expect(api.calls, 1);
+      expect(api.imagePaths, ['/tmp/fake_scan.jpg']);
       expect(navTracker.has('sheet:FindResult'), isTrue);
       expect(find.text('陈明华'), findsOneWidget);
       expect(find.text('王建国'), findsNothing);
@@ -284,6 +293,7 @@ void main() {
       expect(find.text('不记会员'), findsOneWidget);
       expect(find.text('无会员折扣与次卡抵扣'), findsOneWidget);
       expect(MemberFlow.current, isNull);
+      expect(find.text('苏K5F218'), findsOneWidget);
       sem.dispose();
       await t.pump(const Duration(seconds: 3));
     });
@@ -299,6 +309,207 @@ void main() {
       sem.dispose();
       await t.pump(const Duration(seconds: 3));
     });
+
+    testWidgets('扫描建档的车牌入口展示真实会员，不出现示例客户', (t) async {
+      phone(t);
+      api.result = {
+        'matched': true,
+        'plate': '苏K5F218',
+        'plate_color': 'yellow',
+        'member': {
+          ...row(
+            vehicles: [
+              {'plate': '苏K5F218', 'brand_model': '登记车型', 'color': '白色'},
+            ],
+          ),
+          'name': '真实车主',
+        },
+        'last_visit_text': '11.01 · 洗车',
+      };
+      final sem = t.ensureSemantics();
+      await shoot(t, 'ScanPlate');
+      expect(navTracker.has('sheet:ScanPlateResult'), isTrue);
+      expect(find.text('真实车主'), findsOneWidget);
+      expect(find.text('王建国'), findsNothing);
+      expect(find.text('黄牌'), findsOneWidget);
+      expect(find.text('登记车型 · 白色'), findsOneWidget);
+      Navigator.of(t.element(find.text('真实车主'))).pop();
+      await t.pump(const Duration(seconds: 2));
+      sem.dispose();
+    });
+
+    testWidgets('相册选图传递实际文件，取消选择不发送识别请求', (t) async {
+      phone(t);
+      var selection = '/tmp/album-car.jpg';
+      final messenger =
+          TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+      messenger.setMockMethodCallHandler(
+        const MethodChannel('plugins.flutter.io/image_picker'),
+        (_) async => selection.isEmpty ? null : selection,
+      );
+      const channel =
+          'dev.flutter.pigeon.image_picker_android.ImagePickerApi.pickImages';
+      messenger.setMockMessageHandler(
+        channel,
+        (_) async => const StandardMessageCodec().encodeMessage([
+          selection.isEmpty ? <String>[] : [selection],
+        ]),
+      );
+      addTearDown(() {
+        messenger.setMockMethodCallHandler(
+          const MethodChannel('plugins.flutter.io/image_picker'),
+          null,
+        );
+        messenger.setMockMessageHandler(channel, null);
+      });
+      CameraPlatform.instance = _FakeCamera();
+      await open(t, 'FindScanPlate');
+      await t.tap(find.text('相册'));
+      await t.pump(const Duration(milliseconds: 100));
+      await t.pump(const Duration(milliseconds: 1500));
+      await t.pump(const Duration(milliseconds: 500));
+      expect(api.imagePaths, ['/tmp/album-car.jpg']);
+      expect(navTracker.has('sheet:FindNotFound'), isTrue);
+      Navigator.of(t.element(find.text('没有找到该车牌的会员'))).pop();
+      await t.pump(const Duration(seconds: 2));
+      selection = '';
+      await t.tap(find.text('相册'));
+      await t.pumpAndSettle();
+      expect(api.calls, 1);
+      expect(find.text('识别中…'), findsNothing);
+    });
+
+    testWidgets('扫描建档未匹配时，完整新能源车牌和中文车型带入可编辑表单', (t) async {
+      phone(t);
+      api.result = {
+        'matched': false,
+        'plate': '粤BD12345',
+        'vehicle_model': '比亚迪 秦PLUS',
+        'vehicle_color': '白色',
+      };
+      final sem = t.ensureSemantics();
+      await shoot(t, 'ScanPlate');
+      expect(navTracker.has('sheet:FindNotFound'), isTrue);
+      await t.tap(find.text('创建会员'));
+      await t.pumpAndSettle();
+      expect(CatalogDraft.current!.fields['plate'], '粤BD12345');
+      expect(CatalogDraft.current!.fields['energy'], 'ev');
+      expect(CatalogDraft.current!.fields['brand_model'], '比亚迪 秦PLUS');
+      expect(find.text('比亚迪 秦PLUS'), findsOneWidget);
+      expect(CatalogDraft.current!.fields['color'], '白色');
+      expect(find.text('白色'), findsOneWidget);
+      final colorChoices = t.widget<ColorChoices>(find.byType(ColorChoices));
+      expect(colorChoices.options[colorChoices.selected].label, '白色');
+      colorChoices.onSelect(4);
+      await t.pump();
+      expect(CatalogDraft.current!.fields['color'], '红色');
+      expect(find.text('红色'), findsOneWidget);
+      sem.dispose();
+      await t.pump(const Duration(seconds: 3));
+    });
+
+    testWidgets('从已有办卡表单进入扫描，返回后更新车辆且保留已填客户资料', (t) async {
+      phone(t);
+      CameraPlatform.instance = _FakeCamera();
+      api.result = {
+        'matched': false,
+        'plate': '粤BD12345',
+        'vehicle_model': '比亚迪 秦PLUS',
+        'vehicle_color': '银色',
+      };
+      final sem = t.ensureSemantics();
+      await open(t, 'MemberAdd');
+      CatalogDraft.set('members', 'name', '已填客户');
+      CatalogDraft.set('members', 'phone', '13900000000');
+      CatalogDraft.set('members', 'color', '红色');
+      openRoute(t.element(find.text('新增会员')), 'ScanPlate');
+      await t.pumpAndSettle();
+      await t.tap(find.bySemanticsLabel('拍摄识别'));
+      await t.pump(const Duration(milliseconds: 100));
+      await t.pump(const Duration(milliseconds: 1500));
+      await t.pump(const Duration(milliseconds: 500));
+      await t.tap(find.text('创建会员'));
+      await t.pumpAndSettle();
+      expect(CatalogDraft.current!.fields['name'], '已填客户');
+      expect(CatalogDraft.current!.fields['phone'], '13900000000');
+      expect(CatalogDraft.current!.fields['plate'], '粤BD12345');
+      expect(CatalogDraft.current!.fields['energy'], 'ev');
+      expect(find.text('比亚迪 秦PLUS'), findsOneWidget);
+      expect(CatalogDraft.current!.fields['color'], '银色');
+      expect(find.text('银色'), findsOneWidget);
+      expect(
+        navTracker.stack.where((r) => r.settings.name == 'MemberAdd'),
+        hasLength(1),
+      );
+      sem.dispose();
+      await t.pump(const Duration(seconds: 3));
+    });
+
+    testWidgets('未识别到车身颜色时保留已有表单颜色，不混用车牌底色', (t) async {
+      phone(t);
+      CameraPlatform.instance = _FakeCamera();
+      api.result = {
+        'matched': false,
+        'plate': '苏K5F218',
+        'vehicle_color': '',
+        'plate_color': 'blue',
+      };
+      final sem = t.ensureSemantics();
+      await open(t, 'MemberAdd');
+      CatalogDraft.set('members', 'color', '红色');
+      openRoute(t.element(find.text('新增会员')), 'ScanPlate');
+      await t.pumpAndSettle();
+      await t.tap(find.bySemanticsLabel('拍摄识别'));
+      await t.pump(const Duration(milliseconds: 100));
+      await t.pump(const Duration(milliseconds: 1500));
+      await t.pump(const Duration(milliseconds: 500));
+      await t.tap(find.text('创建会员'));
+      await t.pumpAndSettle();
+      expect(CatalogDraft.current!.fields['color'], '红色');
+      expect(find.text('红色'), findsOneWidget);
+      final choices = t.widget<ColorChoices>(find.byType(ColorChoices));
+      expect(choices.options[choices.selected].label, '红色');
+      sem.dispose();
+      await t.pump(const Duration(seconds: 3));
+    });
+
+    testWidgets('识别中重复点击只发一次请求，关闭页面后丢弃迟到结果', (t) async {
+      phone(t);
+      api.pending = Completer<Map<String, dynamic>>();
+      CameraPlatform.instance = _FakeCamera();
+      final sem = t.ensureSemantics();
+      await open(t, 'FindScanPlate');
+      await t.tap(find.bySemanticsLabel('拍摄识别'));
+      await t.pump(const Duration(milliseconds: 100));
+      await t.tap(find.bySemanticsLabel('拍摄识别'));
+      expect(api.calls, 1);
+      await t.tap(find.bySemanticsLabel('关闭'));
+      await t.pumpAndSettle();
+      api.pending!.complete({
+        'matched': true,
+        'plate': '沪A8K29M',
+        'member': row(),
+      });
+      await t.pump(const Duration(seconds: 2));
+      expect(ScanFlow.last, isNull);
+      expect(MemberFlow.current, isNull);
+      expect(navTracker.has('sheet:FindResult'), isFalse);
+      sem.dispose();
+    });
+  });
+
+  testWidgets('未登录不拍照、不识别，直接引导登录', (t) async {
+    final cam = _FakeCamera();
+    CameraPlatform.instance = cam;
+    final sem = t.ensureSemantics();
+    await open(t, 'FindScanPlate');
+    await t.tap(find.bySemanticsLabel('拍摄识别'));
+    await t.pumpAndSettle();
+    expect(cam.shots, 0);
+    expect(navTracker.has('Login'), isTrue);
+    expect(navTracker.has('sheet:FindResult'), isFalse);
+    sem.dispose();
+    await t.pump(const Duration(seconds: 3));
   });
 }
 
@@ -306,10 +517,14 @@ class _ScanApi extends MemberFakeApi {
   Map<String, dynamic> result = {'matched': false, 'plate': '沪A8K29M'};
   Object? error;
   int calls = 0;
+  final imagePaths = <String>[];
+  Completer<Map<String, dynamic>>? pending;
   @override
-  Future<Map<String, dynamic>> recognizePlate() async {
+  Future<Map<String, dynamic>> recognizePlate(String imagePath) async {
     calls++;
+    imagePaths.add(imagePath);
     if (error != null) throw error!;
+    if (pending != null) return pending!.future;
     return result;
   }
 }

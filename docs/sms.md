@@ -21,7 +21,7 @@
 
 每个用途可独立替换模板。账号、密码只放服务器 `/opt/supabase/.env.sms`，文件权限 600，不进入代码、App 或 GitHub Actions。部署程序通过 `env_file` 注入该文件；首次部署如文件不存在会创建空配置，不会使用占位账号发送。审核后由管理员从 my-baas 配置中安全写入实际账号和密码，不能把配置内容打印进终端日志。
 
-所有环境通过 `SMS_PROVIDER=zhutong` 选择真实渠道；渠道配置缺失返回 501。短信 mock 的开关、旧接口和运行时分支均已移除。车牌识别使用独立的 `ALLOW_MOCK_RECOGNITION` 开关，正式部署仍将其设为 false。
+所有环境通过 `SMS_PROVIDER=zhutong` 选择真实渠道；渠道配置缺失返回 501。短信 mock 的开关、旧接口和运行时分支均已移除。车牌识别也已移除随机 mock，使用独立百炼配置，详见 `plate-recognition.md`。
 
 ## 接口和校验
 

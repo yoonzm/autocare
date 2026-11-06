@@ -1370,7 +1370,9 @@ class _HPlateState extends State<HPlate> {
     }
     // 从“扫码找会员 · 没找到”进来办卡时，车牌用识别出的那个
     final prefill = kind == 'members' ? ScanFlow.takePrefillPlate() : null;
-    final c = PlateCtrl(prefill ?? '', widget.green);
+    final green = prefill == null ? widget.green : prefill.length == 8;
+    if (widget.linked && prefill != null) plateEnergy.value = green;
+    final c = PlateCtrl(prefill ?? '', green);
     void write() {
       CatalogDraft.set(kind, 'plate', c.text);
       CatalogDraft.set(kind, 'energy', c.green ? 'ev' : 'fuel');

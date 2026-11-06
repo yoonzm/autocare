@@ -35,11 +35,25 @@ import 'pages/package_svc_pick_live.dart';
 import 'pages/services_page.dart';
 import 'pages/settings_page.dart';
 import 'pages/scan_page.dart';
+import 'pages/plate_scan_result_live_sheet.dart';
+import 'backend/scan_flow.dart';
 import 'pages/shell.dart';
 import 'pages/theme_sheet.dart';
 
 final Map<String, WidgetBuilder> _allSheets = {
   ...genSheets,
+  'FindResult': (context) =>
+      merchantApi.hasSession && ScanFlow.matched && ScanFlow.member != null
+      ? genSheets['FindResult']!(context)
+      : ErrorView(error: const AppError('请先扫描车牌')),
+  'FindNotFound': (context) =>
+      merchantApi.hasSession && ScanFlow.last != null && !ScanFlow.matched
+      ? genSheets['FindNotFound']!(context)
+      : ErrorView(error: const AppError('请先扫描车牌')),
+  'ScanPlateResult': (_) =>
+      merchantApi.hasSession && ScanFlow.matched && ScanFlow.member != null
+      ? const PlateScanResultLiveSheet()
+      : ErrorView(error: const AppError('请先扫描车牌')),
   'OrderFilter': (_) => const OrderFilterLiveSheet(),
   'BudgetAdjust': (_) => const ExpenseLivePage(mode: 'adjust'),
   // TODO: 字符串路由没有预约 ID；改期必须从真实预约卡片或详情进入。
@@ -139,7 +153,10 @@ Widget? pageFor(String name) {
             : members.first,
       );
     case 'MemberAdd':
-      return const MemberAddPage();
+      return ValueListenableBuilder<int>(
+        valueListenable: ScanFlow.prefillTick,
+        builder: (_, tick, _) => MemberAddPage(key: ValueKey(tick)),
+      );
     case 'MemberRecords':
       // 登录后看真实流水；设计预览沿用设计稿的示例记录
       if (merchantApi.hasSession) return const MemberRecordsLivePage();
@@ -436,7 +453,18 @@ void openRoute(BuildContext context, String name) {
     MemberFlow.beginRecharge();
   }
   // 新增会员从任何入口进入都从空白草稿开始（上次没保存的内容不带过来）
-  if (merchantApi.hasSession && name == 'MemberAdd') MemberFlow.beginAdd();
+  if (merchantApi.hasSession && name == 'MemberAdd') {
+    if (current == 'sheet:FindNotFound' &&
+        navTracker.has('MemberAdd') &&
+        CatalogDraft.current?.kind == 'members') {
+      // A member form can open the scanner. Keep its existing customer inputs
+      // and rebind its vehicle controls when returning with recognition data.
+      MemberFlow.applyRecognizedVehicle();
+      ScanFlow.prefillTick.value++;
+    } else {
+      MemberFlow.beginAdd();
+    }
+  }
   if (merchantApi.hasSession &&
       name == 'MemberEdit' &&
       MemberFlow.current != null &&

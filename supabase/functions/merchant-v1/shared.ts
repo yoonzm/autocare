@@ -23,12 +23,6 @@ export const phoneOf = (value: unknown) =>
   typeof value === 'string' && /^1[3-9]\d{9}$/.test(value.trim())
     ? `+86${value.trim()}`
     : null;
-/**
- * 车牌识别 mock：仅开发环境。真实识别服务接入前，开发项目设置 `ALLOW_MOCK_RECOGNITION=true`
- * **生产环境不得设置。**
- */
-export const mockRecognitionEnabled = () =>
-  Deno.env.get('ALLOW_MOCK_RECOGNITION') === 'true';
 export const isInput = (value: unknown): value is Input =>
   value != null && typeof value === 'object' && !Array.isArray(value);
 

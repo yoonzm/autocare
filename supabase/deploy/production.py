@@ -162,12 +162,15 @@ CREATE TABLE IF NOT EXISTS supabase_migrations.schema_migrations(version text PR
     if not sms_env.exists():
         sms_env.write_text('SMS_PROVIDER=\n')
     sms_env.chmod(0o600)
+    recognition_env = PROJECT / '.env.recognition'
+    if not recognition_env.exists():
+        recognition_env.write_text('BAILIAN_API_KEY=\nAI_LICENSE_PLATE_MODEL=qwen3.7-flash\n')
+    recognition_env.chmod(0o600)
     override.write_text('''services:
   functions:
     env_file:
       - .env.sms
-    environment:
-      ALLOW_MOCK_RECOGNITION: "false"
+      - .env.recognition
 ''')
     files = environment.get('COMPOSE_FILE', 'docker-compose.yml').split(':')
     if override.name not in files:

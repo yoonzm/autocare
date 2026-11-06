@@ -1,10 +1,11 @@
 import 'merchant_api.dart';
 import 'member_flow.dart' show plateText;
 
+import 'package:flutter/foundation.dart' show ValueNotifier;
+
 /// 扫码找会员（车牌识别）的结果，以及从“没找到会员”继续办卡 / 散客开单时要带过去的信息。
 ///
-/// 识别由云函数 `recognize_plate` 完成。目前是开发环境的 mock（不看照片）：约一半概率返回门店已有会员，
-/// 否则返回一个库里没有的随机车牌。
+/// 识别和按本店车辆匹配会员由云函数 `recognize_plate` 完成。
 class ScanFlow {
   ScanFlow._();
 
@@ -12,24 +13,53 @@ class ScanFlow {
   static Map<String, dynamic>? last;
 
   static String? _prefillPlate;
+  static String? _prefillModel;
+  static String? _prefillColor;
   static bool _walkIn = false;
 
-  static Future<Map<String, dynamic>> recognize() async {
-    final res = await merchantApi.recognizePlate();
-    last = res;
-    return res;
-  }
+  /// Rebind an already-open member form after returning from its scanner.
+  static final prefillTick = ValueNotifier(0);
+
+  static Future<Map<String, dynamic>> recognize(String imagePath) =>
+      merchantApi.recognizePlate(imagePath);
 
   static bool get matched => last?['matched'] == true;
-  static Map<String, dynamic>? get member => last?['member'] is Map
-      ? Map<String, dynamic>.from(last!['member'] as Map)
-      : null;
+  static Map<String, dynamic>? get member {
+    if (last?['member'] is! Map) return null;
+    final row = Map<String, dynamic>.from(last!['member'] as Map);
+    final vehicles = List<Map<String, dynamic>>.from(
+      (row['vehicles'] as List?) ?? const [],
+    );
+    final selected = vehicles.indexWhere((v) => v['plate'] == rawPlate);
+    if (selected > 0) vehicles.insert(0, vehicles.removeAt(selected));
+    // Existing member/order adapters display the first vehicle. Prefer the
+    // scanned vehicle without changing the database or the original response.
+    row['vehicles'] = vehicles;
+    return row;
+  }
 
   /// 识别出的车牌（不带分隔点，如 `沪A8K29M`）。
   static String get rawPlate => '${last?['plate'] ?? ''}';
 
   /// “创建会员”：办卡页的车牌从识别结果带入（只用一次）。
-  static void prefillPlateForAdd() => _prefillPlate = rawPlate;
+  static void prefillPlateForAdd() {
+    _prefillPlate = rawPlate;
+    _prefillModel = '${last?['vehicle_model'] ?? ''}';
+    _prefillColor = '${last?['vehicle_color'] ?? ''}';
+  }
+
+  static String? takePrefillColor() {
+    final color = _prefillColor;
+    _prefillColor = null;
+    return color;
+  }
+
+  static String? takePrefillModel() {
+    final model = _prefillModel;
+    _prefillModel = null;
+    return model;
+  }
+
   static String? takePrefillPlate() {
     final p = _prefillPlate;
     _prefillPlate = null;
@@ -51,8 +81,14 @@ class ScanView {
   String get plate => rawPlatePretty;
   String get rawPlatePretty => plateText(ScanFlow.rawPlate);
 
-  /// 新能源（绿牌）车牌 8 位，燃油车 7 位。
-  String get plateKind => ScanFlow.rawPlate.length >= 8 ? '绿牌（新能源）' : '蓝牌';
+  String get plateKind => switch (ScanFlow.last?['plate_color']) {
+    'blue' => '蓝牌',
+    'green' => '绿牌（新能源）',
+    'yellow' => '黄牌',
+    'white' => '白牌',
+    'black' => '黑牌',
+    _ => '—',
+  };
 
   Map<String, dynamic>? get _vehicle {
     final vs = List<Map<String, dynamic>>.from(
@@ -61,7 +97,7 @@ class ScanView {
     for (final v in vs) {
       if ('${v['plate']}' == ScanFlow.rawPlate) return v;
     }
-    return vs.isEmpty ? null : vs.first;
+    return null;
   }
 
   String get vehicleModel {

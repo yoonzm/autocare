@@ -65,6 +65,24 @@ class _HVehicleColorState extends State<HVehicleColor> {
   Color? custom;
   String customLabel = '';
 
+  @override
+  void initState() {
+    super.initState();
+    if (CatalogDraft.current?.kind != 'members') return;
+    final saved = CatalogDraft.text('members', 'color', '');
+    if (saved.isEmpty) return;
+    final index = vehicleColorOptions.indexWhere(
+      (option) => option.label == saved,
+    );
+    if (index >= 0) {
+      sel = index;
+    } else {
+      sel = -1;
+      customLabel = saved;
+      custom = colorFromHex(saved) ?? const Color(0xFF7A4B2A);
+    }
+  }
+
   String get label => sel >= 0 ? vehicleColorOptions[sel].label : customLabel;
 
   void _write() => CatalogDraft.set('members', 'color', label);

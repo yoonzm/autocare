@@ -8,6 +8,7 @@ import '../backend/member_flow.dart';
 import '../backend/merchant_api.dart';
 import '../backend/scan_flow.dart';
 import '../kit/kit.dart';
+import '../kit/async_kit.dart' show AppSpinner;
 import '../routes.dart';
 import '../theme.dart';
 import '../widgets/app_icon.dart';
@@ -42,6 +43,8 @@ class _ScanPageState extends State<ScanPage>
   bool _busy = false; // 拍照 / 识别中
   Offset? _focusAt;
   Timer? _focusTimer;
+  Timer? _slowTimer;
+  bool _slow = false;
   late final AnimationController _sweep = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 1100),
@@ -49,6 +52,7 @@ class _ScanPageState extends State<ScanPage>
 
   bool get _find => kind == ScanKind.findPlate || kind == ScanKind.findCode;
   bool get _first => kind == ScanKind.findPlate || kind == ScanKind.licenseCard;
+  bool get _plate => kind == ScanKind.findPlate || kind == ScanKind.plateCard;
   void _switch(int i) => setState(
     () => kind = _find
         ? (i == 0 ? ScanKind.findPlate : ScanKind.findCode)
@@ -89,6 +93,7 @@ class _ScanPageState extends State<ScanPage>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _focusTimer?.cancel();
+    _slowTimer?.cancel();
     _sweep.dispose();
     final c = _ctrl;
     _ctrl = null;
@@ -167,6 +172,7 @@ class _ScanPageState extends State<ScanPage>
 
   // ───────── 交互：闪光灯 / 对焦 / 拍照 / 相册 ─────────
   Future<void> _toggleTorch() async {
+    if (_busy) return;
     final c = _ctrl;
     if (!_ready || c == null) {
       hToast(context, '相机未就绪');
@@ -205,6 +211,7 @@ class _ScanPageState extends State<ScanPage>
 
   Future<void> _shoot() async {
     if (_busy) return;
+    if (!_canRecognize()) return;
     final c = _ctrl;
     if (!_ready || c == null || c.value.isTakingPicture) {
       hToast(context, _cam == _Cam.denied ? '请在系统设置中允许访问相机' : '相机未就绪');
@@ -217,6 +224,7 @@ class _ScanPageState extends State<ScanPage>
     try {
       HapticFeedback.mediumImpact();
       final f = await c.takePicture();
+      if (!mounted) return;
       imageStore('scan_photo').value = [f.path];
       // 定格拍到的画面，随后开始识别
       try {
@@ -234,37 +242,69 @@ class _ScanPageState extends State<ScanPage>
 
   Future<void> _pickAlbum() async {
     if (_busy) return;
-    final ok = await hCaptureImage(context, 'scan_photo', camera: false);
-    if (ok && mounted) await _recognize();
+    if (!_canRecognize()) return;
+    setState(() => _busy = true);
+    try {
+      final ok = await hCaptureImage(context, 'scan_photo', camera: false);
+      if (ok && mounted) await _recognize();
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
   }
 
-  /// 车牌找会员：登录后调用云函数识别（目前云函数内部是开发环境的 mock，不看照片）；
-  /// 其余扫描类型仍是示例识别。识别过程中扫描线来回扫动，至少 1.3 秒。
+  bool _canRecognize() {
+    if (!_plate) {
+      // TODO: 行驶证 OCR / 会员码解析须有各自真实接口，不以示例结果冒充成功。
+      hToast(context, kind == ScanKind.licenseCard ? '行驶证识别暂未接通' : '会员码识别暂未接通');
+      return false;
+    }
+    if (!merchantApi.hasSession) {
+      hToast(context, '请先登录');
+      openRoute(context, 'Login');
+      return false;
+    }
+    return true;
+  }
+
+  /// 两个车牌入口共用真实识别；只有当前页面仍有效时才发布识别结果。
   Future<void> _recognize() async {
     if (!mounted) return;
     setState(() => _busy = true);
     _sweep.repeat(reverse: true);
+    _slow = false;
+    _slowTimer = Timer(const Duration(seconds: 10), () {
+      if (mounted && _busy) setState(() => _slow = true);
+    });
     final started = DateTime.now();
     var result = _result;
     String? failure;
-    if (merchantApi.hasSession && kind == ScanKind.findPlate) {
+    Map<String, dynamic>? response;
+    ScanFlow.last = null;
+    if (_plate && merchantApi.hasSession) {
       try {
-        final res = await ScanFlow.recognize();
-        if (res['matched'] == true && ScanFlow.member != null) {
-          MemberFlow.current = ScanFlow.member;
-          MemberFlow.memberTick.value++;
-          result = 'FindResult';
+        final photos = imageStore('scan_photo').value;
+        if (photos.isEmpty) throw const AppError('请先拍摄或选择照片');
+        final res = await ScanFlow.recognize(photos.last);
+        if (!mounted) return;
+        response = res;
+        if (res['matched'] == true && res['member'] is Map) {
+          result = kind == ScanKind.plateCard
+              ? 'ScanPlateResult'
+              : 'FindResult';
         } else {
           result = 'FindNotFound';
         }
       } catch (e) {
         failure = AppError.from(e).message;
       }
+    } else {
+      failure = '请先登录';
     }
     final left =
         const Duration(milliseconds: 1300) - DateTime.now().difference(started);
     if (left > Duration.zero) await Future<void>.delayed(left);
     if (!mounted) return;
+    _slowTimer?.cancel();
     _sweep.stop();
     if (failure != null) {
       setState(() => _busy = false);
@@ -274,6 +314,13 @@ class _ScanPageState extends State<ScanPage>
       } catch (_) {}
       return;
     }
+    if (!merchantApi.hasSession) {
+      setState(() => _busy = false);
+      return;
+    }
+    ScanFlow.last = response;
+    MemberFlow.current = ScanFlow.matched ? ScanFlow.member : null;
+    MemberFlow.memberTick.value++;
     openRoute(context, result);
     setState(() => _busy = false);
     // 结果弹层关闭后恢复取景
@@ -385,7 +432,9 @@ class _ScanPageState extends State<ScanPage>
 
   Widget _frameAndHint() {
     final frame = _frame;
-    final (title, sub) = _busy ? ('识别中…', '请保持画面稳定') : _hint;
+    final (title, sub) = _busy
+        ? ('识别中…', _slow ? '网络较慢，请稍候' : '请保持画面稳定')
+        : _hint;
     return IgnorePointer(
       ignoring: _cam == _Cam.ready,
       child: Center(
@@ -503,21 +552,23 @@ class _ScanPageState extends State<ScanPage>
               shape: BoxShape.circle,
               border: Border.all(color: Colors.white, width: 4),
             ),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 120),
-              margin: EdgeInsets.all(_busy ? 8 : 0),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-              ),
-            ),
+            child: _busy
+                ? Center(child: AppSpinner(size: 20, color: C.primary))
+                : const DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
           ),
         ),
       ),
       _side(
         _find ? 'search' : 'pencil',
         _find ? '手动搜索' : '手动输入',
-        () => _find
+        () => _busy
+            ? null
+            : _find
             ? Navigator.of(context).maybePop()
             : openRoute(context, 'VehicleAdd'),
       ),
@@ -548,7 +599,7 @@ class _ScanPageState extends State<ScanPage>
     width: 72,
     child: GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: onTap,
+      onTap: _busy ? null : onTap,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

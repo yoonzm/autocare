@@ -7,6 +7,7 @@ import '../mock/mock_data.dart';
 import '../routes.dart';
 import 'catalog_draft.dart';
 import 'merchant_api.dart';
+import 'scan_flow.dart';
 import 'package_calc.dart' show formatMoney;
 
 /// 会员（核心维护）的适配层：编辑草稿、保存、删除，以及“当前会员”。
@@ -47,6 +48,19 @@ class MemberFlow {
     CatalogDraft.set('members', 'honorific', '先生');
     CatalogDraft.set('members', 'color', colors.first);
     CatalogDraft.set('members', 'energy', 'fuel');
+    applyRecognizedVehicle();
+  }
+
+  /// Only confirmed recognition fields replace the form's current values.
+  static void applyRecognizedVehicle() {
+    final model = ScanFlow.takePrefillModel();
+    if (model != null && model.isNotEmpty) {
+      CatalogDraft.set('members', 'brand_model', model);
+    }
+    final color = ScanFlow.takePrefillColor();
+    if (color != null && colors.contains(color)) {
+      CatalogDraft.set('members', 'color', color);
+    }
   }
 
   static void beginEdit(Map<String, dynamic> member) {

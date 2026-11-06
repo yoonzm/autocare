@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../kit/async_kit.dart';
 import 'store_profile.dart';
+import 'plate_photo.dart';
 
 export '../kit/async_kit.dart' show AppError, AppErrorType;
 
@@ -442,11 +443,13 @@ class MerchantApi {
   }
 
   // ───────── 扫码找会员（车牌识别） ─────────
-  /// 车牌识别。目前是开发环境的 mock（云函数不看照片）：约一半概率返回门店里已有的会员，
-  /// 否则返回一个库里没有的随机车牌。返回 `matched`、`plate`，匹配时还有 `member`、`package_summary`、`last_visit_text`。
-  // TODO: 真实识别要先把照片上传到存储，再按存储路径请求识别服务。
-  Future<Map<String, dynamic>> recognizePlate() =>
-      invoke({'action': 'recognize_plate', 'kind': 'members'});
+  /// 图片只发给后端，识别与本店会员匹配均由云函数完成；不自动重试付费识别。
+  Future<Map<String, dynamic>> recognizePlate(String imagePath) async =>
+      invoke({
+        'action': 'recognize_plate',
+        'kind': 'members',
+        ...await preparePlatePhoto(imagePath),
+      });
 
   // ───────── 开单收银 ─────────
   /// [lines]: `[{service_id, qty, member_package_id?}]`。价格、折扣、次卡抵扣、扣款都由云函数算。

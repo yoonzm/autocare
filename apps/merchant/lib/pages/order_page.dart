@@ -108,6 +108,7 @@ class _OrderPageState extends State<OrderPage> {
       if (widget.appointment == null && ScanFlow.takeWalkIn()) {
         _walkIn = true;
         customer = _noMember;
+        _walkPlateCtl.text = ScanFlow.rawPlate;
       }
       if (widget.appointment == null && HoldFlow.event != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) => _onHoldEvent());
