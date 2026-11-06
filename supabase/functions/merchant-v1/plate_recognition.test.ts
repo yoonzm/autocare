@@ -222,7 +222,8 @@ function lookupFixture(
   const logs: unknown[] = [];
   let paidCalls = 0;
   const db = createClient("https://db.example", "test-key", {
-    auth: { persistSession: false },
+    // This fixture only exercises database requests; no auth session to refresh.
+    auth: { persistSession: false, autoRefreshToken: false },
     global: {
       fetch: async (url, init) => {
         const query = new URL(String(url));
