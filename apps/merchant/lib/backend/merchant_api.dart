@@ -52,7 +52,9 @@ class MerchantApi {
 
   /// 不需要登录态的动作：401 是业务失败（如密码错误），不能当成登录失效。
   static const _publicActions = {
-    'send_mock_code',
+    'send_code',
+    'forgot_verify',
+    'reset_password',
     'check_code',
     'holds',
     'hold_get',
@@ -157,9 +159,9 @@ class MerchantApi {
     }
   }
 
-  Future<String> sendMockCode(String phone) async {
-    final data = await invoke({'action': 'send_mock_code', 'phone': phone});
-    return data['code'] as String;
+  /// 验证码通过短信发送，任何环境都不从接口读取验证码。
+  Future<void> sendCode(String phone, {required String purpose}) async {
+    await invoke({'action': 'send_code', 'phone': phone, 'purpose': purpose});
   }
 
   /// Validates the code on the server without consuming it.

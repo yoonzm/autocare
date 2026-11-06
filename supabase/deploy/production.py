@@ -91,14 +91,15 @@ def smoke(environment):
     else:
         raise RuntimeError('merchant-v1 did not become ready')
     for body, expected in [
-        ({'action': 'send_mock_code', 'phone': '13900000000'}, 501),
-        ({'action': 'register', 'phone': '13900000000'}, 501),
+        # Invalid phones never invoke a paid channel; deployment checks send no SMS.
+        ({'action': 'send_code', 'phone': 'invalid', 'purpose': 'register'}, 400),
+        ({'action': 'register', 'phone': 'invalid'}, 400),
         ({'action': 'list', 'kind': 'services'}, 401),
     ]:
         status, result = request(environment, body)
         if status != expected or 'error' not in result:
-            raise RuntimeError('Production auth/mock guard check failed: ' + body['action'])
-    print('PASS production function readiness, public login, auth guards, and disabled mocks', flush=True)
+            raise RuntimeError('Production auth/SMS validation failed: ' + body['action'])
+    print('PASS production function readiness, public login, auth guards, and SMS input validation', flush=True)
 
 
 def deploy(staging):
@@ -157,10 +158,15 @@ CREATE TABLE IF NOT EXISTS supabase_migrations.schema_migrations(version text PR
 
     # Production settings are explicit and independent from Cloud development.
     override = PROJECT / 'docker-compose.autocare.yml'
+    sms_env = PROJECT / '.env.sms'
+    if not sms_env.exists():
+        sms_env.write_text('SMS_PROVIDER=\n')
+    sms_env.chmod(0o600)
     override.write_text('''services:
   functions:
+    env_file:
+      - .env.sms
     environment:
-      ALLOW_MOCK_SMS: "false"
       ALLOW_MOCK_RECOGNITION: "false"
 ''')
     files = environment.get('COMPOSE_FILE', 'docker-compose.yml').split(':')

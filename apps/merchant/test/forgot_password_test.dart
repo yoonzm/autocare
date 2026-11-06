@@ -12,6 +12,7 @@ import 'package:flutter_test/flutter_test.dart';
 /// 忘记密码：登录页和修改密码页两个入口共用 验证手机号 -> 设置新密码 -> 重置成功。
 class _Api extends MerchantApi {
   final List<String> calls = [];
+  String? sentPurpose;
   bool signedIn = false;
   Object? verifyError;
   Object? resetError;
@@ -19,10 +20,10 @@ class _Api extends MerchantApi {
   @override
   bool get hasSession => signedIn;
   @override
-  Future<String> sendMockCode(String phone) async {
+  Future<void> sendCode(String phone, {required String purpose}) async {
     calls.add('send:$phone');
+    sentPurpose = purpose;
     if (sendError != null) throw sendError!;
-    return '246810';
   }
 
   @override
@@ -135,8 +136,9 @@ void main() {
       await t.pump(const Duration(milliseconds: 600));
       await t.pumpAndSettle(); // 等旧提示条退场、新提示条出现
       expect(api.calls, ['send:13800001234']); // 连点只发一次
+      expect(api.sentPurpose, 'reset_password');
       expect(find.text('发送中…'), findsNothing);
-      expect(find.text('开发环境验证码：246810'), findsOneWidget);
+      expect(find.text('验证码已发送，请查看短信'), findsOneWidget);
       expect(find.textContaining('秒后重发'), findsOneWidget);
       await t.pump(const Duration(seconds: 61));
     });

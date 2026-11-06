@@ -1651,13 +1651,25 @@ void hSendCode(BuildContext context, CodeCtrl c) {
   if (route == 'ForgotVerify') {
     // 忘记密码：手机号手动输入（登录页和修改密码页两个入口一样）
     unawaited(
-      sendCodeTo(context, c, RegistrationDraft.get('ForgotVerify', '请输入手机号')),
+      sendCodeTo(
+        context,
+        c,
+        RegistrationDraft.get('ForgotVerify', '请输入手机号'),
+        purpose: 'reset_password',
+      ),
     );
     return;
   }
   if (merchantApi.hasSession && route == 'DeleteAccount') {
     // 注销账号：验证码发到当前账号绑定的手机号
-    unawaited(sendCodeTo(context, c, storeProfile.localPhone));
+    unawaited(
+      sendCodeTo(
+        context,
+        c,
+        storeProfile.localPhone,
+        purpose: 'delete_account',
+      ),
+    );
     return;
   }
   if (merchantApi.hasSession && route == 'ChangePhone') {
@@ -1665,18 +1677,29 @@ void hSendCode(BuildContext context, CodeCtrl c) {
     final phone = c.slot == 0
         ? storeProfile.localPhone
         : RegistrationDraft.get('ChangePhone', '请输入新手机号');
-    unawaited(sendCodeTo(context, c, phone));
+    unawaited(
+      sendCodeTo(
+        context,
+        c,
+        phone,
+        purpose: c.slot == 0 ? 'change_phone_old' : 'change_phone_new',
+      ),
+    );
     return;
   }
-  c.start();
-  hToastOn(ScaffoldMessenger.of(context), '验证码已发送（演示）');
+  hToastOn(ScaffoldMessenger.of(context), '当前页面暂不支持短信验证码');
 }
 
 Future<void> _sendRegistrationCode(BuildContext context, CodeCtrl c) =>
     sendCodeTo(context, c, RegistrationDraft.get('RegPhone', '请输入手机号'));
 
-/// 向 [phone] 获取验证码（开发环境由后端 mock 返回并直接提示）。
-Future<void> sendCodeTo(BuildContext context, CodeCtrl c, String phone) async {
+/// 向 [phone] 发送用途明确的验证码，验证码只通过短信交付。
+Future<void> sendCodeTo(
+  BuildContext context,
+  CodeCtrl c,
+  String phone, {
+  String purpose = 'register',
+}) async {
   if (c.sending) return;
   if (!RegExp(r'^1[3-9]\d{9}$').hasMatch(phone)) {
     hToastOn(ScaffoldMessenger.of(context), '请输入正确的 11 位手机号');
@@ -1685,15 +1708,14 @@ Future<void> sendCodeTo(BuildContext context, CodeCtrl c, String phone) async {
   c.setSending(true);
   try {
     // 加载指示至少停留 500ms，避免一闪而过
-    final results = await Future.wait<Object?>([
-      merchantApi.sendMockCode(phone),
+    await Future.wait<void>([
+      merchantApi.sendCode(phone, purpose: purpose),
       Future<void>.delayed(kIndicatorMinShow),
     ]);
-    final code = results[0] as String;
     c.setSending(false);
     if (!context.mounted) return;
     c.start();
-    hToastOn(ScaffoldMessenger.of(context), '开发环境验证码：$code');
+    hToastOn(ScaffoldMessenger.of(context), '验证码已发送，请查看短信');
   } catch (e) {
     c.setSending(false);
     // 失败立即恢复可点，直接展示服务端的原因（如“今日发送次数已达上限”）

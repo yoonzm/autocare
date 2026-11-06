@@ -94,13 +94,12 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => sending = true);
     try {
       // 加载指示至少停留 500ms，避免一闪而过
-      final results = await Future.wait<Object?>([
-        merchantApi.sendMockCode(phone.text.trim()),
+      await Future.wait<void>([
+        merchantApi.sendCode(phone.text.trim(), purpose: 'login'),
         Future<void>.delayed(kIndicatorMinShow),
       ]);
-      final mockCode = results[0] as String;
       if (!mounted) return;
-      AppToast.show(context, '开发环境验证码：$mockCode');
+      AppToast.show(context, '验证码已发送，请查看短信');
     } catch (e) {
       // 失败立即恢复可点
       if (mounted) {

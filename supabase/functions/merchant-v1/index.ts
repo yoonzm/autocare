@@ -23,8 +23,8 @@ Deno.serve(async (request: Request): Promise<Response> => {
     return fail('Invalid JSON');
   }
   if (!isInput(input)) return fail('Invalid JSON');
-  if (['send_mock_code', 'check_code', 'forgot_verify', 'reset_password', 'register', 'login_password', 'login_code'].includes(String(input.action))) {
-    return handleAuth(input);
+  if (['send_code', 'check_code', 'forgot_verify', 'reset_password', 'register', 'login_password', 'login_code'].includes(String(input.action))) {
+    return handleAuth(input, request);
   }
   if (['get_store', 'change_password', 'change_phone', 'delete_account'].includes(String(input.action))) {
     return handleAccount(input, request);

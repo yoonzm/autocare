@@ -9,6 +9,7 @@ import 'package:autocare_merchant/pages/gen/gen_routes.dart';
 /// 记录调用的假后端（模拟已登录）。
 class _FakeApi extends MerchantApi {
   final List<String> calls = [];
+  final List<String> purposes = [];
   Map<String, dynamic>? registered;
   @override
   bool get hasSession => true;
@@ -16,9 +17,9 @@ class _FakeApi extends MerchantApi {
   @override
   Future<List<Map<String, dynamic>>> list(String kind) async => const [];
   @override
-  Future<String> sendMockCode(String phone) async {
+  Future<void> sendCode(String phone, {required String purpose}) async {
     calls.add('send:$phone');
-    return '111222';
+    purposes.add(purpose);
   }
 
   @override
@@ -219,6 +220,7 @@ void main() {
     await t.tap(find.text('获取验证码').first);
     await t.pump();
     expect(api.calls, ['send:13988888812']);
+    expect(api.purposes, ['change_phone_old']);
     await t.pump(const Duration(seconds: 61));
 
     await t.enterText(input('请输入新手机号'), '13500001111');
@@ -226,6 +228,7 @@ void main() {
     await t.tap(find.text('获取验证码').last);
     await t.pump();
     expect(api.calls.last, 'send:13500001111');
+    expect(api.purposes.last, 'change_phone_new');
     await t.pump(const Duration(seconds: 61));
 
     await t.enterText(input('6 位数字', 0), '111222');
@@ -252,6 +255,7 @@ void main() {
     expect(find.text('发送中…'), findsOneWidget);
     await t.pump(const Duration(milliseconds: 700));
     expect(api.calls, ['send:13988888812']);
+    expect(api.purposes, ['delete_account']);
     await t.pump(const Duration(seconds: 6));
 
     // 没填验证码：按钮是置灰样式，点一下说明原因，不提交

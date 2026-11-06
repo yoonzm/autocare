@@ -9,14 +9,15 @@ import 'members_test.dart' show MemberFakeApi;
 class _FakeApi extends MemberFakeApi {
   final List<String> calls = [];
   bool signedIn = false;
+  String? sentPurpose;
   @override
   bool get hasSession => signedIn;
   @override
   Future<Map<String, dynamic>> getStore() async => {'name': '验证码测试门店'};
   @override
-  Future<String> sendMockCode(String phone) async {
+  Future<void> sendCode(String phone, {required String purpose}) async {
     calls.add('send:$phone');
-    return '482910';
+    sentPurpose = purpose;
   }
 
   @override
@@ -90,7 +91,8 @@ void main() {
     expect(find.text('发送中…'), findsOneWidget); // 点击后立即显示加载中
     await t.pump(const Duration(milliseconds: 600));
     await t.pump(const Duration(milliseconds: 300)); // 新提示条滑入
-    expect(find.text('开发环境验证码：482910'), findsOneWidget);
+    expect(find.text('验证码已发送，请查看短信'), findsOneWidget);
+    expect(api.sentPurpose, 'login');
     await t.pump(const Duration(seconds: 4));
     await t.enterText(find.byType(TextField).at(1), '482910');
     await t.ensureVisible(find.text('登录').first);
@@ -98,6 +100,21 @@ void main() {
     await t.pumpAndSettle();
     expect(find.text('验证码测试门店'), findsOneWidget);
     expect(api.calls.last, 'login:13988888812:482910');
+  });
+
+  testWidgets('真实短信发送成功只提示查收，不要求服务端返回验证码', (t) async {
+    await open(t);
+    await t.enterText(find.byType(TextField).first, '13988888812');
+    await t.ensureVisible(find.text('获取验证码'));
+    await t.tap(find.text('获取验证码'));
+    await t.pump();
+    await t.pump(const Duration(milliseconds: 600));
+    await t.pump(const Duration(milliseconds: 300));
+    expect(find.text('验证码已发送，请查看短信'), findsOneWidget);
+    expect(find.textContaining('开发环境验证码'), findsNothing);
+    expect(api.sentPurpose, 'login');
+    expect(find.textContaining('秒后重发'), findsOneWidget);
+    await t.pump(const Duration(seconds: 61));
   });
 
   testWidgets('提示条显示在屏幕顶部，不在底部，到时间自动消失', (t) async {

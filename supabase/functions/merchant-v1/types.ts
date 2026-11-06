@@ -77,7 +77,7 @@ export interface CardRules {
 }
 
 export type AuthAction =
-  | { action: 'send_mock_code'; phone: string }
+  | { action: 'send_code'; phone: string; purpose: import('./sms_types.ts').SmsPurpose }
   | { action: 'check_code'; phone: string; code: string }
   | { action: 'forgot_verify'; phone: string; code: string }
   | { action: 'reset_password'; phone: string; code: string; new_password: string }
@@ -121,7 +121,7 @@ export type Input = Record<string, unknown>;
 export type ApiResponse =
   | { ok: true }
   | { ok: true; services: number; products: number; cards: number; packages: number; bays: number }
-  | { code: string; mock: true }
+  | { ok: true; retry_after: number; expires_in: number }
   | { matched: boolean; mock: true; plate: string; member?: unknown; package_summary?: string; last_visit_text?: string }
   | { access_token: string; refresh_token: string }
   | { store: StoreProfileRow }

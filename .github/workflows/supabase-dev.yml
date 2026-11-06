@@ -27,7 +27,13 @@ jobs:
           deno-version: v2.5.4
       - name: Check Edge Function types
         working-directory: supabase/functions/merchant-v1
-        run: deno task check
+        run: |
+          deno task check
+          deno test
+      - name: Test SMS migrations in isolated Postgres
+        run: |
+          npm install --prefix "$RUNNER_TEMP/sms-db-test" --no-package-lock --ignore-scripts --no-audit --no-fund @electric-sql/pglite@0.5.14
+          node supabase/tests/sms.mjs "$RUNNER_TEMP/sms-db-test/node_modules/@electric-sql/pglite/dist/index.js"
 
   deploy:
     needs: check
