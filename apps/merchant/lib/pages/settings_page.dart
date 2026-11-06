@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../backend/merchant_api.dart';
+import '../backend/appointment_flow.dart';
+import '../kit/async_kit.dart';
 import '../backend/catalog_draft.dart';
 import '../backend/store_profile.dart';
 import '../theme.dart';
@@ -10,8 +12,31 @@ import '../routes.dart';
 import '../widgets/app_icon.dart';
 import '../widgets/common.dart';
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
+
+  @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  final _countsKey = GlobalKey<AsyncViewState<Map<String, dynamic>>>();
+
+  @override
+  void initState() {
+    super.initState();
+    CatalogDraft.changed.addListener(_reloadCounts);
+    AppointmentFlow.changed.addListener(_reloadCounts);
+  }
+
+  @override
+  void dispose() {
+    CatalogDraft.changed.removeListener(_reloadCounts);
+    AppointmentFlow.changed.removeListener(_reloadCounts);
+    super.dispose();
+  }
+
+  void _reloadCounts() => _countsKey.currentState?.reload();
 
   @override
   Widget build(BuildContext context) {
@@ -28,40 +53,24 @@ class SettingsPage extends StatelessWidget {
                 children: [
                   _profile(context),
                   const SizedBox(height: 20),
-                  _group(context, '门店管理', [
-                    _Item(
-                      'store',
-                      '门店信息',
-                      '地址 · 电话 · 营业时间',
-                      bg: const Color(0xFFE1F0FE),
-                      fg: const Color(0xFF1E63AE),
-                      route: 'StoreInfo',
+                  SizedBox(
+                    height: 263,
+                    child: AsyncView<Map<String, dynamic>>(
+                      key: _countsKey,
+                      load: merchantApi.settingsStats,
+                      isEmpty: (_) => false,
+                      inlineError: true,
+                      pullToRefresh: false,
+                      skeletonScrollable: false,
+                      skeletonPadding: EdgeInsets.zero,
+                      waiting: _management(context),
+                      skeleton: _management(context, null, true),
+                      empty: (_) => const SizedBox.shrink(),
+                      onNext: () => openRoute(context, 'Login'),
+                      builder: (context, counts) =>
+                          _management(context, counts),
                     ),
-                    _Item(
-                      'users',
-                      '员工与权限',
-                      '8 人',
-                      bg: const Color(0xFFDDF6E7),
-                      fg: const Color(0xFF2B7745),
-                      route: 'Staff',
-                    ),
-                    _Item(
-                      'sparkle',
-                      '服务项目与价格',
-                      '36 项',
-                      bg: const Color(0xFFFDEFD6),
-                      fg: const Color(0xFF855F2E),
-                      route: 'Services',
-                    ),
-                    _Item(
-                      'card',
-                      '会员卡种与权益',
-                      '4 种',
-                      bg: const Color(0xFF18181B),
-                      fg: const Color(0xFFF5D78E),
-                      route: 'CardTiers',
-                    ),
-                  ]),
+                  ),
                   const SizedBox(height: 20),
                   _group(context, '营业设置', [
                     _Item(
@@ -155,6 +164,48 @@ class SettingsPage extends StatelessWidget {
       ),
     );
   }
+
+  Widget _management(
+    BuildContext context, [
+    Map<String, dynamic>? counts,
+    bool skeleton = false,
+  ]) => _group(context, '门店管理', [
+    _Item(
+      'store',
+      '门店信息',
+      '地址 · 电话 · 营业时间',
+      bg: const Color(0xFFE1F0FE),
+      fg: const Color(0xFF1E63AE),
+      route: 'StoreInfo',
+    ),
+    _Item(
+      'users',
+      '员工与权限',
+      counts == null ? '' : '${counts['staff']} 人',
+      bg: const Color(0xFFDDF6E7),
+      fg: const Color(0xFF2B7745),
+      route: 'Staff',
+      skeleton: skeleton,
+    ),
+    _Item(
+      'sparkle',
+      '服务项目与价格',
+      counts == null ? '' : '${counts['services']} 项',
+      bg: const Color(0xFFFDEFD6),
+      fg: const Color(0xFF855F2E),
+      route: 'Services',
+      skeleton: skeleton,
+    ),
+    _Item(
+      'card',
+      '会员卡种与权益',
+      counts == null ? '' : '${counts['cards']} 种',
+      bg: const Color(0xFF18181B),
+      fg: const Color(0xFFF5D78E),
+      route: 'CardTiers',
+      skeleton: skeleton,
+    ),
+  ]);
 
   /// 演示用：切换订阅状态，查看首页在不同状态下的呈现。
   void _demoSheet(BuildContext context) {
@@ -449,17 +500,19 @@ class SettingsPage extends StatelessWidget {
                                   const SizedBox(width: 5),
                                 ],
                                 Flexible(
-                                  child: Text(
-                                    items[i].sub,
-                                    textAlign: TextAlign.right,
-                                    style: ts(
-                                      13,
-                                      color: items[i].dot
-                                          ? C.greenInk
-                                          : C.muted,
-                                      h: 18,
-                                    ),
-                                  ),
+                                  child: items[i].skeleton
+                                      ? const AppSkeleton(width: 38, height: 16)
+                                      : Text(
+                                          items[i].sub,
+                                          textAlign: TextAlign.right,
+                                          style: ts(
+                                            13,
+                                            color: items[i].dot
+                                                ? C.greenInk
+                                                : C.muted,
+                                            h: 18,
+                                          ),
+                                        ),
                                 ),
                               ],
                             ),
@@ -490,6 +543,7 @@ class _Item {
   final String? route;
   final Color bg, fg;
   final bool dot;
+  final bool skeleton;
   _Item(
     this.icon,
     this.title,
@@ -498,6 +552,7 @@ class _Item {
     this.bg = const Color(0xFFEEEEF0),
     this.fg = const Color(0xFF3F3F46),
     this.dot = false,
+    this.skeleton = false,
   });
 }
 

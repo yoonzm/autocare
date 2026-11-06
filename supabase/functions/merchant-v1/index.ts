@@ -5,7 +5,7 @@ import { handleOrderCenter } from './orders_center.ts';
 import { handleAccount } from './account.ts';
 import { handleAuth } from './auth.ts';
 import { handleCards } from './cards.ts';
-import { handleHomeStats } from './home.ts';
+import { handleHomeStats, handleSettingsStats } from './home.ts';
 import { handleAppointments } from './appointments.ts';
 import { handleMembers, handleVehicles } from './members.ts';
 import { handleFollowUps, handleMemberPackages, handleOrders } from './ops.ts';
@@ -31,6 +31,7 @@ Deno.serve(async (request: Request): Promise<Response> => {
   if (['get_store', 'change_password', 'change_phone', 'delete_account'].includes(String(input.action))) {
     return handleAccount(input, request);
   }
+  if (input.action === 'settings_stats') return handleSettingsStats(request);
   if (input.action === 'home_stats') return handleHomeStats(request);
   if (String(input.action).startsWith('appointment_')) return handleAppointments(input, request);
   if (String(input.action).startsWith('inventory_')) return handleInventory(input, request);
