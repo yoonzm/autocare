@@ -184,14 +184,11 @@ Widget hTap(
         );
         return;
       }
-      // TODO: 开卡成功页的“去充值”和微信绑定依赖支付 / 微信模块，目前只提示，不假装成功。
+      // TODO: 开卡成功页的微信绑定依赖微信模块，尚未接通。
       if (merchantApi.hasSession &&
           route == 'MemberAddDone' &&
-          (to == 'Recharge' || to == 'BindInvite' || to == 'BindH5')) {
-        hToast(
-          context,
-          to == 'Recharge' ? '余额充值暂未接通（依赖支付模块）' : '微信绑定暂未接通（依赖微信模块）',
-        );
+          (to == 'BindInvite' || to == 'BindH5')) {
+        hToast(context, '微信绑定暂未接通（依赖微信模块）');
         return;
       }
       // TODO: 开通微信支付（资料提交、法人签约、审核）依赖服务商进件接口，预期后端：pay_apply_* 云函数

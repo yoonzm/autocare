@@ -858,6 +858,14 @@ void main() {
       expect(find.text('139 **** 5530'), findsOneWidget);
       expect(find.text('普通会员'), findsWidgets);
       expect(find.text('未登记车辆'), findsOneWidget);
+      final memberId = MemberFlow.current!['id'];
+      await t.tap(find.text('去充值'));
+      await t.pumpAndSettle();
+      expect(navTracker.has('Recharge'), isTrue);
+      expect(MemberFlow.current?['id'], memberId);
+      expect(find.text('李敏 · 139 **** 5530', findRichText: true), findsWidgets);
+      expect(find.text('请先选择会员'), findsNothing);
+      expect(fake.recharges, isEmpty);
     });
 
     testWidgets('手机号已是会员：云函数拒绝，Toast 说明原因，仍停留在表单', (t) async {
@@ -874,7 +882,7 @@ void main() {
       expect(find.text('新增会员'), findsWidgets);
     });
 
-    testWidgets('开卡成功页的“去充值”依赖支付模块：只提示，不假装成功', (t) async {
+    testWidgets('开卡成功页的“去充值”携带会员进入充值表单', (t) async {
       phone(t);
       MemberFlow.current = row(tier: 't-base', tierName: '普通会员');
       await t.pumpWidget(
@@ -892,10 +900,18 @@ void main() {
       await t.tap(find.text('open'));
       await t.pumpAndSettle();
       await t.tap(find.text('去充值'));
-      await t.pump();
-      await t.pump(const Duration(milliseconds: 300));
-      expect(find.textContaining('余额充值暂未接通'), findsOneWidget);
-      expect(navTracker.has('Recharge'), isFalse);
+      await t.pumpAndSettle();
+      expect(navTracker.has('Recharge'), isTrue);
+      expect(MemberFlow.current?['id'], 'm1');
+      expect(CatalogDraft.current?.kind, 'recharge');
+      expect(
+        find.text('王建国 · 138 **** 6021', findRichText: true),
+        findsWidgets,
+      );
+      expect(find.text('¥3,680.00'), findsOneWidget);
+      expect(find.text('请先选择会员'), findsNothing);
+      expect(fake.recharges, isEmpty);
+      expect(t.takeException(), isNull);
     });
   });
 
