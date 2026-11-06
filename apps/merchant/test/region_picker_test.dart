@@ -14,6 +14,7 @@ class RegionApi extends MerchantApi {
   Future<Map<String, dynamic>> invoke(
     Map<String, dynamic> body, {
     Duration timeout = kRequestTimeout,
+    String? requestId,
   }) async {
     calls++;
     if (fail) throw Exception('offline');

@@ -44,6 +44,7 @@ class StockInteractionApi extends MerchantApi {
   Future<Map<String, dynamic>> invoke(
     Map<String, dynamic> body, {
     Duration timeout = const Duration(seconds: 20),
+    String? requestId,
   }) async {
     actions.add(body['action'] as String);
     switch (body['action']) {

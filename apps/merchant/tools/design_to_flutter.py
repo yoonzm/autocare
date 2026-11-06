@@ -244,6 +244,7 @@ LIVE_FLOW = {
 # 点击后要等后端返回的按钮：(页面, 目标页)。命中的按钮在 loading 时只显示转圈、尺寸不变。
 # 必须和 lib/kit/async_kit.dart 的 asyncActionKeys 保持一致（有测试检查）。
 ASYNC_ACTIONS = {
+    ('Feedback', 'AboutApp'),
     ('AppointmentAdd', 'Appointments'),
     ('RegPhone', 'RegShop'), ('RegShop', 'RegDone'),
     ('ChangePassword', 'Security'), ('ChangePhone', 'Security'),
@@ -2516,11 +2517,58 @@ def rewrite_number_steppers(src):
     return src
 
 
+def bind_feedback(src):
+    """Bind the existing feedback design, including the source-less rewrite path.
+
+    Only behavior/data and the approved submission-only notice change. Safe to
+    run repeatedly; never edit the generated Dart page by hand.
+    """
+    if 'class FeedbackPage ' not in src or 'FeedbackForm(' in src:
+        return src
+    src = src.replace("import 'svgs.dart';", "import 'svgs.dart';\nimport '../../widgets/feedback_fields.dart';")
+    src = src.replace('return HPage(', 'return FeedbackForm(builder: (context) => HPage(', 1)
+    pos = src.rfind(');')
+    src = src[:pos] + '));' + src[pos + 2:]
+    src = src.replace('我们会在 1–3 个工作日内通过站内消息回复', '反馈提交后将由平台处理，暂不支持查看进度和回复')
+    src = src.replace("value: '139 **** 8812',", "value: '',")
+    src = src.replace("to: 'AboutApp',", 'onTap: () => feedbackSubmit(context),')
+    # Preserve each input and screenshot placeholder's existing visual arguments.
+    for widget, helper in [('HInput', 'feedbackInput'), ('HImageSlot', 'feedbackImage')]:
+        pos = 0
+        while True:
+            start = src.find(widget + '(', pos)
+            if start < 0:
+                break
+            end = _balanced_end(src, start + len(widget))
+            call = src[start:end + 1]
+            wrapped = helper + '(context, ' + call + ')'
+            src = src[:start] + wrapped + src[end + 1:]
+            pos = start + len(wrapped)
+    start = src.index('HSelHolder(')
+    end = _balanced_end(src, start + len('HSelHolder'))
+    args = _dart_args(src[start + len('HSelHolder('):end])
+    builder = next(a[len('builder:'):].strip() for a in args if a.startswith('builder:'))
+    src = src[:start] + 'feedbackTypes(context, ' + builder + ')' + src[end + 1:]
+    # The fresh HTML emitter may already have supplied hBusy around this Text.
+    start = src.index("'提交反馈'")
+    text_start = src.rfind('Text(', 0, start)
+    end = _balanced_end(src, text_start + len('Text'))
+    prefix = src[:text_start]
+    busy = re.search(r"hBusy\(\s*'Feedback>AboutApp',\s*$", prefix)
+    if busy:
+        busy_start = busy.start()
+        busy_end = _balanced_end(src, busy_start + len('hBusy'))
+        src = src[:busy_start] + 'feedbackSubmitLabel(context, ' + src[text_start:end + 1] + ')' + src[busy_end + 1:]
+    else:
+        src = prefix + 'feedbackSubmitLabel(context, ' + src[text_start:end + 1] + ')' + src[end + 1:]
+    return src
+
+
 def _gen_one(gen, name, src, out_dir, done, sheets):
     gen.sel_counter = 0
     try:
         root = extract_page(src)
-        code = rewrite_number_steppers(gen.emit_page(root, name))
+        code = bind_feedback(rewrite_number_steppers(gen.emit_page(root, name)))
     except Exception as e:  # noqa
         print('FAILED', name, repr(e))
         raise
@@ -2544,7 +2592,7 @@ def main():
             path = os.path.join(sys.argv[2], name)
             with open(path, encoding='utf-8') as f:
                 old = f.read()
-            new = rewrite_number_steppers(old)
+            new = bind_feedback(rewrite_number_steppers(old))
             if new != old:
                 with open(path, 'w', encoding='utf-8') as f:
                     f.write(new)

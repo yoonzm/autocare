@@ -28,6 +28,8 @@ try {
   await db.query('insert into auth.sessions values($1,$2),($3,$4)',[superSession,superId,opsSession,opsId]);
   await db.query("insert into stores(id,owner_id,name,trial_ends_at) values($1,$2,'Real shop',now()+interval '2 days')",[shop,owner]);
   await db.exec(readFileSync(new URL('../migrations/202611060004_admin_platform.sql',import.meta.url),'utf8'));
+  await db.exec(`create schema storage;create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);`);
+  await db.exec(readFileSync(new URL('../migrations/202611060005_support_submission.sql',import.meta.url),'utf8'));
   await db.query("insert into admin_accounts(id,username,name,role,must_change) values($1,'super_test','Test Super','superAdmin',false),($2,'ops_test','Test Ops','ops',false)",[superId,opsId]);
   const command=(action,input={},actor=superId,session=superSession,id=uuid())=>scalar('select admin_command($1,$2,$3,$4,$5) as value',[actor,session,action,input,id]);
   const snap=(actor=superId,session=superSession,offset=0)=>scalar('select admin_snapshot($1,$2,$3) as value',[actor,session,offset]);
@@ -59,8 +61,29 @@ try {
   const ticket=(await support('support_create',createBody,owner,merchantSession,createId)).id;
   assert.equal((await support('support_create',createBody,owner,merchantSession,createId)).id,ticket);
   assert.equal((await snap()).tickets[0].msgs[0].from_merchant,true);
+  // Structured feedback, private uploaded screenshots and atomic idempotent commit.
+  const upload=uuid();
+  await db.query('insert into support_uploads(id,store_id,actor_id,path) values($1,$2,$3,$4)',[upload,shop,owner,`${shop}/${upload}.png`]);
+  const feedbackId=uuid(),feedbackBody={category:'问题报告',text:'Cannot save service',contact:'owner@example.com',attachments:[upload]};
+  const feedback=(await support('support_create',feedbackBody,owner,merchantSession,feedbackId)).id;
+  assert.equal((await support('support_create',feedbackBody,owner,merchantSession,feedbackId)).id,feedback);
+  const feedbackRow=(await snap()).tickets.find(t=>t.id===feedback);
+  assert.match(feedbackRow.msgs[0].text,/联系方式：owner@example.com/);
+  assert.deepEqual(feedbackRow.msgs[0].attachments,[upload]);
+  assert.equal(await scalar('select count(*)::int as value from support_messages where ticket_id=$1',[feedback]),1);
+  await assert.rejects(support('support_create',{...feedbackBody,text:'Changed'},owner,merchantSession,feedbackId),/请求编号/);
+  await assert.rejects(support('support_create',feedbackBody),/截图不存在/);
+  const countBefore=await scalar('select count(*)::int as value from support_tickets');
+  for(const body of [
+    {...feedbackBody,attachments:[uuid()]}, {...feedbackBody,attachments:[upload,upload]},
+    {...feedbackBody,attachments:[uuid(),uuid(),uuid(),uuid()]},
+    {text:' ',category:'问题报告'}, {text:'x',category:'Invalid'},
+    {text:'x',contact:'x'.repeat(201)}, {text:'x'.repeat(5001)}, {text:'x',attachments:null},
+  ]) await assert.rejects(support('support_create',body));
+  assert.equal(await scalar('select count(*)::int as value from support_tickets'),countBefore);
+  assert.equal(await scalar("select public as value from storage.buckets where id='support-attachments'"),false);
   await command('ticket_reply',{id:ticket,text:'Reply'});
-  assert.equal((await snap()).tickets[0].status,'doing');
+  assert.equal((await snap()).tickets.find(t=>t.id===ticket).status,'doing');
   await command('ticket_resolve',{id:ticket});
   await assert.rejects(command('ticket_reply',{id:ticket,text:'Not allowed'}),/已解决/);
   await assert.rejects(support('support_reply',{id:ticket,text:'Not allowed'}),/已解决/);
@@ -69,6 +92,15 @@ try {
   await db.query("insert into stores(owner_id,name) values($1,'New shop')",[nextOwner]);
   const nextSession=uuid();await db.query('insert into auth.sessions values($1,$2)',[nextSession,nextOwner]);
   await assert.rejects(support('support_get',{id:ticket},nextOwner,nextSession),/工单不存在/);
+  const foreignUpload=uuid();
+  await db.query('insert into support_uploads(id,store_id,actor_id,path) values($1,$2,$3,$4)',[foreignUpload,shop,owner,`${shop}/${foreignUpload}.jpg`]);
+  await assert.rejects(support('support_create',{text:'Cross shop',attachments:[foreignUpload]},nextOwner,nextSession),/无权访问/);
+  assert.equal(await scalar('select message_id as value from support_uploads where id=$1',[foreignUpload]),null);
+  for(const role of ['anon','authenticated']){
+    await db.exec(`set role ${role}`);
+    await assert.rejects(db.query('select * from support_uploads'),/permission denied/);
+    await db.exec('reset role');
+  }
   assert.equal(Number(await scalar('select extract(epoch from (trial_ends_at-created_at))/86400 as value from stores where owner_id=$1',[nextOwner])),21);
   const version=await scalar("select version as value from platform_plans where kind='trial'");assert.equal(version,2);
   assert.equal(await scalar('select plan_version as value from store_subscriptions where store_id=$1',[shop]),1);
@@ -96,9 +128,11 @@ try {
   assert.equal((await snap()).me.must_change,false);
   for(let i=0;i<10;i++)assert.equal(await scalar("select admin_login_attempt('test-user') as value"),true);
   assert.equal(await scalar("select admin_login_attempt('test-user') as value"),false);
-  for(const signature of ['admin_snapshot(uuid,uuid,integer)','admin_command(uuid,uuid,text,jsonb,uuid)','admin_identity(uuid,uuid)','admin_login_attempt(text)','platform_merchant_session(uuid,uuid,boolean)','admin_password_matches(uuid,uuid,text)','platform_metrics()','merchant_support(uuid,uuid,text,jsonb,uuid)']) {
+  for(const signature of ['admin_snapshot(uuid,uuid,integer)','admin_snapshot_legacy(uuid,uuid,integer)','admin_command(uuid,uuid,text,jsonb,uuid)','admin_identity(uuid,uuid)','admin_login_attempt(text)','platform_merchant_session(uuid,uuid,boolean)','admin_password_matches(uuid,uuid,text)','platform_metrics()','merchant_support(uuid,uuid,text,jsonb,uuid)','merchant_support_legacy(uuid,uuid,text,jsonb,uuid)']) {
     for(const role of ['anon','authenticated'])assert.equal(await scalar('select has_function_privilege($1,$2,\'execute\') as value',[role,'public.'+signature]),false);
   }
+  for(const signature of ['admin_snapshot_legacy(uuid,uuid,integer)','merchant_support_legacy(uuid,uuid,text,jsonb,uuid)'])
+    assert.equal(await scalar('select has_function_privilege(\'service_role\',$1,\'execute\') as value',['public.'+signature]),false);
   // More than a REST page, all rows included; server aggregates are independent.
   await db.exec("insert into auth.users(id) select gen_random_uuid() from generate_series(1,205)");
   await db.exec("insert into stores(owner_id,name) select id,'Paged shop' from auth.users where id not in (select owner_id from stores) and id not in (select id from admin_accounts)");

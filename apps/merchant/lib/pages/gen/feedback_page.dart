@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 
 import '../../kit/kit.dart';
 import 'svgs.dart';
+import '../../widgets/feedback_fields.dart';
 
 class FeedbackPage extends StatelessWidget {
   const FeedbackPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return HPage(
+    return FeedbackForm(builder: (context) => HPage(
       bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
       height: 844,
       fixedHeight: false,
@@ -134,11 +135,7 @@ class FeedbackPage extends StatelessWidget {
                               lh: 20,
                             ),
                           ),
-                          HSelHolder(
-                            groups: [
-                              ({0}, false),
-                            ],
-                            builder: (context, g1) => hwrap(
+                          feedbackTypes(context, (context, g1) => hwrap(
                               [
                                 HSel(
                                   ctrl: g1[0],
@@ -392,8 +389,7 @@ class FeedbackPage extends StatelessWidget {
                               gap: 8,
                               rowGap: 8,
                               cross: WrapCrossAlignment.start,
-                            ),
-                          ),
+                            )),
                         ],
                         main: MainAxisAlignment.start,
                         cross: CrossAxisAlignment.stretch,
@@ -419,7 +415,7 @@ class FeedbackPage extends StatelessWidget {
                             ),
                             radius: BorderRadius.circular(14),
                             pad: EdgeInsets.fromLTRB(12, 10, 12, 10),
-                            child: HInput(
+                            child: feedbackInput(context, HInput(
                               style: hts(
                                 14,
                                 dk(
@@ -431,7 +427,7 @@ class FeedbackPage extends StatelessWidget {
                               ),
                               maxLines: 4,
                               hint: '请描述您遇到的问题或建议，越具体越好',
-                            ),
+                            )),
                           ),
                         ],
                         main: MainAxisAlignment.start,
@@ -486,7 +482,7 @@ class FeedbackPage extends StatelessWidget {
                               UnconstrainedBox(
                                 alignment: Alignment.topLeft,
                                 constrainedAxis: Axis.horizontal,
-                                child: HImageSlot(
+                                child: feedbackImage(context, HImageSlot(
                                   imgKey: 'Feedback_4',
                                   radius: 16,
                                   child: hbox(
@@ -514,12 +510,12 @@ class FeedbackPage extends StatelessWidget {
                                       gap: 0,
                                     ),
                                   ),
-                                ),
+                                )),
                               ),
                               UnconstrainedBox(
                                 alignment: Alignment.topLeft,
                                 constrainedAxis: Axis.horizontal,
-                                child: HImageSlot(
+                                child: feedbackImage(context, HImageSlot(
                                   imgKey: 'Feedback_5',
                                   radius: 16,
                                   child: hbox(
@@ -547,12 +543,12 @@ class FeedbackPage extends StatelessWidget {
                                       gap: 0,
                                     ),
                                   ),
-                                ),
+                                )),
                               ),
                               UnconstrainedBox(
                                 alignment: Alignment.topLeft,
                                 constrainedAxis: Axis.horizontal,
-                                child: HImageSlot(
+                                child: feedbackImage(context, HImageSlot(
                                   imgKey: 'Feedback_6',
                                   radius: 16,
                                   child: hbox(
@@ -580,7 +576,7 @@ class FeedbackPage extends StatelessWidget {
                                       gap: 0,
                                     ),
                                   ),
-                                ),
+                                )),
                               ),
                             ],
                             main: MainAxisAlignment.start,
@@ -616,7 +612,7 @@ class FeedbackPage extends StatelessWidget {
                             child: hrow(
                               [
                                 Expanded(
-                                  child: HInput(
+                                  child: feedbackInput(context, HInput(
                                     style: hts(
                                       15,
                                       dk(
@@ -627,8 +623,8 @@ class FeedbackPage extends StatelessWidget {
                                       lh: 22,
                                     ),
                                     hint: '手机号或邮箱（选填）',
-                                    value: '139 **** 8812',
-                                  ),
+                                    value: '',
+                                  )),
                                 ),
                               ],
                               main: MainAxisAlignment.start,
@@ -648,7 +644,7 @@ class FeedbackPage extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '我们会在 1–3 个工作日内通过站内消息回复',
+                  '反馈提交后将由平台处理，暂不支持查看进度和回复',
                   style: hts(
                     12,
                     dk(context, Color(0xFFA1A1AA), Color(0xFF80808A)),
@@ -707,7 +703,7 @@ class FeedbackPage extends StatelessWidget {
                       child: Align(
                         alignment: Alignment(0, 0),
                         widthFactor: 1,
-                        child: Text(
+                        child: feedbackSubmitLabel(context, Text(
                           '提交反馈',
                           style: hts(
                             15,
@@ -715,10 +711,10 @@ class FeedbackPage extends StatelessWidget {
                             w: FontWeight.w600,
                             lh: 22,
                           ),
-                        ),
+                        )),
                       ),
                     ),
-                    to: 'AboutApp',
+                    onTap: () => feedbackSubmit(context),
                   ),
                 ),
               ],
@@ -729,6 +725,6 @@ class FeedbackPage extends StatelessWidget {
           ),
         ),
       ],
-    );
+    ));
   }
 }

@@ -11,7 +11,7 @@ import { adminFor, authorizeAction } from './permissions.ts';
 import { cors, fail, isInput, runtimeServices } from './shared.ts';
 import { handleSnapshot } from './snapshot.ts';
 import { handleSubscriptions, subscriptionActions } from './subscriptions.ts';
-import { handleTickets, ticketActions } from './tickets.ts';
+import { handleTickets, ticketActions, ticketAttachment } from './tickets.ts';
 import type { AdminServices } from './types.ts';
 
 /** HTTP boundary and routing only; business handlers live beside this entry. */
@@ -34,6 +34,7 @@ export function createHandler(services?: AdminServices) {
       const denied = await authorizeAction(action, identity);
       if (denied) return denied;
       if (action === 'snapshot') return await handleSnapshot(input, identity);
+      if (action === 'ticket_attachment') return await ticketAttachment(input, identity);
 
       const context = commandContext(identity, request);
       if (context instanceof Response) return context;

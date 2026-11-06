@@ -12,6 +12,7 @@ class _PhotoApi extends MerchantApi {
   Future<Map<String, dynamic>> invoke(
     Map<String, dynamic> body, {
     Duration timeout = const Duration(seconds: 15),
+    String? requestId,
   }) async {
     sent = body;
     return {'matched': false, 'plate': '京A12345'};

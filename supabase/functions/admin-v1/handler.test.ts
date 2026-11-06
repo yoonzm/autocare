@@ -86,6 +86,17 @@ function fixture() {
       insert: (input: Input) => result(`insert:${table}`, input, {}),
       select: (columns: string) => ({
         eq: (column: string, value: unknown) => ({
+          not: (name: string, operator: string, operand: unknown) => ({
+            maybeSingle: () =>
+              result(`attachment:${table}`, {
+                columns,
+                column,
+                value,
+                name,
+                operator,
+                operand,
+              }, null),
+          }),
           single: () =>
             result(`select:${table}`, { columns, column, value }, {
               phone: '+8613900000000',
@@ -145,6 +156,38 @@ Deno.test('HTTP parsing and CORS need no credentials or SDK initialization', asy
     equal(response.status, 400);
     equal(await response.json(), { error: 'Invalid JSON' });
   }
+});
+
+Deno.test('private screenshots require an active operator and only read submitted uploads', async () => {
+  const f = fixture();
+  equal(
+    (await f.invoke('ticket_attachment', { id: target }, {
+      authenticated: false,
+    })).status,
+    401,
+  );
+  equal(f.calls.length, 0);
+  f.me.must_change = true;
+  equal((await f.invoke('ticket_attachment', { id: target })).status, 403);
+  assert(!f.calls.some((c) => c.name.startsWith('attachment:')));
+  f.me.must_change = false;
+  equal((await f.invoke('ticket_attachment', { id: 'invalid' })).status, 404);
+  equal(
+    (await f.invoke('ticket_attachment', { id: target }, { requestId: null }))
+      .status,
+    404,
+  );
+  const read = f.calls.find((c) => c.name === 'attachment:support_uploads')!;
+  equal(read.input.name, 'message_id');
+  equal(read.input.operator, 'is');
+  equal(read.input.operand, null);
+  f.hooks.set(
+    'attachment:support_uploads',
+    () => failed('XX000', 'SQL details'),
+  );
+  const response = await f.invoke('ticket_attachment', { id: target });
+  equal(response.status, 503);
+  equal(await response.json(), { error: '读取截图失败' });
 });
 
 Deno.test('missing/rejected JWT and revoked sessions stop before business handlers', async () => {

@@ -196,13 +196,24 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
                       ),
                       boxShadow: m.fromMerchant ? softShadow : null,
                     ),
-                    child: Text(
-                      m.text,
-                      style: ts(
-                        14,
-                        color: m.fromMerchant ? C.ink : Colors.white,
-                        h: 21,
-                      ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          m.text,
+                          style: ts(
+                            14,
+                            color: m.fromMerchant ? C.ink : Colors.white,
+                            h: 21,
+                          ),
+                        ),
+                        for (final id in m.attachments)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: _TicketScreenshot(id: id),
+                          ),
+                      ],
                     ),
                   ),
                 ),
@@ -212,4 +223,41 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
       },
     );
   }
+}
+
+class _TicketScreenshot extends StatefulWidget {
+  final String id;
+  const _TicketScreenshot({required this.id});
+  @override
+  State<_TicketScreenshot> createState() => _TicketScreenshotState();
+}
+
+class _TicketScreenshotState extends State<_TicketScreenshot> {
+  final view = GlobalKey<AsyncViewState<Map<String, dynamic>>>();
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    width: 240,
+    height: 180,
+    child: AsyncView<Map<String, dynamic>>(
+      key: view,
+      inlineError: true,
+      load: () => store.api.call('ticket_attachment', {'id': widget.id}),
+      isEmpty: (_) => false,
+      skeleton: Center(child: AppSpinner(size: 20, color: C.primary)),
+      empty: (_) => const SizedBox.shrink(),
+      builder: (_, data) => Image.network(
+        data['url'] as String,
+        fit: BoxFit.contain,
+        loadingBuilder: (_, child, progress) => progress == null
+            ? child
+            : Center(child: AppSpinner(size: 20, color: C.primary)),
+        errorBuilder: (_, _, _) => LoadingButton(
+          label: '截图加载失败，重试',
+          onPressed: () async {
+            await view.currentState?.reload();
+          },
+        ),
+      ),
+    ),
+  );
 }

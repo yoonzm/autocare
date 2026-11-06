@@ -258,7 +258,8 @@ enum TStatus {
 class Msg {
   final bool fromMerchant;
   final String text;
-  Msg(this.fromMerchant, this.text);
+  final List<String> attachments;
+  Msg(this.fromMerchant, this.text, [this.attachments = const []]);
 }
 
 class Ticket {
@@ -287,7 +288,13 @@ class Ticket {
     status: TStatus.values.byName(j['status'] as String),
     msgs: (j['msgs'] as List)
         .cast<Map>()
-        .map((m) => Msg(m['from_merchant'] as bool, m['text'] as String))
+        .map(
+          (m) => Msg(
+            m['from_merchant'] as bool,
+            m['text'] as String,
+            (m['attachments'] as List? ?? const []).cast<String>(),
+          ),
+        )
         .toList(),
   );
 }

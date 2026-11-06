@@ -10,6 +10,22 @@ export function passwordProblem(value: unknown): string | null {
     : null;
 }
 export const emailOf = (name: string) => `${name}@admin.autocare.internal`;
+
+/** Preserve the signed path/query while removing an internal gateway origin/port. */
+export function supportStorageUrl(
+  signedUrl: string,
+  internalUrl: string,
+  publicUrl: string,
+): string {
+  const result = new URL(signedUrl);
+  if (result.origin === new URL(internalUrl).origin) {
+    const base = new URL(publicUrl);
+    result.protocol = base.protocol;
+    result.hostname = base.hostname;
+    result.port = base.port;
+  }
+  return result.toString();
+}
 export function sessionId(token: string): string | null {
   try {
     const body = JSON.parse(

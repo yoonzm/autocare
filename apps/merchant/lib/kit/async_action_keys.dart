@@ -1,5 +1,6 @@
 // 商户生成页面与生成脚本之间的动作约定，不属于通用组件。
 const asyncActionKeys = {
+  'Feedback>AboutApp',
   'AppointmentAdd>Appointments',
   'RegPhone>RegShop',
   'RegShop>RegDone',

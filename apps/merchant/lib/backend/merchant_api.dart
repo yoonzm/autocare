@@ -93,7 +93,7 @@ class MerchantApi {
 
   static final _rand = Random.secure();
 
-  /// 写请求的幂等标识（X-Request-Id）。TODO: 服务端按它去重，目前只下发。
+  /// 写请求的请求编号（X-Request-Id），由对应业务后端在事务内执行幂等校验。
   static String newRequestId() {
     final b = List<int>.generate(16, (_) => _rand.nextInt(256));
     return b.map((e) => e.toRadixString(16).padLeft(2, '0')).join();
@@ -102,11 +102,12 @@ class MerchantApi {
   Future<Map<String, dynamic>> invoke(
     Map<String, dynamic> body, {
     Duration timeout = kRequestTimeout,
+    String? requestId,
   }) async {
     final action = body['action']?.toString() ?? '';
     final isRead = _readActions.contains(action);
     // 同一次点击的重试沿用同一个标识
-    final requestId = isRead ? null : newRequestId();
+    requestId = isRead ? null : requestId ?? newRequestId();
     try {
       return await performRequest(body, timeout, requestId);
     } on AppError catch (e) {

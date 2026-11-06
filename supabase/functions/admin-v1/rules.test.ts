@@ -1,7 +1,31 @@
-import { emailOf, passwordProblem, sessionId, username } from './rules.ts';
+import {
+  emailOf,
+  passwordProblem,
+  sessionId,
+  supportStorageUrl,
+  username,
+} from './rules.ts';
 function equal(a: unknown, b: unknown) {
   if (a !== b) throw new Error(`${a} != ${b}`);
 }
+Deno.test('support screenshots replace internal origin and port, preserving signature', () => {
+  equal(
+    supportStorageUrl(
+      'http://gateway:8000/storage/v1/object/sign/private/a.png?token=signature',
+      'http://gateway:8000',
+      'https://autocare.example',
+    ),
+    'https://autocare.example/storage/v1/object/sign/private/a.png?token=signature',
+  );
+  equal(
+    supportStorageUrl(
+      'https://hosted.example/a?token=x',
+      'http://gateway:8000',
+      'https://autocare.example',
+    ),
+    'https://hosted.example/a?token=x',
+  );
+});
 Deno.test('username normalization and credential validation', () => {
   equal(username(' Superman '), 'superman');
   equal(username('a@b.com'), null);
