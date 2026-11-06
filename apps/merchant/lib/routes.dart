@@ -39,9 +39,11 @@ import 'pages/plate_scan_result_live_sheet.dart';
 import 'backend/scan_flow.dart';
 import 'pages/shell.dart';
 import 'pages/theme_sheet.dart';
+import 'pages/store_switch_live_sheet.dart';
 
 final Map<String, WidgetBuilder> _allSheets = {
   ...genSheets,
+  'StoreSwitch': (_) => const StoreSwitchLiveSheet(),
   'FindResult': (context) =>
       merchantApi.hasSession && ScanFlow.matched && ScanFlow.member != null
       ? genSheets['FindResult']!(context)
