@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -14,6 +16,20 @@ import 'package:autocare_merchant/backend/store_profile.dart';
 import 'package:autocare_merchant/backend/hold_flow.dart';
 
 import 'appointments_test.dart' show BookingApi, bookingRow;
+
+class SmsInteractionApi extends MerchantApi {
+  final response = Completer<void>();
+  final requests = <({String phone, String purpose})>[];
+
+  @override
+  bool get hasSession => true;
+
+  @override
+  Future<void> sendCode(String phone, {required String purpose}) {
+    requests.add((phone: phone, purpose: purpose));
+    return response.future;
+  }
+}
 
 class StockInteractionApi extends MerchantApi {
   StockInteractionApi({this.signedIn = true});
@@ -422,14 +438,39 @@ void main() {
   });
 
   testWidgets('更换手机号：获取验证码后进入 60 秒倒计时', (tester) async {
+    final originalApi = merchantApi;
+    final api = SmsInteractionApi();
+    merchantApi = api;
+    storeProfile.apply({'phone': '+8613988888812', 'name': '验证码交互测试门店'});
+    addTearDown(() {
+      merchantApi = originalApi;
+      storeProfile.clear();
+    });
     final old = FlutterError.onError;
     FlutterError.onError = (d) {
       if (!d.exceptionAsString().contains('overflowed')) old?.call(d);
     };
     addTearDown(() => FlutterError.onError = old);
-    await open(tester, 'ChangePhone');
+    phone(tester);
+    await tester.pumpWidget(
+      MaterialApp(
+        initialRoute: 'ChangePhone',
+        onGenerateRoute: (settings) => MaterialPageRoute(
+          settings: settings,
+          builder: (_) => pageFor(settings.name!)!,
+        ),
+      ),
+    );
+    await tester.pump();
     expect(find.text('获取验证码'), findsNWidgets(2));
     await tester.tap(find.text('获取验证码').first);
+    await tester.pump();
+    expect(api.requests, [(phone: '13988888812', purpose: 'change_phone_old')]);
+    expect(find.text('发送中…'), findsOneWidget);
+    expect(find.text('60 秒后重发'), findsNothing);
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text('发送中…'), findsOneWidget);
+    api.response.complete();
     await tester.pump();
     expect(find.text('60 秒后重发'), findsOneWidget);
     await tester.pump(const Duration(seconds: 3));
