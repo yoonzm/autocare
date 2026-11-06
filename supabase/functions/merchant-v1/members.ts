@@ -75,24 +75,14 @@ export async function handleMembers(input: Input, storeId: string): Promise<Resp
     const { data, error, count: matched } = await query;
     if (error) return fail('读取失败', 500);
     // 各卡种的会员数、总数、储值余额合计、本月新增（不受搜索和筛选影响）
-    const { data: all } = await admin.from('members').select('card_type_id, balance, created_at')
-      .eq('store_id', storeId).is('deleted_at', null).limit(100000);
-    const counts: Record<string, number> = {};
-    let totalBalance = 0;
-    let newThisMonth = 0;
-    const monthStart = new Date();
-    monthStart.setUTCDate(1);
-    monthStart.setUTCHours(0, 0, 0, 0);
-    // 以东八区的月初为准
-    const cnMonthStart = new Date(Date.UTC(monthStart.getUTCFullYear(), monthStart.getUTCMonth(), 1) - 8 * 3600000);
-    for (const r of all ?? []) {
-      counts[r.card_type_id as string] = (counts[r.card_type_id as string] ?? 0) + 1;
-      totalBalance += Number(r.balance);
-      if (new Date(r.created_at as string) >= cnMonthStart) newThisMonth++;
-    }
+    const { data: summary, error: summaryError } = await admin.rpc('merchant_member_summary', {
+      p_store: storeId,
+    });
+    // 查询失败不能伪装成空门店；沿用客户端的错误与重试处理。
+    if (summaryError || !summary) return fail('读取会员统计失败，请重试', 500);
     return json({
-      items: data ?? [], counts, total: all?.length ?? 0, matched: matched ?? 0,
-      total_balance: Math.round(totalBalance * 100) / 100, new_this_month: newThisMonth,
+      items: data ?? [], counts: summary.counts, total: summary.total, matched: matched ?? 0,
+      total_balance: summary.total_balance, new_this_month: summary.new_this_month,
     });
   }
   if (input.action === 'recognize_plate') {

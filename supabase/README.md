@@ -1,5 +1,7 @@
 # Supabase 商户 V1
 
+会员全店汇总已改为数据库聚合，部署顺序与统计口径见 [会员汇总说明](../docs/member-summary-integration.md)。后续高权限访问收敛、统一鉴权及跨店测试方案见 [权限收敛待实现方案](../docs/supabase-access-hardening-plan.md)，该权限重构尚未实施。
+
 本目录包含商户注册/登录、服务项目、会员卡种、次卡套餐配置的数据库迁移和 `merchant-v1` Edge Function。所有业务写入和归属校验都在云函数中；客户端不持有 `service_role` 密钥。会员、订单等不在 V1 范围。
 
 开发项目：`autocare-dev`（`wghsytekrmpcofpugyua`）。`supabase/` 变更推送后只运行后端检查；推送到 `main` 或当前 `feat/merchant-supabase-v1` 时，通过检查后依次验证迁移历史、执行 `supabase db push`、部署 `merchant-v1`。数据库通过 IPv4 Session Pooler 连接，密码在 GitHub Secret `SUPABASE_DEV_DB_PASSWORD`；部署令牌在 `SUPABASE_DEV_ACCESS_TOKEN`，限定开发项目，永不过期但可手动吊销。首个迁移已通过 Dashboard 应用并登记到 CLI 迁移历史，后续数据库变更必须添加新的版本化 SQL 迁移文件，不要直接修改已部署迁移。正式环境应使用独立的项目、迁移历史和凭据。
