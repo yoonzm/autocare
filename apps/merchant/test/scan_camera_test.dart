@@ -338,23 +338,28 @@ void main() {
       sem.dispose();
     });
 
-    testWidgets('相册选图传递实际文件，取消选择不发送识别请求', (t) async {
+    testWidgets('相册先预览再确认识别，取消不发请求，失败保留照片重试', (t) async {
       phone(t);
+      final sem = t.ensureSemantics();
       var selection = '/tmp/album-car.jpg';
+      final picked = Completer<void>();
       final messenger =
           TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
       messenger.setMockMethodCallHandler(
         const MethodChannel('plugins.flutter.io/image_picker'),
-        (_) async => selection.isEmpty ? null : selection,
+        (_) async {
+          await picked.future;
+          return selection.isEmpty ? null : selection;
+        },
       );
       const channel =
           'dev.flutter.pigeon.image_picker_android.ImagePickerApi.pickImages';
-      messenger.setMockMessageHandler(
-        channel,
-        (_) async => const StandardMessageCodec().encodeMessage([
+      messenger.setMockMessageHandler(channel, (_) async {
+        await picked.future;
+        return const StandardMessageCodec().encodeMessage([
           selection.isEmpty ? <String>[] : [selection],
-        ]),
-      );
+        ]);
+      });
       addTearDown(() {
         messenger.setMockMethodCallHandler(
           const MethodChannel('plugins.flutter.io/image_picker'),
@@ -362,21 +367,54 @@ void main() {
         );
         messenger.setMockMessageHandler(channel, null);
       });
-      CameraPlatform.instance = _FakeCamera();
+      final cam = _FakeCamera(cameras: 0);
+      CameraPlatform.instance = cam;
       await open(t, 'FindScanPlate');
       await t.tap(find.text('相册'));
       await t.pump(const Duration(milliseconds: 100));
-      await t.pump(const Duration(milliseconds: 1500));
-      await t.pump(const Duration(milliseconds: 500));
-      expect(api.imagePaths, ['/tmp/album-car.jpg']);
-      expect(navTracker.has('sheet:FindNotFound'), isTrue);
-      Navigator.of(t.element(find.text('没有找到该车牌的会员'))).pop();
-      await t.pump(const Duration(seconds: 2));
+      expect(find.text('识别中…'), findsNothing);
+      expect(api.calls, 0);
+      await t.tap(find.bySemanticsLabel('拍摄识别'));
+      picked.complete();
+      await t.pumpAndSettle();
+      expect(api.calls, 0);
+      expect(find.byKey(const Key('album-preview')), findsOneWidget);
+      expect(find.text('确认照片后点击识别'), findsOneWidget);
       selection = '';
       await t.tap(find.text('相册'));
       await t.pumpAndSettle();
+      expect(api.calls, 0);
+      expect(find.byKey(const Key('album-preview')), findsOneWidget);
+      api.error = const AppError('识别失败，请重试');
+      await t.tap(find.bySemanticsLabel('确认识别'));
+      await t.pump(const Duration(milliseconds: 100));
+      await t.pump(const Duration(milliseconds: 1500));
+      await t.pump(const Duration(milliseconds: 500));
       expect(api.calls, 1);
+      expect(find.byKey(const Key('album-preview')), findsOneWidget);
+      api.error = null;
+      await t.tap(find.bySemanticsLabel('确认识别'));
+      await t.pump(const Duration(milliseconds: 100));
+      await t.pump(const Duration(milliseconds: 1500));
+      await t.pump(const Duration(milliseconds: 500));
+      expect(api.imagePaths, ['/tmp/album-car.jpg', '/tmp/album-car.jpg']);
+      expect(cam.shots, 0);
+      expect(navTracker.has('sheet:FindNotFound'), isTrue);
+      Navigator.of(t.element(find.text('没有找到该车牌的会员'))).pop();
+      await t.pump(const Duration(seconds: 2));
+      await t.tap(find.text('相册'));
+      await t.pumpAndSettle();
+      expect(api.calls, 2);
       expect(find.text('识别中…'), findsNothing);
+      expect(find.byKey(const Key('album-preview')), findsNothing);
+      selection = '/tmp/another-car.jpg';
+      await t.tap(find.text('相册'));
+      await t.pumpAndSettle();
+      await t.tap(find.bySemanticsLabel('返回拍摄'));
+      await t.pumpAndSettle();
+      expect(find.byKey(const Key('album-preview')), findsNothing);
+      expect(api.calls, 2);
+      sem.dispose();
     });
 
     testWidgets('扫描建档未匹配时，完整新能源车牌和中文车型带入可编辑表单', (t) async {

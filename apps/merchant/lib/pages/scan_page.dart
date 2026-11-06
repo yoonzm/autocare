@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -41,6 +42,9 @@ class _ScanPageState extends State<ScanPage>
   bool _suspended = false; // 退到后台时释放了相机
   bool _torch = false;
   bool _busy = false; // 拍照 / 识别中
+  bool _pickingAlbum = false;
+  String? _albumPhoto;
+  bool get _locked => _busy || _pickingAlbum;
   Offset? _focusAt;
   Timer? _focusTimer;
   Timer? _slowTimer;
@@ -53,11 +57,12 @@ class _ScanPageState extends State<ScanPage>
   bool get _find => kind == ScanKind.findPlate || kind == ScanKind.findCode;
   bool get _first => kind == ScanKind.findPlate || kind == ScanKind.licenseCard;
   bool get _plate => kind == ScanKind.findPlate || kind == ScanKind.plateCard;
-  void _switch(int i) => setState(
-    () => kind = _find
+  void _switch(int i) => setState(() {
+    _albumPhoto = null;
+    kind = _find
         ? (i == 0 ? ScanKind.findPlate : ScanKind.findCode)
-        : (i == 0 ? ScanKind.licenseCard : ScanKind.plateCard),
-  );
+        : (i == 0 ? ScanKind.licenseCard : ScanKind.plateCard);
+  });
 
   String get _title => _find ? '扫码找会员' : '扫描建档';
   List<(String, String)> get _tabs => _find
@@ -172,7 +177,7 @@ class _ScanPageState extends State<ScanPage>
 
   // ───────── 交互：闪光灯 / 对焦 / 拍照 / 相册 ─────────
   Future<void> _toggleTorch() async {
-    if (_busy) return;
+    if (_locked) return;
     final c = _ctrl;
     if (!_ready || c == null) {
       hToast(context, '相机未就绪');
@@ -189,7 +194,7 @@ class _ScanPageState extends State<ScanPage>
 
   void _focus(TapUpDetails d, Size size) {
     final c = _ctrl;
-    if (!_ready || c == null || _busy) return;
+    if (!_ready || c == null || _locked || _albumPhoto != null) return;
     final p = Offset(
       (d.localPosition.dx / size.width).clamp(0.0, 1.0),
       (d.localPosition.dy / size.height).clamp(0.0, 1.0),
@@ -210,8 +215,14 @@ class _ScanPageState extends State<ScanPage>
   }
 
   Future<void> _shoot() async {
-    if (_busy) return;
+    if (_locked) return;
     if (!_canRecognize()) return;
+    final photo = _albumPhoto;
+    if (photo != null) {
+      imageStore('scan_photo').value = [photo];
+      await _recognize();
+      return;
+    }
     final c = _ctrl;
     if (!_ready || c == null || c.value.isTakingPicture) {
       hToast(context, _cam == _Cam.denied ? '请在系统设置中允许访问相机' : '相机未就绪');
@@ -241,14 +252,19 @@ class _ScanPageState extends State<ScanPage>
   }
 
   Future<void> _pickAlbum() async {
-    if (_busy) return;
+    if (_locked) return;
     if (!_canRecognize()) return;
-    setState(() => _busy = true);
+    setState(() => _pickingAlbum = true);
     try {
       final ok = await hCaptureImage(context, 'scan_photo', camera: false);
-      if (ok && mounted) await _recognize();
+      if (ok && mounted) {
+        setState(() {
+          _albumPhoto = imageStore('scan_photo').value.last;
+          _focusAt = null;
+        });
+      }
     } finally {
-      if (mounted) setState(() => _busy = false);
+      if (mounted) setState(() => _pickingAlbum = false);
     }
   }
 
@@ -318,6 +334,7 @@ class _ScanPageState extends State<ScanPage>
       setState(() => _busy = false);
       return;
     }
+    setState(() => _albumPhoto = null);
     ScanFlow.last = response;
     MemberFlow.current = ScanFlow.matched ? ScanFlow.member : null;
     MemberFlow.memberTick.value++;
@@ -377,6 +394,17 @@ class _ScanPageState extends State<ScanPage>
 
   /// 最底层：实时相机画面（点击对焦）；相机不可用时退回深色背景。
   Widget _viewfinder(BuildContext context) {
+    final photo = _albumPhoto;
+    if (photo != null) {
+      return Image.file(
+        File(photo),
+        key: const Key('album-preview'),
+        fit: BoxFit.contain,
+        errorBuilder: (_, _, _) => const Center(
+          child: Text('照片无法显示，请重新选择', style: TextStyle(color: Colors.white)),
+        ),
+      );
+    }
     final c = _ctrl;
     if (!_ready || c == null) {
       return const DecoratedBox(
@@ -434,6 +462,10 @@ class _ScanPageState extends State<ScanPage>
     final frame = _frame;
     final (title, sub) = _busy
         ? ('识别中…', _slow ? '网络较慢，请稍候' : '请保持画面稳定')
+        : _pickingAlbum
+        ? ('选择照片中…', '选择后可预览并确认识别')
+        : _albumPhoto != null
+        ? ('确认照片后点击识别', '可从相册重新选择，或返回拍摄')
         : _hint;
     return IgnorePointer(
       ignoring: _cam == _Cam.ready,
@@ -481,7 +513,8 @@ class _ScanPageState extends State<ScanPage>
               textAlign: TextAlign.center,
               style: ts(13, color: const Color(0xB3FFFFFF), h: 18),
             ),
-            if (_cam == _Cam.denied || _cam == _Cam.unavailable) ...[
+            if (_albumPhoto == null &&
+                (_cam == _Cam.denied || _cam == _Cam.unavailable)) ...[
               const SizedBox(height: 14),
               _cameraNotice(),
             ],
@@ -524,12 +557,21 @@ class _ScanPageState extends State<ScanPage>
           style: ts(17, w: FontWeight.w600, color: Colors.white, h: 24),
         ),
       ),
-      _round(
-        AppIcon('bolt', size: 20, color: _torch ? C.onGold : Colors.white),
-        _torch ? '关闭闪光灯' : '打开闪光灯',
-        _toggleTorch,
-        bg: _torch ? C.gold : const Color(0x24FFFFFF),
-      ),
+      if (_albumPhoto != null)
+        _round(
+          const Icon(Icons.camera_alt_outlined, size: 20, color: Colors.white),
+          '返回拍摄',
+          () {
+            if (!_locked) setState(() => _albumPhoto = null);
+          },
+        )
+      else
+        _round(
+          AppIcon('bolt', size: 20, color: _torch ? C.onGold : Colors.white),
+          _torch ? '关闭闪光灯' : '打开闪光灯',
+          _toggleTorch,
+          bg: _torch ? C.gold : const Color(0x24FFFFFF),
+        ),
     ],
   );
 
@@ -540,10 +582,11 @@ class _ScanPageState extends State<ScanPage>
       _side('gallery', '相册', _pickAlbum),
       Semantics(
         button: true,
-        label: '拍摄识别',
+        label: _albumPhoto == null ? '拍摄识别' : '确认识别',
+        enabled: !_locked,
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onTap: _shoot,
+          onTap: _locked ? null : _shoot,
           child: Container(
             width: 78,
             height: 78,
@@ -554,11 +597,14 @@ class _ScanPageState extends State<ScanPage>
             ),
             child: _busy
                 ? Center(child: AppSpinner(size: 20, color: C.primary))
-                : const DecoratedBox(
-                    decoration: BoxDecoration(
+                : DecoratedBox(
+                    decoration: const BoxDecoration(
                       color: Colors.white,
                       shape: BoxShape.circle,
                     ),
+                    child: _albumPhoto == null
+                        ? null
+                        : const Icon(Icons.check, color: Colors.black),
                   ),
           ),
         ),
@@ -566,7 +612,7 @@ class _ScanPageState extends State<ScanPage>
       _side(
         _find ? 'search' : 'pencil',
         _find ? '手动搜索' : '手动输入',
-        () => _busy
+        () => _locked
             ? null
             : _find
             ? Navigator.of(context).maybePop()
@@ -599,7 +645,7 @@ class _ScanPageState extends State<ScanPage>
     width: 72,
     child: GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: _busy ? null : onTap,
+      onTap: _locked ? null : onTap,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -633,7 +679,7 @@ class _ScanPageState extends State<ScanPage>
           Expanded(
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
-              onTap: _busy ? null : () => _switch(i),
+              onTap: _locked ? null : () => _switch(i),
               child: Container(
                 height: 36,
                 decoration: BoxDecoration(
