@@ -16,6 +16,7 @@ class RegistrationDraft {
     'DeleteAccount',
     'ForgotVerify',
     'ForgotReset',
+    'StoreAdd',
   };
 
   static const cityPlaceholder = '请选择所在城市';

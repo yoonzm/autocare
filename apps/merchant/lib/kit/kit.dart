@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../backend/registration_draft.dart';
+import '../mock/store_state.dart';
 import '../backend/scan_flow.dart';
 import '../backend/catalog_draft.dart';
 import '../backend/hold_flow.dart';
@@ -197,6 +198,34 @@ Widget hTap(
       if (to == 'PayApplyReviewing' &&
           (route == 'PayApplyReview' || route == 'PayApplyBind')) {
         hToast(context, '微信支付开通暂未接通，申请还没有提交');
+        return;
+      }
+      // 新增门店（临时 mock，见 MockStores）：✕ 回到切换门店弹层；“创建门店”校验后创建并回到弹层。
+      if (route == 'StoreAdd' && to == 'StoreSwitch') {
+        if (_hasConfirmLabel(child, '创建门店')) {
+          final error = MockStores.create(
+            name: RegistrationDraft.get('StoreAdd', '如：驰光汽车美容 · 浦东店'),
+            phone: RegistrationDraft.get('StoreAdd', '请输入门店电话'),
+            address: RegistrationDraft.get('StoreAdd', '请选择或输入门店地址'),
+          );
+          if (error != null) {
+            hToast(context, error);
+            return;
+          }
+          final messenger = ScaffoldMessenger.of(context);
+          final nav = Navigator.of(context);
+          nav.pop();
+          hToastOn(messenger, '门店已创建（演示），仍停留在当前门店');
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (nav.context.mounted) openRoute(nav.context, 'StoreSwitch');
+          });
+          return;
+        }
+        final nav = Navigator.of(context);
+        nav.pop();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (nav.context.mounted) openRoute(nav.context, 'StoreSwitch');
+        });
         return;
       }
       // 记录回访：保存后写入回访记录

@@ -521,185 +521,220 @@ class StoreInfoPage extends StatelessWidget {
                         bg: dk(context, Color(0xFFEFEFF1), Color(0xFF2A2A2E)),
                         margin: EdgeInsets.fromLTRB(48, 0, 0, 0),
                       ),
-                      hbox(
-                        pad: EdgeInsets.fromLTRB(16, 14, 16, 14),
-                        child: hrow(
-                          [
-                            Padding(
-                              padding: EdgeInsets.fromLTRB(0, 1, 0, 0),
-                              child: hsvg(
-                                dk(context, Svgs.s378, Svgs.s379),
-                                w: 20,
-                                h: 20,
+                      hTap(
+                        context,
+                        hbox(
+                          pad: EdgeInsets.fromLTRB(16, 14, 16, 14),
+                          child: hrow(
+                            [
+                              Padding(
+                                padding: EdgeInsets.fromLTRB(0, 1, 0, 0),
+                                child: hsvg(
+                                  dk(context, Svgs.s378, Svgs.s379),
+                                  w: 20,
+                                  h: 20,
+                                ),
                               ),
-                            ),
-                            Expanded(
-                              flex: 1,
-                              child: hcol(
-                                [
-                                  Text(
-                                    '营业时间',
-                                    style: hts(
-                                      12,
-                                      dk(
-                                        context,
-                                        Color(0xFF71717A),
-                                        Color(0xFF9A9AA3),
+                              Expanded(
+                                flex: 1,
+                                child: hcol(
+                                  [
+                                    Text(
+                                      '营业时间',
+                                      style: hts(
+                                        12,
+                                        dk(
+                                          context,
+                                          Color(0xFF71717A),
+                                          Color(0xFF9A9AA3),
+                                        ),
+                                        lh: 16,
                                       ),
-                                      lh: 16,
                                     ),
-                                  ),
-                                  Text(
-                                    '每天 09:00 – 20:00',
-                                    style: hts(
-                                      14,
-                                      dk(
-                                        context,
-                                        Color(0xFF18181B),
-                                        Color(0xFFFAFAFA),
+                                    Text(
+                                      '每天 09:00 – 20:00',
+                                      style: hts(
+                                        14,
+                                        dk(
+                                          context,
+                                          Color(0xFF18181B),
+                                          Color(0xFFFAFAFA),
+                                        ),
+                                        lh: 20,
                                       ),
-                                      lh: 20,
                                     ),
-                                  ),
-                                ],
-                                main: MainAxisAlignment.start,
-                                cross: CrossAxisAlignment.stretch,
-                                gap: 2,
+                                  ],
+                                  main: MainAxisAlignment.start,
+                                  cross: CrossAxisAlignment.stretch,
+                                  gap: 2,
+                                ),
                               ),
-                            ),
-                          ],
-                          main: MainAxisAlignment.start,
-                          cross: CrossAxisAlignment.start,
-                          gap: 12,
+                              hsvg(dk(context, Svgs.s3, Svgs.s4), w: 16, h: 16),
+                            ],
+                            main: MainAxisAlignment.start,
+                            cross: CrossAxisAlignment.start,
+                            gap: 12,
+                          ),
                         ),
+                        to: 'BusinessHours',
                       ),
                       hbox(
                         h: 1,
                         bg: dk(context, Color(0xFFEFEFF1), Color(0xFF2A2A2E)),
                         margin: EdgeInsets.fromLTRB(48, 0, 0, 0),
                       ),
-                      hbox(
-                        pad: EdgeInsets.fromLTRB(16, 14, 16, 14),
-                        child: hrow(
-                          [
-                            Padding(
-                              padding: EdgeInsets.fromLTRB(0, 1, 0, 0),
-                              child: hsvg(
-                                dk(context, Svgs.s380, Svgs.s381),
-                                w: 20,
-                                h: 20,
+                      hTap(
+                        context,
+                        hbox(
+                          pad: EdgeInsets.fromLTRB(16, 14, 16, 14),
+                          child: hrow(
+                            [
+                              Padding(
+                                padding: EdgeInsets.fromLTRB(0, 1, 0, 0),
+                                child: hsvg(
+                                  dk(context, Svgs.s380, Svgs.s381),
+                                  w: 20,
+                                  h: 20,
+                                ),
                               ),
-                            ),
-                            Expanded(
-                              flex: 1,
-                              child: hcol(
-                                [
-                                  Text(
-                                    '工位配置 · 共 6 个',
-                                    style: hts(
-                                      12,
-                                      dk(
-                                        context,
-                                        Color(0xFF71717A),
-                                        Color(0xFF9A9AA3),
+                              Expanded(
+                                flex: 1,
+                                child: hcol(
+                                  [
+                                    Text(
+                                      '工位配置 · 共 6 个',
+                                      style: hts(
+                                        12,
+                                        dk(
+                                          context,
+                                          Color(0xFF71717A),
+                                          Color(0xFF9A9AA3),
+                                        ),
+                                        lh: 16,
                                       ),
-                                      lh: 16,
                                     ),
-                                  ),
-                                  hrow(
-                                    [
-                                      Flexible(
-                                        flex: 51,
-                                        child: hbox(
-                                          bg: dk(
-                                            context,
-                                            Color(0xFFE1F0FE),
-                                            Color.fromRGBO(4, 133, 247, 0.18),
-                                          ),
-                                          radius: BorderRadius.circular(11),
-                                          pad: EdgeInsets.fromLTRB(8, 0, 8, 0),
-                                          child: Text(
-                                            '洗车 2',
-                                            style: hts(
-                                              12,
-                                              dk(
-                                                context,
-                                                Color(0xFF1E63AE),
-                                                Color(0xFF6AB4FA),
+                                    hrow(
+                                      [
+                                        Flexible(
+                                          flex: 51,
+                                          child: hbox(
+                                            bg: dk(
+                                              context,
+                                              Color(0xFFE1F0FE),
+                                              Color.fromRGBO(4, 133, 247, 0.18),
+                                            ),
+                                            radius: BorderRadius.circular(11),
+                                            pad: EdgeInsets.fromLTRB(
+                                              8,
+                                              0,
+                                              8,
+                                              0,
+                                            ),
+                                            child: Text(
+                                              '洗车 2',
+                                              style: hts(
+                                                12,
+                                                dk(
+                                                  context,
+                                                  Color(0xFF1E63AE),
+                                                  Color(0xFF6AB4FA),
+                                                ),
+                                                w: FontWeight.w500,
+                                                lh: 22,
                                               ),
-                                              w: FontWeight.w500,
-                                              lh: 22,
                                             ),
                                           ),
                                         ),
-                                      ),
-                                      Flexible(
-                                        flex: 51,
-                                        child: hbox(
-                                          bg: dk(
-                                            context,
-                                            Color(0xFFDDF6E7),
-                                            Color.fromRGBO(23, 201, 100, 0.16),
-                                          ),
-                                          radius: BorderRadius.circular(11),
-                                          pad: EdgeInsets.fromLTRB(8, 0, 8, 0),
-                                          child: Text(
-                                            '美容 2',
-                                            style: hts(
-                                              12,
-                                              dk(
-                                                context,
-                                                Color(0xFF2B7745),
-                                                Color(0xFF5FD48C),
+                                        Flexible(
+                                          flex: 51,
+                                          child: hbox(
+                                            bg: dk(
+                                              context,
+                                              Color(0xFFDDF6E7),
+                                              Color.fromRGBO(
+                                                23,
+                                                201,
+                                                100,
+                                                0.16,
                                               ),
-                                              w: FontWeight.w500,
-                                              lh: 22,
+                                            ),
+                                            radius: BorderRadius.circular(11),
+                                            pad: EdgeInsets.fromLTRB(
+                                              8,
+                                              0,
+                                              8,
+                                              0,
+                                            ),
+                                            child: Text(
+                                              '美容 2',
+                                              style: hts(
+                                                12,
+                                                dk(
+                                                  context,
+                                                  Color(0xFF2B7745),
+                                                  Color(0xFF5FD48C),
+                                                ),
+                                                w: FontWeight.w500,
+                                                lh: 22,
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                      Flexible(
-                                        flex: 63,
-                                        child: hbox(
-                                          bg: dk(
-                                            context,
-                                            Color(0xFFFDEFD6),
-                                            Color.fromRGBO(245, 165, 36, 0.16),
-                                          ),
-                                          radius: BorderRadius.circular(11),
-                                          pad: EdgeInsets.fromLTRB(8, 0, 8, 0),
-                                          child: Text(
-                                            '贴膜间 2',
-                                            style: hts(
-                                              12,
-                                              dk(
-                                                context,
-                                                Color(0xFF855F2E),
-                                                Color(0xFFF0C46A),
+                                        Flexible(
+                                          flex: 63,
+                                          child: hbox(
+                                            bg: dk(
+                                              context,
+                                              Color(0xFFFDEFD6),
+                                              Color.fromRGBO(
+                                                245,
+                                                165,
+                                                36,
+                                                0.16,
                                               ),
-                                              w: FontWeight.w500,
-                                              lh: 22,
+                                            ),
+                                            radius: BorderRadius.circular(11),
+                                            pad: EdgeInsets.fromLTRB(
+                                              8,
+                                              0,
+                                              8,
+                                              0,
+                                            ),
+                                            child: Text(
+                                              '贴膜间 2',
+                                              style: hts(
+                                                12,
+                                                dk(
+                                                  context,
+                                                  Color(0xFF855F2E),
+                                                  Color(0xFFF0C46A),
+                                                ),
+                                                w: FontWeight.w500,
+                                                lh: 22,
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                    main: MainAxisAlignment.start,
-                                    cross: CrossAxisAlignment.stretch,
-                                    gap: 6,
-                                    intrinsic: true,
-                                  ),
-                                ],
-                                main: MainAxisAlignment.start,
-                                cross: CrossAxisAlignment.stretch,
-                                gap: 6,
+                                      ],
+                                      main: MainAxisAlignment.start,
+                                      cross: CrossAxisAlignment.stretch,
+                                      gap: 6,
+                                      intrinsic: true,
+                                    ),
+                                  ],
+                                  main: MainAxisAlignment.start,
+                                  cross: CrossAxisAlignment.stretch,
+                                  gap: 6,
+                                ),
                               ),
-                            ),
-                          ],
-                          main: MainAxisAlignment.start,
-                          cross: CrossAxisAlignment.start,
-                          gap: 12,
+                              hsvg(dk(context, Svgs.s3, Svgs.s4), w: 16, h: 16),
+                            ],
+                            main: MainAxisAlignment.start,
+                            cross: CrossAxisAlignment.start,
+                            gap: 12,
+                          ),
                         ),
+                        to: 'BusinessHours',
                       ),
                     ],
                     main: MainAxisAlignment.start,

@@ -7,6 +7,7 @@ import '../backend/order_flow.dart';
 import '../kit/async_kit.dart';
 import '../kit/kit.dart';
 import '../kit/page_header.dart';
+import '../kit/sheet_frame.dart';
 import '../routes.dart';
 import '../theme.dart';
 import '../widgets/app_icon.dart';
@@ -1074,55 +1075,6 @@ class _BarButton extends StatelessWidget {
 
 // ───────────────────────── 底部弹层：筛选订单 / 订单退款 ─────────────────────────
 
-class _SheetFrame extends StatelessWidget {
-  final String title;
-  final List<Widget> children;
-  const _SheetFrame({required this.title, required this.children});
-  @override
-  Widget build(BuildContext context) => Container(
-    padding: EdgeInsets.fromLTRB(20, 10, 20, bottomInset(context, 30)),
-    decoration: BoxDecoration(
-      color: C.card,
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-      boxShadow: const [
-        BoxShadow(
-          color: Color.fromRGBO(0, 0, 0, 0.08),
-          offset: Offset(0, -14),
-          blurRadius: 28,
-        ),
-      ],
-    ),
-    child: SingleChildScrollView(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Center(
-            child: Container(
-              width: 40,
-              height: 5,
-              decoration: BoxDecoration(
-                color: dk(
-                  context,
-                  const Color(0xFFD4D4D8),
-                  const Color(0xFF3F3F46),
-                ),
-                borderRadius: BorderRadius.circular(3),
-              ),
-            ),
-          ),
-          const SizedBox(height: 14),
-          Text(
-            title,
-            style: ts(20, w: FontWeight.w600, color: C.ink, h: 28),
-          ),
-          for (final c in children) ...[const SizedBox(height: 14), c],
-        ],
-      ),
-    ),
-  );
-}
-
 Widget _group(
   String label,
   List<String> labels,
@@ -1166,7 +1118,7 @@ class _FilterState extends State<OrderFilterLiveSheet> {
   @override
   Widget build(BuildContext context) {
     final ops = ['全部', ...OrderFlow.operators];
-    return _SheetFrame(
+    return AppSheetFrame(
       title: '筛选订单',
       children: [
         _group(
@@ -1251,7 +1203,7 @@ class _RefundState extends State<OrderRefundLiveSheet> {
       for (final e in widget.order['payments'] as List? ?? const [])
         Map<String, dynamic>.from(e as Map),
     ];
-    return _SheetFrame(
+    return AppSheetFrame(
       title: '订单退款',
       children: [
         _group('退款金额', ['全额退款 $total', '部分退款'], amount, (i) {

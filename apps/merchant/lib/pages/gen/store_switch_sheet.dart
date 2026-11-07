@@ -321,7 +321,7 @@ class StoreSwitchSheet extends StatelessWidget {
                 gap: 12,
               ),
             ),
-            to: 'StoreEdit',
+            to: 'StoreAdd',
           ),
         ],
         main: MainAxisAlignment.start,

@@ -418,26 +418,6 @@ void main() {
     expect(find.text('林晓雯 · 金卡'), findsOneWidget);
   });
 
-  testWidgets('门店营业时间：开门 / 打烊可通过时间选择器修改', (t) async {
-    final old = FlutterError.onError;
-    FlutterError.onError = (d) {
-      if (!d.exceptionAsString().contains('overflowed')) old?.call(d);
-    };
-    addTearDown(() => FlutterError.onError = old);
-    await open(t, 'StoreEdit');
-    expect(find.text('09:00'), findsOneWidget);
-    await t.ensureVisible(find.text('开门'));
-    await t.tap(find.text('开门'));
-    await t.pumpAndSettle();
-    expect(find.text('选择开门时间'), findsOneWidget);
-    await t.drag(find.byType(ListWheelScrollView).first, const Offset(0, -60));
-    await t.pumpAndSettle();
-    await t.tap(find.text('确定'));
-    await t.pumpAndSettle();
-    expect(find.text('09:00'), findsNothing); // 已改成新的时间
-    expect(find.text('20:00'), findsOneWidget);
-  });
-
   testWidgets('更换手机号：获取验证码后进入 60 秒倒计时', (tester) async {
     final originalApi = merchantApi;
     final api = SmsInteractionApi();

@@ -7,6 +7,7 @@ import '../routes.dart';
 import '../theme.dart';
 import '../widgets/app_icon.dart';
 import '../mock/mock_data.dart' show money;
+import '../mock/store_state.dart';
 
 /// The backend currently permits one store per owner. Only that actual store is
 /// selectable; there is no local-only "active store" pretending to switch data.
@@ -43,7 +44,7 @@ class StoreSwitchLiveSheet extends StatelessWidget {
         Text('切换门店', style: ts(20, w: FontWeight.w600, h: 28)),
         const SizedBox(height: 14),
         SizedBox(
-          height: 204,
+          height: 204 + 84.0 * MockStores.extra.value.length,
           child: AsyncView<Map<String, dynamic>>(
             load: merchantApi.stores,
             isEmpty: (data) => (data['items'] as List).isEmpty,
@@ -70,6 +71,7 @@ class StoreSwitchLiveSheet extends StatelessWidget {
   Widget _content(BuildContext context, Map<String, dynamic> data) {
     final rows = List<Map<String, dynamic>>.from(data['items'] as List);
     final current = '${data['current_store_id']}';
+    MockStores.realCount = rows.length;
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -127,12 +129,41 @@ class StoreSwitchLiveSheet extends StatelessWidget {
             ),
             const SizedBox(height: 14),
           ],
+          // 新增的演示门店（临时 mock，见 MockStores）：只展示，不能切换过去，不参与任何数据读写。
+          for (final name in MockStores.extra.value) ...[
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => AppToast.show(context, '演示门店，跨门店切换暂未开通'),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: C.inset,
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(name, style: ts(15, w: FontWeight.w600, h: 22)),
+                    Text('演示门店 · 仅本机可见', style: ts(12, color: C.muted, h: 16)),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 14),
+          ],
           GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: () {
-              // TODO: A second store cannot be created while owner_id is unique.
-              // Expected backend: authorized store creation with subscription quotas.
-              AppToast.show(context, '新增门店暂未开通，${data['add_hint']}');
+              // 新增门店：临时 mock（见 MockStores），创建的是只在本机可见的演示门店。
+              // TODO: 真实新增门店需要后端：同一账号多门店、按套餐限制数量、创建时初始化营业时间和工位（store_create）。
+              if (MockStores.full) {
+                AppToast.show(context, '专业版最多 ${MockStores.max} 家门店，已达上限');
+                return;
+              }
+              openRoute(context, 'StoreAdd');
             },
             child: hbox(
               radius: BorderRadius.circular(18),
@@ -158,7 +189,11 @@ class StoreSwitchLiveSheet extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          '${data['add_hint']}',
+                          MockStores.extra.value.isEmpty
+                              ? '${data['add_hint']}'
+                              : MockStores.full
+                              ? '专业版最多 ${MockStores.max} 家，已达上限'
+                              : '专业版最多 ${MockStores.max} 家，还可添加 ${MockStores.remaining} 家',
                           style: ts(12, color: C.muted, h: 16),
                         ),
                       ],

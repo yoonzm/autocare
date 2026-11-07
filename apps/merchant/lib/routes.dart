@@ -31,6 +31,7 @@ import 'pages/member_add_page.dart';
 import 'pages/member_records_live_page.dart';
 import 'pages/order_page.dart';
 import 'pages/order_live_pages.dart';
+import 'pages/store_switch_live_sheet.dart';
 import 'pages/package_svc_pick_live.dart';
 import 'pages/services_page.dart';
 import 'pages/settings_page.dart';
@@ -39,11 +40,9 @@ import 'pages/plate_scan_result_live_sheet.dart';
 import 'backend/scan_flow.dart';
 import 'pages/shell.dart';
 import 'pages/theme_sheet.dart';
-import 'pages/store_switch_live_sheet.dart';
 
 final Map<String, WidgetBuilder> _allSheets = {
   ...genSheets,
-  'StoreSwitch': (_) => const StoreSwitchLiveSheet(),
   'FindResult': (context) =>
       merchantApi.hasSession && ScanFlow.matched && ScanFlow.member != null
       ? genSheets['FindResult']!(context)
@@ -57,6 +56,7 @@ final Map<String, WidgetBuilder> _allSheets = {
       ? const PlateScanResultLiveSheet()
       : ErrorView(error: const AppError('请先扫描车牌')),
   'OrderFilter': (_) => const OrderFilterLiveSheet(),
+  'StoreSwitch': (_) => const StoreSwitchLiveSheet(),
   'BudgetAdjust': (_) => const ExpenseLivePage(mode: 'adjust'),
   // TODO: 字符串路由没有预约 ID；改期必须从真实预约卡片或详情进入。
   'AppointmentReschedule': (context) => ErrorView(
@@ -246,6 +246,7 @@ const Set<String> _cupertinoSheetPages = {
   'StaffAdd',
   'StaffEdit',
   'StaffInvite',
+  'StoreAdd',
 };
 
 /// 全屏流程（相机扫描页）：从底部滑入，左上角是 ✕，全屏显示（设计稿“页面出场方式”第 4 类）。

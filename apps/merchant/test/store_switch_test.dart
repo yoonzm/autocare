@@ -81,14 +81,12 @@ void main() {
     expect(navTracker.has('sheet:StoreSwitch'), isFalse);
     expect(t.takeException(), isNull);
   });
-  testWidgets('新增门店明确提示限制，不打开假的新增表单', (t) async {
+  testWidgets('新增门店：打开新增门店页（临时 mock，演示门店不能切换），不再提示“暂未开通”', (t) async {
     await open(t);
     await t.tap(find.text('新增门店'));
     await t.pumpAndSettle();
-    expect(find.text('新增门店暂未开通，当前账号仅支持一家门店'), findsOneWidget);
-    expect(navTracker.has('StoreEdit'), isFalse);
-    expect(navTracker.has('sheet:StoreSwitch'), isTrue);
-    await t.pump(const Duration(seconds: 9));
+    expect(find.text('创建门店'), findsOneWidget);
+    expect(navTracker.has('StoreAdd'), isTrue);
   });
   testWidgets('延迟加载、失败重试，成功显示零营业额', (t) async {
     api.gate = Completer<void>();

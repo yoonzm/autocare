@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../mock/store_state.dart';
 import 'hold_flow.dart';
 import 'merchant_api.dart';
 import 'scan_flow.dart';
@@ -100,6 +101,7 @@ class StoreProfile extends ChangeNotifier {
     HoldFlow.reset();
     ScanFlow.last = null;
     ServiceStore.clear();
+    MockStores.reset();
     notifyListeners();
   }
 }

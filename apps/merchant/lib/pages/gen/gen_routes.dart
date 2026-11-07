@@ -1,6 +1,8 @@
 // 由 tools/design_to_flutter.py 生成，请勿手工修改。
 import 'package:flutter/widgets.dart';
 
+import 'store_add_page.dart';
+
 import 'pay_apply_bind_page.dart';
 import 'pay_apply_done_page.dart';
 import 'pay_apply_intro_page.dart';
@@ -141,6 +143,7 @@ import 'service_picker_sheet.dart';
 import 'recharge_empty_card_page.dart';
 
 final Map<String, WidgetBuilder> genRoutes = {
+  'StoreAdd': (_) => const StoreAddPage(),
   'PayApplyBind': (_) => const PayApplyBindPage(),
   'PayApplyDone': (_) => const PayApplyDonePage(),
   'PayApplyIntro': (_) => const PayApplyIntroPage(),

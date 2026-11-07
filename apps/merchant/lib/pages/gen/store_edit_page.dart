@@ -10,7 +10,7 @@ class StoreEditPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return HPage(
       bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
-      height: 980,
+      height: 602,
       fixedHeight: false,
       flow: hcol(
         [
@@ -590,878 +590,110 @@ class StoreEditPage extends StatelessWidget {
                   cross: CrossAxisAlignment.stretch,
                   gap: 8,
                 ),
-                hcol(
-                  [
-                    hbox(
-                      pad: EdgeInsets.fromLTRB(4, 0, 0, 0),
-                      child: Text(
-                        '营业时间',
-                        style: hts(
-                          13,
-                          dk(context, Color(0xFF52525B), Color(0xFFA8A8B3)),
-                          w: FontWeight.w500,
-                          lh: 18,
+                hTap(
+                  context,
+                  hbox(
+                    bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                    radius: BorderRadius.circular(24),
+                    shadow: dk(
+                      context,
+                      [
+                        BoxShadow(
+                          color: Color.fromRGBO(0, 0, 0, 0.06),
+                          offset: Offset(0, 0),
+                          blurRadius: 1,
+                          spreadRadius: 0,
                         ),
-                      ),
+                        BoxShadow(
+                          color: Color.fromRGBO(0, 0, 0, 0.06),
+                          offset: Offset(0, 1),
+                          blurRadius: 2,
+                          spreadRadius: 0,
+                        ),
+                        BoxShadow(
+                          color: Color.fromRGBO(0, 0, 0, 0.04),
+                          offset: Offset(0, 2),
+                          blurRadius: 4,
+                          spreadRadius: 0,
+                        ),
+                      ],
+                      [
+                        BoxShadow(
+                          color: Color(0xFF26262B),
+                          offset: Offset(0, 0),
+                          blurRadius: 0,
+                          spreadRadius: 1,
+                        ),
+                      ],
                     ),
-                    hbox(
-                      bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                      radius: BorderRadius.circular(24),
-                      shadow: dk(
-                        context,
-                        [
-                          BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 0),
-                            blurRadius: 1,
-                            spreadRadius: 0,
+                    pad: EdgeInsets.fromLTRB(16, 14, 16, 14),
+                    child: hrow(
+                      [
+                        hbox(
+                          w: 40,
+                          h: 40,
+                          bg: dk(
+                            context,
+                            Color(0xFFE1F0FE),
+                            Color.fromRGBO(4, 133, 247, 0.18),
                           ),
-                          BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 1),
-                            blurRadius: 2,
-                            spreadRadius: 0,
-                          ),
-                          BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.04),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
-                            spreadRadius: 0,
-                          ),
-                        ],
-                        [
-                          BoxShadow(
-                            color: Color(0xFF26262B),
-                            offset: Offset(0, 0),
-                            blurRadius: 0,
-                            spreadRadius: 1,
-                          ),
-                        ],
-                      ),
-                      pad: EdgeInsets.fromLTRB(16, 16, 16, 16),
-                      child: hcol(
-                        [
-                          hcol([
-                            hrow(
-                              [
-                                Expanded(
-                                  flex: 1,
-                                  child: hTap(
-                                    context,
-                                    hbox(
-                                      h: 40,
-                                      bg: dk(
-                                        context,
-                                        Color(0xFF18181B),
-                                        Color(0xFFFAFAFA),
-                                      ),
-                                      radius: BorderRadius.circular(12),
-                                      child: Align(
-                                        alignment: Alignment.center,
-                                        widthFactor: 1,
-                                        child: Text(
-                                          '一',
-                                          style: hts(
-                                            13,
-                                            dk(
-                                              context,
-                                              Color(0xFFFFFFFF),
-                                              Color(0xFF18181B),
-                                            ),
-                                            w: FontWeight.w500,
-                                            lh: 18,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    label: '一',
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 1,
-                                  child: hTap(
-                                    context,
-                                    hbox(
-                                      h: 40,
-                                      bg: dk(
-                                        context,
-                                        Color(0xFF18181B),
-                                        Color(0xFFFAFAFA),
-                                      ),
-                                      radius: BorderRadius.circular(12),
-                                      child: Align(
-                                        alignment: Alignment.center,
-                                        widthFactor: 1,
-                                        child: Text(
-                                          '二',
-                                          style: hts(
-                                            13,
-                                            dk(
-                                              context,
-                                              Color(0xFFFFFFFF),
-                                              Color(0xFF18181B),
-                                            ),
-                                            w: FontWeight.w500,
-                                            lh: 18,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    label: '二',
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 1,
-                                  child: hTap(
-                                    context,
-                                    hbox(
-                                      h: 40,
-                                      bg: dk(
-                                        context,
-                                        Color(0xFF18181B),
-                                        Color(0xFFFAFAFA),
-                                      ),
-                                      radius: BorderRadius.circular(12),
-                                      child: Align(
-                                        alignment: Alignment.center,
-                                        widthFactor: 1,
-                                        child: Text(
-                                          '三',
-                                          style: hts(
-                                            13,
-                                            dk(
-                                              context,
-                                              Color(0xFFFFFFFF),
-                                              Color(0xFF18181B),
-                                            ),
-                                            w: FontWeight.w500,
-                                            lh: 18,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    label: '三',
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 1,
-                                  child: hTap(
-                                    context,
-                                    hbox(
-                                      h: 40,
-                                      bg: dk(
-                                        context,
-                                        Color(0xFF18181B),
-                                        Color(0xFFFAFAFA),
-                                      ),
-                                      radius: BorderRadius.circular(12),
-                                      child: Align(
-                                        alignment: Alignment.center,
-                                        widthFactor: 1,
-                                        child: Text(
-                                          '四',
-                                          style: hts(
-                                            13,
-                                            dk(
-                                              context,
-                                              Color(0xFFFFFFFF),
-                                              Color(0xFF18181B),
-                                            ),
-                                            w: FontWeight.w500,
-                                            lh: 18,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    label: '四',
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 1,
-                                  child: hTap(
-                                    context,
-                                    hbox(
-                                      h: 40,
-                                      bg: dk(
-                                        context,
-                                        Color(0xFF18181B),
-                                        Color(0xFFFAFAFA),
-                                      ),
-                                      radius: BorderRadius.circular(12),
-                                      child: Align(
-                                        alignment: Alignment.center,
-                                        widthFactor: 1,
-                                        child: Text(
-                                          '五',
-                                          style: hts(
-                                            13,
-                                            dk(
-                                              context,
-                                              Color(0xFFFFFFFF),
-                                              Color(0xFF18181B),
-                                            ),
-                                            w: FontWeight.w500,
-                                            lh: 18,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    label: '五',
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 1,
-                                  child: hTap(
-                                    context,
-                                    hbox(
-                                      h: 40,
-                                      bg: dk(
-                                        context,
-                                        Color(0xFF18181B),
-                                        Color(0xFFFAFAFA),
-                                      ),
-                                      radius: BorderRadius.circular(12),
-                                      child: Align(
-                                        alignment: Alignment.center,
-                                        widthFactor: 1,
-                                        child: Text(
-                                          '六',
-                                          style: hts(
-                                            13,
-                                            dk(
-                                              context,
-                                              Color(0xFFFFFFFF),
-                                              Color(0xFF18181B),
-                                            ),
-                                            w: FontWeight.w500,
-                                            lh: 18,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    label: '六',
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 1,
-                                  child: hTap(
-                                    context,
-                                    hbox(
-                                      h: 40,
-                                      bg: dk(
-                                        context,
-                                        Color(0xFF18181B),
-                                        Color(0xFFFAFAFA),
-                                      ),
-                                      radius: BorderRadius.circular(12),
-                                      child: Align(
-                                        alignment: Alignment.center,
-                                        widthFactor: 1,
-                                        child: Text(
-                                          '日',
-                                          style: hts(
-                                            13,
-                                            dk(
-                                              context,
-                                              Color(0xFFFFFFFF),
-                                              Color(0xFF18181B),
-                                            ),
-                                            w: FontWeight.w500,
-                                            lh: 18,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    label: '日',
-                                  ),
-                                ),
-                              ],
-                              cross: CrossAxisAlignment.stretch,
-                              gap: 6,
-                              intrinsic: true,
-                              min: false,
-                            ),
-                          ], gap: 6),
-                          hrow(
+                          radius: BorderRadius.circular(12),
+                          child: hrow(
                             [
-                              Expanded(
-                                flex: 1,
-                                child: HStrHolder(
-                                  initial: '09:00',
-                                  builder: (context, s1) => hTap(
+                              hsvg(
+                                dk(context, Svgs.s458, Svgs.s459),
+                                w: 20,
+                                h: 20,
+                              ),
+                            ],
+                            main: MainAxisAlignment.center,
+                            cross: CrossAxisAlignment.center,
+                            gap: 0,
+                          ),
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: hcol(
+                            [
+                              Text(
+                                '营业时间与工位',
+                                style: hts(
+                                  15,
+                                  dk(
                                     context,
-                                    hbox(
-                                      h: 48,
-                                      bg: dk(
-                                        context,
-                                        Color(0xFFF4F4F5),
-                                        Color(0xFF27272A),
-                                      ),
-                                      radius: BorderRadius.circular(14),
-                                      pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                      child: hcol(
-                                        [
-                                          Text(
-                                            '开门',
-                                            style: hts(
-                                              11,
-                                              dk(
-                                                context,
-                                                Color(0xFF71717A),
-                                                Color(0xFF9A9AA3),
-                                              ),
-                                              lh: 14,
-                                            ),
-                                          ),
-                                          hStr(
-                                            s1,
-                                            hts(
-                                              16,
-                                              dk(
-                                                context,
-                                                Color(0xFF18181B),
-                                                Color(0xFFFAFAFA),
-                                              ),
-                                              w: FontWeight.w600,
-                                              lh: 22,
-                                            ),
-                                          ),
-                                        ],
-                                        main: MainAxisAlignment.center,
-                                        cross: CrossAxisAlignment.stretch,
-                                        gap: 0,
-                                        min: false,
-                                      ),
-                                    ),
-                                    onTap: () =>
-                                        hPick(context, 'time', '开门', s1),
+                                    Color(0xFF18181B),
+                                    Color(0xFFFAFAFA),
                                   ),
+                                  w: FontWeight.w500,
+                                  lh: 22,
                                 ),
                               ),
-                              hbox(
-                                w: 12,
-                                h: 2,
-                                bg: Color(0xFFA1A1AA),
-                                radius: BorderRadius.circular(1),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: HStrHolder(
-                                  initial: '20:00',
-                                  builder: (context, s2) => hTap(
+                              Text(
+                                '09:00–20:00 · 6 工位 · 统一管理',
+                                style: hts(
+                                  12,
+                                  dk(
                                     context,
-                                    hbox(
-                                      h: 48,
-                                      bg: dk(
-                                        context,
-                                        Color(0xFFF4F4F5),
-                                        Color(0xFF27272A),
-                                      ),
-                                      radius: BorderRadius.circular(14),
-                                      pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                      child: hcol(
-                                        [
-                                          Text(
-                                            '打烊',
-                                            style: hts(
-                                              11,
-                                              dk(
-                                                context,
-                                                Color(0xFF71717A),
-                                                Color(0xFF9A9AA3),
-                                              ),
-                                              lh: 14,
-                                            ),
-                                          ),
-                                          hStr(
-                                            s2,
-                                            hts(
-                                              16,
-                                              dk(
-                                                context,
-                                                Color(0xFF18181B),
-                                                Color(0xFFFAFAFA),
-                                              ),
-                                              w: FontWeight.w600,
-                                              lh: 22,
-                                            ),
-                                          ),
-                                        ],
-                                        main: MainAxisAlignment.center,
-                                        cross: CrossAxisAlignment.stretch,
-                                        gap: 0,
-                                        min: false,
-                                      ),
-                                    ),
-                                    onTap: () =>
-                                        hPick(context, 'time', '打烊', s2),
+                                    Color(0xFF71717A),
+                                    Color(0xFF9A9AA3),
                                   ),
+                                  lh: 16,
                                 ),
                               ),
                             ],
                             main: MainAxisAlignment.start,
-                            cross: CrossAxisAlignment.center,
-                            gap: 10,
+                            cross: CrossAxisAlignment.stretch,
+                            gap: 2,
                           ),
-                          hrow(
-                            [
-                              Expanded(
-                                flex: 1,
-                                child: hcol(
-                                  [
-                                    Text(
-                                      '节假日照常营业',
-                                      style: hts(
-                                        14,
-                                        dk(
-                                          context,
-                                          Color(0xFF18181B),
-                                          Color(0xFFFAFAFA),
-                                        ),
-                                        lh: 20,
-                                      ),
-                                    ),
-                                    Text(
-                                      '关闭后春节等假期暂停预约',
-                                      style: hts(
-                                        12,
-                                        dk(
-                                          context,
-                                          Color(0xFF71717A),
-                                          Color(0xFF9A9AA3),
-                                        ),
-                                        lh: 16,
-                                      ),
-                                    ),
-                                  ],
-                                  main: MainAxisAlignment.start,
-                                  cross: CrossAxisAlignment.stretch,
-                                  gap: 0,
-                                ),
-                              ),
-                              HSwitch(initial: true),
-                            ],
-                            main: MainAxisAlignment.start,
-                            cross: CrossAxisAlignment.center,
-                            gap: 12,
-                          ),
-                        ],
-                        main: MainAxisAlignment.start,
-                        cross: CrossAxisAlignment.stretch,
-                        gap: 14,
-                      ),
-                    ),
-                  ],
-                  main: MainAxisAlignment.start,
-                  cross: CrossAxisAlignment.stretch,
-                  gap: 8,
-                ),
-                hcol(
-                  [
-                    hbox(
-                      pad: EdgeInsets.fromLTRB(4, 0, 0, 0),
-                      child: Text(
-                        '工位设置',
-                        style: hts(
-                          13,
-                          dk(context, Color(0xFF52525B), Color(0xFFA8A8B3)),
-                          w: FontWeight.w500,
-                          lh: 18,
                         ),
-                      ),
+                        hsvg(dk(context, Svgs.s3, Svgs.s4), w: 16, h: 16),
+                      ],
+                      main: MainAxisAlignment.start,
+                      cross: CrossAxisAlignment.center,
+                      gap: 12,
                     ),
-                    hbox(
-                      bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                      radius: BorderRadius.circular(24),
-                      shadow: dk(
-                        context,
-                        [
-                          BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 0),
-                            blurRadius: 1,
-                            spreadRadius: 0,
-                          ),
-                          BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 1),
-                            blurRadius: 2,
-                            spreadRadius: 0,
-                          ),
-                          BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.04),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
-                            spreadRadius: 0,
-                          ),
-                        ],
-                        [
-                          BoxShadow(
-                            color: Color(0xFF26262B),
-                            offset: Offset(0, 0),
-                            blurRadius: 0,
-                            spreadRadius: 1,
-                          ),
-                        ],
-                      ),
-                      pad: EdgeInsets.fromLTRB(0, 4, 0, 4),
-                      child: hcol(
-                        [
-                          hbox(
-                            h: 56,
-                            pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                            child: hrow(
-                              [
-                                hbox(
-                                  w: 10,
-                                  h: 10,
-                                  bg: Color(0xFF0485F7),
-                                  radius: BorderRadius.circular(5),
-                                ),
-                                Expanded(
-                                  flex: 1,
-                                  child: Text(
-                                    '洗车工位',
-                                    style: hts(
-                                      15,
-                                      dk(
-                                        context,
-                                        Color(0xFF18181B),
-                                        Color(0xFFFAFAFA),
-                                      ),
-                                      lh: 22,
-                                    ),
-                                  ),
-                                ),
-                                HHolder(
-                                  inits: [2],
-                                  builder: (context, ctrls) {
-                                    final c3 = ctrls[0];
-                                    return HNumberStepper(
-                                      ctrl: c3,
-                                      step: 1,
-                                      minus: hbox(
-                                        w: 32,
-                                        h: 32,
-                                        bg: dk(
-                                          context,
-                                          Color(0xFFEEEEF0),
-                                          Color(0xFF27272A),
-                                        ),
-                                        radius: BorderRadius.circular(16),
-                                        align: Alignment.center,
-                                        child: Text(
-                                          '−',
-                                          style: hts(
-                                            18,
-                                            dk(
-                                              context,
-                                              Color(0xFF18181B),
-                                              Color(0xFFFAFAFA),
-                                            ),
-                                            w: FontWeight.w500,
-                                            lh: 18,
-                                          ),
-                                        ),
-                                      ),
-                                      value: hbox(
-                                        w: 32,
-                                        align: Alignment.center,
-                                        child: hCount(
-                                          c3,
-                                          hts(
-                                            16,
-                                            dk(
-                                              context,
-                                              Color(0xFF18181B),
-                                              Color(0xFFFAFAFA),
-                                            ),
-                                            w: FontWeight.w600,
-                                            lh: 22,
-                                          ),
-                                          0,
-                                          '',
-                                          false,
-                                        ),
-                                      ),
-                                      plus: hbox(
-                                        w: 32,
-                                        h: 32,
-                                        bg: dk(
-                                          context,
-                                          Color(0xFF18181B),
-                                          Color(0xFF34343A),
-                                        ),
-                                        radius: BorderRadius.circular(16),
-                                        align: Alignment.center,
-                                        child: Text(
-                                          '+',
-                                          style: hts(
-                                            18,
-                                            Color(0xFFFFFFFF),
-                                            w: FontWeight.w500,
-                                            lh: 18,
-                                          ),
-                                        ),
-                                      ),
-                                      main: MainAxisAlignment.start,
-                                      cross: CrossAxisAlignment.center,
-                                      gap: 4,
-                                    );
-                                  },
-                                ),
-                              ],
-                              main: MainAxisAlignment.start,
-                              cross: CrossAxisAlignment.center,
-                              gap: 12,
-                            ),
-                          ),
-                          hbox(
-                            h: 1,
-                            bg: dk(
-                              context,
-                              Color(0xFFEFEFF1),
-                              Color(0xFF2A2A2E),
-                            ),
-                            margin: EdgeInsets.fromLTRB(38, 0, 0, 0),
-                          ),
-                          hbox(
-                            h: 56,
-                            pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                            child: hrow(
-                              [
-                                hbox(
-                                  w: 10,
-                                  h: 10,
-                                  bg: Color(0xFF17C964),
-                                  radius: BorderRadius.circular(5),
-                                ),
-                                Expanded(
-                                  flex: 1,
-                                  child: Text(
-                                    '美容工位',
-                                    style: hts(
-                                      15,
-                                      dk(
-                                        context,
-                                        Color(0xFF18181B),
-                                        Color(0xFFFAFAFA),
-                                      ),
-                                      lh: 22,
-                                    ),
-                                  ),
-                                ),
-                                HHolder(
-                                  inits: [2],
-                                  builder: (context, ctrls) {
-                                    final c4 = ctrls[0];
-                                    return HNumberStepper(
-                                      ctrl: c4,
-                                      step: 1,
-                                      minus: hbox(
-                                        w: 32,
-                                        h: 32,
-                                        bg: dk(
-                                          context,
-                                          Color(0xFFEEEEF0),
-                                          Color(0xFF27272A),
-                                        ),
-                                        radius: BorderRadius.circular(16),
-                                        align: Alignment.center,
-                                        child: Text(
-                                          '−',
-                                          style: hts(
-                                            18,
-                                            dk(
-                                              context,
-                                              Color(0xFF18181B),
-                                              Color(0xFFFAFAFA),
-                                            ),
-                                            w: FontWeight.w500,
-                                            lh: 18,
-                                          ),
-                                        ),
-                                      ),
-                                      value: hbox(
-                                        w: 32,
-                                        align: Alignment.center,
-                                        child: hCount(
-                                          c4,
-                                          hts(
-                                            16,
-                                            dk(
-                                              context,
-                                              Color(0xFF18181B),
-                                              Color(0xFFFAFAFA),
-                                            ),
-                                            w: FontWeight.w600,
-                                            lh: 22,
-                                          ),
-                                          0,
-                                          '',
-                                          false,
-                                        ),
-                                      ),
-                                      plus: hbox(
-                                        w: 32,
-                                        h: 32,
-                                        bg: dk(
-                                          context,
-                                          Color(0xFF18181B),
-                                          Color(0xFF34343A),
-                                        ),
-                                        radius: BorderRadius.circular(16),
-                                        align: Alignment.center,
-                                        child: Text(
-                                          '+',
-                                          style: hts(
-                                            18,
-                                            Color(0xFFFFFFFF),
-                                            w: FontWeight.w500,
-                                            lh: 18,
-                                          ),
-                                        ),
-                                      ),
-                                      main: MainAxisAlignment.start,
-                                      cross: CrossAxisAlignment.center,
-                                      gap: 4,
-                                    );
-                                  },
-                                ),
-                              ],
-                              main: MainAxisAlignment.start,
-                              cross: CrossAxisAlignment.center,
-                              gap: 12,
-                            ),
-                          ),
-                          hbox(
-                            h: 1,
-                            bg: dk(
-                              context,
-                              Color(0xFFEFEFF1),
-                              Color(0xFF2A2A2E),
-                            ),
-                            margin: EdgeInsets.fromLTRB(38, 0, 0, 0),
-                          ),
-                          hbox(
-                            h: 56,
-                            pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                            child: hrow(
-                              [
-                                hbox(
-                                  w: 10,
-                                  h: 10,
-                                  bg: Color(0xFFF5A524),
-                                  radius: BorderRadius.circular(5),
-                                ),
-                                Expanded(
-                                  flex: 1,
-                                  child: Text(
-                                    '贴膜间',
-                                    style: hts(
-                                      15,
-                                      dk(
-                                        context,
-                                        Color(0xFF18181B),
-                                        Color(0xFFFAFAFA),
-                                      ),
-                                      lh: 22,
-                                    ),
-                                  ),
-                                ),
-                                HHolder(
-                                  inits: [2],
-                                  builder: (context, ctrls) {
-                                    final c5 = ctrls[0];
-                                    return HNumberStepper(
-                                      ctrl: c5,
-                                      step: 1,
-                                      minus: hbox(
-                                        w: 32,
-                                        h: 32,
-                                        bg: dk(
-                                          context,
-                                          Color(0xFFEEEEF0),
-                                          Color(0xFF27272A),
-                                        ),
-                                        radius: BorderRadius.circular(16),
-                                        align: Alignment.center,
-                                        child: Text(
-                                          '−',
-                                          style: hts(
-                                            18,
-                                            dk(
-                                              context,
-                                              Color(0xFF18181B),
-                                              Color(0xFFFAFAFA),
-                                            ),
-                                            w: FontWeight.w500,
-                                            lh: 18,
-                                          ),
-                                        ),
-                                      ),
-                                      value: hbox(
-                                        w: 32,
-                                        align: Alignment.center,
-                                        child: hCount(
-                                          c5,
-                                          hts(
-                                            16,
-                                            dk(
-                                              context,
-                                              Color(0xFF18181B),
-                                              Color(0xFFFAFAFA),
-                                            ),
-                                            w: FontWeight.w600,
-                                            lh: 22,
-                                          ),
-                                          0,
-                                          '',
-                                          false,
-                                        ),
-                                      ),
-                                      plus: hbox(
-                                        w: 32,
-                                        h: 32,
-                                        bg: dk(
-                                          context,
-                                          Color(0xFF18181B),
-                                          Color(0xFF34343A),
-                                        ),
-                                        radius: BorderRadius.circular(16),
-                                        align: Alignment.center,
-                                        child: Text(
-                                          '+',
-                                          style: hts(
-                                            18,
-                                            Color(0xFFFFFFFF),
-                                            w: FontWeight.w500,
-                                            lh: 18,
-                                          ),
-                                        ),
-                                      ),
-                                      main: MainAxisAlignment.start,
-                                      cross: CrossAxisAlignment.center,
-                                      gap: 4,
-                                    );
-                                  },
-                                ),
-                              ],
-                              main: MainAxisAlignment.start,
-                              cross: CrossAxisAlignment.center,
-                              gap: 12,
-                            ),
-                          ),
-                        ],
-                        main: MainAxisAlignment.start,
-                        cross: CrossAxisAlignment.stretch,
-                        gap: 0,
-                      ),
-                    ),
-                  ],
-                  main: MainAxisAlignment.start,
-                  cross: CrossAxisAlignment.stretch,
-                  gap: 8,
+                  ),
+                  to: 'BusinessHours',
                 ),
               ],
               main: MainAxisAlignment.start,
