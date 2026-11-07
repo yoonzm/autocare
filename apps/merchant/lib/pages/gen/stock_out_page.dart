@@ -200,133 +200,71 @@ class StockOutPage extends StatelessWidget {
                                 ),
                               ),
                             ),
+                            hTap(
+                              context,
+                              hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFF4F4F5),
+                                  Color(0xFF27272A),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment(-1, 0),
+                                  widthFactor: 1,
+                                  child: Text(
+                                    '损耗报废',
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF3F3F46),
+                                        Color(0xFFD4D4D8),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              to: 'StockOutScrap',
+                            ),
+                            hTap(
+                              context,
+                              hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFF4F4F5),
+                                  Color(0xFF27272A),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment(-1, 0),
+                                  widthFactor: 1,
+                                  child: Text(
+                                    '退回供应商',
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF3F3F46),
+                                        Color(0xFFD4D4D8),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              to: 'StockOutReturn',
+                            ),
                             HSel(
                               ctrl: g1[0],
                               index: 1,
-                              on: hbox(
-                                h: 34,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFE1F0FE),
-                                  Color.fromRGBO(4, 133, 247, 0.18),
-                                ),
-                                radius: BorderRadius.circular(17),
-                                border: Border.all(
-                                  color: Color(0xFF0485F7),
-                                  width: 1.5,
-                                ),
-                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  widthFactor: 1,
-                                  child: Text(
-                                    '损耗报废',
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF1E63AE),
-                                        Color(0xFF6AB4FA),
-                                      ),
-                                      w: FontWeight.w500,
-                                      lh: 18,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              off: hbox(
-                                h: 34,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFF4F4F5),
-                                  Color(0xFF27272A),
-                                ),
-                                radius: BorderRadius.circular(17),
-                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  widthFactor: 1,
-                                  child: Text(
-                                    '损耗报废',
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF3F3F46),
-                                        Color(0xFFD4D4D8),
-                                      ),
-                                      w: FontWeight.w500,
-                                      lh: 18,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            HSel(
-                              ctrl: g1[0],
-                              index: 2,
-                              on: hbox(
-                                h: 34,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFE1F0FE),
-                                  Color.fromRGBO(4, 133, 247, 0.18),
-                                ),
-                                radius: BorderRadius.circular(17),
-                                border: Border.all(
-                                  color: Color(0xFF0485F7),
-                                  width: 1.5,
-                                ),
-                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  widthFactor: 1,
-                                  child: Text(
-                                    '退回供应商',
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF1E63AE),
-                                        Color(0xFF6AB4FA),
-                                      ),
-                                      w: FontWeight.w500,
-                                      lh: 18,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              off: hbox(
-                                h: 34,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFF4F4F5),
-                                  Color(0xFF27272A),
-                                ),
-                                radius: BorderRadius.circular(17),
-                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  widthFactor: 1,
-                                  child: Text(
-                                    '退回供应商',
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF3F3F46),
-                                        Color(0xFFD4D4D8),
-                                      ),
-                                      w: FontWeight.w500,
-                                      lh: 18,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            HSel(
-                              ctrl: g1[0],
-                              index: 3,
                               on: hbox(
                                 h: 34,
                                 bg: dk(
@@ -920,7 +858,7 @@ class StockOutPage extends StatelessWidget {
                                 gap: 6,
                               ),
                             ),
-                            label: '添加商品',
+                            to: 'ProductPicker',
                           ),
                         ],
                         main: MainAxisAlignment.start,
@@ -1209,7 +1147,7 @@ class StockOutPage extends StatelessWidget {
                     context,
                     hbox(
                       h: 50,
-                      bg: dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                      bg: Color(0xFF0485F7),
                       radius: BorderRadius.circular(25),
                       child: Align(
                         alignment: Alignment(0, 0),
@@ -1218,7 +1156,7 @@ class StockOutPage extends StatelessWidget {
                           '确认出库',
                           style: hts(
                             15,
-                            dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                            Color(0xFFFFFFFF),
                             w: FontWeight.w600,
                             lh: 22,
                           ),

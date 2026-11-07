@@ -23,6 +23,7 @@ HANDWRITTEN = {
     'Settings', 'Order', 'Appointments', 'AppointmentAdd', 'Services',
     'MemberAdd',  # 称呼 / 车身颜色 / 客户来源是手写单选控件，保存按钮直接接后端
     'ThemeSheet',
+    'ProductList',  # 商品列表：手写，读真实库存（见 lib/pages/product_list_live_page.dart）
     'FindScanPlate', 'FindScanCode', 'ScanLicense', 'ScanPlate',  # 相机扫描页：手写  # 外观选择：手写，直接作用于全局主题
 }
 # 由后端门店资料驱动的文字：(页面, 设计稿里的示例文字) -> 取值表达式。
@@ -276,12 +277,21 @@ SKIP = {'ForgotNote', 'AppIcon', 'DarkTokens', 'PageTransitions', 'MemberPickerE
         'OrderListEmpty', 'OrderDetailRecharge', 'OrderNote',
         # 开通微信支付的开发说明（文档页）
         'PayApplyNote',
+        # 库存：首次无商品是库存页的一种状态；开发说明是文档页
+        'InventoryEmpty', 'InventoryNote',
+        # 盘点的“待盘 / 差异”和出库的“退回供应商 / 损耗报废”是盘点页、出库页里的页签 / 类型，不单独成页
+        'StockCheckPending', 'StockCheckDiff', 'StockOutReturn', 'StockOutScrap',
+        # 商品列表的“全部 / 临期 / 已停用”是商品列表（手写，读真实库存）里的筛选页签
+        'ProductListAll', 'ProductListExp', 'ProductListOff',
         # 自定义颜色选择器是通用组件（lib/kit/color_picker.dart），不生成页面
         'ColorPicker', 'ColorPickerCard'}
 # 链接目标改写：设计稿里单独画出来的状态页 -> 实际所在的页面
 LINK_REMAP = {'OrderWalkIn': 'Order', 'OrderEmpty': 'Order', 'OrderListEmpty': 'OrderList', 'OrderDetailRecharge': 'OrderDetail',
               # 支付与收款：未开通是同一个页面的一种状态（目前没有开通能力，真实状态就是未开通）
-              'PayConfigUnopened': 'PayConfig'}
+              'PayConfigUnopened': 'PayConfig', 'InventoryEmpty': 'Inventory',
+              'StockCheckPending': 'StockCheck', 'StockCheckDiff': 'StockCheck',
+              'StockOutReturn': 'StockOut', 'StockOutScrap': 'StockOut',
+              'ProductListAll': 'ProductList', 'ProductListExp': 'ProductList', 'ProductListOff': 'ProductList'}
 # 设计稿里的深色版本只是参考，深色效果由同一套页面自动适配
 SKIP_SUFFIX = ('Dark',)
 

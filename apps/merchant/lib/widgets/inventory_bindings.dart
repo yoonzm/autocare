@@ -206,7 +206,7 @@ class InventoryController extends ChangeNotifier {
       '应付 · 16 件商品': '应付 · ${lines.length} 项商品',
       '¥1,358.00': quoted('subtotal'),
       '将计入该工单的成本核算': '记录本次出库成本',
-      '盘点单 PD-1031 · 全部仓库': '盘点单 PD-${id.substring(0, 8)} · 全部仓库',
+      '盘点单 PD-1031 · 全部商品': '盘点单 PD-${id.substring(0, 8)} · 全部商品',
       '12': '${counted.length}',
       '/ 248 已盘点': '/ ${lines.length} 已盘点',
       '1 项 · +4':

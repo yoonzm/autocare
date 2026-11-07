@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../backend/merchant_api.dart';
 import '../kit/async_kit.dart';
+import '../kit/page_header.dart';
 import '../theme.dart';
 import '../routes.dart';
 import '../widgets/app_icon.dart';
@@ -53,7 +54,58 @@ class _InventoryPageState extends State<InventoryPage> {
         load: _load,
         isEmpty: (_) => false,
         skeleton: const SkeletonList(count: 5),
-        empty: (_) => EmptyView.firstTime(title: '还没有库存商品'),
+        empty: (_) => Scaffold(
+          body: ListView(
+            padding: EdgeInsets.fromLTRB(
+              20,
+              MediaQuery.of(context).padding.top + 12,
+              20,
+              130,
+            ),
+            children: [
+              const AppPageHeader(title: '库存管理'),
+              SizedBox(
+                height: 420,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 96,
+                      height: 96,
+                      decoration: BoxDecoration(
+                        color: C.primarySoft,
+                        shape: BoxShape.circle,
+                      ),
+                      child: AppIcon(
+                        'box',
+                        size: 44,
+                        color: C.primaryInk,
+                        stroke: 1.6,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text('还没有商品', style: ts(18, w: FontWeight.w600, h: 26)),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: 270,
+                      child: Text(
+                        '先添加商品，才能入库、出库和盘点。服务里绑定的耗材也从这里选。',
+                        textAlign: TextAlign.center,
+                        style: ts(14, color: C.sub, h: 21),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    PrimaryButton(
+                      '添加第一个商品',
+                      onTap: () => openRoute(context, 'ProductEdit'),
+                      padding: const EdgeInsets.symmetric(horizontal: 28),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
         onNext: () => openRoute(context, 'Login'),
         builder: (context, data) => _content(context),
       ),
@@ -85,7 +137,7 @@ class _InventoryPageState extends State<InventoryPage> {
               RoundBtn(
                 'scan',
                 label: '扫码查询',
-                onTap: () => toast(context, '扫码查询尚未接通'),
+                onTap: () => openRoute(context, 'ScanProduct'),
               ),
               const SizedBox(width: 8),
               GestureDetector(
@@ -94,19 +146,19 @@ class _InventoryPageState extends State<InventoryPage> {
                   height: 44,
                   padding: const EdgeInsets.fromLTRB(12, 0, 16, 0),
                   decoration: BoxDecoration(
-                    color: C.btn,
+                    color: C.primary,
                     borderRadius: BorderRadius.circular(22),
                   ),
                   child: Row(
                     children: [
-                      AppIcon('add', size: 18, color: C.btnFg),
+                      AppIcon('add', size: 18, color: Colors.white),
                       const SizedBox(width: 6),
                       Text(
                         '入库',
                         style: ts(
                           14,
                           w: FontWeight.w500,
-                          color: C.btnFg,
+                          color: Colors.white,
                           h: 20,
                         ),
                       ),
@@ -126,6 +178,14 @@ class _InventoryPageState extends State<InventoryPage> {
               _action(context, '出库', 'arrowOut', C.amberSoft, C.amberInk),
               const SizedBox(width: 10),
               _action(context, '盘点', 'clipboard', C.primarySoft, C.primaryInk),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              _entry(context, '全部商品', '${products.length} 项', 'ProductList'),
+              const SizedBox(width: 10),
+              _entry(context, '库存单据', '入库 / 出库 / 盘点', 'StockDocs'),
             ],
           ),
           const SizedBox(height: 16),
@@ -166,7 +226,7 @@ class _InventoryPageState extends State<InventoryPage> {
                   ),
                 ),
                 GestureDetector(
-                  onTap: () => openRoute(context, 'StockIn'),
+                  onTap: () => openRoute(context, 'ProductList'),
                   child: Container(
                     height: 32,
                     padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -320,6 +380,31 @@ class _InventoryPageState extends State<InventoryPage> {
     );
   }
 
+  /// 全部商品 / 库存单据入口（设计稿 Inventory：两张并排的白色卡片，右侧箭头）。
+  Widget _entry(BuildContext context, String title, String sub, String route) =>
+      Expanded(
+        child: AppCard(
+          radius: 20,
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          onTap: () => openRoute(context, route),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, style: ts(14, w: FontWeight.w500, h: 20)),
+                    Text(sub, style: ts(12, color: C.muted, h: 16)),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              AppIcon('chevronRight', size: 16, color: C.faint),
+            ],
+          ),
+        ),
+      );
+
   Widget _action(
     BuildContext context,
     String t,
@@ -332,7 +417,7 @@ class _InventoryPageState extends State<InventoryPage> {
       padding: const EdgeInsets.all(12),
       onTap: () => openRoute(
         context,
-        {'入库': 'StockIn', '出库': 'StockOut', '盘点': 'StockCheck'}[t]!,
+        {'入库': 'StockIn', '出库': 'StockOut', '盘点': 'StockCheckNew'}[t]!,
       ),
       child: Row(
         children: [

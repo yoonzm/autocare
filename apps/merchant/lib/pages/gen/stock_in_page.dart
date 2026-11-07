@@ -190,8 +190,91 @@ class StockInPage extends StatelessWidget {
                       pad: EdgeInsets.fromLTRB(0, 4, 0, 4),
                       child: hcol(
                         [
+                          hTap(
+                            context,
+                            hbox(
+                              minH: 54,
+                              pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                              child: hrow(
+                                [
+                                  Expanded(
+                                    flex: 1,
+                                    child: Text.rich(
+                                      TextSpan(
+                                        style: hts(
+                                          14,
+                                          dk(
+                                            context,
+                                            Color(0xFF52525B),
+                                            Color(0xFFA8A8B3),
+                                          ),
+                                          lh: 20,
+                                        ),
+                                        children: [
+                                          TextSpan(
+                                            text: '供应商 ',
+                                            style: hts(
+                                              14,
+                                              dk(
+                                                context,
+                                                Color(0xFF52525B),
+                                                Color(0xFFA8A8B3),
+                                              ),
+                                              lh: 20,
+                                            ),
+                                          ),
+                                          TextSpan(
+                                            text: '*',
+                                            style: hts(
+                                              14,
+                                              dk(
+                                                context,
+                                                Color(0xFFA43433),
+                                                Color(0xFFFF7B7E),
+                                              ),
+                                              lh: 20,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  Text(
+                                    '蓝盾膜业',
+                                    style: hts(
+                                      15,
+                                      dk(
+                                        context,
+                                        Color(0xFF18181B),
+                                        Color(0xFFFAFAFA),
+                                      ),
+                                      lh: 22,
+                                    ),
+                                  ),
+                                  hsvg(
+                                    dk(context, Svgs.s3, Svgs.s4),
+                                    w: 16,
+                                    h: 16,
+                                  ),
+                                ],
+                                main: MainAxisAlignment.start,
+                                cross: CrossAxisAlignment.center,
+                                gap: 12,
+                              ),
+                            ),
+                            to: 'SupplierPicker',
+                          ),
+                          hbox(
+                            h: 1,
+                            bg: dk(
+                              context,
+                              Color(0xFFEFEFF1),
+                              Color(0xFF2A2A2E),
+                            ),
+                            margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
+                          ),
                           HStrHolder(
-                            initial: '蓝盾膜业',
+                            initial: '今天 10.31',
                             builder: (context, s1) => hTap(
                               context,
                               hbox(
@@ -201,43 +284,16 @@ class StockInPage extends StatelessWidget {
                                   [
                                     Expanded(
                                       flex: 1,
-                                      child: Text.rich(
-                                        TextSpan(
-                                          style: hts(
-                                            14,
-                                            dk(
-                                              context,
-                                              Color(0xFF52525B),
-                                              Color(0xFFA8A8B3),
-                                            ),
-                                            lh: 20,
+                                      child: Text(
+                                        '入库日期',
+                                        style: hts(
+                                          14,
+                                          dk(
+                                            context,
+                                            Color(0xFF52525B),
+                                            Color(0xFFA8A8B3),
                                           ),
-                                          children: [
-                                            TextSpan(
-                                              text: '供应商 ',
-                                              style: hts(
-                                                14,
-                                                dk(
-                                                  context,
-                                                  Color(0xFF52525B),
-                                                  Color(0xFFA8A8B3),
-                                                ),
-                                                lh: 20,
-                                              ),
-                                            ),
-                                            TextSpan(
-                                              text: '*',
-                                              style: hts(
-                                                14,
-                                                dk(
-                                                  context,
-                                                  Color(0xFFA43433),
-                                                  Color(0xFFFF7B7E),
-                                                ),
-                                                lh: 20,
-                                              ),
-                                            ),
-                                          ],
+                                          lh: 20,
                                         ),
                                       ),
                                     ),
@@ -264,67 +320,7 @@ class StockInPage extends StatelessWidget {
                                   gap: 12,
                                 ),
                               ),
-                              onTap: () =>
-                                  hPick(context, 'supplier', '供应商', s1),
-                            ),
-                          ),
-                          hbox(
-                            h: 1,
-                            bg: dk(
-                              context,
-                              Color(0xFFEFEFF1),
-                              Color(0xFF2A2A2E),
-                            ),
-                            margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
-                          ),
-                          HStrHolder(
-                            initial: '今天 10.31',
-                            builder: (context, s2) => hTap(
-                              context,
-                              hbox(
-                                minH: 54,
-                                pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                                child: hrow(
-                                  [
-                                    Expanded(
-                                      flex: 1,
-                                      child: Text(
-                                        '入库日期',
-                                        style: hts(
-                                          14,
-                                          dk(
-                                            context,
-                                            Color(0xFF52525B),
-                                            Color(0xFFA8A8B3),
-                                          ),
-                                          lh: 20,
-                                        ),
-                                      ),
-                                    ),
-                                    hStr(
-                                      s2,
-                                      hts(
-                                        15,
-                                        dk(
-                                          context,
-                                          Color(0xFF18181B),
-                                          Color(0xFFFAFAFA),
-                                        ),
-                                        lh: 22,
-                                      ),
-                                    ),
-                                    hsvg(
-                                      dk(context, Svgs.s3, Svgs.s4),
-                                      w: 16,
-                                      h: 16,
-                                    ),
-                                  ],
-                                  main: MainAxisAlignment.start,
-                                  cross: CrossAxisAlignment.center,
-                                  gap: 12,
-                                ),
-                              ),
-                              onTap: () => hPick(context, 'date', '入库日期', s2),
+                              onTap: () => hPick(context, 'date', '入库日期', s1),
                             ),
                           ),
                           hbox(
@@ -439,9 +435,9 @@ class StockInPage extends StatelessWidget {
                           'TPU 隐形车衣 7.5mil当前库存 2 卷 · 低于安全库存单价 ¥2,380.00 / 卷批次 自动生成 · 无保质期6¥14,280.00',
                           '9H 陶瓷镀晶液 50ml当前库存 6 瓶单价 ¥168.00 / 瓶批次 自动生成 · 有效期 2028.1010¥1,680.00',
                         ],
-                        builder: (context, d3) => hcol(
+                        builder: (context, d2) => hcol(
                           [
-                            ...d3.vis([
+                            ...d2.vis([
                               hcol(
                                 [
                                   hrow(
@@ -510,7 +506,7 @@ class StockInPage extends StatelessWidget {
                                           ),
                                         ),
                                         onTap: () =>
-                                            d3.confirmRemove(context, 0),
+                                            d2.confirmRemove(context, 0),
                                       ),
                                     ],
                                     main: MainAxisAlignment.start,
@@ -556,9 +552,9 @@ class StockInPage extends StatelessWidget {
                                       HHolder(
                                         inits: [6],
                                         builder: (context, ctrls) {
-                                          final c4 = ctrls[0];
+                                          final c3 = ctrls[0];
                                           return HNumberStepper(
-                                            ctrl: c4,
+                                            ctrl: c3,
                                             step: 1,
                                             minus: hbox(
                                               w: 32,
@@ -595,7 +591,7 @@ class StockInPage extends StatelessWidget {
                                                   alignment: Alignment.center,
                                                   widthFactor: 1,
                                                   child: hCount(
-                                                    c4,
+                                                    c3,
                                                     hts(
                                                       15,
                                                       dk(
@@ -747,7 +743,7 @@ class StockInPage extends StatelessWidget {
                                           ),
                                         ),
                                         onTap: () =>
-                                            d3.confirmRemove(context, 1),
+                                            d2.confirmRemove(context, 1),
                                       ),
                                     ],
                                     main: MainAxisAlignment.start,
@@ -793,9 +789,9 @@ class StockInPage extends StatelessWidget {
                                       HHolder(
                                         inits: [10],
                                         builder: (context, ctrls) {
-                                          final c5 = ctrls[0];
+                                          final c4 = ctrls[0];
                                           return HNumberStepper(
-                                            ctrl: c5,
+                                            ctrl: c4,
                                             step: 1,
                                             minus: hbox(
                                               w: 32,
@@ -832,7 +828,7 @@ class StockInPage extends StatelessWidget {
                                                   alignment: Alignment.center,
                                                   widthFactor: 1,
                                                   child: hCount(
-                                                    c5,
+                                                    c4,
                                                     hts(
                                                       15,
                                                       dk(
@@ -971,7 +967,7 @@ class StockInPage extends StatelessWidget {
                                           gap: 6,
                                         ),
                                       ),
-                                      label: '添加商品',
+                                      to: 'ProductPicker',
                                     ),
                                   ),
                                 ),
@@ -1019,7 +1015,7 @@ class StockInPage extends StatelessWidget {
                                           gap: 6,
                                         ),
                                       ),
-                                      label: '扫码添加',
+                                      to: 'ScanProduct',
                                     ),
                                   ),
                                 ),
@@ -1094,7 +1090,7 @@ class StockInPage extends StatelessWidget {
                         [
                           HStrHolder(
                             initial: '¥120.00',
-                            builder: (context, s6) => hTap(
+                            builder: (context, s5) => hTap(
                               context,
                               hbox(
                                 minH: 54,
@@ -1117,7 +1113,7 @@ class StockInPage extends StatelessWidget {
                                       ),
                                     ),
                                     hStr(
-                                      s6,
+                                      s5,
                                       hts(
                                         15,
                                         dk(
@@ -1139,7 +1135,7 @@ class StockInPage extends StatelessWidget {
                                   gap: 12,
                                 ),
                               ),
-                              onTap: () => hPick(context, 'amount', '运费', s6),
+                              onTap: () => hPick(context, 'amount', '运费', s5),
                             ),
                           ),
                           hbox(
@@ -1320,10 +1316,10 @@ class StockInPage extends StatelessWidget {
                                 groups: [
                                   ({2}, false),
                                 ],
-                                builder: (context, g7) => hwrap(
+                                builder: (context, g6) => hwrap(
                                   [
                                     HSel(
-                                      ctrl: g7[0],
+                                      ctrl: g6[0],
                                       index: 0,
                                       on: hbox(
                                         h: 34,
@@ -1385,7 +1381,7 @@ class StockInPage extends StatelessWidget {
                                       ),
                                     ),
                                     HSel(
-                                      ctrl: g7[0],
+                                      ctrl: g6[0],
                                       index: 1,
                                       on: hbox(
                                         h: 34,
@@ -1447,7 +1443,7 @@ class StockInPage extends StatelessWidget {
                                       ),
                                     ),
                                     HSel(
-                                      ctrl: g7[0],
+                                      ctrl: g6[0],
                                       index: 2,
                                       on: hbox(
                                         h: 34,
@@ -1509,7 +1505,7 @@ class StockInPage extends StatelessWidget {
                                       ),
                                     ),
                                     HSel(
-                                      ctrl: g7[0],
+                                      ctrl: g6[0],
                                       index: 3,
                                       on: hbox(
                                         h: 34,

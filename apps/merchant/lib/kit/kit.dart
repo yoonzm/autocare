@@ -200,6 +200,24 @@ Widget hTap(
         hToast(context, '微信支付开通暂未接通，申请还没有提交');
         return;
       }
+      // 库存管理里还没有后端的页面（演示数据，见 docs/backend-integration.md）：保存 / 修改类动作不假装成功。
+      // TODO: 商品新增 / 编辑需要后端扩展单位、小数数量、保质期、分类、供应商；预警设置、分类管理、单据作废同理。
+      final inventoryBlock = switch ((route, to)) {
+        ('ProductEdit', 'ProductDetail') =>
+          '商品保存暂未接通（库存后端还不支持单位、小数、保质期、分类和供应商）',
+        ('ProductEditExist', 'ProductDetail')
+            when !_hasConfirmLabel(child, '取消') =>
+          '商品修改暂未接通',
+        ('StockAlertSettings', 'ProductList') => '库存预警设置暂未接通',
+        ('CategoryManage', 'ProductList') => '商品分类管理暂未接通',
+        ('sheet:ScanProductResult', 'ProductDetail') =>
+          '扫码识别暂未接通，示例商品没有对应的真实商品',
+        _ => null,
+      };
+      if (inventoryBlock != null) {
+        hToast(context, inventoryBlock);
+        return;
+      }
       // 新增门店（临时 mock，见 MockStores）：✕ 回到切换门店弹层；“创建门店”校验后创建并回到弹层。
       if (route == 'StoreAdd' && to == 'StoreSwitch') {
         if (_hasConfirmLabel(child, '创建门店')) {

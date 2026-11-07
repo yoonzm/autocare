@@ -176,7 +176,7 @@ class StockCheckLiveTemplate extends StatelessWidget {
                               child: hcol(
                                 [
                                   Text(
-                                    c.text('盘点单 PD-1031 · 全部仓库'),
+                                    c.text('盘点单 PD-1031 · 全部商品'),
                                     style: hts(
                                       13,
                                       dk(

@@ -31,6 +31,7 @@ import 'pages/member_add_page.dart';
 import 'pages/member_records_live_page.dart';
 import 'pages/order_page.dart';
 import 'pages/order_live_pages.dart';
+import 'pages/product_list_live_page.dart';
 import 'pages/store_switch_live_sheet.dart';
 import 'pages/package_svc_pick_live.dart';
 import 'pages/services_page.dart';
@@ -83,6 +84,8 @@ bool shellMounted = false;
 
 Widget? pageFor(String name) {
   switch (name) {
+    case 'ProductList':
+      return const ProductListLivePage();
     // TODO: 微信支付开通（进件）依赖服务商接口，目前没有开通能力，支付与收款的真实状态就是“未开通”，
     // 所以这里显示设计稿的“未开通”状态；已开通状态（PayConfig）等进件接通后再按真实状态切换。
     case 'PayConfig':
@@ -251,6 +254,7 @@ const Set<String> _cupertinoSheetPages = {
 
 /// 全屏流程（相机扫描页）：从底部滑入，左上角是 ✕，全屏显示（设计稿“页面出场方式”第 4 类）。
 const Set<String> _modalPages = {
+  'ScanProduct',
   'ScanLicense',
   'ScanPlate',
   'FindScanPlate',
@@ -262,6 +266,9 @@ const Set<String> _modalPages = {
 const Map<String, List<String>> _pairs = {
   'Recharge': ['Recharge', 'RechargeCard'],
   'CardTiers': ['CardTiers', 'CardPackages'],
+  // 库存单据的三个页签（入库 / 出库 / 盘点）：设计稿把每个状态画成一张图，实际是同一个页面里切换。
+  // （商品列表的四个筛选是 ProductListLivePage 里的页签。）
+  'StockDocs': ['StockDocs', 'StockDocsOut', 'StockDocsCheck'],
 };
 final Map<String, ValueNotifier<int>> pairTabs = {
   for (final k in _pairs.keys) k: ValueNotifier<int>(0),

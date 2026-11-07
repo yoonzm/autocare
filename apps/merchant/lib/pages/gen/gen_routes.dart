@@ -1,6 +1,27 @@
 // 由 tools/design_to_flutter.py 生成，请勿手工修改。
 import 'package:flutter/widgets.dart';
 
+import 'category_manage_page.dart';
+import 'product_edit_exist_page.dart';
+import 'product_edit_page.dart';
+import 'product_picker_sheet.dart';
+import 'scan_product_not_found_sheet.dart';
+import 'scan_product_page.dart';
+import 'scan_product_result_sheet.dart';
+import 'stock_alert_settings_page.dart';
+import 'stock_check_input_sheet.dart';
+import 'stock_check_new_page.dart';
+import 'stock_check_result_page.dart';
+import 'stock_docs_check_page.dart';
+import 'stock_docs_out_page.dart';
+import 'stock_docs_page.dart';
+import 'stock_in_detail_page.dart';
+import 'stock_out_detail_page.dart';
+import 'stock_out_short_sheet.dart';
+import 'stock_void_sheet.dart';
+import 'supplier_edit_page.dart';
+import 'supplier_picker_sheet.dart';
+
 import 'store_add_page.dart';
 
 import 'pay_apply_bind_page.dart';
@@ -143,6 +164,19 @@ import 'service_picker_sheet.dart';
 import 'recharge_empty_card_page.dart';
 
 final Map<String, WidgetBuilder> genRoutes = {
+  'CategoryManage': (_) => const CategoryManagePage(),
+  'ProductEditExist': (_) => const ProductEditExistPage(),
+  'ProductEdit': (_) => const ProductEditPage(),
+  'ScanProduct': (_) => const ScanProductPage(),
+  'StockAlertSettings': (_) => const StockAlertSettingsPage(),
+  'StockCheckNew': (_) => const StockCheckNewPage(),
+  'StockCheckResult': (_) => const StockCheckResultPage(),
+  'StockDocsCheck': (_) => const StockDocsCheckPage(),
+  'StockDocsOut': (_) => const StockDocsOutPage(),
+  'StockDocs': (_) => const StockDocsPage(),
+  'StockInDetail': (_) => const StockInDetailPage(),
+  'StockOutDetail': (_) => const StockOutDetailPage(),
+  'SupplierEdit': (_) => const SupplierEditPage(),
   'StoreAdd': (_) => const StoreAddPage(),
   'PayApplyBind': (_) => const PayApplyBindPage(),
   'PayApplyDone': (_) => const PayApplyDonePage(),
@@ -254,6 +288,13 @@ final Map<String, WidgetBuilder> genRoutes = {
 
 /// 底部弹层（设计稿中叠在其他页面上的界面）。
 final Map<String, WidgetBuilder> genSheets = {
+  'ProductPicker': (_) => const ProductPickerSheet(),
+  'ScanProductNotFound': (_) => const ScanProductNotFoundSheet(),
+  'ScanProductResult': (_) => const ScanProductResultSheet(),
+  'StockCheckInput': (_) => const StockCheckInputSheet(),
+  'StockOutShort': (_) => const StockOutShortSheet(),
+  'StockVoid': (_) => const StockVoidSheet(),
+  'SupplierPicker': (_) => const SupplierPickerSheet(),
   'OrderFilter': (_) => const OrderFilterSheet(),
   'OrderRefund': (_) => const OrderRefundSheet(),
   'FindNotFound': (_) => const FindNotFoundSheet(),
@@ -288,6 +329,13 @@ final Map<String, WidgetBuilder> genSheets = {
 
 /// 弹层所属的页面（设计稿里的遮罩点击目标）。
 const Map<String, String> sheetParents = {
+  'ProductPicker': 'StockIn',
+  'ScanProductNotFound': 'ScanProduct',
+  'ScanProductResult': 'ScanProduct',
+  'StockCheckInput': 'StockCheck',
+  'StockOutShort': 'StockOut',
+  'StockVoid': 'StockInDetail',
+  'SupplierPicker': 'StockIn',
   'OrderFilter': 'OrderList',
   'OrderRefund': 'OrderDetail',
   'FindNotFound': 'FindScanPlate',

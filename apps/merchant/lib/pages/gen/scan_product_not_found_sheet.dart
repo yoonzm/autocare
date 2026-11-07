@@ -1,0 +1,145 @@
+import 'package:flutter/material.dart';
+
+import '../../kit/kit.dart';
+import 'svgs.dart';
+
+class ScanProductNotFoundSheet extends StatelessWidget {
+  const ScanProductNotFoundSheet({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return hbox(
+      bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+      radius: BorderRadius.only(
+        topLeft: Radius.circular(32),
+        topRight: Radius.circular(32),
+        bottomRight: Radius.circular(0),
+        bottomLeft: Radius.circular(0),
+      ),
+      pad: EdgeInsets.fromLTRB(20, 10, 20, bottomInset(context)),
+      child: hcol(
+        [
+          Align(
+            alignment: Alignment.topCenter,
+            child: hbox(
+              w: 40,
+              h: 5,
+              bg: dk(context, Color(0xFFD4D4D8), Color(0xFF3F3F46)),
+              radius: BorderRadius.circular(3),
+            ),
+          ),
+          Text(
+            '未找到商品',
+            style: hts(
+              20,
+              dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+              w: FontWeight.w600,
+              lh: 28,
+            ),
+          ),
+          hbox(
+            bg: dk(
+              context,
+              Color(0xFFFDEFD6),
+              Color.fromRGBO(245, 165, 36, 0.16),
+            ),
+            radius: BorderRadius.circular(14),
+            pad: EdgeInsets.fromLTRB(14, 10, 14, 10),
+            child: hrow(
+              [
+                hsvg(dk(context, Svgs.s430, Svgs.s431), w: 16, h: 16),
+                Flexible(
+                  flex: 249,
+                  child: Text(
+                    '没有找到条码 6901234567890 对应的商品',
+                    style: hts(
+                      13,
+                      dk(context, Color(0xFF855F2E), Color(0xFFF0C46A)),
+                      w: FontWeight.w500,
+                      lh: 18,
+                    ),
+                  ),
+                ),
+              ],
+              main: MainAxisAlignment.start,
+              cross: CrossAxisAlignment.start,
+              gap: 8,
+            ),
+          ),
+          hbox(
+            pad: EdgeInsets.fromLTRB(0, 4, 0, 0),
+            child: hrow(
+              [
+                Expanded(
+                  flex: 10,
+                  child: UnconstrainedBox(
+                    alignment: Alignment.topLeft,
+                    constrainedAxis: Axis.horizontal,
+                    child: hTap(
+                      context,
+                      hbox(
+                        h: 50,
+                        bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(25),
+                        child: Align(
+                          alignment: Alignment(0, 0),
+                          widthFactor: 1,
+                          child: Text(
+                            '重新扫码',
+                            style: hts(
+                              15,
+                              dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                              w: FontWeight.w500,
+                              lh: 22,
+                            ),
+                          ),
+                        ),
+                      ),
+                      to: 'ScanProduct',
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 14,
+                  child: UnconstrainedBox(
+                    alignment: Alignment.topLeft,
+                    constrainedAxis: Axis.horizontal,
+                    child: hTap(
+                      context,
+                      hbox(
+                        h: 50,
+                        bg: Color(0xFF0485F7),
+                        radius: BorderRadius.circular(25),
+                        child: Align(
+                          alignment: Alignment(0, 0),
+                          widthFactor: 1,
+                          child: Text(
+                            '新增商品',
+                            style: hts(
+                              15,
+                              Color(0xFFFFFFFF),
+                              w: FontWeight.w600,
+                              lh: 22,
+                            ),
+                          ),
+                        ),
+                      ),
+                      to: 'ProductEdit',
+                    ),
+                  ),
+                ),
+              ],
+              main: MainAxisAlignment.start,
+              cross: CrossAxisAlignment.stretch,
+              gap: 10,
+              intrinsic: true,
+            ),
+          ),
+        ],
+        main: MainAxisAlignment.start,
+        cross: CrossAxisAlignment.stretch,
+        gap: 14,
+      ),
+    );
+  }
+}
