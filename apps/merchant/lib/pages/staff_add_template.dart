@@ -1569,7 +1569,7 @@ class StaffAddTemplate extends StatelessWidget {
                 hbox(
                   pad: EdgeInsets.fromLTRB(4, 0, 4, 0),
                   child: Text(
-                    '员工登录与邀请尚未接通，当前仅保存技师基础资料。',
+                    '保存后将向员工发送登录邀请。员工首次用该手机号登录员工端并授权微信，账号即自动激活。',
                     style: hts(
                       12,
                       dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),

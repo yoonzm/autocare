@@ -37,6 +37,16 @@ import 'pages/order_live_pages.dart';
 import 'pages/product_edit_live_page.dart';
 import 'pages/product_list_live_page.dart';
 import 'pages/store_switch_live_sheet.dart';
+import 'pages/staff_live.dart';
+import 'pages/staff_detail_template.dart';
+import 'pages/staff_detail_off_template.dart';
+import 'pages/staff_commission_template.dart';
+import 'pages/staff_records_template.dart';
+import 'pages/staff_invite_template.dart';
+import 'pages/role_permission_template.dart';
+import 'pages/disable_staff_template.dart';
+import 'pages/staff_transfer_template.dart';
+import 'pages/staff_enable_template.dart';
 import 'pages/package_svc_pick_live.dart';
 import 'pages/services_page.dart';
 import 'pages/settings_page.dart';
@@ -76,6 +86,21 @@ final Map<String, WidgetBuilder> _allSheets = {
       : ErrorView(error: const AppError('请先扫描车牌')),
   'OrderFilter': (_) => const OrderFilterLiveSheet(),
   'StoreSwitch': (_) => const StoreSwitchLiveSheet(),
+  'DisableStaff': (_) => StaffLiveHost(
+    sheet: true,
+    load: (id) => merchantApi.staff('get', {'id': id}),
+    builder: (_, d) => DisableStaffTemplate(d: d),
+  ),
+  'StaffEnable': (_) => StaffLiveHost(
+    sheet: true,
+    load: (id) => merchantApi.staff('get', {'id': id}),
+    builder: (_, d) => StaffEnableTemplate(d: d),
+  ),
+  'StaffTransfer': (_) => StaffLiveHost(
+    sheet: true,
+    load: loadTransferData,
+    builder: (_, d) => StaffTransferTemplate(d: d),
+  ),
   'BudgetAdjust': (_) => const ExpenseLivePage(mode: 'adjust'),
   // TODO: 字符串路由没有预约 ID；改期必须从真实预约卡片或详情进入。
   'AppointmentReschedule': (context) => ErrorView(
@@ -196,6 +221,20 @@ Widget? pageFor(String name) {
       return const BookingResourcesPage(kind: 'technician');
     case 'StaffAdd':
       return const BookingResourceEditor(kind: 'technician');
+    case 'StaffEdit':
+      return const StaffEditLivePage();
+    case 'StaffDetail':
+      return const StaffDetailLivePage();
+    case 'StaffDetailOff':
+      return const StaffDetailOffLivePage();
+    case 'StaffCommission':
+      return const StaffCommissionLivePage();
+    case 'StaffRecords':
+      return const StaffRecordsLivePage();
+    case 'StaffInvite':
+      return const StaffInviteLivePage();
+    case 'RolePermission':
+      return const RolePermissionLivePage();
     case 'BayEdit':
       return const BookingResourceEditor(kind: 'bay');
     case 'MemberDetail':

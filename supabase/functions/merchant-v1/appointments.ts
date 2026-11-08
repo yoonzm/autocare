@@ -125,6 +125,8 @@ export async function handleAppointments(input: Input, request: Request): Promis
     if (action === 'appointment_resource_save') {
       const value = parseResource(input);
       if (typeof value === 'string') return fail(value);
+      // 技师统一经员工管理（staff_save）维护，保证员工与排班资源同步。
+      if (value.kind === 'technician') return fail('请在“员工与权限”中维护技师');
       const { data, error } = await admin.rpc('save_appointment_resource', {
         p_store: store,
         p_input: value,

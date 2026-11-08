@@ -1653,14 +1653,20 @@ class StaffEditTemplate extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              c.draft['active'] == false ? '已停用' : '正常',
+                              c.draft['status'] == 'pending' ? '待激活' : '正常',
                               style: hts(
                                 15,
-                                dk(
-                                  context,
-                                  Color(0xFF2B7745),
-                                  Color(0xFF5FD48C),
-                                ),
+                                c.draft['status'] == 'pending'
+                                    ? dk(
+                                        context,
+                                        Color(0xFF855F2E),
+                                        Color(0xFFF0C46A),
+                                      )
+                                    : dk(
+                                        context,
+                                        Color(0xFF2B7745),
+                                        Color(0xFF5FD48C),
+                                      ),
                                 lh: 22,
                               ),
                             ),

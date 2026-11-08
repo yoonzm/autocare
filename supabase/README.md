@@ -21,7 +21,7 @@
 
 开发时执行 `cd supabase/functions/merchant-v1 && deno task check` 检查模块类型。Dashboard 部署须同时包含入口及其依赖模块；`types.ts` 是编译期类型文件，不含运行时代码。
 
-预约管理（`202611030002_appointments.sql`，`appointments.ts` / `appointment_rules.ts`）新增 `appointment_*` 动作：`board`（`day` 所在周）、`get`（`id`）、`options`（设置、服务、资源）、`summary`（首页今日待到店）、`slots`（`day`、`service_ids`、可选 `exclude` / `bay_id` / `technician_id`）、`save`（新建：`member_id?` / `service_ids` / `starts_at` / `bay_id?` / `technician_id?` / `note`；改期：`id` / `starts_at` / 资源 ID）、`arrive` / `cancel`（取消带 `reason`）、`checkout`（`id`、收银项目与方式）、`settings_save`、`resource_save`（`kind=bay|technician`、名称、手机号、类型／擅长项目、排序、默认技师／固定工位、入职日期、启用状态）。接口不接受客户端指定门店、报价或占用时长。标准工时由服务项目保存，默认 30 分钟；时间冲突、容量、归属和状态变化在云函数及数据库事务中执行。先迁移再部署，SQL 断言用 `supabase/tests/appointments.sql`。员工登录／邀请／角色授权、微信短信、定金、个人休假、额外节假日和预约挂单暂未接通，详见 `docs/backend-integration.md`。
+预约管理（`202611030002_appointments.sql`，`appointments.ts` / `appointment_rules.ts`）新增 `appointment_*` 动作：`board`（`day` 所在周）、`get`（`id`）、`options`（设置、服务、资源）、`summary`（首页今日待到店）、`slots`（`day`、`service_ids`、可选 `exclude` / `bay_id` / `technician_id`）、`save`（新建：`member_id?` / `service_ids` / `starts_at` / `bay_id?` / `technician_id?` / `note`；改期：`id` / `starts_at` / 资源 ID）、`arrive` / `cancel`（取消带 `reason`）、`checkout`（`id`、收银项目与方式）、`settings_save`、`resource_save`（工位；技师改由 `staff_save` 维护，见 `docs/staff-integration.md`）。接口不接受客户端指定门店、报价或占用时长。标准工时由服务项目保存，默认 30 分钟；时间冲突、容量、归属和状态变化在云函数及数据库事务中执行。先迁移再部署，SQL 断言用 `supabase/tests/appointments.sql`。员工登录激活、微信短信、定金、个人休假、额外节假日和预约挂单暂未接通，详见 `docs/backend-integration.md`。
 
 注册开通试用时，云函数还会按商家选择的工位区间初始化真实工位：`1-3 个` 创建 3 个、`4-6 个` 创建 6 个、`7-10 个` 创建 10 个、`10 个以上` 创建 20 个，按“1 号工位”起顺序命名。工位创建失败与其他初始化失败一样会删除新建账号及门店，不返回开通成功；既有门店不自动补建。
 

@@ -26,6 +26,8 @@ export interface ServiceItemRow {
   description: string;
   price: number;
   active: boolean;
+  commission_type?: 'percent' | 'fixed';
+  commission_value?: number;
   created_at: string;
 }
 

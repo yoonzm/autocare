@@ -10,6 +10,7 @@ import { handleAuth } from './auth.ts';
 import { handleCards } from './cards.ts';
 import { handleHomeStats, handleSettingsStats } from './home.ts';
 import { handleAppointments } from './appointments.ts';
+import { handleStaff } from './staff.ts';
 import { handleMembers, handleVehicles } from './members.ts';
 import { handleFollowUps, handleMemberPackages, handleOrders } from './ops.ts';
 import { handlePackages } from './packages.ts';
@@ -40,6 +41,7 @@ Deno.serve(async (request: Request): Promise<Response> => {
   if (input.action === 'settings_stats') return handleSettingsStats(request);
   if (input.action === 'home_stats') return handleHomeStats(request);
   if (String(input.action).startsWith('appointment_')) return handleAppointments(input, request);
+  if (String(input.action).startsWith('staff_')) return handleStaff(input, request);
   if (String(input.action).startsWith('inventory_')) return handleInventory(input, request);
   if (String(input.action).startsWith('expense_')) return handleExpenses(input, request);
   if (String(input.action).startsWith('order_')) return handleOrderCenter(input, request);
