@@ -4,15 +4,38 @@ import '../backend/merchant_api.dart';
 import '../kit/async_kit.dart';
 import '../kit/kit.dart' show hbox;
 import '../routes.dart';
+import '../backend/store_flow.dart';
+import '../backend/store_profile.dart';
 import '../theme.dart';
 import '../widgets/app_icon.dart';
 import '../mock/mock_data.dart' show money;
-import '../mock/store_state.dart';
 
-/// The backend currently permits one store per owner. Only that actual store is
-/// selectable; there is no local-only "active store" pretending to switch data.
-class StoreSwitchLiveSheet extends StatelessWidget {
+/// Real stores and account subscription quotas are supplied by the server.
+class StoreSwitchLiveSheet extends StatefulWidget {
   const StoreSwitchLiveSheet({super.key});
+
+  @override
+  State<StoreSwitchLiveSheet> createState() => _StoreSwitchLiveSheetState();
+}
+
+class _StoreSwitchLiveSheetState extends State<StoreSwitchLiveSheet> {
+  String? _switching;
+  int _count = 1;
+  Future<void> _select(String id, String current, String name) async {
+    if (_switching != null) return;
+    if (id == current) {
+      Navigator.of(context).pop();
+      return;
+    }
+    setState(() => _switching = id);
+    try {
+      await StoreFlow.switchTo(context, id, name: name);
+    } catch (e) {
+      if (mounted) AppToast.error(context, e);
+    } finally {
+      if (mounted) setState(() => _switching = null);
+    }
+  }
 
   @override
   Widget build(BuildContext context) => Container(
@@ -44,9 +67,20 @@ class StoreSwitchLiveSheet extends StatelessWidget {
         Text('切换门店', style: ts(20, w: FontWeight.w600, h: 28)),
         const SizedBox(height: 14),
         SizedBox(
-          height: 204 + 84.0 * MockStores.extra.value.length,
+          height: (204 + 84.0 * (_count - 1)).clamp(
+            204,
+            MediaQuery.sizeOf(context).height * 0.65,
+          ),
           child: AsyncView<Map<String, dynamic>>(
             load: merchantApi.stores,
+            onLoaded: (data) {
+              storeProfile.applyDirectory(data);
+              if (mounted) {
+                setState(
+                  () => _count = (data['items'] as List).length.clamp(1, 1000),
+                );
+              }
+            },
             isEmpty: (data) => (data['items'] as List).isEmpty,
             inlineError: true,
             pullToRefresh: false,
@@ -71,7 +105,6 @@ class StoreSwitchLiveSheet extends StatelessWidget {
   Widget _content(BuildContext context, Map<String, dynamic> data) {
     final rows = List<Map<String, dynamic>>.from(data['items'] as List);
     final current = '${data['current_store_id']}';
-    MockStores.realCount = rows.length;
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -79,15 +112,7 @@ class StoreSwitchLiveSheet extends StatelessWidget {
           for (final row in rows) ...[
             GestureDetector(
               behavior: HitTestBehavior.opaque,
-              onTap: () {
-                if ('${row['id']}' == current) {
-                  Navigator.of(context).pop();
-                } else {
-                  // TODO: Real cross-store switching needs server-side membership,
-                  // active-store session context and invalidation of all store caches.
-                  AppToast.show(context, '跨门店切换暂未开通');
-                }
-              },
+              onTap: () => _select('${row['id']}', current, '${row['name']}'),
               child: Semantics(
                 selected: '${row['id']}' == current,
                 button: true,
@@ -120,7 +145,9 @@ class StoreSwitchLiveSheet extends StatelessWidget {
                           ],
                         ),
                       ),
-                      if ('${row['id']}' == current)
+                      if (_switching == '${row['id']}')
+                        const AppSpinner(size: 20, color: C.primary),
+                      if (_switching == null && '${row['id']}' == current)
                         const AppIcon('check', size: 20, color: C.green),
                     ],
                   ),
@@ -129,40 +156,15 @@ class StoreSwitchLiveSheet extends StatelessWidget {
             ),
             const SizedBox(height: 14),
           ],
-          // 新增的演示门店（临时 mock，见 MockStores）：只展示，不能切换过去，不参与任何数据读写。
-          for (final name in MockStores.extra.value) ...[
-            GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () => AppToast.show(context, '演示门店，跨门店切换暂未开通'),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: C.inset,
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(name, style: ts(15, w: FontWeight.w600, h: 22)),
-                    Text('演示门店 · 仅本机可见', style: ts(12, color: C.muted, h: 16)),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 14),
-          ],
           GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: () {
-              // 新增门店：临时 mock（见 MockStores），创建的是只在本机可见的演示门店。
-              // TODO: 真实新增门店需要后端：同一账号多门店、按套餐限制数量、创建时初始化营业时间和工位（store_create）。
-              if (MockStores.full) {
-                AppToast.show(context, '专业版最多 ${MockStores.max} 家门店，已达上限');
+              if (_switching != null) return;
+              if (data['can_add'] != true) {
+                AppToast.show(context, '${data['add_hint']}');
                 return;
               }
+              StoreFlow.clear();
               openRoute(context, 'StoreAdd');
             },
             child: hbox(
@@ -189,11 +191,7 @@ class StoreSwitchLiveSheet extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          MockStores.extra.value.isEmpty
-                              ? '${data['add_hint']}'
-                              : MockStores.full
-                              ? '专业版最多 ${MockStores.max} 家，已达上限'
-                              : '专业版最多 ${MockStores.max} 家，还可添加 ${MockStores.remaining} 家',
+                          '${data['add_hint']}',
                           style: ts(12, color: C.muted, h: 16),
                         ),
                       ],

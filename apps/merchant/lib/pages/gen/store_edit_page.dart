@@ -90,14 +90,24 @@ class StoreEditPage extends StatelessWidget {
                         child: Align(
                           alignment: Alignment(-1, 0),
                           widthFactor: 1,
-                          child: Text(
-                            '保存',
+                          child: hBusy(
+                            'StoreEdit>StoreInfo',
+                            Text(
+                              '保存',
+                              style: hts(
+                                14,
+                                Color(0xFFFFFFFF),
+                                w: FontWeight.w600,
+                                lh: 20,
+                              ),
+                            ),
                             style: hts(
                               14,
                               Color(0xFFFFFFFF),
                               w: FontWeight.w600,
                               lh: 20,
                             ),
+                            round: true,
                           ),
                         ),
                       ),
@@ -668,9 +678,9 @@ class StoreEditPage extends StatelessWidget {
                                   lh: 22,
                                 ),
                               ),
-                              Text(
-                                '09:00–20:00 · 6 工位 · 统一管理',
-                                style: hts(
+                              hLiveText(
+                                (p) => p.hoursLine,
+                                hts(
                                   12,
                                   dk(
                                     context,

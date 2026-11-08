@@ -1,3 +1,5 @@
+import 'store_context.dart';
+
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -74,15 +76,17 @@ class ServiceStore {
     _sync();
     final running = _inflight;
     if (running != null) return running;
+    final epoch = StoreContext.epoch;
     final future = () async {
       try {
         final rows = await merchantApi.list('services');
+        if (epoch != StoreContext.epoch) return rows;
         _cached = rows;
         _loadedAt = DateTime.now();
         changed.value++;
         return rows;
       } finally {
-        _inflight = null;
+        if (epoch == StoreContext.epoch) _inflight = null;
       }
     }();
     _inflight = future;

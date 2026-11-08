@@ -24,6 +24,9 @@ export async function handleSupport(
   try {
     const auth = await userFor(request);
     if ("response" in auth) return auth.response;
+    const current = await merchantSession(auth.user.id, auth.token, false);
+    if (current instanceof Response) return current;
+    if (request.headers.get('x-store-id') && request.headers.get('x-store-id') !== current) return fail('当前门店已变化，请重新操作', 409);
     if (input.action === "support_upload") {
       const store = await merchantSession(auth.user.id, auth.token, false);
       if (store instanceof Response) return store;

@@ -1,6 +1,5 @@
 import { settingsCounts } from './settings_stats.ts';
-import { storeDirectory } from './store_directory.ts';
-import { admin, fail, json, storeFor, userFor } from './shared.ts';
+import { admin, fail, json, storeFor } from './shared.ts';
 
 export async function handleHomeStats(request: Request): Promise<Response> {
   const storeId = await storeFor(request);
@@ -17,15 +16,5 @@ export async function handleSettingsStats(request: Request): Promise<Response> {
     return json({ item: await settingsCounts(admin, storeId) });
   } catch {
     return fail('读取门店数量失败', 500);
-  }
-}
-
-export async function handleStoreDirectory(request: Request): Promise<Response> {
-  const auth = await userFor(request);
-  if ('response' in auth) return auth.response;
-  try {
-    return json({ item: await storeDirectory(admin, auth.user.id) });
-  } catch {
-    return fail('读取门店列表或营业额失败，请重试', 500);
   }
 }

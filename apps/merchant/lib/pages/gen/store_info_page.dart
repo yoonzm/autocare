@@ -492,8 +492,7 @@ class StoreInfoPage extends StatelessWidget {
                                     ),
                                   ),
                                   hLiveText(
-                                    (p) =>
-                                        p.live ? (p.localPhone) : '021-[门店电话]',
+                                    (p) => p.live ? (p.phone) : '021-[门店电话]',
                                     hts(
                                       14,
                                       dk(

@@ -15,7 +15,6 @@ import 'backend/member_flow.dart';
 import 'backend/forgot_flow.dart';
 import 'backend/registration_draft.dart';
 import 'backend/store_profile.dart';
-import 'mock/app_state.dart';
 import 'mock/mock_data.dart';
 import 'pages/appointment_add_page.dart';
 import 'pages/appointments_page.dart';
@@ -798,7 +797,9 @@ void _openRouteCore(BuildContext context, String name) {
   final page = pageFor(name);
   if (page == null) return;
   if (name == 'PlanPaid' || name == 'RenewPaid') {
-    subState.value = SubState.normal;
+    // TODO: Verified payment callbacks must activate the account subscription.
+    AppToast.show(context, '套餐支付渠道尚未接通，暂不能续费或升级');
+    return;
   }
   // 结果页（第 5 类）禁止下拉 / 侧滑返回，只能点主按钮或 ✕
   final locked = resultPages.contains(name);

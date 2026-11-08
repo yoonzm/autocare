@@ -90,6 +90,11 @@ export type AuthAction =
   | { action: 'delete_account'; code: string };
 
 export interface StoreProfileRow {
+  id?: string;
+  account_phone?: string;
+  hours_line?: string;
+  subscription?: Record<string, unknown>;
+  store_count?: number;
   name: string;
   phone: string | null;
   city: string;

@@ -59,12 +59,12 @@ export async function handleAuth(input: Input, request: Request): Promise<Respon
     if (['change_phone_old', 'change_phone_new', 'delete_account'].includes(purpose)) {
       const auth = await userFor(request);
       if ('response' in auth) return auth.response;
-      const { data: store, error } = await admin.from('stores').select('phone').eq('owner_id', auth.user.id).single();
+      const { data: store, error } = await admin.from('merchant_accounts').select('phone').eq('owner_id', auth.user.id).single();
       if (error || !store) return fail('门店不存在', 403);
       if (purpose !== 'change_phone_new' && store.phone !== phone) return fail('只能向当前账号绑定的手机号发送验证码', 403);
       if (purpose === 'change_phone_new' && store.phone === phone) return fail('新手机号不能与当前手机号相同');
     }
-    const { data: existing, error: lookupError } = await admin.from('stores').select('id').eq('phone', phone).maybeSingle();
+    const { data: existing, error: lookupError } = await admin.from('merchant_accounts').select('owner_id').eq('phone', phone).maybeSingle();
     if (lookupError) return fail('短信暂时不可用，请稍后重试', 503);
     if ((purpose === 'register' || purpose === 'change_phone_new') && existing) return fail('该手机号已注册', 409);
     if ((purpose === 'login' || purpose === 'reset_password') && !existing) return fail('该手机号尚未开通门店账号', 404);
@@ -89,7 +89,7 @@ export async function handleAuth(input: Input, request: Request): Promise<Respon
     if (!phone) return fail('请输入有效手机号');
     const problem = await checkOtp(phone, input.code, 'reset_password');
     if (problem) return fail(problem);
-    const { data: store } = await admin.from('stores').select('id').eq('phone', phone).maybeSingle();
+    const { data: store } = await admin.from('merchant_accounts').select('owner_id').eq('phone', phone).maybeSingle();
     if (!store) return fail('该手机号尚未开通门店账号', 404);
     return json({ ok: true });
   }
@@ -100,7 +100,7 @@ export async function handleAuth(input: Input, request: Request): Promise<Respon
     if (badPassword) return fail(badPassword);
     const problem = await checkOtp(phone, input.code, 'reset_password', true);
     if (problem) return fail(problem);
-    const { data: store } = await admin.from('stores').select('owner_id').eq('phone', phone).maybeSingle();
+    const { data: store } = await admin.from('merchant_accounts').select('owner_id').eq('phone', phone).maybeSingle();
     if (!store) return fail('该手机号尚未开通门店账号', 404);
     const { error } = await admin.auth.admin.updateUserById(store.owner_id, {
       password: input.new_password as string,
@@ -134,11 +134,11 @@ export async function handleAuth(input: Input, request: Request): Promise<Respon
         /already|registered|exists/i.test(error?.message ?? '');
       return fail(taken ? '该手机号已注册，请直接登录' : '注册失败，请稍后重试', taken ? 409 : 500);
     }
-    const { data: store, error: storeError } = await admin.from('stores').upsert({
+    const { data: store, error: storeError } = await admin.from('stores').insert({
       owner_id: data.user.id, name: storeName, phone, ...profile, ...location,
       plan: 'trial',
       trial_ends_at: new Date(Date.now() + TRIAL_DAYS * 86400000).toISOString(),
-    }, { onConflict: 'owner_id' }).select('id').single();
+    }).select('id').single();
     if (storeError || !store) {
       await admin.auth.admin.deleteUser(data.user.id);
       return fail('门店创建失败', 500);
@@ -202,7 +202,7 @@ export async function handleAuth(input: Input, request: Request): Promise<Respon
     const problem = await checkOtp(phone, input.code, 'login', true);
     if (problem) return fail(problem);
     // generateLink would silently create a user for an unknown email, so look the store up first.
-    const { data: store } = await admin.from('stores').select('id').eq('phone', phone).maybeSingle();
+    const { data: store } = await admin.from('merchant_accounts').select('owner_id').eq('phone', phone).maybeSingle();
     if (!store) return fail('该手机号尚未注册，请先免费开通', 404);
     const { data: link, error: linkError } = await admin.auth.admin.generateLink({
       type: 'magiclink', email: emailOf(phone),

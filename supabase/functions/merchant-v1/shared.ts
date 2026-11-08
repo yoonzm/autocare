@@ -7,7 +7,7 @@ const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 export const admin = createClient(url, serviceKey, { auth: { persistSession: false } });
 export const cors = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, apikey, content-type, x-client-info, x-request-id',
+  'Access-Control-Allow-Headers': 'authorization, apikey, content-type, x-client-info, x-request-id, x-store-id',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 export const json = (body: ApiResponse, status = 200) =>
@@ -54,5 +54,9 @@ export async function userFor(request: Request): Promise<
 export async function storeFor(request: Request): Promise<string | Response> {
   const auth=await userFor(request);
   if('response' in auth)return auth.response;
-  return merchantSession(auth.user.id,auth.token,true);
+  const store = await merchantSession(auth.user.id,auth.token,true);
+  if (store instanceof Response) return store;
+  const expected = request.headers.get('x-store-id');
+  if (expected && expected !== store) return fail('当前门店已变化，请刷新后重试', 409);
+  return store;
 }

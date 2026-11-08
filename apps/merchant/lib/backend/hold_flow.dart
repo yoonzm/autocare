@@ -1,3 +1,5 @@
+import 'store_context.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -94,17 +96,22 @@ class HoldFlow {
   /// 读取待处理挂单。已有数据时静默刷新，失败只保留旧数据并记下错误。
   static Future<void> load() async {
     if (loading) return;
+    final epoch = StoreContext.epoch;
     loading = true;
     if (holds == null) error = null;
     tick.value++;
     try {
-      holds = await merchantApi.holds();
+      final rows = await merchantApi.holds();
+      if (epoch != StoreContext.epoch) return;
+      holds = rows;
       error = null;
     } catch (e) {
-      error = AppError.from(e);
+      if (epoch == StoreContext.epoch) error = AppError.from(e);
     } finally {
-      loading = false;
-      tick.value++;
+      if (epoch == StoreContext.epoch) {
+        loading = false;
+        tick.value++;
+      }
     }
   }
 

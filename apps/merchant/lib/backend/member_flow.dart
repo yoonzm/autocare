@@ -1,3 +1,5 @@
+import 'store_context.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -20,6 +22,24 @@ class MemberFlow {
 
   /// 正在查看 / 刚办卡的会员（后端返回的整条记录，含卡种和车辆）。
   static Map<String, dynamic>? current;
+  static void resetStore() {
+    current = null;
+    currentPackage = null;
+    lastRecharge = null;
+    lastOrder = null;
+    lastSale = null;
+    rechargePresets = [];
+    rechargeGifts = [];
+    clearPresetSelection = null;
+    pickerQuery.value = '';
+    reminderTab.value = 0;
+    visitHistory = const [];
+    reminders = null;
+    salePackages = const [];
+    tiers = const [];
+    filter.clearStore();
+    memberTick.value++;
+  }
 
   /// 称呼：设计稿两个选项，顺序固定。
   static const honorifics = ['先生', '女士'];
@@ -805,6 +825,17 @@ class MemberFilterState extends ChangeNotifier {
     refreshCount();
   }
 
+  void clearStore() {
+    _debounce?.cancel();
+    tiers = const [];
+    appliedTiers = {};
+    tierSel = {};
+    appliedBalance = balanceSel = 0;
+    appliedVisit = visitSel = -1;
+    matched.value = null;
+    notifyListeners();
+  }
+
   void reset() {
     tierSel = {};
     balanceSel = 0;
@@ -850,6 +881,7 @@ class MemberFilterState extends ChangeNotifier {
   }
 
   void refreshCount() {
+    final epoch = StoreContext.epoch;
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () async {
       final a = args(working: true);
@@ -862,9 +894,9 @@ class MemberFilterState extends ChangeNotifier {
           visitedOverDays: a['over'] as int?,
           limit: 1,
         );
-        matched.value = page.matched;
+        if (epoch == StoreContext.epoch) matched.value = page.matched;
       } catch (_) {
-        matched.value = null;
+        if (epoch == StoreContext.epoch) matched.value = null;
       }
     });
   }

@@ -727,27 +727,36 @@ class StoreAddPage extends StatelessWidget {
                     child: Align(
                       alignment: Alignment(0, 0),
                       widthFactor: 1,
-                      child: Text(
-                        '创建门店',
+                      child: hBusy(
+                        'StoreAdd>StoreSwitch',
+                        Text(
+                          '创建门店',
+                          style: hts(
+                            16,
+                            Color(0xFFFFFFFF),
+                            w: FontWeight.w600,
+                            lh: 22,
+                          ),
+                        ),
                         style: hts(
                           16,
                           Color(0xFFFFFFFF),
                           w: FontWeight.w600,
                           lh: 22,
                         ),
+                        label: '提交中…',
                       ),
                     ),
                   ),
                   to: 'StoreSwitch',
                 ),
-                Text(
-                  '创建后仍停留在当前门店 · 专业版最多 3 家',
-                  style: hts(
+                hLiveText(
+                  (p) => '创建后仍停留在当前门店 · ${p.storeOffer}',
+                  hts(
                     12,
                     dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
                     lh: 16,
                   ),
-                  textAlign: TextAlign.center,
                 ),
               ],
               main: MainAxisAlignment.start,

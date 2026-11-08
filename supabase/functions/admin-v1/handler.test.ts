@@ -99,7 +99,7 @@ function fixture() {
           }),
           single: () =>
             result(`select:${table}`, { columns, column, value }, {
-              phone: '+8613900000000',
+              phone: '+8613900000000', owner_id: target,
             }),
         }),
       }),
@@ -476,9 +476,10 @@ Deno.test('SMS is authorized/idempotent before provider calls, and does not retu
   const f = fixture();
   const response = await f.invoke('merchant_send_code', { id: target });
   equal(response.status, 200);
-  equal(f.calls.slice(-4).map((call) => call.name), [
+  equal(f.calls.slice(-5).map((call) => call.name), [
     'admin_command',
     'select:stores',
+    'select:merchant_accounts',
     'sms.send',
     'insert:admin_audit_logs',
   ]);

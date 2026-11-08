@@ -1,3 +1,5 @@
+import 'store_context.dart';
+
 import 'dart:math';
 
 import 'package:flutter/foundation.dart' show ValueNotifier, visibleForTesting;
@@ -86,6 +88,7 @@ class MerchantApi {
     'home_stats',
     'settings_stats',
     'list_stores',
+    'get_subscription',
     'list',
     'get',
     'get_store',
@@ -110,14 +113,22 @@ class MerchantApi {
     final isRead = _readActions.contains(action);
     // 同一次点击的重试沿用同一个标识
     requestId = isRead ? null : requestId ?? newRequestId();
+    final epoch = StoreContext.epoch;
+    Future<Map<String, dynamic>> send() async {
+      if (epoch != StoreContext.epoch) throw const AppError('门店已切换，请重新操作');
+      final result = await performRequest(body, timeout, requestId);
+      if (epoch != StoreContext.epoch) throw const AppError('门店已切换，请重新操作');
+      return result;
+    }
+
     try {
-      return await performRequest(body, timeout, requestId);
+      return await send();
     } on AppError catch (e) {
       if (e.type == AppErrorType.auth && !_publicActions.contains(action)) {
         // 401：先静默刷新令牌；仍失败才判定登录失效
         try {
           await refreshAuth();
-          return await performRequest(body, timeout, requestId);
+          return await send();
         } catch (_) {
           authExpired.value++;
           throw const AppError('登录已过期，请重新登录', type: AppErrorType.auth);
@@ -125,7 +136,7 @@ class MerchantApi {
       }
       if (isRead && e.retryable) {
         await Future<void>.delayed(const Duration(seconds: 1));
-        return performRequest(body, timeout, requestId);
+        return send();
       }
       rethrow;
     }
@@ -144,14 +155,19 @@ class MerchantApi {
     Duration timeout,
     String? requestId,
   ) async {
+    final epoch = StoreContext.epoch;
     try {
       final response = await client.functions
           .invoke(
             'merchant-v1',
             body: body,
-            headers: {'X-Request-Id': ?requestId},
+            headers: {
+              'X-Request-Id': ?requestId,
+              'X-Store-Id': ?StoreContext.id,
+            },
           )
           .timeout(timeout);
+      if (epoch != StoreContext.epoch) throw const AppError('门店已切换，请重新操作');
       final data = response.data is Map
           ? Map<String, dynamic>.from(response.data as Map)
           : <String, dynamic>{};
@@ -198,6 +214,23 @@ class MerchantApi {
   Future<Map<String, dynamic>> getStore() async {
     final data = await invoke({'action': 'get_store'});
     return Map<String, dynamic>.from(data['store'] as Map);
+  }
+
+  Future<Map<String, dynamic>> storeMutation(
+    String action,
+    Map<String, dynamic> values, {
+    String? requestId,
+  }) async {
+    final data = await invoke({
+      'action': 'store_$action',
+      ...values,
+    }, requestId: requestId);
+    return Map<String, dynamic>.from(data['item'] as Map);
+  }
+
+  Future<Map<String, dynamic>> subscription() async {
+    final data = await invoke({'action': 'get_subscription'});
+    return Map<String, dynamic>.from(data['item'] as Map);
   }
 
   Future<Map<String, dynamic>> stores() async {
@@ -312,12 +345,14 @@ class MerchantApi {
   }
 
   Future<void> signOut() async {
+    StoreContext.bind(null);
     storeProfile.clear();
     await withSupabaseErrors(() => client.auth.signOut());
   }
 
   /// 退出所有设备：作废这个账号的全部会话。
   Future<void> signOutAll() async {
+    StoreContext.bind(null);
     storeProfile.clear();
     await withSupabaseErrors(
       () => client.auth.signOut(scope: SignOutScope.global),

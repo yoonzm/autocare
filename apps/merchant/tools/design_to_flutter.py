@@ -245,6 +245,7 @@ LIVE_FLOW = {
 # 点击后要等后端返回的按钮：(页面, 目标页)。命中的按钮在 loading 时只显示转圈、尺寸不变。
 # 必须和 lib/kit/async_kit.dart 的 asyncActionKeys 保持一致（有测试检查）。
 ASYNC_ACTIONS = {
+    ('StoreAdd', 'StoreSwitch'), ('StoreEdit', 'StoreInfo'),
     ('Feedback', 'AboutApp'),
     ('AppointmentAdd', 'Appointments'),
     ('RegPhone', 'RegShop'), ('RegShop', 'RegDone'),
@@ -259,10 +260,10 @@ ASYNC_ACTIONS = {
     ('ForgotVerify', 'ForgotReset'), ('ForgotReset', 'ForgotDone'),
 }
 # 这些页面里“取消 / 保存”都指向同一个目标页，只有文字是“保存”的才是提交按钮。
-SAVE_ONLY = {'ServiceEdit', 'CardTierEdit', 'PackageEdit', 'MemberEdit', 'VehicleAdd', 'MemberAdjust', 'RechargeCard',
+SAVE_ONLY = {'StoreAdd', 'StoreEdit', 'ServiceEdit', 'CardTierEdit', 'PackageEdit', 'MemberEdit', 'VehicleAdd', 'MemberAdjust', 'RechargeCard',
              'PackageExtend', 'PackageRefund', 'MemberVisit', 'HoldSheet'}
 # SAVE_ONLY 页面里提交按钮上的文字（默认是“保存”）
-SUBMIT_LABEL = {'MemberAdjust': '确认调整', 'RechargeCard': '确认收款', 'PackageExtend': '确认延期', 'PackageRefund': '确认退款', 'MemberVisit': '保存回访', 'HoldSheet': '确认挂单'}
+SUBMIT_LABEL = {'StoreAdd': '创建门店', 'MemberAdjust': '确认调整', 'RechargeCard': '确认收款', 'PackageExtend': '确认延期', 'PackageRefund': '确认退款', 'MemberVisit': '保存回访', 'HoldSheet': '确认挂单'}
 # 同一个路由里的几个页面（页签）共用的动作键前缀：RechargeCard 是 Recharge 路由里的第二个页签
 KEY_PAGE = {'RechargeCard': 'Recharge'}
 
@@ -2585,6 +2586,7 @@ def _gen_one(gen, name, src, out_dir, done, sheets):
     if name == 'AppointmentSchedule':
         open(os.path.join(out_dir, 'appointment_schedule_body.dart'), 'w', encoding='utf-8').write(
             gen.emit_body_after_tabs(root, name))
+    code = bind_store_pages(code, name)
     if gen.is_sheet:
         open(os.path.join(out_dir, snake(name) + '_sheet.dart'), 'w', encoding='utf-8').write(code)
         sheets.append((name, gen.sheet_parent))
@@ -2593,7 +2595,92 @@ def _gen_one(gen, name, src, out_dir, done, sheets):
         done.append(name)
 
 
+
+def bind_store_pages(src, page):
+    """Bind updated store templates when original HTML sources are unavailable."""
+    if page == 'StoreInfo':
+        return src.replace('(p.localPhone)', '(p.phone)')
+    targets = {
+        'StoreAdd': ('创建门店', 'StoreAdd>StoreSwitch'),
+        'StoreEdit': ('保存', 'StoreEdit>StoreInfo'),
+    }
+    if page in targets:
+        label, key = targets[page]
+        # The normal emitter already adds busy visuals on a fresh generation.
+        if 'hBusy(' not in src:
+            m = re.search(r"Text\(\s*'" + label + r"'\s*,", src)
+            if m:
+                end = _balanced_end(src, m.start() + 4)
+                call = src[m.start():end + 1]
+                style = re.search(r'style:\s*(hts\()', call)
+                extra = ''
+                if style:
+                    a = style.start(1)
+                    b = _balanced_end(call, a + 3)
+                    extra = ', style: ' + call[a:b + 1]
+                extra += ", label: '提交中…'" if page == 'StoreAdd' else ', round: true'
+                src = src[:m.start()] + "hBusy('" + key + "', " + call + extra + ')' + src[end + 1:]
+    if page == 'StoreEdit':
+        m = re.search(r"Text\(\s*'09:00–20:00 · 6 工位 · 统一管理'\s*,", src)
+        if m:
+            end = _balanced_end(src, m.start() + 4)
+            call = src[m.start():end + 1]
+            style = re.search(r'style:\s*(hts\()', call)
+            a = style.start(1); b = _balanced_end(call, a + 3)
+            src = src[:m.start()] + 'hLiveText((p) => p.hoursLine, ' + call[a:b + 1] + ')' + src[end + 1:]
+    if page == 'Subscription':
+        labels = {
+            '专业版': 'p.subscriptionName',
+            '年付': "p.plan == 'trial' ? '试用' : '账号订阅'",
+            '使用中': "p.subscriptionDays > 0 ? '使用中' : '已到期'",
+            '365': 'p.subscriptionDays.toString()',
+            '天后到期 · 2027.10.30': "'天后到期 · ${p.trialEndText}'",
+            '到期前 3 天微信扣款 ¥3,990': "'自动续费尚未开通'",
+            '微信支付': "'尚未绑定'",
+            '1 笔订单': "'查看账单'",
+        }
+        for label, expr in labels.items():
+            m = re.search(r"Text\(\s*'" + re.escape(label) + r"'\s*,", src)
+            if not m:
+                continue
+            end = _balanced_end(src, m.start() + 4)
+            call = src[m.start():end + 1]
+            style = re.search(r'style:\s*(hts\()', call)
+            a = style.start(1); b = _balanced_end(call, a + 3)
+            src = src[:m.start()] + 'hLiveText((p) => ' + expr + ', ' + call[a:b + 1] + ')' + src[end + 1:]
+        for value, kind in [('5', 'staff'), ('1', 'stores'), ('86', 'sms')]:
+            m = re.search(r"text:\s*'" + value + r"'\s*,", src)
+            if not m:
+                continue
+            start = src.rfind('Text.rich(', 0, m.start())
+            end = _balanced_end(src, start + len('Text.rich'))
+            call = src[start:end + 1]
+            styles = []
+            for match in re.finditer(r'style:\s*(hts\()', call):
+                a = match.start(1); b = _balanced_end(call, a + 3)
+                styles.append(call[a:b + 1])
+            src = src[:start] + "hSubscriptionUsage('" + kind + "', " + ', '.join(styles[-2:]) + ')' + src[end + 1:]
+        for ratio, kind in [('0.5', 'staff'), ('0.33', 'stores'), ('0.086', 'sms')]:
+            src = re.sub(r'hfrac\(\s*' + re.escape(ratio) + r'\s*,', "hSubscriptionFraction('" + kind + "',", src)
+    if page == 'StoreAdd':
+        m = re.search(r"Text\(\s*'创建后仍停留在当前门店 · 专业版最多 3 家'\s*,", src)
+        if m:
+            end = _balanced_end(src, m.start() + 4)
+            call = src[m.start():end + 1]
+            style = re.search(r'style:\s*(hts\()', call)
+            a = style.start(1); b = _balanced_end(call, a + 3)
+            src = src[:m.start()] + "hLiveText((p) => '创建后仍停留在当前门店 · ${p.storeOffer}', " + call[a:b + 1] + ')' + src[end + 1:]
+    return src
+
 def main():
+    if len(sys.argv) == 3 and sys.argv[1] == '--bind-stores':
+        for page in ['StoreAdd', 'StoreEdit', 'StoreInfo', 'Subscription']:
+            path = os.path.join(sys.argv[2], snake(page) + '_page.dart')
+            with open(path, encoding='utf-8') as f:
+                src = f.read()
+            with open(path, 'w', encoding='utf-8') as f:
+                f.write(bind_store_pages(src, page))
+        return
     if len(sys.argv) == 3 and sys.argv[1] == '--rewrite-existing':
         # 旧设计稿源文件暂不在仓库；用同一生成后处理规则升级现存 gen 文件。
         for name in os.listdir(sys.argv[2]):

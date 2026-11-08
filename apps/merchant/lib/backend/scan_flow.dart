@@ -16,6 +16,13 @@ class ScanFlow {
   static String? _prefillModel;
   static String? _prefillColor;
   static bool _walkIn = false;
+  static void resetStore() {
+    last = null;
+    _prefillPlate = null;
+    _prefillModel = null;
+    _prefillColor = null;
+    _walkIn = false;
+  }
 
   /// Rebind an already-open member form after returning from its scanner.
   static final prefillTick = ValueNotifier(0);

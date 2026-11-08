@@ -106,9 +106,9 @@ class SubscriptionPage extends StatelessWidget {
                       [
                         hrow(
                           [
-                            Text(
-                              '专业版',
-                              style: hts(
+                            hLiveText(
+                              (p) => p.subscriptionName,
+                              hts(
                                 20,
                                 Color(0xFFFAFAFA),
                                 w: FontWeight.w600,
@@ -119,9 +119,9 @@ class SubscriptionPage extends StatelessWidget {
                               bg: Color(0xFFF5D78E),
                               radius: BorderRadius.circular(9),
                               pad: EdgeInsets.fromLTRB(8, 0, 8, 0),
-                              child: Text(
-                                '年付',
-                                style: hts(
+                              child: hLiveText(
+                                (p) => p.plan == 'trial' ? '试用' : '账号订阅',
+                                hts(
                                   11,
                                   dk(
                                     context,
@@ -131,8 +131,6 @@ class SubscriptionPage extends StatelessWidget {
                                   w: FontWeight.w600,
                                   lh: 18,
                                 ),
-                                softWrap: false,
-                                maxLines: 1,
                               ),
                             ),
                             Expanded(flex: 1, child: SizedBox.shrink()),
@@ -144,9 +142,9 @@ class SubscriptionPage extends StatelessWidget {
                               ),
                               radius: BorderRadius.circular(9),
                               pad: EdgeInsets.fromLTRB(8, 0, 8, 0),
-                              child: Text(
-                                '使用中',
-                                style: hts(
+                              child: hLiveText(
+                                (p) => p.subscriptionDays > 0 ? '使用中' : '已到期',
+                                hts(
                                   11,
                                   dk(
                                     context,
@@ -156,8 +154,6 @@ class SubscriptionPage extends StatelessWidget {
                                   w: FontWeight.w600,
                                   lh: 18,
                                 ),
-                                softWrap: false,
-                                maxLines: 1,
                               ),
                             ),
                           ],
@@ -169,9 +165,9 @@ class SubscriptionPage extends StatelessWidget {
                           [
                             Flexible(
                               flex: 70,
-                              child: Text(
-                                '365',
-                                style: hts(
+                              child: hLiveText(
+                                (p) => p.subscriptionDays.toString(),
+                                hts(
                                   40,
                                   Color(0xFFFAFAFA),
                                   w: FontWeight.w600,
@@ -182,9 +178,9 @@ class SubscriptionPage extends StatelessWidget {
                             ),
                             Flexible(
                               flex: 150,
-                              child: Text(
-                                '天后到期 · 2027.10.30',
-                                style: hts(
+                              child: hLiveText(
+                                (p) => '天后到期 · ${p.trialEndText}',
+                                hts(
                                   14,
                                   dk(
                                     context,
@@ -369,42 +365,24 @@ class SubscriptionPage extends StatelessWidget {
                                       ),
                                     ),
                                   ),
-                                  Text.rich(
-                                    TextSpan(
-                                      style: hts(
-                                        14,
-                                        dk(
-                                          context,
-                                          Color(0xFF18181B),
-                                          Color(0xFFFAFAFA),
-                                        ),
-                                        w: FontWeight.w600,
+                                  hSubscriptionUsage(
+                                    'staff',
+                                    hts(
+                                      14,
+                                      dk(
+                                        context,
+                                        Color(0xFF18181B),
+                                        Color(0xFFFAFAFA),
                                       ),
-                                      children: [
-                                        TextSpan(
-                                          text: '5',
-                                          style: hts(
-                                            14,
-                                            dk(
-                                              context,
-                                              Color(0xFF18181B),
-                                              Color(0xFFFAFAFA),
-                                            ),
-                                            w: FontWeight.w600,
-                                          ),
-                                        ),
-                                        TextSpan(
-                                          text: ' / 10',
-                                          style: hts(
-                                            14,
-                                            dk(
-                                              context,
-                                              Color(0xFFA1A1AA),
-                                              Color(0xFF80808A),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
+                                      w: FontWeight.w600,
+                                    ),
+                                    hts(
+                                      14,
+                                      dk(
+                                        context,
+                                        Color(0xFFA1A1AA),
+                                        Color(0xFF80808A),
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -425,8 +403,8 @@ class SubscriptionPage extends StatelessWidget {
                                   [
                                     Align(
                                       alignment: Alignment.topLeft,
-                                      child: hfrac(
-                                        0.5,
+                                      child: hSubscriptionFraction(
+                                        'staff',
                                         hbox(
                                           h: 6,
                                           bg: Color(0xFF0485F7),
@@ -464,42 +442,24 @@ class SubscriptionPage extends StatelessWidget {
                                       ),
                                     ),
                                   ),
-                                  Text.rich(
-                                    TextSpan(
-                                      style: hts(
-                                        14,
-                                        dk(
-                                          context,
-                                          Color(0xFF18181B),
-                                          Color(0xFFFAFAFA),
-                                        ),
-                                        w: FontWeight.w600,
+                                  hSubscriptionUsage(
+                                    'stores',
+                                    hts(
+                                      14,
+                                      dk(
+                                        context,
+                                        Color(0xFF18181B),
+                                        Color(0xFFFAFAFA),
                                       ),
-                                      children: [
-                                        TextSpan(
-                                          text: '1',
-                                          style: hts(
-                                            14,
-                                            dk(
-                                              context,
-                                              Color(0xFF18181B),
-                                              Color(0xFFFAFAFA),
-                                            ),
-                                            w: FontWeight.w600,
-                                          ),
-                                        ),
-                                        TextSpan(
-                                          text: ' / 3',
-                                          style: hts(
-                                            14,
-                                            dk(
-                                              context,
-                                              Color(0xFFA1A1AA),
-                                              Color(0xFF80808A),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
+                                      w: FontWeight.w600,
+                                    ),
+                                    hts(
+                                      14,
+                                      dk(
+                                        context,
+                                        Color(0xFFA1A1AA),
+                                        Color(0xFF80808A),
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -520,8 +480,8 @@ class SubscriptionPage extends StatelessWidget {
                                   [
                                     Align(
                                       alignment: Alignment.topLeft,
-                                      child: hfrac(
-                                        0.33,
+                                      child: hSubscriptionFraction(
+                                        'stores',
                                         hbox(
                                           h: 6,
                                           bg: Color(0xFF0485F7),
@@ -559,42 +519,24 @@ class SubscriptionPage extends StatelessWidget {
                                       ),
                                     ),
                                   ),
-                                  Text.rich(
-                                    TextSpan(
-                                      style: hts(
-                                        14,
-                                        dk(
-                                          context,
-                                          Color(0xFF18181B),
-                                          Color(0xFFFAFAFA),
-                                        ),
-                                        w: FontWeight.w600,
+                                  hSubscriptionUsage(
+                                    'sms',
+                                    hts(
+                                      14,
+                                      dk(
+                                        context,
+                                        Color(0xFF18181B),
+                                        Color(0xFFFAFAFA),
                                       ),
-                                      children: [
-                                        TextSpan(
-                                          text: '86',
-                                          style: hts(
-                                            14,
-                                            dk(
-                                              context,
-                                              Color(0xFF18181B),
-                                              Color(0xFFFAFAFA),
-                                            ),
-                                            w: FontWeight.w600,
-                                          ),
-                                        ),
-                                        TextSpan(
-                                          text: ' / 1,000',
-                                          style: hts(
-                                            14,
-                                            dk(
-                                              context,
-                                              Color(0xFFA1A1AA),
-                                              Color(0xFF80808A),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
+                                      w: FontWeight.w600,
+                                    ),
+                                    hts(
+                                      14,
+                                      dk(
+                                        context,
+                                        Color(0xFFA1A1AA),
+                                        Color(0xFF80808A),
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -719,9 +661,9 @@ class SubscriptionPage extends StatelessWidget {
                                           lh: 20,
                                         ),
                                       ),
-                                      Text(
-                                        '到期前 3 天微信扣款 ¥3,990',
-                                        style: hts(
+                                      hLiveText(
+                                        (p) => '自动续费尚未开通',
+                                        hts(
                                           12,
                                           dk(
                                             context,
@@ -775,9 +717,9 @@ class SubscriptionPage extends StatelessWidget {
                                       ),
                                     ),
                                   ),
-                                  Text(
-                                    '微信支付',
-                                    style: hts(
+                                  hLiveText(
+                                    (p) => '尚未绑定',
+                                    hts(
                                       15,
                                       dk(
                                         context,
@@ -831,9 +773,9 @@ class SubscriptionPage extends StatelessWidget {
                                       ),
                                     ),
                                   ),
-                                  Text(
-                                    '1 笔订单',
-                                    style: hts(
+                                  hLiveText(
+                                    (p) => '查看账单',
+                                    hts(
                                       15,
                                       dk(
                                         context,

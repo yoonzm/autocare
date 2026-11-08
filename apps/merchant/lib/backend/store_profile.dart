@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-import '../mock/store_state.dart';
+import 'store_context.dart';
 import 'hold_flow.dart';
 import 'merchant_api.dart';
 import 'scan_flow.dart';
@@ -14,6 +14,23 @@ import 'service_store.dart';
 /// sample data, so the prototype stays browsable offline and in tests.
 class StoreProfile extends ChangeNotifier {
   bool live = false;
+  String accountPhone = '';
+  String hoursLine = '未设置营业时间与工位';
+  String storeOffer = '正在读取套餐名额';
+  Map<String, dynamic> subscription = const {};
+  int storeCount = 0;
+  String get subscriptionName => '${subscription['name'] ?? '—'}';
+  int get subscriptionDays => trialEndsAt == null
+      ? 0
+      : ((trialEndsAt!.difference(DateTime.now()).inSeconds / 86400).ceil())
+            .clamp(0, 100000);
+
+  void applyDirectory(Map<String, dynamic> data) {
+    storeOffer = '${data['add_hint']}';
+    storeCount = (data['used'] as num?)?.toInt() ?? storeCount;
+    notifyListeners();
+  }
+
   String name = '';
   String phone = '';
   String city = '';
@@ -30,7 +47,10 @@ class StoreProfile extends ChangeNotifier {
 
   /// 11-digit mainland number, e.g. `13988888812` (the backend keeps `+86…`).
   String get localPhone {
-    final d = phone.replaceAll(RegExp(r'\D'), '');
+    final d = (accountPhone.isEmpty ? phone : accountPhone).replaceAll(
+      RegExp(r'\D'),
+      '',
+    );
     return d.length >= 11 ? d.substring(d.length - 11) : d;
   }
 
@@ -45,7 +65,9 @@ class StoreProfile extends ChangeNotifier {
     return p.length == 11 ? '${p.substring(0, 3)} **** ${p.substring(7)}' : p;
   }
 
-  String get planText => plan == 'trial' ? '专业版 · 试用' : '专业版';
+  String get planText => subscription.isNotEmpty
+      ? subscriptionName
+      : (plan == 'trial' ? '专业版 · 试用' : '专业版');
 
   /// `2026.11.14`, or `—` when the account has no trial end date.
   String get trialEndText {
@@ -56,13 +78,22 @@ class StoreProfile extends ChangeNotifier {
   }
 
   /// 设置页 / 门店信息里的套餐行。
-  String get expiryLine => plan == 'trial' ? '专业版 · 试用至 $trialEndText' : '专业版';
+  String get expiryLine => subscription.isNotEmpty
+      ? '$subscriptionName · $trialEndText 到期'
+      : (plan == 'trial' ? '专业版 · 试用至 $trialEndText' : '专业版');
 
   String get addressText =>
       [city, address].where((s) => s.isNotEmpty).join(' ');
 
   void apply(Map<String, dynamic> s) {
     live = true;
+    subscription = Map<String, dynamic>.from(
+      (s['subscription'] as Map?) ?? const {},
+    );
+    storeCount = (s['store_count'] as num?)?.toInt() ?? 1;
+    if (s['id'] != null) StoreContext.bind('${s['id']}');
+    hoursLine = '${s['hours_line'] ?? '未设置营业时间与工位'}';
+    accountPhone = '${s['account_phone'] ?? s['phone'] ?? ''}';
     name = (s['name'] as String?) ?? '';
     phone = (s['phone'] as String?) ?? '';
     city = (s['city'] as String?) ?? '';
@@ -101,7 +132,10 @@ class StoreProfile extends ChangeNotifier {
     HoldFlow.reset();
     ScanFlow.last = null;
     ServiceStore.clear();
-    MockStores.reset();
+    accountPhone = '';
+    subscription = const {};
+    storeCount = 0;
+    storeOffer = '正在读取套餐名额';
     notifyListeners();
   }
 }

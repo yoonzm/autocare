@@ -9,7 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../backend/registration_draft.dart';
-import '../mock/store_state.dart';
+import '../backend/store_flow.dart';
 import '../backend/scan_flow.dart';
 import '../backend/catalog_draft.dart';
 import '../backend/hold_flow.dart';
@@ -218,32 +218,26 @@ Widget hTap(
         hToast(context, inventoryBlock);
         return;
       }
-      // 新增门店（临时 mock，见 MockStores）：✕ 回到切换门店弹层；“创建门店”校验后创建并回到弹层。
-      if (route == 'StoreAdd' && to == 'StoreSwitch') {
-        if (_hasConfirmLabel(child, '创建门店')) {
-          final error = MockStores.create(
-            name: RegistrationDraft.get('StoreAdd', '如：驰光汽车美容 · 浦东店'),
-            phone: RegistrationDraft.get('StoreAdd', '请输入门店电话'),
-            address: RegistrationDraft.get('StoreAdd', '请选择或输入门店地址'),
+      if ((route == 'StoreAdd' && to == 'StoreSwitch') ||
+          (route == 'StoreEdit' && to == 'StoreInfo')) {
+        if (isBusy('$route>$to')) return;
+        if (_hasConfirmLabel(child, route == 'StoreAdd' ? '创建门店' : '保存')) {
+          unawaited(
+            runBusy(
+              '$route>$to',
+              () => StoreFlow.save(context, create: route == 'StoreAdd'),
+            ),
           );
-          if (error != null) {
-            hToast(context, error);
-            return;
-          }
-          final messenger = ScaffoldMessenger.of(context);
+        } else {
+          StoreFlow.clear();
           final nav = Navigator.of(context);
           nav.pop();
-          hToastOn(messenger, '门店已创建（演示），仍停留在当前门店');
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (nav.context.mounted) openRoute(nav.context, 'StoreSwitch');
-          });
-          return;
+          if (route == 'StoreAdd') {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (nav.context.mounted) openRoute(nav.context, 'StoreSwitch');
+            });
+          }
         }
-        final nav = Navigator.of(context);
-        nav.pop();
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (nav.context.mounted) openRoute(nav.context, 'StoreSwitch');
-        });
         return;
       }
       // 记录回访：保存后写入回访记录
@@ -1288,6 +1282,15 @@ class HInputState extends State<HInput> {
       _slot = RegistrationDraft.claim('$_route:${widget.hint}', this);
       // 真实表单每次打开都从空白开始，不沿用设计稿里的示例文字。
       RegistrationDraft.reset(_route, widget.hint, _slot);
+      if (_route == 'StoreEdit') {
+        final initial = switch (widget.hint) {
+          '请输入门店名称' => storeProfile.name,
+          '请输入联系电话' => storeProfile.phone,
+          '请输入门店地址' => storeProfile.address,
+          _ => '',
+        };
+        RegistrationDraft.set(_route, widget.hint, initial, _slot);
+      }
     }
   }
 
@@ -1339,7 +1342,9 @@ class HInputState extends State<HInput> {
       _ => null,
     };
     final initial = isForm
-        ? ''
+        ? (route == 'StoreEdit'
+              ? RegistrationDraft.get(route, hint, _slot)
+              : '')
         : catalogField == null
         ? value
         : CatalogDraft.text(catalogField.$1, catalogField.$2, value);
@@ -2270,3 +2275,42 @@ class HDynState extends State<HDyn> {
     );
   }
 }
+
+/// Account entitlement usage, bound without changing generated layouts.
+Widget hSubscriptionUsage(
+  String kind,
+  TextStyle valueStyle,
+  TextStyle limitStyle,
+) => ListenableBuilder(
+  listenable: storeProfile,
+  builder: (_, _) {
+    final p = storeProfile;
+    final value = kind == 'stores' ? '${p.storeCount}' : '—';
+    final limit = kind == 'stores'
+        ? ' / ${p.subscription['store_limit'] ?? '—'}'
+        : kind == 'staff'
+        ? ' / ${p.subscription['staff_limit'] ?? '不限'}'
+        : ' / 未开通';
+    return Text.rich(
+      TextSpan(
+        children: [
+          TextSpan(text: value, style: valueStyle),
+          TextSpan(text: limit, style: limitStyle),
+        ],
+      ),
+    );
+  },
+);
+Widget hSubscriptionFraction(String kind, Widget child) => ListenableBuilder(
+  listenable: storeProfile,
+  builder: (_, _) {
+    final limit =
+        (storeProfile.subscription['store_limit'] as num?)?.toDouble() ?? 0;
+    return hfrac(
+      kind == 'stores' && limit > 0
+          ? (storeProfile.storeCount / limit).clamp(0, 1).toDouble()
+          : 0,
+      child,
+    );
+  },
+);

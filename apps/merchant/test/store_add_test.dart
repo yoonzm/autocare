@@ -1,51 +1,97 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
+import 'package:autocare_merchant/backend/store_context.dart';
+import 'package:autocare_merchant/backend/member_flow.dart';
+import 'package:autocare_merchant/backend/catalog_draft.dart';
+import 'package:autocare_merchant/backend/store_profile.dart';
+import 'package:autocare_merchant/backend/store_flow.dart';
 import 'package:autocare_merchant/backend/registration_draft.dart';
-import 'package:autocare_merchant/mock/store_state.dart';
 import 'package:autocare_merchant/routes.dart';
 
 import 'members_test.dart' show MemberFakeApi, app, phone;
 
-class _StoresApi extends MemberFakeApi {
+class MultiStoreApi extends MemberFakeApi {
+  String current = 'first';
+  Object? failure;
+  Completer<void>? gate;
+  final calls = <Map<String, dynamic>>[];
+  final storeRows = <Map<String, dynamic>>[
+    {'id': 'first', 'name': '原店', 'status_label': '当前门店', 'revenue': 0},
+  ];
+  @override
+  Future<Map<String, dynamic>> getStore() async => {
+    'id': current,
+    'name': current == 'first' ? '原店' : '第二家',
+    'phone': '021-12345678',
+    'account_phone': '13900000001',
+    'address': '原地址',
+  };
   @override
   Future<Map<String, dynamic>> stores() async => {
-    'current_store_id': 'real-id',
-    'items': [
-      {
-        'id': 'real-id',
-        'name': '真实金牌洗车',
-        'revenue': 372.4,
-        'status_label': '当前门店',
-      },
-    ],
-    'can_add': false,
-    'add_hint': '当前账号仅支持一家门店',
+    'current_store_id': current,
+    'items': storeRows,
+    'can_add': storeRows.length < 3,
+    'used': storeRows.length,
+    'store_limit': 3,
+    'add_hint': storeRows.length < 3
+        ? '专业版最多 3 家，还可添加 ${3 - storeRows.length} 家'
+        : '专业版最多 3 家，已达上限',
   };
+  @override
+  Future<Map<String, dynamic>> storeMutation(
+    String action,
+    Map<String, dynamic> values, {
+    String? requestId,
+  }) async {
+    calls.add({'action': action, ...values, 'requestId': requestId});
+    await gate?.future;
+    if (failure != null) throw failure!;
+    if (action == 'create') {
+      storeRows.add({
+        'id': 'second',
+        'name': values['name'],
+        'revenue': 0,
+        'status_label': '营业额',
+      });
+    }
+    if (action == 'switch') current = '${values['id']}';
+    return {'id': action == 'create' ? 'second' : values['id']};
+  }
 }
 
 void main() {
   late MerchantApi original;
+  late MultiStoreApi api;
   setUp(() {
     original = merchantApi;
-    merchantApi = _StoresApi();
-    MockStores.reset();
+    merchantApi = api = MultiStoreApi();
+    StoreContext.bind('first');
+    StoreFlow.clear();
     RegistrationDraft.clear();
     navTracker.stack.clear();
+    storeProfile.apply({
+      'id': 'first',
+      'name': '原店',
+      'phone': '021-12345678',
+      'address': '原地址',
+    });
   });
   tearDown(() {
     merchantApi = original;
-    MockStores.reset();
+    StoreContext.bind(null);
+    StoreFlow.clear();
     navTracker.stack.clear();
   });
-
-  Future<void> open(WidgetTester t, String route) async {
+  Future<void> open(WidgetTester t, [String route = 'StoreSwitch']) async {
     phone(t);
     await t.pumpWidget(
       app(
         Builder(
           builder: (context) => Scaffold(
-            body: ElevatedButton(
+            body: TextButton(
               onPressed: () => openRoute(context, route),
               child: const Text('open'),
             ),
@@ -57,90 +103,142 @@ void main() {
     await t.pumpAndSettle();
   }
 
-  testWidgets('新增门店：名称和地址必填，创建后回到切换门店弹层并出现演示门店', (t) async {
-    await open(t, 'StoreSwitch');
+  Future<void> fill(WidgetTester t) async {
+    await t.enterText(find.byType(TextFormField).at(0), '第二家');
+    await t.enterText(find.byType(TextFormField).at(2), '第二家地址');
+  }
+
+  testWidgets('真实创建后返回门店列表，仍停留原店；按钮等待后端且防连点', (t) async {
+    await open(t);
     await t.tap(find.text('新增门店'));
     await t.pumpAndSettle();
-    expect(find.text('创建门店'), findsOneWidget);
-    expect(find.text('创建后仍停留在当前门店 · 专业版最多 3 家'), findsOneWidget);
-    // 所有输入框没值时有占位文字
-    expect(find.text('如：驰光汽车美容 · 浦东店'), findsOneWidget);
-    expect(find.text('请输入门店电话'), findsOneWidget);
-    expect(find.text('请选择或输入门店地址'), findsOneWidget);
+    expect(find.textContaining('还可添加 2 家'), findsOneWidget);
+    await fill(t);
+    api.gate = Completer<void>();
     await t.tap(find.text('创建门店'));
     await t.pump();
-    expect(find.text('请输入门店名称'), findsWidgets);
-    await t.pump(const Duration(seconds: 4));
-    await t.enterText(find.byType(TextField).at(0), '驰光汽车美容 · 浦东店');
-    await t.tap(find.text('创建门店'));
+    expect(find.text('提交中…'), findsOneWidget);
+    await t.tap(find.text('提交中…'), warnIfMissed: false);
     await t.pump();
-    expect(find.text('请选择或输入门店地址'), findsWidgets);
-    await t.pump(const Duration(seconds: 4));
-    await t.enterText(find.byType(TextField).at(2), '上海市浦东新区世纪大道 1 号');
+    expect(api.calls.length, 1);
+    api.gate!.complete();
+    await t.pumpAndSettle();
+    expect(api.calls.single['name'], '第二家');
+    expect(find.text('第二家'), findsOneWidget);
+    expect(StoreContext.id, 'first');
+    expect(api.current, 'first');
+    expect(find.textContaining('演示门店'), findsNothing);
+  });
+  testWidgets('失败保留表单，相同内容重试使用相同请求编号', (t) async {
+    await open(t, 'StoreAdd');
+    await fill(t);
+    api.failure = const AppError('网络不太给力', type: AppErrorType.network);
     await t.tap(find.text('创建门店'));
     await t.pumpAndSettle();
-    expect(MockStores.extra.value, ['驰光汽车美容 · 浦东店']);
-    expect(find.text('切换门店'), findsOneWidget);
-    expect(find.text('驰光汽车美容 · 浦东店'), findsOneWidget);
-    expect(find.text('演示门店 · 仅本机可见'), findsOneWidget);
-    expect(find.text('专业版最多 3 家，还可添加 1 家'), findsOneWidget);
-    await t.pump(const Duration(seconds: 4));
+    expect(find.text('第二家'), findsOneWidget);
+    api.failure = null;
+    await t.tap(find.text('创建门店'));
+    await t.pumpAndSettle();
+    expect(api.calls.length, 2);
+    expect(api.calls.first['requestId'], api.calls.last['requestId']);
+    await t.pump(const Duration(seconds: 9));
   });
-
-  testWidgets('演示门店不能切换过去，明确提示', (t) async {
-    MockStores.extra.value = ['二店'];
-    await open(t, 'StoreSwitch');
-    await t.tap(find.text('二店'));
-    await t.pump();
-    expect(find.text('演示门店，跨门店切换暂未开通'), findsWidgets);
-    await t.pump(const Duration(seconds: 6));
-  });
-
-  testWidgets('达到套餐上限后不能再新增，并说明原因', (t) async {
-    MockStores.extra.value = ['二店', '三店'];
-    await open(t, 'StoreSwitch');
-    expect(find.text('专业版最多 3 家，已达上限'), findsOneWidget);
+  testWidgets('名额由接口决定，满额不进入新增页', (t) async {
+    api.storeRows.addAll([
+      {'id': 'second', 'name': '第二家', 'revenue': 0, 'status_label': '营业额'},
+      {'id': 'third', 'name': '第三家', 'revenue': 0, 'status_label': '营业额'},
+    ]);
+    await open(t);
+    await t.ensureVisible(find.text('新增门店'));
     await t.tap(find.text('新增门店'));
-    await t.pump();
-    expect(find.text('专业版最多 3 家门店，已达上限'), findsWidgets);
+    await t.pumpAndSettle();
     expect(find.text('创建门店'), findsNothing);
-    await t.pump(const Duration(seconds: 6));
+    expect(api.calls, isEmpty);
+    await t.pump(const Duration(seconds: 9));
   });
-
-  testWidgets('新增门店左上角 ✕ 返回，不创建', (t) async {
-    await open(t, 'StoreSwitch');
-    await t.tap(find.text('新增门店'));
+  testWidgets('切换真实门店后重建首页，清空旧会员及表单状态', (t) async {
+    api.storeRows.add({
+      'id': 'second',
+      'name': '第二家',
+      'revenue': 0,
+      'status_label': '营业额',
+    });
+    MemberFlow.current = {'id': 'old-member'};
+    await open(t);
+    await t.tap(find.text('第二家'));
     await t.pumpAndSettle();
-    await t.tap(find.byType(GestureDetector).at(1));
+    expect(api.current, 'second');
+    expect(StoreContext.id, 'second');
+    expect(MemberFlow.current, isNull);
+    expect(CatalogDraft.current, isNull);
+    expect(find.text('第二家'), findsWidgets);
+    expect(find.text('切换门店'), findsNothing);
+    await t.pump(const Duration(seconds: 1));
+    expect(t.takeException(), isNull);
+  });
+
+  testWidgets('存在编辑页面时切店先确认，取消不调用切换接口', (t) async {
+    api.storeRows.add({
+      'id': 'second',
+      'name': '第二家',
+      'revenue': 0,
+      'status_label': '门店',
+    });
+    phone(t);
+    await t.pumpWidget(
+      MaterialApp(
+        navigatorObservers: [navTracker],
+        onGenerateRoute: (_) => MaterialPageRoute(
+          settings: const RouteSettings(name: 'StoreEdit'),
+          builder: (context) => Scaffold(
+            body: TextButton(
+              onPressed: () => openRoute(context, 'StoreSwitch'),
+              child: const Text('open'),
+            ),
+          ),
+        ),
+      ),
+    );
+    await t.tap(find.text('open'));
     await t.pumpAndSettle();
-    expect(MockStores.extra.value, isEmpty);
+    await t.tap(find.text('第二家'));
+    await t.pump(const Duration(milliseconds: 400));
+    expect(find.text('切换门店将放弃当前未保存的表单，是否继续？'), findsOneWidget);
+    await t.tap(find.text('取消'));
+    await t.pumpAndSettle();
+    expect(api.calls, isEmpty);
+    expect(StoreContext.id, 'first');
   });
 
-  test('创建门店的校验：同名、电话格式、数量上限（含真实门店）', () {
-    expect(MockStores.create(name: ' ', phone: '', address: 'x'), '请输入门店名称');
-    expect(MockStores.create(name: 'A', phone: '', address: ''), '请选择或输入门店地址');
-    expect(
-      MockStores.create(name: 'A', phone: 'abc', address: 'x'),
-      '请输入正确的门店电话',
-    );
-    expect(
-      MockStores.create(name: 'A', phone: '021-12345678', address: 'x'),
-      isNull,
-    );
-    expect(MockStores.create(name: 'A', phone: '', address: 'x'), '已有同名门店');
-    expect(MockStores.create(name: 'B', phone: '', address: 'x'), isNull);
-    expect(
-      MockStores.create(name: 'C', phone: '', address: 'x'),
-      '专业版最多 3 家门店',
-    );
+  testWidgets('套餐页面显示账号真实套餐、有效期和门店用量', (t) async {
+    storeProfile.apply({
+      'id': 'first',
+      'name': '原店',
+      'phone': '021-12345678',
+      'trial_ends_at': '2030-01-01T00:00:00Z',
+      'store_count': 2,
+      'subscription': {'name': '账号专业版', 'store_limit': 3},
+    });
+    await open(t, 'Subscription');
+    expect(find.text('账号专业版'), findsOneWidget);
+    expect(find.text('2 / 3', findRichText: true), findsOneWidget);
+    expect(find.text('天后到期 · 2030.01.01'), findsOneWidget);
+    expect(find.text('365'), findsNothing);
+    expect(find.textContaining('3,990'), findsNothing);
+    expect(t.takeException(), isNull);
   });
 
-  testWidgets('编辑门店信息：有“营业时间与工位”入口，点击进入营业时间与工位', (t) async {
+  testWidgets('编辑回填当前店铺资料，保存带门店 ID，与登录手机号分离', (t) async {
     await open(t, 'StoreEdit');
-    expect(find.text('编辑门店信息'), findsOneWidget);
-    expect(find.text('营业时间与工位'), findsOneWidget);
-    await t.tap(find.text('营业时间与工位'));
-    await t.pump();
-    expect(navTracker.has('BusinessHours'), isTrue);
+    expect(
+      t.widget<TextFormField>(find.byType(TextFormField).at(0)).initialValue,
+      '原店',
+    );
+    await t.enterText(find.byType(TextFormField).at(0), '新名称');
+    await t.tap(find.text('保存'));
+    await t.pumpAndSettle();
+    expect(api.calls.single['action'], 'update');
+    expect(api.calls.single['id'], 'first');
+    expect(api.calls.single['phone'], '021-12345678');
   });
 }
