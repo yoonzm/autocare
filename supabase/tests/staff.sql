@@ -128,6 +128,11 @@ begin
   assert r->>'status'='pending' and (select active from public.appointment_resources where id=res_id);
   assert public.staff_records(shop,tech_id,'all')->'summary'->>'orders'='2','历史记录在停用启用后保留';
 
+  -- PostgREST 对 STABLE 函数用只读事务：所有读接口在只读事务下也必须可用（首次读取要补写默认权限的是 staff_list，已声明为 VOLATILE）。
+  assert (select provolatile from pg_proc where proname='staff_list')='v','staff_list 必须是 VOLATILE（内部会补写默认权限）';
+  assert not exists(select 1 from pg_proc where pronamespace='public'::regnamespace and provolatile<>'v'
+    and proname in ('staff_json','staff_open_work','staff_detail','staff_records','staff_has_permission')
+    and prosrc ~* '(insert|update|delete) '),'STABLE 函数不能写数据';
   -- 列表与权限。
   r:=public.staff_list(shop);
   assert jsonb_array_length(r->'staff')=4 and jsonb_array_length(r->'services')=2;
