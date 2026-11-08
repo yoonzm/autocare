@@ -62,6 +62,7 @@ class HoldFlow {
   static List<Map<String, dynamic>>? holds;
   static AppError? error;
   static bool loading = false;
+  static int _loadVersion = 0;
   static final tick = ValueNotifier<int>(0);
 
   /// 列表页签：0 全部 / 1 待施工 / 2 施工中 / 3 待结算。
@@ -75,6 +76,7 @@ class HoldFlow {
   static int get count => holds?.length ?? 0;
 
   static void reset() {
+    _loadVersion++;
     holds = null;
     error = null;
     loading = false;
@@ -97,20 +99,28 @@ class HoldFlow {
   static Future<void> load() async {
     if (loading) return;
     final epoch = StoreContext.epoch;
+    final version = ++_loadVersion;
     loading = true;
     if (holds == null) error = null;
     tick.value++;
     try {
       final rows = await merchantApi.holds();
-      if (epoch != StoreContext.epoch) return;
+      if (version != _loadVersion || epoch != StoreContext.epoch) return;
       holds = rows;
       error = null;
     } catch (e) {
-      if (epoch == StoreContext.epoch) error = AppError.from(e);
+      if (version == _loadVersion && epoch == StoreContext.epoch) {
+        error = AppError.from(e);
+      }
     } finally {
-      if (epoch == StoreContext.epoch) {
+      // Only the request that owns the loading state may finish it. An epoch
+      // change discards its result, but must not strand the loading flag.
+      if (version == _loadVersion) {
         loading = false;
         tick.value++;
+        if (epoch != StoreContext.epoch && merchantApi.hasSession) {
+          unawaited(load());
+        }
       }
     }
   }

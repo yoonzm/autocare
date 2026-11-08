@@ -11,8 +11,8 @@ import 'service_store.dart';
 
 /// The signed-in owner's store as stored in the backend.
 ///
-/// Until [load] succeeds ([live] is false), pages keep showing the design's
-/// sample data, so the prototype stays browsable offline and in tests.
+/// Cold startup restores this profile before mounting store-dependent pages.
+/// Failed refreshes retain the last confirmed profile; they never use demo data.
 class StoreProfile extends ChangeNotifier {
   bool live = false;
   String accountPhone = '';
@@ -111,7 +111,8 @@ class StoreProfile extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Fetches the profile after sign-in. Failures leave the sample data in place.
+  /// Best-effort refresh after sign-in or profile changes. Cold startup uses
+  /// StoreSessionGate so restoration failures remain visible and retryable.
   Future<void> load() async {
     if (!merchantApi.hasSession) return;
     try {

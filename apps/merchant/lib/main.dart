@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/services.dart';
@@ -7,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'backend/merchant_api.dart';
 import 'backend/store_profile.dart';
+import 'widgets/store_session_gate.dart';
 import 'kit/async_kit.dart';
 import 'mock/theme_state.dart';
 import 'pages/login_page.dart';
@@ -20,7 +19,6 @@ Future<void> main() async {
     url: supabaseUrl,
     publishableKey: supabasePublishableKey,
   );
-  if (merchantApi.hasSession) unawaited(storeProfile.load());
   // 上次选的外观（跟随系统 / 浅色 / 深色）保存在本机，启动时读回，之后每次切换都保存
   await loadThemeMode();
   persistThemeMode();
@@ -134,7 +132,9 @@ class _QimeiAppState extends State<QimeiApp> with WidgetsBindingObserver {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      home: merchantApi.hasSession ? const Shell() : const LoginPage(),
+      home: merchantApi.hasSession
+          ? const StoreSessionGate(child: Shell())
+          : const LoginPage(),
     );
   }
 }
