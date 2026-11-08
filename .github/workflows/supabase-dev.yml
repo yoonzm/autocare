@@ -43,6 +43,7 @@ jobs:
           node supabase/tests/admin.mjs "$RUNNER_TEMP/sms-db-test/node_modules/@electric-sql/pglite/dist/index.js"
           node supabase/tests/store_initialization.mjs "$RUNNER_TEMP/sms-db-test/node_modules/@electric-sql/pglite/dist/index.js"
           node supabase/tests/inventory_management.mjs "$RUNNER_TEMP/sms-db-test/node_modules/@electric-sql/pglite/dist/index.js"
+          node supabase/tests/legacy_inventory_bridge.mjs "$RUNNER_TEMP/sms-db-test/node_modules/@electric-sql/pglite/dist/index.js"
           node supabase/tests/multistore.mjs "$RUNNER_TEMP/sms-db-test/node_modules/@electric-sql/pglite/dist/index.js"
           node supabase/tests/member_summary.mjs "$RUNNER_TEMP/sms-db-test/node_modules/@electric-sql/pglite/dist/index.js"
 
@@ -65,6 +66,13 @@ jobs:
       - uses: supabase/setup-cli@3c2f5e2ae34c34e428e8e206e2c4d21fa2d20fbf # v2.1.1
         with:
           version: latest
+      - name: Bridge published legacy inventory migrations
+        run: |
+          if ! command -v psql >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y postgresql-client
+          fi
+          python3 supabase/deploy/bridge_dev_inventory.py
       - name: Verify migration history
         run: supabase migration list --db-url "$SUPABASE_DB_URL"
       - name: Apply pending database migrations
