@@ -1,0 +1,325 @@
+{
+  "services": [
+    {
+      "category": "镀晶镀膜",
+      "name": "全车镀晶 · 9H 陶瓷",
+      "description": "工时 4h · 提成 8%",
+      "price": 1580,
+      "active": true,
+      "businesses": [
+        "镀晶镀膜"
+      ]
+    },
+    {
+      "category": "镀晶镀膜",
+      "name": "石墨烯镀膜",
+      "description": "工时 6h · 提成 8%",
+      "price": 2680,
+      "active": true,
+      "businesses": [
+        "镀晶镀膜"
+      ]
+    },
+    {
+      "category": "镀晶镀膜",
+      "name": "漆面抛光",
+      "description": "工时 3h · 提成 ¥60/单",
+      "price": 680,
+      "active": true,
+      "businesses": [
+        "镀晶镀膜"
+      ]
+    },
+    {
+      "category": "镀晶镀膜",
+      "name": "镀晶养护",
+      "description": "工时 4h",
+      "price": 1280,
+      "active": true,
+      "businesses": [
+        "镀晶镀膜"
+      ]
+    },
+    {
+      "category": "洗车",
+      "name": "精致洗车",
+      "description": "工时 40min · 提成 ¥8/单",
+      "price": 68,
+      "active": true,
+      "businesses": [
+        "洗车美容"
+      ]
+    },
+    {
+      "category": "洗车",
+      "name": "快速洗车",
+      "description": "工时 20min · 提成 ¥4/单",
+      "price": 38,
+      "active": true,
+      "businesses": [
+        "洗车美容"
+      ]
+    },
+    {
+      "category": "洗车",
+      "name": "发动机舱清洗",
+      "description": "工时 30min",
+      "price": 120,
+      "active": false,
+      "businesses": [
+        "洗车美容"
+      ]
+    },
+    {
+      "category": "贴膜",
+      "name": "全车隐形车衣",
+      "description": "工时 2 天 · 提成 6%",
+      "price": 18800,
+      "active": true,
+      "businesses": [
+        "隐形车衣"
+      ]
+    },
+    {
+      "category": "内饰",
+      "name": "内饰深度清洁",
+      "description": "工时 2h · 提成 ¥40/单",
+      "price": 380,
+      "active": true,
+      "businesses": [
+        "洗车美容"
+      ]
+    },
+    {
+      "category": "内饰",
+      "name": "空调杀菌",
+      "description": "工时 30min",
+      "price": 98,
+      "active": true,
+      "businesses": [
+        "洗车美容"
+      ]
+    }
+  ],
+  "products": [
+    {
+      "name": "中性洗车液 20L",
+      "category": "洗护",
+      "unit": "桶",
+      "stock": 0,
+      "safe": 0,
+      "cost": 0,
+      "businesses": [
+        "洗车美容"
+      ]
+    },
+    {
+      "name": "超细纤维擦车巾",
+      "category": "洗护",
+      "unit": "条",
+      "stock": 0,
+      "safe": 0,
+      "cost": 0,
+      "businesses": [
+        "洗车美容",
+        "镀晶镀膜"
+      ]
+    },
+    {
+      "name": "9H 陶瓷镀晶液 50ml",
+      "category": "镀晶",
+      "unit": "瓶",
+      "stock": 0,
+      "safe": 0,
+      "cost": 0,
+      "businesses": [
+        "镀晶镀膜"
+      ]
+    },
+    {
+      "name": "玻璃镀膜剂",
+      "category": "镀晶",
+      "unit": "瓶",
+      "stock": 0,
+      "safe": 0,
+      "cost": 0,
+      "businesses": [
+        "镀晶镀膜"
+      ]
+    },
+    {
+      "name": "TPU 隐形车衣 7.5mil",
+      "category": "贴膜",
+      "unit": "卷",
+      "stock": 0,
+      "safe": 0,
+      "cost": 0,
+      "businesses": [
+        "隐形车衣"
+      ]
+    },
+    {
+      "name": "改色膜 · 哑光灰",
+      "category": "贴膜",
+      "unit": "卷",
+      "stock": 0,
+      "safe": 0,
+      "cost": 0,
+      "businesses": [
+        "改色膜"
+      ]
+    },
+    {
+      "name": "机油滤芯",
+      "category": "配件",
+      "unit": "个",
+      "stock": 0,
+      "safe": 0,
+      "cost": 0,
+      "businesses": [
+        "保养维修"
+      ]
+    },
+    {
+      "name": "空气滤芯",
+      "category": "配件",
+      "unit": "个",
+      "stock": 0,
+      "safe": 0,
+      "cost": 0,
+      "businesses": [
+        "保养维修"
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "name": "黑金卡",
+      "description": "",
+      "discount": 0.9,
+      "color": "black",
+      "upgrade_recharge": 10000,
+      "upgrade_cumulative": 30000,
+      "points_multiplier": 2,
+      "birthday_gift": "赠精致洗车 2 次",
+      "priority_booking": true,
+      "validity": "forever"
+    },
+    {
+      "name": "金卡",
+      "description": "",
+      "discount": 0.95,
+      "color": "champagne",
+      "upgrade_recharge": 5000,
+      "upgrade_cumulative": 10000,
+      "points_multiplier": 1.5,
+      "birthday_gift": "赠精致洗车 1 次",
+      "priority_booking": false,
+      "validity": "forever"
+    },
+    {
+      "name": "银卡",
+      "description": "",
+      "discount": 0.98,
+      "color": "silver",
+      "upgrade_recharge": 2000,
+      "upgrade_cumulative": 3000,
+      "points_multiplier": 1,
+      "birthday_gift": "",
+      "priority_booking": false,
+      "validity": "forever"
+    },
+    {
+      "name": "普通会员",
+      "description": "扫码免费注册 · 消费累积积分",
+      "discount": 1,
+      "color": "white",
+      "upgrade_recharge": null,
+      "upgrade_cumulative": null,
+      "points_multiplier": 1,
+      "birthday_gift": "",
+      "priority_booking": false,
+      "validity": "forever"
+    }
+  ],
+  "packages": [
+    {
+      "name": "精致洗车年卡",
+      "price": 1080,
+      "validity_months": 12,
+      "active": true,
+      "items": [
+        {
+          "service": "精致洗车",
+          "count": 20
+        }
+      ]
+    },
+    {
+      "name": "精致洗车 10 次卡",
+      "price": 580,
+      "validity_months": 6,
+      "active": true,
+      "items": [
+        {
+          "service": "精致洗车",
+          "count": 10
+        }
+      ]
+    },
+    {
+      "name": "内饰深度清洁 6 次卡",
+      "price": 1380,
+      "validity_months": 12,
+      "active": true,
+      "items": [
+        {
+          "service": "内饰深度清洁",
+          "count": 6
+        }
+      ]
+    },
+    {
+      "name": "镀晶养护 3 次卡",
+      "price": 2980,
+      "validity_months": 12,
+      "active": true,
+      "items": [
+        {
+          "service": "镀晶养护",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "name": "空调杀菌 4 次卡",
+      "price": 380,
+      "validity_months": 6,
+      "active": true,
+      "items": [
+        {
+          "service": "空调杀菌",
+          "count": 4
+        }
+      ]
+    },
+    {
+      "name": "新客体验卡",
+      "price": 99,
+      "validity_months": 3,
+      "active": false,
+      "items": [
+        {
+          "service": "精致洗车",
+          "count": 3
+        }
+      ]
+    }
+  ],
+  "bays": {
+    "1-3 个": 3,
+    "4-6 个": 6,
+    "7-10 个": 10,
+    "10 个以上": 20
+  }
+}

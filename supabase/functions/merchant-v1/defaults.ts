@@ -159,3 +159,16 @@ export function defaultPackages(serviceNames: readonly string[]): DefaultPackage
   const have = new Set(serviceNames);
   return DEFAULT_PACKAGES.filter((p) => p.items.every((i) => have.has(i.service)));
 }
+
+/** Published immutable snapshot used by the shared transactional DB initializer. */
+export function storeStarterTemplate() {
+  const services = defaultServices([...BUSINESS_TYPES]);
+  const products = defaultProducts([...BUSINESS_TYPES]);
+  return {
+    services: services.map((s) => ({ ...s, businesses: BUSINESS_TYPES.filter((b) => defaultServices([b]).some((v) => v.name === s.name)) })),
+    products: products.map((p) => ({ ...p, businesses: BUSINESS_TYPES.filter((b) => defaultProducts([b]).some((v) => v.name === p.name)) })),
+    cards: DEFAULT_CARDS,
+    packages: DEFAULT_PACKAGES,
+    bays: BAY_COUNTS,
+  };
+}

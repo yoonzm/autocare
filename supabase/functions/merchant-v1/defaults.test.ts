@@ -98,3 +98,9 @@ Deno.test('packages are only created when all their services exist', () => {
   // every package item must be a service of the design's service list or the design's sheet
   for (const p of DEFAULT_PACKAGES) eq(p.items.length >= 1, true, p.name);
 });
+
+Deno.test('published DB starter snapshot equals the registration defaults', async () => {
+  const { default: snapshot } = await import('../../data/store_starter_v1.json', { with: { type: 'json' } });
+  const { storeStarterTemplate } = await import('./defaults.ts');
+  eq(snapshot, storeStarterTemplate(), 'shared starter snapshot');
+});
