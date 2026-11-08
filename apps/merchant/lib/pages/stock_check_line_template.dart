@@ -56,9 +56,12 @@ class StockCheckLineTemplate extends StatelessWidget {
           bg: c.checkBackground(line),
           radius: BorderRadius.circular(9),
           pad: EdgeInsets.fromLTRB(8, 0, 8, 0),
-          child: Text(
-            c.lineText(line, '一致'),
-            style: hts(11, c.checkInk(line), w: FontWeight.w600, lh: 18),
+          child: GestureDetector(
+            onTap: () => c.editCount(context, line),
+            child: Text(
+              c.lineText(line, '一致'),
+              style: hts(11, c.checkInk(line), w: FontWeight.w600, lh: 18),
+            ),
           ),
         ),
         hbox(

@@ -1,3 +1,4 @@
+import '../widgets/inventory_bindings.dart' show inventoryChanged;
 import '../backend/appointment_flow.dart';
 
 import 'dart:async';
@@ -48,6 +49,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     CatalogDraft.changed.addListener(_onDataChanged);
+    inventoryChanged.addListener(_onDataChanged);
     AppointmentFlow.changed.addListener(_onAppointmentsChanged);
   }
 
@@ -83,6 +85,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   @override
   void dispose() {
     CatalogDraft.changed.removeListener(_onDataChanged);
+    inventoryChanged.removeListener(_onDataChanged);
     AppointmentFlow.changed.removeListener(_onAppointmentsChanged);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
@@ -562,8 +565,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                     const SizedBox(height: 10),
                     small(
                       '商品入库',
-                      // TODO: 库存模块尚未接入；待 inventory_summary 提供待补货数量，保留现有示例。
-                      '3 件待补货',
+                      _stats == null
+                          ? '—'
+                          : '${_stats!['stock_low'] ?? 0} 件待补货 · ${_stats!['stock_expiring'] ?? 0} 件临期',
                       'box',
                       C.amberSoft,
                       C.amberInk,

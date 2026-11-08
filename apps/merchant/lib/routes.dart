@@ -1,3 +1,5 @@
+import 'pages/inventory_management_page.dart';
+import 'pages/inventory_pickers.dart' show SupplierEditPage;
 import 'pages/inventory_live_page.dart';
 import 'pages/expense_live_page.dart';
 
@@ -46,6 +48,19 @@ import 'pages/theme_sheet.dart';
 
 final Map<String, WidgetBuilder> _allSheets = {
   ...genSheets,
+  for (final name in [
+    'ProductPicker',
+    'SupplierPicker',
+    'StockVoid',
+    'StockOutShort',
+    'StockCheckInput',
+    'ScanProductResult',
+    'ScanProductNotFound',
+  ])
+    name: (context) => ErrorView(
+      error: const AppError('请先从库存页面选择商品或单据', type: AppErrorType.notFound),
+      onNext: () => Navigator.maybePop(context),
+    ),
   'Renew': (_) => const SubscriptionLiveHost('Renew'),
   'FindResult': (context) =>
       merchantApi.hasSession && ScanFlow.matched && ScanFlow.member != null
@@ -93,6 +108,12 @@ Widget? pageFor(String name) {
       return SubscriptionLiveHost(name);
     case 'ProductList':
       return const ProductListLivePage();
+    case 'SupplierEdit':
+      return const SupplierEditPage();
+    case 'ProductEditExist':
+      return ErrorView(
+        error: const AppError('请先选择商品', type: AppErrorType.notFound),
+      );
     case 'ProductEdit':
       return const ProductEditLivePage();
     // TODO: 微信支付开通（进件）依赖服务商接口，目前没有开通能力，支付与收款的真实状态就是“未开通”，
@@ -115,6 +136,24 @@ Widget? pageFor(String name) {
       return const ExpenseLivePage(mode: 'total');
     case 'BudgetEdit':
       return const ExpenseLivePage(mode: 'category');
+    case 'StockDocs':
+      return const InventoryManagementPage(mode: 'docs');
+    case 'StockDocsOut':
+      return const InventoryManagementPage(mode: 'docs', initialTab: 1);
+    case 'StockDocsCheck':
+      return const InventoryManagementPage(mode: 'docs', initialTab: 2);
+    case 'CategoryManage':
+      return const InventoryManagementPage(mode: 'categories');
+    case 'StockAlertSettings':
+      return const InventoryManagementPage(mode: 'settings');
+    case 'StockCheckNew':
+      return const InventoryManagementPage(mode: 'new');
+    case 'ScanProduct':
+      return const InventoryManagementPage(mode: 'scan');
+    case 'StockInDetail':
+    case 'StockOutDetail':
+    case 'StockCheckResult':
+      return const InventoryManagementPage(mode: 'document');
     case 'StockIn':
       return const InventoryLivePage(mode: 'in');
     case 'StockOut':
@@ -275,9 +314,9 @@ const Set<String> _modalPages = {
 const Map<String, List<String>> _pairs = {
   'Recharge': ['Recharge', 'RechargeCard'],
   'CardTiers': ['CardTiers', 'CardPackages'],
+
   // 库存单据的三个页签（入库 / 出库 / 盘点）：设计稿把每个状态画成一张图，实际是同一个页面里切换。
   // （商品列表的四个筛选是 ProductListLivePage 里的页签。）
-  'StockDocs': ['StockDocs', 'StockDocsOut', 'StockDocsCheck'],
 };
 final Map<String, ValueNotifier<int>> pairTabs = {
   for (final k in _pairs.keys) k: ValueNotifier<int>(0),

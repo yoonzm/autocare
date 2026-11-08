@@ -395,241 +395,139 @@ class StockCheckLiveTemplate extends StatelessWidget {
                   bg: dk(context, Color(0xFFE9E9EB), Color(0xFF1F1F23)),
                   radius: BorderRadius.circular(20),
                   pad: EdgeInsets.fromLTRB(4, 4, 4, 4),
-                  child: InventorySelections(
-                    c: c,
-                    groups: [
-                      ({0}, false),
+                  child: hrow(
+                    [
+                      Expanded(
+                        flex: 1,
+                        child: UnconstrainedBox(
+                          alignment: Alignment.topLeft,
+                          constrainedAxis: Axis.horizontal,
+                          child: c.tap(
+                            context,
+                            hbox(
+                              h: 32,
+                              bg: dk(
+                                context,
+                                Color(0xFFFFFFFF),
+                                Color(0xFF18181B),
+                              ),
+                              radius: BorderRadius.circular(16),
+                              shadow: dk(
+                                context,
+                                [
+                                  BoxShadow(
+                                    color: Color.fromRGBO(0, 0, 0, 0.06),
+                                    offset: Offset(0, 1),
+                                    blurRadius: 2,
+                                    spreadRadius: 0,
+                                  ),
+                                  BoxShadow(
+                                    color: Color.fromRGBO(0, 0, 0, 0.04),
+                                    offset: Offset(0, 2),
+                                    blurRadius: 4,
+                                    spreadRadius: 0,
+                                  ),
+                                ],
+                                [
+                                  BoxShadow(
+                                    color: Color(0xFF26262B),
+                                    offset: Offset(0, 0),
+                                    blurRadius: 0,
+                                    spreadRadius: 1,
+                                  ),
+                                ],
+                              ),
+                              child: Align(
+                                alignment: Alignment(0, 0),
+                                widthFactor: 1,
+                                child: Text(
+                                  c.text('全部'),
+                                  style: hts(
+                                    13,
+                                    dk(
+                                      context,
+                                      Color(0xFF18181B),
+                                      Color(0xFFFAFAFA),
+                                    ),
+                                    w: FontWeight.w500,
+                                    lh: 18,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            to: 'StockCheck',
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: UnconstrainedBox(
+                          alignment: Alignment.topLeft,
+                          constrainedAxis: Axis.horizontal,
+                          child: c.tap(
+                            context,
+                            hbox(
+                              h: 32,
+                              radius: BorderRadius.circular(16),
+                              child: Align(
+                                alignment: Alignment(0, 0),
+                                widthFactor: 1,
+                                child: Text(
+                                  c.text('未盘点'),
+                                  style: hts(
+                                    13,
+                                    dk(
+                                      context,
+                                      Color(0xFF52525B),
+                                      Color(0xFFA8A8B3),
+                                    ),
+                                    w: FontWeight.w500,
+                                    lh: 18,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            to: 'StockCheckPending',
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: UnconstrainedBox(
+                          alignment: Alignment.topLeft,
+                          constrainedAxis: Axis.horizontal,
+                          child: c.tap(
+                            context,
+                            hbox(
+                              h: 32,
+                              radius: BorderRadius.circular(16),
+                              child: Align(
+                                alignment: Alignment(0, 0),
+                                widthFactor: 1,
+                                child: Text(
+                                  c.text('有差异'),
+                                  style: hts(
+                                    13,
+                                    dk(
+                                      context,
+                                      Color(0xFF52525B),
+                                      Color(0xFFA8A8B3),
+                                    ),
+                                    w: FontWeight.w500,
+                                    lh: 18,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            to: 'StockCheckDiff',
+                          ),
+                        ),
+                      ),
                     ],
-                    builder: (context, g1) => hrow(
-                      [
-                        Expanded(
-                          flex: 1,
-                          child: UnconstrainedBox(
-                            alignment: Alignment.topLeft,
-                            constrainedAxis: Axis.horizontal,
-                            child: HSel(
-                              ctrl: g1[0],
-                              index: 0,
-                              on: hbox(
-                                h: 32,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFFFFFFF),
-                                  Color(0xFF18181B),
-                                ),
-                                radius: BorderRadius.circular(16),
-                                shadow: dk(
-                                  context,
-                                  [
-                                    BoxShadow(
-                                      color: Color.fromRGBO(0, 0, 0, 0.06),
-                                      offset: Offset(0, 1),
-                                      blurRadius: 2,
-                                      spreadRadius: 0,
-                                    ),
-                                    BoxShadow(
-                                      color: Color.fromRGBO(0, 0, 0, 0.04),
-                                      offset: Offset(0, 2),
-                                      blurRadius: 4,
-                                      spreadRadius: 0,
-                                    ),
-                                  ],
-                                  [
-                                    BoxShadow(
-                                      color: Color(0xFF26262B),
-                                      offset: Offset(0, 0),
-                                      blurRadius: 0,
-                                      spreadRadius: 1,
-                                    ),
-                                  ],
-                                ),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  widthFactor: 1,
-                                  child: Text(
-                                    c.text('全部'),
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF18181B),
-                                        Color(0xFFFAFAFA),
-                                      ),
-                                      w: FontWeight.w500,
-                                      lh: 18,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              off: hbox(
-                                h: 32,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFFFFFFF),
-                                  Color(0xFF18181B),
-                                ),
-                                radius: BorderRadius.circular(16),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  widthFactor: 1,
-                                  child: Text(
-                                    c.text('全部'),
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF52525B),
-                                        Color(0xFFA8A8B3),
-                                      ),
-                                      w: FontWeight.w500,
-                                      lh: 18,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 1,
-                          child: UnconstrainedBox(
-                            alignment: Alignment.topLeft,
-                            constrainedAxis: Axis.horizontal,
-                            child: HSel(
-                              ctrl: g1[0],
-                              index: 1,
-                              on: hbox(
-                                h: 32,
-                                radius: BorderRadius.circular(16),
-                                shadow: dk(context, [
-                                  BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.06),
-                                    offset: Offset(0, 1),
-                                    blurRadius: 2,
-                                    spreadRadius: 0,
-                                  ),
-                                  BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.04),
-                                    offset: Offset(0, 2),
-                                    blurRadius: 4,
-                                    spreadRadius: 0,
-                                  ),
-                                ], null),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  widthFactor: 1,
-                                  child: Text(
-                                    c.text('未盘点'),
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF18181B),
-                                        Color(0xFFFAFAFA),
-                                      ),
-                                      w: FontWeight.w500,
-                                      lh: 18,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              off: hbox(
-                                h: 32,
-                                radius: BorderRadius.circular(16),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  widthFactor: 1,
-                                  child: Text(
-                                    c.text('未盘点'),
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF52525B),
-                                        Color(0xFFA8A8B3),
-                                      ),
-                                      w: FontWeight.w500,
-                                      lh: 18,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 1,
-                          child: UnconstrainedBox(
-                            alignment: Alignment.topLeft,
-                            constrainedAxis: Axis.horizontal,
-                            child: HSel(
-                              ctrl: g1[0],
-                              index: 2,
-                              on: hbox(
-                                h: 32,
-                                radius: BorderRadius.circular(16),
-                                shadow: dk(context, [
-                                  BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.06),
-                                    offset: Offset(0, 1),
-                                    blurRadius: 2,
-                                    spreadRadius: 0,
-                                  ),
-                                  BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.04),
-                                    offset: Offset(0, 2),
-                                    blurRadius: 4,
-                                    spreadRadius: 0,
-                                  ),
-                                ], null),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  widthFactor: 1,
-                                  child: Text(
-                                    c.text('有差异'),
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF18181B),
-                                        Color(0xFFFAFAFA),
-                                      ),
-                                      w: FontWeight.w500,
-                                      lh: 18,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              off: hbox(
-                                h: 32,
-                                radius: BorderRadius.circular(16),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  widthFactor: 1,
-                                  child: Text(
-                                    c.text('有差异'),
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF52525B),
-                                        Color(0xFFA8A8B3),
-                                      ),
-                                      w: FontWeight.w500,
-                                      lh: 18,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                      main: MainAxisAlignment.start,
-                      cross: CrossAxisAlignment.stretch,
-                      gap: 2,
-                      intrinsic: true,
-                    ),
+                    main: MainAxisAlignment.start,
+                    cross: CrossAxisAlignment.stretch,
+                    gap: 2,
+                    intrinsic: true,
                   ),
                 ),
                 hbox(
@@ -763,7 +661,7 @@ class StockCheckLiveTemplate extends StatelessWidget {
                         ),
                       ),
                     ),
-                    to: 'Inventory',
+                    to: 'StockCheckResult',
                     action: '提交盘点',
                   ),
                 ),

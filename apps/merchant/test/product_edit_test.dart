@@ -14,6 +14,15 @@ class _Api extends MemberFakeApi {
     Duration? timeout,
     String? requestId,
   }) async {
+    if (body['action'] == 'inventory_options') {
+      return {
+        'categories': [
+          for (final name in ['贴膜', '镀晶', '洗护', '配件', '其他']) {'name': name},
+        ],
+        'suppliers': [],
+        'settings': {'expiry_days': 30},
+      };
+    }
     if (body['action'] == 'inventory_create' ||
         body['action'] == 'inventory_update') {
       calls.add(body);
@@ -43,7 +52,7 @@ void main() {
     await t.tap(find.text('其他'));
     await t.pump();
     await t.pump(const Duration(milliseconds: 300));
-    expect(find.text('「其他」分类暂未接通，请先选择其他分类'), findsWidgets);
+    expect(find.text('「其他」分类暂未接通，请先选择其他分类'), findsNothing);
     await t.tap(find.text('清洁用品'));
     await t.pump();
     await t.enterText(find.widgetWithText(TextField, '').at(2), '12.5');
@@ -85,11 +94,6 @@ void main() {
     expect(find.text('罐'), findsWidgets); // 原有单位不在预设里，也保留为一个可选项
     expect(find.text('蓝盾膜业'), findsOneWidget);
     expect(find.text('¥ 1,280.00'), findsOneWidget);
-    await t.ensureVisible(find.text('停用此商品'));
-    await t.tap(find.text('停用此商品'));
-    await t.pump();
-    await t.pump(const Duration(milliseconds: 300));
-    expect(find.text('商品停用暂未接通'), findsWidgets);
     await t.tap(find.text('保存修改'));
     await t.pumpAndSettle();
     final c = api.calls.single;

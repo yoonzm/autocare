@@ -1,3 +1,7 @@
+import '../backend/merchant_api.dart';
+import '../widgets/inventory_bindings.dart';
+import 'inventory_management_page.dart';
+
 import 'package:flutter/material.dart';
 
 import '../kit/async_kit.dart';
@@ -9,8 +13,6 @@ import 'gen/svgs.dart';
 
 /// 入库 / 出库页的「选择商品」「选择供应商」底部弹层，以及「新增供应商」页。
 /// 版式取自设计稿 ProductPicker / SupplierPicker / SupplierEdit；数据来自库存接口，不在这里造假。
-
-const _categories = ['全部', '洗护', '镀晶', '贴膜', '配件'];
 
 List<BoxShadow> _cardShadow(BuildContext context) => dk(
   context,
@@ -156,12 +158,17 @@ class _ProductPickerSheet extends StatefulWidget {
 class _ProductPickerState extends State<_ProductPickerSheet> {
   final selected = <Object?>[];
   late final List<Map<String, dynamic>> all = [...widget.products];
+  late final _categories = [
+    '全部',
+    ...{for (final p in all) '${p['category']}'},
+  ];
   int cat = 0;
   String q = '';
 
   List<Map<String, dynamic>> get visible => [
     for (final p in all)
-      if (!widget.excluded.contains(p['id']) &&
+      if (p['active'] != false &&
+          !widget.excluded.contains(p['id']) &&
           (cat == 0 || p['category'] == _categories[cat]) &&
           (q.isEmpty ||
               '${p['name']}'.toLowerCase().contains(q) ||
@@ -197,9 +204,25 @@ class _ProductPickerState extends State<_ProductPickerSheet> {
               ),
               const SizedBox(width: 8),
               GestureDetector(
-                onTap: () =>
-                    // TODO: 扫码设备尚未接入，需要相机扫码能力后按条码匹配商品 SKU。
-                    AppToast.show(context, '扫码设备尚未接入，请手动搜索商品'),
+                onTap: () async {
+                  final p = await Navigator.of(context)
+                      .push<Map<String, dynamic>>(
+                        MaterialPageRoute(
+                          builder: (_) => const InventoryManagementPage(
+                            mode: 'scan',
+                            returnProduct: true,
+                          ),
+                        ),
+                      );
+                  if (p != null &&
+                      mounted &&
+                      !widget.excluded.contains(p['id'])) {
+                    setState(() {
+                      if (!all.any((v) => v['id'] == p['id'])) all.add(p);
+                      if (!selected.contains(p['id'])) selected.add(p['id']);
+                    });
+                  }
+                },
                 child: hbox(
                   w: 44,
                   h: 44,
@@ -411,50 +434,68 @@ class _SupplierPickerSheet extends StatefulWidget {
 }
 
 class _SupplierPickerState extends State<_SupplierPickerSheet> {
-  late final List<String> all = [...widget.suppliers];
+  List<Map<String, dynamic>> records = [];
+  List<String> all = [];
+  final key = GlobalKey<AsyncViewState<Map<String, dynamic>>>();
+  Future<Map<String, dynamic>> load() async {
+    final r = await merchantApi.invoke({'action': 'inventory_options'});
+    records = maps(r['suppliers']);
+    all = records.map((s) => '${s['name']}').toList();
+    return r;
+  }
+
   late String selected = widget.current;
   String q = '';
 
   @override
   Widget build(BuildContext context) {
-    final list = [
-      for (final s in all)
-        if (s.contains(q)) s,
-    ];
     return Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
       child: AppSheetFrame(
         title: '选择供应商',
         children: [
           _searchPill(context, '搜索供应商', (v) => setState(() => q = v.trim())),
-          Container(
-            constraints: BoxConstraints(
-              maxHeight: MediaQuery.sizeOf(context).height * .36,
-            ),
-            clipBehavior: Clip.antiAlias,
-            decoration: BoxDecoration(
-              color: dk(
-                context,
-                const Color(0xFFF4F4F5),
-                const Color(0xFF27272A),
-              ),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: list.isEmpty
-                ? Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 28),
-                    child: Center(
-                      child: Text(
-                        all.isEmpty ? '还没有供应商，先新增一个吧' : '没有符合条件的供应商',
-                        style: ts(13, color: C.muted, h: 18),
-                      ),
-                    ),
-                  )
-                : ListView(
-                    shrinkWrap: true,
-                    padding: EdgeInsets.zero,
-                    children: [for (final s in list) _row(s)],
+          SizedBox(
+            height: MediaQuery.sizeOf(context).height * .36,
+            child: AsyncView<Map<String, dynamic>>(
+              key: key,
+              load: load,
+              isEmpty: (_) => false,
+              skeleton: const SkeletonList(count: 3),
+              empty: (_) => const SizedBox.shrink(),
+              builder: (_, data) => Container(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.sizeOf(context).height * .36,
+                ),
+                clipBehavior: Clip.antiAlias,
+                decoration: BoxDecoration(
+                  color: dk(
+                    context,
+                    const Color(0xFFF4F4F5),
+                    const Color(0xFF27272A),
                   ),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: all.where((s) => s.contains(q)).isEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 28),
+                        child: Center(
+                          child: Text(
+                            all.isEmpty ? '还没有供应商，先新增一个吧' : '没有符合条件的供应商',
+                            style: ts(13, color: C.muted, h: 18),
+                          ),
+                        ),
+                      )
+                    : ListView(
+                        shrinkWrap: true,
+                        padding: EdgeInsets.zero,
+                        children: [
+                          for (final s in all.where((s) => s.contains(q)))
+                            _row(s),
+                        ],
+                      ),
+              ),
+            ),
           ),
           _link(context, '+ 新增供应商', () async {
             final name = await Navigator.of(context).push<String>(
@@ -465,6 +506,7 @@ class _SupplierPickerState extends State<_SupplierPickerSheet> {
               if (!all.contains(name)) all.add(name);
               selected = name;
             });
+            key.currentState?.reload();
           }),
           _footer(
             context,
@@ -512,9 +554,20 @@ class _SupplierPickerState extends State<_SupplierPickerSheet> {
             ),
             const SizedBox(width: 12),
             Expanded(
-              // TODO: 供应商联系人 / 电话需要后端供应商资料表（目前只有商品上的供应商名称），
-              // 接通后在名称下方显示「联系人 X · 138****2201」。
-              child: Text(s, style: ts(15, w: FontWeight.w500, h: 22)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(s, style: ts(15, w: FontWeight.w500, h: 22)),
+                  if (records.any((r) => r['name'] == s))
+                    Text(
+                      records
+                          .where((r) => r['name'] == s)
+                          .map((r) => '${r['contact']} · ${r['phone']}')
+                          .first,
+                      style: ts(12, color: C.muted, h: 18),
+                    ),
+                ],
+              ),
             ),
           ],
         ),
@@ -525,8 +578,6 @@ class _SupplierPickerState extends State<_SupplierPickerSheet> {
 
 /// 新增供应商（设计稿 SupplierEdit）：名称必填，填写后「保存」才可点。
 ///
-/// TODO: 后端目前没有供应商资料表，只有商品 / 入库单上的供应商名称；联系人、电话、备注暂时不会保存，
-/// 预期接口 `supplier_create`（name / contact / phone / note）。这里只把名称带回入库单，不假装已保存其余字段。
 class SupplierEditPage extends StatefulWidget {
   const SupplierEditPage({super.key});
   @override
@@ -534,6 +585,28 @@ class SupplierEditPage extends StatefulWidget {
 }
 
 class _SupplierEditState extends State<SupplierEditPage> {
+  final request = InventoryRequest();
+  late final id = inventoryId();
+  bool busy = false;
+  Future<void> save() async {
+    setState(() => busy = true);
+    try {
+      final r = await request.send({
+        'action': 'inventory_supplier_save',
+        'payload': {
+          'id': id,
+          'name': name.text.trim(),
+          'contact': contact.text.trim(),
+          'phone': phone.text.trim(),
+          'note': note.text.trim(),
+        },
+      });
+      if (mounted) Navigator.pop(context, r['item']['name']);
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
+  }
+
   final name = TextEditingController(),
       contact = TextEditingController(),
       phone = TextEditingController(),
@@ -602,7 +675,7 @@ class _SupplierEditState extends State<SupplierEditPage> {
 
   @override
   Widget build(BuildContext context) {
-    final ready = name.text.trim().isNotEmpty;
+    final ready = name.text.trim().isNotEmpty && !busy;
     return Scaffold(
       backgroundColor: C.bg,
       resizeToAvoidBottomInset: true,
@@ -651,7 +724,7 @@ class _SupplierEditState extends State<SupplierEditPage> {
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: ready
-                  ? () => Navigator.pop(context, name.text.trim())
+                  ? () => runBusy('inventory-supplier-save', save)
                   : null,
               child: Container(
                 height: 50,
@@ -660,13 +733,16 @@ class _SupplierEditState extends State<SupplierEditPage> {
                   color: ready ? C.primary : C.stroke,
                   borderRadius: BorderRadius.circular(25),
                 ),
-                child: Text(
-                  '保存',
-                  style: ts(
-                    15,
-                    w: FontWeight.w600,
-                    color: ready ? Colors.white : C.faint,
-                    h: 22,
+                child: hBusy(
+                  'inventory-supplier-save',
+                  Text(
+                    '保存',
+                    style: ts(
+                      15,
+                      w: FontWeight.w600,
+                      color: ready ? Colors.white : C.faint,
+                      h: 22,
+                    ),
                   ),
                 ),
               ),

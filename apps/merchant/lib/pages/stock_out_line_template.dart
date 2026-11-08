@@ -39,52 +39,44 @@ class StockOutLineTemplate extends StatelessWidget {
           gap: 2,
         ),
       ),
-      hrow(
-        [
-          hTap(
-            context,
-            hbox(
-              w: 32,
-              h: 32,
-              bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
-              radius: BorderRadius.circular(16),
-              child: hrow(
-                [hsvg(dk(context, Svgs.s16, Svgs.s17), w: 14, h: 14)],
-                main: MainAxisAlignment.center,
-                cross: CrossAxisAlignment.center,
-                gap: 0,
-              ),
-            ),
-            onTap: () => c.adjust(line, -1),
+      HNumberStepper(
+        ctrl: c.stepper(line),
+        step: 1,
+        minus: hbox(
+          w: 32,
+          h: 32,
+          bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+          radius: BorderRadius.circular(16),
+          child: hrow(
+            [hsvg(dk(context, Svgs.s16, Svgs.s17), w: 14, h: 14)],
+            main: MainAxisAlignment.center,
+            cross: CrossAxisAlignment.center,
+            gap: 0,
           ),
-          Flexible(
-            flex: 25,
-            child: hbox(
-              minW: 36,
-              child: Align(
-                alignment: Alignment.center,
-                widthFactor: 1,
-                child: c.quantityLabel(context, line),
-              ),
+        ),
+        value: Flexible(
+          flex: 25,
+          child: hbox(
+            minW: 36,
+            child: Align(
+              alignment: Alignment.center,
+              widthFactor: 1,
+              child: c.quantityLabel(context, line),
             ),
           ),
-          hTap(
-            context,
-            hbox(
-              w: 32,
-              h: 32,
-              bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
-              radius: BorderRadius.circular(16),
-              child: hrow(
-                [hsvg(dk(context, Svgs.s18, Svgs.s19), w: 14, h: 14)],
-                main: MainAxisAlignment.center,
-                cross: CrossAxisAlignment.center,
-                gap: 0,
-              ),
-            ),
-            onTap: () => c.adjust(line, 1),
+        ),
+        plus: hbox(
+          w: 32,
+          h: 32,
+          bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+          radius: BorderRadius.circular(16),
+          child: hrow(
+            [hsvg(dk(context, Svgs.s18, Svgs.s19), w: 14, h: 14)],
+            main: MainAxisAlignment.center,
+            cross: CrossAxisAlignment.center,
+            gap: 0,
           ),
-        ],
+        ),
         main: MainAxisAlignment.start,
         cross: CrossAxisAlignment.center,
         gap: 4,
@@ -127,6 +119,7 @@ class StockOutAddTemplate extends StatelessWidget {
         gap: 6,
       ),
     ),
-    label: '添加商品',
+    to: 'ProductPicker',
+    action: '添加商品',
   );
 }

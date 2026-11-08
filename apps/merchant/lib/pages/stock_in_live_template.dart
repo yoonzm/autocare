@@ -202,8 +202,91 @@ class StockInLiveTemplate extends StatelessWidget {
                       pad: EdgeInsets.fromLTRB(0, 4, 0, 4),
                       child: hcol(
                         [
+                          c.tap(
+                            context,
+                            hbox(
+                              minH: 54,
+                              pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                              child: hrow(
+                                [
+                                  Expanded(
+                                    flex: 1,
+                                    child: Text.rich(
+                                      TextSpan(
+                                        style: hts(
+                                          14,
+                                          dk(
+                                            context,
+                                            Color(0xFF52525B),
+                                            Color(0xFFA8A8B3),
+                                          ),
+                                          lh: 20,
+                                        ),
+                                        children: [
+                                          TextSpan(
+                                            text: '供应商 ',
+                                            style: hts(
+                                              14,
+                                              dk(
+                                                context,
+                                                Color(0xFF52525B),
+                                                Color(0xFFA8A8B3),
+                                              ),
+                                              lh: 20,
+                                            ),
+                                          ),
+                                          TextSpan(
+                                            text: '*',
+                                            style: hts(
+                                              14,
+                                              dk(
+                                                context,
+                                                Color(0xFFA43433),
+                                                Color(0xFFFF7B7E),
+                                              ),
+                                              lh: 20,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  Text(
+                                    c.text('蓝盾膜业'),
+                                    style: hts(
+                                      15,
+                                      dk(
+                                        context,
+                                        Color(0xFF18181B),
+                                        Color(0xFFFAFAFA),
+                                      ),
+                                      lh: 22,
+                                    ),
+                                  ),
+                                  hsvg(
+                                    dk(context, Svgs.s3, Svgs.s4),
+                                    w: 16,
+                                    h: 16,
+                                  ),
+                                ],
+                                main: MainAxisAlignment.start,
+                                cross: CrossAxisAlignment.center,
+                                gap: 12,
+                              ),
+                            ),
+                            to: 'SupplierPicker',
+                          ),
+                          hbox(
+                            h: 1,
+                            bg: dk(
+                              context,
+                              Color(0xFFEFEFF1),
+                              Color(0xFF2A2A2E),
+                            ),
+                            margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
+                          ),
                           HStrHolder(
-                            initial: c.initial('蓝盾膜业'),
+                            initial: c.initial('今天 10.31'),
                             builder: (context, s1) => c.tap(
                               context,
                               hbox(
@@ -213,43 +296,16 @@ class StockInLiveTemplate extends StatelessWidget {
                                   [
                                     Expanded(
                                       flex: 1,
-                                      child: Text.rich(
-                                        TextSpan(
-                                          style: hts(
-                                            14,
-                                            dk(
-                                              context,
-                                              Color(0xFF52525B),
-                                              Color(0xFFA8A8B3),
-                                            ),
-                                            lh: 20,
+                                      child: Text(
+                                        c.text('入库日期'),
+                                        style: hts(
+                                          14,
+                                          dk(
+                                            context,
+                                            Color(0xFF52525B),
+                                            Color(0xFFA8A8B3),
                                           ),
-                                          children: [
-                                            TextSpan(
-                                              text: '供应商 ',
-                                              style: hts(
-                                                14,
-                                                dk(
-                                                  context,
-                                                  Color(0xFF52525B),
-                                                  Color(0xFFA8A8B3),
-                                                ),
-                                                lh: 20,
-                                              ),
-                                            ),
-                                            TextSpan(
-                                              text: '*',
-                                              style: hts(
-                                                14,
-                                                dk(
-                                                  context,
-                                                  Color(0xFFA43433),
-                                                  Color(0xFFFF7B7E),
-                                                ),
-                                                lh: 20,
-                                              ),
-                                            ),
-                                          ],
+                                          lh: 20,
                                         ),
                                       ),
                                     ),
@@ -276,67 +332,7 @@ class StockInLiveTemplate extends StatelessWidget {
                                   gap: 12,
                                 ),
                               ),
-                              onTap: () =>
-                                  c.pick(context, 'supplier', '供应商', s1),
-                            ),
-                          ),
-                          hbox(
-                            h: 1,
-                            bg: dk(
-                              context,
-                              Color(0xFFEFEFF1),
-                              Color(0xFF2A2A2E),
-                            ),
-                            margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
-                          ),
-                          HStrHolder(
-                            initial: c.initial('今天 10.31'),
-                            builder: (context, s2) => c.tap(
-                              context,
-                              hbox(
-                                minH: 54,
-                                pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                                child: hrow(
-                                  [
-                                    Expanded(
-                                      flex: 1,
-                                      child: Text(
-                                        c.text('入库日期'),
-                                        style: hts(
-                                          14,
-                                          dk(
-                                            context,
-                                            Color(0xFF52525B),
-                                            Color(0xFFA8A8B3),
-                                          ),
-                                          lh: 20,
-                                        ),
-                                      ),
-                                    ),
-                                    hStr(
-                                      s2,
-                                      hts(
-                                        15,
-                                        dk(
-                                          context,
-                                          Color(0xFF18181B),
-                                          Color(0xFFFAFAFA),
-                                        ),
-                                        lh: 22,
-                                      ),
-                                    ),
-                                    hsvg(
-                                      dk(context, Svgs.s3, Svgs.s4),
-                                      w: 16,
-                                      h: 16,
-                                    ),
-                                  ],
-                                  main: MainAxisAlignment.start,
-                                  cross: CrossAxisAlignment.center,
-                                  gap: 12,
-                                ),
-                              ),
-                              onTap: () => c.pick(context, 'date', '入库日期', s2),
+                              onTap: () => c.pick(context, 'date', '入库日期', s1),
                             ),
                           ),
                           hbox(
@@ -506,7 +502,7 @@ class StockInLiveTemplate extends StatelessWidget {
                         [
                           HStrHolder(
                             initial: c.initial('¥120.00'),
-                            builder: (context, s6) => c.tap(
+                            builder: (context, s5) => c.tap(
                               context,
                               hbox(
                                 minH: 54,
@@ -529,7 +525,7 @@ class StockInLiveTemplate extends StatelessWidget {
                                       ),
                                     ),
                                     hStr(
-                                      s6,
+                                      s5,
                                       hts(
                                         15,
                                         dk(
@@ -551,7 +547,7 @@ class StockInLiveTemplate extends StatelessWidget {
                                   gap: 12,
                                 ),
                               ),
-                              onTap: () => c.pick(context, 'amount', '运费', s6),
+                              onTap: () => c.pick(context, 'amount', '运费', s5),
                             ),
                           ),
                           hbox(
@@ -739,17 +735,17 @@ class StockInLiveTemplate extends StatelessWidget {
                                 groups: [
                                   ({2}, false),
                                 ],
-                                builder: (context, g7) => hwrap(
+                                builder: (context, g6) => hwrap(
                                   [
                                     HSel(
-                                      ctrl: g7[0],
+                                      ctrl: g6[0],
                                       index: 0,
                                       on: hbox(
                                         h: 34,
                                         bg: dk(
                                           context,
-                                          Color(0xFFF4F4F5),
-                                          Color(0xFF27272A),
+                                          Color(0xFFE1F0FE),
+                                          Color.fromRGBO(4, 133, 247, 0.18),
                                         ),
                                         radius: BorderRadius.circular(17),
                                         border: Border.all(
@@ -804,14 +800,14 @@ class StockInLiveTemplate extends StatelessWidget {
                                       ),
                                     ),
                                     HSel(
-                                      ctrl: g7[0],
+                                      ctrl: g6[0],
                                       index: 1,
                                       on: hbox(
                                         h: 34,
                                         bg: dk(
                                           context,
-                                          Color(0xFFF4F4F5),
-                                          Color(0xFF27272A),
+                                          Color(0xFFE1F0FE),
+                                          Color.fromRGBO(4, 133, 247, 0.18),
                                         ),
                                         radius: BorderRadius.circular(17),
                                         border: Border.all(
@@ -866,7 +862,7 @@ class StockInLiveTemplate extends StatelessWidget {
                                       ),
                                     ),
                                     HSel(
-                                      ctrl: g7[0],
+                                      ctrl: g6[0],
                                       index: 2,
                                       on: hbox(
                                         h: 34,
@@ -903,8 +899,8 @@ class StockInLiveTemplate extends StatelessWidget {
                                         h: 34,
                                         bg: dk(
                                           context,
-                                          Color(0xFFE1F0FE),
-                                          Color.fromRGBO(4, 133, 247, 0.18),
+                                          Color(0xFFF4F4F5),
+                                          Color(0xFF27272A),
                                         ),
                                         radius: BorderRadius.circular(17),
                                         pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
@@ -928,14 +924,14 @@ class StockInLiveTemplate extends StatelessWidget {
                                       ),
                                     ),
                                     HSel(
-                                      ctrl: g7[0],
+                                      ctrl: g6[0],
                                       index: 3,
                                       on: hbox(
                                         h: 34,
                                         bg: dk(
                                           context,
-                                          Color(0xFFF4F4F5),
-                                          Color(0xFF27272A),
+                                          Color(0xFFE1F0FE),
+                                          Color.fromRGBO(4, 133, 247, 0.18),
                                         ),
                                         radius: BorderRadius.circular(17),
                                         border: Border.all(
@@ -1170,6 +1166,7 @@ class StockInLiveTemplate extends StatelessWidget {
                             alignment: Alignment.topLeft,
                             constrainedAxis: Axis.horizontal,
                             child: InventoryAttachment(
+                              c: c,
                               imgKey: 'StockIn_10',
                               size: 72,
                               radius: 16,

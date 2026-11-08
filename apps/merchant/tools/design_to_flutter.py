@@ -2751,6 +2751,10 @@ def bind_subscription_pages(src, page):
     return src
 
 def main():
+    if len(sys.argv)>1 and sys.argv[1]=='--bind-inventory':
+        import runpy
+        runpy.run_path(os.path.join(os.path.dirname(__file__), 'bind_inventory_management.py'), run_name='__main__')
+        return
     if len(sys.argv)==3 and sys.argv[1]=='--bind-subscriptions':
         for page in ['Plans','PlanCheckout','Renew','PlanPaid','RenewPaid']:
             path=os.path.join(sys.argv[2],snake(page)+('_sheet.dart' if page=='Renew' else '_page.dart'))

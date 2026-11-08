@@ -1,3 +1,10 @@
+import 'dart:convert';
+
+import 'package:image_picker/image_picker.dart';
+
+import '../pages/inventory_management_page.dart';
+import 'inventory_management_bindings.dart'
+    show showStockShortage, showInventoryCountInput;
 import '../pages/inventory_pickers.dart';
 import '../pages/product_edit_live_page.dart';
 import '../pages/inventory_record_templates.dart';
@@ -16,6 +23,19 @@ import '../pages/inventory_live_page.dart';
 import '../pages/stock_in_line_template.dart';
 import '../pages/stock_out_line_template.dart';
 import '../pages/stock_check_line_template.dart';
+
+/// Keep the key across ambiguous network failures; editing creates a new intent.
+class InventoryRequest {
+  String? _body, _id;
+  Future<Map<String, dynamic>> send(Map<String, dynamic> body) {
+    final encoded = jsonEncode(body);
+    if (_body != encoded) {
+      _body = encoded;
+      _id = MerchantApi.newRequestId();
+    }
+    return merchantApi.invoke(body, requestId: _id);
+  }
+}
 
 final inventoryChanged = ValueNotifier(0);
 String inventoryId() {
@@ -42,13 +62,28 @@ String money(num n) => '¥${n.toStringAsFixed(2)}';
 List<Map<String, dynamic>> maps(dynamic v) =>
     (v as List? ?? []).map((e) => Map<String, dynamic>.from(e as Map)).toList();
 
+class InventoryLineCtrl extends ValCtrl {
+  final InventoryController controller;
+  final Map<String, dynamic> line;
+  InventoryLineCtrl(this.controller, this.line) : super(0);
+  @override
+  void add(int d, {int min = 0}) => controller.adjust(line, d);
+}
+
 class InventoryController extends ChangeNotifier {
+  ValCtrl stepper(Map<String, dynamic> line) => InventoryLineCtrl(this, line);
+  void setBusy(bool value) {
+    busy = value;
+    if (!disposed) notifyListeners();
+  }
+
   final String mode;
   final List<Map<String, dynamic>> products;
   final Map<String, dynamic> detail;
   late String id;
   int revision = 0, filter = 0;
   bool busy = false, dirty = false, disposed = false;
+  final mutation = InventoryRequest();
   Map<String, dynamic> payload = {};
   List<Map<String, dynamic>> lines = [];
   Timer? _quoteTimer;
@@ -137,6 +172,11 @@ class InventoryController extends ChangeNotifier {
           }
         : Map<String, dynamic>.from(draft['payload']);
     lines = maps(payload['lines']);
+    if (mode == 'check' && payload['product_ids'] is List) {
+      products.removeWhere(
+        (p) => !(payload['product_ids'] as List).contains(p['id']),
+      );
+    }
     if (draft != null && mode == 'check') {
       for (final p in products) {
         if (!lines.any((l) => l['id'] == p['id'])) {
@@ -166,6 +206,18 @@ class InventoryController extends ChangeNotifier {
     }
     scheduleQuote();
   }
+  void replaceProducts(List<Map<String, dynamic>> latest) {
+    if (mode == 'check' && payload['product_ids'] is List) {
+      latest.removeWhere(
+        (p) => !(payload['product_ids'] as List).contains(p['id']),
+      );
+    }
+    products
+      ..clear()
+      ..addAll(latest);
+    scheduleQuote();
+  }
+
   void changed() {
     dirty = true;
     scheduleQuote();
@@ -200,21 +252,10 @@ class InventoryController extends ChangeNotifier {
   String text(String v) {
     final p = detail;
     final unit = '${p['unit'] ?? ''}';
-    final movements = maps(p['movements']);
     final now = DateTime.now();
-    final used = movements
-        .where(
-          (m) =>
-              '${m['created_at']}'.startsWith(
-                '${now.year}-${now.month.toString().padLeft(2, '0')}',
-              ) &&
-              (m['after_stock'] as num) < (m['before_stock'] as num),
-        )
-        .fold<num>(
-          0,
-          (n, m) => n + (m['before_stock'] as num) - (m['after_stock'] as num),
-        );
+    final used = p['month_used'] as num? ?? 0;
     final values = <String, String>{
+      '蓝盾膜业': initial('蓝盾膜业'),
       'RK-20261031-03': 'RK-${id.substring(0, 8)}',
       '¥15,960.00': quoted('subtotal'),
       '¥16,080.00': quoted('total'),
@@ -259,12 +300,16 @@ class InventoryController extends ChangeNotifier {
     return values[v] ?? v;
   }
 
-  Future<void> save(BuildContext context, bool post) async {
+  Future<void> save(
+    BuildContext context,
+    bool post, {
+    bool fromPreview = false,
+  }) async {
     if (busy) return;
     busy = true;
     notifyListeners();
     try {
-      final result = await merchantApi.invoke({
+      final result = await mutation.send({
         'action': 'inventory_document',
         'id': id,
         'kind': mode,
@@ -280,9 +325,30 @@ class InventoryController extends ChangeNotifier {
       inventoryChanged.value++;
       if (context.mounted) {
         AppToast.show(context, post ? '已提交' : '草稿已保存');
-        Navigator.of(context).pop();
+        if (post) {
+          await Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (_) =>
+                  InventoryManagementPage(mode: 'document', documentId: id),
+            ),
+          );
+        } else {
+          Navigator.of(context).pop();
+        }
       }
     } catch (e) {
+      if (mode == 'out' && e.toString().contains('库存不足')) {
+        try {
+          final result = await merchantApi.invoke({'action': 'inventory_list'});
+          products
+            ..clear()
+            ..addAll(maps(result['items']));
+          if (context.mounted) await showStockShortage(context, this);
+          return;
+        } catch (_) {
+          /* Preserve the draft and show the original failure. */
+        }
+      }
       if (mode == 'check' && e.toString().contains('库存已变化')) {
         try {
           final latest = maps(
@@ -338,6 +404,33 @@ class InventoryController extends ChangeNotifier {
       onTap: busy
           ? null
           : () {
+              if (to == 'SupplierPicker') {
+                runBusy('inventory-supplier-picker', () async {
+                  final ctrl = StrCtrl('${payload['supplier'] ?? ''}');
+                  try {
+                    await pick(context, 'supplier', '供应商', ctrl);
+                  } finally {
+                    ctrl.dispose();
+                  }
+                });
+                return;
+              }
+              if (to == 'StockOutScrap' || to == 'StockOutReturn') {
+                payload['reason'] = to == 'StockOutScrap' ? '损耗报废' : '退回供应商';
+                changed();
+                return;
+              }
+              if (submit && mode == 'check') {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => InventoryManagementPage(
+                      mode: 'result',
+                      countController: this,
+                    ),
+                  ),
+                );
+                return;
+              }
               if (submit || draft) {
                 runBusy(
                   'Inventory-$mode-${submit ? 'submit' : 'draft'}',
@@ -354,7 +447,7 @@ class InventoryController extends ChangeNotifier {
                 return;
               }
               if (label == '扫码添加' || action == '扫码添加') {
-                AppToast.show(context, '扫码设备尚未接入，请手动添加商品');
+                scan(context);
                 return;
               }
               if (mode == 'detail' && to == 'ProductEditExist') {
@@ -389,8 +482,42 @@ class InventoryController extends ChangeNotifier {
     StrCtrl ctrl,
   ) async {
     if (key == 'workorder' || key == 'tech') {
-      // TODO: stock document foreign keys require order material consumption and staff authorization contracts.
-      AppToast.show(context, '工单成本关联与技师领料授权尚未接通');
+      try {
+        final response = await merchantApi.invoke({
+          'action': 'inventory_assignments',
+        });
+        if (!context.mounted) return;
+        final items = maps(response[key == 'tech' ? 'technicians' : 'orders']);
+        final value = await showModalBottomSheet<Map<String, dynamic>>(
+          context: context,
+          builder: (ctx) => SafeArea(
+            child: ListView(
+              shrinkWrap: true,
+              children: [
+                if (items.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.all(24),
+                    child: EmptyView.firstTime(title: '还没有可选记录'),
+                  ),
+                for (final item in items)
+                  ListTile(
+                    title: Text('${item['label'] ?? item['name']}'),
+                    onTap: () => Navigator.pop(ctx, item),
+                  ),
+              ],
+            ),
+          ),
+        );
+        if (value != null) {
+          final label = '${value['label'] ?? value['name']}';
+          payload[key == 'tech' ? 'technician_id' : 'order_id'] = value['id'];
+          payload[key == 'tech' ? 'technician' : 'workorder'] = label;
+          ctrl.set(label);
+          changed();
+        }
+      } catch (e) {
+        if (context.mounted) AppToast.error(context, e);
+      }
       return;
     }
     if (mode == 'detail') {
@@ -413,13 +540,13 @@ class InventoryController extends ChangeNotifier {
       return;
     }
     if (key == 'supplier' && mode == 'in') {
+      final options = await merchantApi.invoke({'action': 'inventory_options'});
+      if (!context.mounted) return;
       final name = await showSupplierPicker(
         context,
-        suppliers: {
-          for (final p in products)
-            if ('${p['supplier'] ?? ''}'.trim().isNotEmpty)
-              '${p['supplier']}'.trim(),
-        }.toList(),
+        suppliers: maps(options['suppliers'])
+            .map((s) => '${s['name']}')
+            .toList(),
         current: '${payload['supplier'] ?? ''}',
       );
       if (name != null) {
@@ -454,6 +581,26 @@ class InventoryController extends ChangeNotifier {
       changed();
     },
   );
+  Future<void> scan(BuildContext context) async {
+    final result = await Navigator.of(context).push<Map<String, dynamic>>(
+      MaterialPageRoute(
+        builder: (_) =>
+            const InventoryManagementPage(mode: 'scan', returnProduct: true),
+      ),
+    );
+    if (result == null) return;
+    if (!products.any((p) => p['id'] == result['id'])) products.add(result);
+    if (!lines.any((l) => l['id'] == result['id'])) {
+      lines.add({
+        'id': result['id'],
+        'quantity': 1,
+        'cost': result['cost'],
+        'version': result['version'],
+      });
+    }
+    changed();
+  }
+
   Future<void> add(BuildContext context) async {
     final picked = await showProductPicker(
       context,
@@ -489,11 +636,15 @@ class InventoryController extends ChangeNotifier {
 
   Color checkBackground(Map<String, dynamic> line) => line['quantity'] == null
       ? C.chip
+      : payload['blind'] == true
+      ? C.greenSoft
       : difference(line) < 0
       ? C.redSoft
       : C.greenSoft;
   Color checkInk(Map<String, dynamic> line) => line['quantity'] == null
       ? C.muted
+      : payload['blind'] == true
+      ? C.greenInk
       : difference(line) < 0
       ? C.redInk
       : C.greenInk;
@@ -531,9 +682,13 @@ class InventoryController extends ChangeNotifier {
       '出库后 1.5 卷，低于安全库存' =>
         '出库后 ${qty((p['stock'] as num) - (l['quantity'] as num? ?? 0))} ${p['unit']}',
       'A-02 · 系统 2 卷' =>
-        '${p['location']} · 系统 ${qty(p['stock'])} ${p['unit']}',
+        payload['blind'] == true
+            ? '${p['location']} · 盲盘'
+            : '${p['location']} · 系统 ${qty(p['stock'])} ${p['unit']}',
       '一致' =>
-        l['quantity'] == null
+        payload['blind'] == true
+            ? (l['quantity'] == null ? '未盘' : '已盘')
+            : l['quantity'] == null
             ? '未盘'
             : difference(l) == 0
             ? '一致'
@@ -542,6 +697,8 @@ class InventoryController extends ChangeNotifier {
     };
   }
 
+  Future<void> editCount(BuildContext context, Map<String, dynamic> line) =>
+      showInventoryCountInput(context, this, line);
   Future<void> editLine(
     BuildContext context,
     Map<String, dynamic> l,
@@ -675,6 +832,7 @@ class InventoryController extends ChangeNotifier {
   String recordText(Map<String, dynamic> r, String v) {
     final payload = Map<String, dynamic>.from(r['payload']);
     if (['施工领用', '采购入库', '盘点调整'].contains(v)) {
+      if (payload['kind'] == 'void') return '单据作废';
       return payload['kind'] == 'out'
           ? '${payload['reason'] ?? '商品出库'}'
           : payload['kind'] == 'in'
@@ -867,19 +1025,73 @@ class InventorySelections extends StatelessWidget {
 /// Upload requires a storage policy and attachment API; never retain a local-only
 /// image and imply it was attached to a posted document.
 class InventoryAttachment extends StatelessWidget {
+  final InventoryController c;
   final String imgKey;
   final double size, radius;
   final Widget child;
   const InventoryAttachment({
     super.key,
+    required this.c,
     required this.imgKey,
     required this.size,
     required this.radius,
     required this.child,
   });
   @override
-  Widget build(BuildContext context) => GestureDetector(
-    onTap: () => AppToast.show(context, '附件上传尚未接通'),
-    child: child,
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      for (final path in List<String>.from(c.payload['attachments'] ?? []))
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                path.split('/').last,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: c.busy
+                  ? null
+                  : () {
+                      c.payload['attachments'] = (List<String>.from(
+                        c.payload['attachments'],
+                      )..remove(path));
+                      c.changed();
+                    },
+            ),
+          ],
+        ),
+      GestureDetector(
+        onTap: c.busy
+            ? null
+            : () => runBusy('inventory-upload', () async {
+                c.setBusy(true);
+                try {
+                  final paths = List<String>.from(
+                    c.payload['attachments'] ?? [],
+                  );
+                  if (paths.length >= 6) throw const AppError('最多上传六张附件');
+                  final file = await ImagePicker().pickImage(
+                    source: ImageSource.gallery,
+                    maxWidth: 1600,
+                    imageQuality: 85,
+                  );
+                  if (file == null) return;
+                  final r = await merchantApi.invoke({
+                    'action': 'expense_upload',
+                    'data': base64Encode(await file.readAsBytes()),
+                  }, timeout: const Duration(seconds: 60));
+                  paths.add(r['item']['path']);
+                  c.payload['attachments'] = paths;
+                  c.changed();
+                } finally {
+                  c.setBusy(false);
+                }
+              }),
+        child: hBusy('inventory-upload', child, icon: true),
+      ),
+    ],
   );
 }

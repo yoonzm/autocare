@@ -1,3 +1,5 @@
+import '../routes.dart' show openRoute;
+
 import 'package:flutter/material.dart';
 
 import '../backend/merchant_api.dart';
@@ -12,24 +14,23 @@ import 'inventory_pickers.dart';
 
 /// 新增商品 / 编辑商品（设计稿 ProductEdit / ProductEditExist 是同一个页面的两种状态）。
 ///
-/// 真正接通：商品名称、规格型号、SKU、分类（贴膜 / 镀晶 / 清洁用品 / 工具）、计量单位、安全库存、货位、
-/// 参考成本价（仅新增）、默认供应商（名称），走 `inventory_create` / `inventory_update`。
-///
-/// 仍是 mock / TODO（页面可操作，但不会保存，也不假装保存）：
-/// - 「其他」分类：后端分类固定为 洗护 / 镀晶 / 贴膜 / 配件，没有对应值。
-/// - 「需要管理保质期」「临期提醒」：后端商品表没有保质期开关和提醒天数，预期扩展 inventory_products。
-/// - 「停用此商品」：后端没有停用状态，且需要“库存不为 0 时不能停用”的服务端校验。
-/// - 编辑时的成本价：后端更新商品不改成本（加权成本由入库批次决定），所以只读。
 class ProductEditLivePage extends StatefulWidget {
   /// 为空表示新增；否则是 `inventory_get` 返回的商品。
+  final String? initialCode;
   final Map<String, dynamic>? product;
-  const ProductEditLivePage({super.key, this.product});
+  const ProductEditLivePage({super.key, this.product, this.initialCode});
   @override
   State<ProductEditLivePage> createState() => _ProductEditState();
 }
 
 /// 设计稿的分类 -> 后端分类。
-const _categoryToBackend = {'贴膜': '贴膜', '镀晶': '镀晶', '清洁用品': '洗护', '工具': '配件'};
+const _categoryToBackend = {
+  '贴膜': '贴膜',
+  '镀晶': '镀晶',
+  '清洁用品': '洗护',
+  '工具': '配件',
+  '其他': '其他',
+};
 const _units = ['件', '瓶', '卷', '桶', '米', '升', '千克'];
 
 class _ProductEditState extends State<ProductEditLivePage> {
@@ -37,7 +38,9 @@ class _ProductEditState extends State<ProductEditLivePage> {
   late final Map<String, dynamic> p = widget.product ?? {};
   late final name = TextEditingController(text: '${p['name'] ?? ''}');
   late final spec = TextEditingController(text: '${p['specification'] ?? ''}');
-  late final sku = TextEditingController(text: '${p['sku'] ?? ''}');
+  late final sku = TextEditingController(
+    text: '${p['sku'] ?? widget.initialCode ?? ''}',
+  );
   late final safe = TextEditingController(
     text: editing ? qty((p['safe'] as num?) ?? 0) : '',
   );
@@ -47,14 +50,22 @@ class _ProductEditState extends State<ProductEditLivePage> {
         ? '¥ ${(((p['cost'] as num?) ?? 0).toStringAsFixed(2)).replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (_) => ',')}'
         : '',
   );
-  late final expiryDays = TextEditingController(text: '30');
-  late String? category = _categoryToBackend.entries
-      .where((e) => e.value == p['category'])
-      .map((e) => e.key)
-      .firstOrNull;
+  late final expiryDays = TextEditingController(
+    text: '${p['expiry_days'] ?? 30}',
+  );
+  late final productId = p['id'] ?? inventoryId();
+  final request = InventoryRequest();
+  List<String> categories = [];
+  Future<Map<String, dynamic>> _options() async {
+    final result = await merchantApi.invoke({'action': 'inventory_options'});
+    categories = maps(result['categories']).map((c) => '${c['name']}').toList();
+    return result;
+  }
+
+  late String? category = p['category'] as String?;
   late String? unit = editing ? '${p['unit']}' : '件';
   late String supplier = '${p['supplier'] ?? ''}';
-  bool shelfLife = false; // TODO: 后端没有保质期开关，仅界面状态，不保存。
+  late bool shelfLife = p['shelf_life'] == true;
   bool dirty = false, busy = false;
 
   @override
@@ -72,12 +83,8 @@ class _ProductEditState extends State<ProductEditLivePage> {
   Future<void> _pickSupplier() async {
     List<String> suppliers = [];
     try {
-      final r = await merchantApi.invoke({'action': 'inventory_list'});
-      suppliers = {
-        for (final v in r['items'] as List)
-          if ('${(v as Map)['supplier'] ?? ''}'.trim().isNotEmpty)
-            '${v['supplier']}'.trim(),
-      }.toList();
+      final r = await merchantApi.invoke({'action': 'inventory_options'});
+      suppliers = maps(r['suppliers']).map((s) => '${s['name']}').toList();
     } catch (e) {
       if (mounted) AppToast.error(context, e);
       return;
@@ -115,13 +122,19 @@ class _ProductEditState extends State<ProductEditLivePage> {
     }
     setState(() => busy = true);
     try {
-      final r = await merchantApi.invoke({
+      final r = await request.send({
         'action': editing ? 'inventory_update' : 'inventory_create',
-        'id': editing ? p['id'] : inventoryId(),
+        'id': productId,
+        'metadata_revision': p['metadata_revision'] ?? 0,
+        'allow_decimal': p['allow_decimal'] ?? true,
+        'shelf_life': shelfLife,
+        'expiry_days': expiryDays.text == '${p['expiry_days'] ?? 30}'
+            ? p['expiry_days']
+            : int.tryParse(expiryDays.text),
         'name': name.text.trim(),
         'specification': spec.text.trim(),
         'sku': sku.text.trim(),
-        'category': _categoryToBackend[category],
+        'category': category,
         'unit': unit,
         'safe': safeValue,
         'location': location.text.trim(),
@@ -240,7 +253,19 @@ class _ProductEditState extends State<ProductEditLivePage> {
     ValueChanged<String> onChanged,
     String semantic,
   ) => ChoiceChipGroup<String>(
-    items: [for (final v in items) ChoiceChipItem(value: v, label: v)],
+    items: [
+      for (final v in items)
+        ChoiceChipItem(
+          value: v,
+          label: semantic == '分类'
+              ? (_categoryToBackend.entries
+                        .where((e) => e.value == v)
+                        .firstOrNull
+                        ?.key ??
+                    v)
+              : v,
+        ),
+    ],
     selected: selected,
     onChanged: (v) {
       if (busy) return;
@@ -269,7 +294,18 @@ class _ProductEditState extends State<ProductEditLivePage> {
       );
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => Scaffold(
+    body: AsyncView<Map<String, dynamic>>(
+      load: _options,
+      isEmpty: (_) => false,
+      skeleton: const SkeletonList(count: 3),
+      empty: (_) => const SizedBox.shrink(),
+      onNext: () => openRoute(context, 'Login'),
+      builder: (_, data) => _form(context),
+    ),
+  );
+
+  Widget _form(BuildContext context) {
     final units = [
       ..._units,
       if (unit != null && !_units.contains(unit)) unit!,
@@ -310,14 +346,7 @@ class _ProductEditState extends State<ProductEditLivePage> {
                         children: [
                           _label('分类', required: true),
                           const SizedBox(height: 8),
-                          _chips(['贴膜', '镀晶', '清洁用品', '工具', '其他'], category, (
-                            v,
-                          ) {
-                            if (v == '其他') {
-                              // TODO: 后端分类固定为 洗护 / 镀晶 / 贴膜 / 配件，「其他」需要扩展分类后再开放。
-                              AppToast.show(context, '「其他」分类暂未接通，请先选择其他分类');
-                              return;
-                            }
+                          _chips(categories, category, (v) {
                             setState(() => category = v);
                           }, '分类'),
                         ],
@@ -410,8 +439,6 @@ class _ProductEditState extends State<ProductEditLivePage> {
                     ]),
                     const SizedBox(height: 16),
                     _card('保质期', [
-                      // TODO: 保质期开关 / 临期提醒天数后端商品表没有对应字段，预期扩展 inventory_products；
-                      // 目前只是页面上的状态，不会保存。
                       _switchRow(
                         '需要管理保质期',
                         '开启后入库时必须填写生产日期或到期日',
@@ -437,9 +464,31 @@ class _ProductEditState extends State<ProductEditLivePage> {
                       const SizedBox(height: 16),
                       GestureDetector(
                         behavior: HitTestBehavior.opaque,
-                        onTap: () =>
-                            // TODO: 后端没有商品停用状态；需要云函数校验“库存不为 0 时不能停用”。
-                            AppToast.show(context, '商品停用暂未接通'),
+                        onTap: busy
+                            ? null
+                            : () => runBusy(
+                                'inventory-product-state',
+                                () async {
+                                  setState(() => busy = true);
+                                  try {
+                                    await request.send({
+                                      'action': p['active'] == false
+                                          ? 'inventory_enable'
+                                          : 'inventory_disable',
+                                      'payload': {
+                                        'id': productId,
+                                        'metadata_revision':
+                                            p['metadata_revision'] ?? 0,
+                                      },
+                                    });
+                                    inventoryChanged.value++;
+                                    dirty = false;
+                                    if (context.mounted) Navigator.pop(context);
+                                  } finally {
+                                    if (mounted) setState(() => busy = false);
+                                  }
+                                },
+                              ),
                         child: Container(
                           height: 50,
                           alignment: Alignment.center,
@@ -447,13 +496,16 @@ class _ProductEditState extends State<ProductEditLivePage> {
                             color: C.redSoft,
                             borderRadius: BorderRadius.circular(25),
                           ),
-                          child: Text(
-                            '停用此商品',
-                            style: ts(
-                              15,
-                              w: FontWeight.w500,
-                              color: C.redInk,
-                              h: 22,
+                          child: hBusy(
+                            'inventory-product-state',
+                            Text(
+                              p['active'] == false ? '启用此商品' : '停用此商品',
+                              style: ts(
+                                15,
+                                w: FontWeight.w500,
+                                color: C.redInk,
+                                h: 22,
+                              ),
                             ),
                           ),
                         ),

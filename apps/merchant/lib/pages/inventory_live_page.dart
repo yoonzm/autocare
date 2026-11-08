@@ -13,7 +13,13 @@ import '../routes.dart';
 class InventoryLivePage extends StatefulWidget {
   final String mode;
   final String? productId;
-  const InventoryLivePage({super.key, required this.mode, this.productId});
+  final Map<String, dynamic>? draft;
+  const InventoryLivePage({
+    super.key,
+    required this.mode,
+    this.productId,
+    this.draft,
+  });
   @override
   State<InventoryLivePage> createState() => _InventoryLiveState();
 }
@@ -28,7 +34,7 @@ class _InventoryLiveState extends State<InventoryLivePage> {
   }
 
   void reload() {
-    if (widget.mode == 'detail') key.currentState?.reload();
+    if (c?.busy != true) key.currentState?.reload();
   }
 
   @override
@@ -90,13 +96,17 @@ class _InventoryLiveState extends State<InventoryLivePage> {
             c!.detail.addAll(Map<String, dynamic>.from(data['item']));
           }
         } else {
+          if (c != null) {
+            c!.replaceProducts(maps(data['items']));
+          }
           c ??= InventoryController(
             widget.mode,
             maps(data['items']),
             {},
-            data['draft'] == null
-                ? null
-                : Map<String, dynamic>.from(data['draft']),
+            widget.draft ??
+                (data['draft'] == null
+                    ? null
+                    : Map<String, dynamic>.from(data['draft'])),
             widget.productId,
           );
         }

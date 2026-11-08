@@ -29,12 +29,22 @@ Map<String, dynamic> _p(
 };
 
 class _Api extends MemberFakeApi {
+  final suppliers = <Map<String, dynamic>>[
+    {'name': '蓝盾膜业', 'contact': '联系人甲', 'phone': '13900001111'},
+    {'name': '速洁化工', 'contact': '联系人乙', 'phone': '13900002222'},
+  ];
   @override
   Future<Map<String, dynamic>> invoke(
     Map<String, dynamic> body, {
     Duration? timeout,
     String? requestId,
   }) async {
+    if (body['action'] == 'inventory_options') return {'suppliers': suppliers};
+    if (body['action'] == 'inventory_supplier_save') {
+      final item = Map<String, dynamic>.from(body['payload']);
+      suppliers.add(item);
+      return {'item': item};
+    }
     if (body['action'] == 'inventory_list') {
       return {
         'items': [

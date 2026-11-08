@@ -18,7 +18,10 @@ class InventoryPage extends StatefulWidget {
 }
 
 class _InventoryPageState extends State<InventoryPage> {
-  static const _cats = ['全部', '洗护', '镀晶', '贴膜', '配件'];
+  List<String> get _cats => [
+    '全部',
+    ...{for (final p in products) p.category},
+  ];
   int cat = 0;
   final _key = GlobalKey<AsyncViewState<List<InventoryProduct>>>();
   @override
@@ -41,6 +44,7 @@ class _InventoryPageState extends State<InventoryPage> {
     }
     final result = await merchantApi.invoke({'action': 'inventory_list'});
     products = (result['items'] as List)
+        .where((v) => v['active'] != false)
         .map((v) => InventoryProduct(Map<String, dynamic>.from(v as Map)))
         .toList();
     return products;
@@ -114,7 +118,9 @@ class _InventoryPageState extends State<InventoryPage> {
 
   Widget _content(BuildContext context) {
     final list = products
-        .where((p) => cat == 0 || p.category == _cats[cat])
+        .where(
+          (p) => cat == 0 || cat >= _cats.length || p.category == _cats[cat],
+        )
         .toList();
     return Scaffold(
       body: ListView(
@@ -215,7 +221,7 @@ class _InventoryPageState extends State<InventoryPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '${products.where((p) => p.stock < p.safe).length} 项低于安全库存',
+                        '${products.where((p) => p.data['low'] == true).length} 项低于安全库存',
                         style: ts(14, w: FontWeight.w500, h: 20),
                       ),
                       Text(
@@ -247,7 +253,7 @@ class _InventoryPageState extends State<InventoryPage> {
           const SizedBox(height: 16),
           if (list.isEmpty)
             EmptyView.firstTime(
-              title: products.isEmpty ? '还没有库存商品' : '请先登录后查看库存',
+              title: products.isEmpty ? '还没有库存商品' : '当前分类还没有商品',
             ),
           AppCard(
             padding: const EdgeInsets.symmetric(vertical: 4),
@@ -286,10 +292,17 @@ class _InventoryPageState extends State<InventoryPage> {
     }
 
     final segs = [
-      ('贴膜', share('贴膜'), C.ink),
-      ('镀晶镀膜', share('镀晶'), C.primary),
-      ('洗护用品', share('洗护'), Color(0xFF7CC4FB)),
-      ('配件', share('配件'), Color(0xFFD4D4D8)),
+      for (final entry in {for (final p in products) p.category}.indexed)
+        (
+          entry.$2,
+          share(entry.$2),
+          [
+            C.ink,
+            C.primary,
+            const Color(0xFF7CC4FB),
+            const Color(0xFFD4D4D8),
+          ][entry.$1 % 4],
+        ),
     ];
     return AppCard(
       padding: const EdgeInsets.all(18),
@@ -438,7 +451,7 @@ class _InventoryPageState extends State<InventoryPage> {
   );
 
   Widget _row(BuildContext context, InventoryProduct p) {
-    final low = p.stock < p.safe;
+    final low = p.data['low'] == true;
     final crit = p.stock * 2 < p.safe;
     final barColor = crit ? C.red : (low ? C.amber : C.green);
     final txtColor = crit ? C.redInk : (low ? C.amberInk : C.ink);

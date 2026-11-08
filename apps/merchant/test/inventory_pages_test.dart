@@ -14,6 +14,7 @@ class _InvApi extends MemberFakeApi {
     Duration? timeout,
     String? requestId,
   }) async {
+    if (body['action'] == 'inventory_documents') return {'items': []};
     if (body['action'] == 'inventory_list') {
       if (failList != null) throw failList!;
       return {
@@ -25,6 +26,7 @@ class _InvApi extends MemberFakeApi {
             'unit': '瓶',
             'stock': 2,
             'safe': 5,
+            'low': true,
             'cost': 68,
             'location': 'B-01',
             'sku': 'DJ-1',
@@ -53,6 +55,7 @@ class _InvApi extends MemberFakeApi {
             'location': 'C-01',
             'sku': '',
             'expiring': false,
+            'low': false,
           },
         ],
       };
@@ -193,8 +196,10 @@ void main() {
     expect(find.text('库存单据'), findsWidgets);
     await t.tap(find.text('出库单'));
     await t.pumpAndSettle();
+    expect(find.text('已出库'), findsOneWidget);
     await t.tap(find.text('盘点单'));
     await t.pumpAndSettle();
+    expect(find.text('已盘点'), findsOneWidget);
     expect(
       navTracker.stack.where((r) => r.settings.name == 'StockDocs').length,
       lessThanOrEqualTo(1),

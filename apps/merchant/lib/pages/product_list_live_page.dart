@@ -53,16 +53,15 @@ class _ProductListState extends State<ProductListLivePage> {
     ];
   }
 
-  bool _low(InventoryProduct p) => p.stock < p.safe;
-  // TODO: 商品停用需要后端支持（inventory_products 目前没有停用状态），暂时没有已停用商品。
-  bool _off(InventoryProduct p) => false;
+  bool _low(InventoryProduct p) => p.data['low'] == true;
+  bool _off(InventoryProduct p) => p.data['active'] == false;
 
   List<InventoryProduct> _visible(List<InventoryProduct> all) {
     final key = q.trim().toLowerCase();
     return [
       for (final p in all)
         if (switch (filter) {
-              0 => true,
+              0 => !_off(p),
               1 => _low(p),
               2 => p.expiring,
               _ => _off(p),
@@ -77,7 +76,7 @@ class _ProductListState extends State<ProductListLivePage> {
   int _count(List<InventoryProduct> all, int f) => all
       .where(
         (p) => switch (f) {
-          0 => true,
+          0 => !_off(p),
           1 => _low(p),
           2 => p.expiring,
           _ => _off(p),

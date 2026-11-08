@@ -221,19 +221,6 @@ Widget hTap(
         hToast(context, '微信支付开通暂未接通，申请还没有提交');
         return;
       }
-      // 库存管理里还没有后端的页面（演示数据，见 docs/backend-integration.md）：保存 / 修改类动作不假装成功。
-      // TODO: 预警设置、分类管理、单据作废需要后端支持（商品新增 / 编辑已是真实页面，见 product_edit_live_page.dart）。
-      final inventoryBlock = switch ((route, to)) {
-        ('StockAlertSettings', 'ProductList') => '库存预警设置暂未接通',
-        ('CategoryManage', 'ProductList') => '商品分类管理暂未接通',
-        ('sheet:ScanProductResult', 'ProductDetail') =>
-          '扫码识别暂未接通，示例商品没有对应的真实商品',
-        _ => null,
-      };
-      if (inventoryBlock != null) {
-        hToast(context, inventoryBlock);
-        return;
-      }
       if ((route == 'StoreAdd' && to == 'StoreSwitch') ||
           (route == 'StoreEdit' && to == 'StoreInfo')) {
         if (isBusy('$route>$to')) return;
