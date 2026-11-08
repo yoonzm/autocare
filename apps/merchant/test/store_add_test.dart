@@ -15,6 +15,13 @@ import 'members_test.dart' show MemberFakeApi, app, phone;
 
 class MultiStoreApi extends MemberFakeApi {
   String current = 'first';
+  Map<String, dynamic>? profileOverride;
+  @override
+  Future<Map<String, dynamic>> subscriptionCatalog() async => {
+    'plans': [],
+    'subscription': {},
+    'revision': 'fixture',
+  };
   Object? failure;
   Completer<void>? gate;
   final calls = <Map<String, dynamic>>[];
@@ -22,13 +29,15 @@ class MultiStoreApi extends MemberFakeApi {
     {'id': 'first', 'name': '原店', 'status_label': '当前门店', 'revenue': 0},
   ];
   @override
-  Future<Map<String, dynamic>> getStore() async => {
-    'id': current,
-    'name': current == 'first' ? '原店' : '第二家',
-    'phone': '021-12345678',
-    'account_phone': '13900000001',
-    'address': '原地址',
-  };
+  Future<Map<String, dynamic>> getStore() async =>
+      profileOverride ??
+      {
+        'id': current,
+        'name': current == 'first' ? '原店' : '第二家',
+        'phone': '021-12345678',
+        'account_phone': '13900000001',
+        'address': '原地址',
+      };
   @override
   Future<Map<String, dynamic>> stores() async => {
     'current_store_id': current,
@@ -211,14 +220,14 @@ void main() {
   });
 
   testWidgets('套餐页面显示账号真实套餐、有效期和门店用量', (t) async {
-    storeProfile.apply({
+    api.profileOverride = {
       'id': 'first',
       'name': '原店',
       'phone': '021-12345678',
       'trial_ends_at': '2030-01-01T00:00:00Z',
       'store_count': 2,
       'subscription': {'name': '账号专业版', 'store_limit': 3},
-    });
+    };
     await open(t, 'Subscription');
     expect(find.text('账号专业版'), findsOneWidget);
     expect(find.text('2 / 3', findRichText: true), findsOneWidget);

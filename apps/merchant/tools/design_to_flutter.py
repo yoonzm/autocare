@@ -14,6 +14,7 @@ import re
 import sys
 import os
 import collections
+import subprocess
 from html.parser import HTMLParser
 
 # 已手写实现、不需要生成的页面
@@ -245,6 +246,7 @@ LIVE_FLOW = {
 # 点击后要等后端返回的按钮：(页面, 目标页)。命中的按钮在 loading 时只显示转圈、尺寸不变。
 # 必须和 lib/kit/async_kit.dart 的 asyncActionKeys 保持一致（有测试检查）。
 ASYNC_ACTIONS = {
+    ('PlanCheckout', 'PlanPaid'), ('Renew', 'RenewPaid'),
     ('StoreAdd', 'StoreSwitch'), ('StoreEdit', 'StoreInfo'),
     ('Feedback', 'AboutApp'),
     ('AppointmentAdd', 'Appointments'),
@@ -2586,7 +2588,7 @@ def _gen_one(gen, name, src, out_dir, done, sheets):
     if name == 'AppointmentSchedule':
         open(os.path.join(out_dir, 'appointment_schedule_body.dart'), 'w', encoding='utf-8').write(
             gen.emit_body_after_tabs(root, name))
-    code = bind_store_pages(code, name)
+    code = bind_subscription_pages(bind_store_pages(code, name), name)
     if gen.is_sheet:
         open(os.path.join(out_dir, snake(name) + '_sheet.dart'), 'w', encoding='utf-8').write(code)
         sheets.append((name, gen.sheet_parent))
@@ -2672,7 +2674,92 @@ def bind_store_pages(src, page):
             src = src[:m.start()] + "hLiveText((p) => '创建后仍停留在当前门店 · ${p.storeOffer}', " + call[a:b + 1] + ')' + src[end + 1:]
     return src
 
+
+def bind_subscription_pages(src, page):
+    maps = {
+      'Plans': {'¥166':'offer:basic:price','年付 ¥1,990':'offer:basic:total','1 家门店 · 3 个员工账号':'offer:basic:limits',
+        '¥333':'offer:pro:price','年付 ¥3,990 · 省 2 个月':'offer:pro:total','3 家门店 · 10 个员工账号':'offer:pro:limits',
+        '¥583':'offer:flagship:price','年付 ¥6,990':'offer:flagship:total','10 家门店 · 不限员工账号':'offer:flagship:limits',
+        '/月 · 年付':'priceUnit'},
+      'PlanCheckout': {'专业版':'name','年付':'cycle','¥399':'month','¥3,990':'year','相当于每月 ¥333，省 ¥798':'annualHint',
+        '¥4,788':'original','-¥798':'discount','-¥200':'zero','新店首购券':'coupon','¥3,790':'amount'},
+      'Renew': {'续费 · 专业版':'renewTitle','¥399':'month','¥1,137':'quarter','¥3,990':'year',
+        '到期日顺延至 2028.10.30 · 省 ¥798':'annualHint','确认支付 ¥3,990':'payLabel'},
+      'PlanPaid': {'¥3,790.00':'resultAmount','专业版 · 年付':'resultName','2026.10.31 – 2027.10.30':'resultPeriod',
+        '微信支付':'simulation','已开启 · 2027.10.27 扣款':'notEnabled','SUB202610310001':'resultId','电子发票将在 3 个工作日内开具':'notEnabled'},
+      'RenewPaid': {'¥3,990.00':'resultAmount','专业版 · 续费 12 个月':'resultName','2028.10.30':'resultEnd','微信支付':'simulation','SUB202610310002':'resultId'},
+    }
+    if page=='Plans':
+        src=re.sub(r"subscriptionText\(\s*'cycle'", "subscriptionText('priceUnit'",src)
+        maps[page].update({'基础版':'offer:basic:name','专业版':'offer:pro:name','旗舰版':'offer:flagship:name','7 天内可退':'refundUnavailable','按剩余天数补差价':'upgradePolicy','每月 200 条短信':'unavailableSms','每月 1,000 条短信':'unavailableSms','每月 3,000 条短信':'unavailableSms',
+            '预约管理与微信通知':'unavailableNotice','预约管理 · 微信 / 短信通知':'unavailableNotice','开支管理与预算 · 数据导出':'unavailableExport',
+            '连锁总部看板与统一会员':'unavailableShared','专属客服 · 优先上门培训':'support'})
+    if page=='PlanCheckout': maps[page].update({'3 家门店 · 10 个员工账号 · 预约 · 微信通知 · 开支预算':'selectedLimits','专业版 12 个月':'selectedPeriod'})
+    if page not in maps:
+        return src
+    for label, key in maps[page].items():
+        pattern = r"Text\(\s*'" + re.escape(label) + r"'\s*,"
+        while True:
+            m = re.search(pattern, src)
+            if not m: break
+            end = _balanced_end(src, m.start()+4)
+            call = src[m.start():end+1]
+            style = re.search(r'style:\s*(hts\()', call)
+            a=style.start(1); b=_balanced_end(call,a+3)
+            src=src[:m.start()]+"subscriptionText('"+key+"', "+call[a:b+1]+')'+src[end+1:]
+    if page=='Plans':
+        row_keys={'门店数':'storeCount','员工账号':'staffCount','每月短信':'smsCount','开单 · 会员 · 库存':'core','预约管理':'appointments','微信通知':'wechat','开支与预算':'budgets','数据导出':'export','连锁总部看板':'chain','专属客服':'support'}
+        for label,feature in row_keys.items():
+            if re.search(r"subscriptionText\(\s*'table:basic:"+feature+r"'",src): continue
+            m=re.search(r"Text\(\s*'"+re.escape(label)+r"'\s*,",src)
+            if not m: continue
+            end=_balanced_end(src,m.start()+4)
+            cells=list(re.finditer(r"Text\(\s*'[^']*'\s*,",src[end+1:]))[:3]
+            for kind,cell in list(zip(['basic','pro','flagship'],cells))[::-1]:
+                a=end+1+cell.start();b=_balanced_end(src,a+4);call=src[a:b+1]
+                style=re.search(r'style:\s*(hts\()',call);x=style.start(1);y=_balanced_end(call,x+3)
+                src=src[:a]+"subscriptionText('table:"+kind+":"+feature+"', "+call[x:y+1]+')'+src[b+1:]
+    if page in ['PlanCheckout','Renew']:
+        label='立即支付' if page=='PlanCheckout' else None
+        key='PlanCheckout>PlanPaid' if label else 'Renew>RenewPaid'
+        if 'hBusy(' not in src:
+            # Renew's label was bound above; checkout retains its button label.
+            marker=r"Text\(\s*'立即支付'" if label else r"subscriptionText\('payLabel'"
+            m=re.search(marker,src)
+            if m:
+                start=m.start(); op=src.index('(',start); end=_balanced_end(src,op)
+                call=src[start:end+1]
+                src=src[:start]+"hBusy('"+key+"', "+call+", style: hts(15, const Color(0xFFFFFFFF)), label: '提交中…')"+src[end+1:]
+    if page=='Plans':
+        for label,kind,price_key in [('基础版','basic','offer:basic:price'),('专业版','pro','offer:pro:price'),('旗舰版','flagship','offer:flagship:price')]:
+            if re.search(r"subscriptionPlanCard\(\s*'"+kind+r"'", src): continue
+            m=re.search(r"Text\(\s*'"+label+"'",src)
+            if not m: m=re.search(r"subscriptionText\(\s*'offer:"+kind+r":name'",src)
+            if not m: continue
+            price_match=re.search(r"subscriptionText\(\s*'"+re.escape(price_key)+r"'",src[m.start():])
+            if not price_match: continue
+            price=m.start()+price_match.start()
+            candidates=list(re.finditer(r'hbox\(',src[:m.start()]))
+            for candidate in reversed(candidates):
+                end=_balanced_end(src,candidate.start()+4)
+                if end>price:
+                    start=candidate.start()
+                    src=src[:start]+"subscriptionPlanCard('"+kind+"', "+src[start:end+1]+')'+src[end+1:]
+                    break
+    return src
+
 def main():
+    if len(sys.argv)==3 and sys.argv[1]=='--bind-subscriptions':
+        for page in ['Plans','PlanCheckout','Renew','PlanPaid','RenewPaid']:
+            path=os.path.join(sys.argv[2],snake(page)+('_sheet.dart' if page=='Renew' else '_page.dart'))
+            with open(path,encoding='utf-8') as f: src=f.read()
+            if not src.strip():
+                repo=subprocess.check_output(['git','rev-parse','--show-toplevel'],text=True).strip()
+                rel=os.path.relpath(os.path.abspath(path),repo)
+                src=subprocess.check_output(['git','show','HEAD:'+rel],text=True)
+            generated=bind_subscription_pages(src,page)
+            with open(path,'w',encoding='utf-8') as f: f.write(generated)
+        return
     if len(sys.argv) == 3 and sys.argv[1] == '--bind-stores':
         for page in ['StoreAdd', 'StoreEdit', 'StoreInfo', 'Subscription']:
             path = os.path.join(sys.argv[2], snake(page) + '_page.dart')

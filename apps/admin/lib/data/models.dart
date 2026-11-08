@@ -68,7 +68,8 @@ class Account {
 enum PlanKind {
   trial('试用版'),
   basic('基础版'),
-  pro('专业版');
+  pro('专业版'),
+  flagship('旗舰版');
 
   final String label;
   const PlanKind(this.label);

@@ -6,7 +6,7 @@
 
 `platform_plans.store_limit` 是发布配置，`platform_plan_versions.snapshot.store_limit` 是每个订阅版本的权益。迁移默认专业版 3 家、基础版/试用版 1 家，后端版本快照决定实际限额；客户端不写死名额。暂停服务的门店仍占名额，归档不占，恢复重新校验。门店变更接口不允许客户端直接修改订阅。
 
-`account_subscriptions` 是唯一权益来源。旧 `store_subscriptions` 保留为兼容镜像：后台从任意门店执行延期，会同步同一账号的订阅和所有门店镜像；套餐订阅人数按账号去重。`platform_orders.owner_id` 保留账号订阅订单归属，原 `store_id` 继续保留历史来源。没有实际支付渠道时，续费/升级不生成已支付订单，也不在客户端假装激活。
+`account_subscriptions` 是唯一权益来源。旧 `store_subscriptions` 保留为兼容镜像：后台从任意门店执行延期，会同步同一账号的订阅和所有门店镜像；套餐订阅人数按账号去重。`platform_orders.owner_id` 保留账号订阅订单归属，原 `store_id` 继续保留历史来源。用户后续明确批准订阅/续费暂走后端模拟支付成功；模拟订单单独标记并真实激活账号权益，不计入现金收入，见 [订阅说明](subscriptions.md)。实际支付渠道仍未连接。
 
 降级若现有未归档门店数超限，服务端拒绝变更，要求先处理门店。`store_archive`/`store_restore` 已有接口；现有原型没有这两个操作的页面，本次不新增界面入口。为旧版本兼容，原门店不可归档；被任何登录会话选中的门店需先切走。历史业务数据不删除。
 

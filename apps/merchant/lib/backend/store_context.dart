@@ -3,6 +3,7 @@
 class StoreContext {
   static String? id;
   static int epoch = 0;
+  static void invalidate() => epoch++;
   static void bind(String? next) {
     if (id == next) return;
     id = next;

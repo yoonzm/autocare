@@ -89,6 +89,7 @@ class MerchantApi {
     'settings_stats',
     'list_stores',
     'get_subscription',
+    'subscription_catalog',
     'list',
     'get',
     'get_store',
@@ -224,6 +225,23 @@ class MerchantApi {
     final data = await invoke({
       'action': 'store_$action',
       ...values,
+    }, requestId: requestId);
+    return Map<String, dynamic>.from(data['item'] as Map);
+  }
+
+  Future<Map<String, dynamic>> subscriptionCatalog() async {
+    if (!hasSession) throw const AppError('请先登录', type: AppErrorType.auth);
+    final data = await invoke({'action': 'subscription_catalog'});
+    return Map<String, dynamic>.from(data['item'] as Map);
+  }
+
+  Future<Map<String, dynamic>> simulateSubscription(
+    Map<String, dynamic> body, {
+    required String requestId,
+  }) async {
+    final data = await invoke({
+      'action': 'subscription_simulate',
+      ...body,
     }, requestId: requestId);
     return Map<String, dynamic>.from(data['item'] as Map);
   }

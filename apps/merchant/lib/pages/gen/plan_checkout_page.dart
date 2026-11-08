@@ -108,9 +108,9 @@ class PlanCheckoutPage extends StatelessWidget {
                           [
                             Flexible(
                               flex: 60,
-                              child: Text(
-                                '专业版',
-                                style: hts(
+                              child: subscriptionText(
+                                'name',
+                                hts(
                                   20,
                                   Color(0xFFFAFAFA),
                                   w: FontWeight.w600,
@@ -124,9 +124,9 @@ class PlanCheckoutPage extends StatelessWidget {
                                 bg: Color(0xFFF5D78E),
                                 radius: BorderRadius.circular(9),
                                 pad: EdgeInsets.fromLTRB(8, 0, 8, 0),
-                                child: Text(
-                                  '年付',
-                                  style: hts(
+                                child: subscriptionText(
+                                  'cycle',
+                                  hts(
                                     11,
                                     dk(
                                       context,
@@ -136,8 +136,6 @@ class PlanCheckoutPage extends StatelessWidget {
                                     w: FontWeight.w600,
                                     lh: 18,
                                   ),
-                                  softWrap: false,
-                                  maxLines: 1,
                                 ),
                               ),
                             ),
@@ -146,9 +144,9 @@ class PlanCheckoutPage extends StatelessWidget {
                           cross: CrossAxisAlignment.center,
                           gap: 8,
                         ),
-                        Text(
-                          '3 家门店 · 10 个员工账号 · 预约 · 微信通知 · 开支预算',
-                          style: hts(
+                        subscriptionText(
+                          'selectedLimits',
+                          hts(
                             13,
                             dk(context, Color(0xFFA1A1AA), Color(0xFF80808A)),
                             lh: 18,
@@ -277,9 +275,9 @@ class PlanCheckoutPage extends StatelessWidget {
                                         gap: 1,
                                       ),
                                     ),
-                                    Text(
-                                      '¥399',
-                                      style: hts(
+                                    subscriptionText(
+                                      'month',
+                                      hts(
                                         15,
                                         dk(
                                           context,
@@ -340,9 +338,9 @@ class PlanCheckoutPage extends StatelessWidget {
                                         gap: 1,
                                       ),
                                     ),
-                                    Text(
-                                      '¥399',
-                                      style: hts(
+                                    subscriptionText(
+                                      'month',
+                                      hts(
                                         15,
                                         dk(
                                           context,
@@ -393,9 +391,9 @@ class PlanCheckoutPage extends StatelessWidget {
                                               lh: 22,
                                             ),
                                           ),
-                                          Text(
-                                            '相当于每月 ¥333，省 ¥798',
-                                            style: hts(
+                                          subscriptionText(
+                                            'annualHint',
+                                            hts(
                                               12,
                                               dk(
                                                 context,
@@ -411,9 +409,9 @@ class PlanCheckoutPage extends StatelessWidget {
                                         gap: 1,
                                       ),
                                     ),
-                                    Text(
-                                      '¥3,990',
-                                      style: hts(
+                                    subscriptionText(
+                                      'year',
+                                      hts(
                                         15,
                                         dk(
                                           context,
@@ -456,9 +454,9 @@ class PlanCheckoutPage extends StatelessWidget {
                                               lh: 22,
                                             ),
                                           ),
-                                          Text(
-                                            '相当于每月 ¥333，省 ¥798',
-                                            style: hts(
+                                          subscriptionText(
+                                            'annualHint',
+                                            hts(
                                               12,
                                               dk(
                                                 context,
@@ -474,9 +472,9 @@ class PlanCheckoutPage extends StatelessWidget {
                                         gap: 1,
                                       ),
                                     ),
-                                    Text(
-                                      '¥3,990',
-                                      style: hts(
+                                    subscriptionText(
+                                      'year',
+                                      hts(
                                         15,
                                         dk(
                                           context,
@@ -1141,9 +1139,9 @@ class PlanCheckoutPage extends StatelessWidget {
                           [
                             Expanded(
                               flex: 1,
-                              child: Text(
-                                '专业版 12 个月',
-                                style: hts(
+                              child: subscriptionText(
+                                'selectedPeriod',
+                                hts(
                                   14,
                                   dk(
                                     context,
@@ -1153,9 +1151,9 @@ class PlanCheckoutPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            Text(
-                              '¥4,788',
-                              style: hts(
+                            subscriptionText(
+                              'original',
+                              hts(
                                 14,
                                 dk(
                                   context,
@@ -1189,9 +1187,9 @@ class PlanCheckoutPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            Text(
-                              '-¥798',
-                              style: hts(
+                            subscriptionText(
+                              'discount',
+                              hts(
                                 14,
                                 dk(
                                   context,
@@ -1215,9 +1213,9 @@ class PlanCheckoutPage extends StatelessWidget {
                             [
                               Expanded(
                                 flex: 1,
-                                child: Text(
-                                  '新店首购券',
-                                  style: hts(
+                                child: subscriptionText(
+                                  'coupon',
+                                  hts(
                                     14,
                                     dk(
                                       context,
@@ -1229,9 +1227,9 @@ class PlanCheckoutPage extends StatelessWidget {
                               ),
                               hbox(
                                 margin: EdgeInsets.fromLTRB(0, 0, 6, 0),
-                                child: Text(
-                                  '-¥200',
-                                  style: hts(
+                                child: subscriptionText(
+                                  'zero',
+                                  hts(
                                     14,
                                     dk(
                                       context,
@@ -1276,9 +1274,9 @@ class PlanCheckoutPage extends StatelessWidget {
                               ),
                             ),
                           ),
-                          Text(
-                            '¥3,790',
-                            style: hts(
+                          subscriptionText(
+                            'amount',
+                            hts(
                               26,
                               dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
                               w: FontWeight.w600,
@@ -1385,9 +1383,9 @@ class PlanCheckoutPage extends StatelessWidget {
                           lh: 16,
                         ),
                       ),
-                      Text(
-                        '¥3,790',
-                        style: hts(
+                      subscriptionText(
+                        'amount',
+                        hts(
                           22,
                           dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
                           w: FontWeight.w600,
@@ -1410,14 +1408,19 @@ class PlanCheckoutPage extends StatelessWidget {
                     child: Align(
                       alignment: Alignment(0, 0),
                       widthFactor: 1,
-                      child: Text(
-                        '立即支付',
-                        style: hts(
-                          15,
-                          Color(0xFFFFFFFF),
-                          w: FontWeight.w600,
-                          lh: 22,
+                      child: hBusy(
+                        'PlanCheckout>PlanPaid',
+                        Text(
+                          '立即支付',
+                          style: hts(
+                            15,
+                            Color(0xFFFFFFFF),
+                            w: FontWeight.w600,
+                            lh: 22,
+                          ),
                         ),
+                        style: hts(15, const Color(0xFFFFFFFF)),
+                        label: '提交中…',
                       ),
                     ),
                   ),

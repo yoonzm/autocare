@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import 'store_context.dart';
+import 'subscription_flow.dart';
 import 'hold_flow.dart';
 import 'merchant_api.dart';
 import 'scan_flow.dart';
@@ -123,6 +124,8 @@ class StoreProfile extends ChangeNotifier {
   }
 
   void clear() {
+    StoreContext.invalidate();
+    subscriptionFlow.reset();
     live = false;
     name = phone = city = address = contactName = contactRole = bayRange = '';
     plan = 'trial';

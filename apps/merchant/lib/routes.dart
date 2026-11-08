@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'kit/sheet_route.dart';
 
 import 'backend/merchant_api.dart';
+import 'backend/subscription_flow.dart';
+import 'pages/subscription_live_host.dart';
 import 'kit/async_kit.dart';
 import 'kit/kit.dart' show hToast;
 import 'backend/catalog_draft.dart';
@@ -43,6 +45,7 @@ import 'pages/theme_sheet.dart';
 
 final Map<String, WidgetBuilder> _allSheets = {
   ...genSheets,
+  'Renew': (_) => const SubscriptionLiveHost('Renew'),
   'FindResult': (context) =>
       merchantApi.hasSession && ScanFlow.matched && ScanFlow.member != null
       ? genSheets['FindResult']!(context)
@@ -83,6 +86,10 @@ bool shellMounted = false;
 
 Widget? pageFor(String name) {
   switch (name) {
+    case 'Plans':
+    case 'PlanCheckout':
+    case 'Subscription':
+      return SubscriptionLiveHost(name);
     case 'ProductList':
       return const ProductListLivePage();
     // TODO: 微信支付开通（进件）依赖服务商接口，目前没有开通能力，支付与收款的真实状态就是“未开通”，
@@ -352,6 +359,14 @@ String? _routeName(BuildContext context) =>
 /// - 同一界面的不同视图 / 结果页采用替换，保持返回逻辑与设计一致。
 void openRoute(BuildContext context, String name) {
   final current = ModalRoute.of(context)?.settings.name;
+  if (name == 'Renew') {
+    if (storeProfile.plan == 'trial') {
+      openRoute(context, 'Plans');
+      return;
+    }
+    subscriptionFlow.plan = storeProfile.plan;
+    subscriptionFlow.months = 12;
+  }
   if (name == 'RegShop' && current == 'RegPhone') {
     final problem = RegistrationDraft.phoneStepError();
     if (problem != null) {
@@ -797,9 +812,10 @@ void _openRouteCore(BuildContext context, String name) {
   final page = pageFor(name);
   if (page == null) return;
   if (name == 'PlanPaid' || name == 'RenewPaid') {
-    // TODO: Verified payment callbacks must activate the account subscription.
-    AppToast.show(context, '套餐支付渠道尚未接通，暂不能续费或升级');
-    return;
+    if (subscriptionFlow.receipt.isEmpty) {
+      AppToast.show(context, '请先完成订阅');
+      return;
+    }
   }
   // 结果页（第 5 类）禁止下拉 / 侧滑返回，只能点主按钮或 ✕
   final locked = resultPages.contains(name);

@@ -330,283 +330,69 @@ class PlansPage extends StatelessWidget {
                     ),
                   ),
                 ),
-                hbox(
-                  bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                  radius: BorderRadius.circular(28),
-                  shadow: dk(
-                    context,
-                    [
-                      BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
-                        spreadRadius: 0,
-                      ),
-                      BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 1),
-                        blurRadius: 2,
-                        spreadRadius: 0,
-                      ),
-                      BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
-                        spreadRadius: 0,
-                      ),
-                    ],
-                    [
-                      BoxShadow(
-                        color: Color(0xFF26262B),
-                        offset: Offset(0, 0),
-                        blurRadius: 0,
-                        spreadRadius: 1,
-                      ),
-                    ],
-                  ),
-                  pad: EdgeInsets.fromLTRB(20, 20, 20, 20),
-                  child: hcol(
-                    [
-                      hrow(
-                        [
-                          Text(
-                            '基础版',
-                            style: hts(
-                              18,
-                              dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                              w: FontWeight.w600,
-                              lh: 26,
-                            ),
-                          ),
-                          Expanded(flex: 1, child: SizedBox.shrink()),
-                          hbox(
-                            w: 24,
-                            h: 24,
-                            radius: BorderRadius.circular(12),
-                            border: dk(
-                              context,
-                              Border.all(color: Color(0xFFD4D4D8), width: 2),
-                              Border.all(color: Color(0xFF3F3F46), width: 2),
-                            ),
-                          ),
-                        ],
-                        main: MainAxisAlignment.start,
-                        cross: CrossAxisAlignment.center,
-                        gap: 8,
-                      ),
-                      Text(
-                        '单店起步，开单与会员管理',
-                        style: hts(
-                          13,
-                          dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
-                          lh: 18,
+                subscriptionPlanCard(
+                  'basic',
+                  hbox(
+                    bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                    radius: BorderRadius.circular(28),
+                    shadow: dk(
+                      context,
+                      [
+                        BoxShadow(
+                          color: Color.fromRGBO(0, 0, 0, 0.06),
+                          offset: Offset(0, 0),
+                          blurRadius: 1,
+                          spreadRadius: 0,
                         ),
-                      ),
-                      hrow(
-                        [
-                          Text(
-                            '¥166',
-                            style: hts(
-                              32,
-                              dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                              w: FontWeight.w600,
-                              lh: 38,
-                              ls: -1,
-                            ),
-                          ),
-                          Text(
-                            '/月 · 年付',
-                            style: hts(
-                              13,
-                              dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
-                            ),
-                          ),
-                          Expanded(flex: 1, child: SizedBox.shrink()),
-                          Text(
-                            '年付 ¥1,990',
-                            style: hts(
-                              12,
-                              dk(context, Color(0xFF2B7745), Color(0xFF5FD48C)),
-                            ),
-                          ),
-                        ],
-                        main: MainAxisAlignment.start,
-                        cross: CrossAxisAlignment.baseline,
-                        gap: 4,
-                      ),
-                      hcol(
-                        [
-                          hrow(
-                            [
-                              hsvg(Svgs.s87, w: 14, h: 14),
-                              Flexible(
-                                flex: 141,
-                                child: Text(
-                                  '1 家门店 · 3 个员工账号',
-                                  style: hts(
-                                    13,
-                                    dk(
-                                      context,
-                                      Color(0xFF3F3F46),
-                                      Color(0xFFD4D4D8),
-                                    ),
-                                    lh: 18,
-                                  ),
-                                ),
-                              ),
-                            ],
-                            main: MainAxisAlignment.start,
-                            cross: CrossAxisAlignment.center,
-                            gap: 8,
-                          ),
-                          hrow(
-                            [
-                              hsvg(Svgs.s87, w: 14, h: 14),
-                              Flexible(
-                                flex: 173,
-                                child: Text(
-                                  '开单收银 · 会员 · 挂单 · 库存',
-                                  style: hts(
-                                    13,
-                                    dk(
-                                      context,
-                                      Color(0xFF3F3F46),
-                                      Color(0xFFD4D4D8),
-                                    ),
-                                    lh: 18,
-                                  ),
-                                ),
-                              ),
-                            ],
-                            main: MainAxisAlignment.start,
-                            cross: CrossAxisAlignment.center,
-                            gap: 8,
-                          ),
-                          hrow(
-                            [
-                              hsvg(Svgs.s87, w: 14, h: 14),
-                              Flexible(
-                                flex: 95,
-                                child: Text(
-                                  '每月 200 条短信',
-                                  style: hts(
-                                    13,
-                                    dk(
-                                      context,
-                                      Color(0xFF3F3F46),
-                                      Color(0xFFD4D4D8),
-                                    ),
-                                    lh: 18,
-                                  ),
-                                ),
-                              ),
-                            ],
-                            main: MainAxisAlignment.start,
-                            cross: CrossAxisAlignment.center,
-                            gap: 8,
-                          ),
-                          hrow(
-                            [
-                              hsvg(Svgs.s308, w: 14, h: 14),
-                              Flexible(
-                                flex: 117,
-                                child: Text(
-                                  '预约管理与微信通知',
-                                  style: hts(
-                                    13,
-                                    dk(
-                                      context,
-                                      Color(0xFFA1A1AA),
-                                      Color(0xFF80808A),
-                                    ),
-                                    lh: 18,
-                                  ),
-                                ),
-                              ),
-                            ],
-                            main: MainAxisAlignment.start,
-                            cross: CrossAxisAlignment.center,
-                            gap: 8,
-                          ),
-                        ],
-                        main: MainAxisAlignment.start,
-                        cross: CrossAxisAlignment.stretch,
-                        gap: 8,
-                      ),
-                    ],
-                    main: MainAxisAlignment.start,
-                    cross: CrossAxisAlignment.stretch,
-                    gap: 12,
-                  ),
-                ),
-                hbox(
-                  bg: dk(context, Color(0xFF18181B), Color(0xFF1F1F23)),
-                  radius: BorderRadius.circular(28),
-                  shadow: [
-                    BoxShadow(
-                      color: Color(0xFF0485F7),
-                      offset: Offset(0, 0),
-                      blurRadius: 0,
-                      spreadRadius: 2,
+                        BoxShadow(
+                          color: Color.fromRGBO(0, 0, 0, 0.06),
+                          offset: Offset(0, 1),
+                          blurRadius: 2,
+                          spreadRadius: 0,
+                        ),
+                        BoxShadow(
+                          color: Color.fromRGBO(0, 0, 0, 0.04),
+                          offset: Offset(0, 2),
+                          blurRadius: 4,
+                          spreadRadius: 0,
+                        ),
+                      ],
+                      [
+                        BoxShadow(
+                          color: Color(0xFF26262B),
+                          offset: Offset(0, 0),
+                          blurRadius: 0,
+                          spreadRadius: 1,
+                        ),
+                      ],
                     ),
-                  ],
-                  pad: EdgeInsets.fromLTRB(20, 20, 20, 20),
-                  clip: true,
-                  border: dk(
-                    context,
-                    null,
-                    Border(
-                      top: BorderSide(color: Color(0xFF2E2E33), width: 1),
-                      right: BorderSide(color: Color(0xFF2E2E33), width: 1),
-                      bottom: BorderSide(color: Color(0xFF2E2E33), width: 1),
-                      left: BorderSide(color: Color(0xFF2E2E33), width: 1),
-                    ),
-                  ),
-                  child: hstack(
-                    hcol(
+                    pad: EdgeInsets.fromLTRB(20, 20, 20, 20),
+                    child: hcol(
                       [
                         hrow(
                           [
-                            Text(
-                              '专业版',
-                              style: hts(
+                            subscriptionText(
+                              'offer:basic:name',
+                              hts(
                                 18,
-                                Color(0xFFFAFAFA),
+                                dk(
+                                  context,
+                                  Color(0xFF18181B),
+                                  Color(0xFFFAFAFA),
+                                ),
                                 w: FontWeight.w600,
                                 lh: 26,
-                              ),
-                            ),
-                            hbox(
-                              bg: Color(0xFFF5D78E),
-                              radius: BorderRadius.circular(9),
-                              pad: EdgeInsets.fromLTRB(8, 0, 8, 0),
-                              child: Text(
-                                '推荐',
-                                style: hts(
-                                  11,
-                                  dk(
-                                    context,
-                                    Color(0xFF18181B),
-                                    Color(0xFFFAFAFA),
-                                  ),
-                                  w: FontWeight.w600,
-                                  lh: 18,
-                                ),
-                                softWrap: false,
-                                maxLines: 1,
                               ),
                             ),
                             Expanded(flex: 1, child: SizedBox.shrink()),
                             hbox(
                               w: 24,
                               h: 24,
-                              bg: Color(0xFF0485F7),
                               radius: BorderRadius.circular(12),
-                              child: hrow(
-                                [hsvg(Svgs.s309, w: 14, h: 14)],
-                                main: MainAxisAlignment.center,
-                                cross: CrossAxisAlignment.center,
-                                gap: 0,
+                              border: dk(
+                                context,
+                                Border.all(color: Color(0xFFD4D4D8), width: 2),
+                                Border.all(color: Color(0xFF3F3F46), width: 2),
                               ),
                             ),
                           ],
@@ -615,40 +401,51 @@ class PlansPage extends StatelessWidget {
                           gap: 8,
                         ),
                         Text(
-                          '预约、微信通知与经营分析',
+                          '单店起步，开单与会员管理',
                           style: hts(
                             13,
-                            dk(context, Color(0xFFA1A1AA), Color(0xFF80808A)),
+                            dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
                             lh: 18,
                           ),
                         ),
                         hrow(
                           [
-                            Text(
-                              '¥333',
-                              style: hts(
-                                36,
-                                Color(0xFFFAFAFA),
+                            subscriptionText(
+                              'offer:basic:price',
+                              hts(
+                                32,
+                                dk(
+                                  context,
+                                  Color(0xFF18181B),
+                                  Color(0xFFFAFAFA),
+                                ),
                                 w: FontWeight.w600,
-                                lh: 40,
+                                lh: 38,
                                 ls: -1,
                               ),
                             ),
-                            Text(
-                              '/月 · 年付',
-                              style: hts(
+                            subscriptionText(
+                              'priceUnit',
+                              hts(
                                 13,
                                 dk(
                                   context,
-                                  Color(0xFFA1A1AA),
-                                  Color(0xFF80808A),
+                                  Color(0xFF71717A),
+                                  Color(0xFF9A9AA3),
                                 ),
                               ),
                             ),
                             Expanded(flex: 1, child: SizedBox.shrink()),
-                            Text(
-                              '年付 ¥3,990 · 省 2 个月',
-                              style: hts(12, Color(0xFFF5D78E)),
+                            subscriptionText(
+                              'offer:basic:total',
+                              hts(
+                                12,
+                                dk(
+                                  context,
+                                  Color(0xFF2B7745),
+                                  Color(0xFF5FD48C),
+                                ),
+                              ),
                             ),
                           ],
                           main: MainAxisAlignment.start,
@@ -659,12 +456,20 @@ class PlansPage extends StatelessWidget {
                           [
                             hrow(
                               [
-                                hsvg(Svgs.s310, w: 14, h: 14),
+                                hsvg(Svgs.s87, w: 14, h: 14),
                                 Flexible(
-                                  flex: 149,
-                                  child: Text(
-                                    '3 家门店 · 10 个员工账号',
-                                    style: hts(13, Color(0xFFE4E4E7), lh: 18),
+                                  flex: 141,
+                                  child: subscriptionText(
+                                    'offer:basic:limits',
+                                    hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF3F3F46),
+                                        Color(0xFFD4D4D8),
+                                      ),
+                                      lh: 18,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -674,12 +479,20 @@ class PlansPage extends StatelessWidget {
                             ),
                             hrow(
                               [
-                                hsvg(Svgs.s310, w: 14, h: 14),
+                                hsvg(Svgs.s87, w: 14, h: 14),
                                 Flexible(
-                                  flex: 91,
+                                  flex: 173,
                                   child: Text(
-                                    '基础版全部功能',
-                                    style: hts(13, Color(0xFFE4E4E7), lh: 18),
+                                    '开单收银 · 会员 · 挂单 · 库存',
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF3F3F46),
+                                        Color(0xFFD4D4D8),
+                                      ),
+                                      lh: 18,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -689,12 +502,20 @@ class PlansPage extends StatelessWidget {
                             ),
                             hrow(
                               [
-                                hsvg(Svgs.s310, w: 14, h: 14),
+                                hsvg(Svgs.s87, w: 14, h: 14),
                                 Flexible(
-                                  flex: 159,
-                                  child: Text(
-                                    '预约管理 · 微信 / 短信通知',
-                                    style: hts(13, Color(0xFFE4E4E7), lh: 18),
+                                  flex: 95,
+                                  child: subscriptionText(
+                                    'unavailableSms',
+                                    hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF3F3F46),
+                                        Color(0xFFD4D4D8),
+                                      ),
+                                      lh: 18,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -704,27 +525,20 @@ class PlansPage extends StatelessWidget {
                             ),
                             hrow(
                               [
-                                hsvg(Svgs.s310, w: 14, h: 14),
+                                hsvg(Svgs.s308, w: 14, h: 14),
                                 Flexible(
-                                  flex: 157,
-                                  child: Text(
-                                    '开支管理与预算 · 数据导出',
-                                    style: hts(13, Color(0xFFE4E4E7), lh: 18),
-                                  ),
-                                ),
-                              ],
-                              main: MainAxisAlignment.start,
-                              cross: CrossAxisAlignment.center,
-                              gap: 8,
-                            ),
-                            hrow(
-                              [
-                                hsvg(Svgs.s310, w: 14, h: 14),
-                                Flexible(
-                                  flex: 109,
-                                  child: Text(
-                                    '每月 1,000 条短信',
-                                    style: hts(13, Color(0xFFE4E4E7), lh: 18),
+                                  flex: 117,
+                                  child: subscriptionText(
+                                    'unavailableNotice',
+                                    hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFFA1A1AA),
+                                        Color(0xFF80808A),
+                                      ),
+                                      lh: 18,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -740,140 +554,80 @@ class PlansPage extends StatelessWidget {
                       ],
                       main: MainAxisAlignment.start,
                       cross: CrossAxisAlignment.stretch,
-                      gap: 14,
+                      gap: 12,
                     ),
-                    [],
-                    behind: [
-                      Positioned(
-                        top: -110,
-                        right: -110,
-                        child: hsvg(Svgs.s7, w: 240, h: 240),
-                      ),
-                    ],
                   ),
                 ),
-                hbox(
-                  bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                  radius: BorderRadius.circular(28),
-                  shadow: dk(
-                    context,
-                    [
+                subscriptionPlanCard(
+                  'pro',
+                  hbox(
+                    bg: dk(context, Color(0xFF18181B), Color(0xFF1F1F23)),
+                    radius: BorderRadius.circular(28),
+                    shadow: [
                       BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 0),
-                        blurRadius: 1,
-                        spreadRadius: 0,
-                      ),
-                      BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                        offset: Offset(0, 1),
-                        blurRadius: 2,
-                        spreadRadius: 0,
-                      ),
-                      BoxShadow(
-                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                        offset: Offset(0, 2),
-                        blurRadius: 4,
-                        spreadRadius: 0,
-                      ),
-                    ],
-                    [
-                      BoxShadow(
-                        color: Color(0xFF26262B),
+                        color: Color(0xFF0485F7),
                         offset: Offset(0, 0),
                         blurRadius: 0,
-                        spreadRadius: 1,
+                        spreadRadius: 2,
                       ),
                     ],
-                  ),
-                  pad: EdgeInsets.fromLTRB(20, 20, 20, 20),
-                  child: hcol(
-                    [
-                      hrow(
-                        [
-                          Text(
-                            '旗舰版',
-                            style: hts(
-                              18,
-                              dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                              w: FontWeight.w600,
-                              lh: 26,
-                            ),
-                          ),
-                          Expanded(flex: 1, child: SizedBox.shrink()),
-                          hbox(
-                            w: 24,
-                            h: 24,
-                            radius: BorderRadius.circular(12),
-                            border: dk(
-                              context,
-                              Border.all(color: Color(0xFFD4D4D8), width: 2),
-                              Border.all(color: Color(0xFF3F3F46), width: 2),
-                            ),
-                          ),
-                        ],
-                        main: MainAxisAlignment.start,
-                        cross: CrossAxisAlignment.center,
-                        gap: 8,
+                    pad: EdgeInsets.fromLTRB(20, 20, 20, 20),
+                    clip: true,
+                    border: dk(
+                      context,
+                      null,
+                      Border(
+                        top: BorderSide(color: Color(0xFF2E2E33), width: 1),
+                        right: BorderSide(color: Color(0xFF2E2E33), width: 1),
+                        bottom: BorderSide(color: Color(0xFF2E2E33), width: 1),
+                        left: BorderSide(color: Color(0xFF2E2E33), width: 1),
                       ),
-                      Text(
-                        '连锁多店，专属服务',
-                        style: hts(
-                          13,
-                          dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
-                          lh: 18,
-                        ),
-                      ),
-                      hrow(
-                        [
-                          Text(
-                            '¥583',
-                            style: hts(
-                              32,
-                              dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                              w: FontWeight.w600,
-                              lh: 38,
-                              ls: -1,
-                            ),
-                          ),
-                          Text(
-                            '/月 · 年付',
-                            style: hts(
-                              13,
-                              dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
-                            ),
-                          ),
-                          Expanded(flex: 1, child: SizedBox.shrink()),
-                          Text(
-                            '年付 ¥6,990',
-                            style: hts(
-                              12,
-                              dk(context, Color(0xFF2B7745), Color(0xFF5FD48C)),
-                            ),
-                          ),
-                        ],
-                        main: MainAxisAlignment.start,
-                        cross: CrossAxisAlignment.baseline,
-                        gap: 4,
-                      ),
+                    ),
+                    child: hstack(
                       hcol(
                         [
                           hrow(
                             [
-                              hsvg(Svgs.s87, w: 14, h: 14),
-                              Flexible(
-                                flex: 150,
+                              subscriptionText(
+                                'offer:pro:name',
+                                hts(
+                                  18,
+                                  Color(0xFFFAFAFA),
+                                  w: FontWeight.w600,
+                                  lh: 26,
+                                ),
+                              ),
+                              hbox(
+                                bg: Color(0xFFF5D78E),
+                                radius: BorderRadius.circular(9),
+                                pad: EdgeInsets.fromLTRB(8, 0, 8, 0),
                                 child: Text(
-                                  '10 家门店 · 不限员工账号',
+                                  '推荐',
                                   style: hts(
-                                    13,
+                                    11,
                                     dk(
                                       context,
-                                      Color(0xFF3F3F46),
-                                      Color(0xFFD4D4D8),
+                                      Color(0xFF18181B),
+                                      Color(0xFFFAFAFA),
                                     ),
+                                    w: FontWeight.w600,
                                     lh: 18,
                                   ),
+                                  softWrap: false,
+                                  maxLines: 1,
+                                ),
+                              ),
+                              Expanded(flex: 1, child: SizedBox.shrink()),
+                              hbox(
+                                w: 24,
+                                h: 24,
+                                bg: Color(0xFF0485F7),
+                                radius: BorderRadius.circular(12),
+                                child: hrow(
+                                  [hsvg(Svgs.s309, w: 14, h: 14)],
+                                  main: MainAxisAlignment.center,
+                                  cross: CrossAxisAlignment.center,
+                                  gap: 0,
                                 ),
                               ),
                             ],
@@ -881,107 +635,394 @@ class PlansPage extends StatelessWidget {
                             cross: CrossAxisAlignment.center,
                             gap: 8,
                           ),
-                          hrow(
-                            [
-                              hsvg(Svgs.s87, w: 14, h: 14),
-                              Flexible(
-                                flex: 91,
-                                child: Text(
-                                  '专业版全部功能',
-                                  style: hts(
-                                    13,
-                                    dk(
-                                      context,
-                                      Color(0xFF3F3F46),
-                                      Color(0xFFD4D4D8),
-                                    ),
-                                    lh: 18,
-                                  ),
-                                ),
-                              ),
-                            ],
-                            main: MainAxisAlignment.start,
-                            cross: CrossAxisAlignment.center,
-                            gap: 8,
+                          Text(
+                            '预约、微信通知与经营分析',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFFA1A1AA), Color(0xFF80808A)),
+                              lh: 18,
+                            ),
                           ),
                           hrow(
                             [
-                              hsvg(Svgs.s87, w: 14, h: 14),
-                              Flexible(
-                                flex: 143,
-                                child: Text(
-                                  '连锁总部看板与统一会员',
-                                  style: hts(
-                                    13,
-                                    dk(
-                                      context,
-                                      Color(0xFF3F3F46),
-                                      Color(0xFFD4D4D8),
-                                    ),
-                                    lh: 18,
+                              subscriptionText(
+                                'offer:pro:price',
+                                hts(
+                                  36,
+                                  Color(0xFFFAFAFA),
+                                  w: FontWeight.w600,
+                                  lh: 40,
+                                  ls: -1,
+                                ),
+                              ),
+                              subscriptionText(
+                                'priceUnit',
+                                hts(
+                                  13,
+                                  dk(
+                                    context,
+                                    Color(0xFFA1A1AA),
+                                    Color(0xFF80808A),
                                   ),
                                 ),
                               ),
+                              Expanded(flex: 1, child: SizedBox.shrink()),
+                              subscriptionText(
+                                'offer:pro:total',
+                                hts(12, Color(0xFFF5D78E)),
+                              ),
                             ],
                             main: MainAxisAlignment.start,
-                            cross: CrossAxisAlignment.center,
-                            gap: 8,
+                            cross: CrossAxisAlignment.baseline,
+                            gap: 4,
                           ),
-                          hrow(
+                          hcol(
                             [
-                              hsvg(Svgs.s87, w: 14, h: 14),
-                              Flexible(
-                                flex: 109,
-                                child: Text(
-                                  '每月 3,000 条短信',
-                                  style: hts(
-                                    13,
-                                    dk(
-                                      context,
-                                      Color(0xFF3F3F46),
-                                      Color(0xFFD4D4D8),
+                              hrow(
+                                [
+                                  hsvg(Svgs.s310, w: 14, h: 14),
+                                  Flexible(
+                                    flex: 149,
+                                    child: subscriptionText(
+                                      'offer:pro:limits',
+                                      hts(13, Color(0xFFE4E4E7), lh: 18),
                                     ),
-                                    lh: 18,
                                   ),
-                                ),
+                                ],
+                                main: MainAxisAlignment.start,
+                                cross: CrossAxisAlignment.center,
+                                gap: 8,
+                              ),
+                              hrow(
+                                [
+                                  hsvg(Svgs.s310, w: 14, h: 14),
+                                  Flexible(
+                                    flex: 91,
+                                    child: Text(
+                                      '基础版全部功能',
+                                      style: hts(13, Color(0xFFE4E4E7), lh: 18),
+                                    ),
+                                  ),
+                                ],
+                                main: MainAxisAlignment.start,
+                                cross: CrossAxisAlignment.center,
+                                gap: 8,
+                              ),
+                              hrow(
+                                [
+                                  hsvg(Svgs.s310, w: 14, h: 14),
+                                  Flexible(
+                                    flex: 159,
+                                    child: subscriptionText(
+                                      'unavailableNotice',
+                                      hts(13, Color(0xFFE4E4E7), lh: 18),
+                                    ),
+                                  ),
+                                ],
+                                main: MainAxisAlignment.start,
+                                cross: CrossAxisAlignment.center,
+                                gap: 8,
+                              ),
+                              hrow(
+                                [
+                                  hsvg(Svgs.s310, w: 14, h: 14),
+                                  Flexible(
+                                    flex: 157,
+                                    child: subscriptionText(
+                                      'unavailableExport',
+                                      hts(13, Color(0xFFE4E4E7), lh: 18),
+                                    ),
+                                  ),
+                                ],
+                                main: MainAxisAlignment.start,
+                                cross: CrossAxisAlignment.center,
+                                gap: 8,
+                              ),
+                              hrow(
+                                [
+                                  hsvg(Svgs.s310, w: 14, h: 14),
+                                  Flexible(
+                                    flex: 109,
+                                    child: subscriptionText(
+                                      'unavailableSms',
+                                      hts(13, Color(0xFFE4E4E7), lh: 18),
+                                    ),
+                                  ),
+                                ],
+                                main: MainAxisAlignment.start,
+                                cross: CrossAxisAlignment.center,
+                                gap: 8,
                               ),
                             ],
                             main: MainAxisAlignment.start,
-                            cross: CrossAxisAlignment.center,
-                            gap: 8,
-                          ),
-                          hrow(
-                            [
-                              hsvg(Svgs.s87, w: 14, h: 14),
-                              Flexible(
-                                flex: 144,
-                                child: Text(
-                                  '专属客服 · 优先上门培训',
-                                  style: hts(
-                                    13,
-                                    dk(
-                                      context,
-                                      Color(0xFF3F3F46),
-                                      Color(0xFFD4D4D8),
-                                    ),
-                                    lh: 18,
-                                  ),
-                                ),
-                              ),
-                            ],
-                            main: MainAxisAlignment.start,
-                            cross: CrossAxisAlignment.center,
+                            cross: CrossAxisAlignment.stretch,
                             gap: 8,
                           ),
                         ],
                         main: MainAxisAlignment.start,
                         cross: CrossAxisAlignment.stretch,
-                        gap: 8,
+                        gap: 14,
                       ),
-                    ],
-                    main: MainAxisAlignment.start,
-                    cross: CrossAxisAlignment.stretch,
-                    gap: 12,
+                      [],
+                      behind: [
+                        Positioned(
+                          top: -110,
+                          right: -110,
+                          child: hsvg(Svgs.s7, w: 240, h: 240),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                subscriptionPlanCard(
+                  'flagship',
+                  hbox(
+                    bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                    radius: BorderRadius.circular(28),
+                    shadow: dk(
+                      context,
+                      [
+                        BoxShadow(
+                          color: Color.fromRGBO(0, 0, 0, 0.06),
+                          offset: Offset(0, 0),
+                          blurRadius: 1,
+                          spreadRadius: 0,
+                        ),
+                        BoxShadow(
+                          color: Color.fromRGBO(0, 0, 0, 0.06),
+                          offset: Offset(0, 1),
+                          blurRadius: 2,
+                          spreadRadius: 0,
+                        ),
+                        BoxShadow(
+                          color: Color.fromRGBO(0, 0, 0, 0.04),
+                          offset: Offset(0, 2),
+                          blurRadius: 4,
+                          spreadRadius: 0,
+                        ),
+                      ],
+                      [
+                        BoxShadow(
+                          color: Color(0xFF26262B),
+                          offset: Offset(0, 0),
+                          blurRadius: 0,
+                          spreadRadius: 1,
+                        ),
+                      ],
+                    ),
+                    pad: EdgeInsets.fromLTRB(20, 20, 20, 20),
+                    child: hcol(
+                      [
+                        hrow(
+                          [
+                            subscriptionText(
+                              'offer:flagship:name',
+                              hts(
+                                18,
+                                dk(
+                                  context,
+                                  Color(0xFF18181B),
+                                  Color(0xFFFAFAFA),
+                                ),
+                                w: FontWeight.w600,
+                                lh: 26,
+                              ),
+                            ),
+                            Expanded(flex: 1, child: SizedBox.shrink()),
+                            hbox(
+                              w: 24,
+                              h: 24,
+                              radius: BorderRadius.circular(12),
+                              border: dk(
+                                context,
+                                Border.all(color: Color(0xFFD4D4D8), width: 2),
+                                Border.all(color: Color(0xFF3F3F46), width: 2),
+                              ),
+                            ),
+                          ],
+                          main: MainAxisAlignment.start,
+                          cross: CrossAxisAlignment.center,
+                          gap: 8,
+                        ),
+                        Text(
+                          '连锁多店，专属服务',
+                          style: hts(
+                            13,
+                            dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
+                            lh: 18,
+                          ),
+                        ),
+                        hrow(
+                          [
+                            subscriptionText(
+                              'offer:flagship:price',
+                              hts(
+                                32,
+                                dk(
+                                  context,
+                                  Color(0xFF18181B),
+                                  Color(0xFFFAFAFA),
+                                ),
+                                w: FontWeight.w600,
+                                lh: 38,
+                                ls: -1,
+                              ),
+                            ),
+                            subscriptionText(
+                              'priceUnit',
+                              hts(
+                                13,
+                                dk(
+                                  context,
+                                  Color(0xFF71717A),
+                                  Color(0xFF9A9AA3),
+                                ),
+                              ),
+                            ),
+                            Expanded(flex: 1, child: SizedBox.shrink()),
+                            subscriptionText(
+                              'offer:flagship:total',
+                              hts(
+                                12,
+                                dk(
+                                  context,
+                                  Color(0xFF2B7745),
+                                  Color(0xFF5FD48C),
+                                ),
+                              ),
+                            ),
+                          ],
+                          main: MainAxisAlignment.start,
+                          cross: CrossAxisAlignment.baseline,
+                          gap: 4,
+                        ),
+                        hcol(
+                          [
+                            hrow(
+                              [
+                                hsvg(Svgs.s87, w: 14, h: 14),
+                                Flexible(
+                                  flex: 150,
+                                  child: subscriptionText(
+                                    'offer:flagship:limits',
+                                    hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF3F3F46),
+                                        Color(0xFFD4D4D8),
+                                      ),
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                              main: MainAxisAlignment.start,
+                              cross: CrossAxisAlignment.center,
+                              gap: 8,
+                            ),
+                            hrow(
+                              [
+                                hsvg(Svgs.s87, w: 14, h: 14),
+                                Flexible(
+                                  flex: 91,
+                                  child: Text(
+                                    '专业版全部功能',
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF3F3F46),
+                                        Color(0xFFD4D4D8),
+                                      ),
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                              main: MainAxisAlignment.start,
+                              cross: CrossAxisAlignment.center,
+                              gap: 8,
+                            ),
+                            hrow(
+                              [
+                                hsvg(Svgs.s87, w: 14, h: 14),
+                                Flexible(
+                                  flex: 143,
+                                  child: subscriptionText(
+                                    'unavailableShared',
+                                    hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF3F3F46),
+                                        Color(0xFFD4D4D8),
+                                      ),
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                              main: MainAxisAlignment.start,
+                              cross: CrossAxisAlignment.center,
+                              gap: 8,
+                            ),
+                            hrow(
+                              [
+                                hsvg(Svgs.s87, w: 14, h: 14),
+                                Flexible(
+                                  flex: 109,
+                                  child: subscriptionText(
+                                    'unavailableSms',
+                                    hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF3F3F46),
+                                        Color(0xFFD4D4D8),
+                                      ),
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                              main: MainAxisAlignment.start,
+                              cross: CrossAxisAlignment.center,
+                              gap: 8,
+                            ),
+                            hrow(
+                              [
+                                hsvg(Svgs.s87, w: 14, h: 14),
+                                Flexible(
+                                  flex: 144,
+                                  child: subscriptionText(
+                                    'support',
+                                    hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF3F3F46),
+                                        Color(0xFFD4D4D8),
+                                      ),
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                              main: MainAxisAlignment.start,
+                              cross: CrossAxisAlignment.center,
+                              gap: 8,
+                            ),
+                          ],
+                          main: MainAxisAlignment.start,
+                          cross: CrossAxisAlignment.stretch,
+                          gap: 8,
+                        ),
+                      ],
+                      main: MainAxisAlignment.start,
+                      cross: CrossAxisAlignment.stretch,
+                      gap: 12,
+                    ),
                   ),
                 ),
                 hcol(
@@ -1044,9 +1085,9 @@ class PlansPage extends StatelessWidget {
                                 hbox(
                                   w: 64,
                                   align: Alignment.center,
-                                  child: Text(
-                                    '基础版',
-                                    style: hts(
+                                  child: subscriptionText(
+                                    'offer:basic:name',
+                                    hts(
                                       12,
                                       dk(
                                         context,
@@ -1055,28 +1096,26 @@ class PlansPage extends StatelessWidget {
                                       ),
                                       w: FontWeight.w600,
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                                 hbox(
                                   w: 64,
                                   align: Alignment.center,
-                                  child: Text(
-                                    '专业版',
-                                    style: hts(
+                                  child: subscriptionText(
+                                    'offer:pro:name',
+                                    hts(
                                       12,
                                       Color(0xFF0485F7),
                                       w: FontWeight.w600,
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                                 hbox(
                                   w: 64,
                                   align: Alignment.center,
-                                  child: Text(
-                                    '旗舰版',
-                                    style: hts(
+                                  child: subscriptionText(
+                                    'offer:flagship:name',
+                                    hts(
                                       12,
                                       dk(
                                         context,
@@ -1085,7 +1124,6 @@ class PlansPage extends StatelessWidget {
                                       ),
                                       w: FontWeight.w600,
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                               ],
@@ -1125,9 +1163,9 @@ class PlansPage extends StatelessWidget {
                                 hbox(
                                   w: 64,
                                   align: Alignment.center,
-                                  child: Text(
-                                    '1',
-                                    style: hts(
+                                  child: subscriptionText(
+                                    'table:basic:storeCount',
+                                    hts(
                                       13,
                                       dk(
                                         context,
@@ -1137,15 +1175,14 @@ class PlansPage extends StatelessWidget {
                                       w: FontWeight.w500,
                                       lh: 18,
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                                 hbox(
                                   w: 64,
                                   align: Alignment.center,
-                                  child: Text(
-                                    '3',
-                                    style: hts(
+                                  child: subscriptionText(
+                                    'table:pro:storeCount',
+                                    hts(
                                       13,
                                       dk(
                                         context,
@@ -1155,15 +1192,14 @@ class PlansPage extends StatelessWidget {
                                       w: FontWeight.w500,
                                       lh: 18,
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                                 hbox(
                                   w: 64,
                                   align: Alignment.center,
-                                  child: Text(
-                                    '10',
-                                    style: hts(
+                                  child: subscriptionText(
+                                    'table:flagship:storeCount',
+                                    hts(
                                       13,
                                       dk(
                                         context,
@@ -1173,7 +1209,6 @@ class PlansPage extends StatelessWidget {
                                       w: FontWeight.w500,
                                       lh: 18,
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                               ],
@@ -1213,9 +1248,9 @@ class PlansPage extends StatelessWidget {
                                 hbox(
                                   w: 64,
                                   align: Alignment.center,
-                                  child: Text(
-                                    '3',
-                                    style: hts(
+                                  child: subscriptionText(
+                                    'table:basic:staffCount',
+                                    hts(
                                       13,
                                       dk(
                                         context,
@@ -1225,15 +1260,14 @@ class PlansPage extends StatelessWidget {
                                       w: FontWeight.w500,
                                       lh: 18,
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                                 hbox(
                                   w: 64,
                                   align: Alignment.center,
-                                  child: Text(
-                                    '10',
-                                    style: hts(
+                                  child: subscriptionText(
+                                    'table:pro:staffCount',
+                                    hts(
                                       13,
                                       dk(
                                         context,
@@ -1243,15 +1277,14 @@ class PlansPage extends StatelessWidget {
                                       w: FontWeight.w500,
                                       lh: 18,
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                                 hbox(
                                   w: 64,
                                   align: Alignment.center,
-                                  child: Text(
-                                    '不限',
-                                    style: hts(
+                                  child: subscriptionText(
+                                    'table:flagship:staffCount',
+                                    hts(
                                       13,
                                       dk(
                                         context,
@@ -1261,7 +1294,6 @@ class PlansPage extends StatelessWidget {
                                       w: FontWeight.w500,
                                       lh: 18,
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                               ],
@@ -1301,9 +1333,9 @@ class PlansPage extends StatelessWidget {
                                 hbox(
                                   w: 64,
                                   align: Alignment.center,
-                                  child: Text(
-                                    '200',
-                                    style: hts(
+                                  child: subscriptionText(
+                                    'table:basic:smsCount',
+                                    hts(
                                       13,
                                       dk(
                                         context,
@@ -1313,15 +1345,14 @@ class PlansPage extends StatelessWidget {
                                       w: FontWeight.w500,
                                       lh: 18,
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                                 hbox(
                                   w: 64,
                                   align: Alignment.center,
-                                  child: Text(
-                                    '1,000',
-                                    style: hts(
+                                  child: subscriptionText(
+                                    'table:pro:smsCount',
+                                    hts(
                                       13,
                                       dk(
                                         context,
@@ -1331,15 +1362,14 @@ class PlansPage extends StatelessWidget {
                                       w: FontWeight.w500,
                                       lh: 18,
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                                 hbox(
                                   w: 64,
                                   align: Alignment.center,
-                                  child: Text(
-                                    '3,000',
-                                    style: hts(
+                                  child: subscriptionText(
+                                    'table:flagship:smsCount',
+                                    hts(
                                       13,
                                       dk(
                                         context,
@@ -1349,7 +1379,6 @@ class PlansPage extends StatelessWidget {
                                       w: FontWeight.w500,
                                       lh: 18,
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                               ],
@@ -1389,9 +1418,9 @@ class PlansPage extends StatelessWidget {
                                 hbox(
                                   w: 64,
                                   align: Alignment.center,
-                                  child: Text(
-                                    '✓',
-                                    style: hts(
+                                  child: subscriptionText(
+                                    'table:basic:core',
+                                    hts(
                                       13,
                                       dk(
                                         context,
@@ -1401,15 +1430,14 @@ class PlansPage extends StatelessWidget {
                                       w: FontWeight.w500,
                                       lh: 18,
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                                 hbox(
                                   w: 64,
                                   align: Alignment.center,
-                                  child: Text(
-                                    '✓',
-                                    style: hts(
+                                  child: subscriptionText(
+                                    'table:pro:core',
+                                    hts(
                                       13,
                                       dk(
                                         context,
@@ -1419,15 +1447,14 @@ class PlansPage extends StatelessWidget {
                                       w: FontWeight.w500,
                                       lh: 18,
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                                 hbox(
                                   w: 64,
                                   align: Alignment.center,
-                                  child: Text(
-                                    '✓',
-                                    style: hts(
+                                  child: subscriptionText(
+                                    'table:flagship:core',
+                                    hts(
                                       13,
                                       dk(
                                         context,
@@ -1437,7 +1464,6 @@ class PlansPage extends StatelessWidget {
                                       w: FontWeight.w500,
                                       lh: 18,
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                               ],
@@ -1477,9 +1503,9 @@ class PlansPage extends StatelessWidget {
                                 hbox(
                                   w: 64,
                                   align: Alignment.center,
-                                  child: Text(
-                                    '—',
-                                    style: hts(
+                                  child: subscriptionText(
+                                    'table:basic:appointments',
+                                    hts(
                                       13,
                                       dk(
                                         context,
@@ -1488,15 +1514,14 @@ class PlansPage extends StatelessWidget {
                                       ),
                                       lh: 18,
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                                 hbox(
                                   w: 64,
                                   align: Alignment.center,
-                                  child: Text(
-                                    '✓',
-                                    style: hts(
+                                  child: subscriptionText(
+                                    'table:pro:appointments',
+                                    hts(
                                       13,
                                       dk(
                                         context,
@@ -1506,15 +1531,14 @@ class PlansPage extends StatelessWidget {
                                       w: FontWeight.w500,
                                       lh: 18,
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                                 hbox(
                                   w: 64,
                                   align: Alignment.center,
-                                  child: Text(
-                                    '✓',
-                                    style: hts(
+                                  child: subscriptionText(
+                                    'table:flagship:appointments',
+                                    hts(
                                       13,
                                       dk(
                                         context,
@@ -1524,7 +1548,6 @@ class PlansPage extends StatelessWidget {
                                       w: FontWeight.w500,
                                       lh: 18,
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                               ],
@@ -1564,9 +1587,9 @@ class PlansPage extends StatelessWidget {
                                 hbox(
                                   w: 64,
                                   align: Alignment.center,
-                                  child: Text(
-                                    '—',
-                                    style: hts(
+                                  child: subscriptionText(
+                                    'table:basic:wechat',
+                                    hts(
                                       13,
                                       dk(
                                         context,
@@ -1575,15 +1598,14 @@ class PlansPage extends StatelessWidget {
                                       ),
                                       lh: 18,
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                                 hbox(
                                   w: 64,
                                   align: Alignment.center,
-                                  child: Text(
-                                    '✓',
-                                    style: hts(
+                                  child: subscriptionText(
+                                    'table:pro:wechat',
+                                    hts(
                                       13,
                                       dk(
                                         context,
@@ -1593,15 +1615,14 @@ class PlansPage extends StatelessWidget {
                                       w: FontWeight.w500,
                                       lh: 18,
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                                 hbox(
                                   w: 64,
                                   align: Alignment.center,
-                                  child: Text(
-                                    '✓',
-                                    style: hts(
+                                  child: subscriptionText(
+                                    'table:flagship:wechat',
+                                    hts(
                                       13,
                                       dk(
                                         context,
@@ -1611,7 +1632,6 @@ class PlansPage extends StatelessWidget {
                                       w: FontWeight.w500,
                                       lh: 18,
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                               ],
@@ -1651,9 +1671,9 @@ class PlansPage extends StatelessWidget {
                                 hbox(
                                   w: 64,
                                   align: Alignment.center,
-                                  child: Text(
-                                    '—',
-                                    style: hts(
+                                  child: subscriptionText(
+                                    'table:basic:budgets',
+                                    hts(
                                       13,
                                       dk(
                                         context,
@@ -1662,15 +1682,14 @@ class PlansPage extends StatelessWidget {
                                       ),
                                       lh: 18,
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                                 hbox(
                                   w: 64,
                                   align: Alignment.center,
-                                  child: Text(
-                                    '✓',
-                                    style: hts(
+                                  child: subscriptionText(
+                                    'table:pro:budgets',
+                                    hts(
                                       13,
                                       dk(
                                         context,
@@ -1680,15 +1699,14 @@ class PlansPage extends StatelessWidget {
                                       w: FontWeight.w500,
                                       lh: 18,
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                                 hbox(
                                   w: 64,
                                   align: Alignment.center,
-                                  child: Text(
-                                    '✓',
-                                    style: hts(
+                                  child: subscriptionText(
+                                    'table:flagship:budgets',
+                                    hts(
                                       13,
                                       dk(
                                         context,
@@ -1698,7 +1716,6 @@ class PlansPage extends StatelessWidget {
                                       w: FontWeight.w500,
                                       lh: 18,
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                               ],
@@ -1738,9 +1755,9 @@ class PlansPage extends StatelessWidget {
                                 hbox(
                                   w: 64,
                                   align: Alignment.center,
-                                  child: Text(
-                                    '—',
-                                    style: hts(
+                                  child: subscriptionText(
+                                    'table:basic:export',
+                                    hts(
                                       13,
                                       dk(
                                         context,
@@ -1749,15 +1766,14 @@ class PlansPage extends StatelessWidget {
                                       ),
                                       lh: 18,
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                                 hbox(
                                   w: 64,
                                   align: Alignment.center,
-                                  child: Text(
-                                    '✓',
-                                    style: hts(
+                                  child: subscriptionText(
+                                    'table:pro:export',
+                                    hts(
                                       13,
                                       dk(
                                         context,
@@ -1767,15 +1783,14 @@ class PlansPage extends StatelessWidget {
                                       w: FontWeight.w500,
                                       lh: 18,
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                                 hbox(
                                   w: 64,
                                   align: Alignment.center,
-                                  child: Text(
-                                    '✓',
-                                    style: hts(
+                                  child: subscriptionText(
+                                    'table:flagship:export',
+                                    hts(
                                       13,
                                       dk(
                                         context,
@@ -1785,7 +1800,6 @@ class PlansPage extends StatelessWidget {
                                       w: FontWeight.w500,
                                       lh: 18,
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                               ],
@@ -1825,9 +1839,9 @@ class PlansPage extends StatelessWidget {
                                 hbox(
                                   w: 64,
                                   align: Alignment.center,
-                                  child: Text(
-                                    '—',
-                                    style: hts(
+                                  child: subscriptionText(
+                                    'table:basic:chain',
+                                    hts(
                                       13,
                                       dk(
                                         context,
@@ -1836,15 +1850,14 @@ class PlansPage extends StatelessWidget {
                                       ),
                                       lh: 18,
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                                 hbox(
                                   w: 64,
                                   align: Alignment.center,
-                                  child: Text(
-                                    '—',
-                                    style: hts(
+                                  child: subscriptionText(
+                                    'table:pro:chain',
+                                    hts(
                                       13,
                                       dk(
                                         context,
@@ -1853,15 +1866,14 @@ class PlansPage extends StatelessWidget {
                                       ),
                                       lh: 18,
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                                 hbox(
                                   w: 64,
                                   align: Alignment.center,
-                                  child: Text(
-                                    '✓',
-                                    style: hts(
+                                  child: subscriptionText(
+                                    'table:flagship:chain',
+                                    hts(
                                       13,
                                       dk(
                                         context,
@@ -1871,7 +1883,6 @@ class PlansPage extends StatelessWidget {
                                       w: FontWeight.w500,
                                       lh: 18,
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                               ],
@@ -1911,9 +1922,9 @@ class PlansPage extends StatelessWidget {
                                 hbox(
                                   w: 64,
                                   align: Alignment.center,
-                                  child: Text(
-                                    '—',
-                                    style: hts(
+                                  child: subscriptionText(
+                                    'table:basic:support',
+                                    hts(
                                       13,
                                       dk(
                                         context,
@@ -1922,15 +1933,14 @@ class PlansPage extends StatelessWidget {
                                       ),
                                       lh: 18,
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                                 hbox(
                                   w: 64,
                                   align: Alignment.center,
-                                  child: Text(
-                                    '—',
-                                    style: hts(
+                                  child: subscriptionText(
+                                    'table:pro:support',
+                                    hts(
                                       13,
                                       dk(
                                         context,
@@ -1939,15 +1949,14 @@ class PlansPage extends StatelessWidget {
                                       ),
                                       lh: 18,
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                                 hbox(
                                   w: 64,
                                   align: Alignment.center,
-                                  child: Text(
-                                    '✓',
-                                    style: hts(
+                                  child: subscriptionText(
+                                    'table:flagship:support',
+                                    hts(
                                       13,
                                       dk(
                                         context,
@@ -1957,7 +1966,6 @@ class PlansPage extends StatelessWidget {
                                       w: FontWeight.w500,
                                       lh: 18,
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                               ],
@@ -2095,9 +2103,9 @@ class PlansPage extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                                Text(
-                                  '7 天内可退',
-                                  style: hts(
+                                subscriptionText(
+                                  'refundUnavailable',
+                                  hts(
                                     15,
                                     dk(
                                       context,
@@ -2142,9 +2150,9 @@ class PlansPage extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                                Text(
-                                  '按剩余天数补差价',
-                                  style: hts(
+                                subscriptionText(
+                                  'upgradePolicy',
+                                  hts(
                                     15,
                                     dk(
                                       context,

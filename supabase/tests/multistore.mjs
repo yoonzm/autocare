@@ -92,5 +92,34 @@ try{
  assert.equal((await scalar('select platform_merchant_session($1,$2,true) value',[owner,session])).status,403);
  assert.ok((await scalar('select platform_merchant_session($1,$2,false) value',[owner,session])).store_id);
  for(const sig of ['merchant_store_directory(uuid,uuid)','merchant_store_mutate(uuid,uuid,text,jsonb,text)'])assert.equal(await scalar("select has_function_privilege('authenticated',$1,'execute') value",[sig]),false);
+ // Explicitly authorized temporary subscription payment simulation.
+ const catalogue=()=>scalar('select subscription_catalog($1,$2) value',[owner,session]);
+ const subscribe=(input,request=id())=>scalar('select subscription_simulate($1,$2,$3,$4) value',[owner,session,input,request]);
+ let catalogueData=await catalogue();
+ assert.equal(catalogueData.plans.length,3);
+ const pro=catalogueData.plans.find(p=>p.kind==='pro');
+ const payInput={plan:'pro',version:pro.version,months:12,revision:catalogueData.revision,mode:'renew',amount:1};
+ const payRequest=id(),paid=await subscribe(payInput,payRequest);
+ assert.equal(paid.amount,pro.fee);assert.equal(paid.simulated,true);
+ assert.equal((await subscribe(payInput,payRequest)).id,paid.id);
+ assert.equal(await scalar('select count(*)::int value from platform_orders'),1);
+ await assert.rejects(()=>subscribe(payInput),/订阅已变化/);
+ assert.equal(await scalar('select source value from account_subscriptions where owner_id=$1',[owner]),'simulation');
+ assert.equal((await scalar('select platform_merchant_session($1,$2,true) value',[owner,session])).store_id,first);
+ catalogueData=await catalogue();
+ await assert.rejects(()=>subscribe({plan:'basic',version:1,months:12,revision:catalogueData.revision,mode:'subscribe'}),/门店数量/);
+ await assert.rejects(()=>subscribe({plan:'pro',version:0,months:12,revision:catalogueData.revision,mode:'renew'}),/价格已更新/);
+ await assert.rejects(()=>subscribe({plan:'pro',version:1,months:-1,revision:catalogueData.revision,mode:'renew'}),/请选择/);
+ const flagship=catalogueData.plans.find(p=>p.kind==='flagship');
+ const upgraded=await subscribe({plan:'flagship',version:flagship.version,months:1,revision:catalogueData.revision,mode:'subscribe'});
+ assert.equal(upgraded.store_limit,10);
+ assert.equal((await directory()).store_limit,10);
+ assert.ok(new Date(upgraded.ends_at)>new Date(paid.ends_at));
+ const report=await scalar('select admin_snapshot($1,$2,0) value',[admin,adminSession]);
+ assert.equal(report.stats.subs_revenue,0,'simulation is not real cash revenue');
+ assert.equal(report.stats.mrr,0,'simulation is not real MRR');
+ assert.equal(report.orders.length,2);assert.ok(report.orders.every(o=>o.pay==='模拟支付'));
+ assert.equal(await scalar("select has_function_privilege('authenticated','subscription_simulate(uuid,uuid,jsonb,text)','execute') value"),false);
+ console.log('PASS subscription catalogue, simulation receipt, renewal, upgrade, downgrade quota, price validation, replay and cash-report exclusion');
  console.log('PASS legacy migration, shared account subscription, quota, idempotency, session switching, tenant checks, expiry and RPC permissions');
 }finally{await db.close();}

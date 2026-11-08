@@ -133,9 +133,9 @@ class PlanPaidPage extends StatelessWidget {
                           lh: 24,
                         ),
                       ),
-                      Text(
-                        '¥3,790.00',
-                        style: hts(
+                      subscriptionText(
+                        'resultAmount',
+                        hts(
                           40,
                           dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
                           w: FontWeight.w600,
@@ -204,9 +204,9 @@ class PlanPaidPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            Text(
-                              '专业版 · 年付',
-                              style: hts(
+                            subscriptionText(
+                              'resultName',
+                              hts(
                                 14,
                                 dk(
                                   context,
@@ -244,9 +244,9 @@ class PlanPaidPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            Text(
-                              '2026.10.31 – 2027.10.30',
-                              style: hts(
+                            subscriptionText(
+                              'resultPeriod',
+                              hts(
                                 14,
                                 dk(
                                   context,
@@ -284,9 +284,9 @@ class PlanPaidPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            Text(
-                              '微信支付',
-                              style: hts(
+                            subscriptionText(
+                              'simulation',
+                              hts(
                                 14,
                                 dk(
                                   context,
@@ -324,9 +324,9 @@ class PlanPaidPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            Text(
-                              '已开启 · 2027.10.27 扣款',
-                              style: hts(
+                            subscriptionText(
+                              'notEnabled',
+                              hts(
                                 14,
                                 dk(
                                   context,
@@ -364,9 +364,9 @@ class PlanPaidPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            Text(
-                              'SUB202610310001',
-                              style: hts(
+                            subscriptionText(
+                              'resultId',
+                              hts(
                                 14,
                                 dk(
                                   context,
@@ -466,9 +466,9 @@ class PlanPaidPage extends StatelessWidget {
                                     lh: 20,
                                   ),
                                 ),
-                                Text(
-                                  '电子发票将在 3 个工作日内开具',
-                                  style: hts(
+                                subscriptionText(
+                                  'notEnabled',
+                                  hts(
                                     12,
                                     dk(
                                       context,

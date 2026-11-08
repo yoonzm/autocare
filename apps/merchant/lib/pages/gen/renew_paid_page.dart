@@ -133,9 +133,9 @@ class RenewPaidPage extends StatelessWidget {
                           lh: 24,
                         ),
                       ),
-                      Text(
-                        '¥3,990.00',
-                        style: hts(
+                      subscriptionText(
+                        'resultAmount',
+                        hts(
                           40,
                           dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
                           w: FontWeight.w600,
@@ -204,9 +204,9 @@ class RenewPaidPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            Text(
-                              '专业版 · 续费 12 个月',
-                              style: hts(
+                            subscriptionText(
+                              'resultName',
+                              hts(
                                 14,
                                 dk(
                                   context,
@@ -244,9 +244,9 @@ class RenewPaidPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            Text(
-                              '2028.10.30',
-                              style: hts(
+                            subscriptionText(
+                              'resultEnd',
+                              hts(
                                 14,
                                 dk(
                                   context,
@@ -284,9 +284,9 @@ class RenewPaidPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            Text(
-                              '微信支付',
-                              style: hts(
+                            subscriptionText(
+                              'simulation',
+                              hts(
                                 14,
                                 dk(
                                   context,
@@ -324,9 +324,9 @@ class RenewPaidPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            Text(
-                              'SUB202610310002',
-                              style: hts(
+                            subscriptionText(
+                              'resultId',
+                              hts(
                                 14,
                                 dk(
                                   context,

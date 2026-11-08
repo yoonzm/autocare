@@ -28,9 +28,9 @@ class RenewSheet extends StatelessWidget {
               radius: BorderRadius.circular(3),
             ),
           ),
-          Text(
-            '续费 · 专业版',
-            style: hts(
+          subscriptionText(
+            'renewTitle',
+            hts(
               20,
               dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
               w: FontWeight.w600,
@@ -110,9 +110,9 @@ class RenewSheet extends StatelessWidget {
                             gap: 1,
                           ),
                         ),
-                        Text(
-                          '¥399',
-                          style: hts(
+                        subscriptionText(
+                          'month',
+                          hts(
                             15,
                             dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
                             w: FontWeight.w600,
@@ -175,9 +175,9 @@ class RenewSheet extends StatelessWidget {
                             gap: 1,
                           ),
                         ),
-                        Text(
-                          '¥399',
-                          style: hts(
+                        subscriptionText(
+                          'month',
+                          hts(
                             15,
                             dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
                             w: FontWeight.w600,
@@ -249,9 +249,9 @@ class RenewSheet extends StatelessWidget {
                             gap: 1,
                           ),
                         ),
-                        Text(
-                          '¥1,137',
-                          style: hts(
+                        subscriptionText(
+                          'quarter',
+                          hts(
                             15,
                             dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
                             w: FontWeight.w600,
@@ -314,9 +314,9 @@ class RenewSheet extends StatelessWidget {
                             gap: 1,
                           ),
                         ),
-                        Text(
-                          '¥1,137',
-                          style: hts(
+                        subscriptionText(
+                          'quarter',
+                          hts(
                             15,
                             dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
                             w: FontWeight.w600,
@@ -397,9 +397,9 @@ class RenewSheet extends StatelessWidget {
                                 cross: CrossAxisAlignment.center,
                                 gap: 6,
                               ),
-                              Text(
-                                '到期日顺延至 2028.10.30 · 省 ¥798',
-                                style: hts(
+                              subscriptionText(
+                                'annualHint',
+                                hts(
                                   12,
                                   dk(
                                     context,
@@ -415,9 +415,9 @@ class RenewSheet extends StatelessWidget {
                             gap: 1,
                           ),
                         ),
-                        Text(
-                          '¥3,990',
-                          style: hts(
+                        subscriptionText(
+                          'year',
+                          hts(
                             15,
                             dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
                             w: FontWeight.w600,
@@ -489,9 +489,9 @@ class RenewSheet extends StatelessWidget {
                                 cross: CrossAxisAlignment.center,
                                 gap: 6,
                               ),
-                              Text(
-                                '到期日顺延至 2028.10.30 · 省 ¥798',
-                                style: hts(
+                              subscriptionText(
+                                'annualHint',
+                                hts(
                                   12,
                                   dk(
                                     context,
@@ -507,9 +507,9 @@ class RenewSheet extends StatelessWidget {
                             gap: 1,
                           ),
                         ),
-                        Text(
-                          '¥3,990',
-                          style: hts(
+                        subscriptionText(
+                          'year',
+                          hts(
                             15,
                             dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
                             w: FontWeight.w600,
@@ -613,14 +613,19 @@ class RenewSheet extends StatelessWidget {
                       child: Align(
                         alignment: Alignment(0, 0),
                         widthFactor: 1,
-                        child: Text(
-                          '确认支付 ¥3,990',
-                          style: hts(
-                            15,
-                            dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                            w: FontWeight.w600,
-                            lh: 22,
+                        child: hBusy(
+                          'Renew>RenewPaid',
+                          subscriptionText(
+                            'payLabel',
+                            hts(
+                              15,
+                              dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                              w: FontWeight.w600,
+                              lh: 22,
+                            ),
                           ),
+                          style: hts(15, const Color(0xFFFFFFFF)),
+                          label: '提交中…',
                         ),
                       ),
                     ),

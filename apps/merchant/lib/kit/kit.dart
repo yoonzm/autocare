@@ -10,6 +10,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../backend/registration_draft.dart';
 import '../backend/store_flow.dart';
+import '../backend/subscription_flow.dart';
 import '../backend/scan_flow.dart';
 import '../backend/catalog_draft.dart';
 import '../backend/hold_flow.dart';
@@ -161,6 +162,26 @@ Widget hTap(
     behavior: HitTestBehavior.opaque,
     onTap: () {
       final route = ModalRoute.of(context)?.settings.name;
+      if ((route == 'PlanCheckout' && to == 'PlanPaid') ||
+          (route == 'sheet:Renew' && to == 'RenewPaid')) {
+        unawaited(
+          runBusy(
+            '$route0>$to',
+            () => subscriptionFlow.pay(context, renew: to == 'RenewPaid'),
+          ),
+        );
+        return;
+      }
+      if (to == 'Invoices' &&
+          {'Subscription', 'PlanPaid', 'RenewPaid'}.contains(route)) {
+        AppToast.show(context, '发票功能暂未开通，模拟支付不生成真实发票');
+        return;
+      }
+      if (route == 'PlanCheckout' && to == 'CouponSheet') {
+        AppToast.show(context, '暂无可用优惠券');
+        return;
+      }
+
       if (merchantApi.hasSession &&
           to == 'Services' &&
           route == 'ServiceEdit' &&
@@ -1714,6 +1735,31 @@ class _HSelHolderState extends State<HSelHolder> {
       }
       return;
     }
+    final subscriptionPage = ModalRoute.of(context)?.settings.name;
+    if ({'Plans', 'PlanCheckout', 'sheet:Renew'}.contains(subscriptionPage) &&
+        widget.groups.length == 1) {
+      _slotKey = 'sel:$subscriptionPage';
+      final slot = RegistrationDraft.claim(_slotKey, this);
+      if (slot == 0) {
+        final durations = subscriptionPage == 'sheet:Renew'
+            ? [1, 3, 12]
+            : [1, 12];
+        final ctrl = ctrls.first;
+        ctrl.selected
+          ..clear()
+          ..add(
+            durations
+                .indexOf(subscriptionFlow.months)
+                .clamp(0, durations.length - 1),
+          );
+        ctrl.addListener(() {
+          if (ctrl.selected.isNotEmpty) {
+            subscriptionFlow.duration(durations[ctrl.selected.first]);
+          }
+        });
+      }
+      return;
+    }
     // 筛选会员：卡种（多选）/ 储值余额 / 最近到店 / 次卡状态 / 车辆与项目
     if (merchantApi.hasSession &&
         ModalRoute.of(context)?.settings.name == 'sheet:MemberFilter' &&
@@ -2313,4 +2359,34 @@ Widget hSubscriptionFraction(String kind, Widget child) => ListenableBuilder(
       child,
     );
   },
+);
+
+Widget subscriptionText(String key, TextStyle style) => ListenableBuilder(
+  listenable: subscriptionFlow,
+  builder: (_, _) => key == 'resultId'
+      ? Flexible(
+          child: Text(
+            subscriptionFlow.text(key),
+            style: style,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        )
+      : Text(subscriptionFlow.text(key), style: style),
+);
+Widget subscriptionPlanCard(String plan, Widget child) => ListenableBuilder(
+  listenable: subscriptionFlow,
+  builder: (_, _) => GestureDetector(
+    onTap: () => subscriptionFlow.select(plan),
+    child: DecoratedBox(
+      position: DecorationPosition.foreground,
+      decoration: BoxDecoration(
+        border: subscriptionFlow.plan == plan
+            ? Border.all(color: C.primary, width: 2)
+            : null,
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: child,
+    ),
+  ),
 );
