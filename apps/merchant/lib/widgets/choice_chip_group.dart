@@ -24,6 +24,9 @@ class ChoiceChipGroup<T> extends StatelessWidget {
   final ValueChanged<T> onChanged;
   final ChipKind kind;
   final int columns;
+
+  /// 多行排列时行与行之间的间距（默认紧贴；商品编辑等设计稿里行距为 8）。
+  final double runSpacing;
   final String semanticLabel;
   const ChoiceChipGroup({
     super.key,
@@ -33,6 +36,7 @@ class ChoiceChipGroup<T> extends StatelessWidget {
     required this.kind,
     required this.semanticLabel,
     this.columns = 3,
+    this.runSpacing = 0,
   });
 
   @override
@@ -45,7 +49,7 @@ class ChoiceChipGroup<T> extends StatelessWidget {
         : kind == ChipKind.pill
         ? Wrap(
             spacing: 8,
-            runSpacing: 0,
+            runSpacing: runSpacing,
             children: [for (final item in items) _chip(context, item)],
           )
         : LayoutBuilder(

@@ -222,13 +222,8 @@ Widget hTap(
         return;
       }
       // 库存管理里还没有后端的页面（演示数据，见 docs/backend-integration.md）：保存 / 修改类动作不假装成功。
-      // TODO: 商品新增 / 编辑需要后端扩展单位、小数数量、保质期、分类、供应商；预警设置、分类管理、单据作废同理。
+      // TODO: 预警设置、分类管理、单据作废需要后端支持（商品新增 / 编辑已是真实页面，见 product_edit_live_page.dart）。
       final inventoryBlock = switch ((route, to)) {
-        ('ProductEdit', 'ProductDetail') =>
-          '商品保存暂未接通（库存后端还不支持单位、小数、保质期、分类和供应商）',
-        ('ProductEditExist', 'ProductDetail')
-            when !_hasConfirmLabel(child, '取消') =>
-          '商品修改暂未接通',
         ('StockAlertSettings', 'ProductList') => '库存预警设置暂未接通',
         ('CategoryManage', 'ProductList') => '商品分类管理暂未接通',
         ('sheet:ScanProductResult', 'ProductDetail') =>

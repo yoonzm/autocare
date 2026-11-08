@@ -24,6 +24,8 @@ HANDWRITTEN = {
     'Settings', 'Order', 'Appointments', 'AppointmentAdd', 'Services',
     'MemberAdd',  # 称呼 / 车身颜色 / 客户来源是手写单选控件，保存按钮直接接后端
     'ThemeSheet',
+    'ProductEdit',  # 新增 / 编辑商品：手写，保存走库存接口（见 lib/pages/product_edit_live_page.dart）
+    'ProductEditExist',
     'ProductList',  # 商品列表：手写，读真实库存（见 lib/pages/product_list_live_page.dart）
     'FindScanPlate', 'FindScanCode', 'ScanLicense', 'ScanPlate',  # 相机扫描页：手写  # 外观选择：手写，直接作用于全局主题
 }

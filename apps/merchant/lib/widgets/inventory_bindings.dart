@@ -1,3 +1,5 @@
+import '../pages/inventory_pickers.dart';
+import '../pages/product_edit_live_page.dart';
 import '../pages/inventory_record_templates.dart';
 
 import 'package:flutter/material.dart';
@@ -22,6 +24,20 @@ String inventoryId() {
 }
 
 String qty(num n) => n.toStringAsFixed(3).replaceFirst(RegExp(r'\.?0+$'), '');
+
+/// 设计稿的入库日期显示成「今天 10.31」；其他日期显示「10.31」，跨年显示「2025.10.31」。
+String dateLabel(String iso) {
+  final d = DateTime.tryParse(iso);
+  if (d == null) return iso;
+  final now = DateTime.now();
+  String two(int n) => n.toString().padLeft(2, '0');
+  final md = '${two(d.month)}.${two(d.day)}';
+  if (d.year == now.year && d.month == now.month && d.day == now.day) {
+    return '今天 $md';
+  }
+  return d.year == now.year ? md : '${d.year}.$md';
+}
+
 String money(num n) => '¥${n.toStringAsFixed(2)}';
 List<Map<String, dynamic>> maps(dynamic v) =>
     (v as List? ?? []).map((e) => Map<String, dynamic>.from(e as Map)).toList();
@@ -175,7 +191,7 @@ class InventoryController extends ChangeNotifier {
       '${mode == 'detail' ? detail['supplier'] : payload['supplier']}'.isEmpty
           ? '请输入供应商'
           : '${mode == 'detail' ? detail['supplier'] : payload['supplier']}',
-    '今天 10.31' => '${payload['date']}',
+    '今天 10.31' => dateLabel('${payload['date']}'),
     '¥120.00' => money(payload['freight'] as num? ?? 0),
     '沪A·8K29M 镀晶养护' => '${payload['workorder'] ?? '未关联'}',
     '老周' => '${payload['technician'] ?? '未指定'}',
@@ -341,6 +357,10 @@ class InventoryController extends ChangeNotifier {
                 AppToast.show(context, '扫码设备尚未接入，请手动添加商品');
                 return;
               }
+              if (mode == 'detail' && to == 'ProductEditExist') {
+                editProduct(context, detail);
+                return;
+              }
               if (mode == 'detail' && to != null) {
                 Navigator.of(context).push(
                   appSheetRoute<void>(
@@ -387,7 +407,24 @@ class InventoryController extends ChangeNotifier {
       );
       if (d != null) {
         payload['date'] = d.toIso8601String().substring(0, 10);
-        ctrl.set('${payload['date']}');
+        ctrl.set(dateLabel('${payload['date']}'));
+        changed();
+      }
+      return;
+    }
+    if (key == 'supplier' && mode == 'in') {
+      final name = await showSupplierPicker(
+        context,
+        suppliers: {
+          for (final p in products)
+            if ('${p['supplier'] ?? ''}'.trim().isNotEmpty)
+              '${p['supplier']}'.trim(),
+        }.toList(),
+        current: '${payload['supplier'] ?? ''}',
+      );
+      if (name != null) {
+        payload['supplier'] = name;
+        ctrl.set(name);
         changed();
       }
       return;
@@ -418,44 +455,14 @@ class InventoryController extends ChangeNotifier {
     },
   );
   Future<void> add(BuildContext context) async {
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
-      context: context,
-      isScrollControlled: true,
-      builder: (ctx) => SafeArea(
-        child: SizedBox(
-          height: MediaQuery.sizeOf(ctx).height * .65,
-          child: Column(
-            children: [
-              ListTile(
-                title: const Text('添加商品'),
-                trailing: TextButton(
-                  onPressed: () async {
-                    final p = await editProduct(ctx, null);
-                    if (p != null && ctx.mounted) Navigator.pop(ctx, p);
-                  },
-                  child: const Text('新增商品'),
-                ),
-              ),
-              Expanded(
-                child: ListView(
-                  children: [
-                    for (final p in products.where(
-                      (p) => !lines.any((l) => l['id'] == p['id']),
-                    ))
-                      ListTile(
-                        title: Text('${p['name']}'),
-                        subtitle: Text('${p['stock']} ${p['unit']}'),
-                        onTap: () => Navigator.pop(ctx, p),
-                      ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+    final picked = await showProductPicker(
+      context,
+      products: products,
+      excluded: {for (final l in lines) l['id']},
+      onCreate: () => editProduct(context, null),
     );
-    if (result != null) {
+    if (picked == null || picked.isEmpty) return;
+    for (final result in picked) {
       if (!products.any((p) => p['id'] == result['id'])) products.add(result);
       lines.add({
         'id': result['id'],
@@ -463,8 +470,8 @@ class InventoryController extends ChangeNotifier {
         'cost': result['cost'],
         'version': result['version'],
       });
-      changed();
     }
+    changed();
   }
 
   void remove(Map<String, dynamic> line) {
@@ -762,116 +769,13 @@ Future<String?> inputDialog(
   return result;
 }
 
+/// 新增 / 编辑商品：设计稿的整页（ProductEdit / ProductEditExist），保存成功后返回商品。
 Future<Map<String, dynamic>?> editProduct(
   BuildContext context,
   Map<String, dynamic>? original,
-) => showModalBottomSheet<Map<String, dynamic>>(
-  context: context,
-  isScrollControlled: true,
-  builder: (_) => InventoryProductEditor(original: original),
+) => Navigator.of(context).push<Map<String, dynamic>>(
+  MaterialPageRoute(builder: (_) => ProductEditLivePage(product: original)),
 );
-
-class InventoryProductEditor extends StatefulWidget {
-  final Map<String, dynamic>? original;
-  const InventoryProductEditor({super.key, this.original});
-  @override
-  State<InventoryProductEditor> createState() => _ProductEditorState();
-}
-
-class _ProductEditorState extends State<InventoryProductEditor> {
-  late final Map<String, dynamic> fields = {
-    'id': inventoryId(),
-    'name': '',
-    'unit': '',
-    'category': '洗护',
-    'safe': 0,
-    'cost': 0,
-    'sku': '',
-    'specification': '',
-    'location': '',
-    'supplier': '',
-    ...?widget.original,
-  };
-  bool busy = false;
-  @override
-  Widget build(BuildContext context) => SafeArea(
-    child: Padding(
-      padding: EdgeInsets.fromLTRB(
-        20,
-        20,
-        20,
-        MediaQuery.viewInsetsOf(context).bottom + 20,
-      ),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              widget.original == null ? '新增商品' : '商品资料',
-              style: ts(18, w: FontWeight.w600),
-            ),
-            for (final e in {
-              'name': '商品名称',
-              'unit': '单位',
-              'sku': 'SKU',
-              'specification': '规格',
-              'location': '货位',
-              'supplier': '供应商',
-              'safe': '安全库存',
-              'cost': '成本单价',
-            }.entries)
-              if (e.key != 'cost' || widget.original == null)
-                TextFormField(
-                  enabled: !busy,
-                  initialValue: '${fields[e.key]}',
-                  decoration: InputDecoration(
-                    labelText: e.value,
-                    hintText: '请输入${e.value}',
-                  ),
-                  keyboardType: ['safe', 'cost'].contains(e.key)
-                      ? const TextInputType.numberWithOptions(decimal: true)
-                      : TextInputType.text,
-                  onChanged: (v) => fields[e.key] =
-                      ['safe', 'cost'].contains(e.key) ? num.tryParse(v) : v,
-                ),
-            DropdownButtonFormField<String>(
-              initialValue: fields['category'] as String,
-              items: [
-                for (final v in ['洗护', '镀晶', '贴膜', '配件'])
-                  DropdownMenuItem(value: v, child: Text(v)),
-              ],
-              onChanged: busy ? null : (v) => fields['category'] = v,
-            ),
-            const SizedBox(height: 16),
-            LoadingButton(
-              label: '保存',
-              onPressed: () async {
-                setState(() => busy = true);
-                try {
-                  final r = await merchantApi.invoke({
-                    ...fields,
-                    'action': widget.original == null
-                        ? 'inventory_create'
-                        : 'inventory_update',
-                  });
-                  inventoryChanged.value++;
-                  if (context.mounted) {
-                    Navigator.pop(
-                      context,
-                      Map<String, dynamic>.from(r['item'] as Map),
-                    );
-                  }
-                } finally {
-                  if (mounted) setState(() => busy = false);
-                }
-              },
-            ),
-          ],
-        ),
-      ),
-    ),
-  );
-}
 
 class InventoryInput extends StatelessWidget {
   final InventoryController c;

@@ -32,6 +32,7 @@ import 'pages/member_add_page.dart';
 import 'pages/member_records_live_page.dart';
 import 'pages/order_page.dart';
 import 'pages/order_live_pages.dart';
+import 'pages/product_edit_live_page.dart';
 import 'pages/product_list_live_page.dart';
 import 'pages/store_switch_live_sheet.dart';
 import 'pages/package_svc_pick_live.dart';
@@ -92,6 +93,8 @@ Widget? pageFor(String name) {
       return SubscriptionLiveHost(name);
     case 'ProductList':
       return const ProductListLivePage();
+    case 'ProductEdit':
+      return const ProductEditLivePage();
     // TODO: 微信支付开通（进件）依赖服务商接口，目前没有开通能力，支付与收款的真实状态就是“未开通”，
     // 所以这里显示设计稿的“未开通”状态；已开通状态（PayConfig）等进件接通后再按真实状态切换。
     case 'PayConfig':

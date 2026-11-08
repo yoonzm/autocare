@@ -2,8 +2,6 @@
 import 'package:flutter/widgets.dart';
 
 import 'category_manage_page.dart';
-import 'product_edit_exist_page.dart';
-import 'product_edit_page.dart';
 import 'product_picker_sheet.dart';
 import 'scan_product_not_found_sheet.dart';
 import 'scan_product_page.dart';
@@ -165,8 +163,6 @@ import 'recharge_empty_card_page.dart';
 
 final Map<String, WidgetBuilder> genRoutes = {
   'CategoryManage': (_) => const CategoryManagePage(),
-  'ProductEditExist': (_) => const ProductEditExistPage(),
-  'ProductEdit': (_) => const ProductEditPage(),
   'ScanProduct': (_) => const ScanProductPage(),
   'StockAlertSettings': (_) => const StockAlertSettingsPage(),
   'StockCheckNew': (_) => const StockCheckNewPage(),

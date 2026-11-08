@@ -147,8 +147,6 @@ void main() {
 
   testWidgets('库存新页面都已登记：商品编辑、分类、预警、单据、详情、盘点和扫码结果', (t) async {
     for (final n in [
-      'ProductEdit',
-      'ProductEditExist',
       'CategoryManage',
       'StockAlertSettings',
       'SupplierEdit',
@@ -163,6 +161,8 @@ void main() {
     ]) {
       expect(genRoutes.containsKey(n), isTrue, reason: n);
     }
+    // 新增 / 编辑商品是手写的真实页面（test/product_edit_test.dart）。
+    expect(pageFor('ProductEdit'), isNotNull);
     for (final n in [
       'ProductPicker',
       'SupplierPicker',
@@ -186,15 +186,6 @@ void main() {
     ]) {
       expect(genRoutes.containsKey(n), isFalse, reason: n);
     }
-  });
-
-  testWidgets('新增商品保存：后端还不支持，明确提示，不跳到商品详情冒充成功', (t) async {
-    await openRoute_(t, 'ProductEdit');
-    await t.tap(find.text('保存').first);
-    await t.pump();
-    expect(find.textContaining('商品保存暂未接通'), findsWidgets);
-    expect(navTracker.has('ProductDetail'), isFalse);
-    await t.pump(const Duration(seconds: 6));
   });
 
   testWidgets('库存单据三个页签是同一个页面：点出库单 / 盘点单切换，不叠新页', (t) async {
