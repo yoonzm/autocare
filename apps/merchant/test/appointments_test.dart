@@ -165,8 +165,8 @@ class BookingApi extends MemberFakeApi {
     'rows': range == 'last'
         ? []
         : [
-            {'appointment_id': 'a1', 'plate': '沪A12345', 'status': 'arrived', 'service': '真实洗车', 'at': '2026-11-08T03:20:00Z', 'commission': null},
-            {'appointment_id': 'a2', 'plate': '沪AF09316', 'status': 'done', 'service': '漆面抛光', 'at': '2026-11-07T07:40:00Z', 'commission': 60},
+            {'appointment_id': 'a1', 'plate': '沪A12345', 'status': 'arrived', 'service': '真实洗车', 'at': DateTime.now().toUtc().toIso8601String(), 'commission': null},
+            {'appointment_id': 'a2', 'plate': '沪AF09316', 'status': 'done', 'service': '漆面抛光', 'at': DateTime.now().toUtc().subtract(const Duration(days: 1)).toIso8601String(), 'commission': 60},
           ],
   };
 
