@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 
 import '../backend/appointment_flow.dart';
 import '../backend/merchant_api.dart';
+import '../backend/staff_flow.dart';
+import '../routes.dart' show openRoute;
+import 'staff_invite_template.dart';
 import '../kit/async_kit.dart';
 import '../kit/sheet_route.dart';
 import '../widgets/booking_template_bindings.dart';
@@ -75,11 +78,13 @@ class _HostState extends State<BookingLiveHost> {
   void initState() {
     super.initState();
     if (listing) AppointmentFlow.changed.addListener(_reload);
+    if (widget.mode == 'staff_list') StaffFlow.changed.addListener(_reload);
   }
 
   @override
   void dispose() {
     AppointmentFlow.changed.removeListener(_reload);
+    StaffFlow.changed.removeListener(_reload);
     c?.dispose();
     super.dispose();
   }
@@ -89,6 +94,18 @@ class _HostState extends State<BookingLiveHost> {
   void _bind(Map<String, dynamic> data) {
     c ??= BookingTemplateController(data, widget.mode, widget.row);
     c!.options.addAll(data);
+    if (widget.mode == 'staff') {
+      c!.onAdded = (context) => Navigator.of(context).pushReplacement(
+        appSheetRoute<void>(
+          settings: const RouteSettings(name: 'StaffInvite'),
+          page: const StaffInviteLivePage(),
+        ),
+      );
+      c!.onDisable = (context) {
+        StaffFlow.currentId = widget.row?['id'] as String?;
+        openRoute(context, 'DisableStaff');
+      };
+    }
     c!.onEdit = (context, row) {
       final bay = widget.mode == 'business';
       final editor = BookingResourceEditor(
@@ -149,7 +166,9 @@ class _HostState extends State<BookingLiveHost> {
   Widget _asyncBuild(BuildContext context) => Scaffold(
     body: AsyncView<Map<String, dynamic>>(
       key: _key,
-      load: () => merchantApi.appointment('options'),
+      load: () => widget.mode == 'staff' || widget.mode == 'staff_list'
+          ? merchantApi.staff('list')
+          : merchantApi.appointment('options'),
       isEmpty: (_) => false,
       skeletonPadding: EdgeInsets.zero,
       waiting: widget.mode == 'settings'

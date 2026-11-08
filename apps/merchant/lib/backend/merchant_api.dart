@@ -90,6 +90,9 @@ class MerchantApi {
     'appointment_options',
     'appointment_slots',
     'appointment_summary',
+    'staff_list',
+    'staff_get',
+    'staff_records',
     'home_stats',
     'settings_stats',
     'list_stores',
@@ -282,6 +285,16 @@ class MerchantApi {
     Map<String, dynamic> values = const {},
   ]) async {
     final data = await invoke({...values, 'action': 'appointment_$action'});
+    return Map<String, dynamic>.from(data['item'] as Map);
+  }
+
+  /// 员工管理：list / get / records 读取；save / status / commission_save / permissions_save / invite 写入。
+  /// 权限、角色、提成、状态变更都在云函数与数据库事务中校验，客户端只提交输入。
+  Future<Map<String, dynamic>> staff(
+    String action, [
+    Map<String, dynamic> values = const {},
+  ]) async {
+    final data = await invoke({...values, 'action': 'staff_$action'});
     return Map<String, dynamic>.from(data['item'] as Map);
   }
 

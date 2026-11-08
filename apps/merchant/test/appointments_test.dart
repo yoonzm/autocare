@@ -96,6 +96,151 @@ class BookingApi extends MemberFakeApi {
       'active': true,
     });
   }
+  /// 员工管理：一位营业中的技师、一位待激活的前台，和本店服务项目 / 工位。
+  final staffRows = <Map<String, dynamic>>[
+    {
+      'id': 't1',
+      'role': 'technician',
+      'name': '真实技师',
+      'phone': '13912345678',
+      'skills': '洗车',
+      'status': 'active',
+      'busy': false,
+      'bay_id': null,
+      'bay_name': null,
+      'joined_on': '2026-01-01',
+      'month_orders': 2,
+      'month_commission': 96,
+      'total_orders': 5,
+      'total_commission': 240,
+      'commission_mode': 'follow',
+      'commission_rate': 0,
+      'invite': null,
+      'resource_id': 'r1',
+    },
+    {
+      'id': 'c1',
+      'role': 'cashier',
+      'name': '真实前台',
+      'phone': '13812345678',
+      'skills': '',
+      'status': 'pending',
+      'joined_on': '2026-02-01',
+      'month_orders': 0,
+      'invite': {'expired': false},
+    },
+    {
+      'id': 'x1',
+      'role': 'technician',
+      'name': '已离职技师',
+      'phone': '13712345678',
+      'skills': '洗车',
+      'status': 'disabled',
+      'joined_on': '2025-06-01',
+      'disabled_at': '2026-10-18T04:00:00Z',
+      'disabled_by': '店主',
+      'disable_reason': '已离职',
+      'total_orders': 1206,
+      'total_commission': 42380,
+      'commission_mode': 'follow',
+      'commission_rate': 0,
+    },
+  ];
+  Map<String, dynamic> permissions = {
+    'manager': {for (final k in _permKeys) k: true},
+    'cashier': {
+      for (final k in _permKeys) k: ['order_view_all', 'cashier', 'member_view', 'stock_use'].contains(k),
+    },
+    'technician': {
+      for (final k in _permKeys) k: ['order_view_own', 'progress_update', 'member_view', 'stock_use', 'perf_view_own'].contains(k),
+    },
+  };
+  static const _permKeys = [
+    'order_view_own', 'order_view_all', 'progress_update', 'cashier', 'member_view',
+    'member_recharge_refund', 'stock_use', 'stock_manage', 'perf_view_own', 'stats_view_store',
+  ];
+  List<Map<String, dynamic>> openWork = [];
+  Map<String, dynamic> recordsFor(String range) => {
+    'summary': {'orders': range == 'last' ? 0 : 2, 'commission': range == 'last' ? 0 : 96, 'avg_hours': range == 'last' ? null : 1.8},
+    'rows': range == 'last'
+        ? []
+        : [
+            {'appointment_id': 'a1', 'plate': '沪A12345', 'status': 'arrived', 'service': '真实洗车', 'at': '2026-11-08T03:20:00Z', 'commission': null},
+            {'appointment_id': 'a2', 'plate': '沪AF09316', 'status': 'done', 'service': '漆面抛光', 'at': '2026-11-07T07:40:00Z', 'commission': 60},
+          ],
+  };
+
+  @override
+  Future<Map<String, dynamic>> staff(
+    String action, [
+    Map<String, dynamic> values = const {},
+  ]) async {
+    calls.add({'action': 'staff_$action', ...values});
+    if (action == 'list') {
+      await optionsGate?.future;
+      if (readError != null) throw readError!;
+      return {
+        'staff': [for (final r in staffRows) {...r}],
+        'permissions': permissions,
+        'services': [
+          {'id': 's1', 'name': '真实洗车', 'commission_type': 'percent', 'commission_value': 8},
+          {'id': 's2', 'name': '漆面抛光', 'commission_type': 'fixed', 'commission_value': 60},
+        ],
+        'bays': [
+          {'id': 'b1', 'name': '真实工位'},
+        ],
+      };
+    }
+    if (action == 'get') {
+      if (readError != null) throw readError!;
+      final row = staffRows.firstWhere((r) => r['id'] == values['id']);
+      return {
+        ...row,
+        'open_work': openWork,
+        'recent': recordsFor('month')['rows'],
+        'last_month_commission': 8640,
+        'services': [
+          {'id': 's1', 'name': '真实洗车', 'commission_type': 'percent', 'commission_value': 8},
+          {'id': 's2', 'name': '漆面抛光', 'commission_type': 'fixed', 'commission_value': 60},
+        ],
+      };
+    }
+    if (action == 'records') {
+      if (readError != null) throw readError!;
+      return recordsFor('${values['range']}');
+    }
+    await gate?.future;
+    if (writeError != null) throw writeError!;
+    if (action == 'save') {
+      final row = {
+        ...values,
+        'id': values['id'] ?? 'new-staff',
+        'status': values['id'] == null ? 'pending' : 'active',
+        'invite': null,
+      };
+      staffRows.removeWhere((r) => r['id'] == row['id']);
+      staffRows.add(row);
+      return row;
+    }
+    if (action == 'status') {
+      final row = staffRows.firstWhere((r) => r['id'] == values['id']);
+      row['status'] = values['status'] == 'disabled' ? 'disabled' : 'active';
+      return {...row};
+    }
+    if (action == 'commission_save') {
+      return {...staffRows.firstWhere((r) => r['id'] == values['id'])};
+    }
+    if (action == 'permissions_save') {
+      (permissions[values['role']] as Map).addAll(Map<String, dynamic>.from(values['permissions'] as Map));
+      return permissions;
+    }
+    if (action == 'invite') {
+      if (values['via'] == 'sms') throw const AppError('短信邀请尚未接通：缺少助通邀请短信模板');
+      return {'expires_at': '2026-11-15T00:00:00Z', 'link': 'https://staff.example.com/?invite=abc'};
+    }
+    throw UnsupportedError(action);
+  }
+
   @override
   Future<Map<String, dynamic>> appointment(
     String action, [

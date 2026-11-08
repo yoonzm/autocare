@@ -75,17 +75,16 @@ void main() {
     expect(find.textContaining('真实技师'), findsOneWidget);
   });
 
-  testWidgets('从列表进入新增 / 编辑员工：直接显示表单，不再整页等待或出骨架', (t) async {
+  testWidgets('从列表进入新增员工表单：直接显示，不再整页等待或出骨架', (t) async {
     await open(t, const BookingResourcesPage(kind: 'technician'));
-    final before = api.calls.where((c) => c['action'] == 'options').length;
-    api.optionsGate = Completer<void>(); // 即使再读选项被卡住，也不影响编辑页
-    await t.tap(find.textContaining('真实技师'));
+    final before = api.calls.where((c) => c['action'] == 'staff_list').length;
+    api.optionsGate = Completer<void>(); // 即使再读员工列表被卡住，也不影响新增页
+    await t.tap(find.byType(GestureDetector).at(1));
     await t.pump();
     await t.pump(const Duration(milliseconds: 400));
     expect(find.byType(ResourceSkeleton), findsNothing);
-    expect(find.text('编辑员工'), findsOneWidget);
-    expect(find.textContaining('真实技师'), findsWidgets);
-    expect(api.calls.where((c) => c['action'] == 'options').length, before);
+    expect(find.text('新增员工'), findsOneWidget);
+    expect(api.calls.where((c) => c['action'] == 'staff_list').length, before);
     api.optionsGate!.complete();
     await t.pumpAndSettle();
   });

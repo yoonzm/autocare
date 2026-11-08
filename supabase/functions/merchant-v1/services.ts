@@ -1,4 +1,5 @@
 import { admin, fail, json, nameOf, uuid } from './shared.ts';
+import { parseServiceCommission } from './staff_rules.ts';
 import type { Input, ServiceItemRow } from './types.ts';
 
 export async function handleServices(input: Input, storeId: string): Promise<Response> {
@@ -15,10 +16,13 @@ export async function handleServices(input: Input, storeId: string): Promise<Res
     const duration = input.duration_minutes == null ? null : Number(input.duration_minutes);
     if (duration != null && (!Number.isInteger(duration) || duration < 15 || duration > 720)) return fail('标准工时须为 15–720 分钟');
     if (input.id != null && !uuid(input.id)) return fail('记录 ID 无效');
+    const commission = parseServiceCommission(input);
+    if (typeof commission === 'string') return fail(commission);
     const values = {
       name, price, category: nameOf(input.category) || '其他',
       description: nameOf(input.description),
       ...(duration == null ? {} : { duration_minutes: duration }),
+      ...commission,
     };
     const query = input.id == null
       ? admin.from('service_items').insert({ ...values, store_id: storeId })

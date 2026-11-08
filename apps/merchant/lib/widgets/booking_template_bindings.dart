@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../backend/appointment_flow.dart';
+import '../backend/staff_flow.dart';
 import '../backend/merchant_api.dart';
 import '../kit/async_kit.dart';
 import '../kit/kit.dart' show SelCtrl, ValCtrl, HSwitchValue, hConfirm, dk;
@@ -25,8 +26,13 @@ class BookingTemplateController extends ChangeNotifier {
     'position': 0,
     'linked_id': null,
     'joined_on': bookingDay(bookingToday),
+    if (isStaff) 'role': 'technician',
     ...?_initial,
+    // 员工的擅长项目 / 固定工位沿用表单控件原有的草稿键
+    if (isStaff) 'category': '${_initial?['skills'] ?? ''}',
+    if (isStaff) 'linked_id': _initial?['bay_id'],
   };
+  bool get isStaff => mode == 'staff' || mode == 'staff_list';
   final Map<String, dynamic>? _initial;
   int filter = 0;
   bool showInactive = false;
@@ -59,18 +65,45 @@ class BookingTemplateController extends ChangeNotifier {
   }
 
   BookingTemplateController(this.options, this.mode, [this._initial]);
-  List<Map<String, dynamic>> get resources =>
-      List<Map<String, dynamic>>.from(options['resources'] as List);
-  List<Map<String, dynamic>> get rows => resources
-      .where((r) => r['kind'] == (mode == 'business' ? 'bay' : 'technician'))
-      .toList();
+  List<Map<String, dynamic>> get resources => isStaff
+      ? [
+          for (final b in (options['bays'] as List? ?? const []))
+            {...Map<String, dynamic>.from(b as Map), 'kind': 'bay', 'active': true},
+        ]
+      : List<Map<String, dynamic>>.from(options['resources'] as List);
+  static const _roleFilter = [null, 'manager', 'cashier', 'technician'];
+  List<Map<String, dynamic>> get staffRows => [
+    for (final r in (options['staff'] as List? ?? const []))
+      Map<String, dynamic>.from(r as Map),
+  ];
+  bool _inFilter(Map<String, dynamic> r) =>
+      _roleFilter[filter] == null || r['role'] == _roleFilter[filter];
+
+  /// 页签上的人数：不含已停用；0 全部，1 店长，2 前台收银，3 施工技师。
+  int count(int tab) => staffRows
+      .where(
+        (r) =>
+            r['status'] != 'disabled' &&
+            (_roleFilter[tab] == null || r['role'] == _roleFilter[tab]),
+      )
+      .length;
+  List<Map<String, dynamic>> get rows => isStaff
+      ? staffRows
+      : resources
+            .where(
+              (r) => r['kind'] == (mode == 'business' ? 'bay' : 'technician'),
+            )
+            .toList();
   List<Map<String, dynamic>> get activeStaff =>
-      rows.where((r) => r['active'] == true).toList();
-  List<Map<String, dynamic>> get inactiveStaff => filter == 1 || filter == 2
-      ? []
-      : rows.where((r) => r['active'] != true).toList();
+      rows.where((r) => r['status'] != 'disabled').toList();
+  List<Map<String, dynamic>> get inactiveStaff =>
+      rows.where((r) => r['status'] == 'disabled' && _inFilter(r)).toList();
   List<Map<String, dynamic>> get visibleStaff =>
-      filter == 1 || filter == 2 ? [] : activeStaff;
+      rows.where((r) => r['status'] != 'disabled' && _inFilter(r)).toList();
+
+  /// 本店保存的技师权限开关（员工与权限页「技师可以」）。
+  bool technicianCan(String key) =>
+      ((options['permissions'] as Map?)?['technician'] as Map?)?[key] == true;
   List<Map<String, dynamic>> get bays => resources
       .where(
         (r) =>
@@ -101,6 +134,36 @@ class BookingTemplateController extends ChangeNotifier {
     activeButton = button;
     notifyListeners();
     final messenger = ScaffoldMessenger.of(context);
+    if (mode == 'staff') {
+      try {
+        final saved = await StaffFlow.save({
+          'id': draft['id'],
+          'name': '${draft['name']}'.trim(),
+          'phone': '${draft['phone']}'.trim(),
+          'role': draft['role'],
+          'skills': '${draft['category']}',
+          'bay_id': draft['linked_id'],
+          'joined_on': '${draft['joined_on']}',
+        });
+        AppointmentFlow.notify();
+        dirty = false;
+        if (!context.mounted) return;
+        if (_initial == null) {
+          // 新增成功：进入邀请页（设计稿 StaffAdd → StaffInvite）
+          StaffFlow.invited = saved;
+          onAdded?.call(context);
+        } else {
+          AppToast.showOn(messenger, '已保存', kind: ToastKind.success);
+          Navigator.of(context).pop();
+        }
+      } catch (e) {
+        if (context.mounted) AppToast.error(context, e);
+      } finally {
+        busy = false;
+        notifyListeners();
+      }
+      return;
+    }
     try {
       await Future.wait([
         mode == 'reschedule'
@@ -154,6 +217,11 @@ class BookingTemplateController extends ChangeNotifier {
     if (ok && context.mounted) Navigator.of(context).pop();
   }
 
+  /// 新增员工保存成功后由路由层打开邀请页。
+  void Function(BuildContext)? onAdded;
+
+  /// 编辑页「停用账号」：由路由层打开停用确认弹层。
+  void Function(BuildContext)? onDisable;
   void editResource(BuildContext context, Map<String, dynamic>? row) {
     // 编辑器的构造由路由层注入，避免模板依赖页面实现。
     onEdit?.call(context, row);
@@ -162,6 +230,10 @@ class BookingTemplateController extends ChangeNotifier {
   void Function(BuildContext, Map<String, dynamic>?)? onEdit;
   Future<void> toggleActive(BuildContext context) async {
     if (busy) return;
+    if (mode == 'staff') {
+      onDisable?.call(context);
+      return;
+    }
     if (draft['id'] == null) {
       AppToast.show(context, '请先保存工位资料');
       return;
@@ -307,6 +379,7 @@ class BookingSelections extends StatefulWidget {
 class _SelectionsState extends State<BookingSelections> {
   static const skills = ['洗车', '内饰清洁', '镀晶', '抛光', '贴膜', '石墨烯镀膜', '空调杀菌'];
   static const cats = ['洗车', '美容', '贴膜'];
+  static const _roles = ['manager', 'cashier', 'technician'];
   late final SelCtrl ctrl = SelCtrl(_initial(), widget.groups.first.$2)
     ..addListener(_change);
   Set<int> _initial() {
@@ -323,7 +396,9 @@ class _SelectionsState extends State<BookingSelections> {
           if (!(c.settings['closed_days'] as List).contains(i + 1)) i,
       },
       'staff_filter' => {c.filter},
-      'staff_role' => {2},
+      'staff_role' => {
+        _roles.indexOf('${c.draft['role']}').clamp(0, 2),
+      },
       'staff_skills' => {
         for (var i = 0; i < skills.length; i++)
           if ('${c.draft['category']}'.split(' / ').contains(skills[i])) i,
@@ -362,12 +437,9 @@ class _SelectionsState extends State<BookingSelections> {
             ? null
             : c.bays[selected.first - 1]['id'];
       case 'staff_role':
-        selected
-          ..clear()
-          ..add(2);
-        c.deferred(context);
+        c.draft['role'] = _roles[selected.first];
     }
-    if (widget.field == 'staff_filter' || widget.field == 'staff_role') {
+    if (widget.field == 'staff_filter') {
       c.changed();
     } else {
       c.edited();
