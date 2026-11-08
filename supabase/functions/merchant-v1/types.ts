@@ -124,6 +124,7 @@ export type MerchantAction = AuthAction | CatalogAction;
 export type Input = Record<string, unknown>;
 
 export type ApiResponse =
+  | { technicians: { id: string; name: string }[]; orders: { id: string; vehicle_plate: string; created_at: string; label: string }[] }
   | { id: string }
   | { version: string; unchanged: true }
   | { version: string; items: import('./region_rules.ts').Region[] }

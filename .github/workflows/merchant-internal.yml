@@ -100,6 +100,7 @@ jobs:
           flutter pub get
           flutter analyze
           flutter test
+          python3 -m unittest discover -s scripts -p 'test_*.py'
 
   ios:
     needs: [changes, validate]
@@ -271,6 +272,16 @@ jobs:
       - name: Resolve Flutter dependencies
         run: |
           flutter pub get
+
+      - name: Cache verified Gradle distribution
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/merchant-gradle
+          key: merchant-gradle-${{ runner.os }}-${{ hashFiles('apps/merchant/android/gradle/wrapper/gradle-wrapper.properties') }}
+
+      - name: Prepare verified Gradle distribution with retries
+        timeout-minutes: 10
+        run: python3 scripts/prepare-gradle.py android/gradle/wrapper/gradle-wrapper.properties "$RUNNER_TEMP/merchant-gradle"
 
       - name: Build release APK
         run: |
