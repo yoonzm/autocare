@@ -24,7 +24,16 @@ class StaffFlow {
   /// 角色权限页默认打开的角色：cashier / technician。
   static String permissionRole = 'technician';
 
+  /// 从「角色下无员工」点「添加店长」等进入新增页时，预选该角色（只用一次）。
+  static String? presetRole;
+  static String? takePresetRole() {
+    final r = presetRole;
+    presetRole = null;
+    return r;
+  }
+
   static void reset() {
+    presetRole = null;
     currentId = null;
     invited = null;
     transferTo = null;

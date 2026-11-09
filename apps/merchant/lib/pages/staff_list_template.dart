@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 
 import '../kit/kit.dart';
-import '../kit/async_kit.dart';
 import '../backend/staff_flow.dart';
 import '../routes.dart' show openRoute;
 import '../widgets/booking_template_bindings.dart';
@@ -703,7 +702,7 @@ class StaffListTemplate extends StatelessWidget {
                     ),
                   ),
                 ),
-                hbox(
+                c.visibleStaff.isEmpty ? _emptyRoleCard(context, c) : hbox(
                   bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
                   radius: BorderRadius.circular(24),
                   shadow: dk(
@@ -740,16 +739,6 @@ class StaffListTemplate extends StatelessWidget {
                   pad: EdgeInsets.fromLTRB(0, 4, 0, 4),
                   child: hcol(
                     [
-                      if (c.visibleStaff.isEmpty)
-                        EmptyView(
-                          title: c.filter == 1 || c.filter == 2
-                              ? '当前角色没有员工'
-                              : c.filter == 3
-                              ? '还没有技师'
-                              : '还没有员工',
-                          message: '点击右上角添加员工',
-                          inline: true,
-                        ),
                       for (var i = 0; i < c.visibleStaff.length; i++) ...[
                         if (i > 0) _staffDivider(context),
                         _staffRow(context, c, c.visibleStaff[i], i),
@@ -760,7 +749,7 @@ class StaffListTemplate extends StatelessWidget {
                     gap: 0,
                   ),
                 ),
-                hTap(
+                if (c.inactiveStaff.isNotEmpty) hTap(
                   context,
                   hbox(
                     h: 56,
@@ -844,7 +833,7 @@ class StaffListTemplate extends StatelessWidget {
                       _staffRow(context, c, c.inactiveStaff[i], i, off: true),
                     ],
                   ]),
-                hbox(
+                if (c.filter != 0) hbox(
                   bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
                   radius: BorderRadius.circular(24),
                   shadow: dk(
@@ -886,7 +875,7 @@ class StaffListTemplate extends StatelessWidget {
                           Expanded(
                             flex: 1,
                             child: Text(
-                              '技师可以',
+                              '${_roleCanTitle(c.roleKey)}可以',
                               style: hts(
                                 15,
                                 dk(
@@ -915,7 +904,7 @@ class StaffListTemplate extends StatelessWidget {
                               ),
                             ),
                             onTap: () {
-                              StaffFlow.permissionRole = 'technician';
+                              StaffFlow.permissionRole = c.roleKey;
                               openRoute(context, 'RolePermission');
                             },
                           ),
@@ -924,7 +913,7 @@ class StaffListTemplate extends StatelessWidget {
                         cross: CrossAxisAlignment.center,
                         gap: 0,
                       ),
-                      _permissionGrid(context, c),
+                      _permissionGrid(context, c, c.roleKey),
                     ],
                     main: MainAxisAlignment.start,
                     cross: CrossAxisAlignment.stretch,
@@ -1145,17 +1134,31 @@ Widget _staffRow(
 }
 
 /// 技师权限：来自本店保存的角色权限（设计稿 Staff「技师可以」）。
-Widget _permissionGrid(BuildContext context, BookingTemplateController c) {
-  const items = <(String, String)>[
-    ('order_view_own', '查看派给我的工单'),
-    ('progress_update', '更新施工进度'),
-    ('stock_use', '领用耗材'),
-    ('perf_view_own', '查看个人业绩'),
-    ('stats_view_store', '查看门店营业额'),
-    ('member_recharge_refund', '会员充值与退款'),
-  ];
+Widget _permissionGrid(
+  BuildContext context,
+  BookingTemplateController c,
+  String role,
+) {
+  // 技师沿用设计稿 Staff；店长 / 前台收银用设计稿 StaffEmptyRole 的六项
+  final items = role == 'technician'
+      ? const <(String, String)>[
+          ('order_view_own', '查看派给我的工单'),
+          ('progress_update', '更新施工进度'),
+          ('stock_use', '领用耗材'),
+          ('perf_view_own', '查看个人业绩'),
+          ('stats_view_store', '查看门店营业额'),
+          ('member_recharge_refund', '会员充值与退款'),
+        ]
+      : const <(String, String)>[
+          ('order_view_all', '查看全店工单'),
+          ('cashier', '开单收银'),
+          ('member_view', '查看会员资料'),
+          ('member_recharge_refund', '会员充值与退款'),
+          ('stock_manage', '入库与盘点'),
+          ('stats_view_store', '查看门店营业统计'),
+        ];
   Widget cell(String key, String label) {
-    final on = c.technicianCan(key);
+    final on = c.roleCan(role, key);
     return Expanded(
       flex: 1,
       child: hrow(
@@ -1224,3 +1227,104 @@ Widget _permissionGrid(BuildContext context, BookingTemplateController c) {
     gap: 10,
   );
 }
+
+/// 设计稿 StaffEmptyRole：某个角色下没有员工时，列表卡片里只放一行说明 + 文字入口，保留页签栏。
+Widget _emptyRoleCard(BuildContext context, BookingTemplateController c) {
+  final role = StaffFlow.roleName(c.roleKey);
+  final all = c.filter == 0;
+  return hbox(
+    minH: 64,
+    bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+    radius: BorderRadius.circular(24),
+    shadow: dk(
+      context,
+      [
+        BoxShadow(
+          color: Color.fromRGBO(0, 0, 0, 0.06),
+          offset: Offset(0, 0),
+          blurRadius: 1,
+          spreadRadius: 0,
+        ),
+        BoxShadow(
+          color: Color.fromRGBO(0, 0, 0, 0.06),
+          offset: Offset(0, 1),
+          blurRadius: 2,
+          spreadRadius: 0,
+        ),
+        BoxShadow(
+          color: Color.fromRGBO(0, 0, 0, 0.04),
+          offset: Offset(0, 2),
+          blurRadius: 4,
+          spreadRadius: 0,
+        ),
+      ],
+      [
+        BoxShadow(
+          color: Color(0xFF26262B),
+          offset: Offset(0, 0),
+          blurRadius: 0,
+          spreadRadius: 1,
+        ),
+      ],
+    ),
+    pad: EdgeInsets.fromLTRB(16, 8, 16, 8),
+    child: hrow(
+      [
+        Expanded(
+          flex: 1,
+          child: hcol(
+            [
+              Text(
+                all ? '还没有员工' : '$role下还没有员工',
+                style: hts(
+                  14,
+                  dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                  w: FontWeight.w500,
+                  lh: 20,
+                ),
+              ),
+              Text(
+                all ? '添加后可分配角色与权限' : '添加后自动拥有下方的$role权限',
+                style: hts(
+                  12,
+                  dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
+                  lh: 17,
+                ),
+              ),
+            ],
+            main: MainAxisAlignment.start,
+            cross: CrossAxisAlignment.stretch,
+            gap: 2,
+          ),
+        ),
+        hTap(
+          context,
+          hbox(
+            h: 44,
+            pad: EdgeInsets.fromLTRB(4, 0, 4, 0),
+            align: Alignment.center,
+            child: Text(
+              all ? '添加员工' : '添加$role',
+              style: hts(
+                13,
+                dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                w: FontWeight.w600,
+                lh: 18,
+              ),
+            ),
+          ),
+          onTap: () => c.addStaff(context),
+        ),
+      ],
+      main: MainAxisAlignment.start,
+      cross: CrossAxisAlignment.center,
+      gap: 12,
+    ),
+  );
+}
+
+String _roleCanTitle(String role) => switch (role) {
+  'manager' => '店长',
+  'cashier' => '前台收银',
+  _ => '技师',
+};

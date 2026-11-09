@@ -70,9 +70,41 @@ void main() {
     expect(text('本月 2 台次'), findsOneWidget);
     expect(text('已停用账号'), findsOneWidget);
     expect(text('1 人'), findsOneWidget);
-    // 技师权限来自后端保存的开关：同一份文字，开 / 关两种状态
+    // 「全部」页签没有单一角色，不显示「X 可以」
+    expect(find.textContaining('可以'), findsNothing);
+    await t.tap(text('施工技师 1'));
+    await t.pumpAndSettle();
+    // 技师权限来自后端保存的开关
+    expect(text('技师可以'), findsOneWidget);
     expect(text('查看派给我的工单'), findsOneWidget);
     expect(text('会员充值与退款'), findsOneWidget);
+  });
+
+  testWidgets('「X 可以」跟随所选页签：店长 / 前台收银 / 技师各自的权限', (t) async {
+    await open(t, const BookingResourcesPage(kind: 'technician'));
+    await t.tap(text('前台收银 1'));
+    await t.pumpAndSettle();
+    expect(text('前台收银可以'), findsOneWidget);
+    expect(text('开单收银'), findsOneWidget);
+    expect(text('入库与盘点'), findsOneWidget);
+    expect(text('查看派给我的工单'), findsNothing);
+    await t.tap(text('店长 0'));
+    await t.pumpAndSettle();
+    expect(text('店长可以'), findsOneWidget);
+    expect(text('查看全店工单'), findsOneWidget);
+    expect(text('查看门店营业统计'), findsOneWidget);
+    await t.tap(text('施工技师 1'));
+    await t.pumpAndSettle();
+    expect(text('技师可以'), findsOneWidget);
+    expect(text('领用耗材'), findsOneWidget);
+    expect(text('开单收银'), findsNothing);
+  });
+
+  testWidgets('没有已停用员工时不显示「已停用账号」', (t) async {
+    api.staffRows.removeWhere((r) => r['status'] == 'disabled');
+    await open(t, const BookingResourcesPage(kind: 'technician'));
+    expect(text('已停用账号'), findsNothing);
+    expect(text('0 人'), findsNothing);
   });
 
   testWidgets('角色页签筛选：前台只显示前台；店长没有员工时给出空状态', (t) async {
@@ -83,7 +115,21 @@ void main() {
     expect(find.textContaining('真实技师'), findsNothing);
     await t.tap(find.textContaining('店长').first);
     await t.pumpAndSettle();
-    expect(text('当前角色没有员工'), findsOneWidget);
+    // 设计稿 StaffEmptyRole：页签栏保留，列表卡片里一行说明 + 文字入口
+    expect(text('店长下还没有员工'), findsOneWidget);
+    expect(text('添加后自动拥有下方的店长权限'), findsOneWidget);
+    expect(text('添加店长'), findsOneWidget);
+    expect(text('店长可以'), findsOneWidget);
+    expect(text('全部 2'), findsOneWidget);
+    // 点「添加店长」进入新增页，角色预选店长
+    await t.tap(text('添加店长'));
+    await t.pumpAndSettle();
+    expect(text('新增员工'), findsOneWidget);
+    await t.enterText(find.byType(TextFormField).at(0), '新店长');
+    await t.enterText(find.byType(TextFormField).at(1), '13800007777');
+    await t.tap(text('保存并邀请'));
+    await t.pumpAndSettle();
+    expect(calls('staff_save').single['role'], 'manager');
   });
 
   testWidgets('点员工行进入详情：真实本月统计、最近施工，客户好评无数据显示 —', (t) async {

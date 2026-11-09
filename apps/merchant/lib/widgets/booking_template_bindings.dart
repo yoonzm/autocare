@@ -26,7 +26,7 @@ class BookingTemplateController extends ChangeNotifier {
     'position': 0,
     'linked_id': null,
     'joined_on': bookingDay(bookingToday),
-    if (isStaff) 'role': 'technician',
+    if (isStaff) 'role': StaffFlow.takePresetRole() ?? 'technician',
     ...?_initial,
     // 员工的擅长项目 / 固定工位沿用表单控件原有的草稿键
     if (isStaff) 'category': '${_initial?['skills'] ?? ''}',
@@ -102,8 +102,19 @@ class BookingTemplateController extends ChangeNotifier {
       rows.where((r) => r['status'] != 'disabled' && _inFilter(r)).toList();
 
   /// 本店保存的技师权限开关（员工与权限页「技师可以」）。
-  bool technicianCan(String key) =>
-      ((options['permissions'] as Map?)?['technician'] as Map?)?[key] == true;
+  bool roleCan(String role, String key) =>
+      role == 'manager' ||
+      ((options['permissions'] as Map?)?[role] as Map?)?[key] == true;
+
+  /// 当前页签对应的角色（全部页签时没有单一角色，按技师处理）。
+  String get roleKey => _roleFilter[filter] ?? 'technician';
+
+  /// 空状态里的「添加店长 / 添加前台收银 …」：新增员工并预选当前页签的角色。
+  void addStaff(BuildContext context) {
+    final role = _roleFilter[filter];
+    if (role != null) StaffFlow.presetRole = role;
+    editResource(context, null);
+  }
   List<Map<String, dynamic>> get bays => resources
       .where(
         (r) =>
