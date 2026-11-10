@@ -52,7 +52,10 @@ jobs:
         working-directory: apps/member-mini
         run: npm test
       - name: Install miniprogram-ci
-        run: npm install --prefix "$RUNNER_TEMP/ci" --no-package-lock --no-audit --no-fund miniprogram-ci@2.1.14
+        run: |
+          # miniprogram-ci imports Less internals that newer ESM releases no longer expose.
+          npm install --prefix "$RUNNER_TEMP/ci" --no-package-lock --no-audit --no-fund miniprogram-ci@2.1.14 less@4.2.0
+          node -e 'const ci = require(process.argv[1]); if (typeof ci.upload !== "function" || typeof ci.preview !== "function") process.exit(1)' "$RUNNER_TEMP/ci/node_modules/miniprogram-ci"
       - name: Publish to WeChat
         working-directory: apps/member-mini
         env:
