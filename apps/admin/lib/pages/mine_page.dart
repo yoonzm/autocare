@@ -11,6 +11,7 @@ import 'accounts_pages.dart';
 import 'login_page.dart';
 import 'plans_pages.dart';
 import 'sms_pages.dart';
+import 'users_pages.dart';
 import 'theme_sheet.dart';
 import 'tickets_pages.dart';
 
@@ -158,6 +159,19 @@ class MinePage extends StatelessWidget {
                 title: '短信记录',
                 sub: '验证码与通知 · 仅超级管理员可见',
                 onTap: () => go(context, const SmsLogsPage()),
+              ),
+            if (store.isSuper)
+              Row1(
+                leading: SoftTile(
+                  Icons.person_outline_rounded,
+                  C.amberInk,
+                  C.amberSoft,
+                ),
+                title: '用户账号',
+                sub: store.userCooling != null && store.userCooling! > 0
+                    ? '${store.userCooling} 个注销中 · 仅超级管理员可见'
+                    : '老板与员工账号 · 仅超级管理员可见',
+                onTap: () => go(context, const UsersPage()),
               ),
             Row1(
               leading: SoftTile(Icons.dark_mode_outlined, C.sub, C.chip),

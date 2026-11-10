@@ -448,3 +448,148 @@ class SmsPage {
   final int failedCount;
   const SmsPage(this.items, this.more, this.failedCount);
 }
+
+/// 用户账号（老板与员工）：一个登录用户，可以有多个门店身份。
+class UserIdentity {
+  final String role; // owner | manager | cashier | technician
+  final String storeName;
+  final DateTime? joinedOn;
+  const UserIdentity(this.role, this.storeName, this.joinedOn);
+  factory UserIdentity.fromJson(Map j) => UserIdentity(
+    j['role'] as String,
+    j['store_name'] as String? ?? '',
+    j['joined_on'] == null ? null : DateTime.parse(j['joined_on'] as String),
+  );
+}
+
+String userRoleLabel(String role) => switch (role) {
+  'owner' => '老板',
+  'manager' => '店长',
+  'cashier' => '前台',
+  _ => '技师',
+};
+
+class UserEvent {
+  final String text;
+  final DateTime at;
+  final String by;
+  const UserEvent(this.text, this.at, this.by);
+}
+
+class UserAccount {
+  final String id;
+  final DateTime createdAt;
+  final DateTime? lastSignInAt;
+  final String phone; // 11 位，不脱敏
+  final String name;
+  final String role;
+  final List<UserIdentity> identities;
+  final bool frozen;
+  final DateTime? deleteRequestedAt;
+  final DateTime? cancelledAt;
+  final String cancelSource;
+  final String cancelReason;
+  final String cancelNote;
+  final String status; // active | cooling | cancelled | frozen
+  const UserAccount({
+    required this.id,
+    required this.createdAt,
+    required this.lastSignInAt,
+    required this.phone,
+    required this.name,
+    required this.role,
+    required this.identities,
+    required this.frozen,
+    required this.deleteRequestedAt,
+    required this.cancelledAt,
+    required this.cancelSource,
+    required this.cancelReason,
+    required this.cancelNote,
+    required this.status,
+  });
+  factory UserAccount.fromJson(Map j) {
+    DateTime? time(dynamic v) =>
+        v == null ? null : DateTime.parse(v as String).toUtc();
+    return UserAccount(
+      id: j['user_id'] as String,
+      createdAt: DateTime.parse(j['created_at'] as String).toUtc(),
+      lastSignInAt: time(j['last_sign_in_at']),
+      phone: j['phone'] as String? ?? '',
+      name: j['name'] as String? ?? '',
+      role: j['role'] as String? ?? 'technician',
+      identities: ((j['identities'] as List?) ?? const [])
+          .cast<Map>()
+          .map(UserIdentity.fromJson)
+          .toList(),
+      frozen: j['frozen'] == true,
+      deleteRequestedAt: time(j['delete_requested_at']),
+      cancelledAt: time(j['cancelled_at']),
+      cancelSource: j['cancel_source'] as String? ?? '',
+      cancelReason: j['cancel_reason'] as String? ?? '',
+      cancelNote: j['cancel_note'] as String? ?? '',
+      status: j['status'] as String,
+    );
+  }
+
+  /// `13800137712` → `138 0013 7712`，手机号不脱敏。
+  String get phoneText => phone.length == 11
+      ? '${phone.substring(0, 3)} ${phone.substring(3, 7)} ${phone.substring(7)}'
+      : phone;
+
+  /// 头像和详情里的姓名脱敏：`刘**`。
+  String get maskedName =>
+      name.isEmpty ? '—' : '${String.fromCharCode(name.runes.first)}**';
+  String get initial =>
+      name.isEmpty ? '—' : String.fromCharCode(name.runes.first);
+  String get roleLabel => userRoleLabel(role);
+
+  /// 列表第二行：店名（老板多店显示数量），多身份员工显示「另有 N 个身份」。
+  String get summary {
+    if (identities.isEmpty) return '';
+    final first = identities.first.storeName;
+    if (role == 'owner') {
+      final owned = identities.where((i) => i.role == 'owner').length;
+      return owned > 1 ? '$first · $owned 家店' : first;
+    }
+    return identities.length > 1 ? '另有 ${identities.length - 1} 个身份' : first;
+  }
+
+  /// 冷静期到期时间：申请后 15 天。
+  DateTime? get coolingEndsAt => deleteRequestedAt?.add(const Duration(days: 15));
+  int coolingDaysLeft(DateTime now) {
+    final end = coolingEndsAt;
+    if (end == null) return 0;
+    final left = end.difference(now);
+    return left.isNegative ? 0 : (left.inHours / 24).ceil();
+  }
+}
+
+class UserDetail {
+  final UserAccount account;
+  final int devices;
+  final List<UserEvent> events;
+  final int openHolds;
+  final int openAppointments;
+  const UserDetail(
+    this.account,
+    this.devices,
+    this.events,
+    this.openHolds,
+    this.openAppointments,
+  );
+  int get openTotal => openHolds + openAppointments;
+}
+
+class UserPage {
+  final List<UserAccount> items;
+  final bool more;
+  final int total, cooling, cancelled, frozen;
+  const UserPage(
+    this.items,
+    this.more,
+    this.total,
+    this.cooling,
+    this.cancelled,
+    this.frozen,
+  );
+}

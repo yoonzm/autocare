@@ -38,7 +38,9 @@ class AdminApi {
         action == 'me' ||
         action == 'ticket_attachment' ||
         action == 'sms_list' ||
-        action == 'sms_get';
+        action == 'sms_get' ||
+        action == 'user_list' ||
+        action == 'user_get';
     final operation = '$action:${jsonEncode(values)}';
     final id = read || action == 'login'
         ? requestId()

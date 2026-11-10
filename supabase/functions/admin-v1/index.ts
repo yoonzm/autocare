@@ -11,6 +11,7 @@ import { adminFor, authorizeAction } from './permissions.ts';
 import { cors, fail, isInput, runtimeServices } from './shared.ts';
 import { handleSmsRead, handleSmsResend, smsReadActions } from './sms_logs.ts';
 import { handleSnapshot } from './snapshot.ts';
+import { handleUserCancel, handleUserRead, userReadActions } from './users.ts';
 import { handleSubscriptions, subscriptionActions } from './subscriptions.ts';
 import { handleTickets, ticketActions, ticketAttachment } from './tickets.ts';
 import type { AdminServices } from './types.ts';
@@ -37,10 +38,12 @@ export function createHandler(services?: AdminServices) {
       if (action === 'snapshot') return await handleSnapshot(input, identity);
       if (action === 'ticket_attachment') return await ticketAttachment(input, identity);
       if (smsReadActions.has(action)) return await handleSmsRead(action, input, identity);
+      if (userReadActions.has(action)) return await handleUserRead(action, input, identity);
 
       const context = commandContext(identity, request);
       if (context instanceof Response) return context;
       if (action === 'sms_resend') return await handleSmsResend(input, context);
+      if (action === 'user_cancel') return await handleUserCancel(input, context);
       if (authActions.has(action)) {
         return await handleAuth(action, input, context);
       }

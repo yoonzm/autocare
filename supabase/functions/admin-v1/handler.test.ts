@@ -615,3 +615,63 @@ Deno.test('SMS resend keeps quota/provider failures and requires a request id', 
   assert(!f.calls.some((call) => call.name === 'insert:admin_audit_logs'));
   equal((await f.invoke('sms_resend', { id: target }, { requestId: null })).status, 400);
 });
+
+Deno.test('user accounts are super-admin only and stop before any account query', async () => {
+  const f = fixture();
+  f.me.role = 'ops';
+  for (const action of ['user_list', 'user_get', 'user_cancel']) {
+    equal((await f.invoke(action, { id: target, reason: 'other' })).status, 403);
+  }
+  assert(!f.calls.some((call) => call.name.startsWith('admin_user') || call.name === 'auth.updateUser'));
+});
+
+Deno.test('user list validates filters and forwards the verified actor, session and cursor', async () => {
+  const f = fixture();
+  f.hooks.set('admin_user_list', () => ok({ items: [], more: false, counts: {}, now: 'now' }));
+  const before = { at: '2026-11-10T14:00:00Z', id: target };
+  equal((await f.invoke('user_list', { status: 'cooling', q: '138', before, limit: 20 })).status, 200);
+  equal(f.calls.find((call) => call.name === 'admin_user_list')!.input, {
+    p_actor: actor, p_session: oldSession, p_status: 'cooling', p_q: '138',
+    p_before_at: before.at, p_before_id: target, p_limit: 20,
+  });
+  for (const bad of [{ status: 'x' }, { limit: 0 }, { limit: 500 }, { q: 'x'.repeat(41) }, { before: { at: 'nope', id: target } }, { before: { at: before.at, id: 'bad' } }]) {
+    equal((await f.invoke('user_list', bad)).status, 400);
+  }
+  equal(f.calls.filter((call) => call.name === 'admin_user_list').length, 1);
+  equal((await f.invoke('user_get', { id: 'bad' })).status, 404);
+  f.hooks.set('admin_user_get', () => failed('P0002', '账号不存在'));
+  equal((await f.invoke('user_get', { id: target })).status, 404);
+});
+
+Deno.test('force cancellation commits in SQL first, then bans login, and only touches the account', async () => {
+  const f = fixture();
+  f.hooks.set('admin_user_cancel', () => ok({ ok: true, id: target }));
+  const response = await f.invoke('user_cancel', { id: target, reason: 'violation', note: ' 违规 ' });
+  equal(response.status, 200);
+  equal(f.calls.find((call) => call.name === 'admin_user_cancel')!.input, {
+    p_actor: actor, p_session: oldSession, p_user: target, p_reason: 'violation', p_note: '违规', p_request: requestId,
+  });
+  equal(f.calls.find((call) => call.name === 'auth.updateUser')!.input, { id: target, ban_duration: '876000h' });
+  assert(!f.calls.some((call) => call.name.startsWith('insert:') && call.name !== 'insert:admin_audit_logs'), 'no store data written');
+  assert(f.calls.findIndex((call) => call.name === 'admin_user_cancel') < f.calls.findIndex((call) => call.name === 'auth.updateUser'));
+});
+
+Deno.test('force cancellation validates input, maps rejections, audits failures and reports a failed ban', async () => {
+  const f = fixture();
+  equal((await f.invoke('user_cancel', { id: 'bad', reason: 'other' })).status, 404);
+  equal((await f.invoke('user_cancel', { id: target, reason: 'nope' })).status, 400);
+  equal((await f.invoke('user_cancel', { id: target, reason: 'other', note: 'x'.repeat(201) })).status, 400);
+  equal((await f.invoke('user_cancel', { id: target, reason: 'other' }, { requestId: null })).status, 400);
+  assert(!f.calls.some((call) => call.name === 'admin_user_cancel'));
+  f.hooks.set('admin_user_cancel', () => failed('P0001', '账号已注销'));
+  const rejected = await f.invoke('user_cancel', { id: target, reason: 'other' });
+  equal(rejected.status, 400);
+  equal(await rejected.json(), { error: '账号已注销' });
+  equal(f.calls.at(-1)!.input.action, 'user_cancel_failed');
+  assert(!f.calls.some((call) => call.name === 'auth.updateUser'));
+  f.hooks.set('admin_user_cancel', () => ok({ ok: true, id: target, replayed: true }));
+  f.hooks.set('auth.updateUser', () => failed('500', 'ban failed'));
+  const unbanned = await f.invoke('user_cancel', { id: target, reason: 'other' });
+  equal(unbanned.status, 503);
+  equal(await unbanned.json(), { error: '账号已注销，但登录封禁未完成，请重试' });
+});

@@ -12,6 +12,9 @@ const privileged = new Set([
   'sms_list',
   'sms_get',
   'sms_resend',
+  'user_list',
+  'user_get',
+  'user_cancel',
 ]);
 
 /** Verify the JWT before using session metadata; SQL checks the live session and profile. */

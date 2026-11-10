@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:autocare_async_kit/async_kit.dart';
 
@@ -36,6 +38,7 @@ class Store extends ChangeNotifier {
     _generation++;
     _refreshing = null;
     me = null;
+    userCooling = null;
     accounts = [];
     merchants = [];
     orders = [];
@@ -132,6 +135,7 @@ class Store extends ChangeNotifier {
     history = series.take(5).map((e) => e['value'] as num).toList();
     loaded = true;
     notifyListeners();
+    unawaited(refreshUserCounts());
     return true;
   }
 
@@ -267,6 +271,79 @@ class Store extends ChangeNotifier {
   /// 重发验证码：服务端生成新验证码并经真实短信渠道发送，同样受冷却和每日额度限制。
   Future<void> smsResend(SmsLog log) async {
     await api.call('sms_resend', {'id': log.id});
+  }
+
+  /// 用户账号（仅超级管理员）：老板与员工账号，翻页读取。
+  Future<UserPage> userList({
+    String status = 'all',
+    String q = '',
+    UserAccount? before,
+  }) async {
+    final data = await api.call('user_list', {
+      'status': status,
+      if (q.isNotEmpty) 'q': q,
+      if (before != null)
+        'before': {
+          'at': before.createdAt.toIso8601String(),
+          'id': before.id,
+        },
+    });
+    serverNow = DateTime.parse(data['now'] as String).toUtc();
+    serverClockReadAt = DateTime.now().toUtc();
+    final counts = Map<String, dynamic>.from(data['counts'] as Map);
+    userCooling = counts['cooling'] as int? ?? 0;
+    notifyListeners();
+    return UserPage(
+      (data['items'] as List).cast<Map>().map(UserAccount.fromJson).toList(),
+      data['more'] == true,
+      counts['total'] as int? ?? 0,
+      userCooling ?? 0,
+      counts['cancelled'] as int? ?? 0,
+      counts['frozen'] as int? ?? 0,
+    );
+  }
+
+  /// 「我的」里「用户账号」的注销中数量；读取失败不影响页面，保持未知。
+  int? userCooling;
+  Future<void> refreshUserCounts() async {
+    if (!isSuper) return;
+    try {
+      await userList();
+    } catch (_) {
+      /* 数量只是入口上的提示，失败时不显示。 */
+    }
+  }
+
+  Future<UserDetail> userGet(String id) async {
+    final data = await api.call('user_get', {'id': id});
+    serverNow = DateTime.parse(data['now'] as String).toUtc();
+    serverClockReadAt = DateTime.now().toUtc();
+    return UserDetail(
+      UserAccount.fromJson(data['item'] as Map),
+      data['devices'] as int? ?? 0,
+      (data['events'] as List)
+          .cast<Map>()
+          .map(
+            (e) => UserEvent(
+              e['text'] as String,
+              DateTime.parse(e['at'] as String).toUtc(),
+              e['by'] as String? ?? '',
+            ),
+          )
+          .toList(),
+      data['open_holds'] as int? ?? 0,
+      data['open_appointments'] as int? ?? 0,
+    );
+  }
+
+  /// 强制注销：只停用账号并让所有设备退出，不动任何门店数据（服务端执行）。
+  Future<void> userCancel(UserAccount a, String reason, String note) async {
+    await api.call('user_cancel', {
+      'id': a.id,
+      'reason': reason,
+      if (note.trim().isNotEmpty) 'note': note.trim(),
+    });
+    await refreshUserCounts();
   }
 
   Future<void> reply(Ticket t, String text) =>

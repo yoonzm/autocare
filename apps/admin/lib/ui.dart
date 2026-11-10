@@ -552,12 +552,14 @@ class Segmented extends StatelessWidget {
 
   /// 标签后面的红色数字角标（如「失败 3」），键是标签序号。
   final Map<int, int> badges;
+  final Color? badgeColor;
   const Segmented({
     super.key,
     required this.labels,
     required this.index,
     required this.onChanged,
     this.badges = const {},
+    this.badgeColor,
   });
   @override
   Widget build(BuildContext context) => Container(
@@ -591,7 +593,7 @@ class Segmented extends StatelessWidget {
                               style: ts(
                                 13,
                                 w: FontWeight.w500,
-                                color: C.redInk,
+                                color: badgeColor ?? C.redInk,
                                 h: 18,
                               ),
                             ),
