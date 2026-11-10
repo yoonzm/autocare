@@ -15,6 +15,9 @@ class StaffLiveHost extends StatefulWidget {
   final Widget Function(BuildContext context, Map<String, dynamic> data) builder;
   final bool sheet;
 
+  /// 额外的刷新信号（如任务进度 / 完工后列表与工作台需要重新读取）。
+  final Listenable? refresh;
+
   /// 骨架屏里的标题栏文字（外壳在加载时就显示）。
   final String title;
   const StaffLiveHost({
@@ -24,6 +27,7 @@ class StaffLiveHost extends StatefulWidget {
     this.sheet = false,
     this.title = '',
     this.needsId = true,
+    this.refresh,
   });
 
   @override
@@ -36,12 +40,16 @@ class _StaffLiveHostState extends State<StaffLiveHost> {
   @override
   void initState() {
     super.initState();
-    if (!widget.sheet) StaffFlow.changed.addListener(_reload);
+    if (!widget.sheet) {
+      StaffFlow.changed.addListener(_reload);
+      widget.refresh?.addListener(_reload);
+    }
   }
 
   @override
   void dispose() {
     StaffFlow.changed.removeListener(_reload);
+    widget.refresh?.removeListener(_reload);
     super.dispose();
   }
 

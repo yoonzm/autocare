@@ -7,8 +7,15 @@ import 'gen_st/svgs.dart';
 import 'members_page.dart';
 import 'st_front_home_template.dart';
 import 'st_home_template.dart';
+import 'st_arrivals_template.dart';
+import 'st_done_template.dart';
+import 'st_finish_template.dart';
 import 'st_mine_template.dart';
+import 'st_msgs_template.dart';
 import 'st_no_perm_template.dart';
+import 'st_perf_template.dart';
+import 'st_task_detail_template.dart';
+import 'st_tasks_template.dart';
 
 /// 员工外壳（前台收银 / 施工技师）当前选中的底部 Tab。
 final ValueNotifier<int> staffTab = ValueNotifier<int>(0);
@@ -66,7 +73,7 @@ class _StaffTabsState extends State<StaffTabs> {
   List<Widget> get _pages => Access.role == 'technician'
       ? const [
           StHomeLivePage(),
-          StTodoPage(title: '我的任务', reason: '任务列表待接通。'),
+          StTasksLivePage(),
           StTodoPage(title: '会员查询', reason: '会员简况（脱敏）待接通。'),
           StMineLivePage(),
         ]
@@ -157,18 +164,17 @@ Widget? stPageFor(String name) => switch (name) {
   'StFrontHome' => const StFrontHomeLivePage(),
   'StMine' => const StMineLivePage(),
   'StNoPerm' => const StNoPermTemplate(),
-  'StTasks' => const StTodoPage(title: '我的任务', reason: '任务列表待接通。'),
-  'StTaskDetail' => const StTodoPage(title: '任务详情', reason: '任务详情、进度与完工提交待接通。'),
-  'StProgress' => const StTodoPage(title: '更新进度', reason: '施工进度待接通。'),
-  'StFinish' => const StTodoPage(title: '完工提交', reason: '完工提交待接通。'),
-  'StDone' => const StTodoPage(title: '已完工', reason: '完工提交待接通。'),
-  'StArrivals' => const StTodoPage(title: '今日到店', reason: '今日到店待接通。'),
+  'StTasks' => const StTasksLivePage(),
+  'StTaskDetail' => const StTaskDetailLivePage(),
+  'StFinish' => const StFinishLivePage(),
+  'StDone' => const StDoneLivePage(),
+  'StArrivals' => const StArrivalsLivePage(),
   'StMember' => const StTodoPage(title: '会员查询', reason: '会员简况（脱敏）待接通。'),
   'StMemberInfo' => const StTodoPage(title: '会员简况', reason: '会员简况（脱敏）待接通。'),
   'StVerify' || 'StVerifyCode' => const StTodoPage(title: '扫码找会员', reason: '扫码找会员待接通。'),
   'StOrder' => const StTodoPage(title: '快速开单', reason: '技师提交开单、待收银队列待接通。'),
   'StCashQueue' => const StTodoPage(title: '待收银', reason: '待收银队列待接通。'),
-  'StPerf' => const StTodoPage(title: '业绩提成', reason: '业绩提成明细待接通。'),
-  'StMsgs' => const StTodoPage(title: '消息', reason: '消息中心待接通。'),
+  'StPerf' => const StPerfLivePage(),
+  'StMsgs' => const StMsgsLivePage(),
   _ => null,
 };

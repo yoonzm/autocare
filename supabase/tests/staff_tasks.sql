@@ -91,9 +91,16 @@ begin
   assert (public.staff_messages_list(shop,tech_id,null)->>'unread')::int=0,'没有变化不重复通知';
   assert (public.staff_messages_list(shop,cash_id,null)->>'unread')::int>=1;
 
+  -- 今日到店：门店当天预约，跨店隔离
+  r:=public.staff_arrivals(shop,cash_id);
+  assert jsonb_array_length(r->'items')>=1 and (r->'items'->0->>'plate') is not null;
+  caught:=false; begin perform public.staff_arrivals(other,cash_id); exception when sqlstate 'P0002' then caught:=true; end;
+  assert caught,'不能跨店读到店';
+
   -- 函数权限：仅 service_role
   assert not has_function_privilege('authenticated','public.staff_task_finish(uuid,uuid,uuid)','execute');
   assert has_function_privilege('service_role','public.staff_perf(uuid,uuid)','execute');
+  assert not has_function_privilege('authenticated','public.staff_arrivals(uuid,uuid)','execute');
   assert not has_table_privilege('authenticated','public.staff_messages','select');
 end $$;
 rollback;

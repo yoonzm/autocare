@@ -42,6 +42,7 @@ export async function handleStaffWork(input: Input, request: Request): Promise<R
       return await call('staff_task_progress', { p_id: input.id, p_stage: stage });
     }
     if (action === 'staff_perf') return await call('staff_perf', {});
+    if (action === 'staff_arrivals') return await call('staff_arrivals', {});
     if (action === 'staff_messages') {
       const kind = input.kind == null || input.kind === 'all' ? null : String(input.kind);
       return await call('staff_messages_list', { p_kind: kind });

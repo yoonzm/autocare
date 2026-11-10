@@ -257,11 +257,24 @@ language sql stable security definer set search_path=public as $$
   select count(*)::integer from public.staff_messages where staff_id=p_staff and read_at is null
 $$;
 
+-- 今日到店：门店当天的全部预约（前台 / 店长看车主到店情况）。
+create function public.staff_arrivals(p_store uuid,p_staff uuid) returns jsonb
+language plpgsql stable security definer set search_path=public as $$
+declare d0 timestamptz; d1 timestamptz;
+begin
+  if not exists(select 1 from public.store_staff where id=p_staff and store_id=p_store) then raise exception 'staff_not_found' using errcode='P0002'; end if;
+  d0:=(date_trunc('day',now() at time zone 'Asia/Shanghai') at time zone 'Asia/Shanghai'); d1:=d0+interval '1 day';
+  return jsonb_build_object('items',coalesce((select jsonb_agg(jsonb_build_object('id',a.id,'plate',a.vehicle_plate,'status',a.status,
+      'starts_at',a.starts_at,'customer',a.customer_name,'items',a.items,
+      'level',coalesce((select c.name from public.members m join public.card_types c on c.id=m.card_type_id where m.id=a.member_id),'散客')) order by a.starts_at)
+    from public.appointments a where a.store_id=p_store and a.starts_at>=d0 and a.starts_at<d1 and a.status in ('waiting','arrived','done')),'[]'::jsonb));
+end $$;
+
 do $$ declare f record; begin
   for f in select oid::regprocedure as signature from pg_proc where pronamespace='public'::regnamespace
     and proname in ('work_progress','staff_estimate_commission','staff_task_json','staff_task_list','staff_task_detail','staff_task_progress',
       'staff_task_finish','staff_perf','appointment_staff_messages','commission_staff_messages','save_staff_permissions',
-      'staff_messages_list','staff_messages_read','staff_unread') loop
+      'staff_messages_list','staff_messages_read','staff_unread','staff_arrivals') loop
     execute format('revoke all on function %s from public,anon,authenticated',f.signature);
     execute format('grant execute on function %s to service_role',f.signature);
   end loop;

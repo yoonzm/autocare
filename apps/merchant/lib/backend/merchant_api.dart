@@ -336,6 +336,16 @@ class MerchantApi {
     return Map<String, dynamic>.from(data['item'] as Map);
   }
 
+  /// 员工工作流：staff_task_list / staff_task_detail / staff_task_progress / staff_task_finish /
+  /// staff_perf / staff_messages / staff_messages_read。数据范围由服务端按当前身份限定。
+  Future<Map<String, dynamic>> staffWork(
+    String action, [
+    Map<String, dynamic> values = const {},
+  ]) async {
+    final data = await invoke({...values, 'action': action});
+    return Map<String, dynamic>.from(data['item'] as Map);
+  }
+
   /// 订单中心：list（统一订单列表 + 汇总）/ detail / refund。金额、状态、退回方式都由云函数计算。
   Future<Map<String, dynamic>> orderCenter(
     String action, [

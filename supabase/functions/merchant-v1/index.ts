@@ -51,7 +51,7 @@ Deno.serve(async (request: Request): Promise<Response> => {
   if (input.action === 'settings_stats') return handleSettingsStats(request);
   if (input.action === 'home_stats') return handleHomeStats(request);
   if (String(input.action).startsWith('appointment_')) return handleAppointments(input, request);
-  if (/^staff_(task_|perf$|messages)/.test(String(input.action))) return handleStaffWork(input, request);
+  if (/^staff_(task_|perf$|arrivals$|messages)/.test(String(input.action))) return handleStaffWork(input, request);
   if (String(input.action).startsWith('staff_')) return handleStaff(input, request);
   if (String(input.action).startsWith('inventory_')) return handleInventory(input, request);
   if (String(input.action).startsWith('expense_')) return handleExpenses(input, request);

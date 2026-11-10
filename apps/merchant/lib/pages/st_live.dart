@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../backend/merchant_api.dart';
 import '../backend/staff_flow.dart';
 import '../backend/task_flow.dart';
 import '../routes.dart' show openRoute;
@@ -39,7 +40,7 @@ class StLive extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) =>
-      StaffLiveHost(needsId: false, title: title, load: (_) => load(), builder: builder);
+      StaffLiveHost(needsId: false, title: title, load: (_) => load(), builder: builder, refresh: TaskFlow.changed);
 }
 
 /// 预约结束时间（开始时间 + 标准工时）。
@@ -50,4 +51,29 @@ DateTime stEnd(Map<String, dynamic> t) => (DateTime.tryParse('${t['starts_at']}'
 void stOpenTask(BuildContext context, String id) {
   TaskFlow.currentId = id;
   openRoute(context, 'StTaskDetail');
+}
+
+/// 任务里的服务项目名（A + B）。
+String stItemsOf(Map<String, dynamic> t) =>
+    ((t['items'] as List?) ?? const []).map((e) => '${(e as Map)['name']}').join(' + ');
+
+String stPlateOf(Map<String, dynamic> t) => '${t['plate'] ?? ''}'.isEmpty ? '未登记车牌' : '${t['plate']}';
+
+/// 任务所处的阶段：0 待开工 / 1 施工中 / 2 已完成（技师已提交完工，或订单已结算）。
+int stPhase(Map<String, dynamic> t) {
+  if (t['finished_at'] != null || t['status'] == 'done') return 2;
+  return t['status'] == 'arrived' ? 1 : 0;
+}
+
+/// 读取当前任务；任务不是派给自己的由服务端拒绝。
+Future<Map<String, dynamic>> stLoadTask() {
+  final id = TaskFlow.currentId;
+  if (id == null) return Future.error(const AppError('请先选择任务', type: AppErrorType.notFound));
+  return merchantApi.staffWork('staff_task_detail', {'id': id});
+}
+
+/// 消息时间：今天显示时刻，其余显示 昨天 / 10.28。
+String stMsgTime(Object? iso) {
+  final label = staffDayLabel(iso);
+  return label == '今天' ? stClock(iso) : label;
 }

@@ -39,6 +39,8 @@ import 'pages/product_list_live_page.dart';
 import 'pages/store_switch_live_sheet.dart';
 import 'pages/staff_live.dart';
 import 'pages/staff_tabs.dart';
+import 'pages/st_live.dart' show stLoadTask;
+import 'pages/st_progress_template.dart';
 import 'backend/access_flow.dart';
 import 'pages/staff_detail_template.dart';
 import 'pages/staff_detail_off_template.dart';
@@ -88,6 +90,12 @@ final Map<String, WidgetBuilder> _allSheets = {
       : ErrorView(error: const AppError('请先扫描车牌')),
   'OrderFilter': (_) => const OrderFilterLiveSheet(),
   'StoreSwitch': (_) => const StoreSwitchLiveSheet(),
+  'StProgress': (_) => StaffLiveHost(
+    sheet: true,
+    needsId: false,
+    load: (_) => stLoadTask(),
+    builder: (_, d) => StProgressTemplate(d: d),
+  ),
   'DisableStaff': (_) => StaffLiveHost(
     sheet: true,
     load: (id) => merchantApi.staff('get', {'id': id}),

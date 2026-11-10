@@ -56,6 +56,8 @@ Deno.test('staff workflow actions: tasks need task caps, perf needs perf cap, me
   assert(can('technician', ['progress_update'], { action: 'staff_task_finish' }));
   assert(!can('cashier', [], { action: 'staff_perf' }));
   assert(can('cashier', ['perf_view_own'], { action: 'staff_perf' }));
+  assert(!can('cashier', [], { action: 'staff_arrivals' }));
+  assert(can('cashier', ['arrivals_today'], { action: 'staff_arrivals' }));
   assert(can('cashier', [], { action: 'staff_messages' }));
   assert(can('technician', [], { action: 'staff_messages_read' }));
 });
