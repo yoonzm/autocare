@@ -118,6 +118,16 @@ function fixture() {
       }
       return response.data as Input;
     },
+    sendCode: async (phone, purpose, id) => {
+      const response = await result('sms.resend', { phone, purpose, requestId: id }, {
+        ok: true,
+        retry_after: 60,
+      });
+      if (response.error) {
+        throw new SmsDeliveryError(response.error.message, 429);
+      }
+      return response.data as Input;
+    },
   };
   const run = createHandler(services);
   const invoke = (
@@ -531,4 +541,77 @@ Deno.test('unknown actions retain the existing SQL validation path', async () =>
     f.calls.find((call) => call.name === 'admin_command')!.input.p_action,
     'unknown_action',
   );
+});
+
+const smsItem = (kind = 'code') => ({
+  item: { id: target, kind, phone: '+8613800137712', purpose: 'login', code: '482916' },
+  now: '2026-11-10T14:31:00Z',
+});
+
+Deno.test('SMS records are super-admin only and stop before any SMS query', async () => {
+  const f = fixture();
+  f.me.role = 'ops';
+  for (const action of ['sms_list', 'sms_get', 'sms_resend']) {
+    equal((await f.invoke(action, { id: target })).status, 403);
+  }
+  equal(
+    f.calls.filter((call) => call.name === 'insert:admin_audit_logs').length,
+    3,
+  );
+  assert(!f.calls.some((call) => call.name.startsWith('admin_sms') || call.name === 'sms.resend'));
+});
+
+Deno.test('SMS list validates filters and forwards the verified actor, session and cursor', async () => {
+  const f = fixture();
+  f.hooks.set('admin_sms_list', () => ok({ items: [], more: false, failed_count: 0, now: 'now' }));
+  const before = { at: '2026-11-10T14:00:00Z', id: target };
+  const response = await f.invoke('sms_list', { kind: 'failed', phone: '138', before, limit: 20 });
+  equal(response.status, 200);
+  equal(f.calls.find((call) => call.name === 'admin_sms_list')!.input, {
+    p_actor: actor, p_session: oldSession, p_kind: 'failed', p_phone: '138',
+    p_before_at: before.at, p_before_id: target, p_limit: 20,
+  });
+  for (const bad of [{ kind: 'x' }, { limit: 0 }, { limit: 500 }, { phone: 'x'.repeat(30) }, { before: { at: 'nope', id: target } }, { before: { at: before.at, id: 'bad' } }]) {
+    equal((await f.invoke('sms_list', bad)).status, 400);
+  }
+  equal(f.calls.filter((call) => call.name === 'admin_sms_list').length, 1);
+});
+
+Deno.test('SMS detail rejects malformed ids and maps missing records', async () => {
+  const f = fixture();
+  equal((await f.invoke('sms_get', { id: 'not-a-uuid' })).status, 404);
+  f.hooks.set('admin_sms_get', () => failed('P0002', '短信记录不存在'));
+  equal((await f.invoke('sms_get', { id: target })).status, 404);
+  f.hooks.set('admin_sms_get', () => ok(smsItem()));
+  const response = await f.invoke('sms_get', { id: target });
+  equal(response.status, 200);
+  equal((await response.json()).item.code, '482916');
+});
+
+Deno.test('SMS resend sends a new code for verification SMS only and audits the operator', async () => {
+  const f = fixture();
+  f.hooks.set('admin_sms_get', () => ok(smsItem()));
+  const response = await f.invoke('sms_resend', { id: target });
+  equal(response.status, 200);
+  equal(await response.json(), { ok: true, retry_after: 60 });
+  equal(f.calls.find((call) => call.name === 'sms.resend')!.input, {
+    phone: '+8613800137712', purpose: 'login', requestId,
+  });
+  equal(f.calls.at(-1)!.name, 'insert:admin_audit_logs');
+  equal(f.calls.at(-1)!.input.action, 'sms_resend');
+  f.calls.length = 0;
+  f.hooks.set('admin_sms_get', () => ok(smsItem('notice')));
+  equal((await f.invoke('sms_resend', { id: target })).status, 400);
+  assert(!f.calls.some((call) => call.name === 'sms.resend'));
+});
+
+Deno.test('SMS resend keeps quota/provider failures and requires a request id', async () => {
+  const f = fixture();
+  f.hooks.set('admin_sms_get', () => ok(smsItem()));
+  f.hooks.set('sms.resend', () => failed('quota', '请 45 秒后再获取验证码'));
+  const response = await f.invoke('sms_resend', { id: target });
+  equal(response.status, 429);
+  equal(await response.json(), { error: '请 45 秒后再获取验证码' });
+  assert(!f.calls.some((call) => call.name === 'insert:admin_audit_logs'));
+  equal((await f.invoke('sms_resend', { id: target }, { requestId: null })).status, 400);
 });

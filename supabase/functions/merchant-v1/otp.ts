@@ -18,16 +18,18 @@ export function randomOtp(): string {
 }
 
 export const otpStore: OtpSendStore = {
-  async reserve({ phone, purpose, hash, requestId }) {
+  async reserve({ phone, purpose, hash, requestId, code, content, sign }) {
     const { data, error } = await admin.rpc('reserve_phone_otp', {
       p_phone: phone, p_purpose: purpose, p_hash: hash, p_request: requestId,
+      p_code: code, p_content: content, p_sign: sign,
     });
     if (error || !data) throw new Error('OTP reservation failed');
     return data;
   },
-  async finish(phone, purpose, requestId, sent, provider) {
+  async finish(phone, purpose, requestId, sent, provider, failure) {
     const { data, error } = await admin.rpc('finish_phone_otp', {
       p_phone: phone, p_purpose: purpose, p_request: requestId, p_sent: sent, p_provider: provider,
+      p_error: failure ?? null,
     });
     if (error || data !== true) throw new Error('OTP delivery persistence failed');
   },

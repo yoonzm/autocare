@@ -13,7 +13,8 @@ const env = (name: string) => config[name];
 const request = { phone: '+8613900000000', purpose: 'register' as const, code: '123456', hash: 'hash', requestId: 'request' };
 const fakeStore = (events: unknown[], reservation = {}): OtpSendStore => ({
   reserve: (value) => {
-    if ('code' in value) throw new Error('Plain OTP reached storage reservation');
+    // 后台短信记录需要明文验证码与内容；哈希仍用于校验。
+    if (value.code !== request.code || !value.content.includes(request.code)) throw new Error('SMS log fields missing');
     events.push('reserve'); return Promise.resolve(reservation);
   },
   finish: (_phone, _purpose, _id, sent, provider) => { events.push({ sent, provider }); return Promise.resolve(); },
@@ -92,4 +93,25 @@ Deno.test('database finalization failure is not reported as send success', async
     await sendOtp(provider, { ...fakeStore(events), finish: () => Promise.reject(new Error('database unavailable')) }, request);
   } catch { failed = true; }
   eq(failed, true);
+});
+
+Deno.test('provider failure reason is recorded for the SMS log without credentials', async () => {
+  let recorded = '';
+  const store: OtpSendStore = {
+    reserve: () => Promise.resolve({}),
+    finish: (_p, _u, _i, _sent, _provider, error) => { recorded = error ?? ''; return Promise.resolve(); },
+  };
+  const provider: SmsProvider = { name: 'zhutong', signature: '汽美管家', sendCode: () => Promise.reject(new SmsError('短信发送失败，请稍后重试', 502, 'provider_rejected')) };
+  await rejects(() => sendOtp(provider, store, request), 502);
+  eq(recorded, '短信发送失败，请稍后重试（provider_rejected）');
+});
+
+Deno.test('SMS log content carries the signature and code', async () => {
+  let content = '';
+  const store: OtpSendStore = {
+    reserve: (value) => { content = value.content; return Promise.resolve({}); },
+    finish: () => Promise.resolve(),
+  };
+  await sendOtp({ name: 'zhutong', signature: '汽美管家', sendCode: () => Promise.resolve() }, store, request);
+  eq(content, '【汽美管家】验证码 123456，5 分钟内有效，请勿泄露给他人。');
 });

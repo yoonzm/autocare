@@ -10,6 +10,7 @@ import '../data/theme_state.dart';
 import 'accounts_pages.dart';
 import 'login_page.dart';
 import 'plans_pages.dart';
+import 'sms_pages.dart';
 import 'theme_sheet.dart';
 import 'tickets_pages.dart';
 
@@ -146,6 +147,18 @@ class MinePage extends StatelessWidget {
                 go(context, const AccountsPage());
               },
             ),
+            // 短信记录含验证码明文：只有超级管理员能看到入口（服务端同样限制）。
+            if (store.isSuper)
+              Row1(
+                leading: SoftTile(
+                  Icons.sms_outlined,
+                  C.primaryInk,
+                  C.primarySoft,
+                ),
+                title: '短信记录',
+                sub: '验证码与通知 · 仅超级管理员可见',
+                onTap: () => go(context, const SmsLogsPage()),
+              ),
             Row1(
               leading: SoftTile(Icons.dark_mode_outlined, C.sub, C.chip),
               title: '外观',

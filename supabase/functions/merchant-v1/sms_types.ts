@@ -7,6 +7,8 @@ export const isSmsPurpose = (value: unknown): value is SmsPurpose =>
 
 export interface SmsProvider {
   readonly name: string;
+  /** 短信签名（不含【】），只用于后台「短信记录」展示。 */
+  readonly signature?: string;
   sendCode(phone: string, code: string, purpose: SmsPurpose): Promise<void>;
 }
 

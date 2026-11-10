@@ -1,5 +1,5 @@
 import { createClient } from './deps.ts';
-import { sendLoginCode } from './sms.ts';
+import { sendCode, sendLoginCode } from './sms.ts';
 import type { AdminServices, Input, RpcError } from './types.ts';
 
 export const cors = {
@@ -53,6 +53,7 @@ export function runtimeServices(): AdminServices {
         auth: { persistSession: false, autoRefreshToken: false },
       }),
     sendLoginCode,
+    sendCode,
   };
   return services;
 }

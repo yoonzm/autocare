@@ -233,6 +233,42 @@ class Store extends ChangeNotifier {
     }
   }
 
+  /// 短信记录（仅超级管理员）：验证码明文随记录返回，不缓存到 Store 里。
+  Future<SmsPage> smsList({
+    String kind = 'all',
+    String phone = '',
+    SmsLog? before,
+  }) async {
+    final data = await api.call('sms_list', {
+      'kind': kind,
+      if (phone.isNotEmpty) 'phone': phone,
+      if (before != null)
+        'before': {
+          'at': before.createdAt.toIso8601String(),
+          'id': before.id,
+        },
+    });
+    serverNow = DateTime.parse(data['now'] as String).toUtc();
+    serverClockReadAt = DateTime.now().toUtc();
+    return SmsPage(
+      (data['items'] as List).cast<Map>().map(SmsLog.fromJson).toList(),
+      data['more'] == true,
+      data['failed_count'] as int? ?? 0,
+    );
+  }
+
+  Future<SmsLog> smsGet(String id) async {
+    final data = await api.call('sms_get', {'id': id});
+    serverNow = DateTime.parse(data['now'] as String).toUtc();
+    serverClockReadAt = DateTime.now().toUtc();
+    return SmsLog.fromJson(data['item'] as Map);
+  }
+
+  /// 重发验证码：服务端生成新验证码并经真实短信渠道发送，同样受冷却和每日额度限制。
+  Future<void> smsResend(SmsLog log) async {
+    await api.call('sms_resend', {'id': log.id});
+  }
+
   Future<void> reply(Ticket t, String text) =>
       _write('ticket_reply', {'id': t.id, 'text': text});
   Future<void> resolve(Ticket t) => _write('ticket_resolve', {'id': t.id});

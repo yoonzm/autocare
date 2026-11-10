@@ -9,6 +9,9 @@ const privileged = new Set([
   'account_reset',
   'plan_save',
   'refund',
+  'sms_list',
+  'sms_get',
+  'sms_resend',
 ]);
 
 /** Verify the JWT before using session metadata; SQL checks the live session and profile. */

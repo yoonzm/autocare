@@ -28,6 +28,7 @@ export function zhutongProvider(
   }
   return {
     name: 'zhutong',
+    signature: sign,
     async sendCode(phone, code) {
       const tKey = String(Math.floor(now() / 1000));
       let response: Response;

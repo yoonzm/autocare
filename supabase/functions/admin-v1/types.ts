@@ -28,6 +28,11 @@ export interface AdminServices {
     phone: string,
     requestId: string,
   ) => Promise<Record<string, unknown>>;
+  sendCode: (
+    phone: string,
+    purpose: string,
+    requestId: string,
+  ) => Promise<Record<string, unknown>>;
 }
 
 export interface ReadContext {

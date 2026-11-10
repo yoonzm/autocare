@@ -8,7 +8,7 @@ const db = new PGlite();
 try {
   await db.exec(`create role anon;create role authenticated;create role service_role;
     create schema auth;create table auth.sessions(user_id uuid);`);
-  for (const name of ['202611010003_phone_otp.sql', '202611010006_forgot_password.sql', '202611060001_sms_channels.sql']) {
+  for (const name of ['202611010003_phone_otp.sql', '202611010006_forgot_password.sql', '202611060001_sms_channels.sql', '202611100007_sms_logs.sql']) {
     await db.exec(readFileSync(new URL('../migrations/' + name, import.meta.url), 'utf8'));
   }
   const scalar = async (sql, values = []) => (await db.query(sql, values)).rows[0].value;
@@ -62,7 +62,7 @@ try {
   assert.equal(await verify(oldPhone,'change_phone_old'),'ok'); // neither consumed on pair failure
   assert.equal(await consumePair(hash),'ok');
   assert.equal(await consumePair(hash),'old:consumed');
-  for (const signature of ['reserve_phone_otp(text,text,text,uuid)','finish_phone_otp(text,text,uuid,boolean,text)','verify_phone_otp(text,text,text,boolean)','consume_phone_change_otps(text,text,text,text)']) {
+  for (const signature of ['reserve_phone_otp(text,text,text,uuid,text,text,text)','finish_phone_otp(text,text,uuid,boolean,text,text)','verify_phone_otp(text,text,text,boolean)','consume_phone_change_otps(text,text,text,text)']) {
     assert.equal(await scalar('select has_function_privilege($1,$2,$3) as value',['anon','public.'+signature,'execute']),false);
     assert.equal(await scalar('select has_function_privilege($1,$2,$3) as value',['authenticated','public.'+signature,'execute']),false);
     assert.equal(await scalar('select has_function_privilege($1,$2,$3) as value',['service_role','public.'+signature,'execute']),true);

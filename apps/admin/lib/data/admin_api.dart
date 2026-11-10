@@ -33,7 +33,12 @@ class AdminApi {
     String action, [
     Map<String, dynamic> values = const {},
   ]) async {
-    final read = action == 'snapshot' || action == 'me' || action == 'ticket_attachment';
+    final read =
+        action == 'snapshot' ||
+        action == 'me' ||
+        action == 'ticket_attachment' ||
+        action == 'sms_list' ||
+        action == 'sms_get';
     final operation = '$action:${jsonEncode(values)}';
     final id = read || action == 'login'
         ? requestId()

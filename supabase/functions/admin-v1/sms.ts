@@ -7,24 +7,36 @@ export class SmsDeliveryError extends Error {
 }
 
 /** Reuse the real provider and atomic OTP quotas; no mock channel or returned OTP. */
-export async function sendLoginCode(
+export function sendLoginCode(
   phone: string,
   requestId: string,
 ): Promise<Record<string, unknown>> {
-  const { sendOtp, SmsError, smsProvider } = await import(
+  return sendCode(phone, 'login', requestId);
+}
+
+/** 「短信记录」重发：按原用途重新生成验证码并经真实渠道发送，同样受冷却与每日额度限制。 */
+export async function sendCode(
+  phone: string,
+  purpose: string,
+  requestId: string,
+): Promise<Record<string, unknown>> {
+  const { isSmsPurpose, sendOtp, SmsError, smsProvider } = await import(
     '../merchant-v1/sms.ts'
   );
+  if (!isSmsPurpose(purpose)) {
+    throw new SmsDeliveryError('不支持的验证码用途', 400);
+  }
   try {
     const { otpHash, otpStore, randomOtp } = await import(
       '../merchant-v1/otp.ts'
     );
-    const provider = smsProvider((name) => Deno.env.get(name), 'login');
+    const provider = smsProvider((name) => Deno.env.get(name), purpose);
     const code = randomOtp();
     return await sendOtp(provider, otpStore, {
       phone,
-      purpose: 'login',
+      purpose,
       code,
-      hash: await otpHash(phone, 'login', code),
+      hash: await otpHash(phone, purpose, code),
       requestId,
     });
   } catch (error) {

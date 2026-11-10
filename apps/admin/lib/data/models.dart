@@ -299,3 +299,152 @@ class Ticket {
         .toList(),
   );
 }
+
+/// 短信记录里的一条短信（验证码或通知）。验证码明文与手机号不脱敏，仅超级管理员可见。
+class SmsLog {
+  final String id;
+  final String phone; // 数据库里是 +86 开头
+  final String purpose;
+  final String kind; // code | notice
+  final String? code;
+  final String content;
+  final String provider;
+  final String signName;
+  final String status; // pending | sent | failed
+  final String error;
+  final int attempts;
+  final String storeName;
+  final DateTime createdAt;
+  final DateTime? sentAt;
+  final DateTime? expiresAt;
+  final DateTime? consumedAt;
+  const SmsLog({
+    required this.id,
+    required this.phone,
+    required this.purpose,
+    required this.kind,
+    required this.code,
+    required this.content,
+    required this.provider,
+    required this.signName,
+    required this.status,
+    required this.error,
+    required this.attempts,
+    required this.storeName,
+    required this.createdAt,
+    required this.sentAt,
+    required this.expiresAt,
+    required this.consumedAt,
+  });
+  factory SmsLog.fromJson(Map j) {
+    DateTime? time(dynamic v) =>
+        v == null ? null : DateTime.parse(v as String).toUtc();
+    return SmsLog(
+      id: j['id'] as String,
+      phone: j['phone'] as String,
+      purpose: j['purpose'] as String,
+      kind: j['kind'] as String,
+      code: j['code'] as String?,
+      content: j['content'] as String? ?? '',
+      provider: j['provider'] as String? ?? '',
+      signName: j['sign_name'] as String? ?? '',
+      status: j['status'] as String,
+      error: j['error'] as String? ?? '',
+      attempts: j['attempts'] as int? ?? 0,
+      storeName: j['store_name'] as String? ?? '',
+      createdAt: DateTime.parse(j['created_at'] as String).toUtc(),
+      sentAt: time(j['sent_at']),
+      expiresAt: time(j['expires_at']),
+      consumedAt: time(j['consumed_at']),
+    );
+  }
+
+  bool get isCode => kind == 'code';
+  bool get failed => status == 'failed';
+
+  /// `+8613800137712` → `138 0013 7712`，手机号不脱敏。
+  String get phoneText {
+    final d = phone.replaceAll(RegExp(r'\D'), '');
+    final n = d.length >= 11 ? d.substring(d.length - 11) : d;
+    return n.length == 11
+        ? '${n.substring(0, 3)} ${n.substring(3, 7)} ${n.substring(7)}'
+        : n;
+  }
+
+  String get purposeLabel => switch (purpose) {
+    'login' => '登录验证码',
+    'register' => '注册验证码',
+    'reset_password' => '找回密码验证码',
+    'change_phone_old' || 'change_phone_new' => '换绑手机号验证码',
+    'delete_account' => '注销账号验证码',
+    _ => isCode ? '验证码' : '通知',
+  };
+
+  String get scene => switch (purpose) {
+    'login' => '登录 · 验证码登录',
+    'register' => '注册 · 开通账号',
+    'reset_password' => '找回密码 · 重置密码',
+    'change_phone_old' => '账号与安全 · 更换手机号（当前号码）',
+    'change_phone_new' => '账号与安全 · 更换手机号（新号码）',
+    'delete_account' => '账号与安全 · 注销账号',
+    _ => purpose,
+  };
+
+  String get channelText => provider.isEmpty
+      ? '—'
+      : '${switch (provider) {
+          'zhutong' => '助通短信',
+          _ => provider,
+        }}${signName.isEmpty ? '' : ' · 签名「$signName」'}';
+
+  /// 当前还可使用：发送成功、没用过、没过期、错误次数没超限。
+  bool usable(DateTime now) =>
+      isCode &&
+      status == 'sent' &&
+      consumedAt == null &&
+      attempts < 5 &&
+      expiresAt != null &&
+      expiresAt!.isAfter(now);
+
+  /// 验证状态（详情页）。
+  String verifyText(DateTime now) {
+    if (!isCode || status != 'sent') return '—';
+    if (consumedAt != null) return '已使用';
+    if (attempts >= 5) return '错误次数过多';
+    if (expiresAt != null && !expiresAt!.isAfter(now)) return '已过期';
+    return '未使用';
+  }
+
+  /// 列表第三行 / 详情卡片副标题。
+  String lifeText(DateTime now) {
+    if (status == 'failed') return '';
+    if (status == 'pending') return '发送中';
+    if (!isCode) return storeName;
+    if (consumedAt != null) return '已使用';
+    if (attempts >= 5) return '错误次数过多';
+    final left = expiresAt?.difference(now) ?? Duration.zero;
+    if (left <= Duration.zero) return '已过期';
+    return '5 分钟内有效，剩余 ${left.inMinutes}:${(left.inSeconds % 60).toString().padLeft(2, '0')}';
+  }
+
+  /// 北京时间 HH:mm。
+  String get timeText {
+    final d = beijingDate(createdAt.toIso8601String());
+    return '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
+  }
+
+  static String full(DateTime? t) {
+    if (t == null) return '—';
+    final d = beijingDate(t.toIso8601String());
+    String two(int n) => n.toString().padLeft(2, '0');
+    return '${d.year}-${two(d.month)}-${two(d.day)} ${two(d.hour)}:${two(d.minute)}:${two(d.second)}';
+  }
+}
+
+/// 一页短信记录与翻页游标。
+class SmsPage {
+  final List<SmsLog> items;
+  final bool more;
+  final int failedCount;
+  const SmsPage(this.items, this.more, this.failedCount);
+}

@@ -458,8 +458,12 @@ class AdPage extends StatelessWidget {
   final Widget? dock;
   final bool nav; // 位于底部导航之上，不需要自己预留 home 条
   final double gap;
+
+  /// 下拉刷新；默认刷新全部运营数据，短信记录这类独立列表传自己的刷新。
+  final Future<void> Function()? onRefresh;
   const AdPage({
     super.key,
+    this.onRefresh,
     this.title,
     this.back = true,
     this.action,
@@ -478,7 +482,7 @@ class AdPage extends StatelessWidget {
         behavior: HitTestBehavior.translucent,
         onTap: () => FocusScope.of(context).unfocus(),
         child: RefreshIndicator(
-          onRefresh: () async {
+          onRefresh: onRefresh ?? () async {
             try {
               await store.refresh();
               if (context.mounted) AppToast.show(context, '已更新');
@@ -545,11 +549,15 @@ class Segmented extends StatelessWidget {
   final List<String> labels;
   final int index;
   final ValueChanged<int> onChanged;
+
+  /// 标签后面的红色数字角标（如「失败 3」），键是标签序号。
+  final Map<int, int> badges;
   const Segmented({
     super.key,
     required this.labels,
     required this.index,
     required this.onChanged,
+    this.badges = const {},
   });
   @override
   Widget build(BuildContext context) => Container(
@@ -573,15 +581,38 @@ class Segmented extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: i == index ? softShadow : null,
                 ),
-                child: Text(
-                  labels[i],
-                  style: ts(
-                    13,
-                    w: FontWeight.w500,
-                    color: i == index ? C.ink : C.sub,
-                    h: 18,
-                  ),
-                ),
+                child: (badges[i] ?? 0) > 0
+                    ? Text.rich(
+                        TextSpan(
+                          text: labels[i],
+                          children: [
+                            TextSpan(
+                              text: ' ${badges[i]}',
+                              style: ts(
+                                13,
+                                w: FontWeight.w500,
+                                color: C.redInk,
+                                h: 18,
+                              ),
+                            ),
+                          ],
+                        ),
+                        style: ts(
+                          13,
+                          w: FontWeight.w500,
+                          color: i == index ? C.ink : C.sub,
+                          h: 18,
+                        ),
+                      )
+                    : Text(
+                        labels[i],
+                        style: ts(
+                          13,
+                          w: FontWeight.w500,
+                          color: i == index ? C.ink : C.sub,
+                          h: 18,
+                        ),
+                      ),
               ),
             ),
           ),
