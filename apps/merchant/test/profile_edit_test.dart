@@ -134,6 +134,8 @@ void main() {
     await open(t);
     imageStore('ProfileEdit_avatar').value = [file.path];
     await t.tap(find.text('保存'));
+    // 读取本地图片文件是真实 IO，需要在真实异步里等它完成。
+    await t.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 300)));
     await t.pumpAndSettle();
     expect(api.uploads, hasLength(1));
     expect(api.profileSaves, hasLength(1));
