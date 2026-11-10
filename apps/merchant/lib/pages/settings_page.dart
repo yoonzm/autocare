@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../backend/merchant_api.dart';
+import '../backend/access_flow.dart';
 import '../backend/appointment_flow.dart';
 import '../kit/async_kit.dart';
 import '../backend/catalog_draft.dart';
 import '../backend/store_profile.dart';
 import '../theme.dart';
-import '../mock/app_state.dart';
 import '../mock/theme_state.dart';
 import '../routes.dart';
 import '../widgets/app_icon.dart';
@@ -51,7 +51,23 @@ class _SettingsPageState extends State<SettingsPage> {
                     ScrollViewKeyboardDismissBehavior.onDrag,
                 padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
                 children: [
-                  _profile(context),
+                  SizedBox(
+                    height: C.dark ? 176 : 174,
+                    child: AsyncView<Map<String, dynamic>>(
+                      load: _loadProfile,
+                      isEmpty: (_) => false,
+                      inlineError: true,
+                      pullToRefresh: false,
+                      skeletonScrollable: false,
+                      skeletonPadding: EdgeInsets.zero,
+                      waiting: const SizedBox(height: 174),
+                      skeleton: _profileSkeleton(),
+                      empty: (_) => const SizedBox.shrink(),
+                      onLoaded: storeProfile.apply,
+                      onNext: () => openRoute(context, 'Login'),
+                      builder: (context, data) => _profile(context, data),
+                    ),
+                  ),
                   const SizedBox(height: 20),
                   SizedBox(
                     height: 263,
@@ -207,66 +223,6 @@ class _SettingsPageState extends State<SettingsPage> {
     ),
   ]);
 
-  /// 演示用：切换订阅状态，查看首页在不同状态下的呈现。
-  void _demoSheet(BuildContext context) {
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: C.card,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      builder: (ctx) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
-          child: ValueListenableBuilder<SubState>(
-            valueListenable: subState,
-            builder: (_, cur, _) => Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('汽美管家 v1.0.0', style: ts(17, w: FontWeight.w600, h: 24)),
-                const SizedBox(height: 4),
-                Text(
-                  '演示：切换套餐状态，首页会显示对应的提醒或到期页',
-                  style: ts(12, color: C.muted, h: 16),
-                ),
-                const SizedBox(height: 12),
-                for (final st in SubState.values)
-                  GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () {
-                      subState.value = st;
-                      Navigator.of(ctx).pop();
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              subStateLabels[st]!,
-                              style: ts(15, h: 22),
-                            ),
-                          ),
-                          if (cur == st)
-                            const AppIcon(
-                              'check',
-                              size: 18,
-                              color: C.primary,
-                              stroke: 2.6,
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   void _open(BuildContext context, _Item item) {
     if (item.route != null) {
       openRoute(context, item.route!);
@@ -275,10 +231,81 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
-  Widget _profile(BuildContext context) => GestureDetector(
-    // 演示入口：长按个人卡片，切换套餐状态（首页提醒条 / 到期页）
-    onLongPress: () => _demoSheet(context),
-    child: Container(
+  Future<Map<String, dynamic>> _loadProfile() async {
+    final store = await merchantApi.getStore();
+    // 店长使用同一个商家外壳，个人信息必须来自当前员工身份。
+    final identity = Access.isOwner
+        ? null
+        : await merchantApi.identity('context');
+    return {...store, '_identity': identity};
+  }
+
+  Widget _profileSkeleton() => Container(
+    padding: const EdgeInsets.all(20),
+    decoration: BoxDecoration(
+      color: C.heroCard,
+      border: C.heroBorder,
+      borderRadius: BorderRadius.circular(28),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Row(
+          children: [
+            AppSkeleton(width: 56, height: 56, radius: 28),
+            SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AppSkeleton(width: 120, height: 26),
+                  SizedBox(height: 4),
+                  AppSkeleton(width: 108, height: 16),
+                ],
+              ),
+            ),
+            AppSkeleton(width: 40, height: 40, radius: 20),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            color: C.dark2,
+            borderRadius: BorderRadius.circular(18),
+          ),
+          child: const Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AppSkeleton(width: 160, height: 20),
+              SizedBox(height: 2),
+              AppSkeleton(width: 130, height: 16),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+
+  Widget _profile(BuildContext context, Map<String, dynamic> data) {
+    final identity = data['_identity'] as Map<String, dynamic>?;
+    final name =
+        '${identity == null ? data['contact_name'] ?? '' : identity['name'] ?? ''}'
+            .trim();
+    final contactRole = '${data['contact_role'] ?? ''}'.trim();
+    final role = identity == null
+        ? (contactRole.isEmpty ? Access.roleBrief('owner') : contactRole)
+        : Access.roleBrief('${identity['role']}');
+    final phone =
+        '${identity == null ? data['account_phone'] ?? '' : identity['phone'] ?? ''}'
+            .replaceAll(RegExp(r'\D'), '');
+    final localPhone = phone.length >= 11
+        ? phone.substring(phone.length - 11)
+        : phone;
+    final maskedPhone = localPhone.length == 11
+        ? '${localPhone.substring(0, 3)} **** ${localPhone.substring(7)}'
+        : (localPhone.isEmpty ? '—' : localPhone);
+    return Container(
       clipBehavior: Clip.antiAlias,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -309,7 +336,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       boxShadow: [BoxShadow(color: C.dark2, spreadRadius: 3)],
                     ),
                     child: Text(
-                      '陈',
+                      name.isEmpty ? '—' : name.characters.first,
                       style: ts(20, w: FontWeight.w600, color: Colors.white),
                     ),
                   ),
@@ -321,7 +348,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         Row(
                           children: [
                             Text(
-                              '陈明',
+                              name.isEmpty ? '—' : name,
                               style: ts(
                                 18,
                                 w: FontWeight.w600,
@@ -330,14 +357,11 @@ class _SettingsPageState extends State<SettingsPage> {
                               ),
                             ),
                             const SizedBox(width: 8),
-                            Pill('店长', bg: C.gold, fg: C.onGold, size: 11),
+                            Pill(role, bg: C.gold, fg: C.onGold, size: 11),
                           ],
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                          '139 **** 8812',
-                          style: ts(12, color: C.faint, h: 16),
-                        ),
+                        Text(maskedPhone, style: ts(12, color: C.faint, h: 16)),
                       ],
                     ),
                   ),
@@ -384,9 +408,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           ListenableBuilder(
                             listenable: storeProfile,
                             builder: (_, _) => Text(
-                              storeProfile.live
-                                  ? storeProfile.name
-                                  : '驰光汽车美容 · 徐汇店',
+                              storeProfile.live ? storeProfile.name : '—',
                               style: ts(
                                 14,
                                 w: FontWeight.w500,
@@ -399,9 +421,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           ListenableBuilder(
                             listenable: storeProfile,
                             builder: (_, _) => Text(
-                              storeProfile.live
-                                  ? storeProfile.expiryLine
-                                  : '专业版 · 2027.10.30 到期',
+                              storeProfile.live ? storeProfile.expiryLine : '—',
                               style: ts(12, color: C.faint, h: 16),
                             ),
                           ),
@@ -436,8 +456,8 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
         ],
       ),
-    ),
-  );
+    );
+  }
 
   Widget _group(BuildContext context, String title, List<_Item> items) =>
       Column(
