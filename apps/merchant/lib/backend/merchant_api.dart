@@ -24,6 +24,9 @@ const supabasePublishableKey = String.fromEnvironment(
 /// 登录态失效（刷新令牌也失败）时 +1，App 根据它回到登录页。
 final ValueNotifier<int> authExpired = ValueNotifier(0);
 
+/// 服务端返回的身份 / 套餐状态（plan_expired / join_required / staff_disabled），由 App 外壳统一跳转。
+final ValueNotifier<String?> accessIssue = ValueNotifier<String?>(null);
+
 /// Only calls the V1 cloud function. Business tables are never written here.
 /// [MerchantApi.members] 的结果。
 class MemberPage {
@@ -93,6 +96,9 @@ class MerchantApi {
     'staff_list',
     'staff_get',
     'staff_records',
+    'staff_home',
+    'identity_list',
+    'identity_context',
     'home_stats',
     'settings_stats',
     'list_stores',
@@ -133,6 +139,15 @@ class MerchantApi {
     try {
       return await send();
     } on AppError catch (e) {
+      // 身份 / 套餐状态：交给全局处理（回登录、套餐到期页、加入门店），不当作令牌失效重试
+      if (const {
+        'plan_expired',
+        'join_required',
+        'staff_disabled',
+      }.contains(e.code)) {
+        accessIssue.value = e.code;
+        rethrow;
+      }
       if (e.type == AppErrorType.auth && !_publicActions.contains(action)) {
         // 401：先静默刷新令牌；仍失败才判定登录失效
         try {
@@ -183,7 +198,14 @@ class MerchantApi {
       if (response.status < 200 ||
           response.status >= 300 ||
           data['error'] != null) {
-        throw AppError.fromStatus(response.status, data['error']?.toString());
+        final error = AppError.fromStatus(
+          response.status,
+          data['error']?.toString(),
+        );
+        final code = data['code']?.toString();
+        throw code == null || code.isEmpty
+            ? error
+            : AppError(error.message, type: error.type, code: code);
       }
       return data;
     } catch (e) {
@@ -298,6 +320,22 @@ class MerchantApi {
     return Map<String, dynamic>.from(data['item'] as Map);
   }
 
+  /// 登录后的身份：list 列出「门店 + 身份」/ select 选择身份（staff_id 为空表示老板）/ join 首次确认加入门店 /
+  /// context 当前身份、生效权限与套餐状态。权限在服务端逐请求校验，这里只用来决定显示什么。
+  Future<Map<String, dynamic>> identity(
+    String action, [
+    Map<String, dynamic> values = const {},
+  ]) async {
+    final data = await invoke({...values, 'action': 'identity_$action'});
+    return Map<String, dynamic>.from(data['item'] as Map);
+  }
+
+  /// 员工工作台（技师：今日任务与业绩；前台：今日笔数与待到店）。
+  Future<Map<String, dynamic>> staffHome() async {
+    final data = await invoke({'action': 'staff_home'});
+    return Map<String, dynamic>.from(data['item'] as Map);
+  }
+
   /// 订单中心：list（统一订单列表 + 汇总）/ detail / refund。金额、状态、退回方式都由云函数计算。
   Future<Map<String, dynamic>> orderCenter(
     String action, [
@@ -358,6 +396,7 @@ class MerchantApi {
       'phone': phone,
       'password': password,
     });
+    loginHasStaff = data['staff'] == true;
     await withSupabaseErrors(
       () => client.auth.setSession(
         data['refresh_token'] as String,
@@ -366,12 +405,16 @@ class MerchantApi {
     );
   }
 
+  /// 最近一次登录的手机号是否登记了员工身份（服务端判断）；是则登录后要走身份选择，而不是直接进商家首页。
+  bool loginHasStaff = false;
+
   Future<void> loginCode(String phone, String code) async {
     final data = await invoke({
       'action': 'login_code',
       'phone': phone,
       'code': code,
     });
+    loginHasStaff = data['staff'] == true;
     await withSupabaseErrors(
       () => client.auth.setSession(
         data['refresh_token'] as String,

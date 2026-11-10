@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+import '../backend/access_flow.dart';
 import '../backend/merchant_api.dart';
 import '../kit/async_kit.dart';
 import '../backend/store_profile.dart';
@@ -11,6 +12,7 @@ import '../theme.dart';
 import '../routes.dart';
 import '../widgets/app_icon.dart';
 import '../widgets/common.dart';
+import 'access_pages.dart';
 import 'shell.dart';
 
 class LoginPage extends StatefulWidget {
@@ -104,6 +106,15 @@ class _LoginPageState extends State<LoginPage> {
       // 失败立即恢复可点
       if (mounted) {
         setState(() => sending = false);
+        // 手机号既不是店主也没有被登记为员工：说明原因和下一步（设计稿 StAuthFail）
+        if (e is AppError && e.code == 'phone_unregistered') {
+          Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (_) => StAuthFailTemplate(phone: phone.text.trim()),
+            ),
+          );
+          return;
+        }
         AppToast.error(context, e);
       }
       return;
@@ -158,7 +169,8 @@ class _LoginPageState extends State<LoginPage> {
           } else {
             await merchantApi.loginPassword(phone.text.trim(), pwd.text);
           }
-          await storeProfile.load();
+          // 登记了员工身份的手机号登录后先选身份（老板的门店资料在进入老板身份时读取）
+          if (!merchantApi.loginHasStaff) await storeProfile.load();
         }(),
         Future<void>.delayed(kIndicatorMinShow),
       ]);
@@ -171,6 +183,17 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
     if (!mounted) return;
+    if (merchantApi.loginHasStaff) {
+      try {
+        await AccessFlow.afterLogin(context, phone.text.trim());
+      } catch (e) {
+        if (mounted) {
+          setState(() => busy = false);
+          AppToast.error(context, e);
+        }
+      }
+      return;
+    }
     Navigator.of(context)
         .pushReplacement(MaterialPageRoute(builder: (_) => const Shell()));
   }

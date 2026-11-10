@@ -96,6 +96,60 @@ class BookingApi extends MemberFakeApi {
       'active': true,
     });
   }
+  /// 合并后的 App：登录后的身份（老板 / 前台 / 技师）与当前身份上下文。
+  List<Map<String, dynamic>> identities = [
+    {'kind': 'owner', 'role': 'owner', 'store_id': 's1', 'store_name': '驰光汽车美容 · 徐汇店', 'stores': 2, 'current': true},
+    {'kind': 'staff', 'staff_id': 'c1', 'role': 'cashier', 'store_id': 's2', 'store_name': '星航汽车养护 · 闵行店', 'status': 'active', 'hint': ''},
+    {'kind': 'staff', 'staff_id': 't1', 'role': 'technician', 'store_id': 's3', 'store_name': '悦驰汽车装饰 · 松江店', 'status': 'active', 'hint': '待施工 2'},
+  ];
+  Map<String, dynamic> identityCtx = {
+    'role': 'technician',
+    'store_id': 's3',
+    'store_name': '悦驰汽车装饰 · 松江店',
+    'name': '老周',
+    'phone': '13877127712',
+    'joined_on': '2022-03-14',
+    'status': 'active',
+    'plan_expired': false,
+    'identity_count': 3,
+    'caps': {'order_view_own': true, 'progress_update': true, 'order_submit': true, 'member_lookup': true, 'stock_use': true, 'perf_view_own': true},
+  };
+  Map<String, dynamic> home = {
+    'role': 'technician',
+    'name': '老周',
+    'phone': '13877127712',
+    'joined_on': '2022-03-14',
+    'tasks': [
+      {'id': 'a1', 'plate': '沪A8K29M', 'status': 'arrived', 'starts_at': '2026-11-10T02:30:00Z', 'duration_minutes': 240, 'customer': '王建国', 'items': [{'name': '全车镀晶 · 9H 陶瓷'}], 'bay_name': '3 号工位'},
+      {'id': 'a2', 'plate': '沪AF09316', 'status': 'waiting', 'starts_at': '2026-11-10T05:00:00Z', 'duration_minutes': 30, 'customer': '李梅', 'items': [{'name': '精致洗车'}], 'bay_name': null},
+    ],
+    'done_today': 4,
+    'revenue_today': 3860,
+    'commission_today': 386,
+    'waiting': 1,
+    'working': 1,
+    'month_done': 62,
+    'month_commission': 4620,
+  };
+  @override
+  Future<Map<String, dynamic>> identity(String action, [Map<String, dynamic> values = const {}]) async {
+    calls.add({'action': 'identity_$action', ...values});
+    if (writeError != null && action != 'list' && action != 'context') throw writeError!;
+    return switch (action) {
+      'list' => {'items': identities},
+      'select' => {'ok': true},
+      'join' => {'ok': true},
+      'context' => {...identityCtx},
+      _ => throw UnsupportedError(action),
+    };
+  }
+
+  @override
+  Future<Map<String, dynamic>> staffHome() async {
+    calls.add({'action': 'staff_home'});
+    return {...home};
+  }
+
   /// 员工管理：一位营业中的技师、一位待激活的前台，和本店服务项目 / 工位。
   final staffRows = <Map<String, dynamic>>[
     {

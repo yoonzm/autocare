@@ -38,6 +38,8 @@ import 'pages/product_edit_live_page.dart';
 import 'pages/product_list_live_page.dart';
 import 'pages/store_switch_live_sheet.dart';
 import 'pages/staff_live.dart';
+import 'pages/staff_tabs.dart';
+import 'backend/access_flow.dart';
 import 'pages/staff_detail_template.dart';
 import 'pages/staff_detail_off_template.dart';
 import 'pages/staff_commission_template.dart';
@@ -265,6 +267,8 @@ Widget? pageFor(String name) {
     case 'ScanPlate':
       return const ScanPage(ScanKind.plateCard);
   }
+  final st = stPageFor(name);
+  if (st != null) return st;
   final b = genRoutes[name];
   return b == null ? null : Builder(builder: b);
 }
@@ -809,8 +813,35 @@ Future<void> _signOutEverywhere(BuildContext context) async {
   if (ok && context.mounted) _openRouteCore(context, 'Login');
 }
 
+/// 没有对应权限时直达这些页面：显示「暂无权限访问」（设计稿 StNoPerm），入口本身已按权限隐藏。
+const Map<String, (String, String)> _routeCaps = {
+  'Staff': ('staff_view', '查看员工列表'),
+  'Stats': ('stats_view_store', '查看门店营业统计'),
+  'Expenses': ('expense', '开支管理'),
+  'Inventory': ('stock_manage', '库存管理'),
+  'Services': ('catalog_manage', '服务项目'),
+  'CardTiers': ('catalog_manage', '会员卡种'),
+  'AppointmentSettings': ('appt_settings', '预约设置'),
+  'Plans': ('owner', '套餐与订阅'),
+  'Subscription': ('owner', '套餐与订阅'),
+};
+
 void _openRouteCore(BuildContext context, String name) {
   final nav = Navigator.of(context);
+  if (!Access.isOwner) {
+    final need = _routeCaps[name];
+    if (need != null && (need.$1 == 'owner' || !Access.can(need.$1))) {
+      nav.push(MaterialPageRoute<void>(builder: (_) => staffNoPerm(need.$2)));
+      return;
+    }
+    // 员工外壳的 Tab：切换底部导航，而不是再压一层页面
+    final tab = staffTabIndex(name);
+    if (tab != null && Access.usesStaffShell) {
+      staffTab.value = tab;
+      nav.popUntil((r) => r.isFirst);
+      return;
+    }
+  }
   final cur = _routeName(context);
   final inSheet = cur != null && cur.startsWith('sheet:');
   if (inSheet) {

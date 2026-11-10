@@ -33,10 +33,39 @@ export function sessionId(token: string): string | null {
     return typeof value==='string' ? value : null;
   }catch{return null;}
 }
-export async function merchantSession(user: string,token: string,business: boolean): Promise<string|Response>{
-  const {data,error}=await admin.rpc('platform_merchant_session',{p_user:user,p_session:sessionId(token),p_business:business});
-  if(error||!data)return fail('服务状态校验失败，请稍后重试',503);
-  return data.error?fail(data.error,data.status):data.store_id as string;
+export interface SessionState {
+  store: string;
+  role: 'owner' | 'manager' | 'cashier' | 'technician';
+  staffId: string | null;
+}
+export const failCode = (message: string, status: number, code?: string) =>
+  json(code ? { error: message, code } : { error: message }, status);
+
+/** 解析当前会话的门店与身份（老板，或该会话选中的员工身份）；套餐到期、停用等状态带 code 返回。 */
+export async function resolveSession(user: string, token: string, business: boolean): Promise<SessionState | Response> {
+  const { data, error } = await admin.rpc('platform_merchant_session', {
+    p_user: user, p_session: sessionId(token), p_business: business,
+  });
+  if (error || !data) return fail('服务状态校验失败，请稍后重试', 503);
+  if (data.error) return failCode(data.error, data.status, data.code);
+  return { store: data.store_id as string, role: (data.role ?? 'owner') as SessionState['role'], staffId: data.staff_id ?? null };
+}
+export async function merchantSession(user: string, token: string, business: boolean): Promise<string | Response> {
+  const state = await resolveSession(user, token, business);
+  return state instanceof Response ? state : state.store;
+}
+
+/** 只校验令牌与会话，不要求已选好门店身份（登录后选择身份、加入门店用）。 */
+export async function authOnly(request: Request): Promise<{ response: Response } | { user: User; token: string; session: string }> {
+  const token = request.headers.get('Authorization')?.replace(/^Bearer\s+/i, '');
+  if (!token) return { response: fail('请先登录', 401) };
+  const { data, error } = await admin.auth.getUser(token);
+  if (error || !data.user) return { response: fail('登录已过期', 401) };
+  const session = sessionId(token);
+  const { data: valid, error: validError } = await admin.rpc('staff_session_valid', { p_user: data.user.id, p_session: session });
+  if (validError) return { response: fail('服务状态校验失败，请稍后重试', 503) };
+  if (!valid || !session) return { response: fail('登录已过期', 401) };
+  return { user: data.user, token, session };
 }
 
 export async function userFor(request: Request): Promise<

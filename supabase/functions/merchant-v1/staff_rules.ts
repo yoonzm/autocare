@@ -3,8 +3,11 @@ import type { Input } from './types.ts';
 const id = (v: unknown) => typeof v === 'string' && /^[0-9a-f]{8}-[0-9a-f-]{27,36}$/i.test(v);
 export const staffRoles = ['manager', 'cashier', 'technician'] as const;
 export const permissionKeys = [
-  'order_view_own', 'order_view_all', 'progress_update', 'cashier', 'member_view',
-  'member_recharge_refund', 'stock_use', 'stock_manage', 'perf_view_own', 'stats_view_store',
+  'order_view_own', 'order_view_all', 'progress_update', 'cashier', 'member_view', 'member_recharge_refund',
+  'stock_use', 'stock_manage', 'perf_view_own', 'stats_view_store',
+  'arrivals_today', 'order_submit', 'cash_queue', 'order_refund', 'member_lookup', 'member_edit', 'member_refund_adjust',
+  'member_delete', 'appt_view', 'appt_edit', 'appt_settings', 'stock_product', 'catalog_manage', 'staff_view', 'staff_manage',
+  'expense', 'export',
 ] as const;
 export const skillOptions = ['洗车', '内饰清洁', '镀晶', '抛光', '贴膜', '石墨烯镀膜', '空调杀菌'];
 const day = (v: unknown) =>
@@ -67,7 +70,7 @@ export function parseStatus(i: Input): Input | string {
 }
 
 export function parsePermissions(i: Input): Input | string {
-  if (!['cashier', 'technician'].includes(String(i.role))) return '店长权限固定为全部';
+  if (!['manager', 'cashier', 'technician'].includes(String(i.role))) return '老板权限固定为全部';
   if (i.permissions == null || typeof i.permissions !== 'object' || Array.isArray(i.permissions)) return '权限设置无效';
   const out: Record<string, boolean> = {};
   for (const [k, v] of Object.entries(i.permissions as Record<string, unknown>)) {

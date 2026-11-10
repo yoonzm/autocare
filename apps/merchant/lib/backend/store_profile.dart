@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import 'access_flow.dart';
 import 'store_context.dart';
 import 'subscription_flow.dart';
 import 'hold_flow.dart';
@@ -125,6 +126,7 @@ class StoreProfile extends ChangeNotifier {
   }
 
   void clear() {
+    Access.clear();
     StoreContext.invalidate();
     subscriptionFlow.reset();
     live = false;

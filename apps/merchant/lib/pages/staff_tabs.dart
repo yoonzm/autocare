@@ -1,0 +1,174 @@
+import 'package:flutter/material.dart';
+
+import '../backend/access_flow.dart';
+import '../kit/kit.dart' show dk, hsvg, hts;
+import 'appointments_page.dart';
+import 'gen_st/svgs.dart';
+import 'members_page.dart';
+import 'st_front_home_template.dart';
+import 'st_home_template.dart';
+import 'st_mine_template.dart';
+import 'st_no_perm_template.dart';
+
+/// 员工外壳（前台收银 / 施工技师）当前选中的底部 Tab。
+final ValueNotifier<int> staffTab = ValueNotifier<int>(0);
+
+/// 员工外壳里的 Tab 路由名 → 下标。前台与技师的第 2、3 个 Tab 不同。
+int? staffTabIndex(String name) => switch (Access.role) {
+  'technician' => const {'StHome': 0, 'StTasks': 1, 'StMember': 2, 'StMine': 3}[name],
+  'cashier' => const {'StFrontHome': 0, 'Appointments': 1, 'Members': 2, 'StMine': 3}[name],
+  _ => null,
+};
+
+/// 员工端设计稿里还没有对应后端的页面：明确提示，不展示示例数据。
+class StTodoPage extends StatelessWidget {
+  final String title;
+  final String reason;
+  const StTodoPage({super.key, required this.title, this.reason = '该功能暂未接通，后端接口完成后开放。'});
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(title: Text(title), centerTitle: true),
+    body: Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Text('TODO：$reason', textAlign: TextAlign.center),
+      ),
+    ),
+  );
+}
+
+class StaffTabs extends StatefulWidget {
+  const StaffTabs({super.key});
+
+  @override
+  State<StaffTabs> createState() => _StaffTabsState();
+}
+
+class _StaffTabsState extends State<StaffTabs> {
+  @override
+  void initState() {
+    super.initState();
+    staffTab.value = 0;
+    Access.changed.addListener(_onAccess);
+  }
+
+  @override
+  void dispose() {
+    Access.changed.removeListener(_onAccess);
+    super.dispose();
+  }
+
+  void _onAccess() {
+    if (mounted) setState(() {});
+  }
+
+  List<Widget> get _pages => Access.role == 'technician'
+      ? const [
+          StHomeLivePage(),
+          StTodoPage(title: '我的任务', reason: '任务列表待接通。'),
+          StTodoPage(title: '会员查询', reason: '会员简况（脱敏）待接通。'),
+          StMineLivePage(),
+        ]
+      : const [StFrontHomeLivePage(), AppointmentsPage(), MembersPage(), StMineLivePage()];
+
+  @override
+  Widget build(BuildContext context) => ValueListenableBuilder<int>(
+    valueListenable: staffTab,
+    builder: (context, idx, _) => Scaffold(
+      body: IndexedStack(index: idx, children: _pages),
+      bottomNavigationBar: StaffNavBar(
+        index: idx,
+        role: Access.role,
+        onTap: (i) => staffTab.value = i,
+      ),
+    ),
+  );
+}
+
+/// 设计稿底部导航（84 高，含安全区）：工作台 · 任务 / 预约 · 会员 · 我的。
+class StaffNavBar extends StatelessWidget {
+  final int index;
+  final String role;
+  final ValueChanged<int> onTap;
+  const StaffNavBar({super.key, required this.index, required this.role, required this.onTap});
+
+  // 设计稿的图标是描边 SVG；选中态只是把灰色描边换成主色。
+  static String _blue(String svg) => svg.replaceAll('#71717A', '#0485F7').replaceAll('#9A9AA3', '#0485F7');
+
+  @override
+  Widget build(BuildContext context) {
+    final tabs = role == 'technician'
+        ? [('工作台', Svgs.s51, Svgs.s52), ('任务', Svgs.s43, Svgs.s44), ('会员', Svgs.s34, Svgs.s35), ('我的', Svgs.s34, Svgs.s35)]
+        : [('工作台', Svgs.s51, Svgs.s52), ('预约', Svgs.s32, Svgs.s33), ('会员', Svgs.s34, Svgs.s35), ('我的', Svgs.s34, Svgs.s35)];
+    final bottom = MediaQuery.paddingOf(context).bottom;
+    return Container(
+      height: 84 - 34 + (bottom > 0 ? bottom : 34),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      decoration: BoxDecoration(
+        color: dk(context, const Color(0xFFFFFFFF), const Color(0xFF18181B)),
+        border: Border(top: BorderSide(color: dk(context, const Color(0xFFE8E8EA), const Color(0xFF26262B)))),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (var i = 0; i < tabs.length; i++)
+            Expanded(
+              child: Semantics(
+                button: true,
+                selected: i == index,
+                label: tabs[i].$1,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => onTap(i),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: Column(
+                      children: [
+                        hsvg(i == index ? _blue(tabs[i].$2) : dk(context, tabs[i].$2, tabs[i].$3), w: 24, h: 24),
+                        const SizedBox(height: 3),
+                        Text(
+                          tabs[i].$1,
+                          style: hts(
+                            11,
+                            i == index ? const Color(0xFF0485F7) : dk(context, const Color(0xFF71717A), const Color(0xFF9A9AA3)),
+                            w: i == index ? FontWeight.w600 : FontWeight.w500,
+                            lh: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 没有权限的直达路由统一落到这里（设计稿 StNoPerm）。
+Widget staffNoPerm(String need) => StNoPermTemplate(need: need);
+
+/// 员工端路由 → 页面。没有后端的页面显示明确的 TODO，不展示设计稿里的示例数据。
+Widget? stPageFor(String name) => switch (name) {
+  'StHome' => const StHomeLivePage(),
+  'StFrontHome' => const StFrontHomeLivePage(),
+  'StMine' => const StMineLivePage(),
+  'StNoPerm' => const StNoPermTemplate(),
+  'StTasks' => const StTodoPage(title: '我的任务', reason: '任务列表待接通。'),
+  'StTaskDetail' => const StTodoPage(title: '任务详情', reason: '任务详情、进度与完工提交待接通。'),
+  'StProgress' => const StTodoPage(title: '更新进度', reason: '施工进度待接通。'),
+  'StFinish' => const StTodoPage(title: '完工提交', reason: '完工提交待接通。'),
+  'StDone' => const StTodoPage(title: '已完工', reason: '完工提交待接通。'),
+  'StArrivals' => const StTodoPage(title: '今日到店', reason: '今日到店待接通。'),
+  'StMember' => const StTodoPage(title: '会员查询', reason: '会员简况（脱敏）待接通。'),
+  'StMemberInfo' => const StTodoPage(title: '会员简况', reason: '会员简况（脱敏）待接通。'),
+  'StVerify' || 'StVerifyCode' => const StTodoPage(title: '扫码找会员', reason: '扫码找会员待接通。'),
+  'StOrder' => const StTodoPage(title: '快速开单', reason: '技师提交开单、待收银队列待接通。'),
+  'StCashQueue' => const StTodoPage(title: '待收银', reason: '待收银队列待接通。'),
+  'StPerf' => const StTodoPage(title: '业绩提成', reason: '业绩提成明细待接通。'),
+  'StMsgs' => const StTodoPage(title: '消息', reason: '消息中心待接通。'),
+  _ => null,
+};

@@ -1,0 +1,275 @@
+// 从员工端设计稿生成页派生（tools/bind_st.py），仅绑定数据和事件；不手工修改 gen_st/。
+import 'package:flutter/material.dart';
+
+import '../backend/access_flow.dart';
+import '../backend/staff_flow.dart';
+import '../kit/kit.dart';
+import 'gen_st/svgs.dart';
+
+class StAuthFailTemplate extends StatelessWidget {
+  final String phone;
+  const StAuthFailTemplate({super.key, required this.phone});
+
+  @override
+  Widget build(BuildContext context) {
+    return HPage(
+      bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
+      height: 844,
+      fixedHeight: false,
+      flow: hcol(
+        [
+          hbox(
+            h: 360,
+            grad: LinearGradient(
+              begin: Alignment(-0.5, -0.866),
+              end: Alignment(0.5, 0.866),
+              colors: [Color(0xFF26262C), Color(0xFF18181B), Color(0xFF2B2418)],
+              stops: [0, 0.55, 1],
+            ),
+            radius: BorderRadius.only(
+              topLeft: Radius.circular(0),
+              topRight: Radius.circular(0),
+              bottomRight: Radius.circular(40),
+              bottomLeft: Radius.circular(40),
+            ),
+            clip: true,
+            child: hstack(
+              hcol(
+                [],
+                main: MainAxisAlignment.start,
+                cross: CrossAxisAlignment.stretch,
+                gap: 0,
+                min: false,
+              ),
+              [
+                Positioned(
+                  left: 45,
+                  top: 10,
+                  child: IntrinsicWidth(child: hsvg(Svgs.s3, w: 300, h: 300)),
+                ),
+                Positioned(
+                  top: -80,
+                  right: -60,
+                  width: 260,
+                  height: 260,
+                  child: hbox(w: 260, h: 260, radius: BorderRadius.circular(130)),
+                ),
+                Positioned(
+                  left: 0,
+                  top: 112,
+                  right: 0,
+                  child: hcol(
+                    [
+                      hbox(
+                        w: 64,
+                        h: 64,
+                        grad: LinearGradient(
+                          begin: Alignment(-0.5, -0.866),
+                          end: Alignment(0.5, 0.866),
+                          colors: [Color(0xFF7CC0FF), Color(0xFF0485F7)],
+                          stops: [0, 1],
+                        ),
+                        radius: BorderRadius.circular(20),
+                        shadow: [
+                          BoxShadow(
+                            color: Color.fromRGBO(4, 133, 247, 0.4),
+                            offset: Offset(0, 10),
+                            blurRadius: 28,
+                            spreadRadius: 0,
+                          ),
+                        ],
+                        child: hrow(
+                          [hsvg(Svgs.s9, w: 32, h: 32)],
+                          main: MainAxisAlignment.center,
+                          cross: CrossAxisAlignment.center,
+                          gap: 0,
+                        ),
+                      ),
+                      Text('汽美管家', style: hts(22, Color(0xFFFAFAFA), w: FontWeight.w600, lh: 30)),
+                      Text(
+                        '会员、库存、营业数据，一部手机管好门店',
+                        style: hts(13, dk(context, Color(0xFFA1A1AA), Color(0xFF80808A)), lh: 19),
+                      ),
+                    ],
+                    main: MainAxisAlignment.start,
+                    cross: CrossAxisAlignment.center,
+                    gap: 10,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          hbox(
+            pad: EdgeInsets.fromLTRB(20, 28, 20, 0),
+            child: hcol(
+              [
+                hbox(
+                  bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                  radius: BorderRadius.circular(24),
+                  border: Border.all(color: Color(0xFFF4B4B5), width: 1.5),
+                  pad: EdgeInsets.fromLTRB(16, 18, 16, 18),
+                  child: hcol(
+                    [
+                      hrow(
+                        [
+                          hbox(
+                            w: 36,
+                            h: 36,
+                            bg: dk(context, Color(0xFFFFE1E2), Color.fromRGBO(255, 56, 60, 0.18)),
+                            radius: BorderRadius.circular(12),
+                            child: hrow(
+                              [hsvg(dk(context, Svgs.s10, Svgs.s11), w: 18, h: 18)],
+                              main: MainAxisAlignment.center,
+                              cross: CrossAxisAlignment.center,
+                              gap: 0,
+                            ),
+                          ),
+                          Flexible(
+                            flex: 165,
+                            child: IntrinsicWidth(
+                              child: hcol(
+                                [
+                                  Text(
+                                    '该手机号尚未登记',
+                                    style: hts(
+                                      15,
+                                      dk(context, Color(0xFFA43433), Color(0xFFFF7B7E)),
+                                      w: FontWeight.w600,
+                                      lh: 22,
+                                    ),
+                                  ),
+                                  Text(
+                                    '登录手机号：${StaffFlow.maskedPhone(phone)}',
+                                    style: hts(
+                                      13,
+                                      dk(context, Color(0xFF52525B), Color(0xFFA8A8B3)),
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ],
+                                main: MainAxisAlignment.start,
+                                cross: CrossAxisAlignment.stretch,
+                                gap: 2,
+                              ),
+                            ),
+                          ),
+                        ],
+                        main: MainAxisAlignment.start,
+                        cross: CrossAxisAlignment.center,
+                        gap: 10,
+                      ),
+                      Text(
+                        '请联系店长在「员工与权限」中添加该手机号，添加后重新登录即可。如果你是新店主，可以免费开通门店。',
+                        style: hts(13, dk(context, Color(0xFF52525B), Color(0xFFA8A8B3)), lh: 19),
+                      ),
+                    ],
+                    main: MainAxisAlignment.start,
+                    cross: CrossAxisAlignment.stretch,
+                    gap: 12,
+                  ),
+                ),
+              ],
+              main: MainAxisAlignment.start,
+              cross: CrossAxisAlignment.stretch,
+              gap: 16,
+            ),
+          ),
+        ],
+        main: MainAxisAlignment.start,
+        cross: CrossAxisAlignment.stretch,
+        gap: 0,
+      ),
+      overlays: [
+        HBottomDock(
+          child: hbox(
+            bg: dk(context, Color.fromRGBO(255, 255, 255, 0.94), Color.fromRGBO(9, 9, 11, 0.92)),
+            shadow: dk(
+              context,
+              [
+                BoxShadow(
+                  color: Color(0xFFE4E4E7),
+                  offset: Offset(0, -1),
+                  blurRadius: 0,
+                  spreadRadius: 0,
+                ),
+              ],
+              [
+                BoxShadow(
+                  color: Color(0xFF3A3A40),
+                  offset: Offset(0, -1),
+                  blurRadius: 0,
+                  spreadRadius: 0,
+                ),
+              ],
+            ),
+            pad: EdgeInsets.fromLTRB(20, 12, 20, bottomInset(context)),
+            child: hcol(
+              [
+                hrow(
+                  [
+                    Expanded(
+                      flex: 10,
+                      child: hTap(
+                        context,
+                        hbox(
+                          h: 50,
+                          bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
+                          radius: BorderRadius.circular(25),
+                          child: Align(
+                            alignment: Alignment(0, 0),
+                            widthFactor: 1,
+                            child: Text(
+                              '免费开通门店',
+                              style: hts(
+                                15,
+                                dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                                w: FontWeight.w500,
+                                lh: 22,
+                              ),
+                            ),
+                          ),
+                        ),
+                        to: 'RegPhone',
+                      ),
+                    ),
+                    Expanded(
+                      flex: 14,
+                      child: hTap(
+                        context,
+                        hbox(
+                          h: 50,
+                          bg: Color(0xFF0485F7),
+                          radius: BorderRadius.circular(25),
+                          child: Align(
+                            alignment: Alignment(0, 0),
+                            widthFactor: 1,
+                            child: Text(
+                              '换个手机号',
+                              style: hts(15, Color(0xFFFFFFFF), w: FontWeight.w600, lh: 22),
+                            ),
+                          ),
+                        ),
+                        onTap: () => AccessFlow.signOut(context),
+                      ),
+                    ),
+                  ],
+                  main: MainAxisAlignment.start,
+                  cross: CrossAxisAlignment.center,
+                  gap: 10,
+                ),
+                Text(
+                  '登录即同意《用户协议》和《隐私政策》',
+                  style: hts(11, dk(context, Color(0xFFA1A1AA), Color(0xFF80808A)), lh: 16),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+              main: MainAxisAlignment.start,
+              cross: CrossAxisAlignment.stretch,
+              gap: 10,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}

@@ -14,7 +14,7 @@ const rpcError = (e: { message: string; code?: string }) => {
     transfer_target_invalid: '接手技师不可用，请重新选择',
     slot_unavailable: '接手技师在该时段已有安排，请换一位技师',
     invite_not_needed: '该员工无需邀请',
-    role_locked: '店长权限固定为全部，不能修改',
+    role_locked: '老板权限固定为全部，不能修改',
     permission_invalid: '权限设置无效',
     role_invalid: '角色无效',
     commission_invalid: '提成设置无效',

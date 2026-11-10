@@ -33,7 +33,7 @@ Deno.test('commission, status, permissions and records inputs', () => {
   assert(typeof parseStatus({ id, status: 'disabled', transfer_to: 'bad' }) === 'string');
   assert(typeof parsePermissions({ role: 'technician', permissions: { cashier: true } }) === 'object');
   for (const bad of [
-    { role: 'manager', permissions: {} }, { role: 'technician', permissions: { fly: true } },
+    { role: 'owner', permissions: {} }, { role: 'technician', permissions: { fly: true } },
     { role: 'technician', permissions: { cashier: 'yes' } }, { role: 'technician' },
   ]) assert(typeof parsePermissions(bad) === 'string');
   assert(typeof parseRecords({ id }) === 'object' && typeof parseRecords({ id, range: 'year' }) === 'string');

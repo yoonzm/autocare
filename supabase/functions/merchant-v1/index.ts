@@ -11,6 +11,8 @@ import { handleCards } from './cards.ts';
 import { handleHomeStats, handleSettingsStats } from './home.ts';
 import { handleAppointments } from './appointments.ts';
 import { handleStaff } from './staff.ts';
+import { handleIdentity } from './identity.ts';
+import { gateStaff } from './staff_access.ts';
 import { handleMembers, handleVehicles } from './members.ts';
 import { handleFollowUps, handleMemberPackages, handleOrders } from './ops.ts';
 import { handlePackages } from './packages.ts';
@@ -28,6 +30,13 @@ Deno.serve(async (request: Request): Promise<Response> => {
     return fail('Invalid JSON');
   }
   if (!isInput(input)) return fail('Invalid JSON');
+  if (String(input.action).startsWith('identity_')) return handleIdentity(input, request);
+  // 员工身份（店长 / 前台 / 技师）按权限目录逐请求校验；老板直接放行。服务端拒绝才是安全边界。
+  if (input.action !== 'regions') {
+    const refused = await gateStaff(request, input);
+    if (refused) return refused;
+  }
+  if (input.action === 'staff_home') return handleIdentity(input, request);
   if (String(input.action).startsWith('subscription_')) return handleSubscriptions(input, request);
   if (input.action === 'regions') return handleRegions(input);
   if(String(input.action).startsWith('support_'))return handleSupport(input,request);

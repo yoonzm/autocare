@@ -1,6 +1,6 @@
 import { registrationCity } from './regions.ts';
 import { createClient } from 'npm:@supabase/supabase-js@2.118.0';
-import { admin, anonKey, fail, json, merchantSession, nameOf, phoneOf, url, userFor } from './shared.ts';
+import { admin, anonKey, fail, failCode, json, merchantSession, nameOf, phoneOf, url, userFor } from './shared.ts';
 import { BAY_COUNTS } from './defaults.ts';
 import type { Input } from './types.ts';
 import { checkOtp, otpHash, otpStore, randomOtp } from './otp.ts';
@@ -50,6 +50,12 @@ function profileOf(input: Input) {
   };
 }
 
+/** 手机号是否登记为某家门店的员工（待加入 / 在职）。验证码登录据此给员工创建账号。 */
+async function hasStaffIdentity(phone: string): Promise<boolean> {
+  const { data, error } = await admin.rpc('staff_login_exists', { p_phone: phone.slice(-11) });
+  return !error && data === true;
+}
+
 export async function handleAuth(input: Input, request: Request): Promise<Response> {
   const phone = phoneOf(input.phone);
   if (input.action === 'send_code') {
@@ -67,7 +73,8 @@ export async function handleAuth(input: Input, request: Request): Promise<Respon
     const { data: existing, error: lookupError } = await admin.from('merchant_accounts').select('owner_id').eq('phone', phone).maybeSingle();
     if (lookupError) return fail('短信暂时不可用，请稍后重试', 503);
     if ((purpose === 'register' || purpose === 'change_phone_new') && existing) return fail('该手机号已注册', 409);
-    if ((purpose === 'login' || purpose === 'reset_password') && !existing) return fail('该手机号尚未开通门店账号', 404);
+    if (purpose === 'login' && !existing && !(await hasStaffIdentity(phone))) return failCode('该手机号尚未开通门店账号', 404, 'phone_unregistered');
+    if (purpose === 'reset_password' && !existing) return fail('该手机号尚未开通门店账号', 404);
     try {
       const provider = smsProvider(name => Deno.env.get(name), purpose);
       const code = randomOtp();
@@ -161,7 +168,7 @@ export async function handleAuth(input: Input, request: Request): Promise<Respon
     const state=await merchantSession(data.session.user.id,data.session.access_token,false);
     if(state instanceof Response){await admin.auth.admin.signOut(data.session.access_token,'local');return state;}
     await cancelDeletion(data.user.id);
-    return json({ access_token: data.session.access_token, refresh_token: data.session.refresh_token });
+    return json({ access_token: data.session.access_token, refresh_token: data.session.refresh_token, staff: await hasStaffIdentity(phone) });
   }
   if (input.action === 'login_code') {
     if (!phone) return fail('请输入有效手机号');
@@ -169,7 +176,15 @@ export async function handleAuth(input: Input, request: Request): Promise<Respon
     if (problem) return fail(problem);
     // generateLink would silently create a user for an unknown email, so look the store up first.
     const { data: store } = await admin.from('merchant_accounts').select('owner_id').eq('phone', phone).maybeSingle();
-    if (!store) return fail('该手机号尚未注册，请先免费开通', 404);
+    const staff = !store && await hasStaffIdentity(phone);
+    if (!store && !staff) return failCode('该手机号尚未注册，请先免费开通', 404, 'phone_unregistered');
+    if (staff) {
+      // 员工首次验证码登录：为该手机号创建登录账号（已存在则忽略）。账号无密码，只能验证码登录。
+      const created = await admin.auth.admin.createUser({ phone, email: emailOf(phone), phone_confirm: true, email_confirm: true });
+      const exists = created.error?.code === 'phone_exists' || created.error?.code === 'email_exists' ||
+        /already|registered|exists/i.test(created.error?.message ?? '');
+      if (created.error && !exists) return fail('登录失败，请稍后重试', 500);
+    }
     const { data: link, error: linkError } = await admin.auth.admin.generateLink({
       type: 'magiclink', email: emailOf(phone),
     });
@@ -178,10 +193,11 @@ export async function handleAuth(input: Input, request: Request): Promise<Respon
     const publicAuth = createClient(url, anonKey, { auth: { persistSession: false } });
     const { data, error } = await publicAuth.auth.verifyOtp({ token_hash: tokenHash, type: 'magiclink' });
     if (error || !data.session) return fail('登录失败，请稍后重试', 500);
+    // 老板需有可用门店；纯员工账号此时还没选身份，交给登录后的身份选择
     const state=await merchantSession(data.session.user.id,data.session.access_token,false);
-    if(state instanceof Response){await admin.auth.admin.signOut(data.session.access_token,'local');return state;}
-    await cancelDeletion(data.session.user.id);
-    return json({ access_token: data.session.access_token, refresh_token: data.session.refresh_token });
+    if(state instanceof Response&&!staff){await admin.auth.admin.signOut(data.session.access_token,'local');return state;}
+    if(!staff)await cancelDeletion(data.session.user.id);
+    return json({ access_token: data.session.access_token, refresh_token: data.session.refresh_token, staff: !!staff || await hasStaffIdentity(phone) });
   }
   return fail('不支持的操作');
 }

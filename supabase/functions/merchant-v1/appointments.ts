@@ -1,5 +1,6 @@
 import { admin, fail, json, storeFor, uuid } from './shared.ts';
 import { operatorOf } from './members.ts';
+import { technicianScope } from './staff_access.ts';
 import { parseBooking, parseBookingSettings, parseResource, validDay } from './appointment_rules.ts';
 import type { Input } from './types.ts';
 
@@ -57,13 +58,21 @@ export async function handleAppointments(input: Input, request: Request): Promis
     if (action === 'appointment_board') {
       if (!validDay(input.day)) return fail('日期无效');
       const { data, error } = await admin.rpc('appointment_board', { p_store: store, p_day: input.day });
-      return error ? rpcError(error) : json({ item: data });
+      if (error) return rpcError(error);
+      // 数据范围：技师只看与自己任务相关的预约
+      const scope = await technicianScope(request);
+      if (scope !== null) {
+        return json({ item: { ...data, items: (data?.items ?? []).filter((a: { technician_id?: string }) => a.technician_id === scope) } });
+      }
+      return json({ item: data });
     }
     if (action === 'appointment_summary') {
       const today = new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 10);
       const { data, error } = await admin.rpc('appointment_board', { p_store: store, p_day: today });
       if (error) return rpcError(error);
-      const rows = (data?.items ?? []).filter((a: { starts_at: string; status: string }) =>
+      const scope = await technicianScope(request);
+      const rows = (data?.items ?? []).filter((a: { starts_at: string; status: string; technician_id?: string }) =>
+        (scope === null || a.technician_id === scope) &&
         new Date(new Date(a.starts_at).getTime() + 8 * 3600000).toISOString().startsWith(today) &&
         ['waiting', 'late'].includes(a.status)
       );
@@ -72,7 +81,10 @@ export async function handleAppointments(input: Input, request: Request): Promis
     if (action === 'appointment_get') {
       if (!uuid(input.id)) return fail('预约 ID 无效');
       const { data, error } = await admin.rpc('appointment_detail', { p_store: store, p_id: input.id });
-      return error ? rpcError(error) : data ? json({ item: data }) : fail('预约不存在', 404);
+      if (error) return rpcError(error);
+      const scope = await technicianScope(request);
+      if (data && scope !== null && data.technician_id !== scope) return fail('预约不存在', 404);
+      return data ? json({ item: data }) : fail('预约不存在', 404);
     }
     if (action === 'appointment_slots') {
       if (

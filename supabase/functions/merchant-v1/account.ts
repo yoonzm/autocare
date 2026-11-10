@@ -1,7 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.118.0';
 import { emailOf } from './auth.ts';
 import { checkOtp, consumePhoneChangeCodes } from './otp.ts';
-import { admin, anonKey, fail, json, phoneOf, url, userFor, merchantSession } from './shared.ts';
+import { admin, anonKey, fail, json, phoneOf, url, userFor, resolveSession } from './shared.ts';
 import type { Input, StoreProfileRow } from './types.ts';
 
 const PROFILE_COLUMNS =
@@ -12,18 +12,24 @@ export async function handleAccount(input: Input, request: Request): Promise<Res
   const auth = await userFor(request);
   if ('response' in auth) return auth.response;
   const { user, token } = auth;
-  const storeId = await merchantSession(user.id, token, false);
-  if (storeId instanceof Response) return storeId;
-  const { data: account } = await admin.from('merchant_accounts').select('phone').eq('owner_id', user.id).single();
+  const session = await resolveSession(user.id, token, false);
+  if (session instanceof Response) return session;
+  const storeId = session.store;
+  // 店长等员工身份读取的是老板账号下的门店资料；账号类操作（改密、换手机、注销）网关已限定老板
+  const isOwner = session.role === 'owner';
+  const { data: ownerRow } = isOwner ? { data: { owner_id: user.id } } : await admin.from('stores').select('owner_id').eq('id', storeId).maybeSingle();
+  const ownerId = ownerRow?.owner_id as string | undefined;
+  if (!ownerId) return fail('门店不存在', 403);
+  const { data: account } = await admin.from('merchant_accounts').select('phone').eq('owner_id', ownerId).single();
   const { data: store } = await admin.from('stores').select(PROFILE_COLUMNS)
     .eq('id', storeId).maybeSingle<StoreProfileRow>();
   if (!store || !account?.phone) return fail('门店不存在', 403);
 
   if (input.action === 'get_store') {
-    const { data: subscription, error } = await admin.from('account_subscriptions').select('*').eq('owner_id', user.id).single();
+    const { data: subscription, error } = await admin.from('account_subscriptions').select('*').eq('owner_id', ownerId).single();
     if (error || !subscription) return fail('读取订阅失败', 500);
     const { data: version, error: versionError } = await admin.from('platform_plan_versions').select('snapshot').eq('kind', subscription.plan).eq('version', subscription.plan_version).single();
-    const { count, error: quotaError } = await admin.from('stores').select('id', { count: 'exact', head: true }).eq('owner_id', user.id).is('archived_at', null);
+    const { count, error: quotaError } = await admin.from('stores').select('id', { count: 'exact', head: true }).eq('owner_id', ownerId).is('archived_at', null);
     if (versionError || !version || quotaError || count == null) return fail('读取订阅名额失败', 500);
     const [hours, bays] = await Promise.all([
       admin.from('appointment_settings').select('opens_at,closes_at').eq('store_id', storeId).maybeSingle(),
@@ -31,8 +37,11 @@ export async function handleAccount(input: Input, request: Request): Promise<Res
     ]);
     if (hours.error || bays.error || bays.count == null) return fail('读取营业时间与工位失败', 500);
     const hoursLine = (hours.data ? `${hours.data.opens_at.slice(0, 5)}–${hours.data.closes_at.slice(0, 5)}` : '未设置营业时间') + ` · ${bays.count} 工位 · 统一管理`;
-    return json({ store: { ...store, id: storeId, account_phone: account.phone, hours_line: hoursLine,
-      subscription: { ...subscription, ...version?.snapshot, ends_at: subscription.ends_at }, store_count: count } });
+    const plan = { ...subscription, ...version?.snapshot, ends_at: subscription.ends_at };
+    // 员工看不到订阅价格与名额，只看套餐名称与到期时间
+    const visiblePlan = isOwner ? plan : { plan: plan.plan, name: plan.name, starts_at: plan.starts_at, ends_at: plan.ends_at };
+    return json({ store: { ...store, id: storeId, account_phone: isOwner ? account.phone : '', hours_line: hoursLine,
+      subscription: visiblePlan, store_count: isOwner ? count : 1 } });
   }
 
   if (input.action === 'change_password') {

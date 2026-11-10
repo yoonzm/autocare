@@ -3,13 +3,14 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'backend/access_flow.dart';
 import 'backend/merchant_api.dart';
 import 'backend/store_profile.dart';
-import 'widgets/store_session_gate.dart';
 import 'kit/async_kit.dart';
 import 'mock/theme_state.dart';
+import 'pages/access_boot.dart';
+import 'pages/access_pages.dart';
 import 'pages/login_page.dart';
-import 'pages/shell.dart';
 import 'routes.dart';
 import 'theme.dart';
 
@@ -20,6 +21,7 @@ Future<void> main() async {
     publishableKey: supabasePublishableKey,
   );
   // 上次选的外观（跟随系统 / 浅色 / 深色）保存在本机，启动时读回，之后每次切换都保存
+  await Access.restore();
   await loadThemeMode();
   persistThemeMode();
   runApp(const QimeiApp());
@@ -43,6 +45,7 @@ class _QimeiAppState extends State<QimeiApp> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     appThemeMode.addListener(_onMode);
     authExpired.addListener(_onAuthExpired);
+    accessIssue.addListener(_onAccessIssue);
   }
 
   /// 令牌刷新失败：清掉本地登录态，回到登录页并说明原因。
@@ -70,8 +73,45 @@ class _QimeiAppState extends State<QimeiApp> with WidgetsBindingObserver {
     }
   }
 
+  /// 服务端返回的身份 / 套餐状态：套餐到期、需先确认加入、身份被停用。
+  Future<void> _onAccessIssue() async {
+    final issue = accessIssue.value;
+    if (issue == null) return;
+    accessIssue.value = null;
+    final nav = _navKey.currentState;
+    if (nav == null) return;
+    void go(Widget page) => nav.pushAndRemoveUntil(
+      MaterialPageRoute<void>(builder: (_) => page),
+      (_) => false,
+    );
+    if (issue == 'staff_disabled') {
+      Access.clear();
+      storeProfile.clear();
+      try {
+        await merchantApi.client.auth.signOut(scope: SignOutScope.local);
+      } catch (_) {
+        // 本地清理失败不影响回到登录页
+      }
+      go(const LoginPage());
+      final messenger = _msgKey.currentState;
+      if (messenger != null) {
+        AppToast.showOn(messenger, '该门店已停用你的账号', kind: ToastKind.error);
+      }
+    } else if (issue == 'join_required') {
+      go(const StAuthLivePage());
+    } else if (issue == 'plan_expired' && !Access.isOwner) {
+      try {
+        Access.apply(await merchantApi.identity('context'));
+      } catch (_) {
+        // 读不到也先展示到期页
+      }
+      go(const StPlanExpiredLivePage());
+    }
+  }
+
   @override
   void dispose() {
+    accessIssue.removeListener(_onAccessIssue);
     authExpired.removeListener(_onAuthExpired);
     appThemeMode.removeListener(_onMode);
     WidgetsBinding.instance.removeObserver(this);
@@ -132,9 +172,7 @@ class _QimeiAppState extends State<QimeiApp> with WidgetsBindingObserver {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      home: merchantApi.hasSession
-          ? const StoreSessionGate(child: Shell())
-          : const LoginPage(),
+      home: bootPage(),
     );
   }
 }

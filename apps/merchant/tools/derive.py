@@ -39,9 +39,11 @@ def enclosing_calls(s,pos):
             out.append((j,m.group(1) if m else ''))
     return out
 
-def call_span(s,anchor,name,nth=1):
-    """包含 anchor 字符串首次出现位置、名字为 name 的第 nth 层调用 [start,end)。"""
-    pos=s.index(anchor)
+def call_span(s,anchor,name,nth=1,occ=1):
+    """包含 anchor 字符串第 occ 次出现位置、名字为 name 的第 nth 层调用 [start,end)。"""
+    pos=-1
+    for _ in range(occ):
+        pos=s.index(anchor,pos+1)
     k=0
     for (j,nm) in enclosing_calls(s,pos):
         if nm==name and s[j]=='(':
@@ -57,6 +59,6 @@ class Doc:
         c=self.s.count(old)
         assert c==n,(old[:80],c,n)
         self.s=self.s.replace(old,new)
-    def span(self,anchor,name,nth=1): return call_span(self.s,anchor,name,nth)
+    def span(self,anchor,name,nth=1,occ=1): return call_span(self.s,anchor,name,nth,occ)
     def cut(self,a,b,new=''):
         self.s=self.s[:a]+new+self.s[b:]

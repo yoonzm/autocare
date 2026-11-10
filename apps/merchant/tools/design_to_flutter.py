@@ -2192,6 +2192,12 @@ class Gen:
             pos.append('height: %s' % num(px(h)))
         if not pos:
             pos = ['left: 0', 'top: 0']
+        # 只给了 left 或 right、又没有宽度时，Flutter 的 Positioned 会给子项无限宽的约束；
+        # 子项里有 stretch 的列 / Align 就会断言失败。这种情况用 IntrinsicWidth 按内容宽度布局。
+        has_width = any(x.startswith('width:') for x in pos) or (
+            any(x.startswith('left:') for x in pos) and any(x.startswith('right:') for x in pos))
+        if not has_width:
+            body = 'IntrinsicWidth(child: %s)' % body
         return 'Positioned(%s, child: %s)' % (', '.join(pos), body)
 
     def pad_codes(self, st):

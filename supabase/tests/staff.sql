@@ -58,12 +58,17 @@ begin
   perms:=public.staff_permissions(shop);
   assert (perms->'technician'->>'order_view_own')::boolean and not (perms->'technician'->>'stats_view_store')::boolean;
   assert (perms->'manager'->>'member_recharge_refund')::boolean;
+  perms:=public.save_staff_permissions(shop,'technician','{"stock_use":false}');
+  assert not (perms->'technician'->>'stock_use')::boolean;
+  assert not public.staff_has_permission(shop,'technician','stock_use');
+  assert not public.staff_has_permission(other_shop,'technician','stock_use') is null;
+  -- 设计稿标「—」的项不可开启：技师不能开通门店营业统计，保存被忽略。
   perms:=public.save_staff_permissions(shop,'technician','{"stats_view_store":true}');
-  assert (perms->'technician'->>'stats_view_store')::boolean;
-  assert public.staff_has_permission(shop,'technician','stats_view_store');
-  assert not public.staff_has_permission(other_shop,'technician','stats_view_store');
-  caught:=false; begin perform public.save_staff_permissions(shop,'manager','{"cashier":false}'); exception when sqlstate 'P0001' then caught:=true; end;
-  assert caught,'店长权限固定';
+  assert not public.staff_has_permission(shop,'technician','stats_view_store'),'技师不可看营业额';
+  caught:=false; begin perform public.save_staff_permissions(shop,'owner','{"cashier":false}'); exception when sqlstate 'P0001' then caught:=true; end;
+  assert caught,'老板权限固定为全部，不能保存';
+  perms:=public.save_staff_permissions(shop,'manager','{"stock_manage":false}');
+  assert not public.staff_has_permission(shop,'manager','stock_manage'),'店长权限可由老板配置';
   caught:=false; begin perform public.save_staff_permissions(shop,'cashier','{"fly":true}'); exception when sqlstate 'P0001' then caught:=true; end;
   assert caught,'未知权限被拒绝';
 
