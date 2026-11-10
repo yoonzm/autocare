@@ -386,7 +386,7 @@ class ProfileEditPage extends StatelessWidget {
                                       ),
                                     )),
                                 ),
-                                Text(
+                                hTap(context, Text(
                                   '更换',
                                   style: hts(
                                     13,
@@ -397,7 +397,7 @@ class ProfileEditPage extends StatelessWidget {
                                     ),
                                     w: FontWeight.w500,
                                   ),
-                                ),
+                                ), to: 'ChangePhone'),
                               ],
                               main: MainAxisAlignment.start,
                               cross: CrossAxisAlignment.center,

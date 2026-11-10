@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../backend/store_profile.dart';
+import '../pages/gen/svgs.dart';
 import '../theme.dart';
 
 /// 按 key 保存已选图片路径（仅内存，mock）。
@@ -249,6 +250,7 @@ class HImageSlot extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onTap: () => hPickImage(context, imgKey),
       child: Stack(
+        clipBehavior: imgKey == 'ProfileEdit_avatar' ? Clip.none : Clip.hardEdge,
         children: [
           child,
           // 已保存的头像（来自服务端）；本地新选的图片盖在它上面，保存时才上传。
@@ -304,6 +306,27 @@ class HImageSlot extends StatelessWidget {
                     ),
                   ],
                 ),
+              ),
+            ),
+          // 头像右下角的相机角标：图片盖上来后要重新画在最上层，否则会被图片遮住。
+          if (imgKey == 'ProfileEdit_avatar')
+            Positioned(
+              right: -2,
+              bottom: -2,
+              width: 30,
+              height: 30,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: dk(context, const Color(0xFF18181B), const Color(0xFF34343A)),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: dk(context, const Color(0xFFF4F4F5), const Color(0xFF09090B)),
+                      spreadRadius: 3,
+                    ),
+                  ],
+                ),
+                child: Center(child: hsvg(Svgs.s322, w: 15, h: 15)),
               ),
             ),
         ],

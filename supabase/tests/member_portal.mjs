@@ -48,7 +48,7 @@ try{
  assert.equal(await one("select member_portal_logout($1) value",[hex('a')]),true);
  assert.equal(await one("select member_portal_session($1) value",[hex('a')]),null);
  await assert.rejects(()=>db.query("select member_portal_login('123','openid-a',$1)",[hex('c')]),/invalid_login/);
- for(const c of ['1','2','3','4','5','6'])await db.query("select member_portal_login('13800000001','openid-a',$1)",[hex(c)]);
+ for(const c of ['1','2','3','4','5','6']){await db.query("select member_portal_login('13800000001','openid-a',$1)",[hex(c)]);await new Promise((r)=>setTimeout(r,20));}
  assert.equal(await one("select count(*)::int value from member_sessions where phone='13800000001' and revoked_at is null"),5);
  assert.equal(await one("select member_portal_session($1) value",[hex('1')]),null,'最旧的会话被挤掉');
  await db.query("update member_sessions set expires_at=now()-interval '1 second' where token_hash=$1",[hex('6')]);

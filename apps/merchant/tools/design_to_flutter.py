@@ -2703,6 +2703,11 @@ def bind_profile_page(src, page):
         style = re.search(r'style:\s*(hts\()', call)
         a = style.start(1); b = _balanced_end(call, a + 3)
         src = src[:m.start()] + 'hLiveText((p) => ' + expr + ', ' + call[a:b + 1] + ')' + src[end + 1:]
+    # 手机号「更换」直接进入已有的更换手机号页面（验证码与校验都在云函数）。
+    m = re.search(r"Text\(\s*'更换'\s*,", src)
+    if m and "to: 'ChangePhone'" not in src:
+        end = _balanced_end(src, m.start() + 4)
+        src = src[:m.start()] + 'hTap(context, ' + src[m.start():end + 1] + ", to: 'ChangePhone')" + src[end + 1:]
     if 'hBusy(' not in src:
         m = re.search(r"Text\(\s*'保存'\s*,", src)
         if m:
