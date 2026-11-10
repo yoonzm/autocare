@@ -1,0 +1,11 @@
+{
+  "name": "autocare-member-mini",
+  "private": true,
+  "description": "会员端小程序（原生 WXML/WXSS/JS）。无运行时依赖；测试只用 Node 内置模块。",
+  "scripts": {
+    "build:styles": "python3 tools/px2rpx.py",
+    "check:styles": "python3 tools/px2rpx.py --check",
+    "package": "node tools/package.js",
+    "test": "node --test test/*.test.js"
+  }
+}

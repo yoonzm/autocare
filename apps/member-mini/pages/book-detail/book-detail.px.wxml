@@ -1,0 +1,53 @@
+<navbar title="预约详情" />
+<view class="main main-bar">
+  <async-view state="{{state}}" error="{{error}}" skeleton="hero" bind:retry="onRetry">
+    <view class="hero" style="gap:12px;">
+      <image class="hero-rings" src="/images/rings.svg" aria-hidden="true" />
+      <view class="row" style="gap:10px;"><text class="pill {{a.st.tone}}">{{a.st.text}}</text><view class="grow"></view><text class="t12" style="color:#A1A1AA;">预约号 {{a.code}}</text></view>
+      <view class="col gap4"><text style="font-size:20px;line-height:28px;font-weight:600;color:#FAFAFA;">{{a.when}}</text><text wx:if="{{count}}" class="t13" style="color:#F5D78E;">{{count}}</text></view>
+      <view class="row" style="gap:10px;"><plate plate="{{a.plate}}" energy="{{a.vehicle.energy}}" /><text wx:if="{{a.car}}" class="t13" style="color:#D4D4D8;">{{a.car}}</text></view>
+    </view>
+    <view class="list" style="padding:4px 0;">
+      <view class="kv"><text class="k">服务</text><text class="v">{{a.text}}</text></view>
+      <view class="line"></view>
+      <view class="kv"><text class="k">预计费用</text><text class="v">{{a.price}}</text></view>
+      <block wx:if="{{a.note}}"><view class="line"></view><view class="kv"><text class="k">备注</text><text class="v">{{a.note}}</text></view></block>
+      <block wx:if="{{a.status === 'cancelled' && a.cancel_reason}}"><view class="line"></view><view class="kv"><text class="k">取消原因</text><text class="v">{{a.cancel_reason}}</text></view></block>
+    </view>
+    <view class="card col" style="padding:12px;gap:12px;">
+      <view class="rel" style="height:112px;border-radius:16px;overflow:hidden;background:#EAF1E6;">
+        <image src="/images/map-art.svg" mode="aspectFill" style="width:100%;height:112px;" aria-hidden="true" />
+        <view class="center" style="position:absolute;left:50%;top:50%;margin:-24px 0 0 -12px;color:#F31260;"><icon name="pin" size="28" color="#F31260" /></view>
+      </view>
+      <view class="row" style="gap:12px;padding:0 4px 4px;">
+        <view class="col grow gap2"><text class="t14 w6">{{a.store_name}}</text></view>
+        <view class="btn-xs tone-blue" hover-class="hover" bindtap="navigate">导航</view>
+        <view class="btn-xs tone-grey" style="color:#18181B;" hover-class="hover" bindtap="call">电话</view>
+      </view>
+    </view>
+    <view wx:if="{{hint}}" class="tip">{{hint}}</view>
+  </async-view>
+</view>
+<view wx:if="{{state === 'content' && canChange}}" class="bar">
+  <view class="btn btn-danger" hover-class="hover" bindtap="openSheet">取消预约</view>
+  <view class="btn btn-primary" hover-class="hover" bindtap="change">改约</view>
+</view>
+
+<block wx:if="{{sheet}}">
+  <view class="mask" bindtap="closeSheet"></view>
+  <view class="sheet" role="dialog" aria-modal="true" aria-label="取消预约">
+    <view class="grab"></view>
+    <text style="font-size:20px;line-height:28px;font-weight:600;">取消预约</text>
+    <text class="t13 c-sub">{{a.when}} · {{a.text}}</text>
+    <view class="col gap10">
+      <view wx:for="{{reasons}}" wx:key="*this" class="reason" data-r="{{item[0]}}" bindtap="pickReason" role="radio" aria-checked="{{reason === item[0]}}">
+        <view class="col grow"><text>{{item[0]}}</text><text wx:if="{{item[1]}}" class="t12 c-mute">{{item[1]}}</text></view>
+        <icon wx:if="{{reason === item[0]}}" name="check" size="18" stroke="2.6" color="#0485F7" />
+      </view>
+    </view>
+    <view class="row" style="gap:10px;">
+      <view class="btn btn-soft" hover-class="hover" bindtap="closeSheet">再想想</view>
+      <view class="btn btn-danger {{busy ? 'busy' : ''}}" hover-class="hover" bindtap="cancel"><text class="btn-text">确认取消</text><view wx:if="{{busy}}" class="spin dark"></view></view>
+    </view>
+  </view>
+</block>

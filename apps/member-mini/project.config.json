@@ -1,0 +1,27 @@
+{
+  "description": "汽美管家 · 会员端小程序（原生）",
+  "miniprogramRoot": "./",
+  "compileType": "miniprogram",
+  "libVersion": "3.5.0",
+  "appid": "touristappid",
+  "projectname": "autocare-member",
+  "setting": {
+    "urlCheck": true,
+    "es6": true,
+    "enhance": true,
+    "postcss": false,
+    "minified": true,
+    "ignoreUploadUnusedFiles": true,
+    "checkInvalidKey": true,
+    "compileHotReLoad": true
+  },
+  "packOptions": {
+    "ignore": [
+      { "type": "folder", "value": "test" },
+      { "type": "folder", "value": "tools" },
+      { "type": "folder", "value": "styles" },
+      { "type": "suffix", "value": ".md" }
+    ]
+  },
+  "condition": {}
+}

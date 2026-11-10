@@ -1,0 +1,72 @@
+name: Member Mini Program Publish (temporary test)
+
+# 把会员端小程序上传到 my-baas-helper（member 日志监控小程序，默认 AppID wxdba60af414abc8db）的【开发版本】，仅用于临时测试。
+# - 只能手动触发，不会因为推送自动上传。
+# - 上传的是汽美管家会员端的整套代码，会成为该 AppID 的一个开发版本（版本描述带“勿提交审核”）。
+#   只要不在微信后台点“提交审核 / 发布”，就不会影响该小程序的线上版本；一旦提审发布，线上小程序会被替换成本项目。
+# - 默认使用 30 号机器人，避免覆盖该小程序自己上传流程（默认 1 号机器人）的开发版本。
+# 需要在仓库 Settings → Environments → member-mini-test 里配置密钥 MEMBER_MINI_UPLOAD_KEY（微信后台「小程序代码上传」密钥内容）。
+# 说明见 docs/member-mini-integration.md「临时测试发布」。
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: upload = 上传开发版本（可在后端设为体验版）；preview = 生成预览二维码（25 分钟内有效，下载 Artifact 扫码）
+        type: choice
+        options: [upload, preview]
+        default: upload
+      appid:
+        description: 目标小程序 AppID（默认：my-baas-helper 日志监控小程序）
+        type: string
+        default: wxdba60af414abc8db
+      robot:
+        description: CI 机器人编号 1~30（不同编号的开发版本互不覆盖）
+        type: string
+        default: "30"
+      note:
+        description: 版本备注（可选）
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: member-mini-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: member-mini-test
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Test member mini program
+        working-directory: apps/member-mini
+        run: npm test
+      - name: Install miniprogram-ci
+        run: npm install --prefix "$RUNNER_TEMP/ci" --no-package-lock --no-audit --no-fund miniprogram-ci@2.1.14
+      - name: Publish to WeChat
+        working-directory: apps/member-mini
+        env:
+          MODE: ${{ inputs.mode }}
+          WEAPP_APPID: ${{ inputs.appid }}
+          WEAPP_ROBOT: ${{ inputs.robot }}
+          WEAPP_DESC: ${{ inputs.note }} ${{ github.ref_name }}@${{ github.sha }}
+          WEAPP_PRIVATE_KEY: ${{ secrets.MEMBER_MINI_UPLOAD_KEY }}
+          MINIPROGRAM_CI_PATH: ${{ runner.temp }}/ci/node_modules/miniprogram-ci
+        run: node tools/weapp_ci.js "$MODE"
+      - name: Upload preview QR code
+        if: inputs.mode == 'preview'
+        uses: actions/upload-artifact@v4
+        with:
+          name: member-mini-preview-qrcode
+          path: apps/member-mini/preview_qrcode.jpg
+          retention-days: 1

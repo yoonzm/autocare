@@ -1,0 +1,32 @@
+<view class="auth-top">
+  <image class="hero-rings" src="/images/rings.svg" style="left:40rpx;top:20rpx;right:auto;width:640rpx;height:640rpx;" aria-hidden="true" />
+  <view class="col" style="position:absolute;left:0;right:0;top:240rpx;align-items:center;gap:20rpx;">
+    <view class="auth-logo"><icon name="shop" size="32" stroke="1.8" color="#18181B" /></view>
+    <text style="font-size:24px;line-height:32px;font-weight:600;color:#FAFAFA;">汽美管家</text>
+    <text class="t13" style="color:#A1A1AA;">专业养护 · 会员专享</text>
+  </view>
+  <image src="/images/car-gold.svg" style="position:absolute;left:50%;bottom:36rpx;width:500rpx;height:188rpx;margin-left:-250rpx;opacity:.95;" aria-hidden="true" />
+</view>
+<view class="col" style="padding:28px 28px 0;gap:20px;">
+  <view class="row gap12" style="gap:14px;">
+    <view class="tile44 tone-blue"><icon name="calendar" size="22" color="#1E63AE" /></view>
+    <view class="col gap2"><text class="t15 w6">在线预约</text><text class="t12 c-mute">选服务 · 选时间，到店免排队</text></view>
+  </view>
+  <view class="row" style="gap:14px;">
+    <view class="tile44 tone-green"><icon name="car" size="22" color="#2B7745" /></view>
+    <view class="col gap2"><text class="t15 w6">施工进度</text><text class="t12 c-mute">爱车到哪一步，手机上随时看</text></view>
+  </view>
+  <view class="row" style="gap:14px;">
+    <view class="tile44 tone-amber"><icon name="wallet" size="22" color="#855F2E" /></view>
+    <view class="col gap2"><text class="t15 w6">储值与权益</text><text class="t12 c-mute">余额、次卡、优惠券一站管理</text></view>
+  </view>
+</view>
+<view class="bar" style="flex-direction:column;gap:10px;align-items:stretch;">
+  <view class="row" style="gap:10px;">
+    <button class="btn btn-primary {{busy ? 'busy' : ''}}" open-type="getPhoneNumber" bindgetphonenumber="onPhone" hover-class="hover">
+      <text class="btn-text">微信授权手机号登录</text>
+      <view wx:if="{{busy}}" class="spin"></view>
+    </button>
+  </view>
+  <text class="tc" style="font-size:11px;line-height:16px;color:#A1A1AA;">登录即同意《用户协议》和《隐私政策》</text>
+</view>

@@ -28,3 +28,5 @@
 注册还会按主营业务创建可编辑的库存商品资料（`defaults.ts` 的 `defaultProducts`）：多选去重，库存、安全库存和成本均为 0，不创建虚构的入库流水；保养维修商品暂归现有“配件”分类。库存商品初始化失败同样不能返回开通成功，既有门店不自动补建。
 
 公共地区字典（`202611060003_regions.sql`）：`action=regions` 在注册前可读取完整三级字典，传 `version` 支持未修改响应。注册选择省、市两级，提交 `province_code` / `city_code`，云函数校验有效状态与父子关系，生成 `city` 文本。旧门店文本保持原样，编码不猜测回填。来源、数据年份、特殊层级和后续更新方式见 [数据说明](data/regions/README.md)。先迁移，再部署云函数，再发布客户端；旧客户端缺少编码，不能继续通过注册校验。回归验证：`deno test region_rules.test.ts`、`supabase/tests/regions.sql`、Flutter `region_picker_test.dart` / `account_test.dart`。生成页面、注册表单结构和两列滚轮布局不变；地区数据及注册编码校验已接通，短信沿用主分支现有的真实短信服务。
+
+会员端小程序使用独立的 `member-v1` 云函数（`functions/member-v1`，`mb_*` 动作，会员会话令牌鉴权），与 `merchant-v1`、`admin-v1` 共享数据库；说明与部署顺序见 [`docs/member-mini-integration.md`](../docs/member-mini-integration.md)。检查：`cd supabase/functions/member-v1 && deno task check && deno test`。

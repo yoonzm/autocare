@@ -1,0 +1,32 @@
+<navbar title="施工进度" />
+<view class="main">
+  <async-view state="{{state}}" error="{{error}}" skeleton="hero" bind:retry="onRetry" emptyIcon="car" emptyTitle="当前没有施工中的爱车" emptyText="到店接车后，这里会显示施工情况。">
+    <view class="hero" style="gap:14px;">
+      <image class="hero-rings" src="/images/rings.svg" aria-hidden="true" />
+      <view class="row" style="gap:10px;"><text class="pill {{a.st.tone}}">{{a.st.text}}</text><view class="grow"></view><text wx:if="{{a.bay_name}}" class="t12" style="color:#A1A1AA;">{{a.bay_name}}</text></view>
+      <view wx:if="{{e}}" class="row" style="gap:16px;">
+        <view class="none center rel" style="width:92px;height:92px;"><image src="{{ring}}" style="width:92px;height:92px;" aria-hidden="true" /><text style="position:absolute;font-size:20px;font-weight:600;color:#FAFAFA;">{{e.percent}}%</text></view>
+        <view class="col gap4"><text class="t16 w6" style="color:#FAFAFA;">{{a.text}}</text><text class="t13" style="color:#F5D78E;">预计 {{e.finish}} 完工</text><text class="t12" style="color:#A1A1AA;">{{e.left}}</text></view>
+      </view>
+      <view wx:else class="col gap4"><text class="t16 w6" style="color:#FAFAFA;">{{a.text}}</text><text class="t13" style="color:#A1A1AA;">{{a.when}}</text></view>
+      <view class="row gap8"><plate plate="{{a.plate}}" energy="{{a.vehicle.energy}}" /><text wx:if="{{a.car}}" class="t13" style="color:#D4D4D8;">{{a.car}}</text></view>
+      <text wx:if="{{e}}" class="t11" style="color:#71717A;">进度按预计工时估算，非实时施工节点；以门店告知为准。</text>
+    </view>
+
+    <view wx:if="{{a.technician_name}}" class="card row" style="padding:14px 16px;gap:12px;">
+      <view class="center" style="width:44px;height:44px;border-radius:22px;background:#18181B;color:#F5D78E;font-size:17px;font-weight:600;">{{a.technician_name[0]}}</view>
+      <view class="col grow gap2"><text class="t14 w6">{{a.technician_name}}</text><text class="t12 c-mute">负责本次施工的技师</text></view>
+      <view class="btn-xs tone-grey" style="color:#18181B;gap:6px;" hover-class="hover" bindtap="call"><icon name="phone" size="14" color="#18181B" /><text>联系</text></view>
+    </view>
+
+    <view class="sec-box">
+      <text class="sec">施工节点</text>
+      <view class="card col" style="padding:16px;">
+        <view wx:for="{{nodes}}" wx:key="title" class="node">
+          <view class="rail"><view class="dot {{item.state}}"><icon wx:if="{{item.state === 'done'}}" name="check" size="14" stroke="3" color="#FFFFFF" /><view wx:elif="{{item.state === 'current'}}" style="width:8px;height:8px;border-radius:4px;background:#FFFFFF;"></view></view><view wx:if="{{index < nodes.length - 1}}" class="tail {{item.state === 'done' ? 'done' : ''}}"></view></view>
+          <view class="col gap2" style="padding-bottom:{{index < nodes.length - 1 ? '31rpx' : '0'}};"><text class="t14 w6" style="{{item.state === 'todo' ? 'color:#A1A1AA;' : ''}}">{{item.title}}</text><text class="t12 c-mute">{{item.note}}</text></view>
+        </view>
+      </view>
+    </view>
+  </async-view>
+</view>

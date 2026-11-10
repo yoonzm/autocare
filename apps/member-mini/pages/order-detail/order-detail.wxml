@@ -1,0 +1,30 @@
+<!-- 由 tools/px2rpx.py 从 order-detail.px.wxml 生成，请改源文件，不要直接编辑本文件。 -->
+<navbar title="订单详情" />
+<view class="main main-bar">
+  <async-view state="{{state}}" error="{{error}}" rows="3" bind:retry="onRetry">
+    <view class="card col" style="padding:30.77rpx;gap:26.92rpx;">
+      <view class="row" style="gap:23.08rpx;">
+        <view class="tile38 tone-grey"><icon name="shop" size="19" color="#3F3F46" /></view>
+        <view class="col grow gap2" style="min-width:0;"><text class="t15 w6 one">{{o.store}}</text><text class="t12 c-mute">{{o.meta}}</text></view>
+        <text class="pill {{o.refunded ? 'grey' : 'green'}}">{{o.refunded ? '已退款' : '已完成'}}</text>
+      </view>
+      <view class="col gap10">
+        <view wx:for="{{o.items}}" wx:key="index" class="row"><text class="t14 c-sub grow">{{item.name}}</text><text class="t14 w5 {{item.pkg ? 'c-green' : ''}}">{{item.amount}}</text></view>
+        <view wx:if="{{o.cardOff}}" class="row"><text class="t14 c-sub grow">会员折扣</text><text class="t14 w5 c-green">{{o.cardOff}}</text></view>
+        <view wx:if="{{o.discountOff}}" class="row"><text class="t14 c-sub grow">优惠减免</text><text class="t14 w5 c-green">{{o.discountOff}}</text></view>
+      </view>
+      <view class="dash" style="margin:0 -30.77rpx;"><view class="l"></view><view class="r"></view></view>
+      <view class="col gap10">
+        <view class="row" style="align-items:baseline;"><text class="t14 c-sub grow">实付</text><text style="font-size:42.31rpx;line-height:57.69rpx;font-weight:600;">{{o.payable}}</text></view>
+        <view class="row"><text class="t13 c-mute grow">订单号</text><text class="t13">{{o.no}}</text></view>
+        <view class="row"><text class="t13 c-mute grow">支付方式</text><text class="t13">{{o.pay}}</text></view>
+        <view wx:if="{{o.points}}" class="row"><text class="t13 c-mute grow">获得积分</text><text class="t13">{{o.points}}</text></view>
+      </view>
+    </view>
+    <!-- TODO: 施工照片与质检单需要员工端上传施工记录（预期后端：order_photos 与 mb_order_photos），没有数据来源前不显示入口。 -->
+  </async-view>
+</view>
+<view class="bar">
+  <view class="btn btn-soft" hover-class="hover" bindtap="back">返回</view>
+  <view class="btn btn-primary" hover-class="hover" bindtap="again">再次预约</view>
+</view>

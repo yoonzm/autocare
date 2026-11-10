@@ -1,0 +1,37 @@
+<navbar title="预约" back="{{false}}" />
+<view class="main">
+  <view class="hero" style="border-radius:28px;gap:16px;">
+    <image class="hero-rings" src="/images/rings.svg" aria-hidden="true" />
+    <view class="col gap4"><text style="font-size:22px;line-height:30px;font-weight:600;color:#FAFAFA;">预约到店</text><text class="t13" style="color:#A1A1AA;">选服务 · 选时间，到店免排队</text></view>
+    <view class="row" style="gap:12px;">
+      <view class="btn-sm btn-white" hover-class="hover" bindtap="create"><icon name="plus" size="16" stroke="2.2" color="#18181B" /><text>新预约</text></view>
+      <text wx:if="{{discount}}" class="t12" style="color:#A1A1AA;">已享 {{discount}}会员价</text>
+    </view>
+    <image class="hero-car" src="/images/car-gold.svg" aria-hidden="true" />
+  </view>
+
+  <view wx:if="{{cats.length}}" style="display:flex;gap:10px;">
+    <view wx:for="{{cats}}" wx:key="name" class="card-22 col" style="flex:1 1 0;align-items:center;gap:6px;padding:12px 0;" hover-class="hover" data-name="{{item.name}}" bindtap="byCategory">
+      <view class="tile38 {{item.cls}}"><icon name="{{item.icon}}" size="19" color="#FFFFFF" /></view>
+      <text class="t12 w5 one" style="max-width:150rpx;">{{item.name}}</text>
+    </view>
+  </view>
+
+  <view class="seg" role="tablist">
+    <view wx:for="{{tabs}}" wx:key="key" class="s {{tab === item.key ? 'on' : ''}}" data-key="{{item.key}}" bindtap="pick" role="tab" aria-selected="{{tab === item.key}}">{{item.text}}</view>
+  </view>
+
+  <async-view state="{{state}}" error="{{error}}" rows="3" bind:retry="onRetry" emptyIcon="calendar" emptyTitle="{{tab === 'pending' ? '还没有待到店的预约' : tab === 'done' ? '还没有已完成的预约' : '没有已取消的预约'}}" emptyText="{{tab === 'pending' ? '点上方“新预约”，选服务、选时间即可预约到店。' : ''}}">
+    <view class="col gap12">
+      <view wx:for="{{items}}" wx:key="id" class="appt" hover-class="hover" data-id="{{item.id}}" bindtap="open">
+        <view class="edge" style="background:{{item.edge}};"></view>
+        <view class="day"><text class="t11 w5 c-mute">{{item.badge.label}}</text><text style="font-size:22px;line-height:28px;font-weight:600;">{{item.badge.day}}</text></view>
+        <view class="col grow gap6" style="min-width:0;">
+          <view class="row" style="gap:10px;"><text class="t16 w6 c-blue">{{item.time}}</text><view class="grow"></view><text class="pill {{item.st.tone}}">{{item.st.text}}</text></view>
+          <text class="t13 w5 one">{{item.text}}</text>
+          <view class="row" style="gap:8px;"><plate plate="{{item.plate}}" energy="{{item.vehicle.energy}}" /><text class="t11 c-faint one">{{item.store_name}}</text></view>
+        </view>
+      </view>
+    </view>
+  </async-view>
+</view>

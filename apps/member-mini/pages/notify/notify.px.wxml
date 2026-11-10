@@ -1,0 +1,6 @@
+<navbar title="消息通知" />
+<view class="main">
+  <async-view state="{{state}}" error="{{error}}" rows="3" bind:retry="onRetry" emptyIcon="chat" emptyTitle="暂无消息" emptyText="施工进度、预约确认等通知功能还在开通中，开通后会在这里提醒您。">
+    <view class="col gap12"><text wx:for="{{groups}}" wx:key="*this">{{item}}</text></view>
+  </async-view>
+</view>

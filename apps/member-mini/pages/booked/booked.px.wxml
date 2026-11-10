@@ -1,0 +1,32 @@
+<navbar title="预约成功" bind:back="home" />
+<view class="main main-bar">
+  <async-view state="{{state}}" error="{{error}}" rows="3" bind:retry="onRetry">
+    <view class="done-wrap">
+      <view style="position:absolute;left:96px;top:28px;width:8px;height:8px;background:#F5D78E;border-radius:2px;transform:rotate(20deg);"></view>
+      <view style="position:absolute;right:92px;top:44px;width:8px;height:8px;background:#0485F7;border-radius:4px;"></view>
+      <view style="position:absolute;left:70px;top:96px;width:6px;height:12px;background:#17C964;border-radius:2px;transform:rotate(-30deg);"></view>
+      <view style="position:absolute;right:70px;top:100px;width:8px;height:8px;background:#F5D78E;border-radius:4px;"></view>
+      <view class="rel center" style="width:96px;height:96px;"><image class="done-rings" src="/images/done-rings.svg" aria-hidden="true" /><view class="done-mark"><icon name="check" size="44" stroke="2.6" color="#FFFFFF" /></view></view>
+      <text style="font-size:22px;line-height:30px;font-weight:600;">预约成功</text>
+      <text class="t13 c-mute">时段已为您预留，请准时到店</text>
+    </view>
+    <view class="card col">
+      <view class="row" style="padding:16px;gap:12px;">
+        <image src="/images/car-grey.svg" style="width:70px;height:26px;" aria-hidden="true" />
+        <view class="col grow gap4"><plate plate="{{a.plate}}" energy="{{a.vehicle.energy}}" /><text wx:if="{{a.car}}" class="t12 c-mute">{{a.car}}</text></view>
+        <text class="pill {{a.st.tone}}">{{a.st.text}}</text>
+      </view>
+      <view class="dash"><view class="l"></view><view class="r"></view></view>
+      <view class="col" style="padding:4px 0 8px;">
+        <view class="kv"><text class="k">到店时间</text><text class="v">{{a.when}}</text></view>
+        <view class="kv"><text class="k">服务</text><text class="v">{{a.text}}</text></view>
+        <view class="kv"><text class="k">预计费用</text><text class="v">{{a.price}}</text></view>
+        <view class="kv"><text class="k">门店</text><text class="v">{{a.store_name}}</text></view>
+      </view>
+    </view>
+  </async-view>
+</view>
+<view class="bar">
+  <view class="btn btn-soft" hover-class="hover" bindtap="home">返回首页</view>
+  <view class="btn btn-dark" hover-class="hover" bindtap="detail">查看预约</view>
+</view>

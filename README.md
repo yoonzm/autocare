@@ -5,7 +5,7 @@
 | 路径 | 用途 | 状态 |
 | --- | --- | --- |
 | `apps/merchant` | Flutter 商户端（iOS / Android） | V1 注册/密码登录、服务项目和会员卡种维护接入 Supabase；其余见 TODO |
-| `apps/member-mini` | 会员端小程序 | 预留 |
+| `apps/member-mini` | 会员端小程序（原生微信小程序） | 19 页接入真实后端；线上支付、通知等见 TODO |
 | `apps/staff-mini` | 店员端小程序 | 预留 |
 | `apps/admin` | Flutter 后台端（运营后台） | 已实现，mock 数据 |
 | `apps/desktop` | 桌面端 App | 预留 |
@@ -27,6 +27,8 @@ flutter run
 后台端同理：`cd apps/admin`，命令相同，详见 `apps/admin/README.md`。
 
 后端接入必须遵守 [开发约束](AGENTS.md) 与 [后端接入标准](docs/backend-integration.md)。
+
+会员端小程序：`cd apps/member-mini && npm test`；用微信开发者工具导入该目录预览，说明见 `docs/member-mini-integration.md`。
 
 ## 发布
 

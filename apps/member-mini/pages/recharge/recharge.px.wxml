@@ -1,0 +1,41 @@
+<navbar title="储值充值" locked="{{busy}}" />
+<view class="main main-bar">
+  <async-view state="{{state}}" error="{{error}}" skeleton="hero" bind:retry="onRetry" emptyIcon="wallet" emptyTitle="您还不是该门店会员">
+    <view class="hero" style="padding:20px;">
+      <image class="hero-rings" src="/images/rings.svg" aria-hidden="true" />
+      <view class="row"><view class="col gap2"><text class="t12" style="color:#A1A1AA;">当前余额（元）</text><text style="font-size:32px;line-height:40px;font-weight:600;color:#FAFAFA;">{{balance}}</text></view><view class="grow"></view><text wx:if="{{discount}}" class="pill gold-ink">{{discount}}</text></view>
+    </view>
+
+    <view wx:if="{{!online}}" class="tip" role="alert">线上支付暂未开通，请到店由工作人员为您充值；到账后余额会同步显示在这里。</view>
+
+    <view class="sec-box">
+      <text class="sec">选择充值金额</text>
+      <view class="amounts">
+        <view wx:for="{{presets}}" wx:key="amount" class="amt {{amount === item.amount ? 'on' : ''}}" data-amount="{{item.amount}}" bindtap="pick" role="radio" aria-checked="{{amount === item.amount}}">
+          <text wx:if="{{item.rec}}" class="rec-tag">推荐</text>
+          <text>{{item.label}}</text><text wx:if="{{item.giftText}}" class="gift">{{item.giftText}}</text>
+        </view>
+        <view class="amt" style="font-size:14px;font-weight:500;color:#52525B;" bindtap="other" role="button">其他金额</view>
+      </view>
+    </view>
+
+    <view wx:if="{{amount}}" class="row gap8 tone-blue" style="border-radius:16px;padding:12px 14px;font-size:13px;line-height:19px;">
+      <icon name="gift" size="16" color="#1E63AE" />
+      <text>充 ¥{{amount}} · 赠 ¥{{gift}} · 实得 <text class="w6">¥{{amount + gift}}</text></text>
+    </view>
+
+    <view class="sec-box">
+      <text class="sec">支付方式</text>
+      <view class="card row" style="padding:14px 16px;gap:12px;">
+        <view class="tile32 tone-green" style="color:#17A864;"><icon name="wallet" size="18" color="#17A864" /></view>
+        <text class="t15 grow">微信支付</text>
+        <view class="center" style="width:22px;height:22px;border-radius:11px;background:#0485F7;"><icon name="check" size="14" stroke="3" color="#FFFFFF" /></view>
+      </view>
+    </view>
+    <text class="note" style="text-align:left;">储值可用于本店全部服务，赠送金额同样可用。储值不可提现，未使用的本金可在店内申请退还。</text>
+  </async-view>
+</view>
+<view class="bar">
+  <view class="col grow gap2"><text class="t12 c-mute">到账 ¥{{amount + gift}}</text><text class="t16 w6">实付 ¥{{amount}}</text></view>
+  <view class="btn btn-primary {{busy ? 'busy' : ''}} {{amount ? '' : 'disabled'}}" style="flex:1 1 0;" hover-class="hover" bindtap="pay" role="button"><text class="btn-text">微信支付</text><view wx:if="{{busy}}" class="spin"></view></view>
+</view>

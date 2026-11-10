@@ -1,0 +1,51 @@
+<!-- 由 tools/px2rpx.py 从 mine.px.wxml 生成，请改源文件，不要直接编辑本文件。 -->
+<navbar title="我的" back="{{false}}" />
+<view class="main">
+  <async-view state="{{state}}" error="{{error}}" skeleton="hero" bind:retry="onRetry" emptyIcon="user" emptyTitle="您还不是任何门店的会员" emptyText="请到店由工作人员为您办理会员，办理后使用同一手机号登录即可。">
+    <view class="hero" style="padding:34.62rpx;gap:30.77rpx;">
+      <image class="hero-rings" src="/images/rings.svg" aria-hidden="true" />
+      <view class="row" style="gap:26.92rpx;">
+        <view class="center" style="width:115.38rpx;height:115.38rpx;border-radius:57.69rpx;background:linear-gradient(150deg,#FBE7B0,#E6B85C);color:#18181B;font-size:46.15rpx;font-weight:600;box-shadow:0 0 0 5.77rpx rgba(245,215,142,.3);">{{me.initial}}</view>
+        <view class="col grow gap4"><view class="row" style="gap:15.38rpx;"><text style="font-size:36.54rpx;line-height:53.85rpx;font-weight:600;color:#FAFAFA;">{{me.name}}</text><text class="pill gold">{{me.level}}</text></view><text class="t12" style="color:#A1A1AA;">{{me.sub}}</text></view>
+      </view>
+      <view class="row">
+        <view class="stat"><text class="n">{{me.balance}}</text><text class="l">储值余额</text></view>
+        <view class="stat"><text class="n">{{me.points}}</text><text class="l">积分</text></view>
+        <view class="stat"><text class="n">{{me.packages}}</text><text class="l">次卡</text></view>
+        <!-- TODO: 优惠券没有数据来源，显示“—”（见首页同处说明）。 -->
+        <view class="stat"><text class="n">—</text><text class="l">优惠券</text></view>
+      </view>
+    </view>
+
+    <view class="card" style="padding:30.77rpx 15.38rpx;display:flex;">
+      <view class="col" style="flex:1 1 0;align-items:center;gap:11.54rpx;" hover-class="hover" data-url="/pages/book/book" bindtap="go">
+        <view class="rel"><view class="tile44 tone-blue" style="border-radius:28.85rpx;"><icon name="calendar" size="22" color="#1E63AE" /></view><text wx:if="{{me.waiting}}" class="center" style="position:absolute;right:-7.69rpx;top:-7.69rpx;min-width:30.77rpx;height:30.77rpx;border-radius:15.38rpx;background:#F31260;color:#FFFFFF;font-size:19.23rpx;font-weight:600;padding:0 7.69rpx;">{{me.waiting}}</text></view>
+        <text class="t12 w5">待到店</text>
+      </view>
+      <view class="col" style="flex:1 1 0;align-items:center;gap:11.54rpx;" hover-class="hover" data-url="/pages/progress/progress" bindtap="go">
+        <view class="rel"><view class="tile44 tone-amber" style="border-radius:28.85rpx;"><icon name="car" size="22" color="#855F2E" /></view><text wx:if="{{me.working}}" class="center" style="position:absolute;right:-7.69rpx;top:-7.69rpx;min-width:30.77rpx;height:30.77rpx;border-radius:15.38rpx;background:#F31260;color:#FFFFFF;font-size:19.23rpx;font-weight:600;padding:0 7.69rpx;">{{me.working}}</text></view>
+        <text class="t12 w5">施工中</text>
+      </view>
+      <view class="col" style="flex:1 1 0;align-items:center;gap:11.54rpx;" hover-class="hover" data-url="/pages/orders/orders" bindtap="go"><view class="tile44 tone-green" style="border-radius:28.85rpx;"><icon name="check" size="22" color="#2B7745" /></view><text class="t12 w5">已完成</text></view>
+      <view class="col" style="flex:1 1 0;align-items:center;gap:11.54rpx;" hover-class="hover" data-url="/pages/orders/orders" bindtap="go"><view class="tile44 tone-grey" style="border-radius:28.85rpx;"><icon name="list" size="22" color="#3F3F46" /></view><text class="t12 w5">全部订单</text></view>
+    </view>
+
+    <view class="list">
+      <view class="item" hover-class="hover" data-url="/pages/recharge/recharge" bindtap="go"><view class="tile32 tone-green"><icon name="wallet" size="18" color="#2B7745" /></view><view class="col grow" style="gap:1px;"><text class="t15">储值充值</text><text wx:if="{{me.rechargeSub}}" class="t12 c-mute" style="line-height:30.77rpx;">{{me.rechargeSub}}</text></view><icon name="chevron" size="16" color="#A1A1AA" stroke="2" /></view>
+      <view class="line line-60"></view>
+      <view class="item" hover-class="hover" data-url="/pages/packages/packages" bindtap="go"><view class="tile32 tone-amber"><icon name="ticket" size="18" color="#855F2E" /></view><view class="col grow" style="gap:1px;"><text class="t15">我的次卡</text><text class="t12 c-mute" style="line-height:30.77rpx;">{{me.packagesSub}}</text></view><icon name="chevron" size="16" color="#A1A1AA" stroke="2" /></view>
+      <view class="line line-60"></view>
+      <view class="item" hover-class="hover" data-url="/pages/card/card" bindtap="go"><view class="tile32 tone-blue"><icon name="crown" size="18" color="#1E63AE" /></view><view class="col grow"><text class="t15">会员权益</text></view><icon name="chevron" size="16" color="#A1A1AA" stroke="2" /></view>
+      <view class="line line-60"></view>
+      <view class="item" hover-class="hover" data-url="/pages/cars/cars" bindtap="go"><view class="tile32 tone-grey"><icon name="car" size="18" color="#3F3F46" /></view><view class="col grow" style="gap:1px;"><text class="t15">我的爱车</text><text class="t12 c-mute" style="line-height:30.77rpx;">{{me.cars}}</text></view><icon name="chevron" size="16" color="#A1A1AA" stroke="2" /></view>
+    </view>
+  </async-view>
+
+  <view class="list">
+    <view class="item" hover-class="hover" data-url="/pages/notify/notify" bindtap="go"><view class="tile32 tone-grey"><icon name="chat" size="18" color="#3F3F46" /></view><view class="col grow"><text class="t15">消息通知</text></view><icon name="chevron" size="16" color="#A1A1AA" stroke="2" /></view>
+    <view class="line line-60"></view>
+    <view class="item" hover-class="hover" bindtap="call"><view class="tile32 tone-grey"><icon name="headset" size="18" color="#3F3F46" /></view><view class="col grow"><text class="t15">联系门店</text></view><icon name="chevron" size="16" color="#A1A1AA" stroke="2" /></view>
+    <view class="line line-60"></view>
+    <view class="item" hover-class="hover" bindtap="logout"><view class="tile32 tone-red"><icon name="logout" size="18" color="#A43433" /></view><view class="col grow"><text class="t15">退出登录</text></view><icon name="chevron" size="16" color="#A1A1AA" stroke="2" /></view>
+  </view>
+</view>

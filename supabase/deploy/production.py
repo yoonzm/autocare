@@ -21,6 +21,7 @@ import urllib.request
 PROJECT = Path('/opt/supabase')
 STATE = Path('/var/lib/autocare-deploy')
 MAX_ARCHIVE = 20 * 1024 * 1024
+FUNCTIONS = ('merchant-v1', 'admin-v1', 'member-v1')
 MAX_EXPANDED = 64 * 1024 * 1024
 
 
@@ -37,7 +38,7 @@ def validate_members(members):
         names.add(name)
         allowed = name == 'release.json'
         allowed |= bool(re.fullmatch(r'supabase/migrations/\d+_[A-Za-z0-9_]+\.sql', name))
-        allowed |= any(name.startswith('supabase/functions/' + function + '/') for function in ('merchant-v1','admin-v1')) and path.suffix in {'.ts', '.json', '.jsonc', '.lock'}
+        allowed |= any(name.startswith('supabase/functions/' + function + '/') for function in FUNCTIONS) and path.suffix in {'.ts', '.json', '.jsonc', '.lock'}
         if not allowed:
             raise ValueError('Unexpected archive member: ' + name)
         total += member.size
@@ -47,6 +48,8 @@ def validate_members(members):
         raise ValueError('Incomplete backend archive')
     if any(name.endswith('_admin_platform.sql') for name in names) and 'supabase/functions/admin-v1/index.ts' not in names:
         raise ValueError('Admin migration requires the admin function')
+    if any(name.endswith('_member_portal.sql') for name in names) and 'supabase/functions/member-v1/index.ts' not in names:
+        raise ValueError('Member portal migration requires the member function')
 
 
 def run(args, **kwargs):
@@ -108,6 +111,13 @@ def smoke(environment):
             if status!=expected or 'error' not in result:
                 raise RuntimeError('Admin function auth readiness failed')
         print('PASS admin function readiness and auth guards',flush=True)
+    if (PROJECT / 'volumes/functions/member-v1/index.ts').exists():
+        # 只测未登录守卫和输入校验：不带令牌的请求必须 401，不会调用微信或短信
+        for body,expected in [({'action':'mb_stores'},401),({'action':'mb_overview','store_id':'x'},401),({'action':'login'},400)]:
+            status,result=request(environment,body,function='member-v1')
+            if status!=expected or 'error' not in result:
+                raise RuntimeError('Member function auth readiness failed: '+body['action'])
+        print('PASS member function readiness and auth guards',flush=True)
 
 
 def deploy(staging):
@@ -118,7 +128,7 @@ def deploy(staging):
     source_hash=source_metadata.get('source_sha256')
     if source_hash is not None:
         digest=hashlib.sha256()
-        for directory in ('supabase/migrations','supabase/functions/merchant-v1','supabase/functions/admin-v1'):
+        for directory in ('supabase/migrations', *('supabase/functions/' + function for function in FUNCTIONS)):
             for path in sorted((staging / directory).rglob('*')):
                 if path.is_file():
                     digest.update(path.relative_to(staging).as_posix().encode()+b'\0'+path.read_bytes()+b'\0')
@@ -184,11 +194,17 @@ CREATE TABLE IF NOT EXISTS supabase_migrations.schema_migrations(version text PR
     if not recognition_env.exists():
         recognition_env.write_text('BAILIAN_API_KEY=\nAI_LICENSE_PLATE_MODEL=qwen3.7-flash\n')
     recognition_env.chmod(0o600)
+    # 会员端小程序的微信凭证（AppID / AppSecret）：只在服务器，缺失时 mb_login 返回 501，不模拟登录。
+    wechat_env = PROJECT / '.env.wechat'
+    if not wechat_env.exists():
+        wechat_env.write_text('WECHAT_MINI_APPID=\nWECHAT_MINI_SECRET=\n')
+    wechat_env.chmod(0o600)
     override.write_text('''services:
   functions:
     env_file:
       - .env.sms
       - .env.recognition
+      - .env.wechat
 ''')
     files = environment.get('COMPOSE_FILE', 'docker-compose.yml').split(':')
     if override.name not in files:
@@ -203,7 +219,7 @@ CREATE TABLE IF NOT EXISTS supabase_migrations.schema_migrations(version text PR
     release.mkdir(parents=True, mode=0o700)
     installed=[]
     try:
-        for function in ('merchant-v1','admin-v1'):
+        for function in FUNCTIONS:
             source=staging / 'supabase/functions' / function
             if not source.exists():
                 continue

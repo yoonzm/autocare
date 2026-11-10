@@ -1,0 +1,45 @@
+<!-- 由 tools/px2rpx.py 从 card.px.wxml 生成，请改源文件，不要直接编辑本文件。 -->
+<navbar title="会员权益" />
+<view class="main">
+  <async-view state="{{state}}" error="{{error}}" skeleton="hero" bind:retry="onRetry" emptyIcon="crown" emptyTitle="您还不是该门店会员">
+    <view class="hero" style="gap:26.92rpx;">
+      <image class="hero-rings" src="/images/rings.svg" aria-hidden="true" />
+      <view class="row"><text class="pill gold-ink">{{m.level}}</text><view class="grow"></view><text class="t12" style="color:#A1A1AA;">{{m.joined}}</text></view>
+      <view class="col gap4"><text style="font-size:46.15rpx;line-height:61.54rpx;font-weight:600;color:#FAFAFA;">{{m.name}}</text><text class="t13" style="color:#A1A1AA;">{{m.phone}}</text></view>
+      <view class="col gap8">
+        <view style="height:11.54rpx;border-radius:5.77rpx;background:rgba(255,255,255,.12);overflow:hidden;"><view style="height:11.54rpx;border-radius:5.77rpx;background:#F5D78E;width:{{progress}}%;"></view></view>
+        <text class="t12" style="color:#F5D78E;">{{hint}}</text>
+      </view>
+    </view>
+
+    <view class="sec-box">
+      <text class="sec">会员等级</text>
+      <view class="card" style="padding:34.62rpx 15.38rpx 30.77rpx;display:flex;position:relative;">
+        <view wx:for="{{steps}}" wx:key="id" class="col" style="flex:1 1 0;align-items:center;gap:11.54rpx;position:relative;">
+          <view class="center" style="width:46.15rpx;height:46.15rpx;border-radius:23.08rpx;background:{{item.state === 'done' ? '#17C964' : item.state === 'current' ? '#F5D78E' : '#E4E4E7'}};color:{{item.state === 'done' ? '#FFFFFF' : '#18181B'}};"><icon wx:if="{{item.state !== 'todo'}}" name="check" size="14" stroke="3" color="{{item.state === 'done' ? '#FFFFFF' : '#18181B'}}" /></view>
+          <text class="t13 w6">{{item.name}}</text>
+          <text class="t11 c-mute tc">{{item.need}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{benefits.length}}" class="sec-box">
+      <text class="sec">{{levelName}}专属权益</text>
+      <view style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:23.08rpx;">
+        <view wx:for="{{benefits}}" wx:key="title" class="col" style="border-radius:42.31rpx;padding:26.92rpx;gap:19.23rpx;background:{{item.bg}};">
+          <view class="center" style="width:69.23rpx;height:69.23rpx;border-radius:23.08rpx;background:rgba(255,255,255,.7);"><icon name="{{item.icon}}" size="18" color="#18181B" /></view>
+          <view class="col gap2"><text class="t14 w6">{{item.title}}</text><text class="t12 c-sub">{{item.desc}}</text></view>
+        </view>
+      </view>
+    </view>
+
+    <view class="sec-box">
+      <text class="sec">积分</text>
+      <view class="list" style="padding:7.69rpx 0;">
+        <view class="kv"><text class="k">当前积分</text><text class="v" style="font-size:34.62rpx;">{{m.points}}</text></view>
+        <view class="line"></view>
+        <view class="kv" hover-class="hover" bindtap="points"><text class="k">积分明细</text><view class="grow"></view><icon name="chevron" size="16" color="#A1A1AA" stroke="2" /></view>
+      </view>
+    </view>
+  </async-view>
+</view>

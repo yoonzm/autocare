@@ -1,0 +1,28 @@
+<view wx:if="{{state === 'loading'}}" class="col gap12" aria-busy="true">
+  <view wx:if="{{skeleton === 'hero'}}" class="sk" style="height:200rpx;border-radius:56rpx;"></view>
+  <block wx:if="{{skeleton === 'cards'}}">
+    <view wx:for="{{items}}" wx:key="*this" class="sk" style="height:240rpx;border-radius:44rpx;"></view>
+  </block>
+  <block wx:else>
+    <view class="card-22 row gap12" style="padding:28rpx 32rpx;" wx:for="{{items}}" wx:key="*this">
+      <view class="sk none" style="width:92rpx;height:92rpx;border-radius:28rpx;"></view>
+      <view class="col grow gap8">
+        <view class="sk" style="width:55%;height:30rpx;"></view>
+        <view class="sk" style="width:80%;height:24rpx;"></view>
+      </view>
+    </view>
+  </block>
+</view>
+<view wx:elif="{{state === 'error'}}" class="state" role="alert">
+  <view class="ic"><icon name="refresh" size="28" color="#71717A" /></view>
+  <text class="h">加载失败</text>
+  <text class="p">{{error || '请检查网络后重试'}}</text>
+  <view class="btn btn-dark" style="flex:none;height:72rpx;padding:0 48rpx;margin-top:12rpx;font-size:28rpx;" hover-class="hover" bindtap="onRetry">重试</view>
+</view>
+<view wx:elif="{{state === 'empty'}}" class="state">
+  <view class="ic"><icon name="{{emptyIcon}}" size="28" color="#71717A" /></view>
+  <text class="h">{{emptyTitle}}</text>
+  <text wx:if="{{emptyText}}" class="p">{{emptyText}}</text>
+  <slot name="empty" />
+</view>
+<slot wx:else />

@@ -1,0 +1,78 @@
+<!-- 由 tools/px2rpx.py 从 home.px.wxml 生成，请改源文件，不要直接编辑本文件。 -->
+<navbar title="" back="{{false}}">
+  <view slot="left" class="col" style="gap:3.85rpx;" bindtap="switchStore">
+    <text class="t17 w6 one" style="max-width:520rpx;">{{ov.storeName || '汽美管家'}}{{multi ? ' ▾' : ''}}</text>
+    <view wx:if="{{ov}}" class="row gap6 t12 c-mute"><view style="width:11.54rpx;height:11.54rpx;border-radius:5.77rpx;background:{{ov.open ? '#17C964' : '#A1A1AA'}};"></view><text>{{ov.hours}}</text></view>
+  </view>
+</navbar>
+<view class="main">
+  <async-view state="{{state}}" error="{{error}}" skeleton="hero" bind:retry="onRetry" emptyIcon="shop" emptyTitle="您还不是任何门店的会员" emptyText="请到店由工作人员为您办理会员，办理后使用同一手机号登录即可。">
+    <view class="hero">
+      <image class="hero-rings" src="/images/rings.svg" aria-hidden="true" />
+      <view class="row" style="gap:19.23rpx;">
+        <text class="pill gold">{{ov.level}}</text>
+        <text class="t16 w6" style="color:#FAFAFA;">{{ov.name}}</text>
+        <view class="grow"></view>
+        <view class="center" style="width:76.92rpx;height:76.92rpx;border-radius:38.46rpx;background:rgba(255,255,255,.1);box-shadow:inset 0 0 0 1px rgba(245,215,142,.35);" hover-class="hover" data-url="/pages/code/code" bindtap="go" role="button" aria-label="会员码"><icon name="qr" size="20" color="#F5D78E" /></view>
+      </view>
+      <view class="col gap2"><text class="t12" style="color:#A1A1AA;">储值余额（元）</text><text style="font-size:69.23rpx;line-height:84.62rpx;font-weight:600;color:#FAFAFA;">{{ov.balance}}</text></view>
+      <view class="row" style="gap:19.23rpx;">
+        <view class="btn-sm btn-white" hover-class="hover" data-url="/pages/recharge/recharge" bindtap="go">充值</view>
+        <view class="btn-sm btn-glass" hover-class="hover" data-url="/pages/card/card" bindtap="go">会员权益</view>
+      </view>
+      <view class="row">
+        <view class="stat"><text class="n">{{ov.points}}</text><text class="l">积分</text></view>
+        <view class="stat"><text class="n">{{ov.packages}}</text><text class="l">次卡</text></view>
+        <!-- TODO: 优惠券没有对应的营销模块和数据来源（预期后端：coupons 表与 mb_coupons），先显示“—”，不展示虚构数量。 -->
+        <view class="stat"><text class="n">—</text><text class="l">优惠券</text></view>
+      </view>
+    </view>
+
+    <view wx:if="{{promo}}" class="row" style="position:relative;overflow:hidden;border-radius:42.31rpx;padding:26.92rpx 30.77rpx;background:linear-gradient(110deg,#FFF1CF,#FBE0A0);gap:23.08rpx;" hover-class="hover" data-url="/pages/recharge/recharge" bindtap="go">
+      <view style="position:absolute;right:-38.46rpx;top:-57.69rpx;width:211.54rpx;height:211.54rpx;border-radius:105.77rpx;background:rgba(255,255,255,.35);"></view>
+      <view class="tile44" style="background:#FFFFFF;"><icon name="ticket" size="22" color="#B7791F" /></view>
+      <view class="col grow gap2" style="position:relative;"><text class="t16 w6" style="color:#5C3D0A;">{{promo.title}}</text><text class="t12" style="color:#8A6420;">储值福利 · 赠送金额同样可用</text></view>
+      <text class="btn-xs" style="position:relative;height:61.54rpx;padding:0 26.92rpx;background:#18181B;color:#F5D78E;">去充值</text>
+    </view>
+
+    <view class="card" style="display:flex;padding:0 11.54rpx;">
+      <view class="col grow" style="flex:1 1 0;align-items:center;gap:15.38rpx;padding:26.92rpx 0;" hover-class="hover" data-url="/pages/svc/svc" bindtap="go"><view class="tile46 tone-blue"><icon name="calendar" size="22" color="#1E63AE" /></view><text class="t13 w5">预约服务</text></view>
+      <view class="col grow" style="flex:1 1 0;align-items:center;gap:15.38rpx;padding:26.92rpx 0;" hover-class="hover" data-url="/pages/recharge/recharge" bindtap="go"><view class="tile46 tone-green"><icon name="wallet" size="22" color="#2B7745" /></view><text class="t13 w5">储值充值</text></view>
+      <view class="col grow" style="flex:1 1 0;align-items:center;gap:15.38rpx;padding:26.92rpx 0;" hover-class="hover" data-url="/pages/packages/packages" bindtap="go"><view class="tile46 tone-amber"><icon name="ticket" size="22" color="#855F2E" /></view><text class="t13 w5">次卡套餐</text></view>
+      <view class="col grow" style="flex:1 1 0;align-items:center;gap:15.38rpx;padding:26.92rpx 0;" hover-class="hover" data-url="/pages/orders/orders" bindtap="go"><view class="tile46 tone-grey"><icon name="list" size="22" color="#3F3F46" /></view><text class="t13 w5">我的订单</text></view>
+    </view>
+
+    <view wx:if="{{work}}" class="card col" style="padding:30.77rpx;gap:23.08rpx;" hover-class="hover" data-url="/pages/progress/progress?id={{work.id}}" bindtap="go">
+      <view class="row" style="gap:19.23rpx;"><text class="t15 w6">您的爱车正在施工</text><view class="grow"></view><text class="pill blue">施工中</text></view>
+      <view class="row" style="gap:23.08rpx;background:#F7F7F8;border-radius:34.62rpx;padding:19.23rpx 23.08rpx;">
+        <image src="/images/car-grey.svg" style="width:134.62rpx;height:50rpx;" aria-hidden="true" />
+        <view class="col grow gap4"><plate plate="{{work.plate}}" /><text class="t13 w5">{{work.text}}</text></view>
+        <view class="none center rel" style="width:100rpx;height:100rpx;"><text class="t13 w6">{{work.percent}}%</text></view>
+      </view>
+      <view class="row gap6"><icon name="clock" size="14" color="#71717A" /><text class="t12 c-mute">{{work.note}}</text></view>
+    </view>
+
+    <view wx:if="{{recommended.length}}" class="sec-box">
+      <text class="sec">为你推荐 · 会员价</text>
+      <view style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:23.08rpx;">
+        <view wx:for="{{recommended}}" wx:key="id" class="card-22 col" style="overflow:hidden;" hover-class="hover" data-url="/pages/svc/svc" bindtap="go">
+          <view class="center {{item.cls}}" style="height:146.15rpx;"><icon name="{{item.icon}}" size="28" color="#FFFFFF" stroke="1.7" /></view>
+          <view class="col gap2" style="padding:19.23rpx 23.08rpx 23.08rpx;">
+            <text class="t14 w6 one">{{item.name}}</text>
+            <text class="t11 c-mute">{{item.meta}}</text>
+            <view class="row" style="gap:11.54rpx;margin-top:7.69rpx;align-items:baseline;"><text class="t17 w6" style="line-height:48.08rpx;">{{item.price}}</text><text wx:if="{{item.original}}" class="strike">{{item.original}}</text></view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="card col" style="padding:30.77rpx;gap:23.08rpx;">
+      <view class="row" style="gap:23.08rpx;">
+        <view class="tile32 tone-grey" style="width:76.92rpx;height:76.92rpx;border-radius:25rpx;"><icon name="pin" size="20" color="#3F3F46" /></view>
+        <view class="col grow gap2"><text class="t14 w5">{{ov.store.address || ov.storeName}}</text><text class="t12 c-mute">{{ov.open ? '营业至 ' + ov.store.closes_at : '今日已休息'}}</text></view>
+        <view class="btn-xs tone-blue" hover-class="hover" bindtap="navigate">导航</view>
+        <view class="btn-xs tone-grey" style="color:#18181B;" hover-class="hover" bindtap="call">电话</view>
+      </view>
+    </view>
+  </async-view>
+</view>

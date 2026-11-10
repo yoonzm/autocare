@@ -1,0 +1,9 @@
+{
+  "usingComponents": {
+    "navbar": "/components/navbar/navbar",
+    "icon": "/components/icon/icon",
+    "plate": "/components/plate/plate",
+    "async-view": "/components/async-view/async-view",
+    "qr-code": "/components/qr-code/qr-code"
+  }
+}

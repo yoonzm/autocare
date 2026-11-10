@@ -38,6 +38,11 @@ jobs:
         run: |
           deno task check
           deno test
+      - name: Check and test member backend
+        working-directory: supabase/functions/member-v1
+        run: |
+          deno task check
+          deno test
       - name: Test SMS and recognition migrations in isolated Postgres
         run: |
           npm install --prefix "$RUNNER_TEMP/sms-db-test" --no-package-lock --ignore-scripts --no-audit --no-fund @electric-sql/pglite@0.5.14
@@ -49,6 +54,7 @@ jobs:
           node supabase/tests/legacy_inventory_bridge.mjs "$RUNNER_TEMP/sms-db-test/node_modules/@electric-sql/pglite/dist/index.js"
           node supabase/tests/multistore.mjs "$RUNNER_TEMP/sms-db-test/node_modules/@electric-sql/pglite/dist/index.js"
           node supabase/tests/member_summary.mjs "$RUNNER_TEMP/sms-db-test/node_modules/@electric-sql/pglite/dist/index.js"
+          node supabase/tests/member_portal.mjs "$RUNNER_TEMP/sms-db-test/node_modules/@electric-sql/pglite/dist/index.js"
 
   deploy:
     needs: check
