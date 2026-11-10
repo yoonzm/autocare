@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:autocare_merchant/kit/image_pick.dart' show imageStore;
@@ -128,14 +126,10 @@ void main() {
   });
 
   testWidgets('选了新头像：保存时先上传再保存资料，然后返回', (t) async {
-    final file = File('${Directory.systemTemp.path}/avatar_test.png')
-      ..writeAsBytesSync([137, 80, 78, 71]);
-    addTearDown(() => file.deleteSync());
+    ProfileFlow.readBytes = (_) async => [137, 80, 78, 71];
     await open(t);
-    imageStore('ProfileEdit_avatar').value = [file.path];
+    imageStore('ProfileEdit_avatar').value = ['/tmp/avatar.png'];
     await t.tap(find.text('保存'));
-    // 读取本地图片文件是真实 IO，需要在真实异步里等它完成。
-    await t.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 300)));
     await t.pumpAndSettle();
     expect(api.uploads, hasLength(1));
     expect(api.profileSaves, hasLength(1));

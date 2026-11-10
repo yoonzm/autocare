@@ -16,6 +16,10 @@ import 'store_profile.dart';
 /// 手机号更换沿用「账号与安全 · 更换手机号」，本页不改。
 class ProfileFlow {
   /// 保存成功后通知「我的」页重新读取资料。
+  /// 读取本地所选头像；测试里替换成不碰磁盘的实现。
+  static Future<List<int>> Function(String path) readBytes = (path) =>
+      File(path).readAsBytes();
+
   static final changed = ValueNotifier<int>(0);
 
   static Future<void> save(BuildContext context) async {
@@ -29,7 +33,7 @@ class ProfileFlow {
       final picked = imageStore('ProfileEdit_avatar').value;
       if (picked.isNotEmpty) {
         await merchantApi.uploadAvatar(
-          base64Encode(await File(picked.first).readAsBytes()),
+          base64Encode(await readBytes(picked.first)),
         );
         imageStore('ProfileEdit_avatar').value = [];
       }
