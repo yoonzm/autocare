@@ -20,7 +20,8 @@ for (const fail of [false, true]) {
     if (fail) await assertRejects(() => settingsCounts(admin, 'current-store'));
     else assertEquals(await settingsCounts(admin, 'current-store'), { staff: 0, services: 1201, cards: 0 });
     assertEquals(queries.length, 3);
-    assertEquals(queries.find(u => u.pathname.endsWith('appointment_resources'))?.searchParams.get('kind'), 'eq.technician');
+    assertEquals(queries.find(u => u.pathname.endsWith('store_staff'))?.searchParams.get('status'), 'neq.disabled');
+    assertEquals(queries.some(u => u.pathname.endsWith('appointment_resources')), false);
     assertEquals(queries.find(u => u.pathname.endsWith('card_types'))?.searchParams.get('active'), 'eq.true');
   });
 }

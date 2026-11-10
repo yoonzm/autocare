@@ -271,9 +271,27 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             shape: BoxShape.circle,
             boxShadow: [BoxShadow(color: C.card, spreadRadius: 3)],
           ),
-          child: Text(
-            '陈',
-            style: ts(16, w: FontWeight.w600, color: Colors.white),
+          // 当前登录人的姓名首字；有头像图片时显示头像（与「我的」页同源）。
+          child: ListenableBuilder(
+            listenable: storeProfile,
+            builder: (_, _) {
+              final initial = Text(
+                storeProfile.profileInitial,
+                style: ts(16, w: FontWeight.w600, color: Colors.white),
+              );
+              return storeProfile.avatarUrl.isEmpty
+                  ? initial
+                  : ClipOval(
+                      child: Image.network(
+                        storeProfile.avatarUrl,
+                        width: 44,
+                        height: 44,
+                        fit: BoxFit.cover,
+                        cacheWidth: 132,
+                        errorBuilder: (_, _, _) => initial,
+                      ),
+                    );
+            },
           ),
         ),
       ),
