@@ -28,3 +28,5 @@
 公共地区字典（`202611060003_regions.sql`）：`action=regions` 在注册前可读取完整三级字典，传 `version` 支持未修改响应。注册选择省、市两级，提交 `province_code` / `city_code`，云函数校验有效状态与父子关系，生成 `city` 文本。旧门店文本保持原样，编码不猜测回填。来源、数据年份、特殊层级和后续更新方式见 [数据说明](data/regions/README.md)。先迁移，再部署云函数，再发布客户端；旧客户端缺少编码，不能继续通过注册校验。回归验证：`deno test region_rules.test.ts`、`supabase/tests/regions.sql`、Flutter `region_picker_test.dart` / `account_test.dart`。生成页面、注册表单结构和两列滚轮布局不变；地区数据及注册编码校验已接通，短信沿用主分支现有的真实短信服务。
 
 会员端小程序使用独立的 `member-v1` 云函数（`functions/member-v1`，`mb_*` 动作，会员会话令牌鉴权），与 `merchant-v1`、`admin-v1` 共享数据库；说明与部署顺序见 [`docs/member-mini-integration.md`](../docs/member-mini-integration.md)。检查：`cd supabase/functions/member-v1 && deno task check && deno test`。
+
+「我的 · 编辑资料」（迁移 `202611100005_profile_edit.sql`，`account.ts`）：`profile_update`（`name`、`email`）经 `merchant_profile_update` 保存当前登录身份自己的资料——老板写入账号下所有门店的联系人姓名和账号邮箱，员工只改自己的员工档案；`get_store` 另返回 `profile`（姓名、邮箱、角色、手机号、入职/开通日期）。头像上传依赖图片存储接口，仍为 `TODO`（页面提示“头像上传暂未接通”）；手机号更换沿用「账号与安全」。先迁移再部署云函数。

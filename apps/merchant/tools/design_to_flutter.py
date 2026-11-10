@@ -249,7 +249,7 @@ LIVE_FLOW = {
 # 必须和 lib/kit/async_kit.dart 的 asyncActionKeys 保持一致（有测试检查）。
 ASYNC_ACTIONS = {
     ('PlanCheckout', 'PlanPaid'), ('Renew', 'RenewPaid'),
-    ('StoreAdd', 'StoreSwitch'), ('StoreEdit', 'StoreInfo'),
+    ('StoreAdd', 'StoreSwitch'), ('StoreEdit', 'StoreInfo'), ('ProfileEdit', 'Settings'),
     ('Feedback', 'AboutApp'),
     ('AppointmentAdd', 'Appointments'),
     ('RegPhone', 'RegShop'), ('RegShop', 'RegDone'),
@@ -2596,7 +2596,7 @@ def _gen_one(gen, name, src, out_dir, done, sheets):
     if name == 'AppointmentSchedule':
         open(os.path.join(out_dir, 'appointment_schedule_body.dart'), 'w', encoding='utf-8').write(
             gen.emit_body_after_tabs(root, name))
-    code = bind_subscription_pages(bind_store_pages(code, name), name)
+    code = bind_subscription_pages(bind_profile_page(bind_store_pages(code, name), name), name)
     if gen.is_sheet:
         open(os.path.join(out_dir, snake(name) + '_sheet.dart'), 'w', encoding='utf-8').write(code)
         sheets.append((name, gen.sheet_parent))
@@ -2680,6 +2680,37 @@ def bind_store_pages(src, page):
             style = re.search(r'style:\s*(hts\()', call)
             a = style.start(1); b = _balanced_end(call, a + 3)
             src = src[:m.start()] + "hLiveText((p) => '创建后仍停留在当前门店 · ${p.storeOffer}', " + call[a:b + 1] + ')' + src[end + 1:]
+    return src
+
+
+def bind_profile_page(src, page):
+    """「我的 · 编辑资料」：资料来自当前登录人，保存走云函数并返回上一页。"""
+    if page != 'ProfileEdit':
+        return src
+    live = {
+        '陈': 'p.profileInitial',
+        '139 **** 8812': 'p.profileMaskedPhone',
+        '店长': 'p.profileRoleText',
+        '驰光汽车美容 · 徐汇店': 'p.name',
+        '2022.01': 'p.profileJoinedText',
+    }
+    for label, expr in live.items():
+        m = re.search(r"Text\(\s*'" + re.escape(label) + r"'\s*,", src)
+        if not m:
+            continue
+        end = _balanced_end(src, m.start() + 4)
+        call = src[m.start():end + 1]
+        style = re.search(r'style:\s*(hts\()', call)
+        a = style.start(1); b = _balanced_end(call, a + 3)
+        src = src[:m.start()] + 'hLiveText((p) => ' + expr + ', ' + call[a:b + 1] + ')' + src[end + 1:]
+    if 'hBusy(' not in src:
+        m = re.search(r"Text\(\s*'保存'\s*,", src)
+        if m:
+            end = _balanced_end(src, m.start() + 4)
+            call = src[m.start():end + 1]
+            style = re.search(r'style:\s*(hts\()', call)
+            a = style.start(1); b = _balanced_end(call, a + 3)
+            src = src[:m.start()] + "hBusy('ProfileEdit>Settings', " + call + ', style: ' + call[a:b + 1] + ', round: true)' + src[end + 1:]
     return src
 
 
@@ -2771,6 +2802,13 @@ def main():
                 src=subprocess.check_output(['git','show','HEAD:'+rel],text=True)
             generated=bind_subscription_pages(src,page)
             with open(path,'w',encoding='utf-8') as f: f.write(generated)
+        return
+    if len(sys.argv) == 3 and sys.argv[1] == '--bind-profile':
+        path = os.path.join(sys.argv[2], 'profile_edit_page.dart')
+        with open(path, encoding='utf-8') as f:
+            src = f.read()
+        with open(path, 'w', encoding='utf-8') as f:
+            f.write(bind_profile_page(src, 'ProfileEdit'))
         return
     if len(sys.argv) == 3 and sys.argv[1] == '--bind-stores':
         for page in ['StoreAdd', 'StoreEdit', 'StoreInfo', 'Subscription']:

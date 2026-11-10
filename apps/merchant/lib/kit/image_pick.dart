@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../backend/merchant_api.dart';
 import '../theme.dart';
 
 /// 按 key 保存已选图片路径（仅内存，mock）。
@@ -54,6 +55,12 @@ Future<void> hPickImage(
   int? replaceAt,
   int max = 1,
 }) async {
+  // TODO: 头像上传依赖图片存储接口（预期后端：profile_avatar_upload），未接通前不接受本地选图，
+  // 避免页面上显示一张没有被保存的头像。
+  if (key == 'ProfileEdit_avatar' && merchantApi.hasSession) {
+    hToast(context, '头像上传暂未接通');
+    return;
+  }
   if (_picking) return;
   _picking = true;
   try {

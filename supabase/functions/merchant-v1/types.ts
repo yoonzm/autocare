@@ -97,6 +97,7 @@ export interface StoreProfileRow {
   hours_line?: string;
   subscription?: Record<string, unknown>;
   store_count?: number;
+  profile?: Record<string, unknown> | null;
   name: string;
   phone: string | null;
   city: string;

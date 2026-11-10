@@ -46,6 +46,7 @@ const kindRules: Record<string, Record<string, Requirement>> = {
 
 const byAction: Record<string, Requirement> = {
   get_store: any,
+  profile_update: any,
   staff_home: any,
   staff_task_list: cap('order_view_own'),
   staff_task_detail: cap('order_view_own'),

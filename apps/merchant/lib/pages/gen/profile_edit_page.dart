@@ -90,7 +90,7 @@ class ProfileEditPage extends StatelessWidget {
                         child: Align(
                           alignment: Alignment(-1, 0),
                           widthFactor: 1,
-                          child: Text(
+                          child: hBusy('ProfileEdit>Settings', Text(
                             '保存',
                             style: hts(
                               14,
@@ -98,7 +98,12 @@ class ProfileEditPage extends StatelessWidget {
                               w: FontWeight.w600,
                               lh: 20,
                             ),
-                          ),
+                          ), style: hts(
+                              14,
+                              Color(0xFFFFFFFF),
+                              w: FontWeight.w600,
+                              lh: 20,
+                            ), round: true),
                         ),
                       ),
                       to: 'Settings',
@@ -123,14 +128,11 @@ class ProfileEditPage extends StatelessWidget {
                             [
                               Flexible(
                                 flex: 32,
-                                child: Text(
-                                  '陈',
-                                  style: hts(
+                                child: hLiveText((p) => p.profileInitial, hts(
                                     32,
                                     Color(0xFFFFFFFF),
                                     w: FontWeight.w600,
-                                  ),
-                                ),
+                                  )),
                               ),
                             ],
                             main: MainAxisAlignment.center,
@@ -375,17 +377,14 @@ class ProfileEditPage extends StatelessWidget {
                               [
                                 Expanded(
                                   flex: 1,
-                                  child: Text(
-                                    '139 **** 8812',
-                                    style: hts(
+                                  child: hLiveText((p) => p.profileMaskedPhone, hts(
                                       15,
                                       dk(
                                         context,
                                         Color(0xFF18181B),
                                         Color(0xFFFAFAFA),
                                       ),
-                                    ),
-                                  ),
+                                    )),
                                 ),
                                 Text(
                                   '更换',
@@ -521,9 +520,7 @@ class ProfileEditPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            Text(
-                              '店长',
-                              style: hts(
+                            hLiveText((p) => p.profileRoleText, hts(
                                 15,
                                 dk(
                                   context,
@@ -531,8 +528,7 @@ class ProfileEditPage extends StatelessWidget {
                                   Color(0xFF9A9AA3),
                                 ),
                                 lh: 22,
-                              ),
-                            ),
+                              )),
                           ],
                           main: MainAxisAlignment.start,
                           cross: CrossAxisAlignment.center,
@@ -564,9 +560,7 @@ class ProfileEditPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            Text(
-                              '驰光汽车美容 · 徐汇店',
-                              style: hts(
+                            hLiveText((p) => p.name, hts(
                                 15,
                                 dk(
                                   context,
@@ -574,8 +568,7 @@ class ProfileEditPage extends StatelessWidget {
                                   Color(0xFF9A9AA3),
                                 ),
                                 lh: 22,
-                              ),
-                            ),
+                              )),
                           ],
                           main: MainAxisAlignment.start,
                           cross: CrossAxisAlignment.center,
@@ -607,9 +600,7 @@ class ProfileEditPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            Text(
-                              '2022.01',
-                              style: hts(
+                            hLiveText((p) => p.profileJoinedText, hts(
                                 15,
                                 dk(
                                   context,
@@ -617,8 +608,7 @@ class ProfileEditPage extends StatelessWidget {
                                   Color(0xFF9A9AA3),
                                 ),
                                 lh: 22,
-                              ),
-                            ),
+                              )),
                           ],
                           main: MainAxisAlignment.start,
                           cross: CrossAxisAlignment.center,

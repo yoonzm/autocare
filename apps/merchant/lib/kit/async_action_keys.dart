@@ -4,6 +4,7 @@ const asyncActionKeys = {
   'Renew>RenewPaid',
   'StoreAdd>StoreSwitch',
   'StoreEdit>StoreInfo',
+  'ProfileEdit>Settings',
   'Feedback>AboutApp',
   'AppointmentAdd>Appointments',
   'RegPhone>RegShop',

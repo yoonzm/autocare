@@ -6,6 +6,7 @@ import '../backend/appointment_flow.dart';
 import '../kit/async_kit.dart';
 import '../backend/catalog_draft.dart';
 import '../backend/store_profile.dart';
+import '../backend/profile_flow.dart';
 import '../theme.dart';
 import '../mock/theme_state.dart';
 import '../routes.dart';
@@ -21,22 +22,26 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   final _countsKey = GlobalKey<AsyncViewState<Map<String, dynamic>>>();
+  final _profileKey = GlobalKey<AsyncViewState<Map<String, dynamic>>>();
 
   @override
   void initState() {
     super.initState();
     CatalogDraft.changed.addListener(_reloadCounts);
     AppointmentFlow.changed.addListener(_reloadCounts);
+    ProfileFlow.changed.addListener(_reloadProfile);
   }
 
   @override
   void dispose() {
     CatalogDraft.changed.removeListener(_reloadCounts);
     AppointmentFlow.changed.removeListener(_reloadCounts);
+    ProfileFlow.changed.removeListener(_reloadProfile);
     super.dispose();
   }
 
   void _reloadCounts() => _countsKey.currentState?.reload();
+  void _reloadProfile() => _profileKey.currentState?.reload();
 
   @override
   Widget build(BuildContext context) {
@@ -54,6 +59,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   SizedBox(
                     height: C.dark ? 176 : 174,
                     child: AsyncView<Map<String, dynamic>>(
+                      key: _profileKey,
                       load: _loadProfile,
                       isEmpty: (_) => false,
                       inlineError: true,

@@ -10,6 +10,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../backend/registration_draft.dart';
 import '../backend/store_flow.dart';
+import '../backend/profile_flow.dart';
 import '../backend/subscription_flow.dart';
 import '../backend/scan_flow.dart';
 import '../backend/catalog_draft.dart';
@@ -219,6 +220,14 @@ Widget hTap(
       if (to == 'PayApplyReviewing' &&
           (route == 'PayApplyReview' || route == 'PayApplyBind')) {
         hToast(context, '微信支付开通暂未接通，申请还没有提交');
+        return;
+      }
+      // 编辑资料：保存由云函数校验并写入，成功后直接返回「我的」，不打开新页面。
+      if (route == 'ProfileEdit' && to == 'Settings') {
+        if (isBusy('$route>$to')) return;
+        if (_hasSaveLabel(child)) {
+          unawaited(runBusy('$route>$to', () => ProfileFlow.save(context)));
+        }
         return;
       }
       if ((route == 'StoreAdd' && to == 'StoreSwitch') ||
@@ -1285,6 +1294,14 @@ class HInputState extends State<HInput> {
       _slot = RegistrationDraft.claim('$_route:${widget.hint}', this);
       // 真实表单每次打开都从空白开始，不沿用设计稿里的示例文字。
       RegistrationDraft.reset(_route, widget.hint, _slot);
+      if (_route == 'ProfileEdit') {
+        final initial = switch (widget.hint) {
+          '您的姓名' => storeProfile.profileName,
+          '用于接收账单和发票' => storeProfile.profileEmail,
+          _ => '',
+        };
+        RegistrationDraft.set(_route, widget.hint, initial, _slot);
+      }
       if (_route == 'StoreEdit') {
         final initial = switch (widget.hint) {
           '请输入门店名称' => storeProfile.name,
@@ -1345,7 +1362,7 @@ class HInputState extends State<HInput> {
       _ => null,
     };
     final initial = isForm
-        ? (route == 'StoreEdit'
+        ? (route == 'StoreEdit' || route == 'ProfileEdit'
               ? RegistrationDraft.get(route, hint, _slot)
               : '')
         : catalogField == null

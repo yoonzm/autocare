@@ -253,6 +253,19 @@ class MerchantApi {
     return Map<String, dynamic>.from(data['store'] as Map);
   }
 
+  /// 保存当前登录人的姓名与邮箱（身份由服务端会话决定）。
+  Future<Map<String, dynamic>> updateProfile({
+    required String name,
+    required String email,
+  }) async {
+    final data = await invoke({
+      'action': 'profile_update',
+      'name': name,
+      'email': email,
+    });
+    return Map<String, dynamic>.from(data['item'] as Map);
+  }
+
   Future<Map<String, dynamic>> storeMutation(
     String action,
     Map<String, dynamic> values, {

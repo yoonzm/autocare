@@ -33,6 +33,31 @@ class StoreProfile extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// 当前登录人自己的资料（「我的 · 编辑资料」）：老板是账号联系人，员工是自己的员工档案。
+  Map<String, dynamic> profile = const {};
+  String get profileName => '${profile['name'] ?? ''}';
+  String get profileEmail => '${profile['email'] ?? ''}';
+  String get profileMaskedPhone {
+    final d = '${profile['phone'] ?? ''}'.replaceAll(RegExp(r'\D'), '');
+    final p = d.length >= 11 ? d.substring(d.length - 11) : d;
+    return p.length == 11 ? '${p.substring(0, 3)} **** ${p.substring(7)}' : (p.isEmpty ? '—' : p);
+  }
+
+  String get profileInitial =>
+      profileName.isEmpty ? '—' : String.fromCharCode(profileName.runes.first);
+  String get profileRoleText {
+    final role = '${profile['role'] ?? 'owner'}';
+    return role == 'owner' && contactRole.isNotEmpty
+        ? contactRole
+        : Access.roleBrief(role);
+  }
+
+  /// `2022.01`；没有入职 / 开通日期时是 `—`。
+  String get profileJoinedText {
+    final d = DateTime.tryParse('${profile['joined_on'] ?? ''}');
+    return d == null ? '—' : '${d.year}.${d.month.toString().padLeft(2, '0')}';
+  }
+
   String name = '';
   String phone = '';
   String city = '';
@@ -89,6 +114,7 @@ class StoreProfile extends ChangeNotifier {
 
   void apply(Map<String, dynamic> s) {
     live = true;
+    profile = Map<String, dynamic>.from((s['profile'] as Map?) ?? const {});
     subscription = Map<String, dynamic>.from(
       (s['subscription'] as Map?) ?? const {},
     );
@@ -130,6 +156,7 @@ class StoreProfile extends ChangeNotifier {
     StoreContext.invalidate();
     subscriptionFlow.reset();
     live = false;
+    profile = const {};
     name = phone = city = address = contactName = contactRole = bayRange = '';
     plan = 'trial';
     businessTypes = const [];

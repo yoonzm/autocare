@@ -40,8 +40,20 @@ export async function handleAccount(input: Input, request: Request): Promise<Res
     const plan = { ...subscription, ...version?.snapshot, ends_at: subscription.ends_at };
     // 员工看不到订阅价格与名额，只看套餐名称与到期时间
     const visiblePlan = isOwner ? plan : { plan: plan.plan, name: plan.name, starts_at: plan.starts_at, ends_at: plan.ends_at };
+    const { data: profile } = await admin.rpc('merchant_profile_get', { p_user: ownerId, p_store: storeId, p_role: session.role, p_staff: session.staffId });
     return json({ store: { ...store, id: storeId, account_phone: isOwner ? account.phone : '', hours_line: hoursLine,
-      subscription: visiblePlan, store_count: isOwner ? count : 1 } });
+      subscription: visiblePlan, store_count: isOwner ? count : 1, profile: profile ?? null } });
+  }
+
+  if (input.action === 'profile_update') {
+    // 只改当前登录身份自己的姓名与邮箱；身份由会话决定，不接受客户端指定。
+    const { data, error } = await admin.rpc('merchant_profile_update', {
+      p_user: ownerId, p_store: storeId, p_role: session.role, p_staff: session.staffId,
+      p_name: typeof input.name === 'string' ? input.name : '', p_email: typeof input.email === 'string' ? input.email : '',
+    });
+    if (error) return fail('保存失败，请稍后重试', 500);
+    if (data?.error) return fail(data.error, data.status ?? 400);
+    return json({ item: data });
   }
 
   if (input.action === 'change_password') {
