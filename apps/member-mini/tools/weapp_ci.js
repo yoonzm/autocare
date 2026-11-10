@@ -22,12 +22,12 @@ function env(name, required) {
 
 function robotOf(value) {
   const n = Number(value || 30);
-  // 1 号机器人是 member-client 现有流水线默认使用的，避免互相覆盖开发版本
+  // 1 号机器人是该小程序自己的上传流程默认使用的，避免互相覆盖开发版本
   if (!Number.isInteger(n) || n < 1 || n > 30) throw new Error('WEAPP_ROBOT 必须是 1~30 的整数');
   return n;
 }
 
-// 版本号：未指定时用 0.0.<时间戳到分钟>，保证递增且不占用 member-client 的正式版本号区间（3.x）
+// 版本号：未指定时用 0.0.<时间戳到分钟>，保证递增且不与该小程序自己的版本号冲突
 function versionOf(value, now = new Date()) {
   if (value) {
     if (!/^[0-9]+(\.[0-9]+){1,2}$/.test(value)) throw new Error('WEAPP_VERSION 格式应为 1.2.3');

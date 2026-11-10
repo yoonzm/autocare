@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // 把小程序整理成可上传的目录（默认 dist/）：只含运行需要的文件，appid 来自参数而不是仓库里的占位值。
-//   node tools/package.js --appid wxa9586ff6437c2379 [--out dist]
+//   node tools/package.js --appid wxdba60af414abc8db [--out dist]
 // 排除：测试、工具、样式源文件（*.px.*，已生成 rpx 版本）、说明文档、npm 清单。
 const fs = require('node:fs');
 const path = require('node:path');

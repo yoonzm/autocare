@@ -30,4 +30,4 @@ npm run build:styles   # 修改 *.px.wxss / *.px.wxml 后重新生成 rpx 文件
 
 ## 临时测试发布
 
-Actions → **Member Mini Program Publish** 可把本小程序上传 / 预览到「会员管家」小程序做真机测试（仅手动触发，配置与风险说明见 `docs/member-mini-integration.md`「临时测试发布」）。本地：`npm run package -- --appid <AppID> --out <目录>` 查看将被上传的文件。**上传的开发版本不要提交审核。**
+Actions → **Member Mini Program Publish** 可把本小程序上传 / 预览到 my-baas-helper 日志监控小程序（`wxdba60af414abc8db`）做真机测试（仅手动触发，配置与风险说明见 `docs/member-mini-integration.md`「临时测试发布」）。本地：`npm run package -- --appid <AppID> --out <目录>` 查看将被上传的文件。**上传的开发版本不要提交审核。**

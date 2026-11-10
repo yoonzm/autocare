@@ -1,10 +1,10 @@
 name: Member Mini Program Publish (temporary test)
 
-# 把会员端小程序上传到「会员管家」小程序（默认 AppID wxa9586ff6437c2379）的【开发版本】，仅用于临时测试。
+# 把会员端小程序上传到 my-baas-helper（member 日志监控小程序，默认 AppID wxdba60af414abc8db）的【开发版本】，仅用于临时测试。
 # - 只能手动触发，不会因为推送自动上传。
 # - 上传的是汽美管家会员端的整套代码，会成为该 AppID 的一个开发版本（版本描述带“勿提交审核”）。
-#   只要不在微信后台点“提交审核 / 发布”，就不会影响线上的会员管家；一旦提审发布，线上小程序会被替换成本项目。
-# - 默认使用 30 号机器人，避免覆盖 member-client 流水线（默认 1 号机器人）的开发版本。
+#   只要不在微信后台点“提交审核 / 发布”，就不会影响该小程序的线上版本；一旦提审发布，线上小程序会被替换成本项目。
+# - 默认使用 30 号机器人，避免覆盖该小程序自己上传流程（默认 1 号机器人）的开发版本。
 # 需要在仓库 Settings → Environments → member-mini-test 里配置密钥 MEMBER_MINI_UPLOAD_KEY（微信后台「小程序代码上传」密钥内容）。
 # 说明见 docs/member-mini-integration.md「临时测试发布」。
 
@@ -17,9 +17,9 @@ on:
         options: [upload, preview]
         default: upload
       appid:
-        description: 目标小程序 AppID（默认：会员管家）
+        description: 目标小程序 AppID（默认：my-baas-helper 日志监控小程序）
         type: string
-        default: wxa9586ff6437c2379
+        default: wxdba60af414abc8db
       robot:
         description: CI 机器人编号 1~30（不同编号的开发版本互不覆盖）
         type: string
