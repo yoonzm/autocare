@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:autocare_merchant/kit/async_kit.dart' show AppError;
 import 'package:autocare_merchant/kit/image_pick.dart' show imageStore;
 import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/backend/profile_flow.dart';
@@ -14,7 +13,7 @@ import 'package:autocare_merchant/routes.dart';
 import 'members_test.dart' show MemberFakeApi, app, phone;
 
 class ProfileApi extends MemberFakeApi {
-  final saved = <Map<String, String>>[];
+  final profileSaves = <Map<String, String>>[];
   Object? failure;
   final uploads = <String>[];
   Map<String, dynamic> profile = {
@@ -43,7 +42,7 @@ class ProfileApi extends MemberFakeApi {
     required String name,
     required String email,
   }) async {
-    saved.add({'name': name, 'email': email});
+    profileSaves.add({'name': name, 'email': email});
     if (failure != null) throw failure!;
     profile = {...profile, 'name': name, 'email': email};
     return profile;
@@ -105,7 +104,7 @@ void main() {
     await t.enterText(find.byType(TextFormField).at(1), 'new@example.com');
     await t.tap(find.text('保存'));
     await t.pumpAndSettle();
-    expect(api.saved.single, {'name': '陈明明', 'email': 'new@example.com'});
+    expect(api.profileSaves.single, {'name': '陈明明', 'email': 'new@example.com'});
     expect(storeProfile.profileName, '陈明明');
     expect(ProfileFlow.changed.value, greaterThan(0));
     expect(find.text('open'), findsOneWidget);
@@ -117,14 +116,14 @@ void main() {
     await t.enterText(find.byType(TextFormField).at(0), '');
     await t.tap(find.text('保存'));
     await t.pumpAndSettle();
-    expect(api.saved, isEmpty);
+    expect(api.profileSaves, isEmpty);
     expect(find.text('编辑资料'), findsOneWidget);
 
     await t.enterText(find.byType(TextFormField).at(0), '新名字');
     api.failure = const AppError('请输入正确的邮箱');
     await t.tap(find.text('保存'));
     await t.pumpAndSettle();
-    expect(api.saved, hasLength(1));
+    expect(api.profileSaves, hasLength(1));
     expect(find.text('编辑资料'), findsOneWidget);
   });
 
@@ -137,7 +136,7 @@ void main() {
     await t.tap(find.text('保存'));
     await t.pumpAndSettle();
     expect(api.uploads, hasLength(1));
-    expect(api.saved, hasLength(1));
+    expect(api.profileSaves, hasLength(1));
     expect(imageStore('ProfileEdit_avatar').value, isEmpty);
     expect(storeProfile.avatarUrl, 'https://example.test/a.png');
     expect(find.text('编辑资料'), findsNothing);
