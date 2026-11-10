@@ -2,12 +2,6 @@ name: Merchant Build
 
 on:
   workflow_dispatch:
-    inputs:
-      backend_environment:
-        description: Backend environment (development uses the Cloud test project)
-        type: choice
-        options: [production, development]
-        default: production
   push:
     branches: ["**"]
     paths:
@@ -25,7 +19,6 @@ concurrency:
 env:
   FLUTTER_VERSION: 3.47.9
   APP_VERSION: 1.0.0
-  MERCHANT_BACKEND_ENV: ${{ inputs.backend_environment || 'production' }}
 
 jobs:
   changes:
@@ -171,12 +164,8 @@ jobs:
 
       - name: Generate iOS build configuration
         run: |
-          backend_args=()
-          if [[ "$MERCHANT_BACKEND_ENV" == development ]]; then
-            backend_args+=(--dart-define-from-file=config/dev.json)
-          fi
           flutter build ios --config-only --no-codesign --release \
-            --build-name="$APP_VERSION" --build-number="$GITHUB_RUN_NUMBER" "${backend_args[@]}"
+            --build-name="$APP_VERSION" --build-number="$GITHUB_RUN_NUMBER"
 
       - name: Install signing identity and provisioning profile
         env:
@@ -285,12 +274,8 @@ jobs:
 
       - name: Build release APK
         run: |
-          backend_args=()
-          if [[ "$MERCHANT_BACKEND_ENV" == development ]]; then
-            backend_args+=(--dart-define-from-file=config/dev.json)
-          fi
           flutter build apk --release \
-            --build-name="$APP_VERSION" --build-number="$GITHUB_RUN_NUMBER" "${backend_args[@]}"
+            --build-name="$APP_VERSION" --build-number="$GITHUB_RUN_NUMBER"
 
       - name: Save APK
         uses: actions/upload-artifact@v4
