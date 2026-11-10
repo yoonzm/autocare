@@ -14,7 +14,7 @@ def package(revision: str, destination: Path) -> None:
     root = Path(__file__).resolve().parents[2]
     files=[]
     digest=hashlib.sha256()
-    for directory in ("supabase/migrations", "supabase/functions/merchant-v1", "supabase/functions/admin-v1"):
+    for directory in ("supabase/migrations", "supabase/functions/merchant-v1", "supabase/functions/admin-v1", "supabase/functions/member-v1"):
         for path in sorted((root / directory).rglob("*")):
             if path.is_file() and not path.is_symlink() and path.suffix in {".sql", ".ts", ".json", ".jsonc", ".lock"}:
                 name=path.relative_to(root).as_posix()

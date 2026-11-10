@@ -7,7 +7,7 @@ const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 export const admin = createClient(url, serviceKey, { auth: { persistSession: false } });
 export const cors = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, apikey, content-type, x-client-info, x-request-id, x-store-id, x-member-token',
+  'Access-Control-Allow-Headers': 'authorization, apikey, content-type, x-client-info, x-request-id, x-store-id',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 export const json = (body: ApiResponse, status = 200) =>

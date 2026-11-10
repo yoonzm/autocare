@@ -1,14 +1,16 @@
-// 会员端小程序接口（action 前缀 mb_）。
+// 会员端小程序接口（函数 member-v1，action 前缀 mb_）。
 // 身份：微信手机号授权 -> 会员会话令牌（x-member-token，库里只存哈希）。会员 = 门店下以手机号识别的 members 记录；
 // 门店、会员身份、价格、工位 / 技师、预约规则全部在服务端决定，客户端只提交选择。所有查询都先校验“该手机号是该门店会员”。
 import { admin, fail, json, uuid } from './shared.ts';
-import { RECHARGE_PRESETS } from './member_rules.ts';
+import type { Body } from './shared.ts';
+import { RECHARGE_PRESETS } from './vehicle_rules.ts';
 import {
   CANCEL_LEAD_HOURS, CODE_PREFIX, CODE_SECONDS, isId, maskPhone, needsPayment, newCode, newToken, parseBook, parseCancel,
   parseCar, parseOrders, parseSlots, parseStoreId, parseTab, rpcProblem, sha256,
-} from './member_portal_rules.ts';
-import { WechatError, wechatClient } from './member_portal_wechat.ts';
-import type { Input } from './types.ts';
+} from './rules.ts';
+import { WechatError, wechatClient } from './wechat.ts';
+
+type Input = Body;
 
 const TOKEN = /^[A-Za-z0-9_-]{40,64}$/;
 type Rpc = { data: unknown; error: { message?: string; code?: string } | null };

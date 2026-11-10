@@ -1,6 +1,5 @@
 // 会员端小程序的纯规则：令牌、会员码、入参校验、错误文案。不依赖 Deno / 数据库，方便单测。
-import { normalizePlate, parseVehicle } from './member_rules.ts';
-import { validDay } from './appointment_rules.ts';
+import { normalizePlate, parseVehicle, validDay } from './vehicle_rules.ts';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f-]{27,36}$/i;
 export const isId = (v: unknown): v is string => typeof v === 'string' && UUID.test(v);

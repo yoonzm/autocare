@@ -2,6 +2,23 @@
 
 用户批准以原生 WXML / WXSS / JS 实现会员端小程序（`apps/member-mini`），并同步接入真实后端。设计稿 `Mb*` 共 20 张画板（19 页 + 1 个弹层），视觉按设计稿还原，数据全部来自 `merchant-v1` 的 `mb_*` 接口，不保留 mock 回退。
 
+## 后端结构：独立的 `member-v1` 云函数
+
+会员端使用单独的 Edge Function `supabase/functions/member-v1`（`POST /functions/v1/member-v1`，`action` 以 `mb_` 开头），与商户端 `merchant-v1`、后台 `admin-v1` 分开部署；三者共享同一个数据库和迁移。
+
+| | `merchant-v1` / `admin-v1` | `member-v1` |
+| --- | --- | --- |
+| 使用者 | 店主 / 运营（需 Supabase 账号） | 车主（没有 Supabase 账号） |
+| 鉴权 | Supabase JWT + 会话核验 | 会员会话令牌 `x-member-token`（库里只存哈希） |
+| 流量 | 少量、已知用户 | 面向公网，量大得多 |
+
+好处：会员端的异常流量或发布问题不影响商户端收银；可单独限流、回滚；代码边界清楚（`index.ts` 入口、`portal.ts` 业务、`rules.ts` 入参规则、`wechat.ts` 微信适配、`shared.ts` 数据库客户端与响应）。
+
+约束：
+- **不跨函数目录 import**：部署包按函数目录分别拷贝。需要和商户端一致的几条规则（车牌校验、充值档位、日期校验）在 `vehicle_rules.ts` 里留了小副本，`parity.test.ts` 与 `merchant-v1` 的原实现逐项比对，任何一边单独改动都会让测试失败；`supabase/deploy/test_production.py` 也会检查运行时代码没有 import 其他函数目录。
+- **预约等业务规则仍只在数据库函数里**（`save_appointment`、`appointment_slot_available`、`change_appointment`），会员端和商户端调用同一份，不会出现两套规则。
+- **没有隔离密钥**：函数容器是同一个，`.env.sms` / `.env.recognition` / `.env.wechat` 对所有函数可见。拆函数带来的是独立部署、限流和回滚，不是密钥隔离；要隔离需要另起容器，不在本次范围。
+
 ## 身份与安全模型
 
 - **会员 = 门店下以手机号识别的 `members` 记录**。同一手机号可以是多家门店的会员；小程序按“当前门店”工作，门店编号只来自扫码进入（`scene`，32 位十六进制）或本机记住的选择，服务端每次都校验“该手机号是该门店会员”，客户端传错门店只会得到 403。
@@ -34,7 +51,7 @@
 | 取消预约 | 独立弹层画板 | 预约详情页内的底部弹层 | 同一交互，少一个页面 |
 | 首页 / 预约详情 | — | 多门店会员点首页门店名可切换 | 会员可能属于多家门店 |
 
-## 真正接通的动作（`merchant-v1`，迁移 `202611100001_member_portal.sql`）
+## 真正接通的动作（`member-v1`，迁移 `202611100001_member_portal.sql`）
 
 | 动作 | 说明 |
 | --- | --- |
@@ -70,14 +87,14 @@
 
 ## 部署顺序与配置
 
-1. 执行迁移 `202611100001_member_portal.sql`，再部署 `merchant-v1`（缺一时小程序显示错误和重试，不回退示例数据）。
-2. 服务器 `/opt/supabase/.env.wechat` 配置 `WECHAT_MINI_APPID` / `WECHAT_MINI_SECRET`（样例 `supabase/deploy/wechat.env.example`，chmod 600，不进仓库、不进小程序）。`production.py` 已把该文件注入函数容器；**需要管理员把更新后的 `production.py` 重新安装到服务器入口**。未配置时 `mb_login` 返回 501「微信登录尚未配置」。函数容器需允许出站访问 `api.weixin.qq.com`。
+1. 执行迁移 `202611100001_member_portal.sql`，再部署 `member-v1`（缺一时小程序显示错误和重试，不回退示例数据）。`merchant-v1` / `admin-v1` 不受影响，无需重新部署。
+2. 服务器 `/opt/supabase/.env.wechat` 配置 `WECHAT_MINI_APPID` / `WECHAT_MINI_SECRET`（样例 `supabase/deploy/wechat.env.example`，chmod 600，不进仓库、不进小程序）。`production.py` 已把该文件注入函数容器；**需要管理员先把更新后的 `production.py` 重新安装到服务器入口，再发布后端**：旧入口的函数白名单不认识 `member-v1`，会直接拒绝部署包（不会半途部署）。未配置时 `mb_login` 返回 501「微信登录尚未配置」。函数容器需允许出站访问 `api.weixin.qq.com`。
 3. 微信公众平台：服务器域名 request 合法域名加入 `https://autocare.mymember.ltd`（需 ICP 备案的主体与小程序主体一致）；在 `apps/member-mini/project.config.json` 把 `appid` 从 `touristappid` 改成真实 AppID；填写隐私保护指引；开启手机号快速验证组件（需认证的小程序）。
 4. 开发者工具导入 `apps/member-mini`，体验版自测后提审。
 
 ## 验证
 
 - 数据库：`supabase/tests/member_portal.mjs`（会话、门店隔离、预约 / 改约 / 取消、车辆、订单、次卡、会员码、权限，已纳入 CI）。
-- 规则与微信适配：`merchant-v1/member_portal_rules.test.ts`（入参只接受选择项、微信 openid / 手机号换取、令牌刷新、501 不模拟）。
+- 规则与微信适配：`member-v1/rules.test.ts`（入参只接受选择项、令牌与会员码、错误文案）、`wechat.test.ts`（微信 openid / 手机号换取、令牌刷新、501 不模拟）、`parity.test.ts`（与商户端规则一致）。
 - 小程序：`cd apps/member-mini && npm test`（格式化、日期与时段、视图模型、二维码、结构检查：标签配对、组件注册、事件处理函数、跳转目标、placeholder、图标、无密钥 / 示例数据、生成文件同步）。
 - **尚未验证**：微信开发者工具里的实际渲染与真机视觉比对（本环境没有开发者工具）、真实微信凭证下的登录（需要 AppID / AppSecret 与已认证小程序）、`deno task check` 类型检查（本环境没有 Deno，交给 CI）。

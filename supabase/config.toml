@@ -3,3 +3,6 @@ verify_jwt = false # Public registration/login; function verifies JWT for every 
 
 [functions.admin-v1]
 verify_jwt = false # Public username login; every protected request verifies JWT and a live admin session.
+
+[functions.member-v1]
+verify_jwt = false # Members have no Supabase account; the function verifies the member session token (x-member-token) on every action except mb_login.

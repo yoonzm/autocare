@@ -30,6 +30,36 @@ class ArchiveValidation(unittest.TestCase):
     def test_valid_archive(self):
         production.validate_members(self.valid() + [member('supabase/migrations/202611010002_merchant_v1.sql')])
         production.validate_members(self.valid() + [member('supabase/functions/admin-v1/index.ts')])
+        production.validate_members(self.valid() + [member('supabase/functions/member-v1/index.ts')])
+
+    def test_member_migration_requires_function(self):
+        with self.assertRaises(ValueError):
+            production.validate_members(self.valid()+[member('supabase/migrations/202611100001_member_portal.sql')])
+        production.validate_members(self.valid()+[member('supabase/migrations/202611100001_member_portal.sql'),member('supabase/functions/member-v1/index.ts')])
+
+    def test_member_function_is_self_contained(self):
+        package_spec = importlib.util.spec_from_file_location('backend_package', Path(__file__).with_name('package.py'))
+        package_tool = importlib.util.module_from_spec(package_spec)
+        package_spec.loader.exec_module(package_tool)
+        with tempfile.TemporaryDirectory(prefix='autocare-member-package-') as directory:
+            archive_path = Path(directory) / 'backend.tar.gz'
+            package_tool.package('b' * 40, archive_path)
+            with tarfile.open(archive_path) as archive:
+                production.validate_members(archive.getmembers())
+                names = set(archive.getnames())
+                self.assertIn('supabase/functions/member-v1/index.ts', names)
+                checked = 0
+                for name in names:
+                    if not name.startswith('supabase/functions/member-v1/') or not name.endswith('.ts') or name.endswith('.test.ts'):
+                        continue
+                    source = archive.extractfile(name).read().decode('utf-8')
+                    for relative in re.findall(r'''(?:from\s*|import\s*\(\s*)['"](\.[^'"]+\.ts)['"]''', source):
+                        target = posixpath.normpath(posixpath.join(posixpath.dirname(name), relative))
+                        # 函数按目录分别部署：运行时代码不得 import 其他函数目录（测试文件除外）
+                        self.assertTrue(target.startswith('supabase/functions/member-v1/'), msg=f'{name} imports outside member-v1: {relative}')
+                        self.assertIn(target, names, msg=f'{name} imports missing module {relative}')
+                        checked += 1
+                self.assertGreater(checked, 5)
 
     def test_admin_migration_requires_function(self):
         with self.assertRaises(ValueError):

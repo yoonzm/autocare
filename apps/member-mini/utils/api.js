@@ -1,4 +1,4 @@
-// 调用 merchant-v1 的 mb_* 接口。会员身份、门店隔离、价格与规则都在服务端校验，这里只负责传输。
+// 调用会员端云函数 member-v1 的 mb_* 接口（与商户端 merchant-v1 分开部署，只共享数据库）。会员身份、门店隔离、价格与规则都在服务端校验，这里只负责传输。
 const config = require('../config');
 const session = require('./session');
 
