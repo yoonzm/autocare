@@ -17,6 +17,7 @@ import { gateStaff } from './staff_access.ts';
 import { handleMembers, handleVehicles } from './members.ts';
 import { handleFollowUps, handleMemberPackages, handleOrders } from './ops.ts';
 import { handlePackages } from './packages.ts';
+import { handlePackageStats } from './package_stats.ts';
 import { handleServices } from './services.ts';
 import { cors, fail, isInput, storeFor } from './shared.ts';
 import { isCatalogKind } from './types.ts';
@@ -50,6 +51,7 @@ Deno.serve(async (request: Request): Promise<Response> => {
   if (input.action === 'list_stores' || input.action === 'get_subscription' || String(input.action).startsWith('store_')) return handleStores(input, request);
   if (input.action === 'settings_stats') return handleSettingsStats(request);
   if (input.action === 'home_stats') return handleHomeStats(request);
+  if (input.action === 'package_stats') return handlePackageStats(request);
   if (String(input.action).startsWith('appointment_')) return handleAppointments(input, request);
   if (/^staff_(task_|perf$|arrivals$|messages)/.test(String(input.action))) return handleStaffWork(input, request);
   if (String(input.action).startsWith('staff_')) return handleStaff(input, request);

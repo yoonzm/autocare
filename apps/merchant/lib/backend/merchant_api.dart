@@ -100,6 +100,7 @@ class MerchantApi {
     'identity_list',
     'identity_context',
     'home_stats',
+    'package_stats',
     'settings_stats',
     'list_stores',
     'get_subscription',
@@ -164,6 +165,11 @@ class MerchantApi {
       }
       rethrow;
     }
+  }
+
+  Future<Map<String, dynamic>> packageStats() async {
+    final result = await invoke({'action': 'package_stats'});
+    return Map<String, dynamic>.from(result['item'] as Map);
   }
 
   /// 静默刷新令牌（401 时调用）。

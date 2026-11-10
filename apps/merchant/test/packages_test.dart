@@ -1,13 +1,37 @@
+import 'dart:io';
+import 'dart:ui' as ui;
+
 import 'package:autocare_merchant/backend/catalog_draft.dart';
+import 'package:autocare_merchant/backend/access_flow.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/backend/package_calc.dart';
 import 'package:autocare_merchant/kit/async_kit.dart';
 import 'package:autocare_merchant/pages/card_packages_live_page.dart';
 import 'package:autocare_merchant/routes.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class PkgFakeApi extends MerchantApi {
+  Object? statsError;
+  int statsCalls = 0;
+  Map<String, dynamic> stats = {
+    'revenue': 1234.56,
+    'change_percent': -12.5,
+    'sold_month': 8,
+    'active_count': 12,
+    'expiring_count': 3,
+    'sold_by_package': {'p1': 25},
+  };
+
+  @override
+  Future<Map<String, dynamic>> packageStats() async {
+    statsCalls++;
+    if (statsError != null) throw statsError!;
+    return Map<String, dynamic>.from(stats);
+  }
+
   final packages = <Map<String, dynamic>>[];
   final services = <Map<String, dynamic>>[
     {'id': 's1', 'name': '精致洗车', 'price': 68, 'category': '洗车', 'active': true},
@@ -102,6 +126,20 @@ Widget app(Widget home) =>
     MaterialApp(navigatorObservers: [navTracker], home: home);
 
 void main() {
+  var renderFont = 'Ahem';
+  setUpAll(() async {
+    if (Platform.environment['PACKAGE_STATS_RENDER_DIR'] != null) {
+      final file = File('C:/Windows/Fonts/msyh.ttc');
+      if (await file.exists()) {
+        final loader = FontLoader('PackageStatsTest')
+          ..addFont(
+            Future.value(ByteData.sublistView(await file.readAsBytes())),
+          );
+        await loader.load();
+        renderFont = 'PackageStatsTest';
+      }
+    }
+  });
   late MerchantApi original;
   late PkgFakeApi fake;
   setUp(() {
@@ -114,6 +152,8 @@ void main() {
     navTracker.stack.clear();
   });
   tearDown(() {
+    Access.role = 'owner';
+    Access.caps = const {};
     merchantApi = original;
     CatalogDraft.current = null;
     navTracker.stack.clear();
@@ -159,6 +199,41 @@ void main() {
   });
 
   group('套餐列表', () {
+    testWidgets('概览与销量在深浅色手机布局中无溢出', (t) async {
+      phone(t);
+      fake.packages.add(pkgRow());
+      final boundaryKey = GlobalKey();
+      for (final brightness in [Brightness.light, Brightness.dark]) {
+        await t.pumpWidget(
+          RepaintBoundary(
+            key: boundaryKey,
+            child: MaterialApp(
+              theme: ThemeData(brightness: brightness, fontFamily: renderFont),
+              home: const CardPackagesLivePage(),
+            ),
+          ),
+        );
+        await t.pumpAndSettle();
+        expect(find.text('¥1,234.56'), findsOneWidget);
+        expect(t.takeException(), isNull);
+        final directory = Platform.environment['PACKAGE_STATS_RENDER_DIR'];
+        if (directory != null) {
+          final boundary =
+              boundaryKey.currentContext!.findRenderObject()
+                  as RenderRepaintBoundary;
+          await t.runAsync(() async {
+            final picture = await boundary.toImage();
+            final bytes = await picture.toByteData(
+              format: ui.ImageByteFormat.png,
+            );
+            await Directory(directory).create(recursive: true);
+            await File('$directory/package-stats-${brightness.name}.png')
+                .writeAsBytes(bytes!.buffer.asUint8List());
+            picture.dispose();
+          });
+        }
+      }
+    });
     testWidgets('加载慢时显示 5 行骨架，之后显示真实套餐与上下架状态', (t) async {
       phone(t);
       fake.listDelay = const Duration(milliseconds: 900);
@@ -175,19 +250,25 @@ void main() {
       await t.pumpAndSettle();
       expect(find.byType(SkeletonTileList), findsNothing);
       expect(find.text('精致洗车年卡'), findsOneWidget);
-      expect(find.text('20 次 · 12 个月有效'), findsNWidgets(2));
+      expect(find.textContaining('20 次 · 12 个月有效'), findsNWidgets(2));
       expect(find.text('¥99'), findsOneWidget);
       expect(find.text('¥1,080'), findsOneWidget);
       expect(find.text('¥1,360'), findsNWidgets(2));
       expect(find.text('上架中'), findsOneWidget);
       expect(find.text('已下架'), findsOneWidget);
-      // 销量属于其他模块：不显示“已售”
-      expect(find.textContaining('已售'), findsNothing);
+      expect(find.textContaining('已售 25'), findsOneWidget);
+      expect(find.textContaining('已售 0'), findsOneWidget);
+      expect(find.text('¥1,234.56'), findsOneWidget);
+      expect(find.text('较上月 -12.50%'), findsOneWidget);
+      expect(find.text('8 张'), findsOneWidget);
+      expect(find.text('12 张'), findsOneWidget);
+      expect(find.text('3 张'), findsOneWidget);
       expect(find.text('次卡套餐 2'), findsOneWidget);
     });
 
     testWidgets('没有套餐：空状态引导新建，且不显示概览 / 说明', (t) async {
       phone(t);
+      fake.stats['sold_by_package'] = <String, dynamic>{};
       await t.pumpWidget(app(const CardPackagesLivePage()));
       await t.pumpAndSettle();
       expect(find.text('还没有次卡套餐'), findsOneWidget);
@@ -208,6 +289,53 @@ void main() {
       await t.tap(find.text('重试'));
       await t.pumpAndSettle();
       expect(find.text('精致洗车年卡'), findsOneWidget);
+    });
+
+    testWidgets('统计失败可重试，不把读取失败当成零销量', (t) async {
+      phone(t);
+      fake.packages.add(pkgRow());
+      fake.statsError = const AppError('读取次卡统计失败', type: AppErrorType.server);
+      await t.pumpWidget(app(const CardPackagesLivePage()));
+      await t.pumpAndSettle();
+      expect(find.byType(ErrorView), findsOneWidget);
+      expect(find.text('¥1,234.56'), findsNothing);
+      fake.statsError = null;
+      await t.tap(find.text('重试'));
+      await t.pumpAndSettle();
+      expect(find.text('¥1,234.56'), findsOneWidget);
+      fake.statsError = const AppError('读取次卡统计失败', type: AppErrorType.server);
+      CatalogDraft.changed.value++;
+      await t.pumpAndSettle();
+      expect(find.text('¥1,234.56'), findsOneWidget);
+      expect(find.byType(ErrorView), findsNothing);
+      await toastGone(t);
+    });
+
+    testWidgets('无统计权限仍可读取套餐目录，不请求或展示经营数据', (t) async {
+      phone(t);
+      Access.role = 'manager';
+      Access.caps = {'catalog_manage': true};
+      fake.packages.add(pkgRow());
+      await t.pumpWidget(app(const CardPackagesLivePage()));
+      await t.pumpAndSettle();
+      expect(fake.statsCalls, 0);
+      expect(find.text('精致洗车年卡'), findsOneWidget);
+      expect(find.text('本月次卡营收'), findsNothing);
+      expect(find.textContaining('已售'), findsNothing);
+    });
+
+    testWidgets('零收入及无环比基数显示真实零和横线，历史售卡不因目录空而消失', (t) async {
+      phone(t);
+      fake.stats.addAll({
+        'revenue': 0,
+        'change_percent': null,
+        'sold_month': 0,
+      });
+      await t.pumpWidget(app(const CardPackagesLivePage()));
+      await t.pumpAndSettle();
+      expect(find.text('¥0'), findsOneWidget);
+      expect(find.text('—'), findsOneWidget);
+      expect(find.text('0 张'), findsOneWidget);
     });
   });
 

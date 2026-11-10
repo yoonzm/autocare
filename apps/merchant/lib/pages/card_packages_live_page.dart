@@ -1,12 +1,12 @@
 // Data-bound copy of the designed CardPackagesPage. Keep its layout in sync
 // with the design; only record text and callbacks vary.
-// TODO: 经营概览（本月营收 / 售出 / 在用 / 将到期）与“已售 N”依赖次卡售卖，属于订单 / 会员模块，
-// V1 不接入：概览显示“—”，列表不显示销量。预期后端接口：merchant-v1 `package_stats`。
+// 经营概览及销量来自后端 package_stats；失败走统一错误 / 重试，不回退演示数据。
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 
 import '../backend/catalog_draft.dart';
+import '../backend/access_flow.dart';
 import '../backend/merchant_api.dart';
 import '../backend/package_calc.dart';
 import '../kit/async_kit.dart';
@@ -22,6 +22,7 @@ class CardPackagesLivePage extends StatefulWidget {
 
 class _CardPackagesLivePageState extends State<CardPackagesLivePage> {
   List<Map<String, dynamic>>? _rows;
+  Map<String, dynamic>? _stats;
   AppError? error;
   bool loading = false;
 
@@ -50,7 +51,7 @@ class _CardPackagesLivePageState extends State<CardPackagesLivePage> {
       _skeletonAt = null;
     });
     final timer = Timer(kIndicatorDelay, () {
-      if (mounted && loading) {
+      if (mounted && loading && error == null) {
         setState(() {
           showSkeleton = true;
           _skeletonAt = DateTime.now();
@@ -58,9 +59,18 @@ class _CardPackagesLivePageState extends State<CardPackagesLivePage> {
       }
     });
     List<Map<String, dynamic>>? rows;
+    Map<String, dynamic>? stats;
     AppError? failed;
     try {
-      rows = await merchantApi.list('packages');
+      await Future.wait<void>([
+        merchantApi.list('packages').then((value) {
+          rows = value;
+        }),
+        if (Access.can('stats_view_store'))
+          merchantApi.packageStats().then((value) {
+            stats = value;
+          }),
+      ]);
     } catch (e) {
       failed = AppError.from(e);
     }
@@ -76,6 +86,7 @@ class _CardPackagesLivePageState extends State<CardPackagesLivePage> {
       showSkeleton = false;
       if (failed == null) {
         _rows = rows;
+        _stats = stats;
         CatalogCounts.packages = rows!.length;
         error = null;
       } else if (_rows == null) {
@@ -100,6 +111,17 @@ class _CardPackagesLivePageState extends State<CardPackagesLivePage> {
   }
 
   bool get _hasRows => _rows != null && _rows!.isNotEmpty;
+
+  bool get _showOverview =>
+      _stats != null &&
+      (_hasRows || (_stats!['sold_by_package'] as Map).isNotEmpty);
+
+  String get _changeText {
+    final change = _stats?['change_percent'] as num?;
+    if (change == null) return '—';
+    final sign = change >= 0 ? '+' : '';
+    return '较上月 $sign${formatMoney(change)}%';
+  }
 
   /// 套餐列表区：加载（骨架）/ 错误（重试）/ 空（引导新建）/ 内容。
   Widget _listArea(BuildContext context) {
@@ -244,7 +266,9 @@ class _CardPackagesLivePageState extends State<CardPackagesLivePage> {
                       gap: 8,
                     ),
                     Text(
-                      info.subtitle,
+                      _stats == null
+                          ? info.subtitle
+                          : '${info.subtitle} · 已售 ${(_stats!["sold_by_package"] as Map)[row["id"]] ?? 0}',
                       style: hts(
                         12,
                         dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
@@ -543,8 +567,41 @@ class _CardPackagesLivePageState extends State<CardPackagesLivePage> {
                     intrinsic: true,
                   ),
                 ),
-                if (_hasRows) ...[
+                if (_rows == null &&
+                    error == null &&
+                    showSkeleton &&
+                    Access.can('stats_view_store'))
                   hbox(
+                    radius: BorderRadius.circular(28),
+                    pad: const EdgeInsets.all(18),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const AppSkeleton(width: 90, height: 17),
+                        const SizedBox(height: 6),
+                        const AppSkeleton(width: 150, height: 38),
+                        const SizedBox(height: 26),
+                        Row(
+                          children: [
+                            for (var i = 0; i < 3; i++)
+                              const Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    AppSkeleton(width: 52, height: 16),
+                                    SizedBox(height: 6),
+                                    AppSkeleton(width: 44, height: 24),
+                                  ],
+                                ),
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                if (_showOverview) ...[
+                  hbox(
+                    opacity: loading && showSkeleton ? 0.6 : 1,
                     grad: LinearGradient(
                       begin: Alignment(-0.5, -0.866),
                       end: Alignment(0.5, 0.866),
@@ -588,7 +645,7 @@ class _CardPackagesLivePageState extends State<CardPackagesLivePage> {
                                       ),
                                     ),
                                     Text(
-                                      '—',
+                                      '¥${formatMoney(_stats!["revenue"] as num)}',
                                       style: hts(
                                         32,
                                         Color(0xFFF5D78E),
@@ -607,7 +664,7 @@ class _CardPackagesLivePageState extends State<CardPackagesLivePage> {
                                 radius: BorderRadius.circular(9),
                                 pad: EdgeInsets.fromLTRB(8, 0, 8, 0),
                                 child: Text(
-                                  '—',
+                                  _changeText,
                                   style: hts(
                                     11,
                                     Color(0xFF5FD48C),
@@ -651,7 +708,7 @@ class _CardPackagesLivePageState extends State<CardPackagesLivePage> {
                                           ),
                                         ),
                                         Text(
-                                          '—',
+                                          '${_stats!["sold_month"]} 张',
                                           style: hts(
                                             16,
                                             Color(0xFFFAFAFA),
@@ -682,7 +739,7 @@ class _CardPackagesLivePageState extends State<CardPackagesLivePage> {
                                           ),
                                         ),
                                         Text(
-                                          '—',
+                                          '${_stats!["active_count"]} 张',
                                           style: hts(
                                             16,
                                             Color(0xFFFAFAFA),
@@ -713,7 +770,7 @@ class _CardPackagesLivePageState extends State<CardPackagesLivePage> {
                                           ),
                                         ),
                                         Text(
-                                          '—',
+                                          '${_stats!["expiring_count"]} 张',
                                           style: hts(
                                             16,
                                             Color(0xFFF5A524),
