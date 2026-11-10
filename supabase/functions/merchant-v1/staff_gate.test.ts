@@ -50,6 +50,16 @@ Deno.test('catalog reads are open to staff, maintenance is not', () => {
   assert(requirementFor({ kind: 'cards', action: 'rules' }).kind === 'any');
 });
 
+Deno.test('staff workflow actions: tasks need task caps, perf needs perf cap, messages are open to any staff', () => {
+  assert(can('technician', ['order_view_own'], { action: 'staff_task_list' }));
+  assert(!can('technician', ['order_view_own'], { action: 'staff_task_finish' }));
+  assert(can('technician', ['progress_update'], { action: 'staff_task_finish' }));
+  assert(!can('cashier', [], { action: 'staff_perf' }));
+  assert(can('cashier', ['perf_view_own'], { action: 'staff_perf' }));
+  assert(can('cashier', [], { action: 'staff_messages' }));
+  assert(can('technician', [], { action: 'staff_messages_read' }));
+});
+
 Deno.test('refusals carry a message the app can show', () => {
   const d = decide('technician', {}, { kind: 'members', action: 'list' });
   assert(!d.allowed && typeof d.message === 'string' && d.message.length > 0);

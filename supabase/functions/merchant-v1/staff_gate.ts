@@ -47,6 +47,13 @@ const kindRules: Record<string, Record<string, Requirement>> = {
 const byAction: Record<string, Requirement> = {
   get_store: any,
   staff_home: any,
+  staff_task_list: cap('order_view_own'),
+  staff_task_detail: cap('order_view_own'),
+  staff_task_progress: cap('progress_update'),
+  staff_task_finish: cap('progress_update'),
+  staff_perf: cap('perf_view_own'),
+  staff_messages: any,
+  staff_messages_read: any,
   home_stats: cap('stats_view_store'),
   settings_stats: cap('catalog_manage'),
   change_password: owner,

@@ -40,7 +40,9 @@ export async function handleIdentity(input: Input, request: Request): Promise<Re
       }
       if (state.role === 'owner' || !state.staffId) return fail('老板请使用商家首页', 403);
       const { data, error } = await admin.rpc('staff_home', { p_store: state.store, p_staff: state.staffId });
-      return error ? fail('读取工作台失败，请稍后重试', 500) : json({ item: data });
+      if (error) return fail('读取工作台失败，请稍后重试', 500);
+      const { data: unread } = await admin.rpc('staff_unread', { p_staff: state.staffId });
+      return json({ item: { ...data, unread: unread ?? 0 } });
     }
     return fail('不支持的身份操作');
   } catch {
