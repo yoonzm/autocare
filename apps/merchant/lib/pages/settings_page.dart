@@ -341,10 +341,32 @@ class _SettingsPageState extends State<SettingsPage> {
                       shape: BoxShape.circle,
                       boxShadow: [BoxShadow(color: C.dark2, spreadRadius: 3)],
                     ),
-                    child: Text(
-                      name.isEmpty ? '—' : name.characters.first,
-                      style: ts(20, w: FontWeight.w600, color: Colors.white),
-                    ),
+                    child: storeProfile.avatarUrl.isEmpty
+                        ? Text(
+                            name.isEmpty ? '—' : name.characters.first,
+                            style: ts(
+                              20,
+                              w: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          )
+                        : ClipOval(
+                            child: Image.network(
+                              storeProfile.avatarUrl,
+                              width: 56,
+                              height: 56,
+                              fit: BoxFit.cover,
+                              cacheWidth: 168,
+                              errorBuilder: (_, _, _) => Text(
+                                name.isEmpty ? '—' : name.characters.first,
+                                style: ts(
+                                  20,
+                                  w: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
                   ),
                   const SizedBox(width: 14),
                   Expanded(

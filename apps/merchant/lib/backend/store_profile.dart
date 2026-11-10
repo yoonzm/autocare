@@ -37,6 +37,8 @@ class StoreProfile extends ChangeNotifier {
   Map<String, dynamic> profile = const {};
   String get profileName => '${profile['name'] ?? ''}';
   String get profileEmail => '${profile['email'] ?? ''}';
+  String get avatarUrl => '${profile['avatar_url'] ?? ''}';
+
   String get profileMaskedPhone {
     final d = '${profile['phone'] ?? ''}'.replaceAll(RegExp(r'\D'), '');
     final p = d.length >= 11 ? d.substring(d.length - 11) : d;

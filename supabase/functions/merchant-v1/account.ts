@@ -1,11 +1,22 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.118.0';
 import { emailOf } from './auth.ts';
 import { checkOtp, consumePhoneChangeCodes } from './otp.ts';
+import { publicStorageUrl } from './storage_url.ts';
+import { screenshot } from './support_rules.ts';
 import { admin, anonKey, fail, json, phoneOf, url, userFor, resolveSession } from './shared.ts';
 import type { Input, StoreProfileRow } from './types.ts';
 
 const PROFILE_COLUMNS =
   'name, phone, city, address, contact_name, contact_role, bay_range, business_types, plan, trial_ends_at, delete_requested_at';
+
+/** 头像私有存储，读取时签发 1 小时链接；profile 里不暴露存储路径。 */
+async function withAvatarUrl(profile: Record<string, unknown> | null) {
+  if (!profile) return null;
+  const { avatar_path: path, ...rest } = profile as { avatar_path?: string } & Record<string, unknown>;
+  if (!path) return { ...rest, avatar_url: '' };
+  const { data } = await admin.storage.from('profile-avatars').createSignedUrl(path, 3600);
+  return { ...rest, avatar_url: data ? publicStorageUrl(data.signedUrl, url, Deno.env.get('SUPABASE_PUBLIC_URL') || url) : '' };
+}
 
 // Actions for a signed-in owner: profile, password, phone number and account deletion.
 export async function handleAccount(input: Input, request: Request): Promise<Response> {
@@ -42,7 +53,7 @@ export async function handleAccount(input: Input, request: Request): Promise<Res
     const visiblePlan = isOwner ? plan : { plan: plan.plan, name: plan.name, starts_at: plan.starts_at, ends_at: plan.ends_at };
     const { data: profile } = await admin.rpc('merchant_profile_get', { p_user: ownerId, p_store: storeId, p_role: session.role, p_staff: session.staffId });
     return json({ store: { ...store, id: storeId, account_phone: isOwner ? account.phone : '', hours_line: hoursLine,
-      subscription: visiblePlan, store_count: isOwner ? count : 1, profile: profile ?? null } });
+      subscription: visiblePlan, store_count: isOwner ? count : 1, profile: await withAvatarUrl(profile) } });
   }
 
   if (input.action === 'profile_update') {
@@ -53,7 +64,25 @@ export async function handleAccount(input: Input, request: Request): Promise<Res
     });
     if (error) return fail('保存失败，请稍后重试', 500);
     if (data?.error) return fail(data.error, data.status ?? 400);
-    return json({ item: data });
+    return json({ item: await withAvatarUrl(data) });
+  }
+
+  if (input.action === 'profile_avatar_upload') {
+    // 只换当前登录身份自己的头像：先上传，再原子记录路径，最后清理旧文件。
+    const file = screenshot(input.data);
+    if (!file) return fail('请选择 5MB 以内的 JPEG 或 PNG 图片');
+    const path = `${session.role === 'owner' ? `o-${ownerId}` : `s-${session.staffId}`}/${crypto.randomUUID()}.${file.extension}`;
+    const uploaded = await admin.storage.from('profile-avatars').upload(path, file.bytes, { contentType: file.mime, upsert: false });
+    if (uploaded.error) return fail('头像上传失败，请重试', 503);
+    const { data, error } = await admin.rpc('merchant_profile_set_avatar', {
+      p_user: ownerId, p_store: storeId, p_role: session.role, p_staff: session.staffId, p_path: path,
+    });
+    if (error || data?.error) {
+      await admin.storage.from('profile-avatars').remove([path]);
+      return error ? fail('头像保存失败，请稍后重试', 500) : fail(data.error, data.status ?? 400);
+    }
+    if (data.old) await admin.storage.from('profile-avatars').remove([data.old]);
+    return json({ item: { avatar_url: (await withAvatarUrl({ avatar_path: path }))?.avatar_url } });
   }
 
   if (input.action === 'change_password') {

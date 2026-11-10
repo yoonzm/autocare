@@ -29,4 +29,4 @@
 
 会员端小程序使用独立的 `member-v1` 云函数（`functions/member-v1`，`mb_*` 动作，会员会话令牌鉴权），与 `merchant-v1`、`admin-v1` 共享数据库；说明与部署顺序见 [`docs/member-mini-integration.md`](../docs/member-mini-integration.md)。检查：`cd supabase/functions/member-v1 && deno task check && deno test`。
 
-「我的 · 编辑资料」（迁移 `202611100005_profile_edit.sql`，`account.ts`）：`profile_update`（`name`、`email`）经 `merchant_profile_update` 保存当前登录身份自己的资料——老板写入账号下所有门店的联系人姓名和账号邮箱，员工只改自己的员工档案；`get_store` 另返回 `profile`（姓名、邮箱、角色、手机号、入职/开通日期）。头像上传依赖图片存储接口，仍为 `TODO`（页面提示“头像上传暂未接通”）；手机号更换沿用「账号与安全」。先迁移再部署云函数。
+「我的 · 编辑资料」（迁移 `202611100005_profile_edit.sql`，`account.ts`）：`profile_update`（`name`、`email`）经 `merchant_profile_update` 保存当前登录身份自己的资料——老板写入账号下所有门店的联系人姓名和账号邮箱，员工只改自己的员工档案；`get_store` 另返回 `profile`（姓名、邮箱、角色、手机号、入职/开通日期）。头像（迁移 `202611100006_profile_avatar.sql`）：`profile_avatar_upload`（`data` 为 JPEG/PNG 的 Base64，≤5MB，服务端按文件头校验）上传到私有桶 `profile-avatars`，经 `merchant_profile_set_avatar` 原子记录到当前身份并清理旧文件；`profile.avatar_url` 为 1 小时有效的签名链接。客户端选图后只本地预览，点保存时先上传再保存资料。手机号更换沿用「账号与安全」。先迁移再部署云函数。

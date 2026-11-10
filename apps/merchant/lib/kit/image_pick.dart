@@ -6,7 +6,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../backend/merchant_api.dart';
+import '../backend/store_profile.dart';
 import '../theme.dart';
 
 /// 按 key 保存已选图片路径（仅内存，mock）。
@@ -55,12 +55,6 @@ Future<void> hPickImage(
   int? replaceAt,
   int max = 1,
 }) async {
-  // TODO: 头像上传依赖图片存储接口（预期后端：profile_avatar_upload），未接通前不接受本地选图，
-  // 避免页面上显示一张没有被保存的头像。
-  if (key == 'ProfileEdit_avatar' && merchantApi.hasSession) {
-    hToast(context, '头像上传暂未接通');
-    return;
-  }
   if (_picking) return;
   _picking = true;
   try {
@@ -257,6 +251,24 @@ class HImageSlot extends StatelessWidget {
       child: Stack(
         children: [
           child,
+          // 已保存的头像（来自服务端）；本地新选的图片盖在它上面，保存时才上传。
+          if (list.isEmpty && imgKey == 'ProfileEdit_avatar')
+            Positioned.fill(
+              child: ListenableBuilder(
+                listenable: storeProfile,
+                builder: (_, _) => storeProfile.avatarUrl.isEmpty
+                    ? const SizedBox.shrink()
+                    : ClipRRect(
+                        borderRadius: BorderRadius.circular(radius),
+                        child: Image.network(
+                          storeProfile.avatarUrl,
+                          fit: BoxFit.cover,
+                          cacheWidth: 400,
+                          errorBuilder: (_, _, _) => const SizedBox.shrink(),
+                        ),
+                      ),
+              ),
+            ),
           if (list.isNotEmpty)
             Positioned.fill(
               child: ClipRRect(

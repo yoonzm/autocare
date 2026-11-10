@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:autocare_merchant/kit/async_kit.dart' show AppError;
+import 'package:autocare_merchant/kit/image_pick.dart' show imageStore;
 import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/backend/profile_flow.dart';
 import 'package:autocare_merchant/backend/registration_draft.dart';
@@ -13,6 +16,7 @@ import 'members_test.dart' show MemberFakeApi, app, phone;
 class ProfileApi extends MemberFakeApi {
   final saved = <Map<String, String>>[];
   Object? failure;
+  final uploads = <String>[];
   Map<String, dynamic> profile = {
     'name': '陈明',
     'email': 'old@example.com',
@@ -27,6 +31,13 @@ class ProfileApi extends MemberFakeApi {
     'account_phone': '13900008812',
     'profile': profile,
   };
+  @override
+  Future<String> uploadAvatar(String base64Data) async {
+    uploads.add(base64Data);
+    profile = {...profile, 'avatar_url': 'https://example.test/a.png'};
+    return 'https://example.test/a.png';
+  }
+
   @override
   Future<Map<String, dynamic>> updateProfile({
     required String name,
@@ -115,5 +126,20 @@ void main() {
     await t.pumpAndSettle();
     expect(api.saved, hasLength(1));
     expect(find.text('编辑资料'), findsOneWidget);
+  });
+
+  testWidgets('选了新头像：保存时先上传再保存资料，然后返回', (t) async {
+    final file = File('${Directory.systemTemp.path}/avatar_test.png')
+      ..writeAsBytesSync([137, 80, 78, 71]);
+    addTearDown(() => file.deleteSync());
+    await open(t);
+    imageStore('ProfileEdit_avatar').value = [file.path];
+    await t.tap(find.text('保存'));
+    await t.pumpAndSettle();
+    expect(api.uploads, hasLength(1));
+    expect(api.saved, hasLength(1));
+    expect(imageStore('ProfileEdit_avatar').value, isEmpty);
+    expect(storeProfile.avatarUrl, 'https://example.test/a.png');
+    expect(find.text('编辑资料'), findsNothing);
   });
 }

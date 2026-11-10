@@ -45,7 +45,7 @@ Deno.serve(async (request: Request): Promise<Response> => {
   if (['send_code', 'check_code', 'forgot_verify', 'reset_password', 'register', 'login_password', 'login_code'].includes(String(input.action))) {
     return handleAuth(input, request);
   }
-  if (['get_store', 'profile_update', 'change_password', 'change_phone', 'delete_account'].includes(String(input.action))) {
+  if (['get_store', 'profile_update', 'profile_avatar_upload', 'change_password', 'change_phone', 'delete_account'].includes(String(input.action))) {
     return handleAccount(input, request);
   }
   if (input.action === 'list_stores' || input.action === 'get_subscription' || String(input.action).startsWith('store_')) return handleStores(input, request);

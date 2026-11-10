@@ -266,6 +266,17 @@ class MerchantApi {
     return Map<String, dynamic>.from(data['item'] as Map);
   }
 
+  /// 上传头像（JPEG / PNG，base64）；服务端校验图片并记录到当前登录身份，返回新的头像链接。
+  Future<String> uploadAvatar(String base64Data) async {
+    final data = await invoke({
+      'action': 'profile_avatar_upload',
+      'data': base64Data,
+    }, timeout: const Duration(seconds: 60));
+    final url = (data['item'] as Map?)?['avatar_url'];
+    if (url is! String || url.isEmpty) throw const AppError('头像上传未完成，请重试');
+    return url;
+  }
+
   Future<Map<String, dynamic>> storeMutation(
     String action,
     Map<String, dynamic> values, {
