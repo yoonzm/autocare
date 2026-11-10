@@ -278,7 +278,7 @@ class StaffAddPage extends StatelessWidget {
                                       ),
                                       lh: 22,
                                     ),
-                                    hint: '员工登录员工端使用的手机号',
+                                    hint: '员工登录汽美管家使用的手机号',
                                     keyboard: TextInputType.phone,
                                   ),
                                 ),
@@ -294,7 +294,7 @@ class StaffAddPage extends StatelessWidget {
                         gap: 6,
                       ),
                       Text(
-                        '员工用该手机号登录员工端，请确认无误。',
+                        '员工用该手机号验证码登录汽美管家，请确认无误。',
                         style: hts(
                           12,
                           dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
@@ -1738,7 +1738,7 @@ class StaffAddPage extends StatelessWidget {
                 hbox(
                   pad: EdgeInsets.fromLTRB(4, 0, 4, 0),
                   child: Text(
-                    '保存后将向员工发送登录邀请。员工首次用该手机号登录员工端并授权微信，账号即自动激活。',
+                    '保存后将向员工发送登录邀请。员工首次用该手机号登录汽美管家并确认加入门店，账号即自动激活。',
                     style: hts(
                       12,
                       dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),

@@ -185,7 +185,7 @@ void main() {
     expect(save['name'], '新员工');
     expect(save['phone'], '13800009999');
     expect(text('员工已添加'), findsOneWidget);
-    expect(text('邀请新员工登录员工端'), findsOneWidget);
+    expect(text('邀请新员工登录汽美管家'), findsOneWidget);
     expect(find.textContaining('138 **** 9999'), findsWidgets);
     await t.ensureVisible(text('复制邀请链接'));
     await t.pumpAndSettle();

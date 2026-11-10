@@ -120,7 +120,9 @@ class StaffInvitePage extends StatelessWidget {
                               Positioned(
                                 left: 0,
                                 top: 0,
-                                child: hsvg(Svgs.s28, w: 128, h: 128),
+                                child: IntrinsicWidth(
+                                  child: hsvg(Svgs.s28, w: 128, h: 128),
+                                ),
                               ),
                             ],
                           ),
@@ -395,7 +397,7 @@ class StaffInvitePage extends StatelessWidget {
                   child: hcol(
                     [
                       Text(
-                        '邀请赵敏登录员工端',
+                        '邀请赵敏登录汽美管家',
                         style: hts(
                           15,
                           dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
@@ -406,20 +408,15 @@ class StaffInvitePage extends StatelessWidget {
                       hrow(
                         [
                           hbox(
-                            bg: dk(
-                              context,
-                              Color(0xFFFFFFFF),
-                              Color(0xFF18181B),
-                            ),
+                            bg: Color(0xFFFFFFFF),
                             radius: BorderRadius.circular(20),
-                            border: dk(
-                              context,
-                              Border.all(color: Color(0xFFE4E4E7), width: 1),
-                              Border.all(color: Color(0xFF3A3A40), width: 1),
+                            border: Border.all(
+                              color: Color(0xFFE4E4E7),
+                              width: 1,
                             ),
                             pad: EdgeInsets.fromLTRB(12, 12, 12, 12),
                             child: hrow(
-                              [hsvg(Svgs.s397, w: 150, h: 150)],
+                              [hsvg(Svgs.s468, w: 150, h: 150)],
                               main: MainAxisAlignment.center,
                               cross: CrossAxisAlignment.center,
                               gap: 0,
@@ -455,9 +452,9 @@ class StaffInvitePage extends StatelessWidget {
                                 ),
                               ),
                               Flexible(
-                                flex: 222,
+                                flex: 296,
                                 child: Text(
-                                  '打开「驰光汽车美容 · 员工端」小程序',
+                                  '扫码或点击短信链接，下载并打开「汽美管家」App',
                                   style: hts(
                                     13,
                                     dk(
@@ -496,9 +493,9 @@ class StaffInvitePage extends StatelessWidget {
                                 ),
                               ),
                               Flexible(
-                                flex: 312,
+                                flex: 247,
                                 child: Text(
-                                  '点击「微信手机号一键登录」，授权微信绑定的手机号',
+                                  '用该手机号获取验证码登录，无需注册门店',
                                   style: hts(
                                     13,
                                     dk(
@@ -719,7 +716,7 @@ class StaffInvitePage extends StatelessWidget {
                     context,
                     hbox(
                       h: 50,
-                      bg: dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                      bg: Color(0xFF0485F7),
                       radius: BorderRadius.circular(25),
                       child: Align(
                         alignment: Alignment(0, 0),
@@ -728,7 +725,7 @@ class StaffInvitePage extends StatelessWidget {
                           '完成',
                           style: hts(
                             15,
-                            dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                            Color(0xFFFFFFFF),
                             w: FontWeight.w600,
                             lh: 22,
                           ),
