@@ -102,9 +102,10 @@ void main() {
     final spinner = t.widget<AppSpinner>(find.byType(AppSpinner));
     expect(spinner.color, Colors.white);
     expect(spinner.size, 18);
-    await t.tap(find.text('提交中…'));
+    // 提交期间由 AbsorbPointer 拦截，重复点击预期不会命中按钮。
+    await t.tap(find.text('提交中…'), warnIfMissed: false);
     await t.pump();
-    expect(api.calls.where((c) => c['action'] == 'resource_save').length, 1);
+    expect(api.calls.where((c) => c['action'] == 'staff_save').length, 1);
     await t.pump(const Duration(milliseconds: 500));
     api.gate!.complete();
     await t.pumpAndSettle();
