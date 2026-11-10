@@ -28,3 +28,4 @@
 
 - 源码 `apps/member-mini`，用微信开发者工具上传体验版 / 提审，版本与其他端独立。`.github/workflows/member-mini.yml` 在 `apps/member-mini/**` 变更时运行 Node 测试与样式生成检查，不自动上传（上传需要小程序密钥，不放进 Actions）。
 - 后端：迁移 `202611100001_member_portal.sql` 与独立的 `member-v1` 云函数随 `supabase-prod.yml` 自动部署（开发项目的 `supabase-dev.yml` 同样单独部署 `member-v1`）；微信凭证 `/opt/supabase/.env.wechat` 由管理员配置（样例 `supabase/deploy/wechat.env.example`），更新后的 `production.py` 需管理员重新安装到服务器入口。详见 `docs/member-mini-integration.md`。
+- 临时测试：`.github/workflows/member-mini-publish.yml`（手动）可把会员端上传到「会员管家」小程序的开发版本或生成预览二维码，需要环境密钥 `MEMBER_MINI_UPLOAD_KEY`；不是正式发布，开发版本不得提交审核。

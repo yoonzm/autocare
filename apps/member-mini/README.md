@@ -27,3 +27,7 @@ npm run build:styles   # 修改 *.px.wxss / *.px.wxml 后重新生成 rpx 文件
 - 业务规则（价格、权限、预约容量、会员身份）只在云函数里；小程序不做校验替代。
 - 密钥：`config.js` 里只有公开的 publishable key；微信 AppSecret 只在服务器环境变量。
 - 在开发者工具中把 `project.config.json` 的 `appid` 换成真实 AppID，并在后台加入 request 合法域名。
+
+## 临时测试发布
+
+Actions → **Member Mini Program Publish** 可把本小程序上传 / 预览到「会员管家」小程序做真机测试（仅手动触发，配置与风险说明见 `docs/member-mini-integration.md`「临时测试发布」）。本地：`npm run package -- --appid <AppID> --out <目录>` 查看将被上传的文件。**上传的开发版本不要提交审核。**

@@ -5,6 +5,7 @@
   "scripts": {
     "build:styles": "python3 tools/px2rpx.py",
     "check:styles": "python3 tools/px2rpx.py --check",
+    "package": "node tools/package.js",
     "test": "node --test test/*.test.js"
   }
 }
