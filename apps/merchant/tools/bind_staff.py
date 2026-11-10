@@ -221,8 +221,8 @@ def invite():
     d.rep("'赵',", "staffInitial(d),")
     d.rep("'赵敏',", "name,")
     d.rep("'施工技师 · 138 **** 5521',", "'$role · $masked',")
-    d.rep("'邀请赵敏登录员工端',", "'邀请$name登录员工端',")
-    d.rep("'打开「驰光汽车美容 · 员工端」小程序',", "'打开「${storeProfile.name} · 员工端」小程序',")
+    d.rep("'邀请赵敏登录汽美管家',", "'邀请$name登录汽美管家',")
+    # TODO: 二维码目前是设计稿的示意图（不可扫码）。真实二维码需要 App 下载地址（配置后由 staff_invite 返回）与二维码生成。
     d.rep("'手机号与登记的 138 **** 5521 匹配即自动激活',", "'手机号与登记的 $masked 匹配即自动激活',")
     copy = run_action(
         'StaffInvite>copy',
