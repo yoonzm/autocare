@@ -1,0 +1,30 @@
+name: Member Mini Program
+
+on:
+  push:
+    branches: ["**"]
+    paths:
+      - "apps/member-mini/**"
+      - ".github/workflows/member-mini.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: autocare-member-mini-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Test member mini program
+        working-directory: apps/member-mini
+        run: npm test

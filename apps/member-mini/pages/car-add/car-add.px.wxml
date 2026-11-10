@@ -1,0 +1,39 @@
+<navbar title="添加车辆" locked="{{busy}}" bind:back="back" />
+<view class="main main-bar">
+  <view class="card col">
+    <view class="field">
+      <view class="lb">车牌号 <text class="req">*</text></view>
+      <view class="rel" bindtap="focusInput">
+        <view class="row" style="gap:6px;">
+          <block wx:for="{{cells}}" wx:key="index">
+            <view wx:if="{{index === (ev ? 3 : 2)}}" class="pcell dot"><view style="width:6px;height:6px;border-radius:3px;background:#A1A1AA;"></view></view>
+            <view class="pcell {{item.cur && focus ? 'cur' : ''}} {{item.ev ? 'ev' : ''}}">{{item.c}}</view>
+          </block>
+        </view>
+        <input class="plate-input" value="{{plate}}" maxlength="8" focus="{{focus}}" bindinput="onInput" bindblur="onBlur" confirm-type="done" adjust-position placeholder="请输入车牌号" placeholder-class="ph" aria-label="车牌号" />
+      </view>
+      <text class="t12 c-faint">输入 8 位即为新能源车牌</text>
+    </view>
+    <view class="line"></view>
+    <view class="field">
+      <view class="lb">品牌车型 <text class="req">*</text></view>
+      <view class="in"><input value="{{brand}}" maxlength="50" bindinput="onBrand" placeholder="例如 宝马 5 系" placeholder-class="ph" aria-label="品牌车型" /></view>
+    </view>
+    <view class="line"></view>
+    <view class="field">
+      <view class="row"><text class="lb">车身颜色</text><view class="grow"></view><text class="t14 c-mute">{{color}}</text></view>
+      <view class="row" style="gap:10px;flex-wrap:wrap;">
+        <view wx:for="{{colors}}" wx:key="0" class="swatch {{color === item[0] ? 'on' : ''}}" style="background:{{item[1]}};" data-c="{{item[0]}}" bindtap="pickColor" role="radio" aria-checked="{{color === item[0]}}" aria-label="{{item[0]}}"><icon wx:if="{{color === item[0]}}" name="check" size="16" stroke="3" color="{{item[0] === '白色' || item[0] === '银色' || item[0] === '香槟色' ? '#18181B' : '#FFFFFF'}}" /></view>
+      </view>
+    </view>
+  </view>
+  <view class="card">
+    <view class="row" style="padding:14px 16px;gap:12px;" bindtap="toggleDefault" role="switch" aria-checked="{{isDefault}}">
+      <view class="col grow gap2"><text class="t15 w5">设为默认车辆</text><text class="t12 c-mute">预约时默认选择此车</text></view>
+      <view class="switch {{isDefault ? 'on' : ''}}"><view class="k"></view></view>
+    </view>
+  </view>
+</view>
+<view class="bar">
+  <view class="btn btn-primary {{busy ? 'busy' : ''}}" hover-class="hover" bindtap="save" role="button"><text class="btn-text">保存</text><view wx:if="{{busy}}" class="spin"></view></view>
+</view>

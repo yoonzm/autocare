@@ -1,3 +1,4 @@
+import { handleMemberPortal } from './member_portal.ts';
 import { handleSubscriptions } from './subscriptions.ts';
 import { handleStores } from './stores.ts';
 import { handleRegions } from './regions.ts';
@@ -28,6 +29,7 @@ Deno.serve(async (request: Request): Promise<Response> => {
     return fail('Invalid JSON');
   }
   if (!isInput(input)) return fail('Invalid JSON');
+  if (String(input.action).startsWith('mb_')) return handleMemberPortal(input, request);
   if (String(input.action).startsWith('subscription_')) return handleSubscriptions(input, request);
   if (input.action === 'regions') return handleRegions(input);
   if(String(input.action).startsWith('support_'))return handleSupport(input,request);

@@ -1,0 +1,33 @@
+<!-- 由 tools/px2rpx.py 从 booked.px.wxml 生成，请改源文件，不要直接编辑本文件。 -->
+<navbar title="预约成功" bind:back="home" />
+<view class="main main-bar">
+  <async-view state="{{state}}" error="{{error}}" rows="3" bind:retry="onRetry">
+    <view class="done-wrap">
+      <view style="position:absolute;left:184.62rpx;top:53.85rpx;width:15.38rpx;height:15.38rpx;background:#F5D78E;border-radius:3.85rpx;transform:rotate(20deg);"></view>
+      <view style="position:absolute;right:176.92rpx;top:84.62rpx;width:15.38rpx;height:15.38rpx;background:#0485F7;border-radius:7.69rpx;"></view>
+      <view style="position:absolute;left:134.62rpx;top:184.62rpx;width:11.54rpx;height:23.08rpx;background:#17C964;border-radius:3.85rpx;transform:rotate(-30deg);"></view>
+      <view style="position:absolute;right:134.62rpx;top:192.31rpx;width:15.38rpx;height:15.38rpx;background:#F5D78E;border-radius:7.69rpx;"></view>
+      <view class="rel center" style="width:184.62rpx;height:184.62rpx;"><image class="done-rings" src="/images/done-rings.svg" aria-hidden="true" /><view class="done-mark"><icon name="check" size="44" stroke="2.6" color="#FFFFFF" /></view></view>
+      <text style="font-size:42.31rpx;line-height:57.69rpx;font-weight:600;">预约成功</text>
+      <text class="t13 c-mute">时段已为您预留，请准时到店</text>
+    </view>
+    <view class="card col">
+      <view class="row" style="padding:30.77rpx;gap:23.08rpx;">
+        <image src="/images/car-grey.svg" style="width:134.62rpx;height:50rpx;" aria-hidden="true" />
+        <view class="col grow gap4"><plate plate="{{a.plate}}" energy="{{a.vehicle.energy}}" /><text wx:if="{{a.car}}" class="t12 c-mute">{{a.car}}</text></view>
+        <text class="pill {{a.st.tone}}">{{a.st.text}}</text>
+      </view>
+      <view class="dash"><view class="l"></view><view class="r"></view></view>
+      <view class="col" style="padding:7.69rpx 0 15.38rpx;">
+        <view class="kv"><text class="k">到店时间</text><text class="v">{{a.when}}</text></view>
+        <view class="kv"><text class="k">服务</text><text class="v">{{a.text}}</text></view>
+        <view class="kv"><text class="k">预计费用</text><text class="v">{{a.price}}</text></view>
+        <view class="kv"><text class="k">门店</text><text class="v">{{a.store_name}}</text></view>
+      </view>
+    </view>
+  </async-view>
+</view>
+<view class="bar">
+  <view class="btn btn-soft" hover-class="hover" bindtap="home">返回首页</view>
+  <view class="btn btn-dark" hover-class="hover" bindtap="detail">查看预约</view>
+</view>

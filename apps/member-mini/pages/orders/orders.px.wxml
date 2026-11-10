@@ -1,0 +1,44 @@
+<navbar title="消费记录" />
+<view class="main">
+  <view class="hero" wx:if="{{summary}}" style="gap:14px;">
+    <image class="hero-rings" src="/images/rings.svg" aria-hidden="true" />
+    <view class="row"><text class="t12" style="color:#A1A1AA;">本月消费</text><view class="grow"></view><text class="t12" style="color:#A1A1AA;">{{month}}</text></view>
+    <text style="font-size:32px;line-height:40px;font-weight:600;color:#F5D78E;">{{summary.paid}}</text>
+    <view class="row">
+      <view class="stat"><text class="n">{{summary.orders}}</text><text class="l">订单</text></view>
+      <view class="stat"><text class="n">{{summary.saved}}</text><text class="l">已省</text></view>
+      <view class="stat"><text class="n">{{summary.points}}</text><text class="l">积分</text></view>
+    </view>
+  </view>
+
+  <view class="seg" role="tablist">
+    <view wx:for="{{kinds}}" wx:key="0" class="s {{kind === item[0] ? 'on' : ''}}" data-k="{{item[0]}}" bindtap="pick" role="tab" aria-selected="{{kind === item[0]}}">{{item[1]}}</view>
+  </view>
+
+  <async-view state="{{state}}" error="{{error}}" rows="4" bind:retry="onRetry" emptyIcon="list" emptyTitle="还没有消费记录" emptyText="到店消费或储值后，记录会显示在这里。">
+    <view wx:if="{{work}}" class="sec-box">
+      <text class="sec">今天</text>
+      <view class="list" style="padding:0;">
+        <view class="rec" hover-class="hover" bindtap="openWork">
+          <view class="tile38 tone-blue"><icon name="shop" size="19" color="#1E63AE" /></view>
+          <view class="col grow gap2" style="min-width:0;"><text class="t14 w6 one">{{work.text}}</text><text class="t12 c-mute one">{{work.time}} · {{work.plate}}{{work.technician_name ? ' · ' + work.technician_name : ''}}</text></view>
+          <view class="col none" style="align-items:flex-end;gap:4px;"><text class="t15 w6">{{work.price}}</text><text class="pill blue">施工中</text></view>
+        </view>
+      </view>
+    </view>
+    <view wx:for="{{groups}}" wx:key="title" wx:for-item="g" class="sec-box">
+      <text class="sec">{{g.title}}</text>
+      <view class="list" style="padding:0;">
+        <block wx:for="{{g.items}}" wx:key="id">
+          <view wx:if="{{index > 0}}" class="line line-60"></view>
+          <view class="rec" hover-class="{{item.link ? 'hover' : ''}}" data-id="{{item.id}}" data-link="{{item.link}}" bindtap="open">
+            <view class="tile38 {{item.tone}}"><icon name="{{item.icon}}" size="19" color="{{item.tone === 'tone-blue' ? '#1E63AE' : item.tone === 'tone-green' ? '#2B7745' : '#855F2E'}}" /></view>
+            <view class="col grow gap2" style="min-width:0;"><text class="t14 w6 one">{{item.title}}</text><text class="t12 c-mute one">{{item.sub}}</text></view>
+            <view class="col none" style="align-items:flex-end;gap:4px;"><text class="t15 w6">{{item.amountText}}</text><text class="pill {{item.pill.tone}}">{{item.pill.text}}</text></view>
+          </view>
+        </block>
+      </view>
+    </view>
+    <view wx:if="{{more}}" class="center" style="height:48px;" hover-class="hover" bindtap="loadMore"><text class="t13 c-mute">{{loadingMore ? '加载中…' : '加载更多'}}</text></view>
+  </async-view>
+</view>

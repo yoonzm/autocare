@@ -23,3 +23,8 @@
 - App 默认地址和客户端公开密钥指向私有化正式环境。自动打包沿用默认值，不需要额外配置。
 - 需要 Cloud 测试包时，在 Merchant Build 手动触发并选择 `backend_environment=development`；本地在 `apps/merchant` 执行 `flutter build apk --release --dart-define-from-file=config/dev.json`，iOS 同理。
 - 测试与正式环境使用同一个 App 标识，安装会覆盖原包；切换时重新登录，不共享两边会话。页面、导航和交互布局不变。
+
+## 会员端小程序
+
+- 源码 `apps/member-mini`，用微信开发者工具上传体验版 / 提审，版本与其他端独立。`.github/workflows/member-mini.yml` 在 `apps/member-mini/**` 变更时运行 Node 测试与样式生成检查，不自动上传（上传需要小程序密钥，不放进 Actions）。
+- 后端：迁移 `202611100001_member_portal.sql` 与 `merchant-v1` 随 `supabase-prod.yml` 自动部署；微信凭证 `/opt/supabase/.env.wechat` 由管理员配置（样例 `supabase/deploy/wechat.env.example`），更新后的 `production.py` 需管理员重新安装到服务器入口。详见 `docs/member-mini-integration.md`。

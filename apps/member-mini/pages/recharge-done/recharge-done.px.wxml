@@ -1,0 +1,29 @@
+<navbar title="充值成功" bind:back="home" />
+<view class="main main-bar">
+  <async-view state="{{state}}" error="{{error}}" rows="3" bind:retry="onRetry">
+    <view class="done-wrap">
+      <view class="rel center" style="width:96px;height:96px;"><image class="done-rings" src="/images/done-rings.svg" aria-hidden="true" /><view class="done-mark"><icon name="check" size="44" stroke="2.6" color="#FFFFFF" /></view></view>
+      <text style="font-size:22px;line-height:30px;font-weight:600;">充值成功</text>
+      <text style="font-size:32px;line-height:40px;font-weight:600;color:#2B7745;">{{r.total}}</text>
+      <text class="t13 c-mute">已到账，可立即使用</text>
+    </view>
+    <view class="card col">
+      <view class="col" style="padding:16px 0 4px;">
+        <view class="row" style="padding:0 16px 4px;gap:10px;"><text class="t15 w6 grow">充值明细</text><text class="pill green">已到账</text></view>
+        <view class="kv"><text class="k">充值金额</text><text class="v">{{r.amount}}</text></view>
+        <view wx:if="{{r.gift}}" class="kv"><text class="k">赠送金额</text><text class="v c-green">{{r.gift}}</text></view>
+        <view class="kv"><text class="k">支付方式</text><text class="v">{{r.pay}}</text></view>
+      </view>
+      <view class="dash"><view class="l"></view><view class="r"></view></view>
+      <view class="col" style="padding:4px 0 8px;">
+        <view class="kv"><text class="k">当前余额</text><text class="v c-green">{{r.balance}}</text></view>
+        <view class="kv"><text class="k">交易时间</text><text class="v">{{r.at}}</text></view>
+        <view class="kv"><text class="k">交易单号</text><text class="v">{{r.no}}</text></view>
+      </view>
+    </view>
+  </async-view>
+</view>
+<view class="bar">
+  <view class="btn btn-soft" hover-class="hover" bindtap="records">查看记录</view>
+  <view class="btn btn-dark" hover-class="hover" bindtap="home">返回首页</view>
+</view>

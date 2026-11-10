@@ -1,0 +1,19 @@
+<!-- 由 tools/px2rpx.py 从 cars.px.wxml 生成，请改源文件，不要直接编辑本文件。 -->
+<navbar title="{{pick ? '选择车辆' : '我的爱车'}}" />
+<view class="main">
+  <async-view state="{{state}}" error="{{error}}" rows="2" bind:retry="onRetry" emptyIcon="car" emptyTitle="还没有登记车辆" emptyText="添加车牌后即可预约服务。">
+    <view class="col gap12">
+      <view wx:for="{{cars}}" wx:key="id" class="card col" style="overflow:hidden;" hover-class="{{pick ? 'hover' : ''}}" data-id="{{item.id}}" bindtap="choose">
+        <view class="rel center" style="height:184.62rpx;background:linear-gradient(135deg,#F4F7FB,#E6ECF4);"><image src="/images/car-grey.svg" style="width:269.23rpx;height:100rpx;" aria-hidden="true" /><view wx:if="{{item.isDefault}}" style="position:absolute;right:26.92rpx;top:23.08rpx;"><text class="pill blue">默认</text></view></view>
+        <view class="col" style="padding:26.92rpx 30.77rpx 30.77rpx;gap:19.23rpx;">
+          <view class="row" style="gap:23.08rpx;"><plate plate="{{item.plate}}" energy="{{item.energy}}" /><text class="t14 w5 one">{{item.title}}</text></view>
+          <view class="row" style="gap:15.38rpx;flex-wrap:wrap;">
+            <text wx:if="{{item.ev}}" class="t11 c-sub" style="background:#F4F4F5;border-radius:17.31rpx;padding:3.85rpx 19.23rpx;">新能源</text>
+            <text class="t11 c-sub" style="background:#F4F4F5;border-radius:17.31rpx;padding:3.85rpx 19.23rpx;">累计到店 {{item.visits}} 次</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </async-view>
+  <view class="card-22 center gap6" style="height:103.85rpx;border:1px dashed #D4D4D8;box-shadow:none;background:transparent;border-radius:38.46rpx;" hover-class="hover" bindtap="add" role="button"><icon name="plus" size="18" color="#52525B" stroke="2" /><text class="t14 w5 c-sub">添加车辆</text></view>
+</view>

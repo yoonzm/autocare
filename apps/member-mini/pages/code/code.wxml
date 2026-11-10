@@ -1,0 +1,27 @@
+<!-- 由 tools/px2rpx.py 从 code.px.wxml 生成，请改源文件，不要直接编辑本文件。 -->
+<navbar title="会员码" />
+<view class="main">
+  <async-view state="{{state}}" error="{{error}}" skeleton="hero" bind:retry="onRetry" emptyIcon="qr" emptyTitle="您还不是该门店会员">
+    <view class="hero" style="gap:30.77rpx;">
+      <image class="hero-rings" src="/images/rings.svg" aria-hidden="true" />
+      <view class="row" style="gap:19.23rpx;"><text class="pill gold-ink">{{m.level}}</text><text class="t16 w6" style="color:#FAFAFA;">{{m.name}}</text><view class="grow"></view><text class="t12" style="color:#A1A1AA;">{{m.phone}}</text></view>
+      <view class="center">
+        <view class="center" style="width:461.54rpx;height:461.54rpx;border-radius:46.15rpx;background:#FFFFFF;">
+          <qr-code wx:if="{{code}}" text="{{code}}" size="440" />
+          <view wx:else class="col center gap8"><view class="spin dark" wx:if="{{refreshing}}"></view><text class="t12 c-mute">{{refreshing ? '正在刷新' : '会员码已过期'}}</text></view>
+        </view>
+      </view>
+      <view class="center"><view class="row gap6" style="height:57.69rpx;border-radius:28.85rpx;padding:0 26.92rpx;background:rgba(255,255,255,.1);color:#F5D78E;font-size:23.08rpx;"><icon name="clock" size="14" color="#F5D78E" /><text>{{left}} 秒后自动刷新</text></view></view>
+      <view class="row">
+        <view class="stat" style="align-items:center;"><text class="n">{{m.balance}}</text><text class="l">储值余额</text></view>
+        <view class="stat" style="align-items:center;"><text class="n">{{m.points}}</text><text class="l">积分</text></view>
+        <view class="stat" style="align-items:center;"><text class="n">{{m.packages}}</text><text class="l">次卡</text></view>
+      </view>
+    </view>
+    <view class="card row" style="padding:26.92rpx 30.77rpx;gap:23.08rpx;">
+      <view class="tile38 tone-green"><icon name="lock" size="19" color="#2B7745" /></view>
+      <view class="col grow gap2"><text class="t14 w6">安全提示</text><text class="t12 c-mute">会员码每 60 秒更新，请勿截图或转发给他人</text></view>
+    </view>
+    <text class="note">到店结账时出示，店员扫码即可使用余额、次卡和优惠券</text>
+  </async-view>
+</view>

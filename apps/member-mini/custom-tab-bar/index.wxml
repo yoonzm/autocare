@@ -1,0 +1,6 @@
+<view class="tabbar" role="tablist">
+  <view wx:for="{{list}}" wx:key="url" class="t {{selected === index ? 'on' : ''}}" data-i="{{index}}" bindtap="onTap" role="tab" aria-selected="{{selected === index}}">
+    <icon name="{{item.icon}}" size="24" color="{{selected === index ? '#0485F7' : '#71717A'}}" />
+    <text>{{item.text}}</text>
+  </view>
+</view>

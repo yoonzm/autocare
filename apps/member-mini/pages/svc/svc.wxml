@@ -1,0 +1,25 @@
+<!-- 由 tools/px2rpx.py 从 svc.px.wxml 生成，请改源文件，不要直接编辑本文件。 -->
+<navbar title="{{replace ? '改约 · 选择服务' : '选择服务'}}" bind:back="back" />
+<view class="main main-bar">
+  <async-view state="{{state}}" error="{{error}}" rows="5" bind:retry="onRetry" emptyIcon="shop" emptyTitle="门店暂未上架服务" emptyText="请联系门店了解可预约的服务项目。">
+    <view class="seg" role="tablist">
+      <view wx:for="{{cats}}" wx:key="*this" class="s {{cat === item ? 'on' : ''}}" data-cat="{{item}}" bindtap="pickCat" role="tab" aria-selected="{{cat === item}}">{{item}}</view>
+    </view>
+    <view class="list" style="padding:7.69rpx 0;">
+      <block wx:for="{{rows}}" wx:key="id">
+        <view wx:if="{{index > 0}}" class="line"></view>
+        <view class="svc {{item.on ? 'on' : ''}}" hover-class="hover" data-id="{{item.id}}" bindtap="toggle" role="checkbox" aria-checked="{{item.on}}">
+          <view class="tile52 {{item.cls}}"><icon name="{{item.icon}}" size="26" color="#FFFFFF" stroke="1.7" /></view>
+          <view class="col grow gap4" style="min-width:0;"><text class="t15 w6 one">{{item.name}}</text><text class="t12 c-mute one">{{item.desc}}</text></view>
+          <view class="col none" style="align-items:flex-end;gap:1px;"><text class="t16 w6">{{item.price}}</text><text wx:if="{{item.original}}" class="strike">{{item.original}}</text></view>
+          <view class="radio {{item.on ? 'on' : ''}}"><icon wx:if="{{item.on}}" name="check" size="14" stroke="3" color="#FFFFFF" /></view>
+        </view>
+      </block>
+    </view>
+    <view wx:if="{{note}}" class="tip">{{note}}</view>
+  </async-view>
+</view>
+<view class="bar">
+  <view class="col grow"><text class="t12 c-mute">{{total.hours}}</text><text wx:if="{{total.price}}" class="t18 w6">{{total.price}}</text></view>
+  <view class="btn btn-primary {{can ? '' : 'disabled'}}" style="flex:1.4 1 0;" hover-class="{{can ? 'hover' : ''}}" bindtap="next" role="button" aria-disabled="{{!can}}">下一步 · 选时间</view>
+</view>

@@ -1,0 +1,13 @@
+<view class="nav">
+  <view style="height:{{top}}px;"></view>
+  <view class="nav-in" style="height:{{height}}px;padding:0 20rpx 0 38rpx;">
+    <view class="nav-side" style="width:{{side}}px;">
+      <view wx:if="{{back}}" class="nav-back {{locked ? 'locked' : ''}}" hover-class="hover" bindtap="onBack" role="button" aria-label="返回">
+        <icon name="back" size="20" stroke="2" color="{{locked ? '#C4C4CB' : '#18181B'}}" />
+      </view>
+      <slot name="left" />
+    </view>
+    <text class="nav-title">{{title}}</text>
+    <view class="nav-side" style="width:{{side}}px;justify-content:flex-end;"><slot name="right" /></view>
+  </view>
+</view>

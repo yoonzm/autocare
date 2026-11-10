@@ -1,0 +1,34 @@
+<!-- 由 tools/px2rpx.py 从 packages.px.wxml 生成，请改源文件，不要直接编辑本文件。 -->
+<navbar title="次卡套餐" />
+<view class="main">
+  <async-view state="{{state}}" error="{{error}}" rows="3" bind:retry="onRetry" emptyIcon="ticket" emptyTitle="暂无次卡套餐" emptyText="门店暂未上架可线上查看的次卡套餐。">
+    <view wx:if="{{mine.length}}" class="sec-box">
+      <text class="sec">我的次卡</text>
+      <view wx:for="{{mine}}" wx:key="id" class="rel" style="border-radius:46.15rpx;padding:30.77rpx;overflow:hidden;color:#FFFFFF;display:flex;align-items:center;gap:26.92rpx;background:{{item.bg}};">
+        <image src="/images/rings.svg" style="position:absolute;right:-153.85rpx;top:-173.08rpx;width:461.54rpx;height:461.54rpx;opacity:.5;" aria-hidden="true" />
+        <view class="none center rel" style="width:123.08rpx;height:123.08rpx;border-radius:61.54rpx;border:11.54rpx solid rgba(255,255,255,.28);"><text style="font-size:38.46rpx;font-weight:600;">{{item.left}}</text></view>
+        <view class="col grow gap2 rel" style="min-width:0;">
+          <text class="t16 w6 one">{{item.name}}</text>
+          <text class="t12" style="color:rgba(255,255,255,.82);">剩余 {{item.left}} 次 · 已用 {{item.used}}/{{item.total}}</text>
+          <text class="t11" style="color:rgba(255,255,255,.7);">{{item.exp}}</text>
+        </view>
+        <view class="btn-xs btn-white rel" hover-class="hover" bindtap="book">去预约</view>
+      </view>
+    </view>
+    <view wx:if="{{offers.length}}" class="sec-box">
+      <text class="sec">可购买</text>
+      <view wx:for="{{offers}}" wx:key="id" class="card row" style="padding:26.92rpx 30.77rpx;gap:23.08rpx;align-items:flex-start;">
+        <view class="tile44 tone-amber"><icon name="ticket" size="22" color="#855F2E" /></view>
+        <view class="col grow gap4" style="min-width:0;">
+          <text class="t15 w6 one">{{item.name}}</text>
+          <text class="t12 c-mute">单次 {{item.per}} · 有效期 {{item.valid}}</text>
+          <text wx:if="{{item.save}}" class="pill green">{{item.save}}</text>
+        </view>
+        <view class="col none" style="align-items:flex-end;gap:15.38rpx;">
+          <text class="t16 w6">{{item.price}}</text>
+          <view class="btn-xs btn-dark rel {{buying === item.id ? 'busy' : ''}}" style="height:57.69rpx;" hover-class="hover" data-id="{{item.id}}" bindtap="buy"><text class="btn-text">购买</text><view wx:if="{{buying === item.id}}" class="spin" style="width:26.92rpx;height:26.92rpx;margin:-13.46rpx 0 0 -13.46rpx;"></view></view>
+        </view>
+      </view>
+    </view>
+  </async-view>
+</view>

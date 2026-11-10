@@ -1,0 +1,46 @@
+<navbar title="{{replace ? '改约 · 选择时间' : '选择时间'}}" locked="{{busy}}" bind:back="back" />
+<view class="main main-bar">
+  <async-view state="{{state}}" error="{{error}}" rows="4" bind:retry="onRetry">
+    <view class="sec-box">
+      <text class="sec">预约日期</text>
+      <scroll-view scroll-x enhanced show-scrollbar="{{false}}" class="dates-wrap" scroll-into-view="d-{{day}}">
+        <view class="dates" role="radiogroup" aria-label="选择日期">
+          <view wx:for="{{strip}}" wx:key="day" id="d-{{item.day}}" class="date {{day === item.day ? 'on' : ''}} {{item.disabled ? 'off' : ''}}" data-day="{{item.day}}" data-off="{{item.disabled}}" bindtap="pickDay" role="radio" aria-checked="{{day === item.day}}" aria-disabled="{{item.disabled}}">
+            <text class="t11">{{item.week}}</text><text style="font-size:18px;line-height:26px;font-weight:600;">{{item.date}}</text>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <view class="sec-box">
+      <text class="sec">到店时段</text>
+      <async-view state="{{slotsState}}" error="{{error}}" rows="2" bind:retry="retrySlots" emptyIcon="clock" emptyTitle="当天没有可约时段" emptyText="换一天试试，或直接联系门店。">
+        <view class="slots" role="radiogroup" aria-label="选择时段">
+          <view wx:for="{{slots}}" wx:key="time" class="slot {{time === item.time ? 'on' : ''}} {{item.ok ? '' : 'off'}}" data-time="{{item.time}}" data-off="{{!item.ok}}" bindtap="pickSlot" role="radio" aria-checked="{{time === item.time}}" aria-disabled="{{!item.ok}}">{{item.time}}</view>
+        </view>
+      </async-view>
+      <view class="legend"><text><text class="d" style="background:#FFFFFF;box-shadow:inset 0 0 0 1px #D4D4D8;"></text>可约</text><text><text class="d" style="background:#E1F0FE;box-shadow:inset 0 0 0 1.5px #0485F7;"></text>已选</text><text><text class="d" style="background:#E4E4E7;"></text>已满</text></view>
+    </view>
+
+    <view class="sec-box">
+      <text class="sec">服务车辆</text>
+      <view wx:if="{{car}}" class="card-22 row" style="padding:12px 16px;gap:12px;" hover-class="hover" bindtap="chooseCar">
+        <image src="/images/car-grey.svg" style="width:70px;height:26px;" aria-hidden="true" />
+        <view class="col grow gap4"><plate plate="{{car.plate}}" energy="{{car.energy}}" /><text wx:if="{{car.text}}" class="t12 c-mute">{{car.text}}</text></view>
+        <icon name="chevron" size="16" color="#A1A1AA" stroke="2" />
+      </view>
+      <view wx:else class="card-22 row" style="padding:16px;gap:12px;" hover-class="hover" bindtap="addCar">
+        <view class="tile38 tone-blue"><icon name="plus" size="19" color="#1E63AE" /></view>
+        <view class="col grow"><text class="t14 w6">添加服务车辆</text><text class="t12 c-mute">预约前需要登记车牌</text></view>
+        <icon name="chevron" size="16" color="#A1A1AA" stroke="2" />
+      </view>
+    </view>
+    <view class="tip">{{tip}}</view>
+  </async-view>
+</view>
+<view class="bar">
+  <view class="col grow" style="min-width:0;"><text class="t12 c-mute">{{whenText}}</text><text class="t14 w6 one">{{summary}}</text></view>
+  <view class="btn btn-primary {{busy ? 'busy' : ''}} {{time && car ? '' : 'disabled'}}" style="flex:1 1 0;" hover-class="hover" bindtap="submit" role="button">
+    <text class="btn-text">{{replace ? '确认改约' : '提交预约'}}</text><view wx:if="{{busy}}" class="spin"></view>
+  </view>
+</view>
