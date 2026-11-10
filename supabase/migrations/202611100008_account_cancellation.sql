@@ -16,7 +16,15 @@ revoke all on public.account_cancellations from public, anon, authenticated;
 grant select, insert on public.account_cancellations to service_role;
 
 -- 账号 = 一个登录用户：老板（有门店账号）或员工（有门店身份）。后台运营账号不在其中。
-create view public.admin_user_accounts as
+-- 用普通函数而不是视图：函数体在调用时才解析，避免精简版 auth 表结构的数据库测试在建视图时失败。
+create function public.admin_user_accounts() returns table(
+  user_id uuid, created_at timestamptz, last_sign_in_at timestamptz, phone text, name text, role text,
+  identities jsonb, store_names text, frozen boolean, delete_requested_at timestamptz,
+  cancelled_at timestamptz, cancel_source text, cancel_reason text, cancel_note text, status text)
+language plpgsql stable security definer set search_path=public as $fn$
+#variable_conflict use_column
+begin
+  return query
 with owners as (
   select a.owner_id as user_id, a.phone, a.frozen,
     (select s.contact_name from public.stores s where s.id = a.primary_store_id) as name,
@@ -58,8 +66,9 @@ left join owners o on o.user_id = i.user_id
 left join staff s on s.user_id = i.user_id
 left join grouped g on g.user_id = i.user_id
 left join public.account_cancellations c on c.user_id = i.user_id;
-revoke all on public.admin_user_accounts from public, anon, authenticated;
-grant select on public.admin_user_accounts to service_role;
+end $fn$;
+revoke all on function public.admin_user_accounts() from public, anon, authenticated;
+grant execute on function public.admin_user_accounts() to service_role;
 
 create function public.admin_require_super(p_actor uuid, p_session uuid) returns jsonb
 language plpgsql security definer set search_path=public as $$
@@ -81,23 +90,23 @@ begin
   if p_status not in ('all', 'cooling', 'cancelled', 'frozen') then raise exception '账号状态无效'; end if;
   select coalesce(jsonb_agg(to_jsonb(x) order by x.created_at desc, x.user_id desc), '[]'::jsonb), count(*) into rows, n from (
     select user_id, created_at, last_sign_in_at, phone, name, role, identities, frozen, delete_requested_at, cancelled_at, cancel_source, status
-    from public.admin_user_accounts
+    from public.admin_user_accounts()
     where (p_status = 'all' or status = p_status)
       and (q = '' or (digits <> '' and phone like '%' || digits || '%') or name ilike '%' || q || '%' or store_names ilike '%' || q || '%')
       and (p_before_at is null or (created_at, user_id) < (p_before_at, coalesce(p_before_id, 'ffffffff-ffff-ffff-ffff-ffffffffffff'::uuid)))
     order by created_at desc, user_id desc limit lim + 1) x;
   select jsonb_build_object('total', count(*), 'cooling', count(*) filter (where status = 'cooling'),
     'cancelled', count(*) filter (where status = 'cancelled'), 'frozen', count(*) filter (where status = 'frozen'))
-    into counts from public.admin_user_accounts;
+    into counts from public.admin_user_accounts();
   return jsonb_build_object('items', case when n > lim then rows - lim else rows end, 'more', n > lim, 'counts', counts, 'now', now());
 end $$;
 
 create function public.admin_user_get(p_actor uuid, p_session uuid, p_id uuid) returns jsonb
 language plpgsql security definer set search_path=public as $$
-declare r public.admin_user_accounts; events jsonb := '[]'::jsonb; holds integer := 0; appts integer := 0; devices integer;
+declare r record; events jsonb := '[]'::jsonb; holds integer := 0; appts integer := 0; devices integer;
 begin
   perform public.admin_require_super(p_actor, p_session);
-  select * into r from public.admin_user_accounts where user_id = p_id;
+  select * into r from public.admin_user_accounts() x where x.user_id = p_id;
   if not found then raise exception '账号不存在' using errcode='P0002'; end if;
   select count(*) into devices from auth.sessions where user_id = p_id and (not_after is null or not_after > now());
   -- 进行中的事项：老板看自己门店的挂单与待到店预约；员工看分配给自己的待到店预约。
@@ -124,7 +133,7 @@ end $$;
 
 create function public.admin_user_cancel(p_actor uuid, p_session uuid, p_user uuid, p_reason text, p_note text, p_request uuid)
 returns jsonb language plpgsql security definer set search_path=public as $$
-declare a jsonb; r public.admin_user_accounts; prev public.admin_requests; result jsonb; input jsonb; note text := trim(coalesce(p_note, ''));
+declare a jsonb; r record; prev public.admin_requests; result jsonb; input jsonb; note text := trim(coalesce(p_note, ''));
 begin
   a := public.admin_require_super(p_actor, p_session);
   if p_request is null then raise exception '缺少请求编号'; end if;
@@ -137,7 +146,7 @@ begin
   end if;
   if p_reason not in ('user_request', 'violation', 'other') then raise exception '请选择注销原因'; end if;
   if length(note) > 200 then raise exception '备注不能超过 200 字'; end if;
-  select * into r from public.admin_user_accounts where user_id = p_user;
+  select * into r from public.admin_user_accounts() x where x.user_id = p_user;
   if not found then raise exception '账号不存在' using errcode='P0002'; end if;
   if r.status = 'cancelled' then raise exception '账号已注销'; end if;
   -- 只停用账号：记录注销、让所有设备退出；门店、订单、会员等数据一律不动。
