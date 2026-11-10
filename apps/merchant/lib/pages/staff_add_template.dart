@@ -1645,32 +1645,40 @@ class StaffAddTemplate extends StatelessWidget {
                 ),
                 Expanded(
                   flex: 16,
-                  child: hTap(
-                    context,
-                    hbox(
-                      h: 50,
-                      bg: Color(0xFF0485F7),
-                      radius: BorderRadius.circular(25),
-                      child: Align(
-                        alignment: Alignment(0, 0),
-                        widthFactor: 1,
-                        child: c.busy && c.activeButton == '保存并邀请'
-                            ? const AppSpinner(
-                                size: 18,
-                                color: Color(0xFF0485F7),
-                              )
-                            : Text(
-                                '保存并邀请',
-                                style: hts(
-                                  15,
-                                  Color(0xFFFFFFFF),
-                                  w: FontWeight.w600,
-                                  lh: 22,
-                                ),
-                              ),
-                      ),
-                    ),
+                  child: AsyncAction(
                     onTap: () => c.save(context, button: '保存并邀请'),
+                    builder: (actionKey, onTap) => hTap(
+                      context,
+                      hbox(
+                        h: 50,
+                        bg: Color(0xFF0485F7),
+                        radius: BorderRadius.circular(25),
+                        child: Align(
+                          alignment: Alignment(0, 0),
+                          widthFactor: 1,
+                          child: hBusy(
+                            actionKey,
+                            Text(
+                              '保存并邀请',
+                              style: hts(
+                                15,
+                                Color(0xFFFFFFFF),
+                                w: FontWeight.w600,
+                                lh: 22,
+                              ),
+                            ),
+                            style: hts(
+                              15,
+                              Color(0xFFFFFFFF),
+                              w: FontWeight.w600,
+                              lh: 22,
+                            ),
+                            label: '提交中…',
+                          ),
+                        ),
+                      ),
+                      onTap: onTap,
+                    ),
                   ),
                 ),
               ],
