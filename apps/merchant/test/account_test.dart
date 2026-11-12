@@ -125,18 +125,18 @@ void main() {
     // 设计稿的示例文字不应成为默认值
     expect(find.text('驰光汽车美容'), findsNothing);
     expect(find.text('陈明'), findsNothing);
-    await tapText(t, '开通并开始试用');
+    await tapText(t, '免费开通');
     expect(find.text('请输入门店名称'), findsOneWidget);
 
     await t.enterText(input('如：驰光汽车美容'), '蓝鲸养护');
-    await tapText(t, '开通并开始试用');
+    await tapText(t, '免费开通');
     await t.pump(const Duration(seconds: 4));
     expect(find.text('请选择所在城市'), findsWidgets);
 
     RegistrationDraft.city = '浙江省 · 杭州市';
     RegistrationDraft.provinceCode = '330000';
     RegistrationDraft.cityCode = '330100'; // 城市选择器是原生滚轮，直接写入选中结果
-    await tapText(t, '开通并开始试用');
+    await tapText(t, '免费开通');
     await t.pump(const Duration(seconds: 4));
     expect(find.text('请输入联系人姓名'), findsOneWidget);
 
@@ -155,14 +155,14 @@ void main() {
     expect(RegistrationDraft.shopStepError(), isNull);
   });
 
-  testWidgets('开通成功页：显示后端返回的门店名 / 手机号 / 试用期', (t) async {
+  testWidgets('开通成功页：显示后端返回的门店名 / 手机号 / 限时免费', (t) async {
     await storeProfile.load();
     await open(t, 'RegDone');
     expect(find.text('蓝鲸养护 · 已为您创建店长账号'), findsOneWidget);
     expect(find.text('手机号 139 **** 8812'), findsOneWidget);
-    expect(find.text('专业版 · 试用'), findsOneWidget);
-    expect(find.text(storeProfile.trialEndText), findsOneWidget);
-    expect(storeProfile.trialEndText, startsWith('2026.11.'));
+    expect(find.text('限时免费'), findsOneWidget);
+    expect(find.text('完整功能'), findsOneWidget);
+    expect(find.text('看套餐'), findsNothing);
   });
 
   testWidgets('开通门店：成功页显示云函数按主营业务初始化的服务项目数', (t) async {
@@ -175,7 +175,7 @@ void main() {
     RegistrationDraft.city = '浙江省 · 杭州市';
     RegistrationDraft.provinceCode = '330000';
     RegistrationDraft.cityCode = '330100';
-    await tapText(t, '开通并开始试用');
+    await tapText(t, '免费开通');
     await t.pumpAndSettle(); // 等跳转到「开通成功」页
     expect(api.registered!['store_name'], '蓝鲸养护');
     expect(find.text('已按主营业务生成 8 项'), findsOneWidget);

@@ -270,7 +270,7 @@ class DeleteAccountPage extends StatelessWidget {
                                   child: hcol(
                                     [
                                       Text(
-                                        '无未结清的订阅或欠费',
+                                        '无未结清的欠费',
                                         style: hts(
                                           14,
                                           dk(
@@ -282,7 +282,7 @@ class DeleteAccountPage extends StatelessWidget {
                                         ),
                                       ),
                                       Text(
-                                        '订阅状态正常',
+                                        '账号状态正常',
                                         style: hts(
                                           12,
                                           dk(
@@ -497,7 +497,7 @@ class DeleteAccountPage extends StatelessWidget {
                               Flexible(
                                 flex: 221,
                                 child: Text(
-                                  '未用完的套餐不退款，自动续费将终止',
+                                  '注销后账号权益立即终止',
                                   style: hts(
                                     13,
                                     dk(

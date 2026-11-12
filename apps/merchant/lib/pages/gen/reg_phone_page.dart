@@ -174,7 +174,7 @@ class RegPhonePage extends StatelessWidget {
                         Flexible(
                           flex: 123,
                           child: Text(
-                            '14 天免费试用专业版',
+                            '限时免费使用',
                             style: hts(
                               13,
                               dk(context, Color(0xFF3F3F46), Color(0xFFD4D4D8)),
@@ -234,7 +234,7 @@ class RegPhonePage extends StatelessWidget {
                         Flexible(
                           flex: 117,
                           child: Text(
-                            '试用到期前不会扣费',
+                            '无需绑定支付方式',
                             style: hts(
                               13,
                               dk(context, Color(0xFF3F3F46), Color(0xFFD4D4D8)),

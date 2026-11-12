@@ -126,7 +126,7 @@ class RegDonePage extends StatelessWidget {
                                       ),
                                     ),
                                     hLiveText(
-                                      (p) => p.live ? (p.planText) : '专业版 · 试用',
+                                      (p) => '限时免费',
                                       hts(
                                         15,
                                         Color(0xFFF5D78E),
@@ -150,7 +150,7 @@ class RegDonePage extends StatelessWidget {
                                 child: hcol(
                                   [
                                     Text(
-                                      '试用至',
+                                      '免费期间',
                                       style: hts(
                                         11,
                                         dk(
@@ -162,9 +162,7 @@ class RegDonePage extends StatelessWidget {
                                       ),
                                     ),
                                     hLiveText(
-                                      (p) => p.live
-                                          ? (p.trialEndText)
-                                          : '2026.11.14',
+                                      (p) => '完整功能',
                                       hts(
                                         15,
                                         Color(0xFFFAFAFA),
@@ -609,7 +607,7 @@ class RegDonePage extends StatelessWidget {
                             child: hcol(
                               [
                                 Text(
-                                  '试用结束后怎么办',
+                                  '限时免费中',
                                   style: hts(
                                     15,
                                     dk(
@@ -622,7 +620,7 @@ class RegDonePage extends StatelessWidget {
                                   ),
                                 ),
                                 Text(
-                                  '到期前 3 天提醒您，不订阅将进入只读模式，数据保留 30 天',
+                                  '现阶段所有功能免费使用，无需订阅，也不会限制使用时间',
                                   style: hts(
                                     12,
                                     dk(
@@ -638,36 +636,6 @@ class RegDonePage extends StatelessWidget {
                               cross: CrossAxisAlignment.stretch,
                               gap: 2,
                             ),
-                          ),
-                          hTap(
-                            context,
-                            hbox(
-                              h: 36,
-                              bg: dk(
-                                context,
-                                Color(0xFFE1F0FE),
-                                Color.fromRGBO(4, 133, 247, 0.18),
-                              ),
-                              radius: BorderRadius.circular(18),
-                              pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                              child: Align(
-                                alignment: Alignment(-1, 0),
-                                widthFactor: 1,
-                                child: Text(
-                                  '看套餐',
-                                  style: hts(
-                                    13,
-                                    dk(
-                                      context,
-                                      Color(0xFF1E63AE),
-                                      Color(0xFF6AB4FA),
-                                    ),
-                                    w: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            to: 'Plans',
                           ),
                         ],
                         main: MainAxisAlignment.start,

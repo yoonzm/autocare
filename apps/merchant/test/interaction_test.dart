@@ -471,11 +471,9 @@ void main() {
       MaterialApp(navigatorObservers: [navTracker], home: const SettingsPage()),
     );
     for (final (row, title) in [
-      ('支付与收款', '支付与收款'),
       ('小票打印机', '小票打印机'),
       ('营业时间与工位', '营业时间与工位'),
       ('账号与安全', '账号与安全'),
-      ('数据备份', '数据备份'),
       ('关于汽美管家', '关于汽美管家'),
     ]) {
       await tester.ensureVisible(find.text(row));

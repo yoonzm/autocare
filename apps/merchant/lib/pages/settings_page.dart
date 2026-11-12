@@ -96,22 +96,6 @@ class _SettingsPageState extends State<SettingsPage> {
                   const SizedBox(height: 20),
                   _group(context, '营业设置', [
                     _Item(
-                      'crown',
-                      '套餐与订阅',
-                      '专业版 · 365 天后到期',
-                      bg: const Color(0xFFF5D78E),
-                      fg: const Color(0xFF18181B),
-                      route: 'Subscription',
-                    ),
-                    _Item(
-                      'card2',
-                      '支付与收款',
-                      '微信 · 支付宝 · 储值',
-                      bg: const Color(0xFFDDF6E7),
-                      fg: const Color(0xFF2B7745),
-                      route: 'PayConfig',
-                    ),
-                    _Item(
                       'printer',
                       '小票打印机',
                       '已连接',
@@ -126,14 +110,6 @@ class _SettingsPageState extends State<SettingsPage> {
                       fg: const Color(0xFF1E63AE),
                       route: 'BusinessHours',
                     ),
-                    _Item(
-                      'bell',
-                      '通知与消息',
-                      '会员消费充值 · 微信 / 短信',
-                      bg: const Color(0xFFFFE1E2),
-                      fg: const Color(0xFFA43433),
-                      route: 'NotifySettings',
-                    ),
                   ]),
                   const SizedBox(height: 20),
                   _group(context, '通用', [
@@ -144,7 +120,6 @@ class _SettingsPageState extends State<SettingsPage> {
                       themeModeLabel(appThemeMode.value),
                       route: 'ThemeSheet',
                     ),
-                    _Item('mail', '数据备份', '已开启', route: 'DataBackup'),
                     _Item('trash', '清除缓存', '128 MB', route: 'ClearCache'),
                     _Item('info', '关于汽美管家', 'v1.0.0', route: 'AboutApp'),
                   ]),
@@ -454,27 +429,6 @@ class _SettingsPageState extends State<SettingsPage> {
                             ),
                           ),
                         ],
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () => openRoute(context, 'StoreSwitch'),
-                      child: Container(
-                        height: 32,
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFAFAFA),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Text(
-                          '切换门店',
-                          style: ts(
-                            13,
-                            w: FontWeight.w500,
-                            color: C.onGold,
-                            h: 18,
-                          ),
-                        ),
                       ),
                     ),
                   ],

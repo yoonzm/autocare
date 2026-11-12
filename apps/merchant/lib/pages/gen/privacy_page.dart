@@ -238,7 +238,7 @@ class PrivacyPage extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            '您可以查询、更正、导出个人与经营数据，也可以注销账号。试用或订阅到期后数据保留 30 天。',
+                            '您可以查询、更正、导出个人与经营数据，也可以注销账号。',
                             style: hts(
                               14,
                               dk(context, Color(0xFF3F3F46), Color(0xFFD4D4D8)),

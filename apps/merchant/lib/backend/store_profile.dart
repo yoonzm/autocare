@@ -94,9 +94,8 @@ class StoreProfile extends ChangeNotifier {
     return p.length == 11 ? '${p.substring(0, 3)} **** ${p.substring(7)}' : p;
   }
 
-  String get planText => subscription.isNotEmpty
-      ? subscriptionName
-      : (plan == 'trial' ? '专业版 · 试用' : '专业版');
+  /// 一期限时免费，应用内不展示任何套餐/订阅信息。
+  String get planText => '限时免费';
 
   /// `2026.11.14`, or `—` when the account has no trial end date.
   String get trialEndText {
@@ -107,9 +106,7 @@ class StoreProfile extends ChangeNotifier {
   }
 
   /// 设置页 / 门店信息里的套餐行。
-  String get expiryLine => subscription.isNotEmpty
-      ? '$subscriptionName · $trialEndText 到期'
-      : (plan == 'trial' ? '专业版 · 试用至 $trialEndText' : '专业版');
+  String get expiryLine => '限时免费';
 
   String get addressText =>
       [city, address].where((s) => s.isNotEmpty).join(' ');

@@ -9,7 +9,6 @@ import { isSmsPurpose, sendOtp, SmsError, smsProvider } from './sms.ts';
 // Keep account aliases compatible with existing users; application OTPs use the configured SMS channel.
 export const emailOf = (phone: string) => `merchant+${phone.slice(3)}@example.com`;
 
-const TRIAL_DAYS = 14;
 // Password rules shared by sign-up, change and reset (client mirrors them).
 function passwordProblem(password: unknown, phone: string): string | null {
   if (typeof password !== 'string' || password.length < 8 || password.length > 20 ||
@@ -155,7 +154,6 @@ export async function handleAuth(input: Input, request: Request): Promise<Respon
     const { data: store, error: storeError } = await admin.from('stores').insert({
       owner_id: data.user.id, name: storeName, phone, ...profile, ...location,
       plan: 'trial',
-      trial_ends_at: new Date(Date.now() + TRIAL_DAYS * 86400000).toISOString(),
     }).select('id').single();
     if (storeError || !store) {
       await admin.auth.admin.deleteUser(data.user.id);

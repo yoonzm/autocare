@@ -844,7 +844,7 @@ class MessagesPage extends StatelessWidget {
                             gap: 12,
                           ),
                         ),
-                        to: 'NotifyLog',
+                        
                       ),
                       hbox(
                         h: 1,
@@ -951,102 +951,6 @@ class MessagesPage extends StatelessWidget {
                         h: 1,
                         bg: dk(context, Color(0xFFEFEFF1), Color(0xFF2A2A2E)),
                         margin: EdgeInsets.fromLTRB(68, 0, 0, 0),
-                      ),
-                      hTap(
-                        context,
-                        hbox(
-                          pad: EdgeInsets.fromLTRB(16, 14, 16, 14),
-                          child: hrow(
-                            [
-                              hbox(
-                                w: 40,
-                                h: 40,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFEEEEF0),
-                                  Color(0xFF27272A),
-                                ),
-                                radius: BorderRadius.circular(14),
-                                child: hrow(
-                                  [
-                                    hsvg(
-                                      dk(context, Svgs.s250, Svgs.s251),
-                                      w: 20,
-                                      h: 20,
-                                    ),
-                                  ],
-                                  main: MainAxisAlignment.center,
-                                  cross: CrossAxisAlignment.center,
-                                  gap: 0,
-                                ),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: hbox(
-                                  minW: 0,
-                                  child: hcol(
-                                    [
-                                      hrow(
-                                        [
-                                          Text(
-                                            '套餐即将到期提醒',
-                                            style: hts(
-                                              15,
-                                              dk(
-                                                context,
-                                                Color(0xFF18181B),
-                                                Color(0xFFFAFAFA),
-                                              ),
-                                              w: FontWeight.w600,
-                                              lh: 22,
-                                            ),
-                                          ),
-                                          Expanded(
-                                            flex: 1,
-                                            child: SizedBox.shrink(),
-                                          ),
-                                          Text(
-                                            '昨天',
-                                            style: hts(
-                                              12,
-                                              dk(
-                                                context,
-                                                Color(0xFFA1A1AA),
-                                                Color(0xFF80808A),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                        main: MainAxisAlignment.start,
-                                        cross: CrossAxisAlignment.center,
-                                        gap: 6,
-                                      ),
-                                      Text(
-                                        '专业版将在 7 天后到期，续费可保持预约与微信通知不中断。',
-                                        style: hts(
-                                          13,
-                                          dk(
-                                            context,
-                                            Color(0xFF52525B),
-                                            Color(0xFFA8A8B3),
-                                          ),
-                                          lh: 19,
-                                        ),
-                                      ),
-                                    ],
-                                    main: MainAxisAlignment.start,
-                                    cross: CrossAxisAlignment.stretch,
-                                    gap: 2,
-                                  ),
-                                ),
-                              ),
-                            ],
-                            main: MainAxisAlignment.start,
-                            cross: CrossAxisAlignment.start,
-                            gap: 12,
-                          ),
-                        ),
-                        to: 'Renew',
                       ),
                       hbox(
                         h: 1,

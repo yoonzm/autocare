@@ -731,7 +731,7 @@ class PayConfigPage extends StatelessWidget {
                                 gap: 12,
                               ),
                             ),
-                            to: 'NotifySettings',
+                            
                           ),
                           hbox(
                             h: 1,

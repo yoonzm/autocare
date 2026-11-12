@@ -1440,7 +1440,7 @@ class RegShopPage extends StatelessWidget {
                         child: hBusy(
                           'RegShop>RegDone',
                           Text(
-                            '开通并开始试用',
+                            '免费开通',
                             style: hts(
                               15,
                               Color(0xFFFFFFFF),

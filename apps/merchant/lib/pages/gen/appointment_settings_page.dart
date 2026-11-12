@@ -2554,7 +2554,7 @@ class AppointmentSettingsPage extends StatelessWidget {
                                 gap: 12,
                               ),
                             ),
-                            to: 'NotifySettings',
+                            
                           ),
                         ],
                         main: MainAxisAlignment.start,

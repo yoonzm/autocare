@@ -205,7 +205,7 @@ class TermsPage extends StatelessWidget {
                       hcol(
                         [
                           Text(
-                            '4. 订阅与付费',
+                            '4. 费用',
                             style: hts(
                               15,
                               dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
@@ -214,7 +214,7 @@ class TermsPage extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            '试用期结束后需订阅付费套餐方可继续使用完整功能。年付套餐 7 天内可申请退款，开通自动续费后可随时在"套餐与订阅"中关闭。',
+                            '现阶段平台限时免费，不收取任何费用。如后续调整收费方式，将提前通知并取得您的同意。',
                             style: hts(
                               14,
                               dk(context, Color(0xFF3F3F46), Color(0xFFD4D4D8)),

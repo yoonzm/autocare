@@ -656,7 +656,7 @@ class PackageSoldPage extends StatelessWidget {
                           cross: CrossAxisAlignment.center,
                           gap: 6,
                         ),
-                        to: 'NotifySettings',
+                        
                       ),
                     ],
                     main: MainAxisAlignment.start,

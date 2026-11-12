@@ -116,12 +116,6 @@ class _StatsPageState extends State<StatsPage> {
                 ),
               ),
               _pill('开支', 'card', onTap: () => openRoute(context, 'Expenses')),
-              const SizedBox(width: 8),
-              _pill(
-                '导出',
-                'download',
-                onTap: () => openRoute(context, 'ExportSheet'),
-              ),
             ],
           ),
           const SizedBox(height: 16),

@@ -245,7 +245,7 @@ class ChangelogPage extends StatelessWidget {
                           Flexible(
                             flex: 143,
                             child: Text(
-                              '新增自助开通与套餐订阅',
+                              '新增自助开通',
                               style: hts(
                                 13,
                                 dk(

@@ -1,4 +1,3 @@
-import { handleSubscriptions } from './subscriptions.ts';
 import { handleStores } from './stores.ts';
 import { handleRegions } from './regions.ts';
 import { handleSupport } from './support.ts';
@@ -39,7 +38,8 @@ Deno.serve(async (request: Request): Promise<Response> => {
     if (refused) return refused;
   }
   if (input.action === 'staff_home') return handleIdentity(input, request);
-  if (String(input.action).startsWith('subscription_')) return handleSubscriptions(input, request);
+  // 一期限时免费：不向客户端开放订阅/续费/模拟支付；权益由注册时的内部限时免费套餐提供。
+  if (String(input.action).startsWith('subscription_')) return fail('限时免费期间暂不开放订阅', 403);
   if (input.action === 'regions') return handleRegions(input);
   if(String(input.action).startsWith('support_'))return handleSupport(input,request);
   if (['send_code', 'check_code', 'forgot_verify', 'reset_password', 'register', 'login_password', 'login_code'].includes(String(input.action))) {
