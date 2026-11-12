@@ -1,7 +1,7 @@
 import { admin, fail, json } from './shared.ts';
 import { checkOtp, otpHash, otpStore, randomOtp } from './otp.ts';
 import { sendOtp, SmsError, smsProvider } from './sms.ts';
-import { maskPhone } from './staff_members.ts';
+import { maskPhone } from './staff_member_rules.ts';
 import { isUuid, parseRedeem, parseStaffLines, parseStaffOrder } from './staff_order_rules.ts';
 
 const messages: Record<string, string> = {

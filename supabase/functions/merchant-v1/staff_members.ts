@@ -1,10 +1,7 @@
 import { admin, fail, json, uuid } from './shared.ts';
+import { maskPhone } from './staff_member_rules.ts';
 
 /** 员工端会员查询（需要「会员查询」权限，网关先校验）。只返回服务相关、已脱敏的信息，不提供任何修改。 */
-export const maskPhone = (phone: unknown): string => {
-  const p = String(phone ?? '');
-  return /^\d{11}$/.test(p) ? `${p.slice(0, 3)}****${p.slice(7)}` : '—';
-};
 
 const safeLike = (q: string) => q.replace(/[,()%*_\\"']/g, ' ').trim();
 const LIST_LIMIT = 20;
