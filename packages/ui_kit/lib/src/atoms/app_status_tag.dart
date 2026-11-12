@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import '../tokens/app_tokens.dart';
 
 /// 状态语义：ok 成功 / wait 进行中 / bad 失败 / off 草稿·作废 / warn 提醒；
-/// violet 是「店长」这类角色的辅助色，gold 只用于深色概览卡上的标签。
-enum Tone { ok, wait, bad, off, warn, violet, gold }
+/// violet 是「店长」这类角色的辅助色，gold / okOnDark 只用于深色概览卡上的标签，dark 是「老板」这类黑底金字的身份标签。
+enum Tone { ok, wait, bad, off, warn, violet, gold, okOnDark, dark }
 
 StatusColors toneColors(AppTokens t, Tone tone) => switch (tone) {
   Tone.ok => t.ok,
@@ -14,6 +14,8 @@ StatusColors toneColors(AppTokens t, Tone tone) => switch (tone) {
   Tone.warn => t.warn,
   Tone.violet => t.violet,
   Tone.gold => t.goldTag,
+  Tone.okOnDark => t.okOnDark,
+  Tone.dark => t.darkTag,
 };
 
 /// 状态标签：高 18、圆角 9、11/600，「浅底 + 深字」。车牌、黑金卡种这类内容标签不用它。

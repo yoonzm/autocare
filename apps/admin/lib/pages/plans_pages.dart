@@ -28,7 +28,7 @@ class PlansPage extends StatelessWidget {
         if (!store.isSuper)
           Text('套餐定价仅超级管理员可修改', style: ts(13, color: C.sub, h: 18)),
         for (final (i, p) in store.plans.indexed)
-          HCard(
+          AppCard(
             onTap: () {
               if (!store.isSuper) {
                 toast(context, '仅超级管理员可修改套餐');
@@ -118,6 +118,7 @@ class _PlanEditPageState extends State<PlanEditPage> {
   late bool export = widget.p.export;
   late bool multi = widget.p.multiStore;
   String? error;
+  bool saving = false;
 
   @override
   void dispose() {
@@ -128,6 +129,7 @@ class _PlanEditPageState extends State<PlanEditPage> {
   }
 
   Future<void> _save() async {
+    setState(() => saving = true);
     final err = await store.savePlan(
       widget.p,
       name: name.text,
@@ -138,7 +140,10 @@ class _PlanEditPageState extends State<PlanEditPage> {
       multi: multi,
     );
     if (!mounted) return;
-    setState(() => error = err);
+    setState(() {
+      error = err;
+      saving = false;
+    });
     if (err != null) return;
     toast(context, '套餐已保存');
     Navigator.pop(context);
@@ -150,22 +155,25 @@ class _PlanEditPageState extends State<PlanEditPage> {
     final digits = [FilteringTextInputFormatter.digitsOnly];
     return AdPage(
       title: '编辑套餐',
-      dock: Btn('保存', onTap: _save),
+      bottomBar: AppBottomBar(
+        primary: AppButton(label: '保存', loading: saving, onPressed: _save),
+      ),
       children: [
-        HCard(
+        AppCard(
           child: Column(
             children: [
-              Field(label: '套餐名称', required: true, controller: name),
+              AppTextField(label: '套餐名称', required: true, controller: name, hint: '请输入套餐名称'),
               const SizedBox(height: 14),
-              Field(
+              AppTextField(
                 label: trial ? '试用天数' : '年费（元）',
                 required: true,
                 controller: fee,
+                hint: trial ? '请输入试用天数' : '请输入年费',
                 keyboard: TextInputType.number,
                 formatters: digits,
               ),
               const SizedBox(height: 14),
-              Field(
+              AppTextField(
                 label: '员工数上限',
                 controller: staff,
                 hint: '留空表示不限',
@@ -185,7 +193,7 @@ class _PlanEditPageState extends State<PlanEditPage> {
         ),
         Section(
           '功能开关',
-          RowGroup(indent: 16, [
+          AppListGroup(rows: [
             _sw('预约与短信通知', sms, (v) => setState(() => sms = v)),
             _sw('数据导出与备份', export, (v) => setState(() => export = v)),
             _sw('多门店管理', multi, (v) => setState(() => multi = v)),
@@ -195,15 +203,6 @@ class _PlanEditPageState extends State<PlanEditPage> {
     );
   }
 
-  Widget _sw(String t, bool v, ValueChanged<bool> on) => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
-    child: Row(
-      children: [
-        Expanded(
-          child: Text(t, style: ts(15, w: FontWeight.w500, h: 22)),
-        ),
-        Switch1(v, on),
-      ],
-    ),
-  );
+  AppListRow _sw(String t, bool v, ValueChanged<bool> on) =>
+      AppListRow(title: t, trailing: AppSwitch(value: v, onChanged: on, semanticLabel: t));
 }

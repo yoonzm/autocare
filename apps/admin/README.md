@@ -44,6 +44,10 @@ flutter run
 
 支付升级、原路退款、外呼和工单通知尚未具备渠道闭环，在调用处明确阻止或说明 TODO，不会生成假支付、退款或通知结果。商家端工单来源 API 已提供，商家帮助页面的提交入口仍待接入。
 
+## 组件
+
+页面使用 `packages/ui_kit` 的基础组件；提交类按钮只传 `loading`，不做额外的“提交中”处理。后台令牌 `C` 与 `AppTokens` 由 `test/theme_tokens_test.dart` 保证一致。详见 `packages/ui_kit/README.md`。
+
 ## 结构
 
 ```

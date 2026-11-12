@@ -183,32 +183,41 @@ void main() {
     (t) async {
       final pending = Completer<void>();
       var calls = 0;
+      var loading = false;
       await t.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: SizedBox(
-              width: 300,
-              child: Btn(
-                '保存',
-                onTap: () async {
-                  calls++;
-                  await pending.future;
-                },
+            body: StatefulBuilder(
+              builder: (context, set) => SizedBox(
+                width: 300,
+                child: AppButton(
+                  label: '保存',
+                  expanded: true,
+                  size: AppButtonSize.large,
+                  loading: loading,
+                  onPressed: () async {
+                    calls++;
+                    set(() => loading = true);
+                    await pending.future;
+                    set(() => loading = false);
+                  },
+                ),
               ),
             ),
           ),
         ),
       );
-      final size = t.getSize(find.byType(Btn));
+      final size = t.getSize(find.byType(AppButton));
       await t.tap(find.text('保存'));
       await t.pump();
-      expect(find.byType(AppSpinner), findsOneWidget);
-      expect(t.getSize(find.byType(Btn)), size);
-      await t.tap(find.byType(Btn), warnIfMissed: false);
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(t.getSize(find.byType(AppButton)), size);
+      await t.tap(find.byType(AppButton), warnIfMissed: false);
       expect(calls, 1);
       pending.complete();
       await t.pumpAndSettle();
       expect(find.text('保存'), findsOneWidget);
+      expect(find.byType(CircularProgressIndicator), findsNothing);
     },
   );
   testWidgets(
@@ -243,11 +252,11 @@ void main() {
         MaterialApp(
           home: Builder(
             builder: (context) => Scaffold(
-              body: Btn(
-                '执行',
-                onTap: () {
+              body: AppButton(
+                label: '执行',
+                onPressed: () {
                   unawaited(
-                    confirm(
+                    showAppDialog(
                       context,
                       title: '确认操作',
                       message: '测试',

@@ -34,31 +34,25 @@ class _FollowPageState extends State<FollowPage> {
       return AdPage(
         title: '到期跟进',
         children: [
-          Segmented(
-            labels: [
-              '已到期 ${store.followUps(0).length}',
-              '7 日内 ${store.followUps(1).length}',
-              '30 日内 ${store.followUps(2).length}',
+          AppSegmented<int>(
+            items: [
+              SegmentItem(value: 0, label: '已到期 ${store.followUps(0).length}'),
+              SegmentItem(value: 1, label: '7 日内 ${store.followUps(1).length}'),
+              SegmentItem(value: 2, label: '30 日内 ${store.followUps(2).length}'),
             ],
-            index: tab,
+            selected: tab,
             onChanged: (i) => setState(() => tab = i),
           ),
           if (list.isEmpty)
             const Empty('暂无需要跟进的商家')
           else
-            RowGroup([
+            AppListGroup(rows: [
               for (final m in list)
-                Row1(
-                  leading: ToneTile(m.tone, Icons.storefront_outlined),
-                  title: m.name,
-                  sub: followSub(m),
-                  trailing: m.plan == PlanKind.trial && m.daysLeft >= 0
-                      ? Pill('待转化', C.primaryInk, C.primarySoft)
+                AppListRow(leading: ToneTile(m.tone, Icons.storefront_outlined), title: m.name, subtitle: followSub(m), trailing: m.plan == PlanKind.trial && m.daysLeft >= 0
+                      ? AppStatusTag('待转化', tone: Tone.wait)
                       : m.daysLeft < 0
-                      ? Pill('待跟进', C.redInk, C.redSoft)
-                      : Pill('待跟进', C.amberInk, C.amberSoft),
-                  onTap: () => go(context, FollowLogPage(m)),
-                ),
+                      ? AppStatusTag('待跟进', tone: Tone.bad)
+                      : AppStatusTag('待跟进', tone: Tone.warn), onTap: () => go(context, FollowLogPage(m))),
             ]),
         ],
       );
@@ -75,6 +69,7 @@ class FollowLogPage extends StatefulWidget {
 
 class _FollowLogPageState extends State<FollowLogPage> {
   final note = TextEditingController();
+  bool saving = false;
 
   @override
   void dispose() {
@@ -88,10 +83,17 @@ class _FollowLogPageState extends State<FollowLogPage> {
       return;
     }
     FocusScope.of(context).unfocus();
-    await store.addLog(widget.m, note.text);
-    if (!mounted) return;
-    note.clear();
-    toast(context, '已保存跟进记录');
+    setState(() => saving = true);
+    try {
+      await store.addLog(widget.m, note.text);
+      if (!mounted) return;
+      note.clear();
+      toast(context, '已保存跟进记录');
+    } catch (e) {
+      if (mounted) AppToast.error(context, e);
+    } finally {
+      if (mounted) setState(() => saving = false);
+    }
   }
 
   @override
@@ -104,13 +106,15 @@ class _FollowLogPageState extends State<FollowLogPage> {
             widget.m;
         return AdPage(
           title: '跟进记录',
-          dock: Btn('保存记录', onTap: _save),
+          bottomBar: AppBottomBar(
+            primary: AppButton(label: '保存记录', loading: saving, onPressed: _save),
+          ),
           children: [
-            HCard(
+            AppCard(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               child: Row(
                 children: [
-                  SoftTile(Icons.storefront_outlined, C.amberInk, C.amberSoft),
+                  AppIconTile(icon: Icons.storefront_outlined, tone: Tone.warn),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Column(
@@ -127,14 +131,14 @@ class _FollowLogPageState extends State<FollowLogPage> {
                     ),
                   ),
                   m.plan == PlanKind.trial && m.daysLeft >= 0
-                      ? Pill('待转化', C.primaryInk, C.primarySoft)
-                      : Pill('待跟进', C.redInk, C.redSoft),
+                      ? AppStatusTag('待转化', tone: Tone.wait)
+                      : AppStatusTag('待跟进', tone: Tone.bad),
                 ],
               ),
             ),
             Section(
               '历史记录',
-              HCard(
+              AppCard(
                 child: m.logs.isEmpty
                     ? Padding(
                         padding: const EdgeInsets.symmetric(vertical: 8),
@@ -219,8 +223,8 @@ class _FollowLogPageState extends State<FollowLogPage> {
             ),
             Section(
               '新增记录',
-              HCard(
-                child: Field(
+              AppCard(
+                child: AppTextField(
                   label: '沟通内容',
                   controller: note,
                   hint: '记录本次沟通内容',

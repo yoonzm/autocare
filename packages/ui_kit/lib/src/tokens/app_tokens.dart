@@ -79,6 +79,8 @@ class AppTokens extends ThemeExtension<AppTokens> {
   final StatusColors off;
   final StatusColors violet;
   final StatusColors goldTag;
+  final StatusColors okOnDark;
+  final StatusColors darkTag;
   final Color gold;
   final Color badge;
   // 深色元素
@@ -126,6 +128,8 @@ class AppTokens extends ThemeExtension<AppTokens> {
     required this.off,
     required this.violet,
     required this.goldTag,
+    required this.okOnDark,
+    required this.darkTag,
     required this.gold,
     required this.badge,
     required this.heroBg,
@@ -172,6 +176,8 @@ class AppTokens extends ThemeExtension<AppTokens> {
     off: StatusColors(Color(0xFFEEEEF0), Color(0xFF3F3F46)),
     violet: StatusColors(Color(0xFFECE6FD), Color(0xFF5B3FC0)),
     goldTag: StatusColors(Color(0x29F5D78E), Color(0xFFF5D78E)),
+    okOnDark: StatusColors(Color(0x3317C964), Color(0xFF6EE7A8)),
+    darkTag: StatusColors(Color(0xFF18181B), Color(0xFFF5D78E)),
     gold: Color(0xFFF5D78E),
     badge: Color(0xFFFF383C),
     heroBg: Color(0xFF18181B),
@@ -218,6 +224,8 @@ class AppTokens extends ThemeExtension<AppTokens> {
     off: StatusColors(Color(0xFF27272A), Color(0xFFA8A8B3)),
     violet: StatusColors(Color(0x2E7C5CE6), Color(0xFFB6A2F5)),
     goldTag: StatusColors(Color(0x29F5D78E), Color(0xFFF5D78E)),
+    okOnDark: StatusColors(Color(0x3317C964), Color(0xFF6EE7A8)),
+    darkTag: StatusColors(Color(0xFF34343A), Color(0xFFF5D78E)),
     gold: Color(0xFFF5D78E),
     badge: Color(0xFFFF383C),
     heroBg: Color(0xFF1F1F23),

@@ -20,11 +20,11 @@ class MinePage extends StatelessWidget {
   const MinePage({super.key});
 
   Future<void> _logout(BuildContext context) async {
-    final ok = await confirm(
+    final ok = await showAppDialog(
       context,
       title: '退出登录',
       message: '确定要退出当前账号吗？',
-      ok: '退出登录',
+      confirmLabel: '退出登录',
       danger: true,
       onConfirm: store.signOut,
     );
@@ -45,8 +45,7 @@ class MinePage extends StatelessWidget {
         title: '我的',
         back: false,
         children: [
-          DarkHero(
-            child: Row(
+          AppHeroCard.custom(child: Row(
               children: [
                 Container(
                   width: 60,
@@ -89,11 +88,7 @@ class MinePage extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          Pill(
-                            me.role == Role.superAdmin ? '超级管理员' : '平台运营',
-                            C.gold,
-                            const Color(0x24FFFFFF),
-                          ),
+                          AppStatusTag(me.role == Role.superAdmin ? '超级管理员' : '平台运营', tone: Tone.gold),
                         ],
                       ),
                       const SizedBox(height: 4),
@@ -105,105 +100,45 @@ class MinePage extends StatelessWidget {
                   ),
                 ),
               ],
-            ),
-          ),
-          RowGroup([
-            Row1(
-              leading: SoftTile(
-                Icons.workspace_premium_outlined,
-                C.violetInk,
-                C.violetSoft,
-              ),
-              title: '套餐管理',
-              trailing: Text(
+            )),
+          AppListGroup(rows: [
+            AppListRow(leading: AppIconTile(icon: Icons.workspace_premium_outlined, tone: Tone.violet), title: '套餐管理', trailing: Text(
                 '${store.plans.length} 个套餐',
                 style: ts(13, color: C.muted),
-              ),
-              onTap: () => go(context, const PlansPage()),
-            ),
-            Row1(
-              leading: SoftTile(
-                Icons.chat_bubble_outline_rounded,
-                C.primaryInk,
-                C.primarySoft,
-              ),
-              title: '工单',
-              trailing: store.todoTickets > 0
+              ), onTap: () => go(context, const PlansPage())),
+            AppListRow(leading: AppIconTile(icon: Icons.chat_bubble_outline_rounded, tone: Tone.wait), title: '工单', trailing: store.todoTickets > 0
                   ? Text(
                       '${store.todoTickets} 待处理',
                       style: ts(13, color: C.muted),
                     )
-                  : null,
-              onTap: () => go(context, const TicketsPage()),
-            ),
-            Row1(
-              leading: SoftTile(Icons.group_outlined, C.greenInk, C.greenSoft),
-              title: '运营账号',
-              sub:
-                  '${store.isSuper ? store.accounts.length : '—'} 人 · 仅超级管理员可见',
-              onTap: () {
+                  : null, onTap: () => go(context, const TicketsPage())),
+            AppListRow(leading: AppIconTile(icon: Icons.group_outlined, tone: Tone.ok), title: '运营账号', subtitle:
+                  '${store.isSuper ? store.accounts.length : '—'} 人 · 仅超级管理员可见', onTap: () {
                 if (!store.isSuper) {
                   toast(context, '仅超级管理员可管理运营账号');
                   return;
                 }
                 go(context, const AccountsPage());
-              },
-            ),
+              }),
             // 短信记录含验证码明文：只有超级管理员能看到入口（服务端同样限制）。
             if (store.isSuper)
-              Row1(
-                leading: SoftTile(
-                  Icons.sms_outlined,
-                  C.primaryInk,
-                  C.primarySoft,
-                ),
-                title: '短信记录',
-                sub: '验证码与通知 · 仅超级管理员可见',
-                onTap: () => go(context, const SmsLogsPage()),
-              ),
+              AppListRow(leading: AppIconTile(icon: Icons.sms_outlined, tone: Tone.wait), title: '短信记录', subtitle: '验证码与通知 · 仅超级管理员可见', onTap: () => go(context, const SmsLogsPage())),
             if (store.isSuper)
-              Row1(
-                leading: SoftTile(
-                  Icons.person_outline_rounded,
-                  C.amberInk,
-                  C.amberSoft,
-                ),
-                title: '用户账号',
-                sub: '老板与员工账号 · 仅超级管理员可见',
-                onTap: () => go(context, const UsersPage()),
-              ),
+              AppListRow(leading: AppIconTile(icon: Icons.person_outline_rounded, tone: Tone.warn), title: '用户账号', subtitle: '老板与员工账号 · 仅超级管理员可见', onTap: () => go(context, const UsersPage())),
             // 组件库预览：对照设计稿检查基础组件，只展示、不影响业务；仅超级管理员可见。
             if (store.isSuper)
-              Row1(
-                leading: SoftTile(
-                  Icons.widgets_outlined,
-                  C.violetInk,
-                  C.violetSoft,
-                ),
-                title: '组件库',
-                sub: '基础组件预览 · 仅超级管理员可见',
-                onTap: () => go(context, const ComponentsPreviewPage()),
-              ),
-            Row1(
-              leading: SoftTile(Icons.dark_mode_outlined, C.sub, C.chip),
-              title: '外观',
-              trailing: Text(
+              AppListRow(leading: AppIconTile(icon: Icons.widgets_outlined, tone: Tone.violet), title: '组件库', subtitle: '基础组件预览 · 仅超级管理员可见', onTap: () => go(context, const ComponentsPreviewPage())),
+            AppListRow(leading: AppIconTile(icon: Icons.dark_mode_outlined, tone: Tone.off), title: '外观', trailing: Text(
                 themeModeLabel(appThemeMode.value),
                 style: ts(13, color: C.muted),
-              ),
-              onTap: () => showThemeSheet(context),
-            ),
+              ), onTap: () => showThemeSheet(context)),
           ]),
-          HCard(
+          AppCard(
             padding: EdgeInsets.zero,
             onTap: () {
               unawaited(_logout(context));
             },
-            child: Row1(
-              leading: SoftTile(Icons.logout_rounded, C.redInk, C.redSoft),
-              title: '退出登录',
-              minHeight: 64,
-            ),
+            child: AppListRow(leading: AppIconTile(icon: Icons.logout_rounded, tone: Tone.bad), title: '退出登录'),
           ),
         ],
       );

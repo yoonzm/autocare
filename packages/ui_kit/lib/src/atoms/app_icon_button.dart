@@ -6,6 +6,9 @@ import 'app_tap_target.dart';
 
 enum AppIconButtonSize { regular, small }
 
+/// surface 白底带阴影（默认）· primary 主色实心（页面右上角的「添加」这类入口）。
+enum AppIconButtonKind { surface, primary }
+
 /// 圆形图标按钮：页面头部的返回、关闭、右上角入口。白底 + 卡片阴影，44 × 44。
 /// 带文字的入口用 [AppIconButton.pill]（高度同样 44）。
 class AppIconButton extends StatelessWidget {
@@ -14,6 +17,7 @@ class AppIconButton extends StatelessWidget {
   final int? badge;
   final String semanticLabel;
   final AppIconButtonSize size;
+  final AppIconButtonKind kind;
   final VoidCallback? onPressed;
 
   const AppIconButton({
@@ -21,6 +25,7 @@ class AppIconButton extends StatelessWidget {
     required IconData this.icon,
     required this.semanticLabel,
     this.size = AppIconButtonSize.regular,
+    this.kind = AppIconButtonKind.surface,
     this.onPressed,
   }) : label = null,
        badge = null;
@@ -33,7 +38,8 @@ class AppIconButton extends StatelessWidget {
     this.icon,
     this.onPressed,
   }) : semanticLabel = label,
-       size = AppIconButtonSize.regular;
+       size = AppIconButtonSize.regular,
+       kind = AppIconButtonKind.surface;
 
   @override
   Widget build(BuildContext context) {
@@ -75,20 +81,27 @@ class AppIconButton extends StatelessWidget {
           );
         } else {
           final d = small ? 32.0 : 44.0;
+          final primary = kind == AppIconButtonKind.primary;
           content = Container(
             width: d,
             height: d,
             alignment: Alignment.center,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Color.alphaBlend(
-                pressed ? t.pressedOverlay : Colors.transparent,
-                small ? t.inset : t.surface,
-              ),
-              boxShadow: small ? null : t.cardShadow,
-              border: small ? Border.all(color: t.fillStrong) : null,
+              color: primary
+                  ? (pressed ? t.primaryPressed : t.primary)
+                  : Color.alphaBlend(
+                      pressed ? t.pressedOverlay : Colors.transparent,
+                      small ? t.inset : t.surface,
+                    ),
+              boxShadow: small || primary ? null : t.cardShadow,
+              border: small && !primary ? Border.all(color: t.fillStrong) : null,
             ),
-            child: Icon(icon, size: small ? 16 : 20, color: small ? t.inkSub : fg),
+            child: Icon(
+              icon,
+              size: small ? 16 : 20,
+              color: primary ? t.onPrimary : (small ? t.inkSub : fg),
+            ),
           );
         }
         return content;

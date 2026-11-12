@@ -15,6 +15,9 @@ class AppChoiceChip extends StatelessWidget {
   final ChipKind kind;
   final String? subtitle;
   final String? avatarName;
+
+  /// 撑满可用宽度（单选操作弹层里一项一行）；默认按内容收缩。
+  final bool expanded;
   final VoidCallback? onTap;
   const AppChoiceChip({
     super.key,
@@ -23,6 +26,7 @@ class AppChoiceChip extends StatelessWidget {
     this.kind = ChipKind.pill,
     this.subtitle,
     this.avatarName,
+    this.expanded = false,
     this.onTap,
   });
 
@@ -75,6 +79,7 @@ class AppChoiceChip extends StatelessWidget {
           _ => Text(label, style: t.small.copyWith(color: fg)),
         };
         return Container(
+          width: expanded ? double.infinity : null,
           height: kind == ChipKind.option ? null : height,
           padding: EdgeInsets.symmetric(
             horizontal: kind == ChipKind.avatar ? AppSpacing.s6 : AppSpacing.s14,
@@ -124,16 +129,38 @@ class AppChoiceGroup<T> extends StatelessWidget {
   final T? selected;
   final ValueChanged<T> onChanged;
   final ChipKind kind;
+
+  /// 一项一行、撑满宽度；默认是按内容收缩的换行排列。
+  final bool expanded;
   const AppChoiceGroup({
     super.key,
     required this.items,
     required this.selected,
     required this.onChanged,
     this.kind = ChipKind.pill,
+    this.expanded = false,
   });
 
   @override
-  Widget build(BuildContext context) => Wrap(
+  Widget build(BuildContext context) => expanded
+      ? Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (var i = 0; i < items.length; i++) ...[
+              if (i > 0) const SizedBox(height: AppSpacing.s8),
+              AppChoiceChip(
+                label: items[i].label,
+                subtitle: items[i].subtitle,
+                avatarName: items[i].avatarName,
+                kind: kind,
+                expanded: true,
+                selected: items[i].value == selected,
+                onTap: items[i].enabled ? () => onChanged(items[i].value) : null,
+              ),
+            ],
+          ],
+        )
+      : Wrap(
     spacing: AppSpacing.s8,
     runSpacing: AppSpacing.s8,
     children: [

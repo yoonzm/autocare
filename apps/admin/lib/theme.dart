@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:autocare_async_kit/async_kit.dart' show AsyncKitTheme;
+import 'package:autocare_ui_kit/autocare_ui_kit.dart' show AppTokens;
 
 /// 设计稿色板（HeroUI 风格），按深色模式令牌自动切换。
 /// [dark] 由应用根部根据当前主题亮度同步，切换后整棵树会重建。
@@ -83,6 +84,8 @@ ThemeData buildTheme([Brightness brightness = Brightness.light]) {
     useMaterial3: true,
     extensions: [
       AsyncKitTheme.standard(brightness, permissionHint: '请联系超级管理员开通访问权限'),
+      // 基础组件库令牌：新旧组件混用期间，两套取值由 theme_tokens_test 保证一致。
+      AppTokens.forBrightness(brightness),
     ],
     brightness: brightness,
     scaffoldBackgroundColor: bg,

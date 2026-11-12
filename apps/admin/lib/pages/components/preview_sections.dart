@@ -306,7 +306,7 @@ List<Widget> _buttons(BuildContext context) => [
     title: '圆形图标按钮 / 胶囊图标按钮',
     tag: 'AppIconButton',
     notes: const [
-      '页面头部的返回、关闭、右上角入口用它：白底 + 卡片阴影，44 × 44。',
+      '页面头部的返回、关闭、右上角入口用它：白底 + 卡片阴影，44 × 44；「添加」这类入口用 kind: primary（主色实心）。',
       '带文字的入口（如「挂单 4」）是胶囊形，高度同样 44。右上角入口不放保存、提交这类主要操作，主要操作放在底栏。',
     ],
     code: "AppIconButton(icon: Icons.chevron_left_rounded, semanticLabel: '返回', onPressed: pop)\nAppIconButton.pill(label: '挂单', badge: 4, onPressed: openHold)",
@@ -315,6 +315,7 @@ List<Widget> _buttons(BuildContext context) => [
         AppIconButton(icon: Icons.chevron_left_rounded, semanticLabel: '返回', onPressed: () {}),
         AppIconButton.pill(label: '挂单', badge: 4, onPressed: () {}),
         AppIconButton(icon: Icons.search_rounded, semanticLabel: '搜索', size: AppIconButtonSize.small, onPressed: () {}),
+        AppIconButton(icon: Icons.add_rounded, semanticLabel: '添加', kind: AppIconButtonKind.primary, onPressed: () {}),
       ]),
     ],
   ),
@@ -496,6 +497,24 @@ List<Widget> _input(BuildContext context) => [
     ],
   ),
   Demo(
+    title: '输入框（标签在上）',
+    tag: 'AppTextField',
+    notes: const [
+      '13/18 · 500 的标签，下方灰底块（圆角 14，最小高 48）；必填标签后加红星；错误时灰底块加红描边，下方显示 12px 红字。',
+      '密码框内置显示 / 隐藏按钮；hint 必填，没有值时一定有占位文字。成排的设置类表单用 AppFormRow。',
+    ],
+    code: "AppTextField(label: '密码', required: true, hint: '请输入密码',\n  obscure: true, errorText: vm.passwordError, onSubmitted: login)",
+    children: [
+      const AppCard(
+        child: Column(children: [
+          AppTextField(label: '用户名', required: true, hint: '请输入用户名'),
+          SizedBox(height: AppSpacing.s14),
+          AppTextField(label: '密码', required: true, hint: '请输入密码', obscure: true, errorText: '用户名或密码错误'),
+        ]),
+      ),
+    ],
+  ),
+  Demo(
     title: '搜索框',
     tag: 'AppSearchBar',
     notes: const ['白底胶囊，高 44，带卡片阴影；输入后 300ms 防抖再请求，清空按钮在输入后出现；搜索结果为空显示「空数据状态」。'],
@@ -529,7 +548,7 @@ List<Widget> _display(BuildContext context) => [
   Demo(
     title: '状态标签、红点',
     tag: 'AppStatusTag / AppBadge',
-    notes: const ['状态标签：高 18、圆角 9、11/600、浅底 + 深字，5 种：ok / wait / bad / off / warn。', '红点数字：最小宽 18、圆角 9，只用于待处理数量。车牌、黑金卡种这类内容标签不使用状态色。'],
+    notes: const ['状态标签：高 18、圆角 9、11/600、浅底 + 深字，5 种：ok / wait / bad / off / warn；补充 violet（店长等角色）、dark（老板，黑底金字）、gold / okOnDark（只用在深色概览卡上）。', '红点数字：最小宽 18、圆角 9，只用于待处理数量。车牌、黑金卡种这类内容标签不使用状态色。'],
     code: "AppStatusTag('已入库', tone: Tone.ok)\nAppBadge(count: 4)",
     children: [
       const Wrap(spacing: AppSpacing.s8, runSpacing: AppSpacing.s8, crossAxisAlignment: WrapCrossAlignment.center, children: [
@@ -539,6 +558,8 @@ List<Widget> _display(BuildContext context) => [
         AppStatusTag('草稿', tone: Tone.off),
         AppStatusTag('临期', tone: Tone.warn),
         AppStatusTag('低库存', tone: Tone.bad),
+        AppStatusTag('店长', tone: Tone.violet),
+        AppStatusTag('老板', tone: Tone.dark),
         AppBadge(count: 4),
         AppBadge(count: 128),
       ]),
@@ -547,9 +568,19 @@ List<Widget> _display(BuildContext context) => [
   Demo(
     title: '深色概览卡',
     tag: 'AppHeroCard',
-    notes: const ['深底白字、圆角 28，右上角有同心圆装饰；每页最多一张；深色模式下改为 surface 色加描边。'],
+    notes: const ['深底白字、圆角 28，右上角有同心圆装饰；每页最多一张；深色模式下改为 surface 色加描边。', '需要放头像、状态等任意内容时用 AppHeroCard.custom，默认是品牌渐变加金色光晕（后台概览、账号详情顶部）。'],
     code: "AppHeroCard(title: '库存概览', value: '¥86,420', footnote: '...')",
-    children: [const AppHeroCard(title: '库存概览', value: '¥86,420', footnote: '248 种商品 · 7 项低库存')],
+    children: [
+      const AppHeroCard(title: '库存概览', value: '¥86,420', footnote: '248 种商品 · 7 项低库存'),
+      const AppHeroCard.custom(
+        child: Row(children: [
+          AppAvatar(name: '刘', size: 48),
+          SizedBox(width: AppSpacing.s12),
+          Expanded(child: _HeroDemoText()),
+          AppStatusTag('正常', tone: Tone.gold),
+        ]),
+      ),
+    ],
   ),
   Demo(
     title: '列表行',
@@ -587,6 +618,22 @@ List<Widget> _display(BuildContext context) => [
     ],
   ),
 ];
+
+class _HeroDemoText extends StatelessWidget {
+  const _HeroDemoText();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppTokens.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('139 1122 3344', style: t.title.copyWith(color: t.heroInk)),
+        Text('自定义内容 · 渐变样式', style: t.caption.copyWith(color: t.heroInkSub)),
+      ],
+    );
+  }
+}
 
 // ───────────────────────── 提示与状态 ─────────────────────────
 List<Widget> _feedback(BuildContext context) {

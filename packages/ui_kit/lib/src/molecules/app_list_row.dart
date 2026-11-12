@@ -114,7 +114,7 @@ class AppListRow extends StatelessWidget {
 
 /// 一组列表行：白色卡片，行间分割线（有图标底时左缩进 60，否则 16），最后一行不画。
 class AppListGroup extends StatelessWidget {
-  final List<AppListRow> rows;
+  final List<Widget> rows;
   const AppListGroup({super.key, required this.rows});
 
   @override
@@ -123,7 +123,9 @@ class AppListGroup extends StatelessWidget {
     child: ClipRRect(
       borderRadius: BorderRadius.circular(AppRadius.card - 4),
       child: AppDividedColumn(
-        indent: rows.any((r) => r.leading != null) ? 60 : AppSpacing.s16,
+        indent: rows.whereType<AppListRow>().any((r) => r.leading != null)
+            ? 60
+            : AppSpacing.s16,
         children: rows,
       ),
     ),

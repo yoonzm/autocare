@@ -18,8 +18,7 @@ class HomePage extends StatelessWidget {
       title: '概览',
       back: false,
       children: [
-        DarkHero(
-          child: Column(
+        AppHeroCard.custom(child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
@@ -29,10 +28,9 @@ class HomePage extends StatelessWidget {
                     style: ts(13, w: FontWeight.w500, color: C.faint, h: 19),
                   ),
                   const Spacer(),
-                  Pill(
+                  AppStatusTag(
                     percentLabel(store.stats['mrr_change'], change: true),
-                    const Color(0xFF6EE7A8),
-                    const Color(0x3317C964),
+                    tone: Tone.okOnDark,
                   ),
                 ],
               ),
@@ -50,16 +48,14 @@ class HomePage extends StatelessWidget {
                 ],
               ),
             ],
-          ),
-        ),
+          )),
         Row(
           children: [
             Expanded(
               child: _tile(
                 context,
                 Icons.hourglass_bottom_rounded,
-                C.amberInk,
-                C.amberSoft,
+                Tone.warn,
                 '${store.expiring7}',
                 '7 日内到期',
                 '需跟进',
@@ -72,8 +68,7 @@ class HomePage extends StatelessWidget {
               child: _tile(
                 context,
                 Icons.storefront_rounded,
-                C.primaryInk,
-                C.primarySoft,
+                Tone.wait,
                 '${store.weekNew}',
                 '本周新增商家',
                 '${store.weekDelta >= 0 ? '↑ +' : '↓ '}${store.weekDelta}',
@@ -85,11 +80,10 @@ class HomePage extends StatelessWidget {
         ),
         Section(
           '待办',
-          RowGroup([
+          AppListGroup(rows: [
             _todo(
               Icons.event_busy_outlined,
-              C.redInk,
-              C.redSoft,
+              Tone.bad,
               '到期跟进',
               '${store.expiring7} 家 7 日内到期',
               store.expiring7,
@@ -97,8 +91,7 @@ class HomePage extends StatelessWidget {
             ),
             _todo(
               Icons.chat_bubble_outline_rounded,
-              C.primaryInk,
-              C.primarySoft,
+              Tone.wait,
               '工单',
               '${store.todoTickets} 个待处理',
               store.todoTickets,
@@ -131,19 +124,18 @@ class HomePage extends StatelessWidget {
   Widget _tile(
     BuildContext context,
     IconData icon,
-    Color fg,
-    Color bg,
+    Tone tone,
     String n,
     String label,
     String note,
     Color noteColor,
     VoidCallback onTap,
-  ) => HCard(
+  ) => AppCard(
     onTap: onTap,
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SoftTile(icon, fg, bg, size: 36),
+        AppIconTile(icon: icon, tone: tone),
         const SizedBox(height: 10),
         Text(n, style: ts(28, w: FontWeight.w600, h: 34)),
         Text(label, style: ts(12, color: C.muted, h: 17)),
@@ -158,17 +150,10 @@ class HomePage extends StatelessWidget {
 
   Widget _todo(
     IconData icon,
-    Color fg,
-    Color bg,
+    Tone tone,
     String title,
     String sub,
     int n,
     VoidCallback onTap,
-  ) => Row1(
-    leading: SoftTile(icon, fg, bg),
-    title: title,
-    sub: sub,
-    onTap: onTap,
-    trailing: n > 0 ? Pill('$n', C.redInk, C.redSoft) : null,
-  );
+  ) => AppListRow(leading: AppIconTile(icon: icon, tone: tone), title: title, subtitle: sub, onTap: onTap, trailing: n > 0 ? AppStatusTag('$n', tone: Tone.bad) : null);
 }

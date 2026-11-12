@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'helpers.dart';
 
 void main() {
+  _extraAtomTests();
   group('AppButton', () {
     testWidgets('点击触发回调；null 即禁用且不响应', (t) async {
       var n = 0;
@@ -346,5 +347,33 @@ void main() {
       brightness: Brightness.dark,
     );
     expect(t.takeException(), isNull);
+  });
+}
+
+void _extraAtomTests() {
+  testWidgets('选择标签组 expanded：一项一行撑满宽度；图标按钮 primary 是主色实心', (t) async {
+    await pump(
+      t,
+      SizedBox(
+        width: 350,
+        child: Column(children: [
+          AppChoiceGroup<int>(
+            kind: ChipKind.option,
+            expanded: true,
+            items: const [
+              ChoiceItem(value: 0, label: '延长 7 天', subtitle: '试用期顺延'),
+              ChoiceItem(value: 1, label: '暂停服务', subtitle: '商家暂时无法使用'),
+            ],
+            selected: 0,
+            onChanged: (_) {},
+          ),
+          AppIconButton(icon: Icons.add_rounded, semanticLabel: '添加', kind: AppIconButtonKind.primary, onPressed: () {}),
+        ]),
+      ),
+    );
+    final first = t.getSize(find.ancestor(of: find.text('延长 7 天'), matching: find.byType(Container)).first);
+    expect(first.width, 350);
+    final btn = t.widget<Container>(find.descendant(of: find.byType(AppIconButton), matching: find.byType(Container)).first);
+    expect((btn.decoration! as BoxDecoration).color, AppTokens.light.primary);
   });
 }

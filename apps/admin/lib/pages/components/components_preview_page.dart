@@ -1,4 +1,3 @@
-import 'package:autocare_ui_kit/autocare_ui_kit.dart' hide AppToast;
 import 'package:flutter/material.dart';
 
 import '../../theme.dart';
@@ -21,12 +20,12 @@ class ComponentsPreviewPage extends StatelessWidget {
         '基础组件库 autocare_ui_kit 的预览。组件分 5 层，页面只做组合；这里列出每个组件的全部状态，深色模式可随时切换对照。',
         style: ts(13, color: C.sub, h: 20),
       ),
-      RowGroup([
+      AppListGroup(rows: [
         for (final s in previewSections)
-          Row1(
-            leading: SoftTile(s.icon, C.primaryInk, C.primarySoft),
+          AppListRow(
+            leading: AppIconTile(icon: s.icon, tone: Tone.wait),
             title: s.title,
-            sub: s.subtitle,
+            subtitle: s.subtitle,
             onTap: () => go(context, ComponentSectionPage(s.id)),
           ),
       ]),
@@ -68,9 +67,13 @@ class _ThemeSwitch extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ValueListenableBuilder<Brightness?>(
     valueListenable: previewBrightness,
-    builder: (context, value, _) => Segmented(
-      labels: const ['跟随外观', '浅色', '深色'],
-      index: switch (value) {
+    builder: (context, value, _) => AppSegmented<int>(
+      items: const [
+        SegmentItem(value: 0, label: '跟随外观'),
+        SegmentItem(value: 1, label: '浅色'),
+        SegmentItem(value: 2, label: '深色'),
+      ],
+      selected: switch (value) {
         null => 0,
         Brightness.light => 1,
         Brightness.dark => 2,

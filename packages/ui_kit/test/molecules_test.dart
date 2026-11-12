@@ -307,4 +307,50 @@ void main() {
     );
     expect(t.takeException(), isNull);
   });
+
+  group('AppTextField', () {
+    testWidgets('标签在上、必填星、占位、错误红字；密码框可显示 / 隐藏', (t) async {
+      const tokens = AppTokens.light;
+      final controller = TextEditingController();
+      await pump(
+        t,
+        SizedBox(
+          width: 350,
+          child: Column(children: [
+            AppTextField(label: '用户名', required: true, hint: '请输入用户名', controller: controller),
+            const AppTextField(label: '密码', hint: '请输入密码', obscure: true, errorText: '用户名或密码错误'),
+          ]),
+        ),
+      );
+      expect(find.text('请输入用户名'), findsOneWidget);
+      expect(find.text('请输入密码'), findsOneWidget);
+      expect(find.text('用户名或密码错误'), findsOneWidget);
+      expect(t.widget<Text>(find.text('用户名或密码错误')).style!.color, tokens.requiredStar);
+      expect(find.textContaining('*', findRichText: true), findsOneWidget);
+      expect(t.getTopLeft(find.text('请输入用户名')).dy, greaterThan(t.getTopLeft(find.byWidgetPredicate((w) => w is Text && w.textSpan?.toPlainText() == '用户名 *')).dy), reason: '标签在输入框上方');
+      final password = find.byType(TextField).last;
+      expect(t.widget<TextField>(password).obscureText, isTrue);
+      await t.tap(find.byTooltip('显示密码'));
+      await t.pump();
+      expect(t.widget<TextField>(password).obscureText, isFalse);
+      expect(find.byTooltip('隐藏密码'), findsOneWidget);
+    });
+
+    testWidgets('搜索框 keyboard 参数', (t) async {
+      await pump(t, AppSearchBar(hint: '搜索', keyboard: TextInputType.phone, onChanged: (_) {}));
+      expect(t.widget<TextField>(find.byType(TextField)).keyboardType, TextInputType.phone);
+    });
+  });
+
+  test('状态色调：violet / gold / okOnDark / dark 取自令牌', () {
+    const light = AppTokens.light;
+    expect(toneColors(light, Tone.violet).fg, const Color(0xFF5B3FC0));
+    expect(toneColors(light, Tone.dark).bg, const Color(0xFF18181B));
+    expect(toneColors(light, Tone.dark).fg, light.gold);
+    expect(toneColors(light, Tone.okOnDark).fg, const Color(0xFF6EE7A8));
+    expect(toneColors(AppTokens.dark, Tone.dark).bg, const Color(0xFF34343A));
+    for (final tone in Tone.values) {
+      expect(toneColors(light, tone).bg, isNotNull);
+    }
+  });
 }

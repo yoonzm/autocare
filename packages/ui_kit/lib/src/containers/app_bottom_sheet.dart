@@ -9,6 +9,7 @@ import 'app_dialog.dart';
 Future<T?> showAppBottomSheet<T>(
   BuildContext context, {
   required String title,
+  String? subtitle,
   required WidgetBuilder builder,
   List<AppButton> actions = const [],
   bool Function()? hasUnsavedChanges,
@@ -25,6 +26,7 @@ Future<T?> showAppBottomSheet<T>(
     ),
     builder: (sheetContext) => _SheetBody(
       title: title,
+      subtitle: subtitle,
       builder: builder,
       actions: actions,
       hasUnsavedChanges: hasUnsavedChanges,
@@ -34,11 +36,13 @@ Future<T?> showAppBottomSheet<T>(
 
 class _SheetBody extends StatelessWidget {
   final String title;
+  final String? subtitle;
   final WidgetBuilder builder;
   final List<AppButton> actions;
   final bool Function()? hasUnsavedChanges;
   const _SheetBody({
     required this.title,
+    required this.subtitle,
     required this.builder,
     required this.actions,
     required this.hasUnsavedChanges,
@@ -92,7 +96,13 @@ class _SheetBody extends StatelessWidget {
                   AppSpacing.pageGutter,
                   AppSpacing.s12,
                 ),
-                child: Text(title, style: t.title),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, style: t.title),
+                    if (subtitle != null) Text(subtitle!, style: t.caption),
+                  ],
+                ),
               ),
               Flexible(
                 child: SingleChildScrollView(

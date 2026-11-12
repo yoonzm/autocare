@@ -35,8 +35,7 @@ class _SubsPageState extends State<SubsPage> {
         title: '订阅与收入',
         back: false,
         children: [
-          DarkHero(
-            child: Column(
+          AppHeroCard.custom(child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
@@ -46,10 +45,9 @@ class _SubsPageState extends State<SubsPage> {
                       style: ts(13, w: FontWeight.w500, color: C.faint, h: 19),
                     ),
                     const Spacer(),
-                    Pill(
+                    AppStatusTag(
                       percentLabel(store.stats['revenue_change'], change: true),
-                      const Color(0xFF6EE7A8),
-                      const Color(0x3317C964),
+                      tone: Tone.okOnDark,
                     ),
                   ],
                 ),
@@ -67,11 +65,10 @@ class _SubsPageState extends State<SubsPage> {
                   ],
                 ),
               ],
-            ),
-          ),
+            )),
           Section(
             '近 6 个月收入',
-            HCard(
+            AppCard(
               padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
               child: Column(
                 children: [
@@ -131,19 +128,14 @@ class _SubsPageState extends State<SubsPage> {
             '近期订单',
             store.orders.isEmpty
                 ? const Empty('还没有已支付的订阅订单')
-                : RowGroup([
+                : AppListGroup(rows: [
                     for (final o in store.orders.take(8))
-                      Row1(
-                        leading: SoftTile(
-                          o.isRefunded
+                      AppListRow(leading: AppIconTile(
+                          icon: o.isRefunded
                               ? Icons.undo_rounded
                               : Icons.receipt_long_outlined,
-                          o.isRefunded ? C.redInk : C.greenInk,
-                          o.isRefunded ? C.redSoft : C.greenSoft,
-                        ),
-                        title: o.merchant,
-                        sub: '${o.title} · ${md(o.time)}',
-                        trailing: Column(
+                          tone: o.isRefunded ? Tone.bad : Tone.ok,
+                        ), title: o.merchant, subtitle: '${o.title} · ${md(o.time)}', trailing: Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
@@ -160,11 +152,9 @@ class _SubsPageState extends State<SubsPage> {
                                         : null,
                                   ),
                             ),
-                            if (o.isRefunded) Pill('已退款', C.redInk, C.redSoft),
+                            if (o.isRefunded) AppStatusTag('已退款', tone: Tone.bad),
                           ],
-                        ),
-                        onTap: () => go(context, OrderPage(o)),
-                      ),
+                        ), onTap: () => go(context, OrderPage(o))),
                   ]),
           ),
         ],
@@ -202,46 +192,35 @@ class OrderPage extends StatelessWidget {
       final t = o.time;
       return AdPage(
         title: '订单详情',
-        dock: Row(
-          children: [
-            Expanded(
-              flex: 5,
-              child: Btn(
-                o.isRefunded ? '已退款' : '退款',
-                soft: !o.isRefunded,
-                ghost: o.isRefunded,
-                onTap: o.isRefunded
-                    ? null
-                    : () {
-                        if (!store.isSuper) {
-                          toast(context, '退款需要超级管理员权限');
-                          return;
-                        }
-                        go(context, RefundPage(o));
-                      },
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              flex: 7,
-              child: Btn(
-                '返回',
-                ghost: true,
-                onTap: () => Navigator.pop(context),
-              ),
-            ),
-          ],
+        bottomBar: AppBottomBar(
+          secondary: AppButton(
+            label: o.isRefunded ? '已退款' : '退款',
+            kind: o.isRefunded ? AppButtonKind.secondary : AppButtonKind.danger,
+            onPressed: o.isRefunded
+                ? null
+                : () {
+                    if (!store.isSuper) {
+                      toast(context, '退款需要超级管理员权限');
+                      return;
+                    }
+                    go(context, RefundPage(o));
+                  },
+          ),
+          primary: AppButton(
+            label: '返回',
+            kind: AppButtonKind.secondary,
+            onPressed: () => Navigator.pop(context),
+          ),
         ),
         children: [
-          HCard(
+          AppCard(
             child: Row(
               children: [
-                SoftTile(
-                  o.isRefunded
+                AppIconTile(
+                  icon: o.isRefunded
                       ? Icons.undo_rounded
                       : Icons.receipt_long_outlined,
-                  o.isRefunded ? C.redInk : C.greenInk,
-                  o.isRefunded ? C.redSoft : C.greenSoft,
+                  tone: o.isRefunded ? Tone.bad : Tone.ok,
                 ),
                 const SizedBox(width: 10),
                 Expanded(
@@ -260,12 +239,12 @@ class OrderPage extends StatelessWidget {
                   ),
                 ),
                 o.isRefunded
-                    ? Pill('已退款', C.redInk, C.redSoft)
-                    : Pill('已支付', C.greenInk, C.greenSoft),
+                    ? AppStatusTag('已退款', tone: Tone.bad)
+                    : AppStatusTag('已支付', tone: Tone.ok),
               ],
             ),
           ),
-          HCard(
+          AppCard(
             child: Column(
               children: [
                 KV('套餐', o.title),
@@ -315,11 +294,11 @@ class _RefundPageState extends State<RefundPage> {
       );
       return;
     }
-    final ok = await confirm(
+    final ok = await showAppDialog(
       context,
       title: '确认退款',
       message: '将原路退回 ${money(v)} 给「${widget.o.merchant}」，并终止对应订阅周期，操作不可撤销。',
-      ok: '确认退款',
+      confirmLabel: '确认退款',
       danger: true,
       onConfirm: () async {
         final err = await store.refund(widget.o, amount.text);
@@ -334,35 +313,25 @@ class _RefundPageState extends State<RefundPage> {
   @override
   Widget build(BuildContext context) => AdPage(
     title: '订单退款',
-    dock: Row(
-      children: [
-        Expanded(
-          flex: 5,
-          child: Btn('取消', ghost: true, onTap: () => Navigator.pop(context)),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          flex: 7,
-          child: Btn(
-            '确认退款',
-            danger: true,
-            onTap: () {
-              unawaited(_submit());
-            },
-          ),
-        ),
-      ],
+    bottomBar: AppBottomBar(
+      secondary: AppButton(
+        label: '取消',
+        kind: AppButtonKind.secondary,
+        onPressed: () => Navigator.pop(context),
+      ),
+      primary: AppButton(
+        label: '确认退款',
+        kind: AppButtonKind.danger,
+        onPressed: () {
+          unawaited(_submit());
+        },
+      ),
     ),
     children: [
       Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SoftTile(
-            Icons.info_outline_rounded,
-            C.amberInk,
-            C.amberSoft,
-            size: 32,
-          ),
+          AppIconTile(icon: Icons.info_outline_rounded, tone: Tone.warn),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
@@ -372,8 +341,8 @@ class _RefundPageState extends State<RefundPage> {
           ),
         ],
       ),
-      HCard(
-        child: Field(
+      AppCard(
+        child: AppTextField(
           label: '退款金额',
           required: true,
           controller: amount,
@@ -381,7 +350,7 @@ class _RefundPageState extends State<RefundPage> {
           hint: '最多 ${money(widget.o.paid)}',
           keyboard: TextInputType.number,
           formatters: [FilteringTextInputFormatter.digitsOnly],
-          error: error,
+          errorText: error,
           onChanged: (_) => setState(() => error = null),
         ),
       ),

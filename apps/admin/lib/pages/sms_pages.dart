@@ -10,12 +10,12 @@ import '../ui.dart';
 
 const _tabKinds = ['all', 'code', 'notice', 'failed'];
 
-(Color, Color) _purposeColors(SmsLog s) {
-  if (!s.isCode) return (C.greenInk, C.greenSoft);
+Tone _purposeTone(SmsLog s) {
+  if (!s.isCode) return Tone.ok;
   return switch (s.purpose) {
-    'login' => (C.primaryInk, C.primarySoft),
-    'register' => (C.amberInk, C.amberSoft),
-    _ => (C.violetInk, C.violetSoft),
+    'login' => Tone.wait,
+    'register' => Tone.warn,
+    _ => Tone.violet,
   };
 }
 
@@ -77,7 +77,6 @@ class _SmsLogsPageState extends State<SmsLogsPage> {
   bool loading = true;
   bool loadingMore = false;
   AppError? error;
-  Timer? _debounce;
   Timer? _tick;
   int _generation = 0;
 
@@ -93,7 +92,6 @@ class _SmsLogsPageState extends State<SmsLogsPage> {
 
   @override
   void dispose() {
-    _debounce?.cancel();
     _tick?.cancel();
     search.dispose();
     super.dispose();
@@ -138,13 +136,6 @@ class _SmsLogsPageState extends State<SmsLogsPage> {
         });
       }
     }
-  }
-
-  void _searchChanged(String _) {
-    _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 300), () {
-      if (mounted) unawaited(_load());
-    });
   }
 
   Future<void> _open(SmsLog s) async {
@@ -232,40 +223,22 @@ class _SmsLogsPageState extends State<SmsLogsPage> {
     gap: 14,
     onRefresh: _load,
     children: [
-      Container(
-        height: 44,
-        padding: const EdgeInsets.symmetric(horizontal: 14),
-        decoration: BoxDecoration(
-          color: C.card,
-          borderRadius: BorderRadius.circular(22),
-          boxShadow: softShadow,
-        ),
-        child: Row(
-          children: [
-            Icon(Icons.search_rounded, size: 18, color: C.muted),
-            const SizedBox(width: 8),
-            Expanded(
-              child: TextField(
-                controller: search,
-                keyboardType: TextInputType.phone,
-                onChanged: _searchChanged,
-                onTapOutside: (_) => FocusScope.of(context).unfocus(),
-                style: ts(14, h: 20),
-                decoration: InputDecoration(
-                  isCollapsed: true,
-                  border: InputBorder.none,
-                  hintText: '输入手机号，查最新验证码',
-                  hintStyle: ts(14, color: C.faint, h: 20),
-                ),
-              ),
-            ),
-          ],
-        ),
+      AppSearchBar(
+        controller: search,
+        keyboard: TextInputType.phone,
+        hint: '输入手机号，查最新验证码',
+        onChanged: (_) {
+          if (mounted) unawaited(_load());
+        },
       ),
-      Segmented(
-        labels: const ['全部', '验证码', '通知', '失败'],
-        index: tab,
-        badges: {3: failedCount},
+      AppSegmented<int>(
+        items: [
+          const SegmentItem(value: 0, label: '全部'),
+          const SegmentItem(value: 1, label: '验证码'),
+          const SegmentItem(value: 2, label: '通知'),
+          SegmentItem(value: 3, label: '失败', badge: failedCount),
+        ],
+        selected: tab,
         onChanged: (i) {
           if (i == tab) return;
           setState(() => tab = i);
@@ -292,7 +265,7 @@ class _SmsSkeleton extends StatelessWidget {
       for (var i = 0; i < 3; i++)
         Padding(
           padding: const EdgeInsets.only(bottom: 10),
-          child: HCard(
+          child: AppCard(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             child: const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -319,11 +292,10 @@ class _SmsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (purposeFg, purposeBg) = _purposeColors(s);
     final (statusText, dot, statusInk) = _statusLook(s);
     final active = s.usable(now);
     final life = s.lifeText(now);
-    return HCard(
+    return AppCard(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       onTap: onTap,
       child: Column(
@@ -333,7 +305,7 @@ class _SmsCard extends StatelessWidget {
             children: [
               Text(s.phoneText, style: ts(15, w: FontWeight.w600, h: 22)),
               const SizedBox(width: 8),
-              Pill(s.purposeLabel, purposeFg, purposeBg),
+              AppStatusTag(s.purposeLabel, tone: _purposeTone(s)),
               const Spacer(),
               Text(s.timeText, style: ts(12, color: C.muted, h: 17)),
             ],
@@ -350,7 +322,7 @@ class _SmsCard extends StatelessWidget {
                 ),
                 if (s.isCode) ...[
                   const SizedBox(width: 10),
-                  _PillAction('重发', C.redSoft, C.redInk, onResend),
+                  _SmallAction('重发', AppButtonKind.danger, onResend),
                 ],
               ],
             )
@@ -372,10 +344,9 @@ class _SmsCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 10),
-                _PillAction(
+                _SmallAction(
                   '复制',
-                  active ? C.primarySoft : C.chip,
-                  active ? C.primaryInk : C.sub,
+                  AppButtonKind.secondary,
                   () => _copyCode(context, s),
                 ),
               ],
@@ -412,18 +383,17 @@ class _SmsCard extends StatelessWidget {
   }
 }
 
-/// 卡片里的小胶囊按钮；异步动作进行中显示转圈并禁止重复点击，宽高不变。
-class _PillAction extends StatefulWidget {
+/// 卡片里的小按钮：异步动作进行中用 [AppButton] 的 loading 状态，防止重复点击。
+class _SmallAction extends StatefulWidget {
   final String label;
-  final Color bg;
-  final Color fg;
+  final AppButtonKind kind;
   final Future<void> Function() onPressed;
-  const _PillAction(this.label, this.bg, this.fg, this.onPressed);
+  const _SmallAction(this.label, this.kind, this.onPressed);
   @override
-  State<_PillAction> createState() => _PillActionState();
+  State<_SmallAction> createState() => _SmallActionState();
 }
 
-class _PillActionState extends State<_PillAction> {
+class _SmallActionState extends State<_SmallAction> {
   bool busy = false;
 
   Future<void> _tap() async {
@@ -437,29 +407,12 @@ class _PillActionState extends State<_PillAction> {
   }
 
   @override
-  Widget build(BuildContext context) => Semantics(
-    button: true,
+  Widget build(BuildContext context) => AppButton(
     label: widget.label,
-    child: GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: _tap,
-      child: Container(
-        height: 32,
-        constraints: const BoxConstraints(minWidth: 58),
-        padding: const EdgeInsets.symmetric(horizontal: 14),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: widget.bg,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: busy
-            ? AppSpinner(size: 14, color: widget.fg)
-            : Text(
-                widget.label,
-                style: ts(13, w: FontWeight.w600, color: widget.fg, h: 18),
-              ),
-      ),
-    ),
+    kind: widget.kind,
+    size: AppButtonSize.small,
+    loading: busy,
+    onPressed: _tap,
   );
 }
 
@@ -474,6 +427,7 @@ class _SmsLogDetailPageState extends State<SmsLogDetailPage> {
   SmsLog? log;
   AppError? error;
   bool loading = true;
+  bool resending = false;
   Timer? _tick;
 
   @override
@@ -515,7 +469,11 @@ class _SmsLogDetailPageState extends State<SmsLogDetailPage> {
   }
 
   Future<void> _resendAndBack(SmsLog s) async {
-    if (await _resend(context, s) && mounted) Navigator.pop(context);
+    setState(() => resending = true);
+    final ok = await _resend(context, s);
+    if (!mounted) return;
+    setState(() => resending = false);
+    if (ok) Navigator.pop(context);
   }
 
   @override
@@ -548,29 +506,24 @@ class _SmsLogDetailPageState extends State<SmsLogDetailPage> {
     return AdPage(
       title: '短信详情',
       onRefresh: _load,
-      dock: s.isCode
-          ? Row(
-              children: [
-                Expanded(
-                  flex: 10,
-                  child: Btn('重发', ghost: true, onTap: () => _resendAndBack(s)),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  flex: 14,
-                  child: Btn(
-                    '复制验证码',
-                    onTap: s.code == null || s.failed
-                        ? null
-                        : () => _copyCode(context, s),
-                  ),
-                ),
-              ],
+      bottomBar: s.isCode
+          ? AppBottomBar(
+              secondary: AppButton(
+                label: '重发',
+                kind: AppButtonKind.secondary,
+                loading: resending,
+                onPressed: () => _resendAndBack(s),
+              ),
+              primary: AppButton(
+                label: '复制验证码',
+                onPressed: s.code == null || s.failed || resending
+                    ? null
+                    : () => _copyCode(context, s),
+              ),
             )
           : null,
       children: [
-        DarkHero(
-          child: Column(
+        AppHeroCard.custom(child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
@@ -602,9 +555,8 @@ class _SmsLogDetailPageState extends State<SmsLogDetailPage> {
                 style: ts(12, color: const Color(0xFFA1A1AA), h: 17),
               ),
             ],
-          ),
-        ),
-        HCard(
+          )),
+        AppCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -617,7 +569,7 @@ class _SmsLogDetailPageState extends State<SmsLogDetailPage> {
             ],
           ),
         ),
-        HCard(
+        AppCard(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           child: Column(
             children: [
@@ -646,7 +598,7 @@ class _DetailSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => const Column(
     children: [
-      HCard(
+      AppCard(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -659,7 +611,7 @@ class _DetailSkeleton extends StatelessWidget {
         ),
       ),
       SizedBox(height: 16),
-      HCard(
+      AppCard(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

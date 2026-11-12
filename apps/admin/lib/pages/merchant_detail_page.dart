@@ -41,11 +41,11 @@ class MerchantDetailPage extends StatelessWidget {
   }
 
   Future<void> _contact(BuildContext context) async {
-    final ok = await confirm(
+    final ok = await showAppDialog(
       context,
       title: '联系店主',
       message: '将通过平台外呼联系 ${m.maskedOwner}（${m.maskedPhone}），通话会被记录。',
-      ok: '呼叫',
+      confirmLabel: '呼叫',
     );
     if (ok && context.mounted) {
       // TODO admin_outbound_call: requires a real telephony provider and call audit.
@@ -81,12 +81,10 @@ class MerchantDetailPage extends StatelessWidget {
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: store,
     builder: (context, _) {
-      final (fg, bg) = statusColors(m.status);
       return AdPage(
         title: '商家详情',
         children: [
-          DarkHero(
-            child: Column(
+          AppHeroCard.custom(child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
@@ -120,16 +118,15 @@ class MerchantDetailPage extends StatelessWidget {
                   spacing: 8,
                   runSpacing: 6,
                   children: [
-                    Pill(m.status.label, fg, bg),
-                    Pill(m.plan.label, C.sub, C.chip),
-                    if (m.frozen) Pill('已冻结', C.redInk, C.redSoft),
-                    if (m.paused) Pill('已暂停', C.amberInk, C.amberSoft),
+                    AppStatusTag(m.status.label, tone: statusTone(m.status)),
+                    AppStatusTag(m.plan.label, tone: Tone.off),
+                    if (m.frozen) AppStatusTag('已冻结', tone: Tone.bad),
+                    if (m.paused) AppStatusTag('已暂停', tone: Tone.warn),
                   ],
                 ),
               ],
-            ),
-          ),
-          HCard(
+            )),
+          AppCard(
             child: Column(
               children: [
                 Row(
@@ -151,45 +148,14 @@ class MerchantDetailPage extends StatelessWidget {
               ],
             ),
           ),
-          RowGroup([
-            Row1(
-              leading: SoftTile(
-                Icons.tune_rounded,
-                C.primaryInk,
-                C.primarySoft,
-              ),
-              title: m.plan == PlanKind.trial ? '延长试用 / 调整套餐' : '延长期限 / 调整套餐',
-              onTap: () => _adjust(context),
-            ),
-            Row1(
-              leading: SoftTile(
-                Icons.history_edu_outlined,
-                C.amberInk,
-                C.amberSoft,
-              ),
-              title: '跟进记录',
-              trailing: Text(
+          AppListGroup(rows: [
+            AppListRow(leading: AppIconTile(icon: Icons.tune_rounded, tone: Tone.wait), title: m.plan == PlanKind.trial ? '延长试用 / 调整套餐' : '延长期限 / 调整套餐', onTap: () => _adjust(context)),
+            AppListRow(leading: AppIconTile(icon: Icons.history_edu_outlined, tone: Tone.warn), title: '跟进记录', trailing: Text(
                 '${m.logs.length} 条',
                 style: ts(13, color: C.muted),
-              ),
-              onTap: () => go(context, FollowLogPage(m)),
-            ),
-            Row1(
-              leading: SoftTile(Icons.phone_outlined, C.greenInk, C.greenSoft),
-              title: '联系店主',
-              trailing: Text(m.maskedPhone, style: ts(13, color: C.muted)),
-              onTap: () => _contact(context),
-            ),
-            Row1(
-              leading: SoftTile(
-                Icons.manage_accounts_outlined,
-                C.redInk,
-                C.redSoft,
-              ),
-              title: '账号处理',
-              sub: '重发验证码 · 重置登录 · 冻结',
-              onTap: () => _account(context),
-            ),
+              ), onTap: () => go(context, FollowLogPage(m))),
+            AppListRow(leading: AppIconTile(icon: Icons.phone_outlined, tone: Tone.ok), title: '联系店主', trailing: Text(m.maskedPhone, style: ts(13, color: C.muted)), onTap: () => _contact(context)),
+            AppListRow(leading: AppIconTile(icon: Icons.manage_accounts_outlined, tone: Tone.bad), title: '账号处理', subtitle: '重发验证码 · 重置登录 · 冻结', onTap: () => _account(context)),
           ]),
         ],
       );

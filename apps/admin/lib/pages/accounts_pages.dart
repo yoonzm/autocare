@@ -78,19 +78,19 @@ class AccountsPage extends StatelessWidget {
                   Row(
                     children: [
                       Expanded(
-                        flex: 5,
-                        child: Btn(
-                          '关闭',
-                          ghost: true,
-                          onTap: () => Navigator.pop(c),
+                        child: AppButton(
+                          label: '关闭',
+                          kind: AppButtonKind.secondary,
+                          expanded: true,
+                          onPressed: () => Navigator.pop(c),
                         ),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
-                        flex: 7,
-                        child: Btn(
-                          '复制密码',
-                          onTap: () {
+                        child: AppButton(
+                          label: '复制密码',
+                          expanded: true,
+                          onPressed: () {
                             Clipboard.setData(ClipboardData(text: tmp));
                             Navigator.pop(c);
                           },
@@ -136,12 +136,12 @@ class AccountsPage extends StatelessWidget {
     listenable: store,
     builder: (context, _) => AdPage(
       title: '运营账号',
-      action: CircleBtn(
+      action: AppIconButton(
         key: const ValueKey('add-account'),
-        Icons.add_rounded,
-        () => go(context, const AccountEditPage()),
-        primary: true,
-        label: '新增账号',
+        icon: Icons.add_rounded,
+        semanticLabel: '新增账号',
+        kind: AppIconButtonKind.primary,
+        onPressed: () => go(context, const AccountEditPage()),
       ),
       children: [
         Text(
@@ -149,7 +149,7 @@ class AccountsPage extends StatelessWidget {
           style: ts(13, color: C.sub, h: 18),
         ),
         for (final (i, a) in store.accounts.indexed)
-          HCard(
+          AppCard(
             onTap: () => _act(context, a),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             child: Row(
@@ -199,8 +199,8 @@ class AccountsPage extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           a.role == Role.superAdmin
-                              ? Pill('超级管理员', C.amberInk, C.amberSoft)
-                              : Pill('运营', C.primaryInk, C.primarySoft),
+                              ? AppStatusTag('超级管理员', tone: Tone.warn)
+                              : AppStatusTag('运营', tone: Tone.wait),
                         ],
                       ),
                       Text(a.username, style: ts(12, color: C.muted, h: 17)),
@@ -208,33 +208,28 @@ class AccountsPage extends StatelessWidget {
                   ),
                 ),
                 a.enabled
-                    ? Pill('启用', C.greenInk, C.greenSoft)
-                    : Pill('已禁用', C.redInk, C.redSoft),
+                    ? AppStatusTag('启用', tone: Tone.ok)
+                    : AppStatusTag('已禁用', tone: Tone.bad),
               ],
             ),
           ),
         Section(
           '角色说明',
-          RowGroup(indent: 16, [
-            _role('超级管理员', C.amberInk, C.amberSoft, '全部功能，含运营账号管理、退款与套餐定价'),
-            _role(
-              '运营',
-              C.primaryInk,
-              C.primarySoft,
-              '商家、订阅、开通审核、工单与到期跟进，不含账号管理',
-            ),
+          AppListGroup(rows: [
+            _role('超级管理员', Tone.warn, '全部功能，含运营账号管理、退款与套餐定价'),
+            _role('运营', Tone.wait, '商家、订阅、开通审核、工单与到期跟进，不含账号管理'),
           ]),
         ),
       ],
     ),
   );
 
-  Widget _role(String n, Color fg, Color bg, String d) => Padding(
+  Widget _role(String n, Tone tone, String d) => Padding(
     padding: const EdgeInsets.all(16),
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Pill(n, fg, bg),
+        AppStatusTag(n, tone: tone),
         const SizedBox(width: 12),
         Expanded(
           child: Text(d, style: ts(12, color: C.sub, h: 18)),
@@ -256,6 +251,7 @@ class _AccountEditPageState extends State<AccountEditPage> {
   final pwd = TextEditingController();
   Role role = Role.ops;
   String? error;
+  bool creating = false;
 
   @override
   void dispose() {
@@ -266,9 +262,13 @@ class _AccountEditPageState extends State<AccountEditPage> {
   }
 
   Future<void> _create() async {
+    setState(() => creating = true);
     final err = await store.addAccount(name.text, user.text, pwd.text, role);
     if (!mounted) return;
-    setState(() => error = err);
+    setState(() {
+      error = err;
+      creating = false;
+    });
     if (err != null) {
       if (!['姓名', '用户名', '密码'].any(err.contains)) {
         AppToast.error(context, AppError(err));
@@ -282,36 +282,38 @@ class _AccountEditPageState extends State<AccountEditPage> {
   @override
   Widget build(BuildContext context) => AdPage(
     title: '新增运营账号',
-    dock: Btn('创建账号', onTap: _create),
+    bottomBar: AppBottomBar(
+      primary: AppButton(label: '创建账号', loading: creating, onPressed: _create),
+    ),
     children: [
-      HCard(
+      AppCard(
         child: Column(
           children: [
-            Field(
+            AppTextField(
               label: '姓名',
               required: true,
               controller: name,
               hint: '例如 陈运营',
-              error: error != null && error!.contains('姓名') ? error : null,
+              errorText: error != null && error!.contains('姓名') ? error : null,
               onChanged: (_) => setState(() => error = null),
             ),
             const SizedBox(height: 14),
-            Field(
+            AppTextField(
               label: '用户名',
               required: true,
               controller: user,
               hint: '字母、数字或下划线，4–20 位',
-              error: error != null && error!.contains('用户名') ? error : null,
+              errorText: error != null && error!.contains('用户名') ? error : null,
               onChanged: (_) => setState(() => error = null),
             ),
             const SizedBox(height: 14),
-            Field(
+            AppTextField(
               label: '初始密码',
               required: true,
               controller: pwd,
               hint: '至少 8 位',
               obscure: true,
-              error: error != null && error!.contains('密码') ? error : null,
+              errorText: error != null && error!.contains('密码') ? error : null,
               onChanged: (_) => setState(() => error = null),
             ),
           ],
@@ -319,54 +321,23 @@ class _AccountEditPageState extends State<AccountEditPage> {
       ),
       Section(
         '角色',
-        Column(
-          children: [
-            for (final (r, d) in [
-              (Role.ops, '商家、订阅、审核、工单与到期跟进'),
-              (Role.superAdmin, '全部功能，含账号管理、退款与套餐定价'),
-            ])
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: GestureDetector(
-                  onTap: () => setState(() => role = r),
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 12,
-                    ),
-                    decoration: BoxDecoration(
-                      color: role == r ? C.primarySoft : C.card,
-                      borderRadius: BorderRadius.circular(18),
-                      border: role == r
-                          ? Border.all(color: C.primary, width: 1.5)
-                          : null,
-                      boxShadow: role == r ? null : softShadow,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(r.label, style: ts(15, w: FontWeight.w600, h: 22)),
-                        Text(
-                          d,
-                          style: ts(
-                            12,
-                            color: role == r ? C.sub : C.muted,
-                            h: 16,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-          ],
+        AppCard(
+          child: AppChoiceGroup<Role>(
+            kind: ChipKind.option,
+            expanded: true,
+            selected: role,
+            onChanged: (r) => setState(() => role = r),
+            items: [
+              ChoiceItem(value: Role.ops, label: Role.ops.label, subtitle: '商家、订阅、审核、工单与到期跟进'),
+              ChoiceItem(value: Role.superAdmin, label: Role.superAdmin.label, subtitle: '全部功能，含账号管理、退款与套餐定价'),
+            ],
+          ),
         ),
       ),
       Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SoftTile(Icons.lock_outline, C.greenInk, C.greenSoft, size: 32),
+          AppIconTile(icon: Icons.lock_outline, tone: Tone.ok),
           const SizedBox(width: 10),
           Expanded(
             child: Padding(

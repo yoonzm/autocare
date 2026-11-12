@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:autocare_ui_kit/autocare_ui_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -10,6 +12,7 @@ Widget _app(Widget home, {Brightness brightness = Brightness.light}) => Material
 );
 
 void main() {
+  _asyncDialogAndHeroTests();
   testWidgets('页面头部：返回 / 关闭、标题居中、右侧入口', (t) async {
     var closed = 0;
     await pump(
@@ -185,5 +188,77 @@ void main() {
       brightness: Brightness.dark,
     );
     expect(t.takeException(), isNull);
+  });
+}
+
+void _asyncDialogAndHeroTests() {
+  testWidgets('对话框 onConfirm：处理中确认按钮加载、取消不响应；成功后关闭', (t) async {
+    final gate = Completer<void>();
+    bool? result;
+    await t.pumpWidget(_app(Builder(
+      builder: (context) => TextButton(
+        onPressed: () async => result = await showAppDialog(context, title: '确认注销？', onConfirm: () => gate.future, danger: true),
+        child: const Text('打开'),
+      ),
+    )));
+    await t.tap(find.text('打开'));
+    await t.pumpAndSettle();
+    await t.tap(find.text('确认'));
+    await t.pump();
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    await t.tap(find.text('取消'));
+    await t.pump();
+    expect(find.text('确认注销？'), findsOneWidget, reason: '处理中取消不响应');
+    gate.complete();
+    await t.pumpAndSettle();
+    expect(result, isTrue);
+    expect(find.text('确认注销？'), findsNothing);
+  });
+
+  testWidgets('对话框 onConfirm 失败：弹窗保持打开，错误交给 onError，可再次确认', (t) async {
+    var calls = 0;
+    final errors = <Object>[];
+    await t.pumpWidget(_app(Builder(
+      builder: (context) => TextButton(
+        onPressed: () => showAppDialog(
+          context,
+          title: '确认注销？',
+          onConfirm: () async {
+            calls++;
+            if (calls == 1) throw StateError('服务不可用');
+          },
+          onError: errors.add,
+        ),
+        child: const Text('打开'),
+      ),
+    )));
+    await t.tap(find.text('打开'));
+    await t.pumpAndSettle();
+    await t.tap(find.text('确认'));
+    await t.pumpAndSettle();
+    expect(errors.single, isA<StateError>());
+    expect(find.text('确认注销？'), findsOneWidget);
+    expect(find.byType(CircularProgressIndicator), findsNothing);
+    await t.pump(const Duration(milliseconds: 400)); // 越过按钮的防连点间隔
+    await t.tap(find.text('确认'));
+    await t.pumpAndSettle();
+    expect(find.text('确认注销？'), findsNothing);
+    expect(calls, 2);
+  });
+
+  testWidgets('底部弹层副标题；概览卡自定义内容与渐变样式', (t) async {
+    await t.pumpWidget(_app(Builder(
+      builder: (context) => Column(children: [
+        const AppHeroCard.custom(child: Text('自定义内容')),
+        TextButton(
+          onPressed: () => showAppBottomSheet<void>(context, title: '标题', subtitle: '副标题', builder: (_) => const SizedBox()),
+          child: const Text('打开'),
+        ),
+      ]),
+    )));
+    expect(find.text('自定义内容'), findsOneWidget);
+    await t.tap(find.text('打开'));
+    await t.pumpAndSettle();
+    expect(find.text('副标题'), findsOneWidget);
   });
 }

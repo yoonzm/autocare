@@ -7,10 +7,10 @@ import '../data/store.dart';
 import '../theme.dart';
 import '../ui.dart';
 
-(Color, Color) ticketColors(TStatus s) => switch (s) {
-  TStatus.todo => (C.redInk, C.redSoft),
-  TStatus.doing => (C.primaryInk, C.primarySoft),
-  TStatus.done => (C.greenInk, C.greenSoft),
+Tone ticketTone(TStatus s) => switch (s) {
+  TStatus.todo => Tone.bad,
+  TStatus.doing => Tone.wait,
+  TStatus.done => Tone.ok,
 };
 
 class TicketsPage extends StatefulWidget {
@@ -31,29 +31,28 @@ class _TicketsPageState extends State<TicketsPage> {
       return AdPage(
         title: '工单',
         children: [
-          Segmented(
-            labels: ['待处理 ${store.todoTickets}', '处理中', '已解决'],
-            index: tab,
+          AppSegmented<int>(
+            items: [
+              SegmentItem(value: 0, label: '待处理 ${store.todoTickets}'),
+              const SegmentItem(value: 1, label: '处理中'),
+              const SegmentItem(value: 2, label: '已解决'),
+            ],
+            selected: tab,
             onChanged: (i) => setState(() => tab = i),
           ),
           if (list.isEmpty)
             const Empty('暂无工单')
           else
-            RowGroup([
+            AppListGroup(rows: [
               for (final t in list)
-                Row1(
-                  leading: SoftTile(
-                    Icons.chat_bubble_outline_rounded,
-                    ticketColors(t.status).$1,
-                    ticketColors(t.status).$2,
+                AppListRow(
+                  leading: AppIconTile(
+                    icon: Icons.chat_bubble_outline_rounded,
+                    tone: ticketTone(t.status),
                   ),
                   title: t.title,
-                  sub: '${t.merchant} · ${t.when}',
-                  trailing: Pill(
-                    t.status.label,
-                    ticketColors(t.status).$1,
-                    ticketColors(t.status).$2,
-                  ),
+                  subtitle: '${t.merchant} · ${t.when}',
+                  trailing: AppStatusTag(t.status.label, tone: ticketTone(t.status)),
                   onTap: () => go(context, TicketDetailPage(t)),
                 ),
             ]),
@@ -72,6 +71,7 @@ class TicketDetailPage extends StatefulWidget {
 
 class _TicketDetailPageState extends State<TicketDetailPage> {
   final text = TextEditingController();
+  bool sending = false;
 
   @override
   void dispose() {
@@ -84,17 +84,24 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
       toast(context, '请输入回复内容');
       return;
     }
-    await store.reply(widget.t, text.text);
-    if (!mounted) return;
-    text.clear();
+    setState(() => sending = true);
+    try {
+      await store.reply(widget.t, text.text);
+      if (!mounted) return;
+      text.clear();
+    } catch (e) {
+      if (mounted) AppToast.error(context, e);
+    } finally {
+      if (mounted) setState(() => sending = false);
+    }
   }
 
   Future<void> _resolve() async {
-    final ok = await confirm(
+    final ok = await showAppDialog(
       context,
       title: '标记为已解决',
       message: '工单关闭后商家将收到通知，不能再继续回复。',
-      ok: '已解决',
+      confirmLabel: '已解决',
       onConfirm: () => store.resolve(widget.t),
     );
     if (!ok || !mounted) return;
@@ -111,7 +118,6 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
         final t =
             store.tickets.where((t) => t.id == widget.t.id).firstOrNull ??
             widget.t;
-        final (fg, bg) = ticketColors(t.status);
         return AdPage(
           title: '工单详情',
           dock: t.status == TStatus.done
@@ -123,7 +129,7 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
               : Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Field(
+                    AppTextField(
                       label: '回复',
                       controller: text,
                       hint: '输入回复内容…',
@@ -132,16 +138,28 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
                     const SizedBox(height: 10),
                     Row(
                       children: [
-                        Expanded(flex: 7, child: Btn('发送', onTap: _send)),
+                        Expanded(
+                          child: AppButton(
+                            label: '已解决',
+                            kind: AppButtonKind.secondary,
+                            size: AppButtonSize.large,
+                            expanded: true,
+                            onPressed: sending
+                                ? null
+                                : () {
+                                    unawaited(_resolve());
+                                  },
+                          ),
+                        ),
                         const SizedBox(width: 10),
                         Expanded(
-                          flex: 5,
-                          child: Btn(
-                            '已解决',
-                            ghost: true,
-                            onTap: () {
-                              unawaited(_resolve());
-                            },
+                          flex: 2,
+                          child: AppButton(
+                            label: '发送',
+                            size: AppButtonSize.large,
+                            expanded: true,
+                            loading: sending,
+                            onPressed: _send,
                           ),
                         ),
                       ],
@@ -149,7 +167,7 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
                   ],
                 ),
           children: [
-            HCard(
+            AppCard(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -161,7 +179,7 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
                           style: ts(17, w: FontWeight.w600, h: 24),
                         ),
                       ),
-                      Pill(t.status.label, fg, bg),
+                      AppStatusTag(t.status.label, tone: ticketTone(t.status)),
                     ],
                   ),
                   const SizedBox(height: 2),

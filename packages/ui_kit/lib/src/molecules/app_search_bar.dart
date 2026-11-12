@@ -12,6 +12,7 @@ class AppSearchBar extends StatefulWidget {
   final ValueChanged<String> onChanged;
   final Widget? trailing;
   final TextEditingController? controller;
+  final TextInputType? keyboard;
   final Duration debounce;
   const AppSearchBar({
     super.key,
@@ -19,6 +20,7 @@ class AppSearchBar extends StatefulWidget {
     required this.onChanged,
     this.trailing,
     this.controller,
+    this.keyboard,
     this.debounce = const Duration(milliseconds: 300),
   });
 
@@ -81,6 +83,7 @@ class _AppSearchBarState extends State<AppSearchBar> {
                 Expanded(
                   child: TextField(
                     controller: _controller,
+                    keyboardType: widget.keyboard,
                     onChanged: _changed,
                     textInputAction: TextInputAction.search,
                     onTapOutside: (_) => FocusScope.of(context).unfocus(),

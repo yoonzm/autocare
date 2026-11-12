@@ -16,17 +16,17 @@ const _avatarTones = [
   [Color(0xFF59D49A), Color(0xFF17A864)],
 ];
 
-(String, Color, Color) _statusLook(UserAccount a) => switch (a.status) {
-  'cancelled' => ('已注销', C.sub, C.chip),
-  'frozen' => ('已冻结', C.redInk, C.redSoft),
-  _ => ('正常', C.greenInk, C.greenSoft),
+(String, Tone) _statusLook(UserAccount a) => switch (a.status) {
+  'cancelled' => ('已注销', Tone.off),
+  'frozen' => ('已冻结', Tone.bad),
+  _ => ('正常', Tone.ok),
 };
 
-(Color, Color) _roleLook(String role) => switch (role) {
-  'owner' => (C.gold, const Color(0xFF18181B)),
-  'manager' => (C.violetInk, C.violetSoft),
-  'cashier' => (C.primaryInk, C.primarySoft),
-  _ => (C.greenInk, C.greenSoft),
+Tone _roleTone(String role) => switch (role) {
+  'owner' => Tone.dark,
+  'manager' => Tone.violet,
+  'cashier' => Tone.wait,
+  _ => Tone.ok,
 };
 
 String _dateText(DateTime? t) {
@@ -98,7 +98,6 @@ class _UsersPageState extends State<UsersPage> {
   int total = 0;
   bool loading = true;
   AppError? error;
-  Timer? _debounce;
   int _generation = 0;
 
   @override
@@ -109,7 +108,6 @@ class _UsersPageState extends State<UsersPage> {
 
   @override
   void dispose() {
-    _debounce?.cancel();
     search.dispose();
     super.dispose();
   }
@@ -142,13 +140,6 @@ class _UsersPageState extends State<UsersPage> {
     } finally {
       if (mounted && generation == _generation) setState(() => loading = false);
     }
-  }
-
-  void _searchChanged(String _) {
-    _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 300), () {
-      if (mounted) unawaited(_load());
-    });
   }
 
   Future<void> _open(UserAccount a) async {
@@ -206,38 +197,20 @@ class _UsersPageState extends State<UsersPage> {
     gap: 14,
     onRefresh: _load,
     children: [
-      Container(
-        height: 44,
-        padding: const EdgeInsets.symmetric(horizontal: 14),
-        decoration: BoxDecoration(
-          color: C.card,
-          borderRadius: BorderRadius.circular(22),
-          boxShadow: softShadow,
-        ),
-        child: Row(
-          children: [
-            Icon(Icons.search_rounded, size: 18, color: C.muted),
-            const SizedBox(width: 8),
-            Expanded(
-              child: TextField(
-                controller: search,
-                onChanged: _searchChanged,
-                onTapOutside: (_) => FocusScope.of(context).unfocus(),
-                style: ts(14, h: 20),
-                decoration: InputDecoration(
-                  isCollapsed: true,
-                  border: InputBorder.none,
-                  hintText: '手机号 / 姓名 / 门店名',
-                  hintStyle: ts(14, color: C.faint, h: 20),
-                ),
-              ),
-            ),
-          ],
-        ),
+      AppSearchBar(
+        controller: search,
+        hint: '手机号 / 姓名 / 门店名',
+        onChanged: (_) {
+          if (mounted) unawaited(_load());
+        },
       ),
-      Segmented(
-        labels: const ['全部', '已注销', '已冻结'],
-        index: tab,
+      AppSegmented<int>(
+        items: const [
+          SegmentItem(value: 0, label: '全部'),
+          SegmentItem(value: 1, label: '已注销'),
+          SegmentItem(value: 2, label: '已冻结'),
+        ],
+        selected: tab,
         onChanged: (i) {
           if (i == tab) return;
           setState(() => tab = i);
@@ -275,7 +248,7 @@ class _UsersSkeleton extends StatelessWidget {
       for (var i = 0; i < 4; i++)
         Padding(
           padding: const EdgeInsets.only(bottom: 10),
-          child: HCard(
+          child: AppCard(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             child: Row(
               children: [
@@ -307,8 +280,7 @@ class _UserCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (statusText, statusFg, statusBg) = _statusLook(a);
-    final (roleFg, roleBg) = _roleLook(a.role);
+    final (statusText, statusTone) = _statusLook(a);
     final gone = a.status == 'cancelled';
     final third = switch (a.status) {
       'cancelled' when a.cancelledAt != null => (
@@ -348,7 +320,7 @@ class _UserCard extends StatelessWidget {
                   const SizedBox(height: 3),
                   Row(
                     children: [
-                      Pill(a.roleLabel, roleFg, roleBg),
+                      AppStatusTag(a.roleLabel, tone: _roleTone(a.role)),
                       const SizedBox(width: 6),
                       Flexible(
                         child: Text(
@@ -367,7 +339,7 @@ class _UserCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-            Pill(statusText, statusFg, statusBg),
+            AppStatusTag(statusText, tone: statusTone),
           ],
         ),
       ),
@@ -416,9 +388,16 @@ class _UserDetailPageState extends State<UserDetailPage> {
   }
 
   Future<void> _force(UserDetail d) async {
-    final done = await showSheet<bool>(
+    final a = d.account;
+    final done = await showAppBottomSheet<bool>(
       context,
-      (_) => _ForceCancelSheet(d),
+      title: '强制注销账号',
+      subtitle: [
+        a.phoneText,
+        a.roleLabel,
+        if (a.identities.isNotEmpty) a.identities.first.storeName,
+      ].join(' · '),
+      builder: (_) => _ForceCancelSheet(d),
     );
     if (done != true || !mounted) return;
     toast(context, '账号已强制注销');
@@ -447,45 +426,39 @@ class _UserDetailPageState extends State<UserDetailPage> {
       );
     }
     final a = d.account;
-    final (statusText, statusFg, _) = _statusLook(a);
+    final (statusText, statusTone) = _statusLook(a);
+    final statusFg = toneColors(AppTokens.of(context), statusTone).fg;
     final cancelled = a.status == 'cancelled';
     return AdPage(
       title: '账号详情',
       onRefresh: _load,
+      bottomBar: cancelled
+          ? null
+          : AppBottomBar(
+              secondary: AppButton(
+                label: '冻结账号',
+                kind: AppButtonKind.secondary,
+                // TODO account_freeze: 账号冻结的后台操作本期未实现，后端预期接口 user_freeze。
+                onPressed: () => toast(context, '账号冻结暂未接通，本期只支持强制注销'),
+              ),
+              primary: AppButton(
+                label: '强制注销',
+                kind: AppButtonKind.danger,
+                // 只是打开弹层，不进入加载状态。
+                onPressed: () {
+                  unawaited(_force(d));
+                },
+              ),
+            ),
       dock: cancelled
           ? Text(
               '该账号已注销',
               textAlign: TextAlign.center,
               style: ts(13, color: C.muted, h: 50),
             )
-          : Row(
-              children: [
-                Expanded(
-                  flex: 10,
-                  child: Btn(
-                    '冻结账号',
-                    ghost: true,
-                    // TODO account_freeze: 账号冻结的后台操作本期未实现，后端预期接口 user_freeze。
-                    onTap: () => toast(context, '账号冻结暂未接通，本期只支持强制注销'),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  flex: 14,
-                  child: Btn(
-                    '强制注销',
-                    danger: true,
-                    // 只是打开弹层，不能让按钮进入“提交中”状态。
-                    onTap: () {
-                      unawaited(_force(d));
-                    },
-                  ),
-                ),
-              ],
-            ),
+          : null,
       children: [
-        DarkHero(
-          child: Row(
+        AppHeroCard.custom(child: Row(
             children: [
               _Avatar(a, 56),
               const SizedBox(width: 14),
@@ -510,15 +483,14 @@ class _UserDetailPageState extends State<UserDetailPage> {
                   ],
                 ),
               ),
-              Pill(statusText, C.gold, const Color(0x29F5D78E)),
+              AppStatusTag(statusText, tone: Tone.gold),
             ],
-          ),
-        ),
+          )),
         if (cancelled) _cancelledCard(a),
         if (a.identities.isNotEmpty)
           Section(
             '门店身份',
-            HCard(
+            AppCard(
               padding: const EdgeInsets.symmetric(vertical: 4),
               child: Column(
                 children: [
@@ -546,10 +518,9 @@ class _UserDetailPageState extends State<UserDetailPage> {
                               ],
                             ),
                           ),
-                          Pill(
+                          AppStatusTag(
                             userRoleLabel(a.identities[n].role),
-                            _roleLook(a.identities[n].role).$1,
-                            _roleLook(a.identities[n].role).$2,
+                            tone: _roleTone(a.identities[n].role),
                           ),
                         ],
                       ),
@@ -561,7 +532,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
           ),
         Section(
           '登录与安全',
-          HCard(
+          AppCard(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             child: Column(
               children: [
@@ -584,7 +555,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
         ),
         Section(
           '操作记录',
-          HCard(
+          AppCard(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             child: d.events.isEmpty
                 ? Padding(
@@ -685,7 +656,7 @@ class _DetailSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => const Column(
     children: [
-      HCard(
+      AppCard(
         child: Row(
           children: [
             AppSkeleton.circle(size: 56),
@@ -704,7 +675,7 @@ class _DetailSkeleton extends StatelessWidget {
         ),
       ),
       SizedBox(height: 16),
-      HCard(
+      AppCard(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -737,6 +708,7 @@ class _ForceCancelSheetState extends State<_ForceCancelSheet> {
   final confirmText = TextEditingController();
   int reason = 0;
   String? error;
+  bool submitting = false;
 
   @override
   void dispose() {
@@ -745,11 +717,17 @@ class _ForceCancelSheetState extends State<_ForceCancelSheet> {
   }
 
   Future<void> _submit() async {
+    setState(() => submitting = true);
     try {
       await store.userCancel(widget.detail.account, _forceReasons[reason].$1, '');
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
-      if (mounted) setState(() => error = AppError.from(e).message);
+      if (mounted) {
+        setState(() {
+          error = AppError.from(e).message;
+          submitting = false;
+        });
+      }
     }
   }
 
@@ -768,115 +746,81 @@ class _ForceCancelSheetState extends State<_ForceCancelSheet> {
   Widget build(BuildContext context) {
     final d = widget.detail;
     final a = d.account;
+    final t = AppTokens.of(context);
     final ready = confirmText.text.trim() == _forceWord;
-    final roleStore = [
-      a.roleLabel,
-      if (a.identities.isNotEmpty) a.identities.first.storeName,
-    ].join(' · ');
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('强制注销账号', style: ts(20, w: FontWeight.w600, color: C.redInk, h: 28)),
-        const SizedBox(height: 2),
-        Text('${a.phoneText} · $roleStore', style: ts(12, color: C.muted, h: 17)),
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-          decoration: BoxDecoration(
-            color: C.redSoft,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Text(
-            '立即生效。该账号所有设备被强制退出，之后无法登录，且不可恢复；手机号可重新注册为新账号，原账号的门店数据保留。',
-            style: ts(12, color: C.redInk, h: 18),
-          ),
+        const AppBanner.err(
+          '立即生效。该账号所有设备被强制退出，之后无法登录，且不可恢复；手机号可重新注册为新账号，原账号的门店数据保留。',
         ),
         const SizedBox(height: 12),
-        Text('影响范围', style: ts(13, w: FontWeight.w500, h: 18)),
+        Text('影响范围', style: t.small),
         const SizedBox(height: 6),
-        _impact(
-          Icons.check_rounded,
-          C.green,
-          '只注销这个账号，店铺数据、订单、会员全部保留',
-          C.sub,
-        ),
+        _impact(Icons.check_rounded, t.success, '只注销这个账号，店铺数据、订单、会员全部保留', t.inkSub),
         if (d.openTotal == 0)
-          _impact(Icons.check_rounded, C.green, '无进行中的订单与挂单', C.sub)
+          _impact(Icons.check_rounded, t.success, '无进行中的订单与挂单', t.inkSub)
         else
           _impact(
             Icons.warning_amber_rounded,
-            C.amberInk,
+            t.warn.fg,
             '有 ${d.openHolds} 个挂单、${d.openAppointments} 个待到店预约，注销后需要他人接手',
-            C.amberInk,
+            t.warn.fg,
           ),
         if (a.role == 'owner')
           _impact(
             Icons.warning_amber_rounded,
-            C.amberInk,
+            t.warn.fg,
             '若是老板账号，门店数据仍保留，但注销后无人能登录管理',
-            C.amberInk,
+            t.warn.fg,
           ),
         const SizedBox(height: 6),
-        Row(
-          children: [
-            for (var i = 0; i < _forceReasons.length; i++) ...[
-              if (i > 0) const SizedBox(width: 8),
-              Expanded(
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () => setState(() => reason = i),
-                  child: Container(
-                    height: 36,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: i == reason ? C.primarySoft : C.inset,
-                      borderRadius: BorderRadius.circular(18),
-                      border: i == reason
-                          ? Border.all(color: C.primary, width: 1.5)
-                          : null,
-                    ),
-                    child: Text(
-                      _forceReasons[i].$2,
-                      style: ts(
-                        13,
-                        w: i == reason ? FontWeight.w600 : FontWeight.w500,
-                        color: i == reason ? C.primaryInk : C.sub,
-                        h: 18,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+        AppChoiceGroup<int>(
+          selected: reason,
+          onChanged: (i) => setState(() => reason = i),
+          items: [
+            for (var i = 0; i < _forceReasons.length; i++)
+              ChoiceItem(value: i, label: _forceReasons[i].$2, enabled: !submitting),
           ],
         ),
         const SizedBox(height: 12),
-        Field(
+        AppTextField(
           label: '输入「$_forceWord」以确认',
           controller: confirmText,
           hint: _forceWord,
-          error: error,
+          enabled: !submitting,
+          errorText: error,
           onChanged: (_) => setState(() => error = null),
         ),
         const SizedBox(height: 6),
-        Text(
-          '操作人、时间和原因会被记录。仅超级管理员可操作。',
-          style: ts(12, color: C.muted, h: 17),
-        ),
+        Text('操作人、时间和原因会被记录。仅超级管理员可操作。', style: t.caption),
         const SizedBox(height: 12),
         Row(
           children: [
             Expanded(
-              flex: 10,
-              child: Btn('取消', ghost: true, onTap: () => Navigator.pop(context)),
+              child: AppButton(
+                label: '取消',
+                kind: AppButtonKind.secondary,
+                size: AppButtonSize.large,
+                expanded: true,
+                onPressed: submitting ? null : () => Navigator.pop(context),
+              ),
             ),
             const SizedBox(width: 10),
             Expanded(
-              flex: 14,
-              child: Btn('确认强制注销', danger: true, onTap: ready ? _submit : null),
+              flex: 2,
+              child: AppButton(
+                label: '确认强制注销',
+                kind: AppButtonKind.danger,
+                size: AppButtonSize.large,
+                expanded: true,
+                loading: submitting,
+                onPressed: ready ? _submit : null,
+              ),
             ),
           ],
         ),
+        const SizedBox(height: 16),
       ],
     );
   }

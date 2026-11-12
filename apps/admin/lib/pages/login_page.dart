@@ -17,6 +17,7 @@ class _LoginPageState extends State<LoginPage> {
   final user = TextEditingController();
   final pw = TextEditingController();
   String? error;
+  bool submitting = false;
 
   @override
   void dispose() {
@@ -26,10 +27,15 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _submit() async {
+    if (submitting) return;
     FocusScope.of(context).unfocus();
+    setState(() => submitting = true);
     final err = await store.checkCredentials(user.text, pw.text);
     if (!mounted) return;
-    setState(() => error = err);
+    setState(() {
+      error = err;
+      submitting = false;
+    });
     if (err != null) return;
     if (store.needsPasswordChange(user.text)) {
       // 首次登录或密码被重置：必须先改密
@@ -69,12 +75,7 @@ class _LoginPageState extends State<LoginPage> {
           child: ListView(
             padding: EdgeInsets.zero,
             children: [
-              DarkHero(
-                radius: const BorderRadius.vertical(
-                  bottom: Radius.circular(40),
-                ),
-                padding: EdgeInsets.fromLTRB(20, top + 56, 20, 44),
-                child: Column(
+              AppHeroCard.custom(padding: EdgeInsets.fromLTRB(20, top + 56, 20, 44), child: Column(
                   children: [
                     Container(
                       width: 64,
@@ -116,14 +117,13 @@ class _LoginPageState extends State<LoginPage> {
                       style: ts(13, color: C.faint, h: 19),
                     ),
                   ],
-                ),
-              ),
+                )),
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 28, 20, 24),
-                child: HCard(
+                child: AppCard(
                   child: Column(
                     children: [
-                      Field(
+                      AppTextField(
                         label: '用户名',
                         required: true,
                         controller: user,
@@ -131,25 +131,20 @@ class _LoginPageState extends State<LoginPage> {
                         onChanged: (_) => setState(() => error = null),
                       ),
                       const SizedBox(height: 14),
-                      Field(
+                      AppTextField(
                         label: '密码',
                         required: true,
                         controller: pw,
                         hint: '请输入密码',
                         obscure: true,
-                        error: error,
+                        errorText: error,
                         onChanged: (_) => setState(() => error = null),
                         onSubmitted: (_) => _submit(),
                       ),
                       const SizedBox(height: 14),
                       Row(
                         children: [
-                          SoftTile(
-                            Icons.lock_outline,
-                            C.greenInk,
-                            C.greenSoft,
-                            size: 32,
-                          ),
+                          AppIconTile(icon: Icons.lock_outline, tone: Tone.ok),
                           const SizedBox(width: 10),
                           Expanded(
                             child: Text(
@@ -166,31 +161,8 @@ class _LoginPageState extends State<LoginPage> {
             ],
           ),
         ),
-        bottomNavigationBar: Container(
-          padding: EdgeInsets.fromLTRB(
-            20,
-            12,
-            20,
-            MediaQuery.of(context).padding.bottom + 12,
-          ),
-          decoration: BoxDecoration(
-            color: C.card.withValues(alpha: .94),
-            border: Border(top: BorderSide(color: C.stroke)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Btn('登录', onTap: _submit),
-              const SizedBox(height: 10),
-              GestureDetector(
-                onTap: () => toast(context, '请联系超级管理员重置密码'),
-                child: Text(
-                  '忘记密码请联系超级管理员',
-                  style: ts(11, color: C.faint, h: 16),
-                ),
-              ),
-            ],
-          ),
+        bottomNavigationBar: AppBottomBar(
+          primary: AppButton(label: '登录', loading: submitting, onPressed: _submit),
         ),
       ),
     );
@@ -214,6 +186,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   final next = TextEditingController();
   final again = TextEditingController();
   String? error;
+  bool saving = false;
 
   @override
   void dispose() {
@@ -223,10 +196,15 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   }
 
   Future<void> _save() async {
+    if (saving) return;
     final a = store.me!;
+    setState(() => saving = true);
     final err = await store.changePassword(a, next.text, again.text);
     if (!mounted) return;
-    setState(() => error = err);
+    setState(() {
+      error = err;
+      saving = false;
+    });
     if (err != null) return;
     toast(context, '密码已修改');
     if (widget.restoring) {
@@ -244,12 +222,14 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     child: AdPage(
       title: '修改密码',
       back: false,
-      dock: Btn('确认修改', onTap: _save),
+      bottomBar: AppBottomBar(
+        primary: AppButton(label: '确认修改', loading: saving, onPressed: _save),
+      ),
       children: [
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SoftTile(Icons.lock_outline, C.amberInk, C.amberSoft, size: 32),
+            AppIconTile(icon: Icons.lock_outline, tone: Tone.warn),
             const SizedBox(width: 10),
             Expanded(
               child: Text(
@@ -259,10 +239,10 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
             ),
           ],
         ),
-        HCard(
+        AppCard(
           child: Column(
             children: [
-              Field(
+              AppTextField(
                 label: '新密码',
                 required: true,
                 controller: next,
@@ -271,13 +251,13 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                 onChanged: (_) => setState(() => error = null),
               ),
               const SizedBox(height: 14),
-              Field(
+              AppTextField(
                 label: '确认新密码',
                 required: true,
                 controller: again,
                 hint: '再次输入新密码',
                 obscure: true,
-                error: error,
+                errorText: error,
                 onChanged: (_) => setState(() => error = null),
                 onSubmitted: (_) => _save(),
               ),
