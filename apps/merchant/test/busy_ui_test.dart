@@ -11,6 +11,16 @@ import 'package:flutter_test/flutter_test.dart';
 /// 加载态的视觉规范（docs/frontend-guidelines.md · 加载态的通用要求）：
 /// 骨架贴顶、行数一致、按钮 loading 尺寸不变且只显示转圈、图标按钮只显示转圈。
 class _Api extends MerchantApi {
+  @override
+  Future<List<Map<String, dynamic>>> accountDevices() async => [];
+  @override
+  Future<Map<String, dynamic>> cancellationCheck() async => {
+    'holds': 0,
+    'appointments': 0,
+    'can_cancel': true,
+    'billing_note': '限时免费期间无套餐欠费',
+    'data_note': '门店经营数据保留，不会被清除',
+  };
   Duration latency = const Duration(milliseconds: 400);
   @override
   bool get hasSession => true;

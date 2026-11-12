@@ -8,6 +8,16 @@ import 'package:autocare_merchant/pages/gen/gen_routes.dart';
 
 /// 记录调用的假后端（模拟已登录）。
 class _FakeApi extends MerchantApi {
+  @override
+  Future<List<Map<String, dynamic>>> accountDevices() async => [];
+  @override
+  Future<Map<String, dynamic>> cancellationCheck() async => {
+    'holds': 0,
+    'appointments': 0,
+    'can_cancel': true,
+    'billing_note': '限时免费期间无套餐欠费',
+    'data_note': '门店经营数据保留，不会被清除',
+  };
   final List<String> calls = [];
   final List<String> purposes = [];
   Map<String, dynamic>? registered;

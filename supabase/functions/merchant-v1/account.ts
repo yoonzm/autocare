@@ -135,6 +135,7 @@ export async function handleAccount(input: Input, request: Request): Promise<Res
     const problem = await checkOtp(account.phone, input.code, 'delete_account', true);
     if (problem) return fail(problem);
     const { error } = await admin.rpc('account_cancel_self', { p_user: ownerId });
+    if (error?.message.includes('account_has_pending_work')) return fail('还有未处理的挂单或预约，请处理后再注销',409);
     if (error) return fail('注销失败，请稍后重试', 500);
     return json({ ok: true });
   }

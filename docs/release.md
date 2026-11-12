@@ -20,6 +20,7 @@
 ## 商户端后端配置
 
 - App 默认地址和客户端公开密钥指向私有化正式环境。自动打包沿用默认值，不需要额外配置。
+- 账号页设备列表、单设备撤销及注销检查需要迁移 `202611120001_account_tools.sql` 与新版 `merchant-v1`，再发布新版 App。客服电话通过服务器 `.env.support` 的 `MERCHANT_SUPPORT_PHONE` 注入；缺少号码时明确提示未配置。需先安装新版 `supabase/deploy/production.py`，使 Compose 加载 `.env.support`（创建时默认为空，不配置示例号码）。
 
 ## 会员端小程序
 

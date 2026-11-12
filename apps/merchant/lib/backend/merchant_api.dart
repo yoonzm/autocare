@@ -2,7 +2,13 @@ import 'store_context.dart';
 
 import 'dart:math';
 
-import 'package:flutter/foundation.dart' show ValueNotifier, visibleForTesting;
+import 'package:flutter/foundation.dart'
+    show
+        ValueNotifier,
+        visibleForTesting,
+        kIsWeb,
+        defaultTargetPlatform,
+        TargetPlatform;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:autocare_supabase_adapter/errors.dart';
 
@@ -47,6 +53,35 @@ class MemberPage {
 }
 
 class MerchantApi {
+  static String get devicePlatform => kIsWeb
+      ? '网页端'
+      : switch (defaultTargetPlatform) {
+          TargetPlatform.android => 'Android',
+          TargetPlatform.iOS => 'iOS',
+          TargetPlatform.macOS => 'macOS',
+          TargetPlatform.windows => 'Windows',
+          TargetPlatform.linux => 'Linux',
+          TargetPlatform.fuchsia => '未识别设备',
+        };
+
+  Future<List<Map<String, dynamic>>> accountDevices() async {
+    if (!hasSession) throw const AppError('请先登录', type: AppErrorType.auth);
+    final data = await invoke({
+      'action': 'account_devices',
+      'platform': devicePlatform,
+    });
+    return List<Map<String, dynamic>>.from(data['items'] as List);
+  }
+
+  Future<void> revokeDevice(String id) async =>
+      invoke({'action': 'account_device_revoke', 'id': id});
+  Future<Map<String, dynamic>> cancellationCheck() async {
+    if (!hasSession) throw const AppError('请先登录', type: AppErrorType.auth);
+    return invoke({'action': 'account_cancel_check'});
+  }
+
+  Future<String> supportPhone() async =>
+      '${(await invoke({'action': 'account_contact'}))['phone'] ?? ''}';
   SupabaseClient get client => Supabase.instance.client;
 
   bool get hasSession {
@@ -73,6 +108,9 @@ class MerchantApi {
 
   /// 只读、可重复的请求：失败时静默重试 1 次；写请求不自动重试。
   static const _readActions = {
+    'account_devices',
+    'account_cancel_check',
+    'account_contact',
     'regions',
     'expense_board',
     'expense_source',
@@ -406,7 +444,7 @@ class MerchantApi {
     });
   }
 
-  /// Starts the 15-day cooling-off period; the server also ends all sessions.
+  /// 立即注销并作废全部会话；服务端重新检查未处理事项。
   Future<void> deleteAccount(String code) async {
     await invoke({'action': 'delete_account', 'code': code});
   }
@@ -433,6 +471,7 @@ class MerchantApi {
   Future<void> loginPassword(String phone, String password) async {
     final data = await invoke({
       'action': 'login_password',
+      'platform': devicePlatform,
       'phone': phone,
       'password': password,
     });
@@ -451,6 +490,7 @@ class MerchantApi {
   Future<void> loginCode(String phone, String code) async {
     final data = await invoke({
       'action': 'login_code',
+      'platform': devicePlatform,
       'phone': phone,
       'code': code,
     });

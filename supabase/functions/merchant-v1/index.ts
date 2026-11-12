@@ -5,6 +5,7 @@ import { handleInventory } from './inventory.ts';
 import { handleExpenses } from './expenses.ts';
 import { handleOrderCenter } from './orders_center.ts';
 import { handleAccount } from './account.ts';
+import { handleAccountTools } from './account_tools.ts';
 import { handleAuth } from './auth.ts';
 import { handleCards } from './cards.ts';
 import { handleHomeStats, handleSettingsStats } from './home.ts';
@@ -31,6 +32,7 @@ Deno.serve(async (request: Request): Promise<Response> => {
     return fail('Invalid JSON');
   }
   if (!isInput(input)) return fail('Invalid JSON');
+  if (['account_devices','account_device_revoke','account_cancel_check','account_contact'].includes(String(input.action))) return handleAccountTools(input,request);
   if (String(input.action).startsWith('identity_')) return handleIdentity(input, request);
   // 员工身份（店长 / 前台 / 技师）按权限目录逐请求校验；老板直接放行。服务端拒绝才是安全边界。
   if (input.action !== 'regions') {

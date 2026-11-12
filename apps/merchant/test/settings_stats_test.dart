@@ -25,6 +25,7 @@ class SettingsApi extends MerchantApi {
     'contact_role': '老板',
     'phone': '02112345678',
     'account_phone': '+8613812345678',
+    'hours_line': '08:30–21:00 · 2 工位 · 统一管理',
   };
 
   @override
@@ -126,15 +127,18 @@ void main() {
     expect(find.text('2 人'), findsOneWidget);
     expect(find.text('1201 项'), findsOneWidget);
     expect(find.text('3 种'), findsOneWidget);
+    expect(find.text('08:30–21:00 · 2 工位'), findsOneWidget);
     api.counts = {'staff': 0, 'services': 0, 'cards': 0};
     CatalogDraft.changed.value++;
     await t.pumpAndSettle();
     expect(find.text('0 项'), findsOneWidget);
     expect(find.text('0 种'), findsOneWidget);
     api.counts = {'staff': 5, 'services': 0, 'cards': 0};
+    api.profile['hours_line'] = '10:00–22:00 · 3 工位 · 统一管理';
     AppointmentFlow.changed.value++;
     await t.pumpAndSettle();
     expect(find.text('5 人'), findsOneWidget);
+    expect(find.text('10:00–22:00 · 3 工位'), findsOneWidget);
     expect(find.text('8 人'), findsNothing);
     expect(t.takeException(), isNull);
   });

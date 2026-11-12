@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../kit/kit.dart';
+import '../../widgets/account_tools.dart';
 import 'svgs.dart';
 
 class DeleteAccountPage extends StatelessWidget {
@@ -114,273 +115,292 @@ class DeleteAccountPage extends StatelessWidget {
                     gap: 10,
                   ),
                 ),
-                hcol(
-                  [
-                    hbox(
-                      pad: EdgeInsets.fromLTRB(4, 0, 0, 0),
-                      child: Text(
-                        '注销前需满足',
-                        style: hts(
-                          13,
-                          dk(context, Color(0xFF52525B), Color(0xFFA8A8B3)),
-                          w: FontWeight.w500,
-                          lh: 18,
+                AccountCancellationChecks(
+                  builder: (context, check) => hcol(
+                    [
+                      hbox(
+                        pad: EdgeInsets.fromLTRB(4, 0, 0, 0),
+                        child: Text(
+                          '注销前需满足',
+                          style: hts(
+                            13,
+                            dk(context, Color(0xFF52525B), Color(0xFFA8A8B3)),
+                            w: FontWeight.w500,
+                            lh: 18,
+                          ),
                         ),
                       ),
-                    ),
-                    hbox(
-                      bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                      radius: BorderRadius.circular(24),
-                      shadow: dk(
-                        context,
-                        [
-                          BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 0),
-                            blurRadius: 1,
-                            spreadRadius: 0,
-                          ),
-                          BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 1),
-                            blurRadius: 2,
-                            spreadRadius: 0,
-                          ),
-                          BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.04),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
-                            spreadRadius: 0,
-                          ),
-                        ],
-                        [
-                          BoxShadow(
-                            color: Color(0xFF26262B),
-                            offset: Offset(0, 0),
-                            blurRadius: 0,
-                            spreadRadius: 1,
-                          ),
-                        ],
-                      ),
-                      pad: EdgeInsets.fromLTRB(0, 4, 0, 4),
-                      child: hcol(
-                        [
-                          hbox(
-                            minH: 58,
-                            pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                            child: hrow(
-                              [
-                                hbox(
-                                  w: 20,
-                                  h: 20,
-                                  bg: Color.fromRGBO(255, 56, 60, 0.133),
-                                  radius: BorderRadius.circular(10),
-                                  child: hrow(
-                                    [hsvg(Svgs.s399, w: 12, h: 12)],
-                                    main: MainAxisAlignment.center,
-                                    cross: CrossAxisAlignment.center,
-                                    gap: 0,
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 1,
-                                  child: hcol(
-                                    [
-                                      Text(
-                                        '无进行中的订单与挂单',
-                                        style: hts(
-                                          14,
-                                          dk(
-                                            context,
-                                            Color(0xFF18181B),
-                                            Color(0xFFFAFAFA),
-                                          ),
-                                          lh: 20,
+                      hbox(
+                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                        radius: BorderRadius.circular(24),
+                        shadow: dk(
+                          context,
+                          [
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
+                              spreadRadius: 0,
+                            ),
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 1),
+                              blurRadius: 2,
+                              spreadRadius: 0,
+                            ),
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
+                              spreadRadius: 0,
+                            ),
+                          ],
+                          [
+                            BoxShadow(
+                              color: Color(0xFF26262B),
+                              offset: Offset(0, 0),
+                              blurRadius: 0,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                        pad: EdgeInsets.fromLTRB(0, 4, 0, 4),
+                        child: hcol(
+                          [
+                            hbox(
+                              minH: 58,
+                              pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                              child: hrow(
+                                [
+                                  hbox(
+                                    w: 20,
+                                    h: 20,
+                                    bg: check['can_cancel'] == true
+                                        ? Color.fromRGBO(23, 201, 100, 0.133)
+                                        : Color.fromRGBO(255, 56, 60, 0.133),
+                                    radius: BorderRadius.circular(10),
+                                    child: hrow(
+                                      [
+                                        hsvg(
+                                          check['can_cancel'] == true
+                                              ? Svgs.s20
+                                              : Svgs.s399,
+                                          w: 12,
+                                          h: 12,
                                         ),
-                                      ),
-                                      Text(
-                                        '当前 4 笔挂单未处理',
-                                        style: hts(
-                                          12,
-                                          dk(
-                                            context,
-                                            Color(0xFFA43433),
-                                            Color(0xFFFF7B7E),
-                                          ),
-                                          lh: 16,
-                                        ),
-                                      ),
-                                    ],
-                                    main: MainAxisAlignment.start,
-                                    cross: CrossAxisAlignment.stretch,
-                                    gap: 0,
-                                  ),
-                                ),
-                                hTap(
-                                  context,
-                                  Text(
-                                    '去处理',
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF1E63AE),
-                                        Color(0xFF6AB4FA),
-                                      ),
-                                      w: FontWeight.w500,
-                                      lh: 18,
+                                      ],
+                                      main: MainAxisAlignment.center,
+                                      cross: CrossAxisAlignment.center,
+                                      gap: 0,
                                     ),
                                   ),
-                                  to: 'HoldList',
-                                ),
-                              ],
-                              main: MainAxisAlignment.start,
-                              cross: CrossAxisAlignment.center,
-                              gap: 12,
-                            ),
-                          ),
-                          hbox(
-                            h: 1,
-                            bg: dk(
-                              context,
-                              Color(0xFFEFEFF1),
-                              Color(0xFF2A2A2E),
-                            ),
-                            margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
-                          ),
-                          hbox(
-                            minH: 58,
-                            pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                            child: hrow(
-                              [
-                                hbox(
-                                  w: 20,
-                                  h: 20,
-                                  bg: Color.fromRGBO(23, 201, 100, 0.133),
-                                  radius: BorderRadius.circular(10),
-                                  child: hrow(
-                                    [hsvg(Svgs.s20, w: 12, h: 12)],
-                                    main: MainAxisAlignment.center,
-                                    cross: CrossAxisAlignment.center,
-                                    gap: 0,
+                                  Expanded(
+                                    flex: 1,
+                                    child: hcol(
+                                      [
+                                        Text(
+                                          '无进行中的订单、挂单与预约',
+                                          style: hts(
+                                            14,
+                                            dk(
+                                              context,
+                                              Color(0xFF18181B),
+                                              Color(0xFFFAFAFA),
+                                            ),
+                                            lh: 20,
+                                          ),
+                                        ),
+                                        Text(
+                                          cancellationWork(check),
+                                          style: hts(
+                                            12,
+                                            dk(
+                                              context,
+                                              (check['can_cancel'] == true
+                                                  ? Color(0xFF2B7745)
+                                                  : Color(0xFFA43433)),
+                                              (check['can_cancel'] == true
+                                                  ? Color(0xFF5FD48C)
+                                                  : Color(0xFFFF7B7E)),
+                                            ),
+                                            lh: 16,
+                                          ),
+                                        ),
+                                      ],
+                                      main: MainAxisAlignment.start,
+                                      cross: CrossAxisAlignment.stretch,
+                                      gap: 0,
+                                    ),
                                   ),
-                                ),
-                                Expanded(
-                                  flex: 1,
-                                  child: hcol(
-                                    [
+                                  if (check['can_cancel'] != true)
+                                    hTap(
+                                      context,
                                       Text(
-                                        '无未结清的欠费',
+                                        '去处理',
                                         style: hts(
-                                          14,
+                                          13,
                                           dk(
                                             context,
-                                            Color(0xFF18181B),
-                                            Color(0xFFFAFAFA),
+                                            Color(0xFF1E63AE),
+                                            Color(0xFF6AB4FA),
                                           ),
-                                          lh: 20,
+                                          w: FontWeight.w500,
+                                          lh: 18,
                                         ),
                                       ),
-                                      Text(
-                                        '账号状态正常',
-                                        style: hts(
-                                          12,
-                                          dk(
-                                            context,
-                                            Color(0xFF71717A),
-                                            Color(0xFF9A9AA3),
-                                          ),
-                                          lh: 16,
-                                        ),
-                                      ),
-                                    ],
-                                    main: MainAxisAlignment.start,
-                                    cross: CrossAxisAlignment.stretch,
-                                    gap: 0,
-                                  ),
-                                ),
-                              ],
-                              main: MainAxisAlignment.start,
-                              cross: CrossAxisAlignment.center,
-                              gap: 12,
+                                      to: check['holds'] > 0
+                                          ? 'HoldList'
+                                          : 'Appointments',
+                                    ),
+                                ],
+                                main: MainAxisAlignment.start,
+                                cross: CrossAxisAlignment.center,
+                                gap: 12,
+                              ),
                             ),
-                          ),
-                          hbox(
-                            h: 1,
-                            bg: dk(
-                              context,
-                              Color(0xFFEFEFF1),
-                              Color(0xFF2A2A2E),
+                            hbox(
+                              h: 1,
+                              bg: dk(
+                                context,
+                                Color(0xFFEFEFF1),
+                                Color(0xFF2A2A2E),
+                              ),
+                              margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
                             ),
-                            margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
-                          ),
-                          hbox(
-                            minH: 58,
-                            pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                            child: hrow(
-                              [
-                                hbox(
-                                  w: 20,
-                                  h: 20,
-                                  bg: Color.fromRGBO(23, 201, 100, 0.133),
-                                  radius: BorderRadius.circular(10),
-                                  child: hrow(
-                                    [hsvg(Svgs.s20, w: 12, h: 12)],
-                                    main: MainAxisAlignment.center,
-                                    cross: CrossAxisAlignment.center,
-                                    gap: 0,
+                            hbox(
+                              minH: 58,
+                              pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                              child: hrow(
+                                [
+                                  hbox(
+                                    w: 20,
+                                    h: 20,
+                                    bg: Color.fromRGBO(23, 201, 100, 0.133),
+                                    radius: BorderRadius.circular(10),
+                                    child: hrow(
+                                      [hsvg(Svgs.s20, w: 12, h: 12)],
+                                      main: MainAxisAlignment.center,
+                                      cross: CrossAxisAlignment.center,
+                                      gap: 0,
+                                    ),
                                   ),
-                                ),
-                                Expanded(
-                                  flex: 1,
-                                  child: hcol(
-                                    [
-                                      Text(
-                                        '已导出需要保留的经营数据',
-                                        style: hts(
-                                          14,
-                                          dk(
-                                            context,
-                                            Color(0xFF18181B),
-                                            Color(0xFFFAFAFA),
+                                  Expanded(
+                                    flex: 1,
+                                    child: hcol(
+                                      [
+                                        Text(
+                                          '无未结清的欠费',
+                                          style: hts(
+                                            14,
+                                            dk(
+                                              context,
+                                              Color(0xFF18181B),
+                                              Color(0xFFFAFAFA),
+                                            ),
+                                            lh: 20,
                                           ),
-                                          lh: 20,
                                         ),
-                                      ),
-                                      Text(
-                                        '建议先到统计页导出',
-                                        style: hts(
-                                          12,
-                                          dk(
-                                            context,
-                                            Color(0xFF71717A),
-                                            Color(0xFF9A9AA3),
+                                        Text(
+                                          '${check['billing_note']}',
+                                          style: hts(
+                                            12,
+                                            dk(
+                                              context,
+                                              Color(0xFF71717A),
+                                              Color(0xFF9A9AA3),
+                                            ),
+                                            lh: 16,
                                           ),
-                                          lh: 16,
                                         ),
-                                      ),
-                                    ],
-                                    main: MainAxisAlignment.start,
-                                    cross: CrossAxisAlignment.stretch,
-                                    gap: 0,
+                                      ],
+                                      main: MainAxisAlignment.start,
+                                      cross: CrossAxisAlignment.stretch,
+                                      gap: 0,
+                                    ),
                                   ),
-                                ),
-                              ],
-                              main: MainAxisAlignment.start,
-                              cross: CrossAxisAlignment.center,
-                              gap: 12,
+                                ],
+                                main: MainAxisAlignment.start,
+                                cross: CrossAxisAlignment.center,
+                                gap: 12,
+                              ),
                             ),
-                          ),
-                        ],
-                        main: MainAxisAlignment.start,
-                        cross: CrossAxisAlignment.stretch,
-                        gap: 0,
+                            hbox(
+                              h: 1,
+                              bg: dk(
+                                context,
+                                Color(0xFFEFEFF1),
+                                Color(0xFF2A2A2E),
+                              ),
+                              margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
+                            ),
+                            hbox(
+                              minH: 58,
+                              pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                              child: hrow(
+                                [
+                                  hbox(
+                                    w: 20,
+                                    h: 20,
+                                    bg: Color.fromRGBO(23, 201, 100, 0.133),
+                                    radius: BorderRadius.circular(10),
+                                    child: hrow(
+                                      [hsvg(Svgs.s20, w: 12, h: 12)],
+                                      main: MainAxisAlignment.center,
+                                      cross: CrossAxisAlignment.center,
+                                      gap: 0,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 1,
+                                    child: hcol(
+                                      [
+                                        Text(
+                                          '经营数据保留在服务器',
+                                          style: hts(
+                                            14,
+                                            dk(
+                                              context,
+                                              Color(0xFF18181B),
+                                              Color(0xFFFAFAFA),
+                                            ),
+                                            lh: 20,
+                                          ),
+                                        ),
+                                        Text(
+                                          '${check['data_note']}',
+                                          style: hts(
+                                            12,
+                                            dk(
+                                              context,
+                                              Color(0xFF71717A),
+                                              Color(0xFF9A9AA3),
+                                            ),
+                                            lh: 16,
+                                          ),
+                                        ),
+                                      ],
+                                      main: MainAxisAlignment.start,
+                                      cross: CrossAxisAlignment.stretch,
+                                      gap: 0,
+                                    ),
+                                  ),
+                                ],
+                                main: MainAxisAlignment.start,
+                                cross: CrossAxisAlignment.center,
+                                gap: 12,
+                              ),
+                            ),
+                          ],
+                          main: MainAxisAlignment.start,
+                          cross: CrossAxisAlignment.stretch,
+                          gap: 0,
+                        ),
                       ),
-                    ),
-                  ],
-                  main: MainAxisAlignment.start,
-                  cross: CrossAxisAlignment.stretch,
-                  gap: 8,
+                    ],
+                    main: MainAxisAlignment.start,
+                    cross: CrossAxisAlignment.stretch,
+                    gap: 8,
+                  ),
                 ),
                 hcol(
                   [

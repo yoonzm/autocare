@@ -769,7 +769,7 @@ Future<void> _changePhone(BuildContext context) async {
 
 /// 申请注销：设计稿此页没有“获取验证码”按钮，所以验证码为空时点“申请注销”
 /// 会先把验证码发到当前手机号，填好后再点一次才真正提交。
-/// TODO: 注销前置条件（挂单 / 欠费）目前是设计稿示例，没有真实校验。
+/// 前置条件由 account_cancel_check 展示，account_cancel_self 在提交时重新检查。
 Future<void> _deleteAccount(BuildContext context) async {
   final messenger = ScaffoldMessenger.of(context);
   var ok = false;

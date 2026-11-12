@@ -100,6 +100,10 @@ def smoke(environment):
         ({'action': 'send_code', 'phone': 'invalid', 'purpose': 'register'}, 400),
         ({'action': 'register', 'phone': 'invalid'}, 400),
         ({'action': 'list', 'kind': 'services'}, 401),
+        ({'action': 'account_devices'}, 401),
+        ({'action': 'account_device_revoke'}, 401),
+        ({'action': 'account_cancel_check'}, 401),
+        ({'action': 'account_contact'}, 401),
     ]:
         status, result = request(environment, body)
         if status != expected or 'error' not in result:
@@ -199,12 +203,17 @@ CREATE TABLE IF NOT EXISTS supabase_migrations.schema_migrations(version text PR
     if not wechat_env.exists():
         wechat_env.write_text('WECHAT_MINI_APPID=\nWECHAT_MINI_SECRET=\n')
     wechat_env.chmod(0o600)
+    support_env = PROJECT / '.env.support'
+    if not support_env.exists():
+        support_env.write_text('MERCHANT_SUPPORT_PHONE=\n')
+    support_env.chmod(0o600)
     override.write_text('''services:
   functions:
     env_file:
       - .env.sms
       - .env.recognition
       - .env.wechat
+      - .env.support
 ''')
     files = environment.get('COMPOSE_FILE', 'docker-compose.yml').split(':')
     if override.name not in files:

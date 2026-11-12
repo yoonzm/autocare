@@ -2585,6 +2585,134 @@ def bind_feedback(src):
     return src
 
 
+def hide_mvp_account_entries(src, page):
+    """Hide deferred MVP account entries while retaining pages and routes."""
+    entries = {
+        'Security': [('hcol', '安全设置'), ('hTap', '微信绑定')],
+        'AboutApp': [('hTap', '检查更新')],
+    }
+    if page not in entries:
+        return src
+    for widget, label in entries[page]:
+        marker = "'" + label + "'"
+        if marker not in src:
+            continue
+        pos = src.index(marker)
+        candidates = list(re.finditer(r'\b' + widget + r'\(', src[:pos]))
+        for match in reversed(candidates):
+            end = _balanced_end(src, match.end() - 1)
+            if end < pos:
+                continue
+            start = match.start()
+            # Remove the preceding divider together with the WeChat entry.
+            if widget == 'hTap':
+                previous = list(re.finditer(r'\bhbox\(', src[:start]))
+                for box in reversed(previous):
+                    box_end = _balanced_end(src, box.end() - 1)
+                    if src[box_end + 1:start].strip() == ',' and re.match(r'hbox\(\s*h: 1,', src[box.start():]):
+                        start = box.start()
+                        break
+            if src[end + 1:end + 2] == ',':
+                end += 1
+            # The update entry is first in its card; remove its following divider.
+            if page == 'AboutApp':
+                divider = re.match(r'\s*hbox\(\s*h: 1,', src[end + 1:])
+                if divider:
+                    opening = src.index('(', end + 1 + divider.start())
+                    end = _balanced_end(src, opening)
+                    if src[end + 1:end + 2] == ',':
+                        end += 1
+            line = src.rfind('\n', 0, start) + 1
+            if not src[line:start].strip():
+                start = line
+            while end + 1 < len(src) and src[end + 1] in ' \t':
+                end += 1
+            if src[end + 1:end + 2] == '\n':
+                end += 1
+            src = src[:start] + src[end + 1:]
+            break
+        else:
+            raise ValueError('Cannot locate MVP entry: ' + label)
+    return src
+
+
+def bind_account_tools(src, page):
+    if page not in ('Security', 'DeleteAccount', 'ClearCache', 'AboutApp'):
+        return src
+    if "../../widgets/account_tools.dart" not in src:
+        src = src.replace("import '../../kit/kit.dart';", "import '../../kit/kit.dart';\nimport '../../widgets/account_tools.dart';\nimport '../../backend/app_cache.dart';")
+
+    def enclosing(code, widget, label, other=None):
+        pos = code.index(label)
+        last = code.index(other) if other else pos
+        for m in reversed(list(re.finditer(r'\b' + widget + r'\(', code[:pos]))):
+            end = _balanced_end(code, m.end() - 1)
+            if end >= last:
+                return m.start(), end + 1
+        raise ValueError('Account widget missing: ' + label)
+
+    def text(code, label, expression):
+        return code.replace("'" + label + "',", expression + ',', 1)
+
+    if page == 'Security' and "'iPhone 15 · 本机'" in src:
+        a,b = enclosing(src, 'hcol', "'iPhone 15 · 本机'", "'Chrome · 网页后台'")
+        group = src[a:b]
+        row_start = group.index('hbox(')
+        row_end = _balanced_end(group, row_start + 4) + 1
+        row = group[row_start:row_end]
+        row = text(row, 'iPhone 15 · 本机', 'accountDeviceName(device)')
+        row = text(row, '上海 · 刚刚活跃', 'accountDeviceTime(device)')
+        x,y = enclosing(row, 'Text', "'当前设备'")
+        row = row[:x] + 'deviceAction' + row[y:]
+        src = src[:a] + 'AccountDevices(row: (context, device, deviceAction) => ' + row + ')' + src[b:]
+
+    if page == 'DeleteAccount' and "'当前 4 笔挂单未处理'" in src:
+        a,b = enclosing(src,'hcol',"'注销前需满足'","'建议先到统计页导出'")
+        group = src[a:b]
+        group = text(group,'当前 4 笔挂单未处理','cancellationWork(check)')
+        group = text(group,'无进行中的订单与挂单',"'无进行中的订单、挂单与预约'")
+        group = text(group,'账号状态正常',"'${check['billing_note']}'")
+        group = text(group,'已导出需要保留的经营数据',"'经营数据保留在服务器'")
+        group = text(group,'建议先到统计页导出',"'${check['data_note']}'")
+        group = group.replace('hsvg(Svgs.s399,',"hsvg(check['can_cancel'] == true ? Svgs.s20 : Svgs.s399,")
+        group = group.replace('bg: Color.fromRGBO(255, 56, 60, 0.133)',"bg: check['can_cancel'] == true ? Color.fromRGBO(23, 201, 100, 0.133) : Color.fromRGBO(255, 56, 60, 0.133)")
+        group = group.replace('Color(0xFFA43433)', "(check['can_cancel'] == true ? Color(0xFF2B7745) : Color(0xFFA43433))")
+        group = group.replace('Color(0xFFFF7B7E)', "(check['can_cancel'] == true ? Color(0xFF5FD48C) : Color(0xFFFF7B7E))")
+        group = group.replace("to: 'HoldList'", "to: check['holds'] > 0 ? 'HoldList' : 'Appointments'")
+        x,y = enclosing(group,'hTap',"'去处理'")
+        group = group[:x] + "if (check['can_cancel'] != true) " + group[x:]
+        src = src[:a] + 'AccountCancellationChecks(builder: (context, check) => ' + group + ')' + src[b:]
+
+    if page == 'ClearCache' and 'AccountCachePanel(' not in src:
+        # Keep the designed sheet and button; bind sizes and replace navigation with actual clearing.
+        x,y = enclosing(src,'hTap',"'清除 128 MB'")
+        call = src[x:y]
+        args = _dart_args(call[call.index('(')+1:-1])
+        src = src[:x] + 'accountCacheClear(context, ' + args[1] + ')' + src[y:]
+        src = src.replace("to: 'AboutApp',",'back: true,')
+        for label,expr in [('96 MB','CacheUsage.format(cache.images)'),('24 MB','CacheUsage.format(cache.offline)'),('8 MB','CacheUsage.format(cache.temporary)'),('清除 128 MB',"'清除 ${CacheUsage.format(cache.total)}'")]:
+            src = text(src,label,expr)
+        a = src.index('hbox(',src.index('return '))
+        b = _balanced_end(src,a+4)+1
+        src = src[:a] + 'AccountCachePanel(builder: (context, cache) => ' + src[a:b] + ')' + src[b:]
+
+    if page == 'AboutApp':
+        for label, replacement in [('128 MB','AccountCacheText'),('版本 1.0.0 (100)','AccountVersionText')]:
+            if "'"+label+"'" not in src: continue
+            a,b = enclosing(src,'Text',"'"+label+"'")
+            call = src[a:b]
+            style = re.search(r'style:\s*(hts\()',call)
+            x = style.start(1); y = _balanced_end(call,x+3)+1
+            extra = ', detailed: true' if replacement == 'AccountVersionText' else ''
+            src = src[:a] + replacement + '(style: ' + call[x:y] + extra + ')' + src[b:]
+        if 'accountSupportCall(' not in src:
+            a,b = enclosing(src,'hbox',"'客服热线'","'拨打'")
+            src = src[:a] + 'accountSupportCall(context, ' + src[a:b] + ')' + src[b:]
+    if page != 'ClearCache':
+        src = src.replace("import '../../backend/app_cache.dart';\n",'')
+    return src
+
+
 def _gen_one(gen, name, src, out_dir, done, sheets):
     gen.sel_counter = 0
     try:
@@ -2597,6 +2725,8 @@ def _gen_one(gen, name, src, out_dir, done, sheets):
         open(os.path.join(out_dir, 'appointment_schedule_body.dart'), 'w', encoding='utf-8').write(
             gen.emit_body_after_tabs(root, name))
     code = bind_subscription_pages(bind_profile_page(bind_store_pages(code, name), name), name)
+    code = hide_mvp_account_entries(code, name)
+    code = bind_account_tools(code, name)
     if gen.is_sheet:
         open(os.path.join(out_dir, snake(name) + '_sheet.dart'), 'w', encoding='utf-8').write(code)
         sheets.append((name, gen.sheet_parent))
@@ -2793,6 +2923,22 @@ def bind_subscription_pages(src, page):
     return src
 
 def main():
+    if len(sys.argv) == 3 and sys.argv[1] == '--bind-account-tools':
+        for page in ['Security', 'DeleteAccount', 'ClearCache', 'AboutApp']:
+            path = os.path.join(sys.argv[2], snake(page) + ('_sheet.dart' if page == 'ClearCache' else '_page.dart'))
+            with open(path, encoding='utf-8') as f:
+                src = f.read()
+            with open(path, 'w', encoding='utf-8') as f:
+                f.write(bind_account_tools(hide_mvp_account_entries(src,page),page))
+        return
+    if len(sys.argv) == 3 and sys.argv[1] == '--hide-mvp-account':
+        for page in ['Security', 'AboutApp']:
+            path = os.path.join(sys.argv[2], snake(page) + '_page.dart')
+            with open(path, encoding='utf-8') as f:
+                src = f.read()
+            with open(path, 'w', encoding='utf-8') as f:
+                f.write(hide_mvp_account_entries(src, page))
+        return
     if len(sys.argv)>1 and sys.argv[1]=='--bind-inventory':
         import runpy
         runpy.run_path(os.path.join(os.path.dirname(__file__), 'bind_inventory_management.py'), run_name='__main__')

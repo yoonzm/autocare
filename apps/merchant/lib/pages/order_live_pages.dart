@@ -988,34 +988,29 @@ class _DetailBody extends StatelessWidget {
             ],
           ],
         ),
-        // 底部操作栏：次要在左（补打小票），危险在右（退款）
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          child: Container(
-            padding: EdgeInsets.fromLTRB(20, 12, 20, bottomInset(context, 30)),
-            decoration: BoxDecoration(
-              color: dk(
-                context,
-                const Color.fromRGBO(255, 255, 255, 0.94),
-                const Color.fromRGBO(9, 9, 11, 0.92),
+        // 一期暂不提供小票打印，仅有退款权限时显示操作栏。
+        if (canRefund)
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Container(
+              padding: EdgeInsets.fromLTRB(
+                20,
+                12,
+                20,
+                bottomInset(context, 30),
               ),
-              border: Border(top: BorderSide(color: C.stroke)),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: _BarButton(
-                    '补打小票',
-                    bg: C.chip,
-                    fg: C.ink,
-                    // TODO: 小票打印机尚未接入，预期接口：打印机桥接（蓝牙 / 云打印）后传入订单号。
-                    onTap: () => AppToast.show(context, '打印机尚未接入，暂不能补打小票'),
-                  ),
+              decoration: BoxDecoration(
+                color: dk(
+                  context,
+                  const Color.fromRGBO(255, 255, 255, 0.94),
+                  const Color.fromRGBO(9, 9, 11, 0.92),
                 ),
-                if (canRefund) ...[
-                  const SizedBox(width: 10),
+                border: Border(top: BorderSide(color: C.stroke)),
+              ),
+              child: Row(
+                children: [
                   Expanded(
                     child: _BarButton(
                       '退款',
@@ -1025,10 +1020,9 @@ class _DetailBody extends StatelessWidget {
                     ),
                   ),
                 ],
-              ],
+              ),
             ),
           ),
-        ),
       ],
     );
   }

@@ -12,6 +12,7 @@ import '../mock/theme_state.dart';
 import '../routes.dart';
 import '../widgets/app_icon.dart';
 import '../widgets/common.dart';
+import '../widgets/account_tools.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -28,20 +29,24 @@ class _SettingsPageState extends State<SettingsPage> {
   void initState() {
     super.initState();
     CatalogDraft.changed.addListener(_reloadCounts);
-    AppointmentFlow.changed.addListener(_reloadCounts);
+    AppointmentFlow.changed.addListener(_reloadBusiness);
     ProfileFlow.changed.addListener(_reloadProfile);
   }
 
   @override
   void dispose() {
     CatalogDraft.changed.removeListener(_reloadCounts);
-    AppointmentFlow.changed.removeListener(_reloadCounts);
+    AppointmentFlow.changed.removeListener(_reloadBusiness);
     ProfileFlow.changed.removeListener(_reloadProfile);
     super.dispose();
   }
 
   void _reloadCounts() => _countsKey.currentState?.reload();
   void _reloadProfile() => _profileKey.currentState?.reload();
+  void _reloadBusiness() {
+    _reloadCounts();
+    _reloadProfile();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,16 +101,22 @@ class _SettingsPageState extends State<SettingsPage> {
                   const SizedBox(height: 20),
                   _group(context, '营业设置', [
                     _Item(
-                      'printer',
-                      '小票打印机',
-                      '已连接',
-                      dot: true,
-                      route: 'Printer',
-                    ),
-                    _Item(
                       'clock',
                       '营业时间与工位',
-                      '09:00–20:00 · 6 工位',
+                      '',
+                      detail: ListenableBuilder(
+                        listenable: storeProfile,
+                        builder: (_, _) => storeProfile.live
+                            ? Text(
+                                storeProfile.hoursLine.replaceFirst(
+                                  ' · 统一管理',
+                                  '',
+                                ),
+                                textAlign: TextAlign.right,
+                                style: ts(13, color: C.muted, h: 18),
+                              )
+                            : const SizedBox(width: 120, height: 16),
+                      ),
                       bg: const Color(0xFFE1F0FE),
                       fg: const Color(0xFF1E63AE),
                       route: 'BusinessHours',
@@ -120,8 +131,24 @@ class _SettingsPageState extends State<SettingsPage> {
                       themeModeLabel(appThemeMode.value),
                       route: 'ThemeSheet',
                     ),
-                    _Item('trash', '清除缓存', '128 MB', route: 'ClearCache'),
-                    _Item('info', '关于汽美管家', 'v1.0.0', route: 'AboutApp'),
+                    _Item(
+                      'trash',
+                      '清除缓存',
+                      '',
+                      route: 'ClearCache',
+                      detail: AccountCacheText(
+                        style: ts(13, color: C.muted, h: 18),
+                      ),
+                    ),
+                    _Item(
+                      'info',
+                      '关于汽美管家',
+                      '',
+                      route: 'AboutApp',
+                      detail: AccountVersionText(
+                        style: ts(13, color: C.muted, h: 18),
+                      ),
+                    ),
                   ]),
                   const SizedBox(height: 24),
                   GestureDetector(
@@ -490,31 +517,19 @@ class _SettingsPageState extends State<SettingsPage> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                if (items[i].dot) ...[
-                                  Container(
-                                    width: 6,
-                                    height: 6,
-                                    decoration: const BoxDecoration(
-                                      color: C.green,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 5),
-                                ],
                                 Flexible(
                                   child: items[i].skeleton
                                       ? const AppSkeleton(width: 38, height: 16)
-                                      : Text(
-                                          items[i].sub,
-                                          textAlign: TextAlign.right,
-                                          style: ts(
-                                            13,
-                                            color: items[i].dot
-                                                ? C.greenInk
-                                                : C.muted,
-                                            h: 18,
-                                          ),
-                                        ),
+                                      : items[i].detail ??
+                                            Text(
+                                              items[i].sub,
+                                              textAlign: TextAlign.right,
+                                              style: ts(
+                                                13,
+                                                color: C.muted,
+                                                h: 18,
+                                              ),
+                                            ),
                                 ),
                               ],
                             ),
@@ -540,20 +555,20 @@ class _SettingsPageState extends State<SettingsPage> {
 }
 
 class _Item {
+  final Widget? detail;
   final String icon;
   final String title, sub;
   final String? route;
   final Color bg, fg;
-  final bool dot;
   final bool skeleton;
   _Item(
     this.icon,
     this.title,
     this.sub, {
     this.route,
+    this.detail,
     this.bg = const Color(0xFFEEEEF0),
     this.fg = const Color(0xFF3F3F46),
-    this.dot = false,
     this.skeleton = false,
   });
 }

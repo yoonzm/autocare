@@ -11,6 +11,8 @@ import 'toast.dart';
 /// 加载中（300ms 后才出骨架，出现后至少 500ms）→ 内容（150ms 淡入）/ 空 / 错误（带重试）。
 /// 已有数据时的刷新：旧内容保留并变淡 + 顶部细进度条；刷新失败只弹带“重试”的 Toast。
 class AsyncView<T> extends StatefulWidget {
+  /// Inline sections inside a scrolling page take the height of their content.
+  final bool shrinkWrap;
   final bool inlineError;
   final Future<T> Function() load;
   final bool Function(T data) isEmpty;
@@ -31,6 +33,7 @@ class AsyncView<T> extends StatefulWidget {
   final VoidCallback? onNext;
   const AsyncView({
     super.key,
+    this.shrinkWrap = false,
     this.inlineError = false,
     required this.load,
     required this.isEmpty,
@@ -151,12 +154,18 @@ class AsyncViewState<T> extends State<AsyncView<T>> {
         final content = widget.builder(context, data);
         body = Stack(
           children: [
-            Positioned.fill(
-              child: Opacity(
+            if (widget.shrinkWrap)
+              Opacity(
                 opacity: _loading && _showIndicator ? 0.6 : 1,
                 child: content,
+              )
+            else
+              Positioned.fill(
+                child: Opacity(
+                  opacity: _loading && _showIndicator ? 0.6 : 1,
+                  child: content,
+                ),
               ),
-            ),
             if (_loading && _showIndicator)
               const Positioned(
                 left: 0,
@@ -189,13 +198,16 @@ class AsyncViewState<T> extends State<AsyncView<T>> {
                     child: widget.skeleton,
                   )
                 : widget.skeleton
-          : widget.waiting ?? const SizedBox.expand();
+          : widget.waiting ??
+                (widget.shrinkWrap
+                    ? const SizedBox.shrink()
+                    : const SizedBox.expand());
     }
     return AnimatedSwitcher(
       duration: kFadeIn,
       // 默认的布局是居中；骨架屏 / 内容要贴着顶部并占满区域，否则会出现一大块空白
       layoutBuilder: (current, previous) => Stack(
-        fit: StackFit.expand,
+        fit: widget.shrinkWrap ? StackFit.loose : StackFit.expand,
         alignment: Alignment.topCenter,
         children: [...previous, ?current],
       ),

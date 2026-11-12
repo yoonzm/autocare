@@ -1,6 +1,6 @@
 import { registrationCity } from './regions.ts';
 import { createClient } from 'npm:@supabase/supabase-js@2.118.0';
-import { admin, anonKey, fail, failCode, json, merchantSession, nameOf, phoneOf, url, userFor } from './shared.ts';
+import { admin, anonKey, fail, failCode, json, merchantSession, nameOf, phoneOf, sessionId, url, userFor } from './shared.ts';
 import { BAY_COUNTS } from './defaults.ts';
 import type { Input } from './types.ts';
 import { checkOtp, otpHash, otpStore, randomOtp } from './otp.ts';
@@ -163,6 +163,7 @@ export async function handleAuth(input: Input, request: Request): Promise<Respon
     if (error || !data.session) return fail('手机号或密码错误', 401);
     const state=await merchantSession(data.session.user.id,data.session.access_token,false);
     if(state instanceof Response){await admin.auth.admin.signOut(data.session.access_token,'local');return state;}
+    await recordDevice(data.session.user.id,data.session.access_token,input.platform);
     return json({ access_token: data.session.access_token, refresh_token: data.session.refresh_token, staff: await hasStaffIdentity(phone) });
   }
   if (input.action === 'login_code') {
@@ -191,7 +192,15 @@ export async function handleAuth(input: Input, request: Request): Promise<Respon
     // 老板需有可用门店；纯员工账号此时还没选身份，交给登录后的身份选择
     const state=await merchantSession(data.session.user.id,data.session.access_token,false);
     if(state instanceof Response&&!staff){await admin.auth.admin.signOut(data.session.access_token,'local');return state;}
+    await recordDevice(data.session.user.id,data.session.access_token,input.platform);
     return json({ access_token: data.session.access_token, refresh_token: data.session.refresh_token, staff: !!staff || await hasStaffIdentity(phone) });
   }
   return fail('不支持的操作');
+}
+
+async function recordDevice(user: string, token: string, platform: unknown) {
+  const { error } = await admin.rpc('account_devices', { p_user:user,p_session:sessionId(token),
+    p_platform:typeof platform === 'string' ? platform : '' });
+  // Device description is optional metadata; do not invalidate a successful login if it cannot be stored.
+  if (error) console.error('account device metadata unavailable');
 }
