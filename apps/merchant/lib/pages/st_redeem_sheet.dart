@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import '../backend/merchant_api.dart';
 import '../kit/async_kit.dart';
 import '../kit/kit.dart';
-import 'st_live.dart';
 import 'st_member_template.dart' show StMemberFlow;
 
 /// 次卡核销：选一张次卡里的一个项目，验证码发送到会员登记的手机号，会员本人把验证码告知后核销。
