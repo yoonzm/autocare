@@ -20,12 +20,13 @@ void main() {
       expect(t.widget<Text>(find.text('保存')).style!.color, tokens.inkFaint);
     });
 
-    testWidgets('四种语义的颜色来自令牌', (t) async {
+    testWidgets('五种语义的颜色来自令牌', (t) async {
       const tokens = AppTokens.light;
       for (final (kind, bg, fg) in [
         (AppButtonKind.primary, tokens.primary, tokens.onPrimary),
         (AppButtonKind.secondary, tokens.fill, tokens.ink),
         (AppButtonKind.danger, tokens.danger.bg, tokens.danger.fg),
+        (AppButtonKind.soft, tokens.primarySoft, tokens.primaryText),
         (AppButtonKind.text, Colors.transparent, tokens.primaryText),
       ]) {
         await pump(t, AppButton(label: '按钮', kind: kind, onPressed: () {}));

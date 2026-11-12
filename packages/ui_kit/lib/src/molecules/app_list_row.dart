@@ -27,7 +27,11 @@ class AppIconTile extends StatelessWidget {
   }
 }
 
-/// 列表行：最小高 54；左侧可选图标底，右侧可放文字、箭头、开关。
+/// 列表行高度档：standard 54（默认）· comfortable 60（后台「我的」「概览待办」等）·
+/// spacious 70（带副标题的列表，如工单）。
+enum AppRowSize { standard, comfortable, spacious }
+
+/// 列表行：最小高按 [size]（默认 54）；左侧可选图标底，右侧可放文字、箭头、开关。
 /// 整行可点（[onTap] 不为空）时才显示箭头，点击反馈为整行叠 4% 黑色。
 class AppListRow extends StatelessWidget {
   final String title;
@@ -37,6 +41,7 @@ class AppListRow extends StatelessWidget {
   final String? value;
   final bool showChevron;
   final VoidCallback? onTap;
+  final AppRowSize size;
   const AppListRow({
     super.key,
     required this.title,
@@ -46,13 +51,20 @@ class AppListRow extends StatelessWidget {
     this.value,
     this.showChevron = true,
     this.onTap,
+    this.size = AppRowSize.standard,
   });
 
   @override
   Widget build(BuildContext context) {
     final t = AppTokens.of(context);
     Widget row(bool pressed) => Container(
-      constraints: const BoxConstraints(minHeight: 54),
+      constraints: BoxConstraints(
+        minHeight: switch (size) {
+          AppRowSize.standard => 54,
+          AppRowSize.comfortable => 60,
+          AppRowSize.spacious => 70,
+        },
+      ),
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.s16,
         vertical: AppSpacing.s8,

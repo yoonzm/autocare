@@ -286,6 +286,7 @@ List<Widget> _buttons(BuildContext context) => [
         StateLabel('surface', AppButton(label: '筛选', kind: AppButtonKind.surface, onPressed: () {})),
         StateLabel('secondary · 底栏', AppButton(label: '取消', kind: AppButtonKind.secondary, onPressed: () {})),
         StateLabel('danger', AppButton(label: '作废此单', kind: AppButtonKind.danger, onPressed: () {})),
+        StateLabel('soft · 浅蓝底', AppButton(label: '复制', size: AppButtonSize.small, kind: AppButtonKind.soft, onPressed: () {})),
         StateLabel('text', AppButton(label: '更换', kind: AppButtonKind.text, onPressed: () {})),
       ]),
       const GroupLabel('状态'),
@@ -585,12 +586,12 @@ List<Widget> _display(BuildContext context) => [
   Demo(
     title: '列表行',
     tag: 'AppListRow / AppListGroup',
-    notes: const ['最小高 54；左侧可选 32 圆角图标底；右侧可放文字、箭头、开关。分割线 1px，左缩进，最后一行不画。', '整行可点时才显示箭头；点击反馈为整行叠 4% 黑色。'],
+    notes: const ['最小高默认 54，可选 size：comfortable 60 / spacious 70；左侧可选 32 圆角图标底；右侧可放文字、箭头、开关。分割线 1px，左缩进，最后一行不画。', '整行可点时才显示箭头；点击反馈为整行叠 4% 黑色。'],
     code: "AppListRow(\n  title: '工位管理', subtitle: '共 6 个工位',\n  leading: AppIconTile(icon: ..., tone: Tone.wait),\n  onTap: openBays,\n)",
     children: [
       AppListGroup(rows: [
         AppListRow(title: '营业时间', value: '每天 09:00 – 21:00', leading: const AppIconTile(icon: Icons.schedule_rounded, tone: Tone.warn), onTap: () {}),
-        AppListRow(title: '工位管理', subtitle: '共 6 个工位', leading: const AppIconTile(icon: Icons.grid_view_rounded), onTap: () {}),
+        AppListRow(title: '工位管理', subtitle: '共 6 个工位', size: AppRowSize.comfortable, leading: const AppIconTile(icon: Icons.grid_view_rounded), onTap: () {}),
         AppListRow(
           title: '消息通知',
           subtitle: '已开启',

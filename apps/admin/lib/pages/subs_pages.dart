@@ -130,7 +130,7 @@ class _SubsPageState extends State<SubsPage> {
                 ? const Empty('还没有已支付的订阅订单')
                 : AppListGroup(rows: [
                     for (final o in store.orders.take(8))
-                      AppListRow(leading: AppIconTile(
+                      AppListRow(size: AppRowSize.comfortable, leading: AppIconTile(
                           icon: o.isRefunded
                               ? Icons.undo_rounded
                               : Icons.receipt_long_outlined,

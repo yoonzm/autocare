@@ -346,7 +346,7 @@ class _SmsCard extends StatelessWidget {
                 const SizedBox(width: 10),
                 _SmallAction(
                   '复制',
-                  AppButtonKind.secondary,
+                  active ? AppButtonKind.soft : AppButtonKind.secondary,
                   () => _copyCode(context, s),
                 ),
               ],

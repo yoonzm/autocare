@@ -65,7 +65,7 @@ class _MerchantsPageState extends State<MerchantsPage> {
           else
             AppListGroup(rows: [
               for (final m in list)
-                AppListRow(leading: ToneTile(m.tone, Icons.storefront_outlined), title: m.name, subtitle: '${m.city} · ${expiryText(m)}', trailing: Column(
+                AppListRow(size: AppRowSize.comfortable, leading: ToneTile(m.tone, Icons.storefront_outlined), title: m.name, subtitle: '${m.city} · ${expiryText(m)}', trailing: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       AppStatusTag(

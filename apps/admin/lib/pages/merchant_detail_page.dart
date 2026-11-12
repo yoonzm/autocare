@@ -149,13 +149,13 @@ class MerchantDetailPage extends StatelessWidget {
             ),
           ),
           AppListGroup(rows: [
-            AppListRow(leading: AppIconTile(icon: Icons.tune_rounded, tone: Tone.wait), title: m.plan == PlanKind.trial ? '延长试用 / 调整套餐' : '延长期限 / 调整套餐', onTap: () => _adjust(context)),
-            AppListRow(leading: AppIconTile(icon: Icons.history_edu_outlined, tone: Tone.warn), title: '跟进记录', trailing: Text(
+            AppListRow(size: AppRowSize.comfortable, leading: AppIconTile(icon: Icons.tune_rounded, tone: Tone.wait), title: m.plan == PlanKind.trial ? '延长试用 / 调整套餐' : '延长期限 / 调整套餐', onTap: () => _adjust(context)),
+            AppListRow(size: AppRowSize.comfortable, leading: AppIconTile(icon: Icons.history_edu_outlined, tone: Tone.warn), title: '跟进记录', trailing: Text(
                 '${m.logs.length} 条',
                 style: ts(13, color: C.muted),
               ), onTap: () => go(context, FollowLogPage(m))),
-            AppListRow(leading: AppIconTile(icon: Icons.phone_outlined, tone: Tone.ok), title: '联系店主', trailing: Text(m.maskedPhone, style: ts(13, color: C.muted)), onTap: () => _contact(context)),
-            AppListRow(leading: AppIconTile(icon: Icons.manage_accounts_outlined, tone: Tone.bad), title: '账号处理', subtitle: '重发验证码 · 重置登录 · 冻结', onTap: () => _account(context)),
+            AppListRow(size: AppRowSize.comfortable, leading: AppIconTile(icon: Icons.phone_outlined, tone: Tone.ok), title: '联系店主', trailing: Text(m.maskedPhone, style: ts(13, color: C.muted)), onTap: () => _contact(context)),
+            AppListRow(size: AppRowSize.comfortable, leading: AppIconTile(icon: Icons.manage_accounts_outlined, tone: Tone.bad), title: '账号处理', subtitle: '重发验证码 · 重置登录 · 冻结', onTap: () => _account(context)),
           ]),
         ],
       );

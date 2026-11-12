@@ -155,5 +155,5 @@ class HomePage extends StatelessWidget {
     String sub,
     int n,
     VoidCallback onTap,
-  ) => AppListRow(leading: AppIconTile(icon: icon, tone: tone), title: title, subtitle: sub, onTap: onTap, trailing: n > 0 ? AppStatusTag('$n', tone: Tone.bad) : null);
+  ) => AppListRow(size: AppRowSize.comfortable, leading: AppIconTile(icon: icon, tone: tone), title: title, subtitle: sub, onTap: onTap, trailing: n > 0 ? AppStatusTag('$n', tone: Tone.bad) : null);
 }

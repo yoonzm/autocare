@@ -48,7 +48,7 @@ class _FollowPageState extends State<FollowPage> {
           else
             AppListGroup(rows: [
               for (final m in list)
-                AppListRow(leading: ToneTile(m.tone, Icons.storefront_outlined), title: m.name, subtitle: followSub(m), trailing: m.plan == PlanKind.trial && m.daysLeft >= 0
+                AppListRow(size: AppRowSize.comfortable, leading: ToneTile(m.tone, Icons.storefront_outlined), title: m.name, subtitle: followSub(m), trailing: m.plan == PlanKind.trial && m.daysLeft >= 0
                       ? AppStatusTag('待转化', tone: Tone.wait)
                       : m.daysLeft < 0
                       ? AppStatusTag('待跟进', tone: Tone.bad)

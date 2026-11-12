@@ -102,17 +102,17 @@ class MinePage extends StatelessWidget {
               ],
             )),
           AppListGroup(rows: [
-            AppListRow(leading: AppIconTile(icon: Icons.workspace_premium_outlined, tone: Tone.violet), title: '套餐管理', trailing: Text(
+            AppListRow(size: AppRowSize.comfortable, leading: AppIconTile(icon: Icons.workspace_premium_outlined, tone: Tone.violet), title: '套餐管理', trailing: Text(
                 '${store.plans.length} 个套餐',
                 style: ts(13, color: C.muted),
               ), onTap: () => go(context, const PlansPage())),
-            AppListRow(leading: AppIconTile(icon: Icons.chat_bubble_outline_rounded, tone: Tone.wait), title: '工单', trailing: store.todoTickets > 0
+            AppListRow(size: AppRowSize.comfortable, leading: AppIconTile(icon: Icons.chat_bubble_outline_rounded, tone: Tone.wait), title: '工单', trailing: store.todoTickets > 0
                   ? Text(
                       '${store.todoTickets} 待处理',
                       style: ts(13, color: C.muted),
                     )
                   : null, onTap: () => go(context, const TicketsPage())),
-            AppListRow(leading: AppIconTile(icon: Icons.group_outlined, tone: Tone.ok), title: '运营账号', subtitle:
+            AppListRow(size: AppRowSize.comfortable, leading: AppIconTile(icon: Icons.group_outlined, tone: Tone.ok), title: '运营账号', subtitle:
                   '${store.isSuper ? store.accounts.length : '—'} 人 · 仅超级管理员可见', onTap: () {
                 if (!store.isSuper) {
                   toast(context, '仅超级管理员可管理运营账号');
@@ -122,13 +122,13 @@ class MinePage extends StatelessWidget {
               }),
             // 短信记录含验证码明文：只有超级管理员能看到入口（服务端同样限制）。
             if (store.isSuper)
-              AppListRow(leading: AppIconTile(icon: Icons.sms_outlined, tone: Tone.wait), title: '短信记录', subtitle: '验证码与通知 · 仅超级管理员可见', onTap: () => go(context, const SmsLogsPage())),
+              AppListRow(size: AppRowSize.comfortable, leading: AppIconTile(icon: Icons.sms_outlined, tone: Tone.wait), title: '短信记录', subtitle: '验证码与通知 · 仅超级管理员可见', onTap: () => go(context, const SmsLogsPage())),
             if (store.isSuper)
-              AppListRow(leading: AppIconTile(icon: Icons.person_outline_rounded, tone: Tone.warn), title: '用户账号', subtitle: '老板与员工账号 · 仅超级管理员可见', onTap: () => go(context, const UsersPage())),
+              AppListRow(size: AppRowSize.comfortable, leading: AppIconTile(icon: Icons.person_outline_rounded, tone: Tone.warn), title: '用户账号', subtitle: '老板与员工账号 · 仅超级管理员可见', onTap: () => go(context, const UsersPage())),
             // 组件库预览：对照设计稿检查基础组件，只展示、不影响业务；仅超级管理员可见。
             if (store.isSuper)
-              AppListRow(leading: AppIconTile(icon: Icons.widgets_outlined, tone: Tone.violet), title: '组件库', subtitle: '基础组件预览 · 仅超级管理员可见', onTap: () => go(context, const ComponentsPreviewPage())),
-            AppListRow(leading: AppIconTile(icon: Icons.dark_mode_outlined, tone: Tone.off), title: '外观', trailing: Text(
+              AppListRow(size: AppRowSize.comfortable, leading: AppIconTile(icon: Icons.widgets_outlined, tone: Tone.violet), title: '组件库', subtitle: '基础组件预览 · 仅超级管理员可见', onTap: () => go(context, const ComponentsPreviewPage())),
+            AppListRow(size: AppRowSize.comfortable, leading: AppIconTile(icon: Icons.dark_mode_outlined, tone: Tone.off), title: '外观', trailing: Text(
                 themeModeLabel(appThemeMode.value),
                 style: ts(13, color: C.muted),
               ), onTap: () => showThemeSheet(context)),
@@ -138,7 +138,7 @@ class MinePage extends StatelessWidget {
             onTap: () {
               unawaited(_logout(context));
             },
-            child: AppListRow(leading: AppIconTile(icon: Icons.logout_rounded, tone: Tone.bad), title: '退出登录'),
+            child: AppListRow(size: AppRowSize.comfortable, leading: AppIconTile(icon: Icons.logout_rounded, tone: Tone.bad), title: '退出登录'),
           ),
         ],
       );

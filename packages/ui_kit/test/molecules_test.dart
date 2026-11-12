@@ -147,6 +147,17 @@ void main() {
   });
 
   group('卡片与列表', () {
+    testWidgets('列表行高度档：54 / 60 / 70', (t) async {
+      for (final (size, h) in [
+        (AppRowSize.standard, 54.0),
+        (AppRowSize.comfortable, 60.0),
+        (AppRowSize.spacious, 70.0),
+      ]) {
+        await pump(t, SizedBox(width: 350, child: AppListRow(title: '行', size: size)));
+        expect(t.getSize(find.byType(AppListRow)).height, h, reason: '$size');
+      }
+    });
+
     testWidgets('列表行：整行可点才显示箭头；点击回调', (t) async {
       var n = 0;
       await pump(

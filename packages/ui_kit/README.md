@@ -12,7 +12,7 @@ import 'package:autocare_ui_kit/autocare_ui_kit.dart';
 | --- | --- | --- |
 | 1 令牌 | `src/tokens` | `AppTokens`（颜色、字号、阴影，浅色 / 深色）、`AppRadius`、`AppSpacing` |
 | 2 基础元素 | `src/atoms` | `AppButton`、`AppIconButton`、`AppChoiceChip` / `AppChoiceGroup`、`AppSwitch`、`AppCheck` / `AppRadio` / `AppAddToggle`、`AppStepper`、`AppStatusTag`、`AppBadge`、`AppAvatar` |
-| 3 组合组件 | `src/molecules` | `AppCard` / `AppSectionTitle`、`AppListRow` / `AppListGroup`、`AppTextField`（标签在上）、`AppFormCard` / `AppFormRow` / `AppNumberBox` / `AppSelectField` / `AppAmountField` / `AppTextArea`、`AppSearchBar`、`AppSegmented`、`AppBanner`、`AppHeroCard`（含 `custom` 与渐变样式）、`AppImageUploader`（grid / slot） |
+| 3 组合组件 | `src/molecules` | `AppCard` / `AppSectionTitle`、`AppListRow`（`size`：54 / 60 / 70）/ `AppListGroup`、`AppTextField`（标签在上）、`AppFormCard` / `AppFormRow` / `AppNumberBox` / `AppSelectField` / `AppAmountField` / `AppTextArea`、`AppSearchBar`、`AppSegmented`、`AppBanner`、`AppHeroCard`（含 `custom` 与渐变样式）、`AppImageUploader`（grid / slot） |
 | 4 页面容器 | `src/containers` | `AppPageHeader`、`AppBottomBar`、`showAppBottomSheet`、`showAppDialog`、`AppBottomNav` |
 | 状态 | `src/states` | 直接引用 `async_kit` 的 `EmptyView`、`ErrorView`、`AppSkeleton`、`AppToast` 等，不重复实现 |
 

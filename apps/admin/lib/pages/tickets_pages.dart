@@ -45,7 +45,7 @@ class _TicketsPageState extends State<TicketsPage> {
           else
             AppListGroup(rows: [
               for (final t in list)
-                AppListRow(
+                AppListRow(size: AppRowSize.spacious, 
                   leading: AppIconTile(
                     icon: Icons.chat_bubble_outline_rounded,
                     tone: ticketTone(t.status),
