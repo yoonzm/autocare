@@ -214,17 +214,16 @@ void main() {
     expect(find.text('筛选会员'), findsNothing);
   });
 
-  testWidgets('首页按订阅状态显示提醒条', (t) async {
+  testWidgets('首页不显示任何订阅 / 到期提醒（一期限时免费）', (t) async {
     useLiveApi(t);
     phone(t);
     await t.pumpWidget(const MaterialApp(home: HomePage()));
-    expect(find.text('去订阅'), findsNothing);
-    subState.value = SubState.trialEnding;
-    await t.pump();
-    expect(find.text('去订阅'), findsOneWidget);
-    subState.value = SubState.expiring;
-    await t.pump();
-    expect(find.text('去续费'), findsOneWidget);
+    for (final state in [SubState.normal, SubState.trialEnding, SubState.expiring]) {
+      subState.value = state;
+      await t.pump();
+      expect(find.text('去订阅'), findsNothing);
+      expect(find.text('去续费'), findsNothing);
+    }
     subState.value = SubState.normal;
   });
 
