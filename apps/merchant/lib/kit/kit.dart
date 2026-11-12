@@ -1258,6 +1258,9 @@ class HInput extends StatefulWidget {
   final int? maxLines;
   final TextAlign align;
   final Color hintColor;
+
+  /// 输入变化回调（真实搜索框使用；不影响表单草稿）。
+  final ValueChanged<String>? onChanged;
   const HInput({
     super.key,
     required this.style,
@@ -1268,6 +1271,7 @@ class HInput extends StatefulWidget {
     this.maxLines = 1,
     this.align = TextAlign.start,
     this.hintColor = const Color(0xFF71717A),
+    this.onChanged,
   });
   @override
   State<HInput> createState() => HInputState();
@@ -1373,6 +1377,7 @@ class HInputState extends State<HInput> {
       readOnly: deferred,
       onTap: deferred ? () => hToast(context, '此字段暂未接通') : null,
       onChanged: (text) {
+        widget.onChanged?.call(text);
         RegistrationDraft.set(route, hint, text, _slot);
         if (catalogField != null) {
           CatalogDraft.set(catalogField.$1, catalogField.$2, text);

@@ -9,6 +9,8 @@ import '../kit/kit.dart';
 import 'gen/svgs.dart';
 import 'staff_live.dart';
 
+// TODO: 邀请二维码需要 App 下载地址（STAFF_INVITE_BASE_URL）和二维码生成；在此之前不展示示意二维码，
+// 复制的是登录说明文字（员工按手机号匹配自动激活，不依赖邀请链接）。短信邀请仍需助通邀请模板，后端明确返回 501。
 class StaffInviteTemplate extends StatelessWidget {
   final Map<String, dynamic> d;
   const StaffInviteTemplate({super.key, required this.d});
@@ -426,12 +428,6 @@ class StaffInviteTemplate extends StatelessWidget {
                               width: 1,
                             ),
                             pad: EdgeInsets.fromLTRB(12, 12, 12, 12),
-                            child: hrow(
-                              [hsvg(Svgs.s468, w: 150, h: 150)],
-                              main: MainAxisAlignment.center,
-                              cross: CrossAxisAlignment.center,
-                              gap: 0,
-                            ),
                           ),
                         ],
                         main: MainAxisAlignment.center,
@@ -465,7 +461,7 @@ class StaffInviteTemplate extends StatelessWidget {
                               Flexible(
                                 flex: 296,
                                 child: Text(
-                                  '扫码或点击短信链接，下载并打开「汽美管家」App',
+                                  '下载并打开「汽美管家」App',
                                   style: hts(
                                     13,
                                     dk(
@@ -588,7 +584,7 @@ class StaffInviteTemplate extends StatelessWidget {
                                   alignment: Alignment(0, 0),
                                   widthFactor: 1,
                                   child: hBusy('StaffInvite>copy', Text(
-                                    '复制邀请链接',
+                                    '复制邀请说明',
                                     style: hts(
                                       14,
                                       dk(
@@ -608,7 +604,7 @@ class StaffInviteTemplate extends StatelessWidget {
                                       w: FontWeight.w500,
                                     )),
                                 ),
-                              ), onTap: () => runBusy('StaffInvite>copy', () async { try { final r = await StaffFlow.invite(id); await Clipboard.setData(ClipboardData(text: '${r['link']}')); if (context.mounted) AppToast.show(context, '邀请链接已复制', kind: ToastKind.success); } catch (e) { if (context.mounted) AppToast.error(context, e); } })),
+                              ), onTap: () => runBusy('StaffInvite>copy', () async { try { await Clipboard.setData(ClipboardData(text: '请下载「汽美管家」App，使用手机号 ${d['phone']} 获取验证码登录，确认加入门店即可开始使用。')); if (context.mounted) AppToast.show(context, '邀请说明已复制', kind: ToastKind.success); } catch (e) { if (context.mounted) AppToast.error(context, e); } })),
                             ),
                           ),
                           Expanded(

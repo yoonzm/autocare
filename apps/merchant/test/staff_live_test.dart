@@ -167,7 +167,7 @@ void main() {
     expect(call.containsKey('store_id'), isFalse);
   });
 
-  testWidgets('新增员工 → 邀请页：展示刚保存的员工，复制链接走后端，短信明确未接通', (t) async {
+  testWidgets('新增员工 → 邀请页：展示刚保存的员工，复制登录说明，短信明确未接通', (t) async {
     String? copied;
     t.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
       if (call.method == 'Clipboard.setData') copied = (call.arguments as Map)['text'] as String;
@@ -187,13 +187,13 @@ void main() {
     expect(text('员工已添加'), findsOneWidget);
     expect(text('邀请新员工登录汽美管家'), findsOneWidget);
     expect(find.textContaining('138 **** 9999'), findsWidgets);
-    await t.ensureVisible(text('复制邀请链接'));
+    await t.ensureVisible(text('复制邀请说明'));
     await t.pumpAndSettle();
-    await t.tap(text('复制邀请链接'));
+    await t.tap(text('复制邀请说明'));
     await t.pumpAndSettle();
-    expect(calls('staff_invite').single['id'], 'new-staff');
-    expect(copied, 'https://staff.example.com/?invite=abc');
-    expect(text('邀请链接已复制'), findsWidgets);
+    expect(copied, contains('13800009999'));
+    expect(copied, contains('获取验证码登录'));
+    expect(text('邀请说明已复制'), findsWidgets);
     await t.pump(const Duration(seconds: 4));
     await t.ensureVisible(text('发送短信'));
     await t.pumpAndSettle();

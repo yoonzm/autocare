@@ -55,6 +55,8 @@ const byAction: Record<string, Requirement> = {
   staff_task_finish: cap('progress_update'),
   staff_perf: cap('perf_view_own'),
   staff_arrivals: cap('arrivals_today'),
+  staff_member_search: cap('member_lookup'),
+  staff_member_info: cap('member_lookup'),
   staff_messages: any,
   staff_messages_read: any,
   home_stats: cap('stats_view_store'),

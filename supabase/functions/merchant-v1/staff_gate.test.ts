@@ -5,6 +5,12 @@ const assert = (ok: boolean, msg = 'assertion failed') => {
 const caps = (on: string[]) => Object.fromEntries(on.map((k) => [k, true]));
 const can = (role: Role, on: string[], input: Record<string, unknown>) => decide(role, caps(on), input).allowed;
 
+Deno.test('staff member lookup needs member_lookup', () => {
+  assert(can('technician', ['member_lookup'], { action: 'staff_member_search' }));
+  assert(can('cashier', ['member_lookup'], { action: 'staff_member_info' }));
+  assert(!can('technician', ['order_view_own'], { action: 'staff_member_search' }));
+});
+
 Deno.test('owner is never gated; unknown actions are denied for staff', () => {
   assert(can('owner', [], { action: 'anything_at_all' }));
   assert(!can('technician', [], { action: 'anything_at_all' }));

@@ -7,7 +7,10 @@ import 'gen_st/svgs.dart';
 import 'members_page.dart';
 import 'st_front_home_template.dart';
 import 'st_home_template.dart';
+import 'scan_page.dart';
 import 'st_arrivals_template.dart';
+import 'st_member_info_template.dart';
+import 'st_member_template.dart';
 import 'st_done_template.dart';
 import 'st_finish_template.dart';
 import 'st_mine_template.dart';
@@ -74,7 +77,7 @@ class _StaffTabsState extends State<StaffTabs> {
       ? const [
           StHomeLivePage(),
           StTasksLivePage(),
-          StTodoPage(title: '会员查询', reason: '会员简况（脱敏）待接通。'),
+          StMemberLivePage(),
           StMineLivePage(),
         ]
       : const [StFrontHomeLivePage(), AppointmentsPage(), MembersPage(), StMineLivePage()];
@@ -169,9 +172,11 @@ Widget? stPageFor(String name) => switch (name) {
   'StFinish' => const StFinishLivePage(),
   'StDone' => const StDoneLivePage(),
   'StArrivals' => const StArrivalsLivePage(),
-  'StMember' => const StTodoPage(title: '会员查询', reason: '会员简况（脱敏）待接通。'),
-  'StMemberInfo' => const StTodoPage(title: '会员简况', reason: '会员简况（脱敏）待接通。'),
-  'StVerify' || 'StVerifyCode' => const StTodoPage(title: '扫码找会员', reason: '扫码找会员待接通。'),
+  'StMember' => const StMemberLivePage(),
+  'StMemberInfo' => const StMemberInfoLivePage(),
+  // 扫车牌 / 会员码找会员沿用商家端真实识别流程，服务端校验「会员查询」权限。
+  'StVerify' => const ScanPage(ScanKind.findPlate),
+  'StVerifyCode' => const ScanPage(ScanKind.findCode),
   'StOrder' => const StTodoPage(title: '快速开单', reason: '技师提交开单、待收银队列待接通。'),
   'StCashQueue' => const StTodoPage(title: '待收银', reason: '待收银队列待接通。'),
   'StPerf' => const StPerfLivePage(),
