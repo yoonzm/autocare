@@ -18,16 +18,18 @@ class AppBadge extends StatelessWidget {
         constraints: const BoxConstraints(minWidth: 18),
         height: 18,
         padding: const EdgeInsets.symmetric(horizontal: 5),
-        alignment: Alignment.center,
         decoration: BoxDecoration(
           color: t.badge,
           borderRadius: BorderRadius.circular(AppRadius.tag),
         ),
-        child: Text(
-          count > 99 ? '99+' : '$count',
-          style: t.micro.copyWith(
-            color: t.onPrimary,
-            fontFeatures: AppTokens.tabular,
+        child: Center(
+          widthFactor: 1,
+          child: Text(
+            count > 99 ? '99+' : '$count',
+            style: t.micro.copyWith(
+              color: t.onPrimary,
+              fontFeatures: AppTokens.tabular,
+            ),
           ),
         ),
       ),

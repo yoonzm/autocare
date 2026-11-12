@@ -80,7 +80,6 @@ class AppChoiceChip extends StatelessWidget {
             horizontal: kind == ChipKind.avatar ? AppSpacing.s6 : AppSpacing.s14,
             vertical: kind == ChipKind.option ? AppSpacing.s10 : 0,
           ).copyWith(right: kind == ChipKind.avatar ? AppSpacing.s14 : null),
-          alignment: kind == ChipKind.option ? Alignment.centerLeft : Alignment.center,
           decoration: BoxDecoration(
             color: Color.alphaBlend(
               pressed ? t.pressedOverlay : Colors.transparent,
@@ -93,7 +92,10 @@ class AppChoiceChip extends StatelessWidget {
               width: 1.5,
             ),
           ),
-          child: body,
+          // 不用 Container.alignment：它会在 Wrap / Row 的宽松约束下把标签撑满整行。
+          child: kind == ChipKind.option
+              ? body
+              : Center(widthFactor: 1, child: body),
         );
       },
     );

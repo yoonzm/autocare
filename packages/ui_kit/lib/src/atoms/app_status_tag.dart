@@ -26,12 +26,15 @@ class AppStatusTag extends StatelessWidget {
     return Container(
       height: 18,
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s8),
-      alignment: Alignment.center,
       decoration: BoxDecoration(
         color: c.bg,
         borderRadius: BorderRadius.circular(AppRadius.tag),
       ),
-      child: Text(text, style: t.micro.copyWith(color: c.fg), maxLines: 1),
+      // 不用 Container.alignment：它会在 Wrap 的宽松约束下把标签撑满整行。
+      child: Center(
+        widthFactor: 1,
+        child: Text(text, style: t.micro.copyWith(color: c.fg), maxLines: 1),
+      ),
     );
   }
 }

@@ -102,6 +102,25 @@ void main() {
       expect(t.getSize(find.ancestor(of: find.text('已入库'), matching: find.byType(Container)).first).height, 18);
     });
 
+    testWidgets('状态标签和红点在 Wrap 里按内容收缩，不撑满整行', (t) async {
+      await pump(
+        t,
+        const SizedBox(
+          width: 350,
+          child: Wrap(spacing: 8, children: [
+            AppStatusTag('已入库', tone: Tone.ok),
+            AppStatusTag('低库存', tone: Tone.bad),
+            AppBadge(count: 4),
+          ]),
+        ),
+      );
+      final tag = t.getSize(find.ancestor(of: find.text('已入库'), matching: find.byType(Container)).first);
+      final badge = t.getSize(find.ancestor(of: find.text('4'), matching: find.byType(Container)).first);
+      expect(tag.width, lessThan(80));
+      expect(badge.width, lessThan(30));
+      expect(t.getTopLeft(find.text('低库存')).dy, t.getTopLeft(find.text('已入库')).dy);
+    });
+
     testWidgets('红点数字：0 不显示，超过 99 显示 99+', (t) async {
       await pump(t, const Column(children: [AppBadge(count: 0), AppBadge(count: 4), AppBadge(count: 120)]));
       expect(find.text('0'), findsNothing);
@@ -141,6 +160,42 @@ void main() {
       expect(t.widget<Text>(find.text('镀晶')).style!.color, tokens.primaryText);
       expect((deco('洗车').border! as Border).top.width, 1.5, reason: '未选中也预留描边');
       expect(t.getSize(find.text('洗车')).height, t.getSize(find.text('洗车')).height);
+    });
+
+    testWidgets('选择标签按内容收缩宽度，在一行里并排，不会撑满整行', (t) async {
+      for (final kind in ChipKind.values) {
+        await pump(
+          t,
+          SizedBox(
+            width: 350,
+            child: AppChoiceGroup<String>(
+              kind: kind,
+              items: const [
+                ChoiceItem(value: 'a', label: '洗车', subtitle: '30 分钟'),
+                ChoiceItem(value: 'b', label: '镀晶', subtitle: '3 小时'),
+                ChoiceItem(value: 'c', label: '改色', subtitle: '1 天', enabled: false),
+              ],
+              selected: 'b',
+              onChanged: (_) {},
+            ),
+          ),
+        );
+        final a = t.getRect(find.ancestor(of: find.text('洗车'), matching: find.byType(Container)).first);
+        final b = t.getRect(find.ancestor(of: find.text('镀晶'), matching: find.byType(Container)).first);
+        expect(a.width, lessThan(150), reason: '$kind 应按内容收缩');
+        expect((a.top - b.top).abs(), lessThan(1), reason: '$kind 应在同一行并排');
+        expect(b.left, greaterThan(a.right - 1));
+      }
+    });
+
+    testWidgets('选择标签高度：pill 34 · tile 38 · avatar 36，文字垂直居中', (t) async {
+      for (final (kind, h) in [(ChipKind.pill, 34.0), (ChipKind.tile, 38.0), (ChipKind.avatar, 36.0)]) {
+        await pump(t, AppChoiceChip(label: '洗车', selected: true, kind: kind, onTap: () {}));
+        final box = t.getRect(find.ancestor(of: find.text('洗车'), matching: find.byType(Container)).first);
+        expect(box.height, h, reason: '$kind');
+        final text = t.getRect(find.text('洗车'));
+        expect(((box.center.dy) - text.center.dy).abs(), lessThan(1.5), reason: '$kind 文字居中');
+      }
     });
 
     testWidgets('选择标签组：单选互斥，禁用项跳过', (t) async {
