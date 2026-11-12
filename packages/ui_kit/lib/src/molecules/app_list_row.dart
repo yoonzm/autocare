@@ -69,8 +69,9 @@ class AppListRow extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: t.body),
-                if (subtitle != null) Text(subtitle!, style: t.caption),
+                Text(title, maxLines: 1, overflow: TextOverflow.ellipsis, style: t.body),
+                if (subtitle != null)
+                  Text(subtitle!, maxLines: 1, overflow: TextOverflow.ellipsis, style: t.caption),
               ],
             ),
           ),

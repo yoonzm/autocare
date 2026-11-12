@@ -77,6 +77,8 @@ class AppTokens extends ThemeExtension<AppTokens> {
   final StatusColors warn;
   final StatusColors danger;
   final StatusColors off;
+  final StatusColors violet;
+  final StatusColors goldTag;
   final Color gold;
   final Color badge;
   // 深色元素
@@ -85,6 +87,8 @@ class AppTokens extends ThemeExtension<AppTokens> {
   final Color heroInk;
   final Color heroInkSub;
   final Color heroRing;
+  final List<Color> heroGradient;
+  final Color heroGlow;
   final Color darkAvatarBg;
   final Color thumbShadow;
   final Color scanGlow;
@@ -120,6 +124,8 @@ class AppTokens extends ThemeExtension<AppTokens> {
     required this.warn,
     required this.danger,
     required this.off,
+    required this.violet,
+    required this.goldTag,
     required this.gold,
     required this.badge,
     required this.heroBg,
@@ -127,6 +133,8 @@ class AppTokens extends ThemeExtension<AppTokens> {
     required this.heroInk,
     required this.heroInkSub,
     required this.heroRing,
+    required this.heroGradient,
+    required this.heroGlow,
     required this.darkAvatarBg,
     required this.thumbShadow,
     required this.scanGlow,
@@ -162,6 +170,8 @@ class AppTokens extends ThemeExtension<AppTokens> {
     warn: StatusColors(Color(0xFFFDEFD6), Color(0xFF855F2E)),
     danger: StatusColors(Color(0xFFFFE1E2), Color(0xFFA43433)),
     off: StatusColors(Color(0xFFEEEEF0), Color(0xFF3F3F46)),
+    violet: StatusColors(Color(0xFFECE6FD), Color(0xFF5B3FC0)),
+    goldTag: StatusColors(Color(0x29F5D78E), Color(0xFFF5D78E)),
     gold: Color(0xFFF5D78E),
     badge: Color(0xFFFF383C),
     heroBg: Color(0xFF18181B),
@@ -169,6 +179,8 @@ class AppTokens extends ThemeExtension<AppTokens> {
     heroInk: Color(0xFFFAFAFA),
     heroInkSub: Color(0xFFA1A1AA),
     heroRing: Color(0xFF34343A),
+    heroGradient: [Color(0xFF26262C), Color(0xFF18181B), Color(0xFF2B2418)],
+    heroGlow: Color(0x4DF5D78E),
     darkAvatarBg: Color(0xFF18181B),
     thumbShadow: Color(0x33000000),
     scanGlow: Color(0x4D0485F7),
@@ -204,6 +216,8 @@ class AppTokens extends ThemeExtension<AppTokens> {
     warn: StatusColors(Color(0x29F5A524), Color(0xFFF0C46A)),
     danger: StatusColors(Color(0x2EFF383C), Color(0xFFFF7B7E)),
     off: StatusColors(Color(0xFF27272A), Color(0xFFA8A8B3)),
+    violet: StatusColors(Color(0x2E7C5CE6), Color(0xFFB6A2F5)),
+    goldTag: StatusColors(Color(0x29F5D78E), Color(0xFFF5D78E)),
     gold: Color(0xFFF5D78E),
     badge: Color(0xFFFF383C),
     heroBg: Color(0xFF1F1F23),
@@ -211,6 +225,8 @@ class AppTokens extends ThemeExtension<AppTokens> {
     heroInk: Color(0xFFFAFAFA),
     heroInkSub: Color(0xFFA1A1AA),
     heroRing: Color(0xFF34343A),
+    heroGradient: [Color(0xFF26262C), Color(0xFF18181B), Color(0xFF2B2418)],
+    heroGlow: Color(0x4DF5D78E),
     darkAvatarBg: Color(0xFF34343A),
     thumbShadow: Color(0x33000000),
     scanGlow: Color(0x4D0485F7),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../atoms/app_status_tag.dart';
 import '../atoms/app_tap_target.dart';
 import '../tokens/app_tokens.dart';
 
@@ -9,7 +10,15 @@ class SegmentItem<T> {
 
   /// 标签后的红色数字角标，如「失败 3」。
   final int badge;
-  const SegmentItem({required this.value, required this.label, this.badge = 0});
+
+  /// 角标颜色：默认 bad（红），提醒类用 warn。
+  final Tone badgeTone;
+  const SegmentItem({
+    required this.value,
+    required this.label,
+    this.badge = 0,
+    this.badgeTone = Tone.bad,
+  });
 }
 
 /// 分段控件：用于「切换整页内容」，选中是白色滑块。2~4 项，超过 4 项改用选择标签或下拉。
@@ -62,7 +71,7 @@ class AppSegmented<T> extends StatelessWidget {
                           if (item.badge > 0)
                             TextSpan(
                               text: ' ${item.badge}',
-                              style: TextStyle(color: t.danger.fg),
+                              style: TextStyle(color: toneColors(t, item.badgeTone).fg),
                             ),
                         ],
                       ),

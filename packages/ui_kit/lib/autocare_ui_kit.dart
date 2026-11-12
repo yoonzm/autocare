@@ -20,6 +20,7 @@ export 'src/molecules/app_image_uploader.dart';
 export 'src/molecules/app_input_format.dart';
 export 'src/molecules/app_list_row.dart';
 export 'src/molecules/app_search_bar.dart';
+export 'src/molecules/app_text_field.dart';
 export 'src/molecules/app_segmented.dart';
 export 'src/containers/app_bottom_bar.dart';
 export 'src/containers/app_bottom_nav.dart';
