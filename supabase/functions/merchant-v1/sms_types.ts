@@ -1,5 +1,5 @@
 export const smsPurposes = [
-  'register', 'login', 'reset_password', 'change_phone_old', 'change_phone_new', 'delete_account',
+  'register', 'login', 'reset_password', 'change_phone_old', 'change_phone_new', 'delete_account', 'redeem',
 ] as const;
 export type SmsPurpose = typeof smsPurposes[number];
 export const isSmsPurpose = (value: unknown): value is SmsPurpose =>

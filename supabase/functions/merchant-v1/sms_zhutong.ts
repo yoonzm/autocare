@@ -10,6 +10,7 @@ const templateKeys: Record<SmsPurpose, string> = {
   change_phone_old: 'ZHUTONG_TEMPLATE_VERIFY',
   change_phone_new: 'ZHUTONG_TEMPLATE_BIND_PHONE',
   delete_account: 'ZHUTONG_TEMPLATE_DELETE_ACCOUNT',
+  redeem: 'ZHUTONG_TEMPLATE_REDEEM',
 };
 
 /** Same v2 template protocol as my-baas; credentials and OTPs are never logged. */
@@ -22,7 +23,8 @@ export function zhutongProvider(
   const username = env('ZHUTONG_USERNAME')?.trim();
   const password = env('ZHUTONG_PASSWORD');
   const sign = env('ZHUTONG_SIGN_NAME')?.trim().replace(/^【|】$/g, '');
-  const template = env(templateKeys[purpose])?.trim();
+  // 次卡核销验证码未单独配置模板时，沿用通用的验证模板。
+  const template = env(templateKeys[purpose])?.trim() || (purpose === 'redeem' ? env('ZHUTONG_TEMPLATE_VERIFY')?.trim() : undefined);
   if (!username || !password || !sign || !template) {
     throw new SmsError('该用途的短信服务尚未配置', 501, 'configuration_missing');
   }

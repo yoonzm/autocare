@@ -33,8 +33,8 @@
 
 - 新增员工后的邀请页已改为 App 版文案（登录汽美管家、验证码登录、确认加入门店后激活）。页面上的二维码目前是设计稿的示意图，**不可扫码**；真实二维码需要 App 下载地址（配置后由 `staff_invite` 返回）和二维码生成。「发送短信」仍未接通。
 
-- 快速开单 `StOrder` / 待收银 `StCashQueue`（需要技师提交开单、待收银队列后端；前台首页「待收银 · 技师提交」暂不显示）。
-- 会员简况 `StMember` / `StMemberInfo` 与扫码找会员 `StVerify*` 已接通（`staff_member_search` / `staff_member_info`，脱敏只读；扫码沿用商家端识别）。仍为 TODO：次卡核销（需车主确认）。
+- 快速开单 `StOrder` / 待收银 `StCashQueue` / 次卡核销已接通，见 `docs/mvp-v1.md`（待收银复用挂单，核销需会员短信验证码）。
+- 会员简况 `StMember` / `StMemberInfo` 与扫码找会员 `StVerify*` 已接通（`staff_member_search` / `staff_member_info`，脱敏只读；扫码沿用商家端识别）。
 - 施工照片上传、耗材领用、好评率、短信邀请、店长商家外壳按权限裁剪。
 
 ## 部署顺序

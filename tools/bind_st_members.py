@@ -125,6 +125,9 @@ import 'st_live.dart';
 /// 员工端「会员查询」→「会员简况」之间传递会员 ID。
 class StMemberFlow {{
   static String? currentId;
+
+  /// 核销等操作成功后刷新会员简况。
+  static final changed = ValueNotifier<int>(0);
 }}
 
 /// 员工端会员查询：只返回脱敏后的服务相关信息（服务端校验「会员查询」权限）。
@@ -258,8 +261,8 @@ def build_info():
     flow = flow[:lb + 1] + ("if (_vehicles.isEmpty) Text('暂无登记车辆', style: hts(13, dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)), lh: 18)), "
                             "for (var i = 0; i < _vehicles.length; i++) ...[if (i > 0) " + divider + ", _vehRow(context, i, _vehicles[i])]") + flow[rb:]
     # 底部按钮：次卡核销 / 为他开单 暂无后端，明确提示 TODO
-    overlays = must(overlays, "to: 'StVerify'", "onTap: () => hToast(context, '次卡核销暂未接通：需要会员本人确认的后端接口')")
-    overlays = must(overlays, "to: 'StOrder'", "onTap: () => hToast(context, '快速开单暂未接通：需要技师提交开单的后端接口')")
+    # 次卡核销：会员短信验证码确认（设计稿没有该弹层，见 st_redeem_sheet.dart）；为他开单 → 快速开单
+    overlays = must(overlays, "to: 'StVerify'", "onTap: () => showStRedeemSheet(context, d)")
     body = f'''{HEADER}import 'package:flutter/material.dart';
 
 import '../backend/merchant_api.dart';
@@ -267,6 +270,7 @@ import '../kit/kit.dart';
 import 'gen_st/svgs.dart';
 import 'st_live.dart';
 import 'st_member_template.dart' show StMemberFlow;
+import 'st_redeem_sheet.dart';
 
 /// 员工端会员简况：仅服务相关、已脱敏的信息，不可修改储值与积分。
 class StMemberInfoTemplate extends StatelessWidget {{
@@ -326,6 +330,7 @@ class StMemberInfoLivePage extends StatelessWidget {{
   @override
   Widget build(BuildContext context) => StLive(
     title: '会员简况',
+    refresh: StMemberFlow.changed,
     load: () {{
       final id = StMemberFlow.currentId;
       if (id == null) return Future.error(const AppError('请先选择会员', type: AppErrorType.notFound));

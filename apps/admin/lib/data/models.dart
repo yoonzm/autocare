@@ -377,6 +377,7 @@ class SmsLog {
     'reset_password' => '找回密码验证码',
     'change_phone_old' || 'change_phone_new' => '换绑手机号验证码',
     'delete_account' => '注销账号验证码',
+    'redeem' => '次卡核销验证码',
     _ => isCode ? '验证码' : '通知',
   };
 
@@ -387,6 +388,7 @@ class SmsLog {
     'change_phone_old' => '账号与安全 · 更换手机号（当前号码）',
     'change_phone_new' => '账号与安全 · 更换手机号（新号码）',
     'delete_account' => '账号与安全 · 注销账号',
+    'redeem' => '员工端 · 次卡核销（发给会员）',
     _ => purpose,
   };
 

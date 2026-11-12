@@ -18,6 +18,9 @@
 | 验证原手机号 | `change_phone_old` | `ZHUTONG_TEMPLATE_VERIFY` | 498536 |
 | 验证新手机号 | `change_phone_new` | `ZHUTONG_TEMPLATE_BIND_PHONE` | 498536 |
 | 申请注销 | `delete_account` | `ZHUTONG_TEMPLATE_DELETE_ACCOUNT` | 498536（暂用绑定模板） |
+| 次卡核销（发给会员） | `redeem` | `ZHUTONG_TEMPLATE_REDEEM`（缺省沿用 `ZHUTONG_TEMPLATE_VERIFY`） | 498536 |
+
+`redeem` 只能由员工经 `staff_redeem_send` 发送，公开的 `send_code` 会拒绝该用途。
 
 每个用途可独立替换模板。账号、密码只放服务器 `/opt/supabase/.env.sms`，文件权限 600，不进入代码、App 或 GitHub Actions。部署程序通过 `env_file` 注入该文件；首次部署如文件不存在会创建空配置，不会使用占位账号发送。审核后由管理员从 my-baas 配置中安全写入实际账号和密码，不能把配置内容打印进终端日志。
 

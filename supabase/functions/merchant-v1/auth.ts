@@ -67,7 +67,8 @@ export async function handleAuth(input: Input, request: Request): Promise<Respon
   if (input.action === 'send_code') {
     if (!phone) return fail('请输入有效手机号');
     const purpose = input.purpose ?? 'register';
-    if (!isSmsPurpose(purpose)) return fail('不支持的验证码用途');
+    // redeem 只能由员工经 staff_redeem_send 发给会员，不对公开接口开放。
+    if (!isSmsPurpose(purpose) || purpose === 'redeem') return fail('不支持的验证码用途');
     if (purpose === 'login' || purpose === 'reset_password') {
       const cancelled = await cancelledAccount(phone);
       if (cancelled) return cancelled;

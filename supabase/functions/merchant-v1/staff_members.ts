@@ -15,7 +15,7 @@ type Row = {
   phone: string;
   balance?: number | string;
   points?: number;
-  card?: { name?: string; color?: string } | null;
+  card?: { name?: string; color?: string; discount?: number | string } | null;
   vehicles?: { plate: string; brand_model?: string; color?: string; energy?: string }[] | null;
 };
 
@@ -53,7 +53,7 @@ export async function handleStaffMembers(input: Record<string, unknown>, store: 
   if (input.action === 'staff_member_info') {
     if (!uuid(input.id)) return fail('会员 ID 无效');
     const { data: m, error } = await admin.from('members')
-      .select('id, name, phone, balance, points, card:card_types(name, color), vehicles:member_vehicles(plate, brand_model, color, energy)')
+      .select('id, name, phone, balance, points, card:card_types(name, color, discount), vehicles:member_vehicles(plate, brand_model, color, energy)')
       .eq('store_id', store).eq('id', input.id as string).is('deleted_at', null).maybeSingle();
     if (error) return fail('查询失败，请稍后重试', 500);
     if (!m) return fail('会员不存在', 404);
@@ -61,6 +61,11 @@ export async function handleStaffMembers(input: Record<string, unknown>, store: 
       .select('id, name, total_count, used_count, expires_at, refunded_at')
       .eq('store_id', store).eq('member_id', input.id as string).is('refunded_at', null)
       .order('purchased_at', { ascending: false });
+    const pkgIds = (pkgs ?? []).map((p) => p.id as string);
+    const { data: pkgItems } = pkgIds.length
+      ? await admin.from('member_package_items').select('member_package_id, service_id, service_name, total, used')
+        .in('member_package_id', pkgIds).order('position')
+      : { data: [] as { member_package_id: string; service_id: string | null; service_name: string; total: number; used: number }[] };
     const now = Date.now();
     const packages = (pkgs ?? [])
       .filter((p) => p.used_count < p.total_count && (!p.expires_at || Date.parse(p.expires_at as string) > now))
@@ -70,6 +75,10 @@ export async function handleStaffMembers(input: Record<string, unknown>, store: 
         remaining: Number(p.total_count) - Number(p.used_count),
         total: Number(p.total_count),
         expires_at: p.expires_at ?? null,
+        // 可核销的项目（服务端只列出还有剩余次数、且仍在售的服务）
+        items: (pkgItems ?? [])
+          .filter((i) => i.member_package_id === p.id && i.service_id && Number(i.total) > Number(i.used))
+          .map((i) => ({ service_id: i.service_id, name: i.service_name, remaining: Number(i.total) - Number(i.used) })),
       }));
     const row = m as unknown as Row;
     return json({
@@ -77,6 +86,7 @@ export async function handleStaffMembers(input: Record<string, unknown>, store: 
         ...listItem(row),
         balance: Number(row.balance ?? 0),
         points: Number(row.points ?? 0),
+        discount: Number(row.card?.discount ?? 1),
         vehicles: (row.vehicles ?? []).map((v) => ({
           plate: v.plate, model: v.brand_model ?? '', color: v.color ?? '', ev: v.energy === 'ev',
         })),

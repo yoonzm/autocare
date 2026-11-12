@@ -12,6 +12,9 @@ import 'st_live.dart';
 /// 员工端「会员查询」→「会员简况」之间传递会员 ID。
 class StMemberFlow {
   static String? currentId;
+
+  /// 核销等操作成功后刷新会员简况。
+  static final changed = ValueNotifier<int>(0);
 }
 
 /// 员工端会员查询：只返回脱敏后的服务相关信息（服务端校验「会员查询」权限）。

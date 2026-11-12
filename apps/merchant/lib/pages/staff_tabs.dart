@@ -9,6 +9,8 @@ import 'st_front_home_template.dart';
 import 'st_home_template.dart';
 import 'scan_page.dart';
 import 'st_arrivals_template.dart';
+import 'st_cash_queue_template.dart';
+import 'st_order_template.dart';
 import 'st_member_info_template.dart';
 import 'st_member_template.dart';
 import 'st_done_template.dart';
@@ -177,8 +179,8 @@ Widget? stPageFor(String name) => switch (name) {
   // 扫车牌 / 会员码找会员沿用商家端真实识别流程，服务端校验「会员查询」权限。
   'StVerify' => const ScanPage(ScanKind.findPlate),
   'StVerifyCode' => const ScanPage(ScanKind.findCode),
-  'StOrder' => const StTodoPage(title: '快速开单', reason: '技师提交开单、待收银队列待接通。'),
-  'StCashQueue' => const StTodoPage(title: '待收银', reason: '待收银队列待接通。'),
+  'StOrder' => const StOrderLivePage(),
+  'StCashQueue' => const StCashQueueLivePage(),
   'StPerf' => const StPerfLivePage(),
   'StMsgs' => const StMsgsLivePage(),
   _ => null,

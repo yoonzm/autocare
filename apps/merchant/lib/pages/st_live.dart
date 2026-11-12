@@ -36,11 +36,19 @@ class StLive extends StatelessWidget {
   final Future<Map<String, dynamic>> Function() load;
   final Widget Function(BuildContext context, Map<String, dynamic> data) builder;
   final String title;
-  const StLive({super.key, required this.load, required this.builder, this.title = ''});
+
+  /// 额外的刷新信号（与任务变化一起触发重新读取）。
+  final Listenable? refresh;
+  const StLive({super.key, required this.load, required this.builder, this.title = '', this.refresh});
 
   @override
-  Widget build(BuildContext context) =>
-      StaffLiveHost(needsId: false, title: title, load: (_) => load(), builder: builder, refresh: TaskFlow.changed);
+  Widget build(BuildContext context) => StaffLiveHost(
+    needsId: false,
+    title: title,
+    load: (_) => load(),
+    builder: builder,
+    refresh: refresh == null ? TaskFlow.changed : Listenable.merge([TaskFlow.changed, refresh]),
+  );
 }
 
 /// 预约结束时间（开始时间 + 标准工时）。

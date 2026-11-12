@@ -11,6 +11,15 @@ Deno.test('staff member lookup needs member_lookup', () => {
   assert(!can('technician', ['order_view_own'], { action: 'staff_member_search' }));
 });
 
+Deno.test('quick order, cash queue and redeem follow their capabilities', () => {
+  assert(can('technician', ['order_submit'], { action: 'staff_order_submit' }));
+  assert(can('technician', ['order_submit'], { action: 'staff_redeem' }));
+  assert(!can('technician', ['order_submit'], { action: 'staff_cash_queue' }));
+  assert(can('cashier', ['cash_queue'], { action: 'staff_cash_queue' }));
+  assert(can('cashier', ['cash_queue'], { action: 'staff_order_return' }));
+  assert(!can('cashier', ['member_lookup'], { action: 'staff_order_submit' }));
+});
+
 Deno.test('owner is never gated; unknown actions are denied for staff', () => {
   assert(can('owner', [], { action: 'anything_at_all' }));
   assert(!can('technician', [], { action: 'anything_at_all' }));

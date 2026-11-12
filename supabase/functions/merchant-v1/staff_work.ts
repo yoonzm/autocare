@@ -1,6 +1,7 @@
 import { admin, fail, json, resolveSession, uuid } from './shared.ts';
 import { authOnly } from './shared.ts';
 import { handleStaffMembers } from './staff_members.ts';
+import { handleStaffOrders } from './staff_orders.ts';
 import type { Input } from './types.ts';
 
 const messages: Record<string, string> = {
@@ -42,7 +43,8 @@ export async function handleStaffWork(input: Input, request: Request): Promise<R
       if (!Number.isInteger(stage) || stage < 1 || stage > 3) return fail('请选择有效的施工阶段');
       return await call('staff_task_progress', { p_id: input.id, p_stage: stage });
     }
-    if (action === 'staff_member_search' || action === 'staff_member_info') return await handleStaffMembers(input, store);
+    if (action === 'staff_member_search' || action === 'staff_member_info') return await handleStaffMembers(input as unknown as Record<string, unknown>, store);
+    if (/^staff_(order_|cash_queue$|redeem)/.test(action)) return await handleStaffOrders(input as unknown as Record<string, unknown>, store, staff);
     if (action === 'staff_perf') return await call('staff_perf', {});
     if (action === 'staff_arrivals') return await call('staff_arrivals', {});
     if (action === 'staff_messages') {
