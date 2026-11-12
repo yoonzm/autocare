@@ -487,12 +487,11 @@ class UserAccount {
   final String role;
   final List<UserIdentity> identities;
   final bool frozen;
-  final DateTime? deleteRequestedAt;
   final DateTime? cancelledAt;
   final String cancelSource;
   final String cancelReason;
   final String cancelNote;
-  final String status; // active | cooling | cancelled | frozen
+  final String status; // active | cancelled | frozen
   const UserAccount({
     required this.id,
     required this.createdAt,
@@ -502,7 +501,6 @@ class UserAccount {
     required this.role,
     required this.identities,
     required this.frozen,
-    required this.deleteRequestedAt,
     required this.cancelledAt,
     required this.cancelSource,
     required this.cancelReason,
@@ -524,7 +522,6 @@ class UserAccount {
           .map(UserIdentity.fromJson)
           .toList(),
       frozen: j['frozen'] == true,
-      deleteRequestedAt: time(j['delete_requested_at']),
       cancelledAt: time(j['cancelled_at']),
       cancelSource: j['cancel_source'] as String? ?? '',
       cancelReason: j['cancel_reason'] as String? ?? '',
@@ -556,14 +553,6 @@ class UserAccount {
     return identities.length > 1 ? '另有 ${identities.length - 1} 个身份' : first;
   }
 
-  /// 冷静期到期时间：申请后 15 天。
-  DateTime? get coolingEndsAt => deleteRequestedAt?.add(const Duration(days: 15));
-  int coolingDaysLeft(DateTime now) {
-    final end = coolingEndsAt;
-    if (end == null) return 0;
-    final left = end.difference(now);
-    return left.isNegative ? 0 : (left.inHours / 24).ceil();
-  }
 }
 
 class UserDetail {
@@ -585,12 +574,11 @@ class UserDetail {
 class UserPage {
   final List<UserAccount> items;
   final bool more;
-  final int total, cooling, cancelled, frozen;
+  final int total, cancelled, frozen;
   const UserPage(
     this.items,
     this.more,
     this.total,
-    this.cooling,
     this.cancelled,
     this.frozen,
   );

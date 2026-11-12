@@ -169,9 +169,7 @@ class MinePage extends StatelessWidget {
                   C.amberSoft,
                 ),
                 title: '用户账号',
-                sub: store.userCooling != null && store.userCooling! > 0
-                    ? '${store.userCooling} 个注销中 · 仅超级管理员可见'
-                    : '老板与员工账号 · 仅超级管理员可见',
+                sub: '老板与员工账号 · 仅超级管理员可见',
                 onTap: () => go(context, const UsersPage()),
               ),
             // 组件库预览：对照设计稿检查基础组件，只展示、不影响业务；仅超级管理员可见。

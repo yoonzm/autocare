@@ -52,13 +52,6 @@ async function hasStaffIdentity(phone: string): Promise<boolean> {
   return !error && data === true;
 }
 
-/** 后台强制注销过的账号：不能再登录或收验证码。只停用账号，门店数据不受影响。 */
-async function cancelledAccount(phone: string): Promise<Response | null> {
-  const { data, error } = await admin.from('account_cancellations').select('user_id').eq('source', 'admin').eq('phone', phone.slice(-11)).limit(1).maybeSingle();
-  if (error) return fail('服务暂时不可用，请稍后重试', 503);
-  return data ? failCode('该账号已注销，无法登录', 403, 'account_cancelled') : null;
-}
-
 export async function handleAuth(input: Input, request: Request): Promise<Response> {
   const phone = phoneOf(input.phone);
   if (input.action === 'send_code') {
@@ -66,10 +59,6 @@ export async function handleAuth(input: Input, request: Request): Promise<Respon
     const purpose = input.purpose ?? 'register';
     // redeem 只能由员工经 staff_redeem_send 发给会员，不对公开接口开放。
     if (!isSmsPurpose(purpose) || purpose === 'redeem') return fail('不支持的验证码用途');
-    if (purpose === 'login' || purpose === 'reset_password') {
-      const cancelled = await cancelledAccount(phone);
-      if (cancelled) return cancelled;
-    }
     if (['change_phone_old', 'change_phone_new', 'delete_account'].includes(purpose)) {
       const auth = await userFor(request);
       if ('response' in auth) return auth.response;
@@ -167,8 +156,6 @@ export async function handleAuth(input: Input, request: Request): Promise<Respon
   }
   if (input.action === 'login_password') {
     if (!phone || typeof input.password !== 'string') return fail('手机号或密码无效');
-    const cancelled = await cancelledAccount(phone);
-    if (cancelled) return cancelled;
     const publicAuth = createClient(url, anonKey, { auth: { persistSession: false } });
     const { data, error } = await publicAuth.auth.signInWithPassword({
       email: emailOf(phone), password: input.password,
@@ -180,8 +167,6 @@ export async function handleAuth(input: Input, request: Request): Promise<Respon
   }
   if (input.action === 'login_code') {
     if (!phone) return fail('请输入有效手机号');
-    const cancelled = await cancelledAccount(phone);
-    if (cancelled) return cancelled;
     const problem = await checkOtp(phone, input.code, 'login', true);
     if (problem) return fail(problem);
     // generateLink would silently create a user for an unknown email, so look the store up first.

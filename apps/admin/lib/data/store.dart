@@ -1,4 +1,3 @@
-import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:autocare_async_kit/async_kit.dart';
@@ -38,7 +37,6 @@ class Store extends ChangeNotifier {
     _generation++;
     _refreshing = null;
     me = null;
-    userCooling = null;
     accounts = [];
     merchants = [];
     orders = [];
@@ -135,7 +133,6 @@ class Store extends ChangeNotifier {
     history = series.take(5).map((e) => e['value'] as num).toList();
     loaded = true;
     notifyListeners();
-    unawaited(refreshUserCounts());
     return true;
   }
 
@@ -291,28 +288,16 @@ class Store extends ChangeNotifier {
     serverNow = DateTime.parse(data['now'] as String).toUtc();
     serverClockReadAt = DateTime.now().toUtc();
     final counts = Map<String, dynamic>.from(data['counts'] as Map);
-    userCooling = counts['cooling'] as int? ?? 0;
     notifyListeners();
     return UserPage(
       (data['items'] as List).cast<Map>().map(UserAccount.fromJson).toList(),
       data['more'] == true,
       counts['total'] as int? ?? 0,
-      userCooling ?? 0,
       counts['cancelled'] as int? ?? 0,
       counts['frozen'] as int? ?? 0,
     );
   }
 
-  /// 「我的」里「用户账号」的注销中数量；读取失败不影响页面，保持未知。
-  int? userCooling;
-  Future<void> refreshUserCounts() async {
-    if (!isSuper) return;
-    try {
-      await userList();
-    } catch (_) {
-      /* 数量只是入口上的提示，失败时不显示。 */
-    }
-  }
 
   Future<UserDetail> userGet(String id) async {
     final data = await api.call('user_get', {'id': id});
@@ -343,7 +328,6 @@ class Store extends ChangeNotifier {
       'reason': reason,
       if (note.trim().isNotEmpty) 'note': note.trim(),
     });
-    await refreshUserCounts();
   }
 
   Future<void> reply(Ticket t, String text) =>

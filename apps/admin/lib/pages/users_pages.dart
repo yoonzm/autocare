@@ -7,7 +7,7 @@ import '../data/store.dart';
 import '../theme.dart';
 import '../ui.dart';
 
-const _statusKinds = ['all', 'cooling', 'cancelled', 'frozen'];
+const _statusKinds = ['all', 'cancelled', 'frozen'];
 
 const _avatarTones = [
   [Color(0xFF7CC0FF), Color(0xFF0485F7)],
@@ -17,7 +17,6 @@ const _avatarTones = [
 ];
 
 (String, Color, Color) _statusLook(UserAccount a) => switch (a.status) {
-  'cooling' => ('注销中', C.amberInk, C.amberSoft),
   'cancelled' => ('已注销', C.sub, C.chip),
   'frozen' => ('已冻结', C.redInk, C.redSoft),
   _ => ('正常', C.greenInk, C.greenSoft),
@@ -96,7 +95,7 @@ class _UsersPageState extends State<UsersPage> {
   int tab = 0;
   List<UserAccount> items = [];
   bool more = false;
-  int total = 0, cooling = 0;
+  int total = 0;
   bool loading = true;
   AppError? error;
   Timer? _debounce;
@@ -129,7 +128,6 @@ class _UsersPageState extends State<UsersPage> {
         items = append ? [...items, ...page.items] : page.items;
         more = page.more;
         total = page.total;
-        cooling = page.cooling;
         error = null;
       });
     } catch (e) {
@@ -181,7 +179,6 @@ class _UsersPageState extends State<UsersPage> {
       }
       return EmptyView(title: _emptyText);
     }
-    final now = kNow;
     return Column(
       children: [
         Opacity(
@@ -192,7 +189,7 @@ class _UsersPageState extends State<UsersPage> {
               for (final a in items)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 10),
-                  child: _UserCard(a, now, onTap: () => unawaited(_open(a))),
+                  child: _UserCard(a, onTap: () => unawaited(_open(a))),
                 ),
             ],
           ),
@@ -239,44 +236,14 @@ class _UsersPageState extends State<UsersPage> {
         ),
       ),
       Segmented(
-        labels: const ['全部', '注销中', '已注销', '已冻结'],
+        labels: const ['全部', '已注销', '已冻结'],
         index: tab,
-        badges: {1: cooling},
-        badgeColor: C.amberInk,
         onChanged: (i) {
           if (i == tab) return;
           setState(() => tab = i);
           unawaited(_load());
         },
       ),
-      if (cooling > 0)
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          decoration: BoxDecoration(
-            color: C.amberSoft,
-            borderRadius: BorderRadius.circular(18),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 1),
-                child: Icon(
-                  Icons.schedule_rounded,
-                  size: 18,
-                  color: C.amberInk,
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  '$cooling 个账号正处于注销冷静期，冷静期内用户重新登录即可撤销。',
-                  style: ts(13, color: C.amberInk, h: 19),
-                ),
-              ),
-            ],
-          ),
-        ),
       if (total > 0)
         Padding(
           padding: const EdgeInsets.only(left: 4),
@@ -335,9 +302,8 @@ class _UsersSkeleton extends StatelessWidget {
 
 class _UserCard extends StatelessWidget {
   final UserAccount a;
-  final DateTime now;
   final VoidCallback onTap;
-  const _UserCard(this.a, this.now, {required this.onTap});
+  const _UserCard(this.a, {required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -345,10 +311,6 @@ class _UserCard extends StatelessWidget {
     final (roleFg, roleBg) = _roleLook(a.role);
     final gone = a.status == 'cancelled';
     final third = switch (a.status) {
-      'cooling' when a.deleteRequestedAt != null => (
-        '${_shortDate(a.deleteRequestedAt!)} 申请注销 · 冷静期剩 ${a.coolingDaysLeft(now)} 天',
-        C.amberInk,
-      ),
       'cancelled' when a.cancelledAt != null => (
         '${_shortDate(a.cancelledAt!)} 已注销',
         C.muted,
@@ -365,9 +327,6 @@ class _UserCard extends StatelessWidget {
           color: C.card,
           borderRadius: BorderRadius.circular(22),
           boxShadow: softShadow,
-          border: a.status == 'cooling'
-              ? Border.all(color: const Color(0xFFF0CF9A), width: 1.5)
-              : null,
         ),
         child: Row(
           children: [
@@ -488,7 +447,6 @@ class _UserDetailPageState extends State<UserDetailPage> {
       );
     }
     final a = d.account;
-    final now = kNow;
     final (statusText, statusFg, _) = _statusLook(a);
     final cancelled = a.status == 'cancelled';
     return AdPage(
@@ -556,7 +514,6 @@ class _UserDetailPageState extends State<UserDetailPage> {
             ],
           ),
         ),
-        if (a.status == 'cooling') _coolingCard(a, now),
         if (cancelled) _cancelledCard(a),
         if (a.identities.isNotEmpty)
           Section(
@@ -615,7 +572,6 @@ class _UserDetailPageState extends State<UserDetailPage> {
                 KV(
                   '账号状态',
                   switch (a.status) {
-                    'cooling' => '注销冷静期',
                     'cancelled' => '已注销',
                     'frozen' => '已冻结',
                     _ => '正常',
@@ -670,44 +626,6 @@ class _UserDetailPageState extends State<UserDetailPage> {
       ],
     );
   }
-
-  Widget _coolingCard(UserAccount a, DateTime now) => Container(
-    width: double.infinity,
-    padding: const EdgeInsets.all(16),
-    decoration: BoxDecoration(
-      color: C.amberSoft,
-      borderRadius: BorderRadius.circular(24),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(Icons.schedule_rounded, size: 18, color: C.amberInk),
-            const SizedBox(width: 8),
-            Text(
-              '用户已申请注销',
-              style: ts(15, w: FontWeight.w600, color: C.amberInk, h: 22),
-            ),
-          ],
-        ),
-        const SizedBox(height: 10),
-        _grid('申请时间', _dateTimeText(a.deleteRequestedAt)),
-        _grid(
-          '冷静期至',
-          '${_dateTimeText(a.coolingEndsAt)}（剩 ${a.coolingDaysLeft(now)} 天）',
-        ),
-        // TODO account_cancel_expired: 冷静期到期后的自动注销还缺定时任务，目前到期不会自动生效；
-        // 需要立即处理请使用下方「强制注销」。
-        _grid('到期后', '自动注销，账号无法再登录（店铺数据保留）'),
-        const SizedBox(height: 4),
-        Text(
-          '冷静期内用户重新登录即可撤销。需要立即处理可使用下方「强制注销」。',
-          style: ts(12, color: C.amberInk, h: 18),
-        ),
-      ],
-    ),
-  );
 
   Widget _cancelledCard(UserAccount a) => Container(
     width: double.infinity,
@@ -869,7 +787,7 @@ class _ForceCancelSheetState extends State<_ForceCancelSheet> {
             borderRadius: BorderRadius.circular(16),
           ),
           child: Text(
-            '立即生效，不再等待冷静期。该账号所有设备被强制退出，之后无法登录，且不可恢复。',
+            '立即生效。该账号所有设备被强制退出，之后无法登录，且不可恢复；手机号可重新注册为新账号，原账号的门店数据保留。',
             style: ts(12, color: C.redInk, h: 18),
           ),
         ),

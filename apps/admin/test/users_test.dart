@@ -16,7 +16,6 @@ Map<String, dynamic> user(
   String status = 'active',
   String store = '驰光汽车美容',
   int stores = 1,
-  DateTime? requested,
   DateTime? cancelled,
   String reason = '',
 }) => {
@@ -37,7 +36,6 @@ Map<String, dynamic> user(
       },
   ],
   'frozen': status == 'frozen',
-  'delete_requested_at': requested?.toIso8601String(),
   'cancelled_at': cancelled?.toIso8601String(),
   'cancel_source': cancelled == null ? null : 'admin',
   'cancel_reason': reason,
@@ -55,7 +53,6 @@ class UsersApi extends AdminApi {
   bool get hasSession => false;
   Map<String, dynamic> counts() => {
     'total': rows.length,
-    'cooling': rows.where((r) => r['status'] == 'cooling').length,
     'cancelled': rows.where((r) => r['status'] == 'cancelled').length,
     'frozen': rows.where((r) => r['status'] == 'frozen').length,
   };
@@ -84,7 +81,7 @@ class UsersApi extends AdminApi {
           'item': rows.firstWhere((r) => r['user_id'] == values['id']),
           'devices': 1,
           'events': [
-            {'text': '用户自助申请注销', 'at': '2026-11-05T06:20:00Z', 'by': '用户本人'},
+            {'text': '后台强制注销（违规处理）', 'at': '2026-11-05T06:20:00Z', 'by': '运营'},
           ],
           'open_holds': holds,
           'open_appointments': appointments,
@@ -115,9 +112,7 @@ void main() {
         '13911223344',
         '刘强',
         role: 'cashier',
-        status: 'cooling',
         store: '星航汽车养护',
-        requested: now.subtract(const Duration(days: 6)),
       ),
       user(
         'c',
@@ -149,18 +144,17 @@ void main() {
     await t.pumpAndSettle(const Duration(milliseconds: 400));
   }
 
-  testWidgets('列表：手机号不脱敏，角色、状态、冷静期提示与总数', (t) async {
+  testWidgets('列表：手机号不脱敏，角色、状态与总数', (t) async {
     await open(t);
     expect(find.text('138 0013 7712'), findsOneWidget);
     expect(find.text('驰光汽车美容 · 2 家店'), findsOneWidget);
     expect(find.text('老板'), findsWidgets);
     expect(find.text('前台'), findsOneWidget);
-    expect(find.text('正常'), findsOneWidget);
-    expect(find.text('注销中'), findsWidgets);
+    expect(find.text('正常'), findsWidgets);
+    expect(find.text('注销中'), findsNothing);
     expect(find.text('已注销'), findsWidgets);
     expect(find.text('已冻结'), findsWidgets);
-    expect(find.textContaining('冷静期剩 9 天'), findsOneWidget);
-    expect(find.text('1 个账号正处于注销冷静期，冷静期内用户重新登录即可撤销。'), findsOneWidget);
+    expect(find.textContaining('冷静期'), findsNothing);
     expect(find.text('共 4 个账号 · 含老板、店长、前台、技师'), findsOneWidget);
     expect(api.calls.first, {'action': 'user_list', 'status': 'all'});
   });
@@ -195,19 +189,17 @@ void main() {
     expect(find.text('138 0013 7712'), findsOneWidget);
   });
 
-  testWidgets('注销中账号详情：脱敏姓名、冷静期、身份、设备、操作记录', (t) async {
+  testWidgets('账号详情：脱敏姓名、身份、设备、操作记录', (t) async {
     await open(t);
     await t.tap(find.text('139 1122 3344'));
     await t.pumpAndSettle(const Duration(milliseconds: 400));
     expect(find.text('账号详情'), findsOneWidget);
     expect(find.text('刘** · 注册于 2026-06-18'), findsOneWidget);
-    expect(find.text('用户已申请注销'), findsOneWidget);
-    expect(find.textContaining('（剩 9 天）'), findsOneWidget);
+    expect(find.textContaining('冷静期'), findsNothing);
     expect(find.text('星航汽车养护'), findsOneWidget);
     expect(find.text('加入于 2026-07-02'), findsOneWidget);
     expect(find.text('1 台在线'), findsOneWidget);
-    expect(find.text('注销冷静期'), findsOneWidget);
-    expect(find.textContaining('用户自助申请注销'), findsOneWidget);
+    expect(find.textContaining('后台强制注销'), findsOneWidget);
     expect(find.text('强制注销'), findsOneWidget);
   });
 
@@ -279,14 +271,13 @@ void main() {
     expect(find.textContaining('店铺数据保留'), findsOneWidget);
   });
 
-  testWidgets('「我的」只对超级管理员显示用户账号，并带注销中数量', (t) async {
+  testWidgets('「我的」只对超级管理员显示用户账号', (t) async {
     Account account(Role role) =>
         Account(id: 'me', name: '测试', username: 'tester', role: role);
     store.me = account(Role.superAdmin);
-    store.userCooling = 3;
     await open(t, page: const MinePage());
     expect(find.text('用户账号'), findsOneWidget);
-    expect(find.text('3 个注销中 · 仅超级管理员可见'), findsOneWidget);
+    expect(find.text('老板与员工账号 · 仅超级管理员可见'), findsOneWidget);
     store.me = account(Role.ops);
     store.notifyListeners();
     await t.pumpAndSettle();
