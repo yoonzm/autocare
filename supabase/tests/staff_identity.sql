@@ -106,6 +106,20 @@ begin
   caught:=false; begin perform public.select_staff_identity(tech_u,tech_s,tech_id); caught:=true; exception when others then null; end;
   assert public.select_staff_identity(tech_u,tech_s,tech_id)->>'status'='403','停用身份不能再选';
 
+  -- 已注销账号绑定的员工身份：同一手机号（含注销后新建的用户）不能再顶替登录；老板身份另算。
+  perform public.select_staff_identity(both_u,both_s,cash_id);
+  insert into public.account_cancellations(user_id,phone,source,reason) values(both_u,'13800002222','admin','violation');
+  assert not public.staff_login_exists('13800002222'),'已注销员工不能再走员工登录';
+  assert (public.platform_merchant_session(both_u,both_s,true)->>'status')::int=401,'已选身份的会话立即失效';
+  assert not exists(select 1 from jsonb_array_elements(public.staff_identities(both_u,both_s)->'items') i where i->>'kind'='staff');
+  declare new_u uuid:=gen_random_uuid(); new_s uuid:=gen_random_uuid();
+  begin
+    insert into auth.users(id,phone) values(new_u,'8613800002222');
+    insert into auth.sessions(id,user_id) values(new_s,new_u);
+    assert jsonb_array_length(public.staff_identities(new_u,new_s)->'items')=0,'新用户拿不到已注销员工的身份';
+    assert public.select_staff_identity(new_u,new_s,cash_id)->>'status'='403';
+  end;
+
   -- 函数权限：仅 service_role。
   assert not has_function_privilege('authenticated','public.staff_identities(uuid,uuid)','execute');
   assert not has_function_privilege('anon','public.platform_merchant_session(uuid,uuid,boolean)','execute');
