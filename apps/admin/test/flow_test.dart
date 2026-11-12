@@ -134,6 +134,7 @@ void main() {
       expect(fields.every((f) => f.controller!.text.isEmpty), isTrue);
       expect(find.text('请输入用户名'), findsOneWidget);
       expect(find.textContaining('演示账号'), findsNothing);
+      expect(find.text('忘记密码请联系超级管理员'), findsOneWidget);
       expect(find.byTooltip('显示密码'), findsOneWidget);
       await t.tap(find.byTooltip('显示密码'));
       await t.pump();

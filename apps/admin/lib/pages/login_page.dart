@@ -161,8 +161,37 @@ class _LoginPageState extends State<LoginPage> {
             ],
           ),
         ),
-        bottomNavigationBar: AppBottomBar(
-          primary: AppButton(label: '登录', loading: submitting, onPressed: _submit),
+        bottomNavigationBar: Container(
+          padding: EdgeInsets.fromLTRB(
+            AppSpacing.pageGutter,
+            AppSpacing.s12,
+            AppSpacing.pageGutter,
+            MediaQuery.of(context).padding.bottom + AppSpacing.s12,
+          ),
+          decoration: BoxDecoration(
+            color: AppTokens.of(context).surface,
+            border: Border(top: BorderSide(color: AppTokens.of(context).line)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AppButton(
+                label: '登录',
+                size: AppButtonSize.large,
+                expanded: true,
+                loading: submitting,
+                onPressed: _submit,
+              ),
+              const SizedBox(height: 10),
+              GestureDetector(
+                onTap: () => toast(context, '请联系超级管理员重置密码'),
+                child: Text(
+                  '忘记密码请联系超级管理员',
+                  style: ts(11, color: C.faint, h: 16),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
