@@ -130,14 +130,12 @@ export async function handleAccount(input: Input, request: Request): Promise<Res
   }
 
   if (input.action === 'delete_account') {
-    // Starts the 15-day cooling-off period; signing in again withdraws it.
-    // TODO: purge the account and its data once the period ends (scheduled job).
+    // 立即注销（无冷静期）：只改账号——记录注销、释放手机号、停用登录并让所有设备退出；门店等业务数据不动。
+    // 同一手机号之后重新注册是一个全新的账号。
     const problem = await checkOtp(account.phone, input.code, 'delete_account', true);
     if (problem) return fail(problem);
-    const { error } = await admin.from('stores')
-      .update({ delete_requested_at: new Date().toISOString() }).eq('owner_id', user.id);
-    if (error) return fail('提交失败，请稍后重试', 500);
-    await admin.auth.admin.signOut(token, 'global');
+    const { error } = await admin.rpc('account_cancel_self', { p_user: ownerId });
+    if (error) return fail('注销失败，请稍后重试', 500);
     return json({ ok: true });
   }
 

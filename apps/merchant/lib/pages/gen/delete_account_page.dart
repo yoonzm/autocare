@@ -100,7 +100,7 @@ class DeleteAccountPage extends StatelessWidget {
                       Flexible(
                         flex: 504,
                         child: Text(
-                          '注销后账号无法恢复，请谨慎操作。申请提交后有 15 天冷静期，期间重新登录可撤销。',
+                          '注销后账号立即失效且无法恢复，请谨慎操作。',
                           style: hts(
                             13,
                             dk(context, Color(0xFFA43433), Color(0xFFFF7B7E)),
@@ -443,7 +443,7 @@ class DeleteAccountPage extends StatelessWidget {
                               Flexible(
                                 flex: 182,
                                 child: Text(
-                                  '删除账号、员工权限及登录信息',
+                                  '停用账号并退出所有设备',
                                   style: hts(
                                     13,
                                     dk(
@@ -470,7 +470,7 @@ class DeleteAccountPage extends StatelessWidget {
                               Flexible(
                                 flex: 195,
                                 child: Text(
-                                  '门店经营数据在冷静期结束后清除',
+                                  '门店经营数据保留，不会被清除',
                                   style: hts(
                                     13,
                                     dk(

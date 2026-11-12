@@ -799,7 +799,7 @@ Future<void> _deleteAccount(BuildContext context) async {
   });
   if (!ok || !context.mounted) return;
   RegistrationDraft.clearRoute('DeleteAccount');
-  AppToast.showOn(messenger, '已提交注销申请，15 天内重新登录可撤销', kind: ToastKind.success);
+  AppToast.showOn(messenger, '账号已注销', kind: ToastKind.success);
   _openRouteCore(context, 'Login');
 }
 

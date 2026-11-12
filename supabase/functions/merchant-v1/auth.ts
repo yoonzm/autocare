@@ -21,9 +21,6 @@ function passwordProblem(password: unknown, phone: string): string | null {
   }
   return null;
 }
-// Signing in again during the cooling-off period withdraws a deletion request.
-const cancelDeletion = (userId: string) =>
-  admin.from('stores').update({ delete_requested_at: null }).eq('owner_id', userId);
 
 const ROLES = ['老板', '店长', '前台'];
 const BAYS = Object.keys(BAY_COUNTS);
@@ -57,7 +54,7 @@ async function hasStaffIdentity(phone: string): Promise<boolean> {
 
 /** 后台强制注销过的账号：不能再登录或收验证码。只停用账号，门店数据不受影响。 */
 async function cancelledAccount(phone: string): Promise<Response | null> {
-  const { data, error } = await admin.from('account_cancellations').select('user_id').eq('phone', phone.slice(-11)).maybeSingle();
+  const { data, error } = await admin.from('account_cancellations').select('user_id').eq('source', 'admin').eq('phone', phone.slice(-11)).limit(1).maybeSingle();
   if (error) return fail('服务暂时不可用，请稍后重试', 503);
   return data ? failCode('该账号已注销，无法登录', 403, 'account_cancelled') : null;
 }
@@ -179,7 +176,6 @@ export async function handleAuth(input: Input, request: Request): Promise<Respon
     if (error || !data.session) return fail('手机号或密码错误', 401);
     const state=await merchantSession(data.session.user.id,data.session.access_token,false);
     if(state instanceof Response){await admin.auth.admin.signOut(data.session.access_token,'local');return state;}
-    await cancelDeletion(data.user.id);
     return json({ access_token: data.session.access_token, refresh_token: data.session.refresh_token, staff: await hasStaffIdentity(phone) });
   }
   if (input.action === 'login_code') {
@@ -210,7 +206,6 @@ export async function handleAuth(input: Input, request: Request): Promise<Respon
     // 老板需有可用门店；纯员工账号此时还没选身份，交给登录后的身份选择
     const state=await merchantSession(data.session.user.id,data.session.access_token,false);
     if(state instanceof Response&&!staff){await admin.auth.admin.signOut(data.session.access_token,'local');return state;}
-    if(!staff)await cancelDeletion(data.session.user.id);
     return json({ access_token: data.session.access_token, refresh_token: data.session.refresh_token, staff: !!staff || await hasStaffIdentity(phone) });
   }
   return fail('不支持的操作');
