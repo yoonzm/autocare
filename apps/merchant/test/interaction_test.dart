@@ -458,7 +458,7 @@ void main() {
     await tester.pump(const Duration(seconds: 60)); // 让计时器结束
   });
 
-  testWidgets('我的：各设置项都能进入对应页面', (tester) async {
+  testWidgets('我的：一期隐藏打印机，其余设置项进入对应页面', (tester) async {
     useLiveApi(tester);
     final old = FlutterError.onError;
     FlutterError.onError = (d) {
@@ -469,8 +469,9 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(navigatorObservers: [navTracker], home: const SettingsPage()),
     );
+    await tester.pumpAndSettle();
+    expect(find.text('小票打印机'), findsNothing);
     for (final (row, title) in [
-      ('小票打印机', '小票打印机'),
       ('营业时间与工位', '营业时间与工位'),
       ('账号与安全', '账号与安全'),
       ('关于汽美管家', '关于汽美管家'),

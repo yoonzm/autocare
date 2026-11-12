@@ -303,16 +303,16 @@ void main() {
     expect(find.text('实付合计'), findsOneWidget);
     expect(find.text('经办人'), findsOneWidget);
     expect(find.text('退款'), findsOneWidget);
-    expect(find.text('补打小票'), findsOneWidget);
+    expect(find.text('补打小票'), findsNothing);
   });
 
-  testWidgets('补打小票：打印机没接入，明确提示，不假装成功', (t) async {
+  testWidgets('一期订单详情隐藏补打小票，保留退款入口', (t) async {
     OrderRef.current = (kind: 'consume', id: 'c1');
     await open(t, const OrderDetailLivePage());
-    await t.tap(find.text('补打小票'));
-    await t.pump();
-    expect(find.text('打印机尚未接入，暂不能补打小票'), findsWidgets);
-    await t.pump(const Duration(seconds: 6));
+    expect(find.text('订单详情'), findsOneWidget);
+    expect(find.text('补打小票'), findsNothing);
+    expect(find.text('退款'), findsOneWidget);
+    expect(api.calls.last['action'], 'detail');
   });
 
   testWidgets('退款：全额退款 + 原因提交到云函数，成功后订单显示已退款，退款按钮消失', (t) async {
@@ -377,7 +377,7 @@ void main() {
     expect(find.text('+¥300'), findsOneWidget);
     expect(find.text('入账后余额'), findsOneWidget);
     expect(find.text('退款'), findsNothing);
-    expect(find.text('补打小票'), findsOneWidget);
+    expect(find.text('补打小票'), findsNothing);
   });
 
   test('金额与日期文字：千分位、整数不带小数、负数、日期分组标题', () {
