@@ -18,6 +18,8 @@ import 'package:autocare_ui_kit/autocare_ui_kit.dart';
 
 第 5 层「业务组件」（商品行、会员行、结算明细）放在各业务模块里，不在本包；设计稿的拆分示例在后台预览页「业务组件拆分」里演示。上层可以引用下层，下层不能反向引用。
 
+> 使用规范（后台端强制、商户端优先但不牺牲设计稿）见 `docs/frontend-guidelines.md` 第 17 节。
+
 ## 封装约定
 
 - 取值：`AppTokens.of(context)`。应用主题里注册了 `AppTokens` 扩展就用扩展，否则按主题亮度取 `light` / `dark`。
