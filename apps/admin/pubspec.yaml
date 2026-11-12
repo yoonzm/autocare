@@ -11,6 +11,8 @@ dependencies:
     path: ../../packages/async_kit
   autocare_supabase_adapter:
     path: ../../packages/supabase_adapter
+  autocare_ui_kit:
+    path: ../../packages/ui_kit
   flutter:
     sdk: flutter
   supabase_flutter: ^2.18.3

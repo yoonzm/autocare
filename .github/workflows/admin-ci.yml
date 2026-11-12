@@ -41,6 +41,12 @@ jobs:
           flutter pub get
           flutter analyze
           flutter test
+      - name: Analyze and test ui_kit
+        working-directory: packages/ui_kit
+        run: |
+          flutter pub get
+          flutter analyze
+          flutter test
       - name: Analyze and test supabase_adapter
         working-directory: packages/supabase_adapter
         run: |

@@ -8,6 +8,7 @@ import '../theme.dart';
 import '../ui.dart';
 import '../data/theme_state.dart';
 import 'accounts_pages.dart';
+import 'components/components_preview_page.dart';
 import 'login_page.dart';
 import 'plans_pages.dart';
 import 'sms_pages.dart';
@@ -172,6 +173,18 @@ class MinePage extends StatelessWidget {
                     ? '${store.userCooling} 个注销中 · 仅超级管理员可见'
                     : '老板与员工账号 · 仅超级管理员可见',
                 onTap: () => go(context, const UsersPage()),
+              ),
+            // 组件库预览：对照设计稿检查基础组件，只展示、不影响业务；仅超级管理员可见。
+            if (store.isSuper)
+              Row1(
+                leading: SoftTile(
+                  Icons.widgets_outlined,
+                  C.violetInk,
+                  C.violetSoft,
+                ),
+                title: '组件库',
+                sub: '基础组件预览 · 仅超级管理员可见',
+                onTap: () => go(context, const ComponentsPreviewPage()),
               ),
             Row1(
               leading: SoftTile(Icons.dark_mode_outlined, C.sub, C.chip),

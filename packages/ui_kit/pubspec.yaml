@@ -1,0 +1,14 @@
+name: autocare_ui_kit
+description: 汽美管家基础组件库：令牌、基础元素、组合组件与页面容器（不含业务逻辑和后端依赖）。
+publish_to: none
+environment:
+  sdk: ^3.13.7
+dependencies:
+  autocare_async_kit:
+    path: ../async_kit
+  flutter:
+    sdk: flutter
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0

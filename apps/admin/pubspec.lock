@@ -63,6 +63,13 @@ packages:
       relative: true
     source: path
     version: "0.0.0"
+  autocare_ui_kit:
+    dependency: "direct main"
+    description:
+      path: "../../packages/ui_kit"
+      relative: true
+    source: path
+    version: "0.0.0"
   boolean_selector:
     dependency: transitive
     description:
