@@ -22,6 +22,19 @@ class _Api extends BookingApi {
     'hours_line': '08:30–21:00 · 2 工位 · 统一管理',
   };
   @override
+  Future<Map<String, dynamic>> invoke(
+    Map<String, dynamic> body, {
+    Duration timeout = const Duration(seconds: 15),
+    String? requestId,
+  }) async {
+    if (body['action'] == 'store_media_list' ||
+        body['action'] == 'staff_task_photo_list') {
+      return {'items': []};
+    }
+    return super.invoke(body, timeout: timeout, requestId: requestId);
+  }
+
+  @override
   Future<Map<String, dynamic>> getStore() async {
     reads++;
     final snapshot = Map<String, dynamic>.from(store);

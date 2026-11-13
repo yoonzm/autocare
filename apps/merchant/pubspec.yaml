@@ -7,6 +7,8 @@ environment:
   sdk: ^3.13.7
 
 dependencies:
+  autocare_ui_kit:
+    path: ../../packages/ui_kit
   autocare_async_kit:
     path: ../../packages/async_kit
   autocare_supabase_adapter:

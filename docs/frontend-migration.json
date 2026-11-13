@@ -1187,6 +1187,12 @@
       "domain": "catalog",
       "status": "verified",
       "legacyDependencies": []
+    },
+    {
+      "path": "pages/expenses/voucher_gallery.dart",
+      "domain": "expenses",
+      "status": "verified",
+      "legacyDependencies": []
     }
   ],
   "sharedCleanup": {

@@ -482,3 +482,8 @@ LoadingButton(
 - 最终导航与缓存审计已完成：组合页移入catalog，CatalogRoute独立持有页签，移除全局pairTabs；供应商保存使用实例锁并显示失败。ServiceStore按API/门店epoch/清空revision隔离且返回深只读快照；StoreProfile丢弃晚到读取。删除一期不用的订阅/名额适配与注册数量全局缓存，成功页只收真实回执。登录与身份确认后统一恢复门店资料，失败可重试，业务页恢复前不发请求。最终全量693项及组件包9项通过、静态分析无问题；Android构建待补，未修改后端，未提交或推送。
 
 - 最终交付：Android Release APK已成功构建（90,787,922字节，约86.6MiB），包名`com.yoonzm.autocare.merchant`，版本`1.0.0 (1)`，包含arm64-v8a/armeabi-v7a/x86_64。`apksigner verify`通过，当前为Android Debug证书；`aapt2`包信息通过核对。产物位置、SHA-256、签名与构建日志见迁移清单`buildArtifact`。没有真机/生产数据操作验收；后端、数据库保持不变，未提交、推送或发布。
+
+
+### 图片上传统一（2026-11-13 用户批准）
+
+商户反馈截图、支出凭证、入库附件、门店照片和施工照片统一使用 `AppImageUploader`，图格与间距采用组件库标准；头像与车牌识别保持原实现。允许移除旧槽位和文件名列表，统一为真实缩略图网格。业务保存时机、接口权限、错误恢复与已知限制见 [图片上传迁移](image-upload-migration.md)。未知上传进度必须传 `null`，不得伪造百分比；滚动页中的图片请求区使用 `AsyncView(shrinkWrap: true, inlineError: true)`。

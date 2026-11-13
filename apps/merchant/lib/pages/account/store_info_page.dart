@@ -1,3 +1,5 @@
+import '../../kit/upload_gallery.dart';
+import '../../backend/media_api.dart';
 import '../../backend/appointment_flow.dart';
 import '../../backend/data_snapshot.dart';
 import '../../backend/merchant_api.dart';
@@ -286,62 +288,14 @@ class _StoreInfoView extends StatelessWidget {
                   clip: true,
                   child: hcol(
                     [
-                      GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () {
-                          // TODO: 门店门头照片尚无读取/上传/保存接口，预期 store_profile storefront_photo_url；不能选择本地图片冒充已保存。
-                          hToast(context, '门店照片暂未接通：缺少读取与保存接口');
-                        },
-                        child: hbox(
-                          h: 150,
-                          bg: dk(context, Color(0xFFE4E4E7), Color(0xFF3A3A40)),
-                          child: hstack(
-                            hcol(
-                              [
-                                hsvg(
-                                  dk(context, Svgs.s372, Svgs.s373),
-                                  w: 28,
-                                  h: 28,
-                                ),
-                                Text(
-                                  '[门店门头照片]',
-                                  style: hts(
-                                    12,
-                                    dk(
-                                      context,
-                                      Color(0xFF52525B),
-                                      Color(0xFFA8A8B3),
-                                    ),
-                                    lh: 16,
-                                  ),
-                                ),
-                              ],
-                              main: MainAxisAlignment.center,
-                              cross: CrossAxisAlignment.center,
-                              gap: 6,
-                              min: false,
-                            ),
-                            [
-                              Positioned(
-                                right: 12,
-                                bottom: 12,
-                                child: hbox(
-                                  bg: Color.fromRGBO(24, 24, 27, 0.7),
-                                  radius: BorderRadius.circular(12),
-                                  pad: EdgeInsets.fromLTRB(10, 0, 10, 0),
-                                  child: Text(
-                                    '—',
-                                    style: hts(
-                                      12,
-                                      Color(0xFFFFFFFF),
-                                      w: FontWeight.w500,
-                                      lh: 24,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: UploadGallery(
+                          key: ObjectKey(store),
+                          title: '门店照片',
+                          max: 9,
+                          load: MediaApi.store(merchantApi).load,
+                          refresh: MediaApi.store(merchantApi).refresh,
                         ),
                       ),
                       hbox(

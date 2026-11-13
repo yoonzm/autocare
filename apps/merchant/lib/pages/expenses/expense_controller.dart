@@ -1,3 +1,5 @@
+import 'voucher_gallery.dart';
+
 import 'dart:convert';
 import 'dart:math' as math;
 
@@ -82,8 +84,13 @@ class ExpenseController extends ChangeNotifier {
     request,
   }) : _request =
            request ??
-           ((body, {requestId}) =>
-               merchantApi.invoke(body, requestId: requestId)),
+           ((body, {requestId}) => merchantApi.invoke(
+             body,
+             requestId: requestId,
+             timeout: body['action'] == 'expense_upload'
+                 ? const Duration(seconds: 60)
+                 : kRequestTimeout,
+           )),
        board = expenseCopy(board),
        draft = entry == null
            ? {
@@ -414,57 +421,9 @@ class ExpenseController extends ChangeNotifier {
     );
   }
 
-  Widget vouchers(BuildContext context) => Wrap(
-    spacing: 10,
-    children: [
-      for (final path in List<String>.from(draft['attachments'] as List? ?? []))
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextButton.icon(
-              onPressed: () => showVoucher(context, path),
-              icon: const Icon(Icons.receipt_long),
-              label: const Text('查看凭证'),
-            ),
-            if (mode == 'add')
-              IconButton(
-                tooltip: '移除凭证',
-                onPressed: () {
-                  draft['attachments'] = List<String>.from(draft['attachments'])
-                    ..remove(path);
-                  changed();
-                },
-                icon: const Icon(Icons.close, size: 18),
-              ),
-          ],
-        ),
-      if ((draft['attachments'] as List? ?? []).isEmpty)
-        Text('未上传凭证', style: ts(13, color: C.muted)),
-    ],
+  Widget vouchers(BuildContext context) => VoucherGallery(
+    title: '凭证',
+    paths: List<String>.from(draft['attachments'] ?? []),
+    request: request,
   );
-  Future<void> showVoucher(BuildContext context, String path) async {
-    final key = GlobalKey<AsyncViewState<Map<String, dynamic>>>();
-    await showDialog(
-      context: context,
-      builder: (ctx) => Dialog(
-        child: SizedBox(
-          height: 400,
-          child: AsyncView<Map<String, dynamic>>(
-            key: key,
-            load: () => request({'action': 'expense_voucher', 'path': path}),
-            isEmpty: (_) => false,
-            skeleton: const SkeletonList(count: 3),
-            empty: (_) => const SizedBox(),
-            builder: (_, r) => Image.network(
-              r['item']['signedUrl'],
-              errorBuilder: (_, e, _) => ErrorView(
-                error: AppError.from(e),
-                onRetry: () async => key.currentState?.reload(),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }

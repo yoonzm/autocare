@@ -136,6 +136,8 @@ class MerchantApi {
     'staff_get',
     'staff_records',
     'staff_home',
+    'staff_task_photo_list',
+    'store_media_list',
     'identity_list',
     'identity_context',
     'home_stats',
