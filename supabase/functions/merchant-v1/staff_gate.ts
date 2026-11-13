@@ -66,6 +66,7 @@ const byAction: Record<string, Requirement> = {
   staff_messages: any,
   staff_messages_read: any,
   home_stats: cap('stats_view_store'),
+  business_stats: cap('stats_view_store'),
   package_stats: cap('stats_view_store'),
   settings_stats: cap('catalog_manage'),
   change_password: owner,

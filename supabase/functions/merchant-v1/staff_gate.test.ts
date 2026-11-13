@@ -72,6 +72,13 @@ Deno.test('package statistics require store statistics permission, including kin
   assert(!can('technician', [], { action: 'package_stats', kind: 'packages' }));
 });
 
+Deno.test('business statistics need store statistics permission, including kind spoofing', () => {
+  assert(can('manager', ['stats_view_store'], { action: 'business_stats' }));
+  assert(!can('manager', ['catalog_manage'], { action: 'business_stats' }));
+  assert(!can('cashier', ['cashier', 'member_view'], { action: 'business_stats' }));
+  assert(!can('technician', [], { action: 'business_stats', kind: 'services' }));
+});
+
 Deno.test('staff workflow actions: tasks need task caps, perf needs perf cap, messages are open to any staff', () => {
   assert(can('technician', ['order_view_own'], { action: 'staff_task_list' }));
   assert(!can('technician', ['order_view_own'], { action: 'staff_task_finish' }));

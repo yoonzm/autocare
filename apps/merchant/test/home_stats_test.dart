@@ -1,4 +1,5 @@
 import 'package:autocare_merchant/pages/members/member_events.dart';
+
 import 'dart:async';
 
 import 'package:autocare_merchant/backend/hold_store.dart';
@@ -8,7 +9,7 @@ import 'package:autocare_merchant/pages/shared/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'members_test.dart' show MemberFakeApi, phone;
+import 'members_test.dart' show MemberFakeApi, emptyBusinessStats, phone;
 
 class StatsApi extends MemberFakeApi {
   Object? error;
@@ -23,6 +24,24 @@ class StatsApi extends MemberFakeApi {
     'daily_revenue': [0, 100, 200, 0, 500, 300, 1234.56],
     'recharge': 600,
   };
+
+  /// 营业统计页：按时段返回的数据（缺省回退空店）、请求记录与可控的失败 / 延迟。
+  final business = <String, Map<String, dynamic>>{};
+  final businessCalls = <({String range, DateTime? from, DateTime? to})>[];
+  Object? businessError;
+  Completer<void>? businessWait;
+  @override
+  Future<Map<String, dynamic>> businessStats(
+    String range, {
+    DateTime? from,
+    DateTime? to,
+  }) async {
+    businessCalls.add((range: range, from: from, to: to));
+    await businessWait?.future;
+    if (businessError != null) throw businessError!;
+    return business[range] ?? emptyBusinessStats(range);
+  }
+
   @override
   Future<Map<String, dynamic>> homeStats() async {
     await wait?.future;

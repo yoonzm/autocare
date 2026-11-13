@@ -24,6 +24,26 @@ import 'package:flutter_test/flutter_test.dart';
 
 Map<String, dynamic>? fixtureMember;
 
+/// 营业统计的空店响应（与服务端 `merchant_business_stats` 同形）。
+Map<String, dynamic> emptyBusinessStats(String range) => {
+  'range': range,
+  'from': '2026-11-03',
+  'to': '2026-11-03',
+  'prev_from': '2026-10-27',
+  'prev_to': '2026-10-27',
+  'revenue': 0,
+  'orders': 0,
+  'change_percent': null,
+  'member_share': null,
+  'unit': 'day',
+  'current': [0],
+  'previous': [0],
+  'composition': [
+    for (final key in ['coating', 'wrap', 'wash', 'other'])
+      {'key': key, 'amount': 0, 'percent': 0},
+  ],
+};
+
 class MemberFakeApi extends MerchantApi {
   final tiers = <Map<String, dynamic>>[
     {'id': 't-base', 'name': '普通会员'},
@@ -41,6 +61,13 @@ class MemberFakeApi extends MerchantApi {
 
   @override
   bool get hasSession => true;
+
+  @override
+  Future<Map<String, dynamic>> businessStats(
+    String range, {
+    DateTime? from,
+    DateTime? to,
+  }) async => emptyBusinessStats(range);
 
   @override
   Future<Map<String, dynamic>> homeStats() async => {

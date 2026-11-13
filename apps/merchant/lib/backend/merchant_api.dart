@@ -139,6 +139,7 @@ class MerchantApi {
     'identity_list',
     'identity_context',
     'home_stats',
+    'business_stats',
     'package_stats',
     'settings_stats',
     'list_stores',
@@ -368,6 +369,24 @@ class MerchantApi {
 
   Future<Map<String, dynamic>> homeStats() async {
     final data = await invoke({'action': 'home_stats'});
+    return Map<String, dynamic>.from(data['item'] as Map);
+  }
+
+  /// 营业统计页：range 为 today / week / month / custom；custom 需带起止日（含首尾，北京时间日期）。
+  /// 门店、“今天”和对比期都由服务端决定。
+  Future<Map<String, dynamic>> businessStats(
+    String range, {
+    DateTime? from,
+    DateTime? to,
+  }) async {
+    String day(DateTime d) =>
+        '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+    final data = await invoke({
+      'action': 'business_stats',
+      'range': range,
+      if (from != null) 'from': day(from),
+      if (to != null) 'to': day(to),
+    });
     return Map<String, dynamic>.from(data['item'] as Map);
   }
 
