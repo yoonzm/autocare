@@ -1,3 +1,4 @@
+import '../../kit/buttons.dart';
 import 'inventory_controller.dart';
 import 'inventory_live_page.dart';
 
@@ -99,10 +100,13 @@ class _InventoryPageState extends State<InventoryPage> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    PrimaryButton(
-                      '添加第一个商品',
-                      onTap: () => openRoute(context, 'ProductEdit'),
-                      padding: const EdgeInsets.symmetric(horizontal: 28),
+                    AppButton(
+                      expanded: true,
+                      label: '添加第一个商品',
+                      onPressed: () => openRoute(context, 'ProductEdit'),
+                      kind: AppButtonKind.primary,
+                      size: AppButtonSize.large,
+                      loading: false,
                     ),
                   ],
                 ),
@@ -146,31 +150,13 @@ class _InventoryPageState extends State<InventoryPage> {
                 onTap: () => openRoute(context, 'ScanProduct'),
               ),
               const SizedBox(width: 8),
-              GestureDetector(
-                onTap: () => openRoute(context, 'StockIn'),
-                child: Container(
-                  height: 44,
-                  padding: const EdgeInsets.fromLTRB(12, 0, 16, 0),
-                  decoration: BoxDecoration(
-                    color: C.primary,
-                    borderRadius: BorderRadius.circular(22),
-                  ),
-                  child: Row(
-                    children: [
-                      AppIcon('add', size: 18, color: Colors.white),
-                      const SizedBox(width: 6),
-                      Text(
-                        '入库',
-                        style: ts(
-                          14,
-                          w: FontWeight.w500,
-                          color: Colors.white,
-                          h: 20,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              AppButton(
+                label: '入库',
+                kind: AppButtonKind.primary,
+                size: AppButtonSize.medium,
+                expanded: false,
+                svg: AppIcon.svg('add'),
+                onPressed: () => openRoute(context, 'StockIn'),
               ),
             ],
           ),
@@ -231,21 +217,12 @@ class _InventoryPageState extends State<InventoryPage> {
                     ],
                   ),
                 ),
-                GestureDetector(
-                  onTap: () => openRoute(context, 'ProductList'),
-                  child: Container(
-                    height: 32,
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: C.chip,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Text(
-                      '去补货',
-                      style: ts(13, w: FontWeight.w500, h: 18),
-                    ),
-                  ),
+                AppButton(
+                  label: '去补货',
+                  kind: AppButtonKind.secondary,
+                  size: AppButtonSize.small,
+                  expanded: false,
+                  onPressed: () => openRoute(context, 'ProductList'),
                 ),
               ],
             ),

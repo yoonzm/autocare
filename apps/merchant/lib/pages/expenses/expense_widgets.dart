@@ -1,3 +1,5 @@
+import '../../kit/buttons.dart';
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -87,13 +89,15 @@ Future<String?> expenseInput(
         decoration: InputDecoration(hintText: hint),
       ),
       actions: [
-        TextButton(
+        AppButton(
+          label: '取消',
+          kind: AppButtonKind.secondary,
           onPressed: () => Navigator.pop(ctx),
-          child: const Text('取消'),
         ),
-        TextButton(
+        AppButton(
+          label: '确定',
+          kind: AppButtonKind.primary,
           onPressed: () => Navigator.pop(ctx, ctrl.text.trim()),
-          child: const Text('确定'),
         ),
       ],
     ),

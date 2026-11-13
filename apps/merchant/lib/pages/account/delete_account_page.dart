@@ -1,3 +1,5 @@
+import '../../kit/buttons.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../kit/kit.dart';
@@ -95,62 +97,10 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
                   [
                     hrow(
                       [
-                        GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () => Navigator.of(context).maybePop(),
-                          child: hbox(
-                            w: 44,
-                            h: 44,
-                            bg: dk(
-                              context,
-                              Color(0xFFFFFFFF),
-                              Color(0xFF18181B),
-                            ),
-                            radius: BorderRadius.circular(22),
-                            shadow: dk(
-                              context,
-                              [
-                                BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.06),
-                                  offset: Offset(0, 0),
-                                  blurRadius: 1,
-                                  spreadRadius: 0,
-                                ),
-                                BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.06),
-                                  offset: Offset(0, 1),
-                                  blurRadius: 2,
-                                  spreadRadius: 0,
-                                ),
-                                BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.04),
-                                  offset: Offset(0, 2),
-                                  blurRadius: 4,
-                                  spreadRadius: 0,
-                                ),
-                              ],
-                              [
-                                BoxShadow(
-                                  color: Color(0xFF26262B),
-                                  offset: Offset(0, 0),
-                                  blurRadius: 0,
-                                  spreadRadius: 1,
-                                ),
-                              ],
-                            ),
-                            child: hrow(
-                              [
-                                hsvg(
-                                  dk(context, Svgs.s0, Svgs.s1),
-                                  w: 20,
-                                  h: 20,
-                                ),
-                              ],
-                              main: MainAxisAlignment.center,
-                              cross: CrossAxisAlignment.center,
-                              gap: 0,
-                            ),
-                          ),
+                        AppIconButton(
+                          svg: dk(context, Svgs.s0, Svgs.s1),
+                          semanticLabel: "返回",
+                          onPressed: () => Navigator.of(context).maybePop(),
                         ),
                         Expanded(
                           flex: 1,
@@ -339,26 +289,16 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
                                         ),
                                       ),
                                       if (check['can_cancel'] != true)
-                                        GestureDetector(
-                                          behavior: HitTestBehavior.opaque,
-                                          onTap: () => openRoute(
+                                        AppButton(
+                                          label: '去处理',
+                                          kind: AppButtonKind.text,
+                                          size: AppButtonSize.medium,
+                                          expanded: false,
+                                          onPressed: () => openRoute(
                                             context,
                                             check['holds'] > 0
                                                 ? 'HoldList'
                                                 : 'Appointments',
-                                          ),
-                                          child: Text(
-                                            '去处理',
-                                            style: hts(
-                                              13,
-                                              dk(
-                                                context,
-                                                Color(0xFF1E63AE),
-                                                Color(0xFF6AB4FA),
-                                              ),
-                                              w: FontWeight.w500,
-                                              lh: 18,
-                                            ),
                                           ),
                                         ),
                                     ],
@@ -765,76 +705,9 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
                                     ),
                                     ListenableBuilder(
                                       listenable: _sms,
-                                      builder: (context, _) => GestureDetector(
-                                        behavior: HitTestBehavior.opaque,
-                                        onTap: _sendCode,
-                                        child: hbox(
-                                          h: 36,
-                                          bg: dk(
-                                            context,
-                                            Color(0xFFFFFFFF),
-                                            Color(0xFF18181B),
-                                          ),
-                                          radius: BorderRadius.circular(18),
-                                          shadow: dk(
-                                            context,
-                                            [
-                                              BoxShadow(
-                                                color: Color.fromRGBO(
-                                                  0,
-                                                  0,
-                                                  0,
-                                                  0.06,
-                                                ),
-                                                offset: Offset(0, 0),
-                                                blurRadius: 1,
-                                                spreadRadius: 0,
-                                              ),
-                                              BoxShadow(
-                                                color: Color.fromRGBO(
-                                                  0,
-                                                  0,
-                                                  0,
-                                                  0.06,
-                                                ),
-                                                offset: Offset(0, 1),
-                                                blurRadius: 2,
-                                                spreadRadius: 0,
-                                              ),
-                                            ],
-                                            [
-                                              BoxShadow(
-                                                color: Color(0xFF26262B),
-                                                offset: Offset(0, 0),
-                                                blurRadius: 0,
-                                                spreadRadius: 1,
-                                              ),
-                                            ],
-                                          ),
-                                          pad: EdgeInsets.fromLTRB(
-                                            14,
-                                            0,
-                                            14,
-                                            0,
-                                          ),
-                                          child: Align(
-                                            alignment: Alignment.center,
-                                            widthFactor: 1,
-                                            child: smsCodeText(
-                                              _sms,
-                                              hts(
-                                                13,
-                                                dk(
-                                                  context,
-                                                  Color(0xFF1E63AE),
-                                                  Color(0xFF6AB4FA),
-                                                ),
-                                                w: FontWeight.w500,
-                                                lh: 18,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
+                                      builder: (context, _) => smsCodeButton(
+                                        _sms,
+                                        onPressed: _sendCode,
                                       ),
                                     ),
                                   ],
@@ -942,95 +815,14 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
                   [
                     Expanded(
                       flex: 1,
-                      child: _problem == null
-                          ? GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              onTap: onSubmit,
-                              child: hbox(
-                                h: 50,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFFFE1E2),
-                                  Color.fromRGBO(255, 56, 60, 0.18),
-                                ),
-                                radius: BorderRadius.circular(25),
-                                child: Align(
-                                  alignment: Alignment(0, 0),
-                                  widthFactor: 1,
-                                  child: hBusy(
-                                    actionKey,
-                                    Text(
-                                      '申请注销',
-                                      style: hts(
-                                        15,
-                                        dk(
-                                          context,
-                                          Color(0xFFA43433),
-                                          Color(0xFFFF7B7E),
-                                        ),
-                                        w: FontWeight.w500,
-                                        lh: 22,
-                                      ),
-                                    ),
-                                    style: hts(
-                                      15,
-                                      dk(
-                                        context,
-                                        Color(0xFFA43433),
-                                        Color(0xFFFF7B7E),
-                                      ),
-                                      w: FontWeight.w500,
-                                      lh: 22,
-                                    ),
-                                    label: '提交中…',
-                                  ),
-                                ),
-                              ),
-                            )
-                          : GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              onTap: onSubmit,
-                              child: hbox(
-                                h: 50,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFE4E4E7),
-                                  Color(0xFF3A3A40),
-                                ),
-                                radius: BorderRadius.circular(25),
-                                child: Align(
-                                  alignment: Alignment(0, 0),
-                                  widthFactor: 1,
-                                  child: hBusy(
-                                    actionKey,
-                                    Text(
-                                      '申请注销',
-                                      style: hts(
-                                        15,
-                                        dk(
-                                          context,
-                                          Color(0xFFA1A1AA),
-                                          Color(0xFF80808A),
-                                        ),
-                                        w: FontWeight.w500,
-                                        lh: 22,
-                                      ),
-                                    ),
-                                    style: hts(
-                                      15,
-                                      dk(
-                                        context,
-                                        Color(0xFFA1A1AA),
-                                        Color(0xFF80808A),
-                                      ),
-                                      w: FontWeight.w500,
-                                      lh: 22,
-                                    ),
-                                    label: '提交中…',
-                                  ),
-                                ),
-                              ),
-                            ),
+                      child: ActionButton(
+                        actionKey: actionKey,
+                        label: '申请注销',
+                        kind: AppButtonKind.danger,
+                        size: AppButtonSize.large,
+                        expanded: true,
+                        onPressed: _problem == null ? onSubmit : null,
+                      ),
                     ),
                   ],
                   main: MainAxisAlignment.start,

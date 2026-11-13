@@ -128,7 +128,10 @@ void main() {
     final point = t.getCenter(find.text('下一步'));
     await t.tapAt(point);
     await t.pump();
-    expect(t.getSize(find.byType(AppSpinner)), const Size(18, 18));
+    expect(
+      t.getSize(find.byType(CircularProgressIndicator)),
+      const Size(16, 16),
+    );
     await t.tapAt(point);
     await t.pump();
     expect(api.checks, [('13800001234', '246810')]);
@@ -152,7 +155,10 @@ void main() {
     final point = t.getCenter(find.text('免费开通'));
     await t.tapAt(point);
     await t.pump();
-    expect(t.getSize(find.byType(AppSpinner)), const Size(18, 18));
+    expect(
+      t.getSize(find.byType(CircularProgressIndicator)),
+      const Size(16, 16),
+    );
     await t.tapAt(point);
     await t.pump();
     expect(api.registrations, hasLength(1));

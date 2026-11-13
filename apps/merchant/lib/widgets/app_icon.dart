@@ -85,6 +85,16 @@ const Map<String, double> _defaultStroke = {
 
 /// 设计稿图标。[name] 对应 `_icons` 中的键；[fill] 用于首页等选中态的实心图标。
 class AppIcon extends StatelessWidget {
+  /// 单色按钮使用同一份图标资源，颜色由 ui_kit 的按钮状态统一应用。
+  static String svg(String name) {
+    final stroke = _defaultStroke[name] ?? 1.8;
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" '
+        'fill="${name == 'dotsFill' ? '#000000' : 'none'}" '
+        'stroke="${name == 'dotsFill' ? 'none' : '#000000'}" '
+        'stroke-width="$stroke" stroke-linecap="round" stroke-linejoin="round">'
+        '${_icons[name] ?? ''}</svg>';
+  }
+
   final String name;
   final double size;
   final Color color;

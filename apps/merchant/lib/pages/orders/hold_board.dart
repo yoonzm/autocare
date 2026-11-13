@@ -1,3 +1,4 @@
+import '../../kit/buttons.dart';
 import 'order_route_data.dart';
 
 import 'dart:async';
@@ -281,33 +282,12 @@ class _HoldBoardState extends State<HoldBoard> {
                       ),
                     ),
                   ),
-                  GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => _remind(context),
-                    child: hbox(
-                      h: 30,
-                      bg: const Color(0xFFF5D78E),
-                      radius: BorderRadius.circular(15),
-                      pad: const EdgeInsets.symmetric(horizontal: 14),
-                      child: Align(
-                        widthFactor: 1,
-                        child: Text(
-                          '提醒取车',
-                          style: hts(
-                            13,
-                            dk(
-                              context,
-                              const Color(0xFF18181B),
-                              const Color(0xFFFAFAFA),
-                            ),
-                            w: FontWeight.w600,
-                            lh: 18,
-                          ),
-                          softWrap: false,
-                          maxLines: 1,
-                        ),
-                      ),
-                    ),
+                  AppButton(
+                    label: '提醒取车',
+                    kind: AppButtonKind.secondary,
+                    size: AppButtonSize.small,
+                    expanded: false,
+                    onPressed: () => _remind(context),
                   ),
                 ],
                 cross: CrossAxisAlignment.center,
@@ -510,108 +490,36 @@ class _HoldBoardState extends State<HoldBoard> {
               child: UnconstrainedBox(
                 alignment: Alignment.topLeft,
                 constrainedAxis: Axis.horizontal,
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () => _takeOut(context, c),
-                  child: hbox(
-                    h: 42,
-                    bg: c.ready
-                        ? const Color(0xFF0485F7)
-                        : dk(
-                            context,
-                            const Color(0xFF18181B),
-                            const Color(0xFFFAFAFA),
-                          ),
-                    radius: BorderRadius.circular(21),
-                    child: Align(
-                      widthFactor: 1,
-                      child: Text(
-                        '取单结算',
-                        style: hts(
-                          14,
-                          c.ready
-                              ? const Color(0xFFFFFFFF)
-                              : dk(
-                                  context,
-                                  const Color(0xFFFFFFFF),
-                                  const Color(0xFF18181B),
-                                ),
-                          w: FontWeight.w600,
-                          lh: 20,
-                        ),
-                      ),
-                    ),
-                  ),
+                child: AppButton(
+                  label: '取单结算',
+                  kind: AppButtonKind.primary,
+                  size: AppButtonSize.medium,
+                  expanded: false,
+                  onPressed: () => _takeOut(context, c),
                 ),
               ),
             ),
             UnconstrainedBox(
               alignment: Alignment.topLeft,
               constrainedAxis: Axis.horizontal,
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: c.ready
+              child: AppButton(
+                label: c.ready ? '提醒取车' : '加项',
+                kind: AppButtonKind.secondary,
+                size: AppButtonSize.medium,
+                expanded: false,
+                onPressed: c.ready
                     ? () => _remind(context)
                     : () => _takeOut(context, c),
-                child: hbox(
-                  h: 42,
-                  bg: dk(
-                    context,
-                    const Color(0xFFEEEEF0),
-                    const Color(0xFF27272A),
-                  ),
-                  radius: BorderRadius.circular(21),
-                  pad: const EdgeInsets.symmetric(horizontal: 18),
-                  child: Align(
-                    widthFactor: 1,
-                    child: Text(
-                      c.ready ? '提醒取车' : '加项',
-                      style: hts(14, ink, w: FontWeight.w500, lh: 20),
-                    ),
-                  ),
-                ),
               ),
             ),
             UnconstrainedBox(
               alignment: Alignment.topLeft,
               constrainedAxis: Axis.horizontal,
-              child: Semantics(
-                label: '删除挂单',
-                button: true,
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: removing ? () {} : () => _remove(context, c),
-                  child: hbox(
-                    w: 42,
-                    h: 42,
-                    bg: dk(
-                      context,
-                      const Color(0xFFFFE1E2),
-                      const Color.fromRGBO(255, 56, 60, 0.18),
-                    ),
-                    radius: BorderRadius.circular(21),
-                    child: hrow(
-                      [
-                        removing
-                            ? AppSpinner(
-                                size: 20,
-                                color: dk(
-                                  context,
-                                  const Color(0xFFA43433),
-                                  const Color(0xFFFF7B7E),
-                                ),
-                              )
-                            : hsvg(
-                                dk(context, Svgs.s165, Svgs.s166),
-                                w: 18,
-                                h: 18,
-                              ),
-                      ],
-                      main: MainAxisAlignment.center,
-                      cross: CrossAxisAlignment.center,
-                    ),
-                  ),
-                ),
+              child: AppIconButton(
+                svg: dk(context, Svgs.s165, Svgs.s166),
+                semanticLabel: '删除挂单',
+                loading: removing,
+                onPressed: removing ? null : () => _remove(context, c),
               ),
             ),
           ],

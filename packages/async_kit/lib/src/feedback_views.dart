@@ -90,18 +90,25 @@ class EmptyView extends StatelessWidget {
           ),
           if (actionLabel != null && onAction != null) ...[
             const SizedBox(width: 8),
-            GestureDetector(
-              onTap: onAction,
-              child: Text(
-                actionLabel!,
-                style: AsyncKitTheme.of(context).textStyle(
-                  13,
-                  w: FontWeight.w600,
-                  color: AsyncKitTheme.of(context).primaryInk,
-                  h: 19,
+            Theme.of(context).extension<AsyncButtonTheme>()?.builder(
+                  context,
+                  actionLabel!,
+                  onAction,
+                  false,
+                  AsyncButtonKind.text,
+                ) ??
+                GestureDetector(
+                  onTap: onAction,
+                  child: Text(
+                    actionLabel!,
+                    style: AsyncKitTheme.of(context).textStyle(
+                      13,
+                      w: FontWeight.w600,
+                      color: AsyncKitTheme.of(context).primaryInk,
+                      h: 19,
+                    ),
+                  ),
                 ),
-              ),
-            ),
           ],
         ],
       );
@@ -160,38 +167,59 @@ class _PillButton extends StatelessWidget {
     this.busy = false,
   });
   @override
-  Widget build(BuildContext context) => Semantics(
-    button: true,
-    label: busy ? '$label中' : label,
-    child: GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: busy ? null : onTap,
-      child: Container(
-        constraints: const BoxConstraints(minWidth: 96, minHeight: 44),
-        alignment: Alignment.center,
-        child: Container(
-          height: 40,
-          padding: const EdgeInsets.symmetric(horizontal: 28),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: filled
-                ? AsyncKitTheme.of(context).primary
-                : AsyncKitTheme.of(context).chip,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: busy
-              ? Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    AppSpinner(
-                      size: 14,
-                      color: filled
-                          ? Colors.white
-                          : AsyncKitTheme.of(context).ink,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      '$label中…',
+  Widget build(BuildContext context) =>
+      Theme.of(context).extension<AsyncButtonTheme>()?.builder(
+        context,
+        label,
+        onTap,
+        busy,
+        filled ? AsyncButtonKind.primary : AsyncButtonKind.secondary,
+      ) ??
+      Semantics(
+        button: true,
+        label: busy ? '$label中' : label,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: busy ? null : onTap,
+          child: Container(
+            constraints: const BoxConstraints(minWidth: 96, minHeight: 44),
+            alignment: Alignment.center,
+            child: Container(
+              height: 40,
+              padding: const EdgeInsets.symmetric(horizontal: 28),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: filled
+                    ? AsyncKitTheme.of(context).primary
+                    : AsyncKitTheme.of(context).chip,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: busy
+                  ? Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        AppSpinner(
+                          size: 14,
+                          color: filled
+                              ? Colors.white
+                              : AsyncKitTheme.of(context).ink,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          '$label中…',
+                          style: AsyncKitTheme.of(context).textStyle(
+                            14,
+                            w: FontWeight.w600,
+                            color: filled
+                                ? Colors.white
+                                : AsyncKitTheme.of(context).ink,
+                            h: 20,
+                          ),
+                        ),
+                      ],
+                    )
+                  : Text(
+                      label,
                       style: AsyncKitTheme.of(context).textStyle(
                         14,
                         w: FontWeight.w600,
@@ -201,23 +229,10 @@ class _PillButton extends StatelessWidget {
                         h: 20,
                       ),
                     ),
-                  ],
-                )
-              : Text(
-                  label,
-                  style: AsyncKitTheme.of(context).textStyle(
-                    14,
-                    w: FontWeight.w600,
-                    color: filled
-                        ? Colors.white
-                        : AsyncKitTheme.of(context).ink,
-                    h: 20,
-                  ),
-                ),
+            ),
+          ),
         ),
-      ),
-    ),
-  );
+      );
 }
 
 // ───────── 错误 ─────────

@@ -1,3 +1,4 @@
+import '../../kit/buttons.dart';
 import 'expense_widgets.dart';
 import '../../kit/single_selection.dart';
 import 'expense_controller.dart';
@@ -724,27 +725,12 @@ class BudgetAdjustLiveTemplate extends StatelessWidget {
                   child: UnconstrainedBox(
                     alignment: Alignment.topLeft,
                     constrainedAxis: Axis.horizontal,
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => Navigator.of(context).maybePop(),
-                      child: hbox(
-                        h: 50,
-                        bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
-                        radius: BorderRadius.circular(25),
-                        child: Align(
-                          alignment: Alignment(0, 0),
-                          widthFactor: 1,
-                          child: Text(
-                            '取消',
-                            style: hts(
-                              15,
-                              dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                              w: FontWeight.w500,
-                              lh: 22,
-                            ),
-                          ),
-                        ),
-                      ),
+                    child: AppButton(
+                      label: '取消',
+                      kind: AppButtonKind.secondary,
+                      size: AppButtonSize.large,
+                      expanded: true,
+                      onPressed: () => Navigator.of(context).maybePop(),
                     ),
                   ),
                 ),
@@ -753,33 +739,13 @@ class BudgetAdjustLiveTemplate extends StatelessWidget {
                   child: UnconstrainedBox(
                     alignment: Alignment.topLeft,
                     constrainedAxis: Axis.horizontal,
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => c.save(context),
-                      child: hbox(
-                        h: 50,
-                        bg: dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                        radius: BorderRadius.circular(25),
-                        child: Align(
-                          alignment: Alignment(0, 0),
-                          widthFactor: 1,
-                          child: c.busyLabel(
-                            Text(
-                              '确认追加',
-                              style: hts(
-                                15,
-                                dk(
-                                  context,
-                                  Color(0xFFFFFFFF),
-                                  Color(0xFF18181B),
-                                ),
-                                w: FontWeight.w600,
-                                lh: 22,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                    child: ActionButton(
+                      actionKey: c.saveKey,
+                      label: '确认追加',
+                      kind: AppButtonKind.primary,
+                      size: AppButtonSize.large,
+                      expanded: true,
+                      onPressed: () => c.save(context),
                     ),
                   ),
                 ),

@@ -1,3 +1,5 @@
+import '../../kit/buttons.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../kit/kit.dart';
@@ -117,27 +119,12 @@ class ForgotDonePage extends StatelessWidget {
               pad: EdgeInsets.fromLTRB(20, 12, 20, bottomInset(context)),
               child: hcol(
                 [
-                  GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    child: hbox(
-                      h: 50,
-                      bg: Color(0xFF0485F7),
-                      radius: BorderRadius.circular(25),
-                      child: Align(
-                        alignment: Alignment(0, 0),
-                        widthFactor: 1,
-                        child: Text(
-                          '去登录',
-                          style: hts(
-                            15,
-                            Color(0xFFFFFFFF),
-                            w: FontWeight.w600,
-                            lh: 22,
-                          ),
-                        ),
-                      ),
-                    ),
-                    onTap: () => _goLogin(context),
+                  AppButton(
+                    label: '去登录',
+                    kind: AppButtonKind.primary,
+                    size: AppButtonSize.large,
+                    expanded: true,
+                    onPressed: () => _goLogin(context),
                   ),
                 ],
                 main: MainAxisAlignment.start,

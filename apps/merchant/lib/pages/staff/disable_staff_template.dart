@@ -1,3 +1,5 @@
+import '../../kit/buttons.dart';
+
 import 'package:flutter/material.dart';
 
 import 'staff_route_data.dart';
@@ -151,26 +153,18 @@ class DisableStaffTemplate extends StatelessWidget {
                       Spacer(),
                       Flexible(
                         flex: 39,
-                        child: GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () {
+                        child: AppButton(
+                          label: '去转交',
+                          kind: AppButtonKind.text,
+                          size: AppButtonSize.medium,
+                          expanded: false,
+                          onPressed: () {
                             openRoute(
                               context,
                               'StaffTransfer',
                               arguments: StaffRouteData(staffId: id),
                             );
                           },
-                          child: Text(
-                            '去转交',
-                            style: hts(
-                              13,
-                              Color(0xFF0485F7),
-                              w: FontWeight.w500,
-                              lh: 19,
-                            ),
-                            softWrap: false,
-                            maxLines: 1,
-                          ),
                         ),
                       ),
                     ],
@@ -209,30 +203,15 @@ class DisableStaffTemplate extends StatelessWidget {
                   child: UnconstrainedBox(
                     alignment: Alignment.topLeft,
                     constrainedAxis: Axis.horizontal,
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => openRoute(
+                    child: AppButton(
+                      label: '取消',
+                      kind: AppButtonKind.secondary,
+                      size: AppButtonSize.large,
+                      expanded: true,
+                      onPressed: () => openRoute(
                         context,
                         'StaffDetail',
                         arguments: StaffRouteData(staffId: d['id'] as String?),
-                      ),
-                      child: hbox(
-                        h: 50,
-                        bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
-                        radius: BorderRadius.circular(25),
-                        child: Align(
-                          alignment: Alignment(0, 0),
-                          widthFactor: 1,
-                          child: Text(
-                            '取消',
-                            style: hts(
-                              15,
-                              dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                              w: FontWeight.w500,
-                              lh: 22,
-                            ),
-                          ),
-                        ),
                       ),
                     ),
                   ),
@@ -242,9 +221,14 @@ class DisableStaffTemplate extends StatelessWidget {
                   child: UnconstrainedBox(
                     alignment: Alignment.topLeft,
                     constrainedAxis: Axis.horizontal,
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: open.isNotEmpty
+                    child: ActionButton(
+                      actionKey:
+                          'DisableStaff>Staff-${identityHashCode(context)}',
+                      label: '确认停用',
+                      kind: AppButtonKind.danger,
+                      size: AppButtonSize.large,
+                      expanded: true,
+                      onPressed: open.isNotEmpty
                           ? () => AppToast.show(context, '请先转交进行中的订单')
                           : () => runBusy(
                               'DisableStaff>Staff-${identityHashCode(context)}',
@@ -261,42 +245,6 @@ class DisableStaffTemplate extends StatelessWidget {
                                 }
                               },
                             ),
-                      child: hbox(
-                        h: 50,
-                        bg: dk(
-                          context,
-                          Color(0xFFFFE1E2),
-                          Color.fromRGBO(255, 56, 60, 0.18),
-                        ),
-                        radius: BorderRadius.circular(25),
-                        child: Align(
-                          alignment: Alignment(0, 0),
-                          widthFactor: 1,
-                          child: hBusy(
-                            'DisableStaff>Staff-${identityHashCode(context)}',
-                            Text(
-                              '确认停用',
-                              style: hts(
-                                15,
-                                dk(
-                                  context,
-                                  Color(0xFFA43433),
-                                  Color(0xFFFF7B7E),
-                                ),
-                                w: FontWeight.w500,
-                                lh: 22,
-                              ),
-                            ),
-                            style: hts(
-                              15,
-                              dk(context, Color(0xFFA43433), Color(0xFFFF7B7E)),
-                              w: FontWeight.w500,
-                              lh: 22,
-                            ),
-                            label: '提交中…',
-                          ),
-                        ),
-                      ),
                     ),
                   ),
                 ),

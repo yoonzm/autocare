@@ -9,6 +9,7 @@ export 'src/atoms/app_button.dart';
 export 'src/atoms/app_check.dart';
 export 'src/atoms/app_choice_chip.dart';
 export 'src/atoms/app_icon_button.dart';
+export 'src/atoms/app_sms_code_button.dart';
 export 'src/atoms/app_status_tag.dart';
 export 'src/atoms/app_stepper.dart';
 export 'src/atoms/app_switch.dart';

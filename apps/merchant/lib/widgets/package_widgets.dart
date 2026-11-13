@@ -1,3 +1,5 @@
+import '../kit/buttons.dart';
+
 // 次卡套餐预览与服务列表；数据及操作均由页面显式传入。
 import 'package:flutter/material.dart';
 
@@ -118,17 +120,6 @@ class PackageItems extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
-    Widget stepButton(IconData icon) => Container(
-      width: 32,
-      height: 32,
-      margin: const EdgeInsets.all(6), // 点击区域扩大到 44
-      decoration: BoxDecoration(
-        color: dk(context, const Color(0xFFF4F4F5), const Color(0xFF27272A)),
-        shape: BoxShape.circle,
-      ),
-      child: Icon(icon, size: 16, color: C.ink),
-    );
-
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 4),
       decoration: BoxDecoration(
@@ -186,7 +177,7 @@ class PackageItems extends StatelessWidget {
                     HNumberStepper.controlled(
                       onDecrease: () => onStep(i, -1),
                       onIncrease: () => onStep(i, 1),
-                      minus: stepButton(Icons.remove_rounded),
+
                       value: ConstrainedBox(
                         constraints: const BoxConstraints(minWidth: 36),
                         child: Text(
@@ -195,7 +186,7 @@ class PackageItems extends StatelessWidget {
                           style: hts(15, C.ink, w: FontWeight.w600, lh: 22),
                         ),
                       ),
-                      plus: stepButton(Icons.add_rounded),
+
                       gap: 0,
                     ),
                   ],
@@ -208,29 +199,11 @@ class PackageItems extends StatelessWidget {
               color: C.line,
             ),
           ],
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: onAdd,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 54),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  children: [
-                    hsvg(Svgs.s277, w: 18, h: 18),
-                    const SizedBox(width: 8),
-                    Text(
-                      '添加服务项目',
-                      style: hts(
-                        14,
-                        const Color(0xFF0485F7),
-                        w: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+          AppButton(
+            label: '添加服务项目',
+            kind: AppButtonKind.secondary,
+            size: AppButtonSize.medium,
+            onPressed: onAdd,
           ),
         ],
       ),

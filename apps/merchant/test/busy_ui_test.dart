@@ -163,7 +163,7 @@ void main() {
       await t.pumpAndSettle();
     }
 
-    testWidgets('注册底部“下一步”：loading 时宽高不变（不会缩成圆），只显示转圈', (t) async {
+    testWidgets('注册底部“下一步”：loading 时宽高不变（不会缩成圆），保留标准文案', (t) async {
       await openGen(t, 'RegPhone');
       await t.enterText(find.byType(TextFormField).at(0), '13800001234');
       await t.enterText(find.byType(TextFormField).at(1), '246810');
@@ -176,36 +176,30 @@ void main() {
           .ancestor(of: find.text('下一步'), matching: find.byType(Container))
           .first;
       final before = t.getSize(button);
-      expect(find.byType(AppSpinner), findsNothing);
+      expect(find.byType(CircularProgressIndicator), findsNothing);
 
       await t.tap(find.text('下一步'));
       await t.pump();
       final after = t.getSize(button);
       expect(after, before);
-      expect(find.byType(AppSpinner), findsOneWidget);
-      // 原来的文字被隐藏；设计稿的全宽按钮：转圈在左、“提交中…”在右，都在按钮里面
-      final text = t.widget<Opacity>(
-        find
-            .ancestor(of: find.text('下一步'), matching: find.byType(Opacity))
-            .first,
-      );
-      expect(text.opacity, 0);
-      expect(find.text('提交中…'), findsOneWidget);
-      final spinner = t.getRect(find.byType(AppSpinner));
-      final label = t.getRect(find.text('提交中…'));
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      // 标准按钮保留原文案，转圈在左；完整按钮尺寸不变。
+      expect(find.text('下一步'), findsOneWidget);
+      final spinner = t.getRect(find.byType(CircularProgressIndicator));
+      final label = t.getRect(find.text('下一步'));
       expect(spinner.right, lessThan(label.left));
       expect(t.getRect(button).contains(spinner.center), isTrue);
       expect(t.getRect(button).contains(label.center), isTrue);
 
       api.codeGate!.complete();
       await t.pumpAndSettle();
-      expect(find.byType(AppSpinner), findsNothing);
+      expect(find.byType(CircularProgressIndicator), findsNothing);
       expect(t.getSize(button), before);
       await t.pump(const Duration(seconds: 6));
       await t.pumpAndSettle();
     });
 
-    testWidgets('保存页：“保存”加载时和设计稿图标按钮一样：44×44 的圆 + 20px 转圈，取消 ✕ 不转圈', (t) async {
+    testWidgets('保存页：标准保存按钮加载时尺寸不变且只锁定一次提交', (t) async {
       final pages = <Widget>[
         const ServiceEditPage(initial: {'name': '测试服务', 'price': 88}),
         const CardTierEditPage(initial: {'name': '测试卡种'}),
@@ -244,24 +238,33 @@ void main() {
         final save = find
             .ancestor(of: find.text('保存'), matching: find.byType(Container))
             .first;
-        expect(t.getSize(save).width, greaterThan(50), reason: route);
+        final beforeSize = t.getSize(save);
+        expect(beforeSize.width, greaterThan(50), reason: route);
         await t.tap(find.text('保存'));
         await t.pump();
-        expect(find.byType(AppSpinner), findsOneWidget, reason: route);
+        expect(
+          find.byType(CircularProgressIndicator),
+          findsOneWidget,
+          reason: route,
+        );
         expect(find.text('保存中…'), findsNothing);
         // 加载时“保存”两个字已经换成转圈，从转圈往外找按钮
         final pill = find
             .ancestor(
-              of: find.byType(AppSpinner),
+              of: find.byType(CircularProgressIndicator),
               matching: find.byType(Container),
             )
             .first;
-        expect(t.getSize(pill), const Size(44, 44), reason: route);
-        expect(t.getSize(find.byType(AppSpinner)), const Size(20, 20));
-        final c = t.getCenter(pill);
+        expect(t.getSize(pill), beforeSize, reason: route);
         expect(
-          (t.getCenter(find.byType(AppSpinner)) - c).distance,
-          lessThan(0.5),
+          t.getSize(find.byType(CircularProgressIndicator)),
+          const Size(16, 16),
+        );
+        expect(
+          t
+              .getRect(pill)
+              .contains(t.getCenter(find.byType(CircularProgressIndicator))),
+          isTrue,
         );
         api.saveGate!.complete();
         await t.pumpAndSettle();

@@ -1,3 +1,5 @@
+import '../../kit/buttons.dart';
+
 import 'dart:convert';
 
 import 'package:image_picker/image_picker.dart';
@@ -80,62 +82,10 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                     [
                       hrow(
                         [
-                          GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: () => Navigator.of(context).maybePop(),
-                            child: hbox(
-                              w: 44,
-                              h: 44,
-                              bg: dk(
-                                context,
-                                Color(0xFFFFFFFF),
-                                Color(0xFF18181B),
-                              ),
-                              radius: BorderRadius.circular(22),
-                              shadow: dk(
-                                context,
-                                [
-                                  BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.06),
-                                    offset: Offset(0, 0),
-                                    blurRadius: 1,
-                                    spreadRadius: 0,
-                                  ),
-                                  BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.06),
-                                    offset: Offset(0, 1),
-                                    blurRadius: 2,
-                                    spreadRadius: 0,
-                                  ),
-                                  BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.04),
-                                    offset: Offset(0, 2),
-                                    blurRadius: 4,
-                                    spreadRadius: 0,
-                                  ),
-                                ],
-                                [
-                                  BoxShadow(
-                                    color: Color(0xFF26262B),
-                                    offset: Offset(0, 0),
-                                    blurRadius: 0,
-                                    spreadRadius: 1,
-                                  ),
-                                ],
-                              ),
-                              child: hrow(
-                                [
-                                  hsvg(
-                                    dk(context, Svgs.s0, Svgs.s1),
-                                    w: 20,
-                                    h: 20,
-                                  ),
-                                ],
-                                main: MainAxisAlignment.center,
-                                cross: CrossAxisAlignment.center,
-                                gap: 0,
-                              ),
-                            ),
+                          AppIconButton(
+                            svg: dk(context, Svgs.s0, Svgs.s1),
+                            semanticLabel: "返回",
+                            onPressed: () => Navigator.of(context).maybePop(),
                           ),
                           Expanded(
                             flex: 1,
@@ -154,38 +104,13 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                               textAlign: TextAlign.center,
                             ),
                           ),
-                          GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: onSave,
-                            child: hbox(
-                              h: 44,
-                              bg: Color(0xFF0485F7),
-                              radius: BorderRadius.circular(22),
-                              pad: EdgeInsets.fromLTRB(18, 0, 18, 0),
-                              child: Align(
-                                alignment: Alignment(-1, 0),
-                                widthFactor: 1,
-                                child: hBusy(
-                                  actionKey,
-                                  Text(
-                                    '保存',
-                                    style: hts(
-                                      14,
-                                      Color(0xFFFFFFFF),
-                                      w: FontWeight.w600,
-                                      lh: 20,
-                                    ),
-                                  ),
-                                  style: hts(
-                                    14,
-                                    Color(0xFFFFFFFF),
-                                    w: FontWeight.w600,
-                                    lh: 20,
-                                  ),
-                                  round: true,
-                                ),
-                              ),
-                            ),
+                          ActionButton(
+                            actionKey: actionKey,
+                            label: '保存',
+                            kind: AppButtonKind.primary,
+                            size: AppButtonSize.medium,
+                            expanded: false,
+                            onPressed: onSave,
                           ),
                         ],
                         main: MainAxisAlignment.start,
@@ -272,21 +197,12 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                               ),
                             ),
                           ),
-                          GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: _pickAvatar,
-                            child: Text(
-                              '更换头像',
-                              style: hts(
-                                13,
-                                dk(
-                                  context,
-                                  Color(0xFF1E63AE),
-                                  Color(0xFF6AB4FA),
-                                ),
-                                w: FontWeight.w500,
-                              ),
-                            ),
+                          AppButton(
+                            label: '更换头像',
+                            kind: AppButtonKind.text,
+                            size: AppButtonSize.medium,
+                            expanded: false,
+                            onPressed: _pickAvatar,
                           ),
                         ],
                         main: MainAxisAlignment.start,
@@ -480,22 +396,13 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                                           ),
                                         ),
                                       ),
-                                      GestureDetector(
-                                        behavior: HitTestBehavior.opaque,
-                                        onTap: () =>
+                                      AppButton(
+                                        label: '更换',
+                                        kind: AppButtonKind.text,
+                                        size: AppButtonSize.medium,
+                                        expanded: false,
+                                        onPressed: () =>
                                             openRoute(context, 'ChangePhone'),
-                                        child: Text(
-                                          '更换',
-                                          style: hts(
-                                            13,
-                                            dk(
-                                              context,
-                                              Color(0xFF1E63AE),
-                                              Color(0xFF6AB4FA),
-                                            ),
-                                            w: FontWeight.w500,
-                                          ),
-                                        ),
                                       ),
                                     ],
                                     main: MainAxisAlignment.start,

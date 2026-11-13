@@ -1,4 +1,5 @@
 import '../../routes.dart' show openRoute;
+import '../../kit/buttons.dart';
 
 import 'package:flutter/material.dart';
 
@@ -102,7 +103,12 @@ class _ServicesPageState extends State<ServicesPage> {
               '服务项目与价格',
               trailing: Align(
                 alignment: Alignment.centerRight,
-                child: RoundBtn('add', label: '新增项目', onTap: _add),
+                child: RoundBtn(
+                  kind: AppIconButtonKind.primary,
+                  'add',
+                  label: '新增项目',
+                  onTap: _add,
+                ),
               ),
             ),
             const SizedBox(height: 8),

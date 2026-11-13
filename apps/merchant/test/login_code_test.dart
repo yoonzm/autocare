@@ -59,6 +59,7 @@ void main() {
     expect(find.textContaining('免费开通'), findsOneWidget);
     // 手机号为空时点登录：字段下方提示，不请求后端
     await t.ensureVisible(find.text('登录').first);
+    await t.pump(const Duration(milliseconds: 350));
     await t.tap(find.text('登录').first);
     await t.pump();
     expect(find.text('请输入手机号'), findsWidgets);
@@ -69,12 +70,14 @@ void main() {
     await open(t);
     await t.enterText(find.byType(TextField).first, '13988888812');
     await t.ensureVisible(find.text('登录').first);
+    await t.pump(const Duration(milliseconds: 350));
     await t.tap(find.text('登录').first);
     await t.pump();
     expect(find.text('请输入验证码'), findsOneWidget);
 
     await t.enterText(find.widgetWithText(TextField, '6 位数字'), '12');
     await t.ensureVisible(find.text('登录').first);
+    await t.pump(const Duration(milliseconds: 350));
     await t.tap(find.text('登录').first);
     await t.pump();
     expect(find.text('验证码为 6 位数字'), findsOneWidget);
@@ -82,6 +85,7 @@ void main() {
 
     await t.enterText(find.byType(TextField).at(1), '000000');
     await t.ensureVisible(find.text('登录').first);
+    await t.pump(const Duration(milliseconds: 350));
     await t.tap(find.text('登录').first);
     // 不用 pumpAndSettle：它会一直等到提示条自动消失
     await t.pump();
@@ -100,6 +104,7 @@ void main() {
     await t.pump(const Duration(seconds: 4));
     await t.enterText(find.byType(TextField).at(1), '482910');
     await t.ensureVisible(find.text('登录').first);
+    await t.pump(const Duration(milliseconds: 350));
     await t.tap(find.text('登录').first);
     await t.pumpAndSettle();
     expect(find.text('验证码测试门店'), findsOneWidget);
@@ -126,6 +131,7 @@ void main() {
     await t.enterText(find.byType(TextField).first, '13988888812');
     await t.enterText(find.byType(TextField).at(1), '000000');
     await t.ensureVisible(find.text('登录').first);
+    await t.pump(const Duration(milliseconds: 350));
     await t.tap(find.text('登录').first);
     await t.pump();
     await t.pump(const Duration(milliseconds: 800));

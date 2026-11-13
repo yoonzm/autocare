@@ -1,3 +1,4 @@
+import '../../kit/buttons.dart';
 import '../../routes.dart' show openRoute;
 
 import 'package:flutter/material.dart';
@@ -252,56 +253,22 @@ class StAuthFailTemplate extends StatelessWidget {
                   [
                     Expanded(
                       flex: 10,
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () => openRoute(context, 'RegPhone'),
-                        child: hbox(
-                          h: 50,
-                          bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
-                          radius: BorderRadius.circular(25),
-                          child: Align(
-                            alignment: Alignment(0, 0),
-                            widthFactor: 1,
-                            child: Text(
-                              '免费开通门店',
-                              style: hts(
-                                15,
-                                dk(
-                                  context,
-                                  Color(0xFF18181B),
-                                  Color(0xFFFAFAFA),
-                                ),
-                                w: FontWeight.w500,
-                                lh: 22,
-                              ),
-                            ),
-                          ),
-                        ),
+                      child: AppButton(
+                        label: '免费开通门店',
+                        kind: AppButtonKind.primary,
+                        size: AppButtonSize.large,
+                        expanded: true,
+                        onPressed: () => openRoute(context, 'RegPhone'),
                       ),
                     ),
                     Expanded(
                       flex: 14,
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () => AccessFlow.signOut(context),
-                        child: hbox(
-                          h: 50,
-                          bg: Color(0xFF0485F7),
-                          radius: BorderRadius.circular(25),
-                          child: Align(
-                            alignment: Alignment(0, 0),
-                            widthFactor: 1,
-                            child: Text(
-                              '换个手机号',
-                              style: hts(
-                                15,
-                                Color(0xFFFFFFFF),
-                                w: FontWeight.w600,
-                                lh: 22,
-                              ),
-                            ),
-                          ),
-                        ),
+                      child: AppButton(
+                        label: '换个手机号',
+                        kind: AppButtonKind.primary,
+                        size: AppButtonSize.large,
+                        expanded: true,
+                        onPressed: () => AccessFlow.signOut(context),
                       ),
                     ),
                   ],

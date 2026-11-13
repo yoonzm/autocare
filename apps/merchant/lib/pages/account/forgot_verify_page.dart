@@ -1,3 +1,5 @@
+import '../../kit/buttons.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -86,62 +88,10 @@ class _ForgotVerifyPageState extends State<ForgotVerifyPage> {
                   [
                     hrow(
                       [
-                        GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          child: hbox(
-                            w: 44,
-                            h: 44,
-                            bg: dk(
-                              context,
-                              Color(0xFFFFFFFF),
-                              Color(0xFF18181B),
-                            ),
-                            radius: BorderRadius.circular(22),
-                            shadow: dk(
-                              context,
-                              [
-                                BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.06),
-                                  offset: Offset(0, 0),
-                                  blurRadius: 1,
-                                  spreadRadius: 0,
-                                ),
-                                BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.06),
-                                  offset: Offset(0, 1),
-                                  blurRadius: 2,
-                                  spreadRadius: 0,
-                                ),
-                                BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.04),
-                                  offset: Offset(0, 2),
-                                  blurRadius: 4,
-                                  spreadRadius: 0,
-                                ),
-                              ],
-                              [
-                                BoxShadow(
-                                  color: Color(0xFF26262B),
-                                  offset: Offset(0, 0),
-                                  blurRadius: 0,
-                                  spreadRadius: 1,
-                                ),
-                              ],
-                            ),
-                            child: hrow(
-                              [
-                                hsvg(
-                                  dk(context, Svgs.s0, Svgs.s1),
-                                  w: 20,
-                                  h: 20,
-                                ),
-                              ],
-                              main: MainAxisAlignment.center,
-                              cross: CrossAxisAlignment.center,
-                              gap: 0,
-                            ),
-                          ),
-                          onTap: () => Navigator.maybePop(context),
+                        AppIconButton(
+                          svg: dk(context, Svgs.s0, Svgs.s1),
+                          semanticLabel: "返回",
+                          onPressed: () => Navigator.maybePop(context),
                         ),
                         Expanded(
                           flex: 1,
@@ -346,41 +296,9 @@ class _ForgotVerifyPageState extends State<ForgotVerifyPage> {
                                     ),
                                     AnimatedBuilder(
                                       animation: _sms,
-                                      builder: (context, _) => GestureDetector(
-                                        behavior: HitTestBehavior.opaque,
-                                        child: hbox(
-                                          h: 36,
-                                          bg: dk(
-                                            context,
-                                            Color(0xFFE4E4E7),
-                                            Color(0xFF3A3A40),
-                                          ),
-                                          radius: BorderRadius.circular(18),
-                                          pad: EdgeInsets.fromLTRB(
-                                            14,
-                                            0,
-                                            14,
-                                            0,
-                                          ),
-                                          child: Align(
-                                            alignment: Alignment.center,
-                                            widthFactor: 1,
-                                            child: smsCodeText(
-                                              _sms,
-                                              hts(
-                                                13,
-                                                dk(
-                                                  context,
-                                                  Color(0xFF71717A),
-                                                  Color(0xFF9A9AA3),
-                                                ),
-                                                w: FontWeight.w500,
-                                                lh: 18,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        onTap: () => _sendCode(),
+                                      builder: (context, _) => smsCodeButton(
+                                        _sms,
+                                        onPressed: () => _sendCode(),
                                       ),
                                     ),
                                   ],
@@ -452,37 +370,13 @@ class _ForgotVerifyPageState extends State<ForgotVerifyPage> {
                 pad: EdgeInsets.fromLTRB(20, 12, 20, bottomInset(context)),
                 child: hcol(
                   [
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: onVerify,
-                      child: hbox(
-                        h: 50,
-                        bg: Color(0xFF0485F7),
-                        radius: BorderRadius.circular(25),
-                        child: Align(
-                          alignment: Alignment(0, 0),
-                          widthFactor: 1,
-                          child: hBusy(
-                            actionKey,
-                            Text(
-                              '下一步',
-                              style: hts(
-                                15,
-                                Color(0xFFFFFFFF),
-                                w: FontWeight.w600,
-                                lh: 22,
-                              ),
-                            ),
-                            style: hts(
-                              15,
-                              Color(0xFFFFFFFF),
-                              w: FontWeight.w600,
-                              lh: 22,
-                            ),
-                            label: '提交中…',
-                          ),
-                        ),
-                      ),
+                    ActionButton(
+                      actionKey: actionKey,
+                      label: '下一步',
+                      kind: AppButtonKind.primary,
+                      size: AppButtonSize.large,
+                      expanded: true,
+                      onPressed: onVerify,
                     ),
                   ],
                   main: MainAxisAlignment.start,

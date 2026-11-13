@@ -101,11 +101,17 @@ void main() {
     api.fail = true;
     await t.tapAt(center);
     await t.pump();
-    expect(find.byType(AppSpinner), findsOneWidget);
-    expect(t.getSize(find.byType(AppSpinner)), const Size(18, 18));
-    expect(find.text('提交中…'), findsOneWidget);
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    expect(
+      t.getSize(find.byType(CircularProgressIndicator)),
+      const Size(16, 16),
+    );
+    expect(find.text('确认修改'), findsOneWidget);
     final loadingButton = find
-        .ancestor(of: find.byType(AppSpinner), matching: find.byType(Container))
+        .ancestor(
+          of: find.byType(CircularProgressIndicator),
+          matching: find.byType(Container),
+        )
         .first;
     expect(t.getSize(loadingButton), before);
     await t.tapAt(center);

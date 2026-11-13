@@ -1,3 +1,5 @@
+import 'buttons.dart';
+
 import 'dart:async';
 // 既有页面的兼容组件；迁移页面使用显式参数与回调。
 import 'dart:math' as math;
@@ -247,40 +249,27 @@ Future<bool> hConfirm(
                   Row(
                     children: [
                       Expanded(
-                        child: GestureDetector(
-                          onTap: busy
+                        child: AppButton(
+                          label: cancel,
+                          kind: AppButtonKind.secondary,
+                          size: AppButtonSize.medium,
+                          expanded: false,
+                          onPressed: busy
                               ? null
                               : () => Navigator.of(ctx).pop(false),
-                          child: Container(
-                            height: 46,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: dk(
-                                ctx,
-                                const Color(0xFFEEEEF0),
-                                const Color(0xFF34343A),
-                              ),
-                              borderRadius: BorderRadius.circular(23),
-                            ),
-                            child: Text(
-                              cancel,
-                              style: hts(
-                                15,
-                                dk(
-                                  ctx,
-                                  const Color(0xFF18181B),
-                                  const Color(0xFFFAFAFA),
-                                ),
-                                w: FontWeight.w500,
-                              ),
-                            ),
-                          ),
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: GestureDetector(
-                          onTap: () async {
+                        child: AppButton(
+                          loading: busy,
+                          label: ok,
+                          kind: danger
+                              ? AppButtonKind.danger
+                              : AppButtonKind.primary,
+                          size: AppButtonSize.medium,
+                          expanded: false,
+                          onPressed: () async {
                             if (busy) return;
                             if (onConfirm == null) {
                               Navigator.of(ctx).pop(true);
@@ -300,29 +289,6 @@ Future<bool> hConfirm(
                               }
                             }
                           },
-                          child: Container(
-                            height: 46,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: danger
-                                  ? const Color(0xFFFF383C)
-                                  : const Color(0xFF0485F7),
-                              borderRadius: BorderRadius.circular(23),
-                            ),
-                            child: busy
-                                ? const AppSpinner(
-                                    size: 20,
-                                    color: Colors.white,
-                                  )
-                                : Text(
-                                    ok,
-                                    style: hts(
-                                      15,
-                                      Colors.white,
-                                      w: FontWeight.w600,
-                                    ),
-                                  ),
-                          ),
                         ),
                       ),
                     ],
@@ -954,7 +920,7 @@ class HNumberStepper extends StatelessWidget {
   final ValCtrl? ctrl;
   final VoidCallback? onDecrease, onIncrease;
   final int step;
-  final Widget minus, value, plus;
+  final Widget value;
   final MainAxisAlignment main;
   final CrossAxisAlignment cross;
   final double gap;
@@ -963,9 +929,7 @@ class HNumberStepper extends StatelessWidget {
     super.key,
     required this.ctrl,
     required this.step,
-    required this.minus,
     required this.value,
-    required this.plus,
     this.main = MainAxisAlignment.start,
     this.cross = CrossAxisAlignment.center,
     this.gap = 4,
@@ -978,9 +942,7 @@ class HNumberStepper extends StatelessWidget {
     super.key,
     required this.onDecrease,
     required this.onIncrease,
-    required this.minus,
     required this.value,
-    required this.plus,
     this.main = MainAxisAlignment.start,
     this.cross = CrossAxisAlignment.center,
     this.gap = 4,
@@ -990,24 +952,18 @@ class HNumberStepper extends StatelessWidget {
   @override
   Widget build(BuildContext context) => hrow(
     [
-      Semantics(
-        button: true,
-        label: '减少',
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: onDecrease ?? () => ctrl!.add(-step),
-          child: minus,
-        ),
+      AppIconButton(
+        icon: Icons.remove,
+        size: AppIconButtonSize.small,
+        semanticLabel: '减少',
+        onPressed: onDecrease ?? (ctrl == null ? null : () => ctrl!.add(-step)),
       ),
       value,
-      Semantics(
-        button: true,
-        label: '增加',
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: onIncrease ?? () => ctrl!.add(step),
-          child: plus,
-        ),
+      AppIconButton(
+        icon: Icons.add,
+        size: AppIconButtonSize.small,
+        semanticLabel: '增加',
+        onPressed: onIncrease ?? (ctrl == null ? null : () => ctrl!.add(step)),
       ),
     ],
     main: main,

@@ -1,3 +1,4 @@
+import '../../kit/buttons.dart';
 import 'member_filter_controller.dart';
 import 'member_filter_sheet.dart';
 import 'member_events.dart';
@@ -237,53 +238,21 @@ class _MembersPageState extends State<MembersPage> {
                     style: ts(28, w: FontWeight.w600, h: 36, spacing: -0.7),
                   ),
                 ),
-                Semantics(
-                  button: true,
-                  label: '筛选会员',
-                  child: GestureDetector(
-                    onTap: _openFilters,
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: C.card,
-                        shape: BoxShape.circle,
-                        boxShadow: softShadow,
-                      ),
-                      child: Center(
-                        child: AppIcon('filter', size: 20, color: C.ink),
-                      ),
-                    ),
-                  ),
+                AppIconButton(
+                  svg: AppIcon.svg('filter'),
+                  semanticLabel: '筛选会员',
+                  onPressed: _openFilters,
                 ),
                 const SizedBox(width: 12),
-                GestureDetector(
-                  onTap: () {
+                AppButton(
+                  label: '新增会员',
+                  kind: AppButtonKind.primary,
+                  size: AppButtonSize.medium,
+                  expanded: false,
+                  svg: AppIcon.svg('add'),
+                  onPressed: () {
                     openRoute(context, 'MemberAdd');
                   },
-                  child: Container(
-                    height: 40,
-                    padding: const EdgeInsets.fromLTRB(12, 0, 16, 0),
-                    decoration: BoxDecoration(
-                      color: C.btn,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      children: [
-                        AppIcon('add', size: 18, color: C.btnFg),
-                        const SizedBox(width: 6),
-                        Text(
-                          '新增会员',
-                          style: ts(
-                            14,
-                            w: FontWeight.w500,
-                            color: C.btnFg,
-                            h: 20,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
                 ),
               ],
             ),
@@ -317,23 +286,10 @@ class _MembersPageState extends State<MembersPage> {
                       ),
                     ),
                   ),
-                  Semantics(
-                    button: true,
-                    label: '扫车牌或会员码找会员',
-                    child: GestureDetector(
-                      onTap: () => openRoute(context, 'FindScanPlate'),
-                      child: Container(
-                        width: 32,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          color: C.inset,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Center(
-                          child: AppIcon('scan', size: 18, color: C.ink),
-                        ),
-                      ),
-                    ),
+                  AppIconButton(
+                    svg: AppIcon.svg('scan'),
+                    semanticLabel: '扫车牌或会员码找会员',
+                    onPressed: () => openRoute(context, 'FindScanPlate'),
                   ),
                 ],
               ),
@@ -455,11 +411,11 @@ class _MembersPageState extends State<MembersPage> {
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
               child: Center(
-                child: LoadingButton(
+                child: RequestButton(
                   label: '加载更多',
-                  loadingLabel: '加载中…',
-                  style: LoadingButtonStyle.secondary,
                   onPressed: () => _load(more: true),
+                  kind: AppButtonKind.secondary,
+                  size: AppButtonSize.large,
                 ),
               ),
             ),
@@ -501,33 +457,12 @@ class _MembersPageState extends State<MembersPage> {
         ),
       );
 
-  Widget _followChip() => GestureDetector(
-    onTap: () => openRoute(context, 'MemberFollowUp'),
-    child: Container(
-      height: 34,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        color: C.redSoft,
-        borderRadius: BorderRadius.circular(17),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 6,
-            height: 6,
-            decoration: const BoxDecoration(
-              color: C.red,
-              shape: BoxShape.circle,
-            ),
-          ),
-          const SizedBox(width: 5),
-          Text(
-            _pendingReminders == null ? '待回访' : '待回访 $_pendingReminders',
-            style: ts(13, w: FontWeight.w500, color: C.redInk, h: 18),
-          ),
-        ],
-      ),
-    ),
+  Widget _followChip() => AppButton(
+    label: _pendingReminders == null ? '待回访' : '待回访 $_pendingReminders',
+    kind: AppButtonKind.secondary,
+    size: AppButtonSize.small,
+    expanded: false,
+    onPressed: () => openRoute(context, 'MemberFollowUp'),
   );
 
   Widget _summary() {

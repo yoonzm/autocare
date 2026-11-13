@@ -6,7 +6,6 @@ import 'dart:async';
 import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/kit/kit.dart';
 import 'package:autocare_merchant/routes.dart';
-import 'package:autocare_merchant/widgets/app_icon.dart';
 import 'package:autocare_merchant/kit/color_picker.dart' show ColorChoices;
 import 'package:camera_platform_interface/camera_platform_interface.dart';
 import 'package:flutter/material.dart';
@@ -126,7 +125,7 @@ void main() {
     return ctx;
   }
 
-  final bolt = find.byWidgetPredicate((w) => w is AppIcon && w.name == 'bolt');
+  Finder bolt() => find.bySemanticsLabel(RegExp('打开闪光灯|关闭闪光灯'));
 
   testWidgets('扫描页直接显示实时相机画面，不再是示意背景', (t) async {
     CameraPlatform.instance = _FakeCamera();
@@ -147,10 +146,10 @@ void main() {
     CameraPlatform.instance = cam;
     await open(t, 'ScanLicense');
     expect(cam.flashModes, [FlashMode.off]);
-    await t.tap(bolt);
+    await t.tap(bolt());
     await t.pumpAndSettle();
     expect(cam.flashModes.last, FlashMode.torch);
-    await t.tap(bolt);
+    await t.tap(bolt());
     await t.pumpAndSettle();
     expect(cam.flashModes.last, FlashMode.off);
   });
@@ -164,7 +163,7 @@ void main() {
     CameraPlatform.instance = cam;
     final sem = t.ensureSemantics();
     final ctx = await open(t, 'FindScanPlate');
-    await t.tap(find.bySemanticsLabel('拍摄识别'));
+    await t.tap(find.bySemanticsLabel(RegExp('^拍摄识别')));
     await t.pump(const Duration(milliseconds: 100));
     expect(cam.shots, 1);
     expect(cam.paused, 1);
@@ -192,7 +191,7 @@ void main() {
     final sem = t.ensureSemantics();
     await open(t, 'ScanPlate');
     expect(find.text('相机不可用 · 点此重试'), findsOneWidget);
-    await t.tap(find.bySemanticsLabel('拍摄识别'));
+    await t.tap(find.bySemanticsLabel(RegExp('^拍摄识别')));
     await t.pump();
     expect(find.text('相机未就绪'), findsOneWidget);
     await t.pump(const Duration(seconds: 3));
@@ -206,19 +205,15 @@ void main() {
       original = merchantApi;
       api = _ScanApi();
       merchantApi = api;
-
-
     });
     tearDown(() {
       merchantApi = original;
-
-
     });
 
     Future<void> shoot(WidgetTester t, [String route = 'FindScanPlate']) async {
       CameraPlatform.instance = _FakeCamera();
       await open(t, route);
-      await t.tap(find.bySemanticsLabel('拍摄识别'));
+      await t.tap(find.bySemanticsLabel(RegExp('^拍摄识别')));
       await t.pump(const Duration(milliseconds: 100));
       await t.pump(const Duration(milliseconds: 1500));
       await t.pump(const Duration(milliseconds: 500));
@@ -255,7 +250,13 @@ void main() {
       expect(find.text('洗车年卡 8 次'), findsOneWidget);
       expect(find.text('10.31 · 精致洗车'), findsOneWidget);
       expect(find.text('宝马 5系 · 黑色'), findsOneWidget);
-      expect(t.widget<FindResultSheet>(find.byType(FindResultSheet)).result!.member!['name'],'陈明华');
+      expect(
+        t
+            .widget<FindResultSheet>(find.byType(FindResultSheet))
+            .result!
+            .member!['name'],
+        '陈明华',
+      );
 
       Navigator.of(t.element(find.text('陈明华'))).pop();
       await t.pump(const Duration(milliseconds: 600));
@@ -369,17 +370,19 @@ void main() {
       final cam = _FakeCamera(cameras: 0);
       CameraPlatform.instance = cam;
       await open(t, 'FindScanPlate');
+      await t.pump(const Duration(milliseconds: 350));
       await t.tap(find.text('相册'));
       await t.pump(const Duration(milliseconds: 100));
       expect(find.text('识别中…'), findsNothing);
       expect(api.calls, 0);
-      await t.tap(find.bySemanticsLabel('拍摄识别'));
+      await t.tap(find.bySemanticsLabel(RegExp('^拍摄识别')));
       picked.complete();
       await t.pumpAndSettle();
       expect(api.calls, 0);
       expect(find.byKey(const Key('album-preview')), findsOneWidget);
       expect(find.text('确认照片后点击识别'), findsOneWidget);
       selection = '';
+      await t.pump(const Duration(milliseconds: 350));
       await t.tap(find.text('相册'));
       await t.pumpAndSettle();
       expect(api.calls, 0);
@@ -401,12 +404,14 @@ void main() {
       expect(navTracker.has('sheet:FindNotFound'), isTrue);
       Navigator.of(t.element(find.text('没有找到该车牌的会员'))).pop();
       await t.pump(const Duration(seconds: 2));
+      await t.pump(const Duration(milliseconds: 350));
       await t.tap(find.text('相册'));
       await t.pumpAndSettle();
       expect(api.calls, 2);
       expect(find.text('识别中…'), findsNothing);
       expect(find.byKey(const Key('album-preview')), findsNothing);
       selection = '/tmp/another-car.jpg';
+      await t.pump(const Duration(milliseconds: 350));
       await t.tap(find.text('相册'));
       await t.pumpAndSettle();
       await t.tap(find.bySemanticsLabel('返回拍摄'));
@@ -469,7 +474,7 @@ void main() {
       await t.pumpAndSettle();
       await t.tap(find.text('车牌'));
       await t.pumpAndSettle();
-      await t.tap(find.bySemanticsLabel('拍摄识别'));
+      await t.tap(find.bySemanticsLabel(RegExp('^拍摄识别')));
       await t.pump(const Duration(milliseconds: 100));
       await t.pump(const Duration(milliseconds: 1500));
       await t.pump(const Duration(milliseconds: 500));
@@ -525,7 +530,7 @@ void main() {
       await t.pumpAndSettle();
       await t.tap(find.text('车牌'));
       await t.pumpAndSettle();
-      await t.tap(find.bySemanticsLabel('拍摄识别'));
+      await t.tap(find.bySemanticsLabel(RegExp('^拍摄识别')));
       await t.pump(const Duration(milliseconds: 100));
       await t.pump(const Duration(milliseconds: 1500));
       await t.pump(const Duration(milliseconds: 500));
@@ -545,9 +550,9 @@ void main() {
       CameraPlatform.instance = _FakeCamera();
       final sem = t.ensureSemantics();
       await open(t, 'FindScanPlate');
-      await t.tap(find.bySemanticsLabel('拍摄识别'));
+      await t.tap(find.bySemanticsLabel(RegExp('^拍摄识别')));
       await t.pump(const Duration(milliseconds: 100));
-      await t.tap(find.bySemanticsLabel('拍摄识别'));
+      await t.tap(find.bySemanticsLabel(RegExp('^拍摄识别')));
       expect(api.calls, 1);
       await t.tap(find.bySemanticsLabel('关闭'));
       await t.pumpAndSettle();
@@ -569,7 +574,7 @@ void main() {
     CameraPlatform.instance = cam;
     final sem = t.ensureSemantics();
     await open(t, 'FindScanPlate');
-    await t.tap(find.bySemanticsLabel('拍摄识别'));
+    await t.tap(find.bySemanticsLabel(RegExp('^拍摄识别')));
     await t.pumpAndSettle();
     expect(cam.shots, 0);
     expect(navTracker.has('Login'), isTrue);

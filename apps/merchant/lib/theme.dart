@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:autocare_async_kit/async_kit.dart' show AsyncKitTheme;
+import 'package:autocare_async_kit/async_kit.dart'
+    show AsyncKitTheme, AsyncButtonTheme;
+
+import 'kit/buttons.dart' show merchantFeedbackButton;
 
 /// 设计稿色板（HeroUI 风格），按深色模式令牌（DarkTokens）自动切换。
 /// [dark] 由应用根部根据当前主题亮度同步，主题切换后整棵树会重建。
@@ -103,6 +106,7 @@ ThemeData buildTheme([Brightness brightness = Brightness.light]) {
   return ThemeData(
     useMaterial3: true,
     extensions: [
+      const AsyncButtonTheme(merchantFeedbackButton),
       AsyncKitTheme.standard(brightness, permissionHint: '请联系店主在“角色权限”中为你开通'),
     ],
     brightness: brightness,

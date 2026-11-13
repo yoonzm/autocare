@@ -1,3 +1,5 @@
+import '../../kit/buttons.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -271,47 +273,20 @@ class _PickerListState extends State<_PickerList> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              GestureDetector(
-                onTap: () => widget.query.value = '',
-                child: Container(
-                  height: 44,
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: dk(
-                      context,
-                      const Color(0xFFF4F4F5),
-                      const Color(0xFF27272A),
-                    ),
-                    borderRadius: BorderRadius.circular(22),
-                  ),
-                  child: Text(
-                    '清除搜索',
-                    style: hts(14, ink, w: FontWeight.w600, lh: 20),
-                  ),
-                ),
+              AppButton(
+                label: '清除搜索',
+                kind: AppButtonKind.secondary,
+                size: AppButtonSize.medium,
+                expanded: false,
+                onPressed: () => widget.query.value = '',
               ),
               const SizedBox(width: 10),
-              GestureDetector(
-                onTap: () => openRoute(context, 'MemberAdd'),
-                child: Container(
-                  height: 44,
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF0485F7),
-                    borderRadius: BorderRadius.circular(22),
-                  ),
-                  child: Text(
-                    '新增会员',
-                    style: hts(
-                      14,
-                      const Color(0xFFFFFFFF),
-                      w: FontWeight.w600,
-                      lh: 20,
-                    ),
-                  ),
-                ),
+              AppButton(
+                label: '新增会员',
+                kind: AppButtonKind.primary,
+                size: AppButtonSize.medium,
+                expanded: false,
+                onPressed: () => openRoute(context, 'MemberAdd'),
               ),
             ],
           ),

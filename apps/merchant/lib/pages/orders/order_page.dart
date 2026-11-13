@@ -1,3 +1,4 @@
+import '../../kit/buttons.dart';
 import '../../backend/data_snapshot.dart';
 import 'hold_draft.dart';
 import 'hold_sheet_sheet.dart';
@@ -651,47 +652,12 @@ class _OrderPageState extends State<OrderPage> {
                       style: ts(17, w: FontWeight.w600, h: 24),
                     ),
                   ),
-                  GestureDetector(
-                    onTap: () => openRoute(context, 'HoldList'),
-                    child: Container(
-                      height: 44,
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
-                      decoration: BoxDecoration(
-                        color: C.card,
-                        borderRadius: BorderRadius.circular(22),
-                        boxShadow: softShadow,
-                      ),
-                      child: Row(
-                        children: [
-                          Text('挂单', style: ts(14, w: FontWeight.w500, h: 20)),
-                          const SizedBox(width: 6),
-                          ListenableBuilder(
-                            listenable: HoldStore.tick,
-                            builder: (_, _) {
-                              // 登录后显示真实的挂单数量（没有挂单时不显示红点）
-                              final n = HoldStore.count;
-                              if (n == 0) return const SizedBox.shrink();
-                              return Container(
-                                constraints: const BoxConstraints(minWidth: 18),
-                                height: 18,
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  color: C.red,
-                                  borderRadius: BorderRadius.circular(9),
-                                ),
-                                child: Text(
-                                  '$n',
-                                  style: ts(
-                                    11,
-                                    w: FontWeight.w600,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
+                  ListenableBuilder(
+                    listenable: HoldStore.tick,
+                    builder: (_, _) => AppIconButton.pill(
+                      label: '挂单',
+                      badge: HoldStore.count == 0 ? null : HoldStore.count,
+                      onPressed: () => openRoute(context, 'HoldList'),
                     ),
                   ),
                 ],
@@ -766,23 +732,38 @@ class _OrderPageState extends State<OrderPage> {
                     ),
                   ),
                   if (_noCustomer) ...[
-                    const _DisabledButton('挂单', horizontal: 16, size: 15),
-                    const SizedBox(width: 12),
-                    const _DisabledButton('请先选择客户', horizontal: 20, size: 16),
-                  ] else ...[
-                    PrimaryButton(
-                      '挂单',
-                      bg: C.chip,
-                      fg: C.ink,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      onTap: _hold,
+                    AppButton(
+                      expanded: false,
+                      label: '挂单',
+                      kind: AppButtonKind.primary,
+                      size: AppButtonSize.large,
+                      onPressed: null,
                     ),
                     const SizedBox(width: 12),
-                    PrimaryButton(
-                      '确认收款',
-                      onTap: checkout,
+                    AppButton(
+                      expanded: false,
+                      label: '请先选择客户',
+                      kind: AppButtonKind.primary,
+                      size: AppButtonSize.large,
+                      onPressed: null,
+                    ),
+                  ] else ...[
+                    AppButton(
+                      expanded: false,
+                      label: '挂单',
+                      onPressed: _hold,
+                      kind: AppButtonKind.secondary,
+                      size: AppButtonSize.large,
+                      loading: false,
+                    ),
+                    const SizedBox(width: 12),
+                    AppButton(
+                      expanded: false,
+                      label: '确认收款',
+                      onPressed: checkout,
+                      kind: AppButtonKind.primary,
+                      size: AppButtonSize.large,
                       loading: _busy,
-                      loadingText: '提交中…',
                     ),
                   ],
                 ],
@@ -1003,12 +984,12 @@ class _OrderPageState extends State<OrderPage> {
                 ],
               ),
             ),
-            GestureDetector(
-              onTap: _clearCustomer,
-              child: Text(
-                '更换',
-                style: ts(13, w: FontWeight.w500, color: C.primaryInk, h: 18),
-              ),
+            AppButton(
+              label: '更换',
+              kind: AppButtonKind.text,
+              size: AppButtonSize.medium,
+              expanded: false,
+              onPressed: _clearCustomer,
             ),
           ],
         ),
@@ -1070,12 +1051,12 @@ class _OrderPageState extends State<OrderPage> {
             ],
           ),
         ),
-        GestureDetector(
-          onTap: _pickCustomer,
-          child: Text(
-            '更换',
-            style: ts(13, w: FontWeight.w500, color: C.primaryInk, h: 18),
-          ),
+        AppButton(
+          label: '更换',
+          kind: AppButtonKind.text,
+          size: AppButtonSize.medium,
+          expanded: false,
+          onPressed: _pickCustomer,
         ),
       ],
     ),
@@ -1093,33 +1074,16 @@ class _OrderPageState extends State<OrderPage> {
               Expanded(
                 child: Text('服务项目', style: ts(15, w: FontWeight.w600, h: 22)),
               ),
-              Semantics(
-                button: true,
-                label: '搜索项目',
-                child: GestureDetector(
-                  onTap: () => setState(() {
-                    searching = !searching;
-                    if (!searching) {
-                      query = '';
-                      _searchCtl.clear();
-                    }
-                  }),
-                  child: Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: searching ? C.primarySoft : C.inset,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      child: AppIcon(
-                        searching ? 'close' : 'search',
-                        size: 16,
-                        color: searching ? C.primaryInk : C.sub,
-                      ),
-                    ),
-                  ),
-                ),
+              AppIconButton(
+                svg: AppIcon.svg(searching ? 'close' : 'search'),
+                semanticLabel: '搜索项目',
+                onPressed: () => setState(() {
+                  searching = !searching;
+                  if (!searching) {
+                    query = '';
+                    _searchCtl.clear();
+                  }
+                }),
               ),
             ],
           ),
@@ -1635,39 +1599,4 @@ class _Svc {
   final double price;
   final Set<String> cats;
   const _Svc(this.id, this.name, this.price, this.cats);
-}
-
-/// 未选客户时底部栏上置灰的按钮（设计稿：#E4E4E7 底、#A1A1AA 字）。
-class _DisabledButton extends StatelessWidget {
-  final String text;
-  final double horizontal, size;
-  const _DisabledButton(
-    this.text, {
-    required this.horizontal,
-    required this.size,
-  });
-  @override
-  Widget build(BuildContext context) => Semantics(
-    button: true,
-    enabled: false,
-    label: text,
-    child: Container(
-      height: 50,
-      padding: EdgeInsets.symmetric(horizontal: horizontal),
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: dk(context, const Color(0xFFE4E4E7), const Color(0xFF27272A)),
-        borderRadius: BorderRadius.circular(25),
-      ),
-      child: Text(
-        text,
-        style: ts(
-          size,
-          w: size == 16 ? FontWeight.w600 : FontWeight.w500,
-          color: const Color(0xFFA1A1AA),
-          h: size == 16 ? 24 : 22,
-        ),
-      ),
-    ),
-  );
 }

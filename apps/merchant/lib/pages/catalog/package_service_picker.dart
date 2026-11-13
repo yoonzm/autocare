@@ -1,3 +1,5 @@
+import '../../kit/buttons.dart';
+
 // Data-bound copy of the designed PackageSvcPickSheet: services come from the
 // backend; initial selection is explicit and the result is returned to the caller.
 import 'package:flutter/material.dart';
@@ -177,27 +179,12 @@ class _PackageServicePickerState extends State<PackageServicePicker> {
                     gap: 1,
                   ),
                 ),
-                GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: _confirm,
-                  child: hbox(
-                    h: 48,
-                    bg: const Color(0xFF0485F7),
-                    radius: BorderRadius.circular(24),
-                    pad: const EdgeInsets.symmetric(horizontal: 28),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      widthFactor: 1,
-                      child: Text(
-                        '确认添加',
-                        style: hts(
-                          15,
-                          const Color(0xFFFFFFFF),
-                          w: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
+                AppButton(
+                  label: '确认添加',
+                  kind: AppButtonKind.primary,
+                  size: AppButtonSize.large,
+                  expanded: false,
+                  onPressed: _confirm,
                 ),
               ],
               main: MainAxisAlignment.start,
@@ -213,31 +200,12 @@ class _PackageServicePickerState extends State<PackageServicePicker> {
     );
   }
 
-  Widget _chip(String label, bool on) => GestureDetector(
-    behavior: HitTestBehavior.opaque,
-    onTap: () => setState(() => _category = label),
-    child: hbox(
-      h: 30,
-      bg: on
-          ? dk(context, const Color(0xFF18181B), const Color(0xFF34343A))
-          : dk(context, const Color(0xFFF4F4F5), const Color(0xFF27272A)),
-      radius: BorderRadius.circular(15),
-      pad: const EdgeInsets.symmetric(horizontal: 14),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        widthFactor: 1,
-        child: Text(
-          label,
-          style: hts(
-            13,
-            on
-                ? const Color(0xFFFFFFFF)
-                : dk(context, const Color(0xFF52525B), const Color(0xFFA8A8B3)),
-            w: FontWeight.w500,
-          ),
-        ),
-      ),
-    ),
+  Widget _chip(String label, bool on) => AppButton(
+    label: label,
+    kind: AppButtonKind.secondary,
+    size: AppButtonSize.small,
+    expanded: false,
+    onPressed: () => setState(() => _category = label),
   );
 
   Widget _list(BuildContext context, List<Map<String, dynamic>> rows) {
@@ -278,19 +246,6 @@ class _PackageServicePickerState extends State<PackageServicePicker> {
     final id = '${s['id']}';
     final count = _picked[id];
     final on = count != null;
-    Widget step(String label) => hbox(
-      w: 26,
-      h: 26,
-      bg: const Color(0xFFFFFFFF),
-      radius: BorderRadius.circular(13),
-      border: dk(
-        context,
-        Border.all(color: const Color(0xFFD4D4D8)),
-        Border.all(color: const Color(0xFF3F3F46)),
-      ),
-      align: Alignment.center,
-      child: Text(label, style: hts(16, const Color(0xFF18181B), lh: 16)),
-    );
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: on ? null : () => _step(id, 1),
@@ -373,7 +328,7 @@ class _PackageServicePickerState extends State<PackageServicePicker> {
               HNumberStepper.controlled(
                 onDecrease: () => _step(id, -1),
                 onIncrease: () => _step(id, 1),
-                minus: step('−'),
+
                 value: hbox(
                   minW: 34,
                   child: Align(
@@ -385,7 +340,7 @@ class _PackageServicePickerState extends State<PackageServicePicker> {
                     ),
                   ),
                 ),
-                plus: step('+'),
+
                 gap: 6,
               ),
           ],

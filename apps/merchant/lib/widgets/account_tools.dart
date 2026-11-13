@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../backend/app_cache.dart';
 import '../backend/merchant_api.dart';
 import '../kit/async_kit.dart';
+import '../kit/buttons.dart';
 import '../kit/kit.dart' show hBusy, hConfirm;
 import '../routes.dart';
 import '../theme.dart';
@@ -91,23 +92,28 @@ class _AccountDevicesState extends State<AccountDevices> {
                       color: C.greenInk,
                     ),
                   )
-                : accountAction(
-                    context,
-                    'device:${devices[i]['id']}',
-                    Text(
-                      '移除',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: C.redInk,
-                      ),
-                    ),
-                    () async {
-                      await merchantApi.revokeDevice('${devices[i]['id']}');
-                      _key.currentState?.reload();
+                : ActionButton(
+                    actionKey: 'device:${devices[i]['id']}',
+                    label: '移除',
+                    kind: AppButtonKind.danger,
+                    size: AppButtonSize.small,
+                    expanded: false,
+                    onPressed: () async {
+                      final confirmed = await hConfirm(
+                        context,
+                        '移除后，该设备需要重新登录才能使用。',
+                        ok: '移除',
+                      );
+                      if (!confirmed || !context.mounted) return;
+                      await runBusy('device:${devices[i]['id']}', () async {
+                        try {
+                          await merchantApi.revokeDevice('${devices[i]['id']}');
+                          _key.currentState?.reload();
+                        } catch (e) {
+                          if (context.mounted) AppToast.error(context, e);
+                        }
+                      });
                     },
-                    confirmation: '移除后，该设备需要重新登录才能使用。',
-                    confirmLabel: '移除',
                   ),
           ),
         ],
@@ -182,13 +188,15 @@ class AccountCachePanel extends StatelessWidget {
   );
 }
 
-Widget accountCacheClear(BuildContext context, Widget button) =>
-    accountAction(context, 'cache:clear', button, () async {
-      await AppCache.clear();
-      if (!context.mounted) return;
-      Navigator.of(context).pop();
-      AppToast.show(context, '缓存已清除', kind: ToastKind.success);
-    });
+Widget accountCacheClear(BuildContext context, String label) => RequestButton(
+  label: label,
+  onPressed: () async {
+    await AppCache.clear();
+    if (!context.mounted) return;
+    Navigator.of(context).pop();
+    AppToast.show(context, '缓存已清除', kind: ToastKind.success);
+  },
+);
 Widget accountSupportCall(BuildContext context, Widget row) =>
     accountAction(context, 'account:support', row, () async {
       final phone = await merchantApi.supportPhone();

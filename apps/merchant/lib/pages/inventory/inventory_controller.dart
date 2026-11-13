@@ -1,3 +1,5 @@
+import '../../kit/buttons.dart';
+
 import 'dart:convert';
 
 import 'package:image_picker/image_picker.dart';
@@ -730,7 +732,9 @@ class InventoryController extends ChangeNotifier {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (mode != 'check')
-              IconButton(
+              AppIconButton(
+                icon: Icons.remove,
+                semanticLabel: '减少',
                 onPressed: () {
                   l['quantity'] = ((l['quantity'] as num? ?? 0) - 1).clamp(
                     0,
@@ -738,7 +742,6 @@ class InventoryController extends ChangeNotifier {
                   );
                   changed();
                 },
-                icon: const Icon(Icons.remove, size: 14),
               ),
             GestureDetector(
               onTap: () async {
@@ -766,12 +769,13 @@ class InventoryController extends ChangeNotifier {
               ),
             ),
             if (mode != 'check')
-              IconButton(
+              AppIconButton(
+                icon: Icons.add,
+                semanticLabel: '增加',
                 onPressed: () {
                   l['quantity'] = (l['quantity'] as num? ?? 0) + 1;
                   changed();
                 },
-                icon: const Icon(Icons.add, size: 14),
               ),
           ],
         );
@@ -889,13 +893,15 @@ Future<String?> inputDialog(
         decoration: InputDecoration(hintText: hint),
       ),
       actions: [
-        TextButton(
+        AppButton(
+          label: '取消',
+          kind: AppButtonKind.secondary,
           onPressed: () => Navigator.pop(ctx),
-          child: const Text('取消'),
         ),
-        TextButton(
+        AppButton(
+          label: '确定',
+          kind: AppButtonKind.primary,
           onPressed: () => Navigator.pop(ctx, ctrl.text.trim()),
-          child: const Text('确定'),
         ),
       ],
     ),
@@ -970,8 +976,9 @@ class InventoryAttachment extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            IconButton(
-              icon: const Icon(Icons.close),
+            AppIconButton(
+              icon: Icons.close,
+              semanticLabel: '关闭',
               onPressed: c.busy
                   ? null
                   : () {

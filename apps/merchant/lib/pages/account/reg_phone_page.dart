@@ -1,3 +1,5 @@
+import '../../kit/buttons.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -101,62 +103,10 @@ class _RegPhonePageState extends State<RegPhonePage> {
                   [
                     hrow(
                       [
-                        GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          child: hbox(
-                            w: 44,
-                            h: 44,
-                            bg: dk(
-                              context,
-                              Color(0xFFFFFFFF),
-                              Color(0xFF18181B),
-                            ),
-                            radius: BorderRadius.circular(22),
-                            shadow: dk(
-                              context,
-                              [
-                                BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.06),
-                                  offset: Offset(0, 0),
-                                  blurRadius: 1,
-                                  spreadRadius: 0,
-                                ),
-                                BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.06),
-                                  offset: Offset(0, 1),
-                                  blurRadius: 2,
-                                  spreadRadius: 0,
-                                ),
-                                BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.04),
-                                  offset: Offset(0, 2),
-                                  blurRadius: 4,
-                                  spreadRadius: 0,
-                                ),
-                              ],
-                              [
-                                BoxShadow(
-                                  color: Color(0xFF26262B),
-                                  offset: Offset(0, 0),
-                                  blurRadius: 0,
-                                  spreadRadius: 1,
-                                ),
-                              ],
-                            ),
-                            child: hrow(
-                              [
-                                hsvg(
-                                  dk(context, Svgs.s0, Svgs.s1),
-                                  w: 20,
-                                  h: 20,
-                                ),
-                              ],
-                              main: MainAxisAlignment.center,
-                              cross: CrossAxisAlignment.center,
-                              gap: 0,
-                            ),
-                          ),
-                          onTap: () => Navigator.maybePop(context),
+                        AppIconButton(
+                          svg: dk(context, Svgs.s0, Svgs.s1),
+                          semanticLabel: "返回",
+                          onPressed: () => Navigator.maybePop(context),
                         ),
                         Expanded(
                           flex: 1,
@@ -575,65 +525,9 @@ class _RegPhonePageState extends State<RegPhonePage> {
                                     ),
                                     AnimatedBuilder(
                                       animation: _sms,
-                                      builder: (context, _) => GestureDetector(
-                                        behavior: HitTestBehavior.opaque,
-                                        child: hbox(
-                                          h: 36,
-                                          bg: dk(
-                                            context,
-                                            Color(0xFFFFFFFF),
-                                            Color(0xFF18181B),
-                                          ),
-                                          radius: BorderRadius.circular(18),
-                                          shadow: dk(
-                                            context,
-                                            [
-                                              BoxShadow(
-                                                color: Color.fromRGBO(
-                                                  0,
-                                                  0,
-                                                  0,
-                                                  0.06,
-                                                ),
-                                                offset: Offset(0, 1),
-                                                blurRadius: 2,
-                                                spreadRadius: 0,
-                                              ),
-                                            ],
-                                            [
-                                              BoxShadow(
-                                                color: Color(0xFF26262B),
-                                                offset: Offset(0, 0),
-                                                blurRadius: 0,
-                                                spreadRadius: 1,
-                                              ),
-                                            ],
-                                          ),
-                                          pad: EdgeInsets.fromLTRB(
-                                            14,
-                                            0,
-                                            14,
-                                            0,
-                                          ),
-                                          child: Align(
-                                            alignment: Alignment.center,
-                                            widthFactor: 1,
-                                            child: smsCodeText(
-                                              _sms,
-                                              hts(
-                                                13,
-                                                dk(
-                                                  context,
-                                                  Color(0xFF1E63AE),
-                                                  Color(0xFF6AB4FA),
-                                                ),
-                                                w: FontWeight.w500,
-                                                lh: 18,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        onTap: () => _sendCode(),
+                                      builder: (context, _) => smsCodeButton(
+                                        _sms,
+                                        onPressed: () => _sendCode(),
                                       ),
                                     ),
                                   ],
@@ -724,26 +618,6 @@ class _RegPhonePageState extends State<RegPhonePage> {
                                         () => _passwordVisible =
                                             !_passwordVisible,
                                       ),
-                                      hiddenIcon: NegMargin(
-                                        top: 0,
-                                        left: 0,
-                                        child: hbox(
-                                          w: 32,
-                                          h: 32,
-                                          child: hrow(
-                                            [
-                                              hsvg(
-                                                dk(context, Svgs.s85, Svgs.s86),
-                                                w: 20,
-                                                h: 20,
-                                              ),
-                                            ],
-                                            main: MainAxisAlignment.center,
-                                            cross: CrossAxisAlignment.center,
-                                            gap: 0,
-                                          ),
-                                        ),
-                                      ),
                                     ),
                                   ],
                                   main: MainAxisAlignment.start,
@@ -786,21 +660,12 @@ class _RegPhonePageState extends State<RegPhonePage> {
                               ),
                               Flexible(
                                 flex: 96,
-                                child: GestureDetector(
-                                  behavior: HitTestBehavior.opaque,
-                                  child: Text(
-                                    '《用户服务协议》',
-                                    style: hts(
-                                      12,
-                                      dk(
-                                        context,
-                                        Color(0xFF1E63AE),
-                                        Color(0xFF6AB4FA),
-                                      ),
-                                      lh: 18,
-                                    ),
-                                  ),
-                                  onTap: () => openRoute(context, 'Terms'),
+                                child: AppButton(
+                                  label: '《用户服务协议》',
+                                  kind: AppButtonKind.text,
+                                  size: AppButtonSize.medium,
+                                  expanded: false,
+                                  onPressed: () => openRoute(context, 'Terms'),
                                 ),
                               ),
                               Flexible(
@@ -820,21 +685,13 @@ class _RegPhonePageState extends State<RegPhonePage> {
                               ),
                               Flexible(
                                 flex: 72,
-                                child: GestureDetector(
-                                  behavior: HitTestBehavior.opaque,
-                                  child: Text(
-                                    '《隐私政策》',
-                                    style: hts(
-                                      12,
-                                      dk(
-                                        context,
-                                        Color(0xFF1E63AE),
-                                        Color(0xFF6AB4FA),
-                                      ),
-                                      lh: 18,
-                                    ),
-                                  ),
-                                  onTap: () => openRoute(context, 'Privacy'),
+                                child: AppButton(
+                                  label: '《隐私政策》',
+                                  kind: AppButtonKind.text,
+                                  size: AppButtonSize.medium,
+                                  expanded: false,
+                                  onPressed: () =>
+                                      openRoute(context, 'Privacy'),
                                 ),
                               ),
                             ],
@@ -917,37 +774,13 @@ class _RegPhonePageState extends State<RegPhonePage> {
                   [
                     Expanded(
                       flex: 1,
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: onContinue,
-                        child: hbox(
-                          h: 50,
-                          bg: Color(0xFF0485F7),
-                          radius: BorderRadius.circular(25),
-                          child: Align(
-                            alignment: Alignment(0, 0),
-                            widthFactor: 1,
-                            child: hBusy(
-                              actionKey,
-                              Text(
-                                '下一步',
-                                style: hts(
-                                  15,
-                                  Color(0xFFFFFFFF),
-                                  w: FontWeight.w600,
-                                  lh: 22,
-                                ),
-                              ),
-                              style: hts(
-                                15,
-                                Color(0xFFFFFFFF),
-                                w: FontWeight.w600,
-                                lh: 22,
-                              ),
-                              label: '提交中…',
-                            ),
-                          ),
-                        ),
+                      child: ActionButton(
+                        actionKey: actionKey,
+                        label: '下一步',
+                        kind: AppButtonKind.primary,
+                        size: AppButtonSize.large,
+                        expanded: true,
+                        onPressed: onContinue,
                       ),
                     ),
                   ],

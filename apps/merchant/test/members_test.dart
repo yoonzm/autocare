@@ -1157,6 +1157,7 @@ void main() {
       await t.pump();
       expect(find.text('实收 · 到账 ¥1,500'), findsOneWidget); // 自定义不赠送
       expect(find.text('¥5,180.00'), findsOneWidget);
+      await t.ensureVisible(find.text('现金').first);
       await t.tap(find.text('现金').first);
       await t.pump();
       await t.ensureVisible(find.text('确认收款'));

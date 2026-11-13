@@ -1,3 +1,5 @@
+import '../../kit/buttons.dart';
+
 import 'dart:convert';
 import 'dart:math' as math;
 
@@ -659,9 +661,10 @@ class ExpenseController extends ChangeNotifier {
                 ),
               ),
         actions: [
-          TextButton(
+          AppButton(
+            label: '关闭',
+            kind: AppButtonKind.secondary,
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('关闭'),
           ),
         ],
       ),
@@ -803,14 +806,14 @@ class ExpenseController extends ChangeNotifier {
               label: const Text('查看凭证'),
             ),
             if (mode == 'add')
-              IconButton(
-                tooltip: '移除凭证',
+              AppIconButton(
+                icon: Icons.close,
+                semanticLabel: '移除凭证',
                 onPressed: () {
                   draft['attachments'] = List<String>.from(draft['attachments'])
                     ..remove(path);
                   changed();
                 },
-                icon: const Icon(Icons.close, size: 18),
               ),
           ],
         ),

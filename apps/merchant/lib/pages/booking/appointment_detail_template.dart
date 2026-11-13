@@ -1,3 +1,5 @@
+import '../../kit/buttons.dart';
+
 // 预约详情：展示调用者传入的预约与明确动作。
 import 'package:flutter/material.dart';
 
@@ -32,52 +34,10 @@ class AppointmentDetailTemplate extends StatelessWidget {
               [
                 hrow(
                   [
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => Navigator.of(context).maybePop(),
-                      child: hbox(
-                        w: 44,
-                        h: 44,
-                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                        radius: BorderRadius.circular(22),
-                        shadow: dk(
-                          context,
-                          [
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 1),
-                              blurRadius: 2,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
-                              spreadRadius: 0,
-                            ),
-                          ],
-                          [
-                            BoxShadow(
-                              color: Color(0xFF26262B),
-                              offset: Offset(0, 0),
-                              blurRadius: 0,
-                              spreadRadius: 1,
-                            ),
-                          ],
-                        ),
-                        child: hrow(
-                          [hsvg(dk(context, Svgs.s0, Svgs.s1), w: 20, h: 20)],
-                          main: MainAxisAlignment.center,
-                          cross: CrossAxisAlignment.center,
-                          gap: 0,
-                        ),
-                      ),
+                    AppIconButton(
+                      svg: dk(context, Svgs.s0, Svgs.s1),
+                      semanticLabel: "返回",
+                      onPressed: () => Navigator.of(context).maybePop(),
                     ),
                     Expanded(
                       flex: 1,
@@ -201,35 +161,14 @@ class AppointmentDetailTemplate extends StatelessWidget {
                                 gap: 3,
                               ),
                             ),
-                            GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              onTap: () => AppToast.show(
+                            AppIconButton(
+                              svg: dk(context, Svgs.s9, Svgs.s10),
+                              semanticLabel: '联系客户',
+                              onPressed: () => AppToast.show(
                                 context,
                                 a.row['phone'] == ''
                                     ? '尚未登记联系方式'
                                     : '联系电话：${a.row['phone']}',
-                              ),
-                              child: hbox(
-                                w: 40,
-                                h: 40,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFDDF6E7),
-                                  Color.fromRGBO(23, 201, 100, 0.16),
-                                ),
-                                radius: BorderRadius.circular(20),
-                                child: hrow(
-                                  [
-                                    hsvg(
-                                      dk(context, Svgs.s9, Svgs.s10),
-                                      w: 18,
-                                      h: 18,
-                                    ),
-                                  ],
-                                  main: MainAxisAlignment.center,
-                                  cross: CrossAxisAlignment.center,
-                                  gap: 0,
-                                ),
                               ),
                             ),
                           ],
@@ -1337,66 +1276,28 @@ class AppointmentDetailTemplate extends StatelessWidget {
               [
                 Expanded(
                   flex: 10,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: onReschedule,
-                    child: hbox(
-                      h: 50,
-                      bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
-                      radius: BorderRadius.circular(25),
-                      child: Align(
-                        alignment: Alignment(0, 0),
-                        widthFactor: 1,
-                        child: Text(
-                          '改期 / 取消',
-                          style: hts(
-                            15,
-                            dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                            w: FontWeight.w500,
-                            lh: 22,
-                          ),
-                        ),
-                      ),
-                    ),
+                  child: AppButton(
+                    label: '改期 / 取消',
+                    kind: AppButtonKind.secondary,
+                    size: AppButtonSize.large,
+                    expanded: true,
+                    onPressed: onReschedule,
                   ),
                 ),
                 Expanded(
                   flex: 16,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: onOrder,
-                    child: hbox(
-                      h: 50,
-                      bg: dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                      radius: BorderRadius.circular(25),
-                      child: Align(
-                        alignment: Alignment(0, 0),
-                        child: hBusy(
-                          actionKey,
-                          Text(
-                            switch (a.row['status']) {
-                              'done' => '预约已完成',
-                              'cancelled' => '预约已取消',
-                              'arrived' => '去开单',
-                              _ => '客户到店 · 开单',
-                            },
-                            style: hts(
-                              15,
-                              dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                              w: FontWeight.w600,
-                              lh: 22,
-                            ),
-                          ),
-                          style: hts(
-                            15,
-                            dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                            w: FontWeight.w600,
-                            lh: 22,
-                          ),
-                          label: '提交中…',
-                        ),
-                      ),
-                    ),
+                  child: ActionButton(
+                    actionKey: actionKey,
+                    label: switch (a.row['status']) {
+                      'done' => '预约已完成',
+                      'cancelled' => '预约已取消',
+                      'arrived' => '去开单',
+                      _ => '客户到店 · 开单',
+                    },
+                    kind: AppButtonKind.secondary,
+                    size: AppButtonSize.large,
+                    expanded: true,
+                    onPressed: onOrder,
                   ),
                 ),
               ],

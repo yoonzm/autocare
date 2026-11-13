@@ -656,9 +656,9 @@ void main() {
     await t.tap(find.text('客户到店'));
     await t.pump();
     expect(api.bookings.single['status'], 'waiting');
-    expect(find.byType(AppSpinner), findsWidgets);
-    expect(find.text('提交中…'), findsOneWidget);
-    await t.tap(find.text('提交中…'));
+    expect(find.byType(CircularProgressIndicator), findsWidgets);
+    expect(find.text('客户到店'), findsOneWidget);
+    await t.tap(find.text('客户到店'));
     await t.pump();
     expect(api.calls.where((c) => c['action'] == 'arrive').length, 1);
     api.writeError = const AppError('该预约已变化');
@@ -737,9 +737,9 @@ void main() {
     await t.tap(find.text('客户到店 · 开单'));
     await t.pump();
     expect(t.getSize(button), size);
-    expect(find.text('提交中…'), findsOneWidget);
-    expect(find.byType(AppSpinner), findsWidgets);
-    await t.tap(find.text('提交中…'));
+    expect(find.text('客户到店 · 开单'), findsOneWidget);
+    expect(find.byType(CircularProgressIndicator), findsWidgets);
+    await t.tap(find.text('客户到店 · 开单'));
     await t.pump();
     expect(api.calls.where((c) => c['action'] == 'arrive').length, 1);
     api.writeError = const AppError('该预约已变化');
@@ -810,11 +810,11 @@ void main() {
     await t.tap(find.text('保存设置'));
     await t.pump();
     final busyButton = find
-        .ancestor(of: find.text('提交中…'), matching: find.byType(Expanded))
+        .ancestor(of: find.text('保存设置'), matching: find.byType(Expanded))
         .last;
     expect(t.getSize(busyButton), size);
-    expect(find.text('提交中…'), findsOneWidget);
-    expect(find.byType(AppSpinner), findsWidgets);
+    expect(find.text('保存设置'), findsOneWidget);
+    expect(find.byType(CircularProgressIndicator), findsWidgets);
     expect(api.calls.where((c) => c['action'] == 'settings_save').length, 1);
     api.writeError = const AppError('保存失败');
     api.gate!.complete();
@@ -951,14 +951,17 @@ void main() {
     await t.pump();
     expect(t.getSize(button), before);
     expect(
-      find.descendant(of: button, matching: find.text('提交中…')),
+      find.descendant(of: button, matching: find.text('确认改期')),
       findsOneWidget,
     );
     expect(
-      find.descendant(of: button, matching: find.byType(AppSpinner)),
+      find.descendant(
+        of: button,
+        matching: find.byType(CircularProgressIndicator),
+      ),
       findsOneWidget,
     );
-    expect(find.text('确认改期'), findsNothing);
+    expect(find.text('确认改期'), findsOneWidget);
     expect(find.text('取消'), findsOneWidget);
     await t.tapAt(t.getCenter(button));
     await t.pump();

@@ -1,3 +1,5 @@
+import '../../kit/buttons.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../backend/merchant_api.dart';
@@ -149,42 +151,15 @@ class _StatsPageState extends State<StatsPage> {
     ],
   );
 
-  Widget _pill(
-    String t,
-    String icon, {
-    bool dark = false,
-    required VoidCallback onTap,
-  }) => GestureDetector(
-    onTap: onTap,
-    child: Container(
-      height: 44,
-      padding: const EdgeInsets.symmetric(horizontal: 14),
-      decoration: BoxDecoration(
-        color: dark ? C.heroCard : C.card,
-        borderRadius: BorderRadius.circular(22),
-        boxShadow: softShadow,
-      ),
-      child: Row(
-        children: [
-          AppIcon(
-            icon,
-            size: 18,
-            color: dark ? (C.dark ? C.gold : Colors.white) : C.ink,
-          ),
-          const SizedBox(width: 6),
-          Text(
-            t,
-            style: ts(
-              14,
-              w: FontWeight.w500,
-              color: dark ? Colors.white : C.ink,
-              h: 20,
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
+  Widget _pill(String t, String icon, {required VoidCallback onTap}) =>
+      AppButton(
+        label: t,
+        kind: AppButtonKind.secondary,
+        size: AppButtonSize.medium,
+        expanded: false,
+        svg: AppIcon.svg(icon),
+        onPressed: onTap,
+      );
 
   Widget _chartCard(BuildContext context) => AppCard(
     padding: const EdgeInsets.all(18),
@@ -279,28 +254,13 @@ class _StatsPageState extends State<StatsPage> {
         ),
         const SizedBox(height: 14),
         // 订单中心入口（设计稿 Stats：营业额卡片底部“全部订单与收款”）
-        GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () => openRoute(context, 'OrderList'),
-          child: Container(
-            height: 44,
-            padding: const EdgeInsets.symmetric(horizontal: 14),
-            decoration: BoxDecoration(
-              color: C.inset,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    '全部订单与收款',
-                    style: ts(14, w: FontWeight.w500, h: 20),
-                  ),
-                ),
-                AppIcon('chevronRight', size: 16, color: C.faint),
-              ],
-            ),
-          ),
+        AppButton(
+          label: '全部订单与收款',
+          kind: AppButtonKind.secondary,
+          size: AppButtonSize.medium,
+          expanded: false,
+          svg: AppIcon.svg('chevronRight'),
+          onPressed: () => openRoute(context, 'OrderList'),
         ),
       ],
     ),

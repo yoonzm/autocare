@@ -1,3 +1,4 @@
+import '../../kit/buttons.dart';
 import '../members/member_events.dart';
 
 import 'package:flutter/material.dart';
@@ -184,37 +185,15 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                     ]),
                     const SizedBox(height: 24),
-                    GestureDetector(
-                      onTap: () => runBusy(
+                    ActionButton(
+                      actionKey: _logoutKey,
+                      label: '退出登录',
+                      kind: AppButtonKind.primary,
+                      size: AppButtonSize.large,
+                      expanded: true,
+                      onPressed: () => runBusy(
                         _logoutKey,
                         () => AccessFlow.signOut(context),
-                      ),
-                      child: Container(
-                        height: 50,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: C.card,
-                          borderRadius: BorderRadius.circular(25),
-                          boxShadow: softShadow,
-                        ),
-                        child: hBusy(
-                          _logoutKey,
-                          Text(
-                            '退出登录',
-                            style: ts(
-                              16,
-                              w: FontWeight.w600,
-                              color: C.redInk,
-                              h: 24,
-                            ),
-                          ),
-                          style: ts(
-                            16,
-                            w: FontWeight.w600,
-                            color: C.redInk,
-                            h: 24,
-                          ),
-                        ),
                       ),
                     ),
                   ],
@@ -428,27 +407,10 @@ class _SettingsPageState extends State<SettingsPage> {
                       ],
                     ),
                   ),
-                  Semantics(
-                    button: true,
-                    label: '编辑资料',
-                    child: GestureDetector(
-                      onTap: () => openRoute(context, 'ProfileEdit'),
-                      child: Container(
-                        width: 40,
-                        height: 40,
-                        decoration: const BoxDecoration(
-                          color: C.dark2,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Center(
-                          child: AppIcon(
-                            'edit',
-                            size: 18,
-                            color: Color(0xFFFAFAFA),
-                          ),
-                        ),
-                      ),
-                    ),
+                  AppIconButton(
+                    svg: AppIcon.svg('edit'),
+                    semanticLabel: '编辑资料',
+                    onPressed: () => openRoute(context, 'ProfileEdit'),
                   ),
                 ],
               ),

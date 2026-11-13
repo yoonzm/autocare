@@ -1,3 +1,4 @@
+import '../../../kit/buttons.dart';
 import '../../../kit/single_selection.dart';
 import 'member_package_host.dart';
 import 'member_package_route_data.dart';
@@ -467,27 +468,12 @@ class _PackageRefundSheetTemplate extends StatelessWidget {
                   child: UnconstrainedBox(
                     alignment: Alignment.topLeft,
                     constrainedAxis: Axis.horizontal,
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => Navigator.of(context).maybePop(),
-                      child: hbox(
-                        h: 50,
-                        bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
-                        radius: BorderRadius.circular(25),
-                        child: Align(
-                          alignment: Alignment(0, 0),
-                          widthFactor: 1,
-                          child: Text(
-                            '再想想',
-                            style: hts(
-                              15,
-                              dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                              w: FontWeight.w500,
-                              lh: 22,
-                            ),
-                          ),
-                        ),
-                      ),
+                    child: AppButton(
+                      label: '再想想',
+                      kind: AppButtonKind.secondary,
+                      size: AppButtonSize.large,
+                      expanded: true,
+                      onPressed: () => Navigator.of(context).maybePop(),
                     ),
                   ),
                 ),
@@ -496,45 +482,13 @@ class _PackageRefundSheetTemplate extends StatelessWidget {
                   child: UnconstrainedBox(
                     alignment: Alignment.topLeft,
                     constrainedAxis: Axis.horizontal,
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => c.submit(context, refund: true),
-                      child: hbox(
-                        h: 50,
-                        bg: dk(
-                          context,
-                          Color(0xFFFFE1E2),
-                          Color.fromRGBO(255, 56, 60, 0.18),
-                        ),
-                        radius: BorderRadius.circular(25),
-                        child: Align(
-                          alignment: Alignment(0, 0),
-                          widthFactor: 1,
-                          child: hBusy(
-                            c.actionKey,
-                            Text(
-                              k.refundConfirm,
-                              style: hts(
-                                15,
-                                dk(
-                                  context,
-                                  Color(0xFFA43433),
-                                  Color(0xFFFF7B7E),
-                                ),
-                                w: FontWeight.w500,
-                                lh: 22,
-                              ),
-                            ),
-                            style: hts(
-                              15,
-                              dk(context, Color(0xFFA43433), Color(0xFFFF7B7E)),
-                              w: FontWeight.w500,
-                              lh: 22,
-                            ),
-                            label: '提交中…',
-                          ),
-                        ),
-                      ),
+                    child: ActionButton(
+                      actionKey: c.actionKey,
+                      label: k.refundConfirm,
+                      kind: AppButtonKind.danger,
+                      size: AppButtonSize.large,
+                      expanded: true,
+                      onPressed: () => c.submit(context, refund: true),
                     ),
                   ),
                 ),

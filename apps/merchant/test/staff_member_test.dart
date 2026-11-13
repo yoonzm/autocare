@@ -183,7 +183,7 @@ void main() {
     await t.pumpAndSettle();
     await t.tap(find.text('精致洗车年卡 · 精致洗车（剩余 12 次）'));
     await t.pump();
-    await t.tap(find.text('发送验证码'));
+    await t.tap(find.text('获取验证码'));
     await t.pumpAndSettle();
     expect(
       api.calls

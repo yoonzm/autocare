@@ -1,3 +1,4 @@
+import '../../kit/buttons.dart';
 import '../../routes.dart' show openRoute;
 import '../../backend/data_snapshot.dart';
 
@@ -391,52 +392,10 @@ class _CardPackagesLivePageState extends State<CardPackagesLivePage> {
               [
                 hrow(
                   [
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => Navigator.of(context).maybePop(),
-                      child: hbox(
-                        w: 44,
-                        h: 44,
-                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                        radius: BorderRadius.circular(22),
-                        shadow: dk(
-                          context,
-                          [
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 1),
-                              blurRadius: 2,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
-                              spreadRadius: 0,
-                            ),
-                          ],
-                          [
-                            BoxShadow(
-                              color: Color(0xFF26262B),
-                              offset: Offset(0, 0),
-                              blurRadius: 0,
-                              spreadRadius: 1,
-                            ),
-                          ],
-                        ),
-                        child: hrow(
-                          [hsvg(dk(context, Svgs.s0, Svgs.s1), w: 20, h: 20)],
-                          main: MainAxisAlignment.center,
-                          cross: CrossAxisAlignment.center,
-                          gap: 0,
-                        ),
-                      ),
+                    AppIconButton(
+                      svg: dk(context, Svgs.s0, Svgs.s1),
+                      semanticLabel: "返回",
+                      onPressed: () => Navigator.of(context).maybePop(),
                     ),
                     Expanded(
                       flex: 1,
@@ -451,21 +410,11 @@ class _CardPackagesLivePageState extends State<CardPackagesLivePage> {
                         textAlign: TextAlign.center,
                       ),
                     ),
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: _add,
-                      child: hbox(
-                        w: 44,
-                        h: 44,
-                        bg: dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                        radius: BorderRadius.circular(22),
-                        child: hrow(
-                          [hsvg(dk(context, Svgs.s58, Svgs.s59), w: 20, h: 20)],
-                          main: MainAxisAlignment.center,
-                          cross: CrossAxisAlignment.center,
-                          gap: 0,
-                        ),
-                      ),
+                    AppIconButton(
+                      svg: dk(context, Svgs.s58, Svgs.s59),
+                      semanticLabel: '新增套餐',
+                      kind: AppIconButtonKind.primary,
+                      onPressed: _add,
                     ),
                   ],
                   main: MainAxisAlignment.start,

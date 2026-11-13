@@ -1,3 +1,4 @@
+import '../../kit/buttons.dart';
 import '../../kit/async_kit.dart';
 import '../../backend/merchant_api.dart';
 import '../../routes.dart' show openRoute;
@@ -110,27 +111,12 @@ class MemberDeleteSheet extends StatelessWidget {
                   child: UnconstrainedBox(
                     alignment: Alignment.topLeft,
                     constrainedAxis: Axis.horizontal,
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => Navigator.of(context).maybePop(),
-                      child: hbox(
-                        h: 50,
-                        bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
-                        radius: BorderRadius.circular(25),
-                        child: Align(
-                          alignment: Alignment(0, 0),
-                          widthFactor: 1,
-                          child: Text(
-                            '再想想',
-                            style: hts(
-                              15,
-                              dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                              w: FontWeight.w500,
-                              lh: 22,
-                            ),
-                          ),
-                        ),
-                      ),
+                    child: AppButton(
+                      label: '再想想',
+                      kind: AppButtonKind.secondary,
+                      size: AppButtonSize.large,
+                      expanded: true,
+                      onPressed: () => Navigator.of(context).maybePop(),
                     ),
                   ),
                 ),
@@ -139,45 +125,13 @@ class MemberDeleteSheet extends StatelessWidget {
                   child: UnconstrainedBox(
                     alignment: Alignment.topLeft,
                     constrainedAxis: Axis.horizontal,
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => _delete(context),
-                      child: hbox(
-                        h: 50,
-                        bg: dk(
-                          context,
-                          Color(0xFFFFE1E2),
-                          Color.fromRGBO(255, 56, 60, 0.18),
-                        ),
-                        radius: BorderRadius.circular(25),
-                        child: Align(
-                          alignment: Alignment(0, 0),
-                          widthFactor: 1,
-                          child: hBusy(
-                            'member-delete-${identityHashCode(context)}',
-                            Text(
-                              '确认删除',
-                              style: hts(
-                                15,
-                                dk(
-                                  context,
-                                  Color(0xFFA43433),
-                                  Color(0xFFFF7B7E),
-                                ),
-                                w: FontWeight.w500,
-                                lh: 22,
-                              ),
-                            ),
-                            style: hts(
-                              15,
-                              dk(context, Color(0xFFA43433), Color(0xFFFF7B7E)),
-                              w: FontWeight.w500,
-                              lh: 22,
-                            ),
-                            label: '提交中…',
-                          ),
-                        ),
-                      ),
+                    child: ActionButton(
+                      actionKey: 'member-delete-${identityHashCode(context)}',
+                      label: '确认删除',
+                      kind: AppButtonKind.danger,
+                      size: AppButtonSize.large,
+                      expanded: true,
+                      onPressed: () => _delete(context),
                     ),
                   ),
                 ),

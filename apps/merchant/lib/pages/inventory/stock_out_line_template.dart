@@ -1,3 +1,5 @@
+import '../../kit/buttons.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../kit/kit.dart';
@@ -41,18 +43,7 @@ class StockOutLineTemplate extends StatelessWidget {
       HNumberStepper.controlled(
         onDecrease: () => c.adjust(line, -1),
         onIncrease: () => c.adjust(line, 1),
-        minus: hbox(
-          w: 32,
-          h: 32,
-          bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
-          radius: BorderRadius.circular(16),
-          child: hrow(
-            [hsvg(dk(context, Svgs.s16, Svgs.s17), w: 14, h: 14)],
-            main: MainAxisAlignment.center,
-            cross: CrossAxisAlignment.center,
-            gap: 0,
-          ),
-        ),
+
         value: Flexible(
           flex: 25,
           child: hbox(
@@ -64,18 +55,7 @@ class StockOutLineTemplate extends StatelessWidget {
             ),
           ),
         ),
-        plus: hbox(
-          w: 32,
-          h: 32,
-          bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
-          radius: BorderRadius.circular(16),
-          child: hrow(
-            [hsvg(dk(context, Svgs.s18, Svgs.s19), w: 14, h: 14)],
-            main: MainAxisAlignment.center,
-            cross: CrossAxisAlignment.center,
-            gap: 0,
-          ),
-        ),
+
         main: MainAxisAlignment.start,
         cross: CrossAxisAlignment.center,
         gap: 4,
@@ -91,33 +71,12 @@ class StockOutAddTemplate extends StatelessWidget {
   final InventoryController c;
   const StockOutAddTemplate({super.key, required this.c});
   @override
-  Widget build(BuildContext context) => GestureDetector(
-    behavior: HitTestBehavior.opaque,
-    onTap: c.busy ? null : () => c.add(context),
-    child: hbox(
-      h: 42,
-      bg: dk(context, Color(0xFFE1F0FE), Color.fromRGBO(4, 133, 247, 0.18)),
-      radius: BorderRadius.circular(21),
-      child: hrow(
-        [
-          hsvg(dk(context, Svgs.s360, Svgs.s361), w: 16, h: 16),
-          Flexible(
-            flex: 56,
-            child: Text(
-              '添加商品',
-              style: hts(
-                14,
-                dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
-                w: FontWeight.w600,
-                lh: 20,
-              ),
-            ),
-          ),
-        ],
-        main: MainAxisAlignment.center,
-        cross: CrossAxisAlignment.center,
-        gap: 6,
-      ),
-    ),
+  Widget build(BuildContext context) => AppButton(
+    label: '添加商品',
+    kind: AppButtonKind.secondary,
+    size: AppButtonSize.medium,
+    expanded: false,
+    svg: dk(context, Svgs.s360, Svgs.s361),
+    onPressed: c.busy ? null : () => c.add(context),
   );
 }

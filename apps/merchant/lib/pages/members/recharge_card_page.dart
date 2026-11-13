@@ -1,3 +1,4 @@
+import '../../kit/buttons.dart';
 import '../../kit/single_selection.dart';
 import 'packages/package_choices.dart' show PackageChoices;
 import 'wallet_controller.dart';
@@ -29,52 +30,10 @@ class RechargeCardPage extends StatelessWidget {
               [
                 hrow(
                   [
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => Navigator.of(context).maybePop(),
-                      child: hbox(
-                        w: 44,
-                        h: 44,
-                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                        radius: BorderRadius.circular(22),
-                        shadow: dk(
-                          context,
-                          [
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 1),
-                              blurRadius: 2,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
-                              spreadRadius: 0,
-                            ),
-                          ],
-                          [
-                            BoxShadow(
-                              color: Color(0xFF26262B),
-                              offset: Offset(0, 0),
-                              blurRadius: 0,
-                              spreadRadius: 1,
-                            ),
-                          ],
-                        ),
-                        child: hrow(
-                          [hsvg(dk(context, Svgs.s0, Svgs.s1), w: 20, h: 20)],
-                          main: MainAxisAlignment.center,
-                          cross: CrossAxisAlignment.center,
-                          gap: 0,
-                        ),
-                      ),
+                    AppIconButton(
+                      svg: dk(context, Svgs.s0, Svgs.s1),
+                      semanticLabel: "返回",
+                      onPressed: () => Navigator.of(context).maybePop(),
                     ),
                     Expanded(
                       flex: 1,
@@ -276,29 +235,11 @@ class RechargeCardPage extends StatelessWidget {
                               maxLines: 1,
                             ),
                           ),
-                          GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: () => c.chooseMember(context),
-                            child: hbox(
-                              bg: dk(
-                                context,
-                                Color.fromRGBO(255, 255, 255, 0.14),
-                                Color.fromRGBO(9, 9, 11, 0.92),
-                              ),
-                              radius: BorderRadius.circular(9),
-                              pad: EdgeInsets.fromLTRB(8, 0, 8, 0),
-                              child: Text(
-                                '更换',
-                                style: hts(
-                                  12,
-                                  Color(0xFFFAFAFA),
-                                  w: FontWeight.w500,
-                                  lh: 18,
-                                ),
-                                softWrap: false,
-                                maxLines: 1,
-                              ),
-                            ),
+                          AppButton(
+                            label: '更换',
+                            kind: AppButtonKind.text,
+                            size: AppButtonSize.medium,
+                            onPressed: () => c.chooseMember(context),
                           ),
                         ],
                         main: MainAxisAlignment.start,
@@ -360,13 +301,12 @@ class RechargeCardPage extends StatelessWidget {
                           ),
                           Align(
                             alignment: Alignment.topCenter,
-                            child: GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              onTap: () => c.choosePackage(context),
-                              child: Text(
-                                c.saleAll,
-                                style: hts(13, Color(0xFF0485F7)),
-                              ),
+                            child: AppButton(
+                              label: c.saleAll,
+                              kind: AppButtonKind.text,
+                              size: AppButtonSize.medium,
+                              expanded: false,
+                              onPressed: () => c.choosePackage(context),
                             ),
                           ),
                         ],
@@ -1014,62 +954,23 @@ class RechargeCardPage extends StatelessWidget {
               [
                 Expanded(
                   flex: 10,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => c.openMember(context),
-                    child: hbox(
-                      h: 50,
-                      bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
-                      radius: BorderRadius.circular(25),
-                      child: Align(
-                        alignment: Alignment(0, 0),
-                        widthFactor: 1,
-                        child: Text(
-                          '取消',
-                          style: hts(
-                            15,
-                            dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                            w: FontWeight.w500,
-                            lh: 22,
-                          ),
-                        ),
-                      ),
-                    ),
+                  child: AppButton(
+                    label: '取消',
+                    kind: AppButtonKind.secondary,
+                    size: AppButtonSize.large,
+                    expanded: true,
+                    onPressed: () => c.openMember(context),
                   ),
                 ),
                 Expanded(
                   flex: 16,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => c.submit(context, sale: true),
-                    child: hbox(
-                      h: 50,
-                      bg: Color(0xFF0485F7),
-                      radius: BorderRadius.circular(25),
-                      child: Align(
-                        alignment: Alignment(0, 0),
-                        widthFactor: 1,
-                        child: hBusy(
-                          c.actionKey,
-                          Text(
-                            c.saleConfirm,
-                            style: hts(
-                              15,
-                              Color(0xFFFFFFFF),
-                              w: FontWeight.w600,
-                              lh: 22,
-                            ),
-                          ),
-                          style: hts(
-                            15,
-                            Color(0xFFFFFFFF),
-                            w: FontWeight.w600,
-                            lh: 22,
-                          ),
-                          label: '提交中…',
-                        ),
-                      ),
-                    ),
+                  child: ActionButton(
+                    actionKey: c.actionKey,
+                    label: c.saleConfirm,
+                    kind: AppButtonKind.primary,
+                    size: AppButtonSize.large,
+                    expanded: true,
+                    onPressed: () => c.submit(context, sale: true),
                   ),
                 ),
               ],

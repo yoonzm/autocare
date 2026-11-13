@@ -1,3 +1,5 @@
+import '../../kit/buttons.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -561,13 +563,15 @@ class InventoryManagementController extends ChangeNotifier {
         builder: (ctx) => AlertDialog(
           title: Text('删除分类「${row['name']}」？'),
           actions: [
-            TextButton(
+            AppButton(
+              label: '取消',
+              kind: AppButtonKind.secondary,
               onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('取消'),
             ),
-            TextButton(
+            AppButton(
+              label: '删除',
+              kind: AppButtonKind.danger,
               onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('删除'),
             ),
           ],
         ),
@@ -698,7 +702,9 @@ class InventoryManagementController extends ChangeNotifier {
         for (final path in List<String>.from(
           document['payload']?['attachments'] ?? [],
         ))
-          TextButton(
+          AppButton(
+            label: '查看附件',
+            kind: AppButtonKind.primary,
             onPressed: () => showDialog<void>(
               context: context,
               builder: (_) => Dialog(
@@ -718,7 +724,6 @@ class InventoryManagementController extends ChangeNotifier {
                 ),
               ),
             ),
-            child: const Text('查看附件'),
           ),
       ],
     ],

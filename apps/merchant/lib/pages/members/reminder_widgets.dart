@@ -1,3 +1,5 @@
+import '../../kit/buttons.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../kit/async_kit.dart';
@@ -271,42 +273,13 @@ class _FollowButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => AsyncActionScope(
     actionKey: actionKey,
-    child: GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: Container(
-        height: 40,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: filled
-              ? dk(context, const Color(0xFF18181B), const Color(0xFFFAFAFA))
-              : dk(context, const Color(0xFFEEEEF0), const Color(0xFF27272A)),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: hBusy(
-          actionKey,
-          Text(
-            label,
-            style: hts(
-              13,
-              filled
-                  ? dk(
-                      context,
-                      const Color(0xFFFFFFFF),
-                      const Color(0xFF18181B),
-                    )
-                  : dk(
-                      context,
-                      const Color(0xFF18181B),
-                      const Color(0xFFFAFAFA),
-                    ),
-              w: FontWeight.w500,
-              lh: 18,
-            ),
-          ),
-        ),
-      ),
+    child: ActionButton(
+      actionKey: actionKey,
+      label: label,
+      kind: filled ? AppButtonKind.primary : AppButtonKind.secondary,
+      size: AppButtonSize.medium,
+      expanded: false,
+      onPressed: onTap,
     ),
   );
 }

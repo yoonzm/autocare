@@ -1,3 +1,5 @@
+import '../../../kit/buttons.dart';
+
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -231,30 +233,15 @@ Widget hPackageRecords(
                     muted: muted,
                   ),
                 if (events.length > shown.length)
-                  GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => openRoute(
+                  AppButton(
+                    label: '查看全部 ${events.length} 条记录',
+                    kind: AppButtonKind.text,
+                    size: AppButtonSize.medium,
+                    expanded: false,
+                    onPressed: () => openRoute(
                       context,
                       'MemberRecords',
                       arguments: MemberRouteData(member: member),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      child: Center(
-                        child: Text(
-                          '查看全部 ${events.length} 条记录',
-                          style: hts(
-                            13,
-                            dk(
-                              context,
-                              const Color(0xFF1E63AE),
-                              const Color(0xFF6AB4FA),
-                            ),
-                            w: FontWeight.w500,
-                            lh: 18,
-                          ),
-                        ),
-                      ),
                     ),
                   ),
               ],

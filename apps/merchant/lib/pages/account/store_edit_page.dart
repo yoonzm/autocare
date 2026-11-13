@@ -1,3 +1,5 @@
+import '../../kit/buttons.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../kit/kit.dart';
@@ -77,62 +79,10 @@ class _StoreEditPageState extends State<StoreEditPage> {
                   [
                     hrow(
                       [
-                        GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: _leave,
-                          child: hbox(
-                            w: 44,
-                            h: 44,
-                            bg: dk(
-                              context,
-                              Color(0xFFFFFFFF),
-                              Color(0xFF18181B),
-                            ),
-                            radius: BorderRadius.circular(22),
-                            shadow: dk(
-                              context,
-                              [
-                                BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.06),
-                                  offset: Offset(0, 0),
-                                  blurRadius: 1,
-                                  spreadRadius: 0,
-                                ),
-                                BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.06),
-                                  offset: Offset(0, 1),
-                                  blurRadius: 2,
-                                  spreadRadius: 0,
-                                ),
-                                BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.04),
-                                  offset: Offset(0, 2),
-                                  blurRadius: 4,
-                                  spreadRadius: 0,
-                                ),
-                              ],
-                              [
-                                BoxShadow(
-                                  color: Color(0xFF26262B),
-                                  offset: Offset(0, 0),
-                                  blurRadius: 0,
-                                  spreadRadius: 1,
-                                ),
-                              ],
-                            ),
-                            child: hrow(
-                              [
-                                hsvg(
-                                  dk(context, Svgs.s71, Svgs.s72),
-                                  w: 20,
-                                  h: 20,
-                                ),
-                              ],
-                              main: MainAxisAlignment.center,
-                              cross: CrossAxisAlignment.center,
-                              gap: 0,
-                            ),
-                          ),
+                        AppIconButton(
+                          svg: dk(context, Svgs.s71, Svgs.s72),
+                          semanticLabel: "返回",
+                          onPressed: _leave,
                         ),
                         Expanded(
                           flex: 1,
@@ -147,38 +97,13 @@ class _StoreEditPageState extends State<StoreEditPage> {
                             textAlign: TextAlign.center,
                           ),
                         ),
-                        GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: onSave,
-                          child: hbox(
-                            h: 44,
-                            bg: Color(0xFF0485F7),
-                            radius: BorderRadius.circular(22),
-                            pad: EdgeInsets.fromLTRB(18, 0, 18, 0),
-                            child: Align(
-                              alignment: Alignment(-1, 0),
-                              widthFactor: 1,
-                              child: hBusy(
-                                actionKey,
-                                Text(
-                                  '保存',
-                                  style: hts(
-                                    14,
-                                    Color(0xFFFFFFFF),
-                                    w: FontWeight.w600,
-                                    lh: 20,
-                                  ),
-                                ),
-                                style: hts(
-                                  14,
-                                  Color(0xFFFFFFFF),
-                                  w: FontWeight.w600,
-                                  lh: 20,
-                                ),
-                                round: true,
-                              ),
-                            ),
-                          ),
+                        ActionButton(
+                          actionKey: actionKey,
+                          label: '保存',
+                          kind: AppButtonKind.primary,
+                          size: AppButtonSize.medium,
+                          expanded: false,
+                          onPressed: onSave,
                         ),
                       ],
                       main: MainAxisAlignment.start,
@@ -643,32 +568,10 @@ class _StoreEditPageState extends State<StoreEditPage> {
                                         ),
                                       ),
                                     ),
-                                    GestureDetector(
-                                      behavior: HitTestBehavior.opaque,
-                                      key: const ValueKey('store-locate'),
-                                      onTap: _locate,
-                                      child: hbox(
-                                        w: 32,
-                                        h: 32,
-                                        bg: dk(
-                                          context,
-                                          Color(0xFFE1F0FE),
-                                          Color.fromRGBO(4, 133, 247, 0.18),
-                                        ),
-                                        radius: BorderRadius.circular(16),
-                                        child: hrow(
-                                          [
-                                            hsvg(
-                                              dk(context, Svgs.s370, Svgs.s371),
-                                              w: 16,
-                                              h: 16,
-                                            ),
-                                          ],
-                                          main: MainAxisAlignment.center,
-                                          cross: CrossAxisAlignment.center,
-                                          gap: 0,
-                                        ),
-                                      ),
+                                    AppIconButton(
+                                      svg: dk(context, Svgs.s370, Svgs.s371),
+                                      semanticLabel: '定位',
+                                      onPressed: _locate,
                                     ),
                                   ],
                                   main: MainAxisAlignment.start,

@@ -1,3 +1,4 @@
+import '../../../kit/buttons.dart';
 import '../../../kit/single_selection.dart';
 import 'member_package_host.dart';
 import 'member_package_route_data.dart';
@@ -517,27 +518,12 @@ class _PackageExtendSheetTemplate extends StatelessWidget {
                   child: UnconstrainedBox(
                     alignment: Alignment.topLeft,
                     constrainedAxis: Axis.horizontal,
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => Navigator.of(context).maybePop(),
-                      child: hbox(
-                        h: 50,
-                        bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
-                        radius: BorderRadius.circular(25),
-                        child: Align(
-                          alignment: Alignment(0, 0),
-                          widthFactor: 1,
-                          child: Text(
-                            '取消',
-                            style: hts(
-                              15,
-                              dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                              w: FontWeight.w500,
-                              lh: 22,
-                            ),
-                          ),
-                        ),
-                      ),
+                    child: AppButton(
+                      label: '取消',
+                      kind: AppButtonKind.secondary,
+                      size: AppButtonSize.large,
+                      expanded: true,
+                      onPressed: () => Navigator.of(context).maybePop(),
                     ),
                   ),
                 ),
@@ -546,37 +532,13 @@ class _PackageExtendSheetTemplate extends StatelessWidget {
                   child: UnconstrainedBox(
                     alignment: Alignment.topLeft,
                     constrainedAxis: Axis.horizontal,
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => c.submit(context, refund: false),
-                      child: hbox(
-                        h: 50,
-                        bg: Color(0xFF0485F7),
-                        radius: BorderRadius.circular(25),
-                        child: Align(
-                          alignment: Alignment(0, 0),
-                          widthFactor: 1,
-                          child: hBusy(
-                            c.actionKey,
-                            Text(
-                              '确认延期',
-                              style: hts(
-                                15,
-                                Color(0xFFFFFFFF),
-                                w: FontWeight.w600,
-                                lh: 22,
-                              ),
-                            ),
-                            style: hts(
-                              15,
-                              Color(0xFFFFFFFF),
-                              w: FontWeight.w600,
-                              lh: 22,
-                            ),
-                            label: '提交中…',
-                          ),
-                        ),
-                      ),
+                    child: ActionButton(
+                      actionKey: c.actionKey,
+                      label: '确认延期',
+                      kind: AppButtonKind.primary,
+                      size: AppButtonSize.large,
+                      expanded: true,
+                      onPressed: () => c.submit(context, refund: false),
                     ),
                   ),
                 ),

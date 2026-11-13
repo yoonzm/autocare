@@ -1,3 +1,5 @@
+import '../../kit/buttons.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../backend/merchant_api.dart';
@@ -116,22 +118,11 @@ class _ProductListState extends State<ProductListLivePage> {
       children: [
         AppPageHeader(
           title: '全部商品',
-          trailing: Semantics(
-            button: true,
-            label: '新增商品',
-            child: GestureDetector(
-              onTap: () => openRoute(context, 'ProductEdit'),
-              child: Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: C.card,
-                  shape: BoxShape.circle,
-                  boxShadow: softShadow,
-                ),
-                child: Center(child: AppIcon('add', size: 20, color: C.ink)),
-              ),
-            ),
+          trailing: AppIconButton(
+            kind: AppIconButtonKind.primary,
+            svg: AppIcon.svg('add'),
+            semanticLabel: '新增商品',
+            onPressed: () => openRoute(context, 'ProductEdit'),
           ),
         ),
         const SizedBox(height: 16),
@@ -167,22 +158,10 @@ class _ProductListState extends State<ProductListLivePage> {
               ),
             ),
             const SizedBox(width: 8),
-            Semantics(
-              button: true,
-              label: '扫码',
-              child: GestureDetector(
-                onTap: () => openRoute(context, 'ScanProduct'),
-                child: Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: C.card,
-                    shape: BoxShape.circle,
-                    boxShadow: softShadow,
-                  ),
-                  child: Center(child: AppIcon('scan', size: 20, color: C.ink)),
-                ),
-              ),
+            AppIconButton(
+              svg: AppIcon.svg('scan'),
+              semanticLabel: '扫码',
+              onPressed: () => openRoute(context, 'ScanProduct'),
             ),
           ],
         ),

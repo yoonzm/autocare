@@ -1,3 +1,5 @@
+import '../../kit/buttons.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../kit/kit.dart';
@@ -50,62 +52,10 @@ class _SecurityPageState extends State<SecurityPage> {
                   [
                     hrow(
                       [
-                        GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () => Navigator.of(context).maybePop(),
-                          child: hbox(
-                            w: 44,
-                            h: 44,
-                            bg: dk(
-                              context,
-                              Color(0xFFFFFFFF),
-                              Color(0xFF18181B),
-                            ),
-                            radius: BorderRadius.circular(22),
-                            shadow: dk(
-                              context,
-                              [
-                                BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.06),
-                                  offset: Offset(0, 0),
-                                  blurRadius: 1,
-                                  spreadRadius: 0,
-                                ),
-                                BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.06),
-                                  offset: Offset(0, 1),
-                                  blurRadius: 2,
-                                  spreadRadius: 0,
-                                ),
-                                BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.04),
-                                  offset: Offset(0, 2),
-                                  blurRadius: 4,
-                                  spreadRadius: 0,
-                                ),
-                              ],
-                              [
-                                BoxShadow(
-                                  color: Color(0xFF26262B),
-                                  offset: Offset(0, 0),
-                                  blurRadius: 0,
-                                  spreadRadius: 1,
-                                ),
-                              ],
-                            ),
-                            child: hrow(
-                              [
-                                hsvg(
-                                  dk(context, Svgs.s0, Svgs.s1),
-                                  w: 20,
-                                  h: 20,
-                                ),
-                              ],
-                              main: MainAxisAlignment.center,
-                              cross: CrossAxisAlignment.center,
-                              gap: 0,
-                            ),
-                          ),
+                        AppIconButton(
+                          svg: dk(context, Svgs.s0, Svgs.s1),
+                          semanticLabel: "返回",
+                          onPressed: () => Navigator.of(context).maybePop(),
                         ),
                         Expanded(
                           flex: 1,
@@ -417,82 +367,20 @@ class _SecurityPageState extends State<SecurityPage> {
                       cross: CrossAxisAlignment.stretch,
                       gap: 8,
                     ),
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: onSignOut,
-                      child: hbox(
-                        h: 52,
-                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                        radius: BorderRadius.circular(26),
-                        shadow: dk(
-                          context,
-                          [
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 1),
-                              blurRadius: 2,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
-                              spreadRadius: 0,
-                            ),
-                          ],
-                          [
-                            BoxShadow(
-                              color: Color(0xFF26262B),
-                              offset: Offset(0, 0),
-                              blurRadius: 0,
-                              spreadRadius: 1,
-                            ),
-                          ],
-                        ),
-                        child: Align(
-                          alignment: Alignment(0, 0),
-                          widthFactor: 1,
-                          child: hBusy(
-                            actionKey,
-                            Text(
-                              '退出所有设备',
-                              style: hts(
-                                15,
-                                dk(
-                                  context,
-                                  Color(0xFFA43433),
-                                  Color(0xFFFF7B7E),
-                                ),
-                                w: FontWeight.w500,
-                              ),
-                            ),
-                            style: hts(
-                              15,
-                              dk(context, Color(0xFFA43433), Color(0xFFFF7B7E)),
-                              w: FontWeight.w500,
-                            ),
-                            label: '提交中…',
-                          ),
-                        ),
-                      ),
+                    ActionButton(
+                      actionKey: actionKey,
+                      label: '退出所有设备',
+                      kind: AppButtonKind.primary,
+                      size: AppButtonSize.large,
+                      expanded: true,
+                      onPressed: onSignOut,
                     ),
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => openRoute(context, 'DeleteAccount'),
-                      child: Text(
-                        '注销账号',
-                        style: hts(
-                          13,
-                          dk(context, Color(0xFFA1A1AA), Color(0xFF80808A)),
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
+                    AppButton(
+                      label: '注销账号',
+                      kind: AppButtonKind.danger,
+                      size: AppButtonSize.medium,
+                      expanded: false,
+                      onPressed: () => openRoute(context, 'DeleteAccount'),
                     ),
                   ],
                   main: MainAxisAlignment.start,

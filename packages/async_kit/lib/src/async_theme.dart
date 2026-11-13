@@ -1,5 +1,27 @@
 import 'package:flutter/material.dart';
 
+enum AsyncButtonKind { primary, secondary, text }
+
+/// 可选的展示适配，由应用注入；反馈组件不依赖具体 UI 组件包。
+class AsyncButtonTheme extends ThemeExtension<AsyncButtonTheme> {
+  final Widget Function(
+    BuildContext,
+    String,
+    VoidCallback?,
+    bool,
+    AsyncButtonKind,
+  )
+  builder;
+  const AsyncButtonTheme(this.builder);
+
+  @override
+  AsyncButtonTheme copyWith() => this;
+
+  @override
+  AsyncButtonTheme lerp(covariant AsyncButtonTheme? other, double t) =>
+      t < .5 ? this : other ?? this;
+}
+
 /// Async feedback tokens supplied by the enclosing Theme, with project defaults.
 /// No app-global brightness, page configuration, or full application theme lives here.
 @immutable

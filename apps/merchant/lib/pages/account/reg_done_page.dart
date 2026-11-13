@@ -1,3 +1,5 @@
+import '../../kit/buttons.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../kit/kit.dart';
@@ -699,27 +701,12 @@ class RegDonePage extends StatelessWidget {
                 [
                   Expanded(
                     flex: 1,
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      child: hbox(
-                        h: 50,
-                        bg: dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                        radius: BorderRadius.circular(25),
-                        child: Align(
-                          alignment: Alignment(0, 0),
-                          widthFactor: 1,
-                          child: Text(
-                            '进入工作台',
-                            style: hts(
-                              15,
-                              dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                              w: FontWeight.w600,
-                              lh: 22,
-                            ),
-                          ),
-                        ),
-                      ),
-                      onTap: () => openRoute(context, 'Main'),
+                    child: AppButton(
+                      label: '进入工作台',
+                      kind: AppButtonKind.primary,
+                      size: AppButtonSize.large,
+                      expanded: true,
+                      onPressed: () => openRoute(context, 'Main'),
                     ),
                   ),
                 ],

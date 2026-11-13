@@ -1,3 +1,4 @@
+import '../../kit/buttons.dart';
 import '../../routes.dart' show openRoute;
 
 import 'package:flutter/material.dart';
@@ -462,9 +463,15 @@ class _ProductEditState extends State<ProductEditLivePage> {
                     ]),
                     if (editing) ...[
                       const SizedBox(height: 16),
-                      GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: busy
+                      ActionButton(
+                        actionKey: 'inventory-product-state',
+                        label: p['active'] == false ? '启用此商品' : '停用此商品',
+                        kind: p['active'] == false
+                            ? AppButtonKind.primary
+                            : AppButtonKind.danger,
+                        size: AppButtonSize.large,
+                        expanded: true,
+                        onPressed: busy
                             ? null
                             : () => runBusy(
                                 'inventory-product-state',
@@ -489,26 +496,6 @@ class _ProductEditState extends State<ProductEditLivePage> {
                                   }
                                 },
                               ),
-                        child: Container(
-                          height: 50,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: C.redSoft,
-                            borderRadius: BorderRadius.circular(25),
-                          ),
-                          child: hBusy(
-                            'inventory-product-state',
-                            Text(
-                              p['active'] == false ? '启用此商品' : '停用此商品',
-                              style: ts(
-                                15,
-                                w: FontWeight.w500,
-                                color: C.redInk,
-                                h: 22,
-                              ),
-                            ),
-                          ),
-                        ),
                       ),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(2, 10, 2, 0),
@@ -532,22 +519,24 @@ class _ProductEditState extends State<ProductEditLivePage> {
                 children: [
                   if (editing) ...[
                     Expanded(
-                      child: LoadingButton(
+                      child: RequestButton(
                         label: '取消',
-                        style: LoadingButtonStyle.secondary,
                         onPressed: busy
                             ? null
                             : () async => Navigator.of(context).maybePop(),
+                        kind: AppButtonKind.secondary,
+                        size: AppButtonSize.large,
                       ),
                     ),
                     const SizedBox(width: 10),
                   ],
                   Expanded(
                     flex: editing ? 2 : 1,
-                    child: LoadingButton(
+                    child: RequestButton(
                       label: editing ? '保存修改' : '保存',
-                      loadingLabel: '提交中…',
                       onPressed: _save,
+                      kind: AppButtonKind.primary,
+                      size: AppButtonSize.large,
                     ),
                   ),
                 ],

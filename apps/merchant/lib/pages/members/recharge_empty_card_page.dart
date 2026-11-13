@@ -1,3 +1,4 @@
+import '../../kit/buttons.dart';
 import 'packages/package_choices.dart' show PackageChoices;
 import 'wallet_controller.dart';
 import 'wallet_page.dart';
@@ -27,52 +28,10 @@ class RechargeEmptyCardPage extends StatelessWidget {
               [
                 hrow(
                   [
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => Navigator.of(context).maybePop(),
-                      child: hbox(
-                        w: 44,
-                        h: 44,
-                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                        radius: BorderRadius.circular(22),
-                        shadow: dk(
-                          context,
-                          [
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 1),
-                              blurRadius: 2,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
-                              spreadRadius: 0,
-                            ),
-                          ],
-                          [
-                            BoxShadow(
-                              color: Color(0xFF26262B),
-                              offset: Offset(0, 0),
-                              blurRadius: 0,
-                              spreadRadius: 1,
-                            ),
-                          ],
-                        ),
-                        child: hrow(
-                          [hsvg(dk(context, Svgs.s0, Svgs.s1), w: 20, h: 20)],
-                          main: MainAxisAlignment.center,
-                          cross: CrossAxisAlignment.center,
-                          gap: 0,
-                        ),
-                      ),
+                    AppIconButton(
+                      svg: dk(context, Svgs.s0, Svgs.s1),
+                      semanticLabel: "返回",
+                      onPressed: () => Navigator.of(context).maybePop(),
                     ),
                     Expanded(
                       flex: 1,
@@ -370,24 +329,12 @@ class RechargeEmptyCardPage extends StatelessWidget {
               [
                 Align(
                   alignment: Alignment.topLeft,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => c.chooseMember(context),
-                    child: hbox(
-                      h: 50,
-                      bg: dk(context, Color(0xFFE4E4E7), Color(0xFF3A3A40)),
-                      radius: BorderRadius.circular(25),
-                      align: Alignment.center,
-                      child: Text(
-                        '请先选择会员',
-                        style: hts(
-                          15,
-                          dk(context, Color(0xFFA1A1AA), Color(0xFF80808A)),
-                          w: FontWeight.w600,
-                          lh: 22,
-                        ),
-                      ),
-                    ),
+                  child: AppButton(
+                    label: '请先选择会员',
+                    kind: AppButtonKind.primary,
+                    size: AppButtonSize.large,
+                    expanded: true,
+                    onPressed: () => c.chooseMember(context),
                   ),
                 ),
               ],

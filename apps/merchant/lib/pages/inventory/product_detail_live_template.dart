@@ -1,3 +1,4 @@
+import '../../kit/buttons.dart';
 import '../../kit/single_selection.dart';
 import 'inventory_controller.dart';
 
@@ -24,54 +25,12 @@ class ProductDetailLiveTemplate extends StatelessWidget {
               [
                 hrow(
                   [
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: c.busy
+                    AppIconButton(
+                      svg: dk(context, Svgs.s0, Svgs.s1),
+                      semanticLabel: "返回",
+                      onPressed: c.busy
                           ? null
                           : () => Navigator.of(context).maybePop(),
-                      child: hbox(
-                        w: 44,
-                        h: 44,
-                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                        radius: BorderRadius.circular(22),
-                        shadow: dk(
-                          context,
-                          [
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 1),
-                              blurRadius: 2,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
-                              spreadRadius: 0,
-                            ),
-                          ],
-                          [
-                            BoxShadow(
-                              color: Color(0xFF26262B),
-                              offset: Offset(0, 0),
-                              blurRadius: 0,
-                              spreadRadius: 1,
-                            ),
-                          ],
-                        ),
-                        child: hrow(
-                          [hsvg(dk(context, Svgs.s0, Svgs.s1), w: 20, h: 20)],
-                          main: MainAxisAlignment.center,
-                          cross: CrossAxisAlignment.center,
-                          gap: 0,
-                        ),
-                      ),
                     ),
                     Expanded(
                       flex: 1,
@@ -86,115 +45,19 @@ class ProductDetailLiveTemplate extends StatelessWidget {
                         textAlign: TextAlign.center,
                       ),
                     ),
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: c.busy
+                    AppIconButton(
+                      svg: dk(context, Svgs.s313, Svgs.s314),
+                      semanticLabel: '盘点',
+                      onPressed: c.busy
                           ? null
                           : () => c.openMovement(context, 'check'),
-                      child: hbox(
-                        w: 44,
-                        h: 44,
-                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                        radius: BorderRadius.circular(22),
-                        shadow: dk(
-                          context,
-                          [
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 1),
-                              blurRadius: 2,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
-                              spreadRadius: 0,
-                            ),
-                          ],
-                          [
-                            BoxShadow(
-                              color: Color(0xFF26262B),
-                              offset: Offset(0, 0),
-                              blurRadius: 0,
-                              spreadRadius: 1,
-                            ),
-                          ],
-                        ),
-                        child: hrow(
-                          [
-                            hsvg(
-                              dk(context, Svgs.s313, Svgs.s314),
-                              w: 20,
-                              h: 20,
-                            ),
-                          ],
-                          main: MainAxisAlignment.center,
-                          cross: CrossAxisAlignment.center,
-                          gap: 0,
-                        ),
-                      ),
                     ),
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: c.busy
+                    AppIconButton(
+                      svg: dk(context, Svgs.s460, Svgs.s461),
+                      semanticLabel: '编辑商品',
+                      onPressed: c.busy
                           ? null
                           : () => editProduct(context, c.detail),
-                      child: hbox(
-                        w: 44,
-                        h: 44,
-                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                        radius: BorderRadius.circular(22),
-                        shadow: dk(
-                          context,
-                          [
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 1),
-                              blurRadius: 2,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
-                              spreadRadius: 0,
-                            ),
-                          ],
-                          [
-                            BoxShadow(
-                              color: Color(0xFF26262B),
-                              offset: Offset(0, 0),
-                              blurRadius: 0,
-                              spreadRadius: 1,
-                            ),
-                          ],
-                        ),
-                        child: hrow(
-                          [
-                            hsvg(
-                              dk(context, Svgs.s460, Svgs.s461),
-                              w: 20,
-                              h: 20,
-                            ),
-                          ],
-                          main: MainAxisAlignment.center,
-                          cross: CrossAxisAlignment.center,
-                          gap: 0,
-                        ),
-                      ),
                     ),
                   ],
                   main: MainAxisAlignment.start,
@@ -1376,59 +1239,27 @@ class ProductDetailLiveTemplate extends StatelessWidget {
               [
                 Expanded(
                   flex: 10,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: c.busy ? null : () => c.openMovement(context, 'out'),
-                    child: hbox(
-                      h: 50,
-                      bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
-                      radius: BorderRadius.circular(25),
-                      child: Align(
-                        alignment: Alignment(0, 0),
-                        widthFactor: 1,
-                        child: Text(
-                          '出库',
-                          style: hts(
-                            15,
-                            dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                            w: FontWeight.w500,
-                            lh: 22,
-                          ),
-                        ),
-                      ),
-                    ),
+                  child: AppButton(
+                    label: '出库',
+                    kind: AppButtonKind.secondary,
+                    size: AppButtonSize.large,
+                    expanded: true,
+                    onPressed: c.busy
+                        ? null
+                        : () => c.openMovement(context, 'out'),
                   ),
                 ),
                 Expanded(
                   flex: 14,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: c.busy ? null : () => c.openMovement(context, 'in'),
-                    child: hbox(
-                      h: 50,
-                      bg: Color(0xFF0485F7),
-                      radius: BorderRadius.circular(25),
-                      child: hrow(
-                        [
-                          hsvg(Svgs.s14, w: 18, h: 18),
-                          Flexible(
-                            flex: 60,
-                            child: Text(
-                              '入库补货',
-                              style: hts(
-                                15,
-                                Color(0xFFFFFFFF),
-                                w: FontWeight.w600,
-                                lh: 22,
-                              ),
-                            ),
-                          ),
-                        ],
-                        main: MainAxisAlignment.center,
-                        cross: CrossAxisAlignment.center,
-                        gap: 6,
-                      ),
-                    ),
+                  child: AppButton(
+                    label: '入库补货',
+                    kind: AppButtonKind.primary,
+                    size: AppButtonSize.large,
+                    expanded: true,
+                    svg: Svgs.s14,
+                    onPressed: c.busy
+                        ? null
+                        : () => c.openMovement(context, 'in'),
                   ),
                 ),
               ],

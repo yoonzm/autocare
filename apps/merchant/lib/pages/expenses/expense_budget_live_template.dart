@@ -1,3 +1,4 @@
+import '../../kit/buttons.dart';
 import 'expense_controller.dart';
 
 import 'package:flutter/material.dart';
@@ -23,52 +24,10 @@ class ExpenseBudgetLiveTemplate extends StatelessWidget {
               [
                 hrow(
                   [
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => Navigator.of(context).maybePop(),
-                      child: hbox(
-                        w: 44,
-                        h: 44,
-                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                        radius: BorderRadius.circular(22),
-                        shadow: dk(
-                          context,
-                          [
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 1),
-                              blurRadius: 2,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
-                              spreadRadius: 0,
-                            ),
-                          ],
-                          [
-                            BoxShadow(
-                              color: Color(0xFF26262B),
-                              offset: Offset(0, 0),
-                              blurRadius: 0,
-                              spreadRadius: 1,
-                            ),
-                          ],
-                        ),
-                        child: hrow(
-                          [hsvg(dk(context, Svgs.s0, Svgs.s1), w: 20, h: 20)],
-                          main: MainAxisAlignment.center,
-                          cross: CrossAxisAlignment.center,
-                          gap: 0,
-                        ),
-                      ),
+                    AppIconButton(
+                      svg: dk(context, Svgs.s0, Svgs.s1),
+                      semanticLabel: "返回",
+                      onPressed: () => Navigator.of(context).maybePop(),
                     ),
                     Expanded(
                       flex: 1,
@@ -83,59 +42,12 @@ class ExpenseBudgetLiveTemplate extends StatelessWidget {
                         textAlign: TextAlign.center,
                       ),
                     ),
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => c.open(context, 'total'),
-                      child: hbox(
-                        h: 44,
-                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                        radius: BorderRadius.circular(22),
-                        shadow: dk(
-                          context,
-                          [
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 1),
-                              blurRadius: 2,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
-                              spreadRadius: 0,
-                            ),
-                          ],
-                          [
-                            BoxShadow(
-                              color: Color(0xFF26262B),
-                              offset: Offset(0, 0),
-                              blurRadius: 0,
-                              spreadRadius: 1,
-                            ),
-                          ],
-                        ),
-                        pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                        child: Align(
-                          alignment: Alignment(-1, 0),
-                          widthFactor: 1,
-                          child: Text(
-                            '编辑',
-                            style: hts(
-                              14,
-                              dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                              w: FontWeight.w500,
-                              lh: 20,
-                            ),
-                          ),
-                        ),
-                      ),
+                    AppButton(
+                      label: '编辑',
+                      kind: AppButtonKind.surface,
+                      size: AppButtonSize.medium,
+                      expanded: false,
+                      onPressed: () => c.open(context, 'total'),
                     ),
                   ],
                   main: MainAxisAlignment.start,
@@ -144,58 +56,10 @@ class ExpenseBudgetLiveTemplate extends StatelessWidget {
                 ),
                 hrow(
                   [
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => c.shiftMonth(-1),
-                      child: hbox(
-                        w: 36,
-                        h: 36,
-                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                        radius: BorderRadius.circular(18),
-                        shadow: dk(
-                          context,
-                          [
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 1),
-                              blurRadius: 2,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
-                              spreadRadius: 0,
-                            ),
-                          ],
-                          [
-                            BoxShadow(
-                              color: Color(0xFF26262B),
-                              offset: Offset(0, 0),
-                              blurRadius: 0,
-                              spreadRadius: 1,
-                            ),
-                          ],
-                        ),
-                        child: hrow(
-                          [
-                            hsvg(
-                              dk(context, Svgs.s127, Svgs.s128),
-                              w: 16,
-                              h: 16,
-                            ),
-                          ],
-                          main: MainAxisAlignment.center,
-                          cross: CrossAxisAlignment.center,
-                          gap: 0,
-                        ),
-                      ),
+                    AppIconButton(
+                      svg: dk(context, Svgs.s127, Svgs.s128),
+                      semanticLabel: "上个月",
+                      onPressed: () => c.shiftMonth(-1),
                     ),
                     Flexible(
                       flex: 96,
@@ -215,58 +79,10 @@ class ExpenseBudgetLiveTemplate extends StatelessWidget {
                         ),
                       ),
                     ),
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => c.shiftMonth(1),
-                      child: hbox(
-                        w: 36,
-                        h: 36,
-                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                        radius: BorderRadius.circular(18),
-                        shadow: dk(
-                          context,
-                          [
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 1),
-                              blurRadius: 2,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
-                              spreadRadius: 0,
-                            ),
-                          ],
-                          [
-                            BoxShadow(
-                              color: Color(0xFF26262B),
-                              offset: Offset(0, 0),
-                              blurRadius: 0,
-                              spreadRadius: 1,
-                            ),
-                          ],
-                        ),
-                        child: hrow(
-                          [
-                            hsvg(
-                              dk(context, Svgs.s129, Svgs.s130),
-                              w: 16,
-                              h: 16,
-                            ),
-                          ],
-                          main: MainAxisAlignment.center,
-                          cross: CrossAxisAlignment.center,
-                          gap: 0,
-                        ),
-                      ),
+                    AppIconButton(
+                      svg: dk(context, Svgs.s129, Svgs.s130),
+                      semanticLabel: "下个月",
+                      onPressed: () => c.shiftMonth(1),
                     ),
                   ],
                   main: MainAxisAlignment.center,
@@ -348,34 +164,13 @@ class ExpenseBudgetLiveTemplate extends StatelessWidget {
                                 gap: 4,
                               ),
                             ),
-                            GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              onTap: () => c.open(context, 'total'),
-                              child: hbox(
-                                h: 34,
-                                bg: Color(0xFF27272A),
-                                radius: BorderRadius.circular(17),
-                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                child: hrow(
-                                  [
-                                    hsvg(Svgs.s131, w: 15, h: 15),
-                                    Flexible(
-                                      flex: 26,
-                                      child: Text(
-                                        '调整',
-                                        style: hts(
-                                          13,
-                                          Color(0xFFFAFAFA),
-                                          w: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                  main: MainAxisAlignment.start,
-                                  cross: CrossAxisAlignment.center,
-                                  gap: 6,
-                                ),
-                              ),
+                            AppButton(
+                              label: '调整',
+                              kind: AppButtonKind.secondary,
+                              size: AppButtonSize.small,
+                              expanded: false,
+                              svg: Svgs.s131,
+                              onPressed: () => c.open(context, 'total'),
                             ),
                           ],
                           main: MainAxisAlignment.start,
@@ -599,28 +394,13 @@ class ExpenseBudgetLiveTemplate extends StatelessWidget {
                           gap: 1,
                         ),
                       ),
-                      GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () =>
+                      AppButton(
+                        label: '追加预算',
+                        kind: AppButtonKind.secondary,
+                        size: AppButtonSize.small,
+                        expanded: false,
+                        onPressed: () =>
                             c.open(context, 'adjust', category: c.category),
-                        child: hbox(
-                          h: 34,
-                          bg: Color(0xFFA43433),
-                          radius: BorderRadius.circular(17),
-                          pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                          child: Align(
-                            alignment: Alignment(-1, 0),
-                            widthFactor: 1,
-                            child: Text(
-                              '追加预算',
-                              style: hts(
-                                13,
-                                Color(0xFFFFFFFF),
-                                w: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ),
                       ),
                     ],
                     main: MainAxisAlignment.start,
@@ -632,257 +412,29 @@ class ExpenseBudgetLiveTemplate extends StatelessWidget {
                   [
                     Expanded(
                       flex: 1,
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () => c.copyPrevious(context),
-                        child: hbox(
-                          bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                          radius: BorderRadius.circular(18),
-                          shadow: dk(
-                            context,
-                            [
-                              BoxShadow(
-                                color: Color.fromRGBO(0, 0, 0, 0.06),
-                                offset: Offset(0, 0),
-                                blurRadius: 1,
-                                spreadRadius: 0,
-                              ),
-                              BoxShadow(
-                                color: Color.fromRGBO(0, 0, 0, 0.06),
-                                offset: Offset(0, 1),
-                                blurRadius: 2,
-                                spreadRadius: 0,
-                              ),
-                              BoxShadow(
-                                color: Color.fromRGBO(0, 0, 0, 0.04),
-                                offset: Offset(0, 2),
-                                blurRadius: 4,
-                                spreadRadius: 0,
-                              ),
-                            ],
-                            [
-                              BoxShadow(
-                                color: Color(0xFF26262B),
-                                offset: Offset(0, 0),
-                                blurRadius: 0,
-                                spreadRadius: 1,
-                              ),
-                            ],
-                          ),
-                          pad: EdgeInsets.fromLTRB(4, 12, 4, 12),
-                          child: hcol(
-                            [
-                              hbox(
-                                w: 34,
-                                h: 34,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFE1F0FE),
-                                  Color.fromRGBO(4, 133, 247, 0.18),
-                                ),
-                                radius: BorderRadius.circular(11),
-                                child: hrow(
-                                  [
-                                    hsvg(
-                                      dk(context, Svgs.s134, Svgs.s135),
-                                      w: 18,
-                                      h: 18,
-                                    ),
-                                  ],
-                                  main: MainAxisAlignment.center,
-                                  cross: CrossAxisAlignment.center,
-                                  gap: 0,
-                                ),
-                              ),
-                              Text(
-                                '复制上月预算',
-                                style: hts(
-                                  12,
-                                  dk(
-                                    context,
-                                    Color(0xFF18181B),
-                                    Color(0xFFFAFAFA),
-                                  ),
-                                  w: FontWeight.w500,
-                                  lh: 16,
-                                ),
-                              ),
-                            ],
-                            main: MainAxisAlignment.start,
-                            cross: CrossAxisAlignment.center,
-                            gap: 6,
-                          ),
-                        ),
+                      child: AppButton(
+                        label: '复制上月预算',
+                        kind: AppButtonKind.secondary,
+                        size: AppButtonSize.medium,
+                        onPressed: () => c.copyPrevious(context),
                       ),
                     ),
                     Expanded(
                       flex: 1,
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () => c.explainRevenueAllocation(context),
-                        child: hbox(
-                          bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                          radius: BorderRadius.circular(18),
-                          shadow: dk(
-                            context,
-                            [
-                              BoxShadow(
-                                color: Color.fromRGBO(0, 0, 0, 0.06),
-                                offset: Offset(0, 0),
-                                blurRadius: 1,
-                                spreadRadius: 0,
-                              ),
-                              BoxShadow(
-                                color: Color.fromRGBO(0, 0, 0, 0.06),
-                                offset: Offset(0, 1),
-                                blurRadius: 2,
-                                spreadRadius: 0,
-                              ),
-                              BoxShadow(
-                                color: Color.fromRGBO(0, 0, 0, 0.04),
-                                offset: Offset(0, 2),
-                                blurRadius: 4,
-                                spreadRadius: 0,
-                              ),
-                            ],
-                            [
-                              BoxShadow(
-                                color: Color(0xFF26262B),
-                                offset: Offset(0, 0),
-                                blurRadius: 0,
-                                spreadRadius: 1,
-                              ),
-                            ],
-                          ),
-                          pad: EdgeInsets.fromLTRB(4, 12, 4, 12),
-                          child: hcol(
-                            [
-                              hbox(
-                                w: 34,
-                                h: 34,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFE1F0FE),
-                                  Color.fromRGBO(4, 133, 247, 0.18),
-                                ),
-                                radius: BorderRadius.circular(11),
-                                child: hrow(
-                                  [
-                                    hsvg(
-                                      dk(context, Svgs.s136, Svgs.s137),
-                                      w: 18,
-                                      h: 18,
-                                    ),
-                                  ],
-                                  main: MainAxisAlignment.center,
-                                  cross: CrossAxisAlignment.center,
-                                  gap: 0,
-                                ),
-                              ),
-                              Text(
-                                '按营收比例分配',
-                                style: hts(
-                                  12,
-                                  dk(
-                                    context,
-                                    Color(0xFF18181B),
-                                    Color(0xFFFAFAFA),
-                                  ),
-                                  w: FontWeight.w500,
-                                  lh: 16,
-                                ),
-                              ),
-                            ],
-                            main: MainAxisAlignment.start,
-                            cross: CrossAxisAlignment.center,
-                            gap: 6,
-                          ),
-                        ),
+                      child: AppButton(
+                        label: '按营收比例分配',
+                        kind: AppButtonKind.secondary,
+                        size: AppButtonSize.medium,
+                        onPressed: () => c.explainRevenueAllocation(context),
                       ),
                     ),
                     Expanded(
                       flex: 1,
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () => c.selectCategory(context),
-                        child: hbox(
-                          bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                          radius: BorderRadius.circular(18),
-                          shadow: dk(
-                            context,
-                            [
-                              BoxShadow(
-                                color: Color.fromRGBO(0, 0, 0, 0.06),
-                                offset: Offset(0, 0),
-                                blurRadius: 1,
-                                spreadRadius: 0,
-                              ),
-                              BoxShadow(
-                                color: Color.fromRGBO(0, 0, 0, 0.06),
-                                offset: Offset(0, 1),
-                                blurRadius: 2,
-                                spreadRadius: 0,
-                              ),
-                              BoxShadow(
-                                color: Color.fromRGBO(0, 0, 0, 0.04),
-                                offset: Offset(0, 2),
-                                blurRadius: 4,
-                                spreadRadius: 0,
-                              ),
-                            ],
-                            [
-                              BoxShadow(
-                                color: Color(0xFF26262B),
-                                offset: Offset(0, 0),
-                                blurRadius: 0,
-                                spreadRadius: 1,
-                              ),
-                            ],
-                          ),
-                          pad: EdgeInsets.fromLTRB(4, 12, 4, 12),
-                          child: hcol(
-                            [
-                              hbox(
-                                w: 34,
-                                h: 34,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFE1F0FE),
-                                  Color.fromRGBO(4, 133, 247, 0.18),
-                                ),
-                                radius: BorderRadius.circular(11),
-                                child: hrow(
-                                  [
-                                    hsvg(
-                                      dk(context, Svgs.s138, Svgs.s139),
-                                      w: 18,
-                                      h: 18,
-                                    ),
-                                  ],
-                                  main: MainAxisAlignment.center,
-                                  cross: CrossAxisAlignment.center,
-                                  gap: 0,
-                                ),
-                              ),
-                              Text(
-                                '添加分类预算',
-                                style: hts(
-                                  12,
-                                  dk(
-                                    context,
-                                    Color(0xFF18181B),
-                                    Color(0xFFFAFAFA),
-                                  ),
-                                  w: FontWeight.w500,
-                                  lh: 16,
-                                ),
-                              ),
-                            ],
-                            main: MainAxisAlignment.start,
-                            cross: CrossAxisAlignment.center,
-                            gap: 6,
-                          ),
-                        ),
+                      child: AppButton(
+                        label: '添加分类预算',
+                        kind: AppButtonKind.secondary,
+                        size: AppButtonSize.medium,
+                        onPressed: () => c.selectCategory(context),
                       ),
                     ),
                   ],
@@ -1224,27 +776,12 @@ class ExpenseBudgetLiveTemplate extends StatelessWidget {
               [
                 Expanded(
                   flex: 1,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => c.open(context, 'total'),
-                    child: hbox(
-                      h: 50,
-                      bg: Color(0xFF0485F7),
-                      radius: BorderRadius.circular(25),
-                      child: Align(
-                        alignment: Alignment(0, 0),
-                        widthFactor: 1,
-                        child: Text(
-                          '调整预算',
-                          style: hts(
-                            15,
-                            Color(0xFFFFFFFF),
-                            w: FontWeight.w600,
-                            lh: 22,
-                          ),
-                        ),
-                      ),
-                    ),
+                  child: AppButton(
+                    label: '调整预算',
+                    kind: AppButtonKind.primary,
+                    size: AppButtonSize.large,
+                    expanded: true,
+                    onPressed: () => c.open(context, 'total'),
                   ),
                 ),
               ],

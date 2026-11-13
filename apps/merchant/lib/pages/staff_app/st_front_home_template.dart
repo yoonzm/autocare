@@ -1,3 +1,5 @@
+import '../../kit/buttons.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../backend/access_flow.dart';
@@ -561,22 +563,13 @@ class StFrontHomeTemplate extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              onTap: () => openRoute(context, 'StCashQueue'),
-                              child: Text(
-                                '全部 ${queue.length}',
-                                style: hts(
-                                  13,
-                                  dk(
-                                    context,
-                                    Color(0xFF1E63AE),
-                                    Color(0xFF6AB4FA),
-                                  ),
-                                  w: FontWeight.w500,
-                                  lh: 18,
-                                ),
-                              ),
+                            AppButton(
+                              label: '全部 ${queue.length}',
+                              kind: AppButtonKind.text,
+                              size: AppButtonSize.medium,
+                              expanded: false,
+                              onPressed: () =>
+                                  openRoute(context, 'StCashQueue'),
                             ),
                           ],
                           main: MainAxisAlignment.start,

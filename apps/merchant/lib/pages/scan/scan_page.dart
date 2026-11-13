@@ -1,3 +1,4 @@
+import '../../kit/buttons.dart';
 import 'find_not_found_sheet.dart';
 
 import 'dart:async';
@@ -15,7 +16,6 @@ import 'plate_scan_result_live_sheet.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../kit/kit.dart';
-import '../../kit/async_kit.dart' show AppSpinner;
 import '../../routes.dart';
 import '../../theme.dart';
 import '../../widgets/app_icon.dart';
@@ -574,31 +574,17 @@ class _ScanPageState extends State<ScanPage>
   }
 
   /// 相机不可用时的提示（IgnorePointer 只在相机可用时生效，这里始终可点）。
-  Widget _cameraNotice() => GestureDetector(
-    behavior: HitTestBehavior.opaque,
-    onTap: _initCamera,
-    child: Container(
-      height: 32,
-      padding: const EdgeInsets.symmetric(horizontal: 14),
-      decoration: BoxDecoration(
-        color: const Color(0x24FFFFFF),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        _cam == _Cam.denied ? '未获得相机权限，请在系统设置中允许 · 点此重试' : '相机不可用 · 点此重试',
-        style: ts(12, color: Colors.white, h: 16),
-      ),
-    ),
+  Widget _cameraNotice() => AppButton(
+    label: _cam == _Cam.denied ? '未获得相机权限，请在系统设置中允许 · 点此重试' : '相机不可用 · 点此重试',
+    kind: AppButtonKind.secondary,
+    size: AppButtonSize.small,
+    expanded: false,
+    onPressed: _initCamera,
   );
 
   Widget _header(BuildContext context) => Row(
     children: [
-      _round(
-        const AppIcon('close', size: 20, color: Colors.white),
-        '关闭',
-        () => Navigator.of(context).maybePop(),
-      ),
+      _round(Icons.close, '关闭', () => Navigator.of(context).maybePop()),
       Expanded(
         child: Text(
           _title,
@@ -607,19 +593,14 @@ class _ScanPageState extends State<ScanPage>
         ),
       ),
       if (_albumPhoto != null)
-        _round(
-          const Icon(Icons.camera_alt_outlined, size: 20, color: Colors.white),
-          '返回拍摄',
-          () {
-            if (!_locked) setState(() => _albumPhoto = null);
-          },
-        )
+        _round(Icons.camera_alt_outlined, '返回拍摄', () {
+          if (!_locked) setState(() => _albumPhoto = null);
+        })
       else
         _round(
-          AppIcon('bolt', size: 20, color: _torch ? C.onGold : Colors.white),
+          _torch ? Icons.flash_on : Icons.flash_off,
           _torch ? '关闭闪光灯' : '打开闪光灯',
           _toggleTorch,
-          bg: _torch ? C.gold : const Color(0x24FFFFFF),
         ),
     ],
   );
@@ -629,34 +610,12 @@ class _ScanPageState extends State<ScanPage>
     crossAxisAlignment: CrossAxisAlignment.center,
     children: [
       _side('gallery', '相册', _pickAlbum),
-      Semantics(
-        button: true,
-        label: _albumPhoto == null ? '拍摄识别' : '确认识别',
-        enabled: !_locked,
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: _locked ? null : _shoot,
-          child: Container(
-            width: 78,
-            height: 78,
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 4),
-            ),
-            child: _busy
-                ? Center(child: AppSpinner(size: 20, color: C.primary))
-                : DecoratedBox(
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                    ),
-                    child: _albumPhoto == null
-                        ? null
-                        : const Icon(Icons.check, color: Colors.black),
-                  ),
-          ),
-        ),
+      AppIconButton(
+        icon: _albumPhoto == null ? Icons.camera_alt_outlined : Icons.check,
+        semanticLabel: _albumPhoto == null ? '拍摄识别' : '确认识别',
+        loading: _busy,
+        kind: AppIconButtonKind.primary,
+        onPressed: _locked ? null : _shoot,
       ),
       _side(
         _find ? 'search' : 'pencil',
@@ -670,47 +629,15 @@ class _ScanPageState extends State<ScanPage>
     ],
   );
 
-  Widget _round(
-    Widget icon,
-    String label,
-    VoidCallback onTap, {
-    Color bg = const Color(0x24FFFFFF),
-  }) => Semantics(
-    button: true,
-    label: label,
-    child: GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: Container(
-        width: 44,
-        height: 44,
-        decoration: BoxDecoration(color: bg, shape: BoxShape.circle),
-        child: Center(child: icon),
-      ),
-    ),
-  );
+  Widget _round(IconData icon, String label, VoidCallback onTap) =>
+      AppIconButton(icon: icon, semanticLabel: label, onPressed: onTap);
 
-  Widget _side(String icon, String label, VoidCallback onTap) => SizedBox(
-    width: 72,
-    child: GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: _locked ? null : onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: const Color(0x24FFFFFF),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Center(child: AppIcon(icon, size: 22, color: Colors.white)),
-          ),
-          const SizedBox(height: 6),
-          Text(label, style: ts(12, color: const Color(0xD9FFFFFF), h: 16)),
-        ],
-      ),
+  Widget _side(String icon, String label, VoidCallback onTap) => Flexible(
+    child: AppButton(
+      label: label,
+      svg: AppIcon.svg(icon),
+      kind: AppButtonKind.surface,
+      onPressed: _locked ? null : onTap,
     ),
   );
 

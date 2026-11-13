@@ -1,3 +1,4 @@
+import '../../kit/buttons.dart';
 import '../../backend/appointment_flow.dart';
 import '../../backend/data_snapshot.dart';
 import '../../backend/merchant_api.dart';
@@ -130,52 +131,10 @@ class _StoreInfoView extends StatelessWidget {
               [
                 hrow(
                   [
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => Navigator.of(context).maybePop(),
-                      child: hbox(
-                        w: 44,
-                        h: 44,
-                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                        radius: BorderRadius.circular(22),
-                        shadow: dk(
-                          context,
-                          [
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 1),
-                              blurRadius: 2,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
-                              spreadRadius: 0,
-                            ),
-                          ],
-                          [
-                            BoxShadow(
-                              color: Color(0xFF26262B),
-                              offset: Offset(0, 0),
-                              blurRadius: 0,
-                              spreadRadius: 1,
-                            ),
-                          ],
-                        ),
-                        child: hrow(
-                          [hsvg(dk(context, Svgs.s0, Svgs.s1), w: 20, h: 20)],
-                          main: MainAxisAlignment.center,
-                          cross: CrossAxisAlignment.center,
-                          gap: 0,
-                        ),
-                      ),
+                    AppIconButton(
+                      svg: dk(context, Svgs.s0, Svgs.s1),
+                      semanticLabel: "返回",
+                      onPressed: () => Navigator.of(context).maybePop(),
                     ),
                     Expanded(
                       flex: 1,
@@ -190,59 +149,12 @@ class _StoreInfoView extends StatelessWidget {
                         textAlign: TextAlign.center,
                       ),
                     ),
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: onEdit,
-                      child: hbox(
-                        h: 44,
-                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                        radius: BorderRadius.circular(22),
-                        shadow: dk(
-                          context,
-                          [
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 1),
-                              blurRadius: 2,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
-                              spreadRadius: 0,
-                            ),
-                          ],
-                          [
-                            BoxShadow(
-                              color: Color(0xFF26262B),
-                              offset: Offset(0, 0),
-                              blurRadius: 0,
-                              spreadRadius: 1,
-                            ),
-                          ],
-                        ),
-                        pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                        child: Align(
-                          alignment: Alignment(-1, 0),
-                          widthFactor: 1,
-                          child: Text(
-                            '编辑',
-                            style: hts(
-                              14,
-                              dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                              w: FontWeight.w500,
-                              lh: 20,
-                            ),
-                          ),
-                        ),
-                      ),
+                    AppButton(
+                      label: '编辑',
+                      kind: AppButtonKind.surface,
+                      size: AppButtonSize.medium,
+                      expanded: false,
+                      onPressed: onEdit,
                     ),
                   ],
                   main: MainAxisAlignment.start,
@@ -546,25 +458,14 @@ class _StoreInfoView extends StatelessWidget {
                                 gap: 2,
                               ),
                             ),
-                            GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              onTap: () {
-                                /* TODO: 接入地图导航渠道与门店坐标后开启。 */
+                            AppButton(
+                              label: '导航',
+                              kind: AppButtonKind.text,
+                              size: AppButtonSize.medium,
+                              expanded: false,
+                              onPressed: () {
                                 hToast(context, 'TODO：地图导航尚未接通');
                               },
-                              child: Text(
-                                '导航',
-                                style: hts(
-                                  13,
-                                  dk(
-                                    context,
-                                    Color(0xFF1E63AE),
-                                    Color(0xFF6AB4FA),
-                                  ),
-                                  w: FontWeight.w500,
-                                  lh: 20,
-                                ),
-                              ),
                             ),
                           ],
                           main: MainAxisAlignment.start,

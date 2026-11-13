@@ -1,3 +1,5 @@
+import '../../kit/buttons.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../backend/hold_store.dart';
@@ -99,283 +101,255 @@ class _StCashQueueTemplateState extends State<StCashQueueTemplate> {
     openRoute(context, 'Order', arguments: OrderRouteData(hold: h));
   }
 
-  Widget _card(
-    BuildContext context,
-    Map<String, dynamic> h,
-  ) => AsyncActionScope(
-    actionKey: _returnKey(h),
-    child: hbox(
-      bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-      radius: BorderRadius.circular(24),
-      shadow: dk(
-        context,
-        [
-          BoxShadow(
-            color: Color.fromRGBO(0, 0, 0, 0.06),
-            offset: Offset(0, 0),
-            blurRadius: 1,
-            spreadRadius: 0,
-          ),
-          BoxShadow(
-            color: Color.fromRGBO(0, 0, 0, 0.06),
-            offset: Offset(0, 1),
-            blurRadius: 2,
-            spreadRadius: 0,
-          ),
-          BoxShadow(
-            color: Color.fromRGBO(0, 0, 0, 0.04),
-            offset: Offset(0, 2),
-            blurRadius: 4,
-            spreadRadius: 0,
-          ),
-        ],
-        [
-          BoxShadow(
-            color: Color(0xFF26262B),
-            offset: Offset(0, 0),
-            blurRadius: 0,
-            spreadRadius: 1,
-          ),
-        ],
-      ),
-      pad: EdgeInsets.fromLTRB(16, 16, 16, 16),
-      child: hcol(
-        [
-          hrow(
+  Widget _card(BuildContext context, Map<String, dynamic> h) =>
+      AsyncActionScope(
+        actionKey: _returnKey(h),
+        child: hbox(
+          bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+          radius: BorderRadius.circular(24),
+          shadow: dk(
+            context,
             [
-              hbox(
-                grad: LinearGradient(
-                  begin: Alignment(-0, -1),
-                  end: Alignment(0, 1),
-                  colors: [Color(0xFF2F73F2), Color(0xFF1A4FC4)],
-                  stops: [0, 1],
-                ),
-                radius: BorderRadius.circular(5),
-                shadow: [
-                  BoxShadow(
-                    color: Color.fromRGBO(0, 0, 0, 0.08),
-                    offset: Offset(0, 0),
-                    blurRadius: 0,
-                    spreadRadius: 1,
-                  ),
-                ],
-                border: Border.all(
-                  color: Color.fromRGBO(255, 255, 255, 0.75),
-                  width: 1.5,
-                ),
-                pad: EdgeInsets.fromLTRB(7, 1, 7, 1),
-                child: Text(
-                  _plate(h),
-                  style: hts(
-                    12,
-                    Color(0xFFFFFFFF),
-                    w: FontWeight.w600,
-                    lh: 18,
-                    ls: 0.5,
-                  ),
-                  softWrap: false,
-                  maxLines: 1,
-                ),
+              BoxShadow(
+                color: Color.fromRGBO(0, 0, 0, 0.06),
+                offset: Offset(0, 0),
+                blurRadius: 1,
+                spreadRadius: 0,
               ),
-              Expanded(
-                flex: 1,
-                child: Text(
-                  _sub(h),
-                  style: hts(
-                    12,
-                    dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
-                    lh: 17,
-                  ),
-                ),
+              BoxShadow(
+                color: Color.fromRGBO(0, 0, 0, 0.06),
+                offset: Offset(0, 1),
+                blurRadius: 2,
+                spreadRadius: 0,
               ),
-              Text(
-                _time(h),
-                style: hts(
-                  12,
-                  dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
-                  lh: 17,
-                ),
+              BoxShadow(
+                color: Color.fromRGBO(0, 0, 0, 0.04),
+                offset: Offset(0, 2),
+                blurRadius: 4,
+                spreadRadius: 0,
               ),
             ],
-            main: MainAxisAlignment.start,
-            cross: CrossAxisAlignment.center,
-            gap: 8,
-          ),
-          hcol(
             [
-              for (final l in _lines(h))
-                hrow(
-                  [
-                    Expanded(
-                      flex: 1,
-                      child: Text(
-                        l['label'],
-                        style: hts(
-                          14,
-                          dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                          lh: 20,
-                        ),
-                      ),
-                    ),
-                    Text(
-                      l['amount'],
-                      style: hts(
-                        14,
-                        dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                        lh: 20,
-                      ),
-                    ),
-                  ],
-                  main: MainAxisAlignment.start,
-                  cross: CrossAxisAlignment.center,
-                  gap: 0,
-                ),
-              if (_discount(h) > 0)
-                hrow(
-                  [
-                    Expanded(
-                      flex: 1,
-                      child: Text(
-                        _discLabel(h),
-                        style: hts(
-                          13,
-                          dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
-                          lh: 18,
-                        ),
-                      ),
-                    ),
-                    Text(
-                      _discAmount(h),
-                      style: hts(
-                        13,
-                        dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
-                        lh: 18,
-                      ),
-                    ),
-                  ],
-                  main: MainAxisAlignment.start,
-                  cross: CrossAxisAlignment.center,
-                  gap: 0,
-                ),
+              BoxShadow(
+                color: Color(0xFF26262B),
+                offset: Offset(0, 0),
+                blurRadius: 0,
+                spreadRadius: 1,
+              ),
             ],
-            main: MainAxisAlignment.start,
-            cross: CrossAxisAlignment.stretch,
-            gap: 6,
           ),
-          hbox(h: 1, bg: dk(context, Color(0xFFEFEFF1), Color(0xFF2A2A2E))),
-          hrow(
+          pad: EdgeInsets.fromLTRB(16, 16, 16, 16),
+          child: hcol(
             [
-              Expanded(
-                flex: 1,
-                child: hcol(
-                  [
-                    Text(
-                      _who(h),
-                      style: hts(
-                        13,
-                        dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                        w: FontWeight.w500,
-                        lh: 18,
-                      ),
+              hrow(
+                [
+                  hbox(
+                    grad: LinearGradient(
+                      begin: Alignment(-0, -1),
+                      end: Alignment(0, 1),
+                      colors: [Color(0xFF2F73F2), Color(0xFF1A4FC4)],
+                      stops: [0, 1],
                     ),
-                    Text(
-                      _submitter(h),
+                    radius: BorderRadius.circular(5),
+                    shadow: [
+                      BoxShadow(
+                        color: Color.fromRGBO(0, 0, 0, 0.08),
+                        offset: Offset(0, 0),
+                        blurRadius: 0,
+                        spreadRadius: 1,
+                      ),
+                    ],
+                    border: Border.all(
+                      color: Color.fromRGBO(255, 255, 255, 0.75),
+                      width: 1.5,
+                    ),
+                    pad: EdgeInsets.fromLTRB(7, 1, 7, 1),
+                    child: Text(
+                      _plate(h),
+                      style: hts(
+                        12,
+                        Color(0xFFFFFFFF),
+                        w: FontWeight.w600,
+                        lh: 18,
+                        ls: 0.5,
+                      ),
+                      softWrap: false,
+                      maxLines: 1,
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Text(
+                      _sub(h),
                       style: hts(
                         12,
                         dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
-                        lh: 16,
+                        lh: 17,
                       ),
                     ),
-                  ],
-                  main: MainAxisAlignment.start,
-                  cross: CrossAxisAlignment.stretch,
-                  gap: 1,
-                ),
+                  ),
+                  Text(
+                    _time(h),
+                    style: hts(
+                      12,
+                      dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
+                      lh: 17,
+                    ),
+                  ),
+                ],
+                main: MainAxisAlignment.start,
+                cross: CrossAxisAlignment.center,
+                gap: 8,
               ),
-              Text(
-                _payable(h),
-                style: hts(
-                  20,
-                  dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                  w: FontWeight.w600,
-                  lh: 28,
-                ),
-              ),
-            ],
-            main: MainAxisAlignment.start,
-            cross: CrossAxisAlignment.center,
-            gap: 8,
-          ),
-          hrow(
-            [
-              Expanded(
-                flex: 10,
-                child: UnconstrainedBox(
-                  alignment: Alignment.topLeft,
-                  constrainedAxis: Axis.horizontal,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => _return(h),
-                    child: hbox(
-                      h: 44,
-                      bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
-                      radius: BorderRadius.circular(22),
-                      child: Align(
-                        alignment: Alignment(0, 0),
-                        widthFactor: 1,
-                        child: hBusy(
-                          _returnKey(h),
-                          Text(
-                            '退回修改',
+              hcol(
+                [
+                  for (final l in _lines(h))
+                    hrow(
+                      [
+                        Expanded(
+                          flex: 1,
+                          child: Text(
+                            l['label'],
                             style: hts(
                               14,
                               dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                              w: FontWeight.w500,
+                              lh: 20,
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Expanded(
-                flex: 14,
-                child: UnconstrainedBox(
-                  alignment: Alignment.topLeft,
-                  constrainedAxis: Axis.horizontal,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => _collect(h),
-                    child: hbox(
-                      h: 44,
-                      bg: Color(0xFF0485F7),
-                      radius: BorderRadius.circular(22),
-                      child: Align(
-                        alignment: Alignment(0, 0),
-                        widthFactor: 1,
-                        child: Text(
-                          '去收银',
-                          style: hts(14, Color(0xFFFFFFFF), w: FontWeight.w600),
+                        Text(
+                          l['amount'],
+                          style: hts(
+                            14,
+                            dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                            lh: 20,
+                          ),
                         ),
+                      ],
+                      main: MainAxisAlignment.start,
+                      cross: CrossAxisAlignment.center,
+                      gap: 0,
+                    ),
+                  if (_discount(h) > 0)
+                    hrow(
+                      [
+                        Expanded(
+                          flex: 1,
+                          child: Text(
+                            _discLabel(h),
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          _discAmount(h),
+                          style: hts(
+                            13,
+                            dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
+                            lh: 18,
+                          ),
+                        ),
+                      ],
+                      main: MainAxisAlignment.start,
+                      cross: CrossAxisAlignment.center,
+                      gap: 0,
+                    ),
+                ],
+                main: MainAxisAlignment.start,
+                cross: CrossAxisAlignment.stretch,
+                gap: 6,
+              ),
+              hbox(h: 1, bg: dk(context, Color(0xFFEFEFF1), Color(0xFF2A2A2E))),
+              hrow(
+                [
+                  Expanded(
+                    flex: 1,
+                    child: hcol(
+                      [
+                        Text(
+                          _who(h),
+                          style: hts(
+                            13,
+                            dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                            w: FontWeight.w500,
+                            lh: 18,
+                          ),
+                        ),
+                        Text(
+                          _submitter(h),
+                          style: hts(
+                            12,
+                            dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
+                            lh: 16,
+                          ),
+                        ),
+                      ],
+                      main: MainAxisAlignment.start,
+                      cross: CrossAxisAlignment.stretch,
+                      gap: 1,
+                    ),
+                  ),
+                  Text(
+                    _payable(h),
+                    style: hts(
+                      20,
+                      dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                      w: FontWeight.w600,
+                      lh: 28,
+                    ),
+                  ),
+                ],
+                main: MainAxisAlignment.start,
+                cross: CrossAxisAlignment.center,
+                gap: 8,
+              ),
+              hrow(
+                [
+                  Expanded(
+                    flex: 10,
+                    child: UnconstrainedBox(
+                      alignment: Alignment.topLeft,
+                      constrainedAxis: Axis.horizontal,
+                      child: ActionButton(
+                        actionKey: _returnKey(h),
+                        label: '退回修改',
+                        kind: AppButtonKind.secondary,
+                        size: AppButtonSize.medium,
+                        expanded: false,
+                        onPressed: () => _return(h),
                       ),
                     ),
                   ),
-                ),
+                  Expanded(
+                    flex: 14,
+                    child: UnconstrainedBox(
+                      alignment: Alignment.topLeft,
+                      constrainedAxis: Axis.horizontal,
+                      child: AppButton(
+                        label: '去收银',
+                        kind: AppButtonKind.primary,
+                        size: AppButtonSize.medium,
+                        expanded: false,
+                        onPressed: () => _collect(h),
+                      ),
+                    ),
+                  ),
+                ],
+                main: MainAxisAlignment.start,
+                cross: CrossAxisAlignment.stretch,
+                gap: 10,
+                intrinsic: true,
               ),
             ],
             main: MainAxisAlignment.start,
             cross: CrossAxisAlignment.stretch,
-            gap: 10,
-            intrinsic: true,
+            gap: 12,
           ),
-        ],
-        main: MainAxisAlignment.start,
-        cross: CrossAxisAlignment.stretch,
-        gap: 12,
-      ),
-    ),
-  );
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -398,62 +372,10 @@ class _StCashQueueTemplateState extends State<StCashQueueTemplate> {
                           UnconstrainedBox(
                             alignment: Alignment.topLeft,
                             constrainedAxis: Axis.horizontal,
-                            child: GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              onTap: () => Navigator.of(context).maybePop(),
-                              child: hbox(
-                                w: 44,
-                                h: 44,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFFFFFFF),
-                                  Color(0xFF18181B),
-                                ),
-                                radius: BorderRadius.circular(22),
-                                shadow: dk(
-                                  context,
-                                  [
-                                    BoxShadow(
-                                      color: Color.fromRGBO(0, 0, 0, 0.06),
-                                      offset: Offset(0, 0),
-                                      blurRadius: 1,
-                                      spreadRadius: 0,
-                                    ),
-                                    BoxShadow(
-                                      color: Color.fromRGBO(0, 0, 0, 0.06),
-                                      offset: Offset(0, 1),
-                                      blurRadius: 2,
-                                      spreadRadius: 0,
-                                    ),
-                                    BoxShadow(
-                                      color: Color.fromRGBO(0, 0, 0, 0.04),
-                                      offset: Offset(0, 2),
-                                      blurRadius: 4,
-                                      spreadRadius: 0,
-                                    ),
-                                  ],
-                                  [
-                                    BoxShadow(
-                                      color: Color(0xFF26262B),
-                                      offset: Offset(0, 0),
-                                      blurRadius: 0,
-                                      spreadRadius: 1,
-                                    ),
-                                  ],
-                                ),
-                                child: hrow(
-                                  [
-                                    hsvg(
-                                      dk(context, Svgs.s0, Svgs.s1),
-                                      w: 20,
-                                      h: 20,
-                                    ),
-                                  ],
-                                  main: MainAxisAlignment.center,
-                                  cross: CrossAxisAlignment.center,
-                                  gap: 0,
-                                ),
-                              ),
+                            child: AppIconButton(
+                              svg: dk(context, Svgs.s0, Svgs.s1),
+                              semanticLabel: "返回",
+                              onPressed: () => Navigator.of(context).maybePop(),
                             ),
                           ),
                         ],
@@ -579,61 +501,11 @@ class _StCashQueueTemplateState extends State<StCashQueueTemplate> {
                         child: UnconstrainedBox(
                           alignment: Alignment.topLeft,
                           constrainedAxis: Axis.horizontal,
-                          child: GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: () {
-                              /* TODO: staff_cash_queue 仅返回待收银，已收历史/汇总接口未提供。 */
+                          child: AppIconButton.pill(
+                            label: '今日已收 —',
+                            onPressed: () {
                               AppToast.show(context, '今日已收明细暂未接通');
                             },
-                            child: hbox(
-                              h: 34,
-                              radius: BorderRadius.circular(17),
-                              child: Align(
-                                alignment: Alignment.center,
-                                widthFactor: 1,
-                                child: Text.rich(
-                                  TextSpan(
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF52525B),
-                                        Color(0xFFA8A8B3),
-                                      ),
-                                      w: FontWeight.w500,
-                                      lh: 18,
-                                    ),
-                                    children: [
-                                      TextSpan(
-                                        text: '今日已收 ',
-                                        style: hts(
-                                          13,
-                                          dk(
-                                            context,
-                                            Color(0xFF52525B),
-                                            Color(0xFFA8A8B3),
-                                          ),
-                                          w: FontWeight.w500,
-                                          lh: 18,
-                                        ),
-                                      ),
-                                      TextSpan(
-                                        text: '—',
-                                        style: hts(
-                                          13,
-                                          dk(
-                                            context,
-                                            Color(0xFFA1A1AA),
-                                            Color(0xFF80808A),
-                                          ),
-                                          lh: 18,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
                           ),
                         ),
                       ),

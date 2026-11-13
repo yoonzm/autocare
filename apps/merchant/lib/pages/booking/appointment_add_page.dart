@@ -1,3 +1,4 @@
+import '../../kit/buttons.dart';
 import '../members/member_picker_sheet.dart' show showMemberPicker;
 
 import 'dart:async';
@@ -480,36 +481,13 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
                         ],
                       ),
                     ),
-                    GestureDetector(
-                      onTap: submit,
-                      child: Container(
-                        height: 50,
-                        padding: const EdgeInsets.symmetric(horizontal: 28),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: C.btn,
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                        child: hBusy(
-                          _actionKey,
-                          Text(
-                            '确认预约',
-                            style: ts(
-                              15,
-                              w: FontWeight.w600,
-                              color: C.btnFg,
-                              h: 22,
-                            ),
-                          ),
-                          style: ts(
-                            15,
-                            w: FontWeight.w600,
-                            color: C.btnFg,
-                            h: 22,
-                          ),
-                          label: '提交中…',
-                        ),
-                      ),
+                    ActionButton(
+                      actionKey: _actionKey,
+                      label: '确认预约',
+                      kind: AppButtonKind.primary,
+                      size: AppButtonSize.large,
+                      expanded: false,
+                      onPressed: submit,
                     ),
                   ],
                 ),

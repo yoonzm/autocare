@@ -1,3 +1,5 @@
+import '../../kit/buttons.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -167,21 +169,10 @@ class _FeedbackPageState extends State<FeedbackPage> {
               Positioned(
                 top: 0,
                 right: 0,
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () => setState(() => _draft.images[index] = null),
-                  child: const SizedBox(
-                    width: 44,
-                    height: 44,
-                    child: Align(
-                      alignment: Alignment.topRight,
-                      child: CircleAvatar(
-                        radius: 11,
-                        backgroundColor: Color(0x99000000),
-                        child: Icon(Icons.close, size: 14, color: Colors.white),
-                      ),
-                    ),
-                  ),
+                child: AppIconButton(
+                  icon: Icons.close,
+                  semanticLabel: '移除图片',
+                  onPressed: () => setState(() => _draft.images[index] = null),
                 ),
               ),
           ],
@@ -218,62 +209,10 @@ class _FeedbackPageState extends State<FeedbackPage> {
                   [
                     hrow(
                       [
-                        GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () => Navigator.of(context).maybePop(),
-                          child: hbox(
-                            w: 44,
-                            h: 44,
-                            bg: dk(
-                              context,
-                              Color(0xFFFFFFFF),
-                              Color(0xFF18181B),
-                            ),
-                            radius: BorderRadius.circular(22),
-                            shadow: dk(
-                              context,
-                              [
-                                BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.06),
-                                  offset: Offset(0, 0),
-                                  blurRadius: 1,
-                                  spreadRadius: 0,
-                                ),
-                                BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.06),
-                                  offset: Offset(0, 1),
-                                  blurRadius: 2,
-                                  spreadRadius: 0,
-                                ),
-                                BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.04),
-                                  offset: Offset(0, 2),
-                                  blurRadius: 4,
-                                  spreadRadius: 0,
-                                ),
-                              ],
-                              [
-                                BoxShadow(
-                                  color: Color(0xFF26262B),
-                                  offset: Offset(0, 0),
-                                  blurRadius: 0,
-                                  spreadRadius: 1,
-                                ),
-                              ],
-                            ),
-                            child: hrow(
-                              [
-                                hsvg(
-                                  dk(context, Svgs.s0, Svgs.s1),
-                                  w: 20,
-                                  h: 20,
-                                ),
-                              ],
-                              main: MainAxisAlignment.center,
-                              cross: CrossAxisAlignment.center,
-                              gap: 0,
-                            ),
-                          ),
+                        AppIconButton(
+                          svg: dk(context, Svgs.s0, Svgs.s1),
+                          semanticLabel: "返回",
+                          onPressed: () => Navigator.of(context).maybePop(),
                         ),
                         Expanded(
                           flex: 1,
@@ -920,45 +859,13 @@ class _FeedbackPageState extends State<FeedbackPage> {
                   [
                     Expanded(
                       flex: 1,
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () => unawaited(_submit()),
-                        child: hbox(
-                          h: 50,
-                          bg: dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                          radius: BorderRadius.circular(25),
-                          child: Align(
-                            alignment: Alignment(0, 0),
-                            widthFactor: 1,
-                            child: hBusy(
-                              _submitKey,
-                              Text(
-                                _draft.submitted ? '已提交' : '提交反馈',
-                                style: hts(
-                                  15,
-                                  dk(
-                                    context,
-                                    Color(0xFFFFFFFF),
-                                    Color(0xFF18181B),
-                                  ),
-                                  w: FontWeight.w600,
-                                  lh: 22,
-                                ),
-                              ),
-                              label: '提交中…',
-                              style: hts(
-                                15,
-                                dk(
-                                  context,
-                                  Color(0xFFFFFFFF),
-                                  Color(0xFF18181B),
-                                ),
-                                w: FontWeight.w600,
-                                lh: 22,
-                              ),
-                            ),
-                          ),
-                        ),
+                      child: ActionButton(
+                        actionKey: _submitKey,
+                        label: _draft.submitted ? '已提交' : '提交反馈',
+                        kind: AppButtonKind.primary,
+                        size: AppButtonSize.large,
+                        expanded: true,
+                        onPressed: () => unawaited(_submit()),
                       ),
                     ),
                   ],

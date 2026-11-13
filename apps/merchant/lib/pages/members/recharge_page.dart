@@ -1,3 +1,4 @@
+import '../../kit/buttons.dart';
 import '../../kit/text_input.dart';
 import '../../kit/single_selection.dart';
 import 'wallet_controller.dart';
@@ -29,52 +30,10 @@ class RechargePage extends StatelessWidget {
               [
                 hrow(
                   [
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => Navigator.of(context).maybePop(),
-                      child: hbox(
-                        w: 44,
-                        h: 44,
-                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                        radius: BorderRadius.circular(22),
-                        shadow: dk(
-                          context,
-                          [
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 1),
-                              blurRadius: 2,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
-                              spreadRadius: 0,
-                            ),
-                          ],
-                          [
-                            BoxShadow(
-                              color: Color(0xFF26262B),
-                              offset: Offset(0, 0),
-                              blurRadius: 0,
-                              spreadRadius: 1,
-                            ),
-                          ],
-                        ),
-                        child: hrow(
-                          [hsvg(dk(context, Svgs.s0, Svgs.s1), w: 20, h: 20)],
-                          main: MainAxisAlignment.center,
-                          cross: CrossAxisAlignment.center,
-                          gap: 0,
-                        ),
-                      ),
+                    AppIconButton(
+                      svg: dk(context, Svgs.s0, Svgs.s1),
+                      semanticLabel: "返回",
+                      onPressed: () => Navigator.of(context).maybePop(),
                     ),
                     Expanded(
                       flex: 1,
@@ -290,27 +249,11 @@ class RechargePage extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                                GestureDetector(
-                                  behavior: HitTestBehavior.opaque,
-                                  onTap: () => c.chooseMember(context),
-                                  child: hbox(
-                                    bg: dk(
-                                      context,
-                                      Color.fromRGBO(255, 255, 255, 0.14),
-                                      Color.fromRGBO(9, 9, 11, 0.92),
-                                    ),
-                                    radius: BorderRadius.circular(10),
-                                    pad: EdgeInsets.fromLTRB(8, 0, 8, 0),
-                                    child: Text(
-                                      '更换',
-                                      style: hts(
-                                        12,
-                                        Color(0xFFFAFAFA),
-                                        w: FontWeight.w500,
-                                        lh: 20,
-                                      ),
-                                    ),
-                                  ),
+                                AppButton(
+                                  label: '更换',
+                                  kind: AppButtonKind.text,
+                                  size: AppButtonSize.medium,
+                                  onPressed: () => c.chooseMember(context),
                                 ),
                               ],
                               main: MainAxisAlignment.start,
@@ -1564,38 +1507,13 @@ class RechargePage extends StatelessWidget {
                     gap: 2,
                   ),
                 ),
-                GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () => c.submit(context, sale: false),
-                  child: hbox(
-                    h: 50,
-                    bg: Color(0xFF0485F7),
-                    radius: BorderRadius.circular(25),
-                    pad: EdgeInsets.fromLTRB(28, 0, 28, 0),
-                    child: Align(
-                      alignment: Alignment(0, 0),
-                      widthFactor: 1,
-                      child: hBusy(
-                        c.actionKey,
-                        Text(
-                          '确认收款',
-                          style: hts(
-                            16,
-                            Color(0xFFFFFFFF),
-                            w: FontWeight.w600,
-                            lh: 24,
-                          ),
-                        ),
-                        style: hts(
-                          16,
-                          Color(0xFFFFFFFF),
-                          w: FontWeight.w600,
-                          lh: 24,
-                        ),
-                        label: '提交中…',
-                      ),
-                    ),
-                  ),
+                ActionButton(
+                  actionKey: c.actionKey,
+                  label: '确认收款',
+                  kind: AppButtonKind.primary,
+                  size: AppButtonSize.large,
+                  expanded: false,
+                  onPressed: () => c.submit(context, sale: false),
                 ),
               ],
               main: MainAxisAlignment.start,

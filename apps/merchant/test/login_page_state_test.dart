@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/backend/store_profile.dart';
-import 'package:autocare_merchant/kit/async_kit.dart';
 import 'package:autocare_merchant/pages/account/login_page.dart';
 import 'package:autocare_merchant/pages/account/access_pages.dart';
 import 'package:flutter/material.dart';
@@ -63,7 +62,7 @@ void main() {
     final point = t.getCenter(find.text('登录').first);
     await t.tapAt(point);
     await t.pump();
-    expect(find.byType(AppSpinner), findsOneWidget);
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
     expect(
       t.widgetList<TextField>(find.byType(TextField)).every((w) => w.readOnly),
       isTrue,

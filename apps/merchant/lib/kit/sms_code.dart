@@ -2,13 +2,15 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../theme.dart' show C;
+import 'package:autocare_ui_kit/autocare_ui_kit.dart';
+
 import 'async_kit.dart';
 
 /// 页面持有的发送状态与倒计时；请求由调用者传入，不推断手机号或短信用途。
 class SmsCodeController extends ChangeNotifier {
   int seconds = 0;
   bool sending = false;
+  bool sent = false;
   bool _disposed = false;
   Timer? _timer;
 
@@ -21,6 +23,7 @@ class SmsCodeController extends ChangeNotifier {
   void start({int seconds = 60}) {
     if (_disposed) return;
     this.seconds = seconds;
+    sent = true;
     _timer?.cancel();
     notifyListeners();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -55,25 +58,14 @@ class SmsCodeController extends ChangeNotifier {
   }
 }
 
-Widget smsCodeText(SmsCodeController controller, TextStyle style) =>
+/// 页面控制器到纯展示组件的薄适配，不改变发送或错误处理。
+Widget smsCodeButton(SmsCodeController controller, {VoidCallback? onPressed}) =>
     ListenableBuilder(
       listenable: controller,
-      builder: (_, _) {
-        if (controller.sending) {
-          return Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AppSpinner(size: 16, color: C.muted),
-              const SizedBox(width: 6),
-              Text('发送中…', style: style.copyWith(color: C.muted)),
-            ],
-          );
-        }
-        return Text(
-          controller.seconds > 0 ? '${controller.seconds} 秒后重发' : '获取验证码',
-          style: controller.seconds > 0
-              ? style.copyWith(color: C.muted)
-              : style,
-        );
-      },
+      builder: (_, _) => AppSmsCodeButton(
+        sending: controller.sending,
+        seconds: controller.seconds,
+        sent: controller.sent,
+        onPressed: onPressed,
+      ),
     );

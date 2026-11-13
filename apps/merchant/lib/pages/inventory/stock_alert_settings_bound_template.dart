@@ -1,3 +1,4 @@
+import '../../kit/buttons.dart';
 import '../../kit/single_selection.dart';
 
 // 库存预警配置：显式状态和事件，沿用现有布局。
@@ -28,54 +29,12 @@ class StockAlertSettingsBoundTemplate extends StatelessWidget {
                 [
                   hrow(
                     [
-                      GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: c.busy
+                      AppIconButton(
+                        svg: dk(context, Svgs.s0, Svgs.s1),
+                        semanticLabel: "返回",
+                        onPressed: c.busy
                             ? null
                             : () => Navigator.of(context).maybePop(),
-                        child: hbox(
-                          w: 44,
-                          h: 44,
-                          bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                          radius: BorderRadius.circular(22),
-                          shadow: dk(
-                            context,
-                            [
-                              BoxShadow(
-                                color: Color.fromRGBO(0, 0, 0, 0.06),
-                                offset: Offset(0, 0),
-                                blurRadius: 1,
-                                spreadRadius: 0,
-                              ),
-                              BoxShadow(
-                                color: Color.fromRGBO(0, 0, 0, 0.06),
-                                offset: Offset(0, 1),
-                                blurRadius: 2,
-                                spreadRadius: 0,
-                              ),
-                              BoxShadow(
-                                color: Color.fromRGBO(0, 0, 0, 0.04),
-                                offset: Offset(0, 2),
-                                blurRadius: 4,
-                                spreadRadius: 0,
-                              ),
-                            ],
-                            [
-                              BoxShadow(
-                                color: Color(0xFF26262B),
-                                offset: Offset(0, 0),
-                                blurRadius: 0,
-                                spreadRadius: 1,
-                              ),
-                            ],
-                          ),
-                          child: hrow(
-                            [hsvg(dk(context, Svgs.s0, Svgs.s1), w: 20, h: 20)],
-                            main: MainAxisAlignment.center,
-                            cross: CrossAxisAlignment.center,
-                            gap: 0,
-                          ),
-                        ),
                       ),
                       Expanded(
                         flex: 1,
@@ -901,29 +860,13 @@ class StockAlertSettingsBoundTemplate extends StatelessWidget {
                   child: UnconstrainedBox(
                     alignment: Alignment.topLeft,
                     constrainedAxis: Axis.horizontal,
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: c.busy ? null : () => c.saveSettings(context),
-                      child: hbox(
-                        h: 50,
-                        bg: Color(0xFF0485F7),
-                        radius: BorderRadius.circular(25),
-                        child: Align(
-                          alignment: Alignment(0, 0),
-                          widthFactor: 1,
-                          child: c.busyLabel(
-                            Text(
-                              '保存',
-                              style: hts(
-                                15,
-                                Color(0xFFFFFFFF),
-                                w: FontWeight.w600,
-                                lh: 22,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                    child: ActionButton(
+                      actionKey: c.actionKey,
+                      label: '保存',
+                      kind: AppButtonKind.primary,
+                      size: AppButtonSize.large,
+                      expanded: true,
+                      onPressed: c.busy ? null : () => c.saveSettings(context),
                     ),
                   ),
                 ),

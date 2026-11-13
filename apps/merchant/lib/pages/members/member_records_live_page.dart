@@ -1,3 +1,4 @@
+import '../../kit/buttons.dart';
 import '../../kit/single_selection.dart';
 import 'member_view.dart';
 
@@ -53,62 +54,10 @@ class _MemberRecordsLivePageState extends State<MemberRecordsLivePage> {
                   [
                     hrow(
                       [
-                        GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () => Navigator.of(context).maybePop(),
-                          child: hbox(
-                            w: 44,
-                            h: 44,
-                            bg: dk(
-                              context,
-                              Color(0xFFFFFFFF),
-                              Color(0xFF18181B),
-                            ),
-                            radius: BorderRadius.circular(22),
-                            shadow: dk(
-                              context,
-                              [
-                                BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.06),
-                                  offset: Offset(0, 0),
-                                  blurRadius: 1,
-                                  spreadRadius: 0,
-                                ),
-                                BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.06),
-                                  offset: Offset(0, 1),
-                                  blurRadius: 2,
-                                  spreadRadius: 0,
-                                ),
-                                BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.04),
-                                  offset: Offset(0, 2),
-                                  blurRadius: 4,
-                                  spreadRadius: 0,
-                                ),
-                              ],
-                              [
-                                BoxShadow(
-                                  color: Color(0xFF26262B),
-                                  offset: Offset(0, 0),
-                                  blurRadius: 0,
-                                  spreadRadius: 1,
-                                ),
-                              ],
-                            ),
-                            child: hrow(
-                              [
-                                hsvg(
-                                  dk(context, Svgs.s0, Svgs.s1),
-                                  w: 20,
-                                  h: 20,
-                                ),
-                              ],
-                              main: MainAxisAlignment.center,
-                              cross: CrossAxisAlignment.center,
-                              gap: 0,
-                            ),
-                          ),
+                        AppIconButton(
+                          svg: dk(context, Svgs.s0, Svgs.s1),
+                          semanticLabel: "返回",
+                          onPressed: () => Navigator.of(context).maybePop(),
                         ),
                         Expanded(
                           flex: 1,
@@ -147,64 +96,11 @@ class _MemberRecordsLivePageState extends State<MemberRecordsLivePage> {
                             gap: 0,
                           ),
                         ),
-                        GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          // TODO: 流水日期筛选缺少 ledger 的日期范围参数；不得返回无效筛选成功。
-                          onTap: () =>
+                        AppIconButton(
+                          svg: dk(context, Svgs.s230, Svgs.s231),
+                          semanticLabel: '日期筛选',
+                          onPressed: () =>
                               AppToast.show(context, '日期筛选尚未接通：缺少流水日期范围接口'),
-                          child: hbox(
-                            w: 44,
-                            h: 44,
-                            bg: dk(
-                              context,
-                              Color(0xFFFFFFFF),
-                              Color(0xFF18181B),
-                            ),
-                            radius: BorderRadius.circular(22),
-                            shadow: dk(
-                              context,
-                              [
-                                BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.06),
-                                  offset: Offset(0, 0),
-                                  blurRadius: 1,
-                                  spreadRadius: 0,
-                                ),
-                                BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.06),
-                                  offset: Offset(0, 1),
-                                  blurRadius: 2,
-                                  spreadRadius: 0,
-                                ),
-                                BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.04),
-                                  offset: Offset(0, 2),
-                                  blurRadius: 4,
-                                  spreadRadius: 0,
-                                ),
-                              ],
-                              [
-                                BoxShadow(
-                                  color: Color(0xFF26262B),
-                                  offset: Offset(0, 0),
-                                  blurRadius: 0,
-                                  spreadRadius: 1,
-                                ),
-                              ],
-                            ),
-                            child: hrow(
-                              [
-                                hsvg(
-                                  dk(context, Svgs.s230, Svgs.s231),
-                                  w: 20,
-                                  h: 20,
-                                ),
-                              ],
-                              main: MainAxisAlignment.center,
-                              cross: CrossAxisAlignment.center,
-                              gap: 0,
-                            ),
-                          ),
                         ),
                       ],
                       main: MainAxisAlignment.start,
@@ -974,11 +870,11 @@ class _MemberRecordsLivePageState extends State<MemberRecordsLivePage> {
       for (final g in groups.entries) _month(context, g.key, g.value),
       if (_items.length < _total)
         Center(
-          child: LoadingButton(
+          child: RequestButton(
             label: '加载更多',
-            loadingLabel: '加载中…',
-            style: LoadingButtonStyle.secondary,
             onPressed: () => _load(more: true),
+            kind: AppButtonKind.secondary,
+            size: AppButtonSize.large,
           ),
         ),
     ];

@@ -1,3 +1,4 @@
+import '../../kit/buttons.dart';
 import '../../kit/single_selection.dart';
 
 import 'package:flutter/material.dart';
@@ -28,52 +29,10 @@ class StaffListTemplate extends StatelessWidget {
               [
                 hrow(
                   [
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => Navigator.of(context).maybePop(),
-                      child: hbox(
-                        w: 44,
-                        h: 44,
-                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                        radius: BorderRadius.circular(22),
-                        shadow: dk(
-                          context,
-                          [
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 1),
-                              blurRadius: 2,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
-                              spreadRadius: 0,
-                            ),
-                          ],
-                          [
-                            BoxShadow(
-                              color: Color(0xFF26262B),
-                              offset: Offset(0, 0),
-                              blurRadius: 0,
-                              spreadRadius: 1,
-                            ),
-                          ],
-                        ),
-                        child: hrow(
-                          [hsvg(dk(context, Svgs.s0, Svgs.s1), w: 20, h: 20)],
-                          main: MainAxisAlignment.center,
-                          cross: CrossAxisAlignment.center,
-                          gap: 0,
-                        ),
-                      ),
+                    AppIconButton(
+                      svg: dk(context, Svgs.s0, Svgs.s1),
+                      semanticLabel: "返回",
+                      onPressed: () => Navigator.of(context).maybePop(),
                     ),
                     Expanded(
                       flex: 1,
@@ -88,21 +47,11 @@ class StaffListTemplate extends StatelessWidget {
                         textAlign: TextAlign.center,
                       ),
                     ),
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => c.editResource(context, null),
-                      child: hbox(
-                        w: 44,
-                        h: 44,
-                        bg: Color(0xFF0485F7),
-                        radius: BorderRadius.circular(22),
-                        child: hrow(
-                          [hsvg(Svgs.s81, w: 20, h: 20)],
-                          main: MainAxisAlignment.center,
-                          cross: CrossAxisAlignment.center,
-                          gap: 0,
-                        ),
-                      ),
+                    AppIconButton(
+                      svg: Svgs.s81,
+                      semanticLabel: '新增员工',
+                      kind: AppIconButtonKind.primary,
+                      onPressed: () => c.editResource(context, null),
                     ),
                   ],
                   main: MainAxisAlignment.start,
@@ -901,28 +850,18 @@ class StaffListTemplate extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              onTap: () {
+                            AppButton(
+                              label: '编辑权限',
+                              kind: AppButtonKind.text,
+                              size: AppButtonSize.medium,
+                              expanded: false,
+                              onPressed: () {
                                 openRoute(
                                   context,
                                   'RolePermission',
                                   arguments: StaffRouteData(role: c.roleKey),
                                 );
                               },
-                              child: Text(
-                                '编辑权限',
-                                style: hts(
-                                  13,
-                                  dk(
-                                    context,
-                                    Color(0xFF1E63AE),
-                                    Color(0xFF6AB4FA),
-                                  ),
-                                  w: FontWeight.w500,
-                                  lh: 18,
-                                ),
-                              ),
                             ),
                           ],
                           main: MainAxisAlignment.start,
@@ -1313,23 +1252,12 @@ Widget _emptyRoleCard(BuildContext context, StaffEditorController c) {
             gap: 2,
           ),
         ),
-        GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () => c.addStaff(context),
-          child: hbox(
-            h: 44,
-            pad: EdgeInsets.fromLTRB(4, 0, 4, 0),
-            align: Alignment.center,
-            child: Text(
-              all ? '添加员工' : '添加$role',
-              style: hts(
-                13,
-                dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
-                w: FontWeight.w600,
-                lh: 18,
-              ),
-            ),
-          ),
+        AppButton(
+          label: all ? '添加员工' : '添加$role',
+          kind: AppButtonKind.secondary,
+          size: AppButtonSize.medium,
+          expanded: false,
+          onPressed: () => c.addStaff(context),
         ),
       ],
       main: MainAxisAlignment.start,

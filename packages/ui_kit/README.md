@@ -1,5 +1,9 @@
 # autocare_ui_kit · 基础组件库
 
+`AppSmsCodeButton(sending:, seconds:, sent:, onPressed:)`：纯展示验证码按钮，固定宽 132、视觉高 36、热区高 44；可发送、发送中、倒计时及重发四态，发送 / 倒计时 / 空回调禁点。不计时、不请求后端，调用端持有发送与错误状态。商户端复用 `SmsCodeController`，后台组件预览包含全部状态。
+
+普通按钮提前预留 loading 的内容宽度，原文案保持不变；图标按钮 loading 保留背景，图标隐藏、20px 转圈居中，按钮尺寸不变。
+
 按设计稿「组件库」画板（总览、令牌、按钮、选择类、输入类、展示类、提示与状态、页面容器、图片上传、业务组件拆分、封装与定制约定）实现的 Flutter 基础组件库。页面只做组合，不写样式。
 
 ```dart
@@ -28,6 +32,24 @@ import 'package:autocare_ui_kit/autocare_ui_kit.dart';
 - 组件受控：选中、开关、数值都由外部传入；组件不持有业务数据、不请求数据。
 - 通用逻辑内置在组件里：防重复点击、点击热区 44、长按连续增减、搜索防抖 300ms、数字范围钳制、手机号分段与金额千分位格式化、语义标签。
 - 表单输入的 `hint` 必填，没值时一定有占位文字。
+
+## 按钮图标与加载态
+
+- `AppButton`、`AppIconButton`（含 `.pill`）保留 `icon: IconData`，新增 `svg: String` 和可选 `darkSvg: String`，直接接收现有 SVG 源码；`icon` 与 `svg` 互斥，`darkSvg` 必须配合 `svg`。
+- SVG 用于单色按钮图标，路径保留，颜色统一跟随按钮语义、主题和禁用状态；不用于保留多色插画。未提供 `darkSvg` 时复用 `svg`。
+- `AppIconButton(loading: true)` 使用 `async_kit.AppSpinner` 原位显示 20px 转圈，隐藏原图标、文字和数量，禁用点击，保留正常状态的宽高；主色按钮用前景色，其余用主色。小号按钮仍保留至少 44px 点击热区。
+- 本次能力依据现有商户 SVG 图标及 `docs/frontend-guidelines.md` 的图标按钮加载规范补齐；不修改业务页面及已有按钮默认外观。
+
+```dart
+AppButton(label: '新增', svg: addSvg, onPressed: add);
+AppIconButton(
+  svg: saveSvg,
+  darkSvg: saveDarkSvg,
+  semanticLabel: '保存',
+  loading: submitting,
+  onPressed: save,
+);
+```
 
 ## 预览与验证
 

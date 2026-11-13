@@ -5,7 +5,6 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:async';
 
 import 'package:autocare_merchant/pages/account/profile_edit_page.dart';
-import 'package:autocare_merchant/kit/async_kit.dart' show AppSpinner;
 import 'package:flutter/material.dart';
 import 'package:autocare_merchant/kit/image_pick.dart' show ImageSlot;
 import 'package:flutter_test/flutter_test.dart';
@@ -177,7 +176,10 @@ void main() {
     final point = t.getCenter(find.text('保存'));
     await t.tapAt(point);
     await t.pump();
-    expect(t.getSize(find.byType(AppSpinner)), const Size(20, 20));
+    expect(
+      t.getSize(find.byType(CircularProgressIndicator)),
+      const Size(16, 16),
+    );
     await t.tapAt(point);
     await t.pump();
     expect(api.profileSaves, hasLength(1));

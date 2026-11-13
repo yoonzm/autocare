@@ -1,3 +1,5 @@
+import '../../kit/buttons.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../backend/access_flow.dart';
@@ -520,69 +522,12 @@ class StMineTemplate extends StatelessWidget {
                         bg: dk(context, Color(0xFFEFEFF1), Color(0xFF2A2A2E)),
                         margin: EdgeInsets.fromLTRB(60, 0, 0, 0),
                       ),
-                      GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () => AppToast.show(context, '请直接联系店长'),
-                        child: hbox(
-                          minH: 60,
-                          pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                          child: hrow(
-                            [
-                              hbox(
-                                w: 32,
-                                h: 32,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFEEEEF0),
-                                  Color(0xFF27272A),
-                                ),
-                                radius: BorderRadius.circular(10),
-                                child: hrow(
-                                  [
-                                    hsvg(
-                                      dk(context, Svgs.s67, Svgs.s68),
-                                      w: 18,
-                                      h: 18,
-                                    ),
-                                  ],
-                                  main: MainAxisAlignment.center,
-                                  cross: CrossAxisAlignment.center,
-                                  gap: 0,
-                                ),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: hcol(
-                                  [
-                                    Text(
-                                      '联系店长',
-                                      style: hts(
-                                        15,
-                                        dk(
-                                          context,
-                                          Color(0xFF18181B),
-                                          Color(0xFFFAFAFA),
-                                        ),
-                                        lh: 22,
-                                      ),
-                                    ),
-                                  ],
-                                  main: MainAxisAlignment.start,
-                                  cross: CrossAxisAlignment.stretch,
-                                  gap: 1,
-                                ),
-                              ),
-                              hsvg(
-                                dk(context, Svgs.s45, Svgs.s46),
-                                w: 16,
-                                h: 16,
-                              ),
-                            ],
-                            main: MainAxisAlignment.start,
-                            cross: CrossAxisAlignment.center,
-                            gap: 12,
-                          ),
-                        ),
+                      AppButton(
+                        expanded: true,
+                        label: '联系店长',
+                        kind: AppButtonKind.secondary,
+                        size: AppButtonSize.large,
+                        onPressed: () => AppToast.show(context, '请直接联系店长'),
                       ),
                     ],
                     main: MainAxisAlignment.start,
@@ -871,69 +816,12 @@ class StMineTemplate extends StatelessWidget {
                         bg: dk(context, Color(0xFFEFEFF1), Color(0xFF2A2A2E)),
                         margin: EdgeInsets.fromLTRB(60, 0, 0, 0),
                       ),
-                      GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () => AccessFlow.signOut(context),
-                        child: hbox(
-                          minH: 60,
-                          pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                          child: hrow(
-                            [
-                              hbox(
-                                w: 32,
-                                h: 32,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFFFE1E2),
-                                  Color.fromRGBO(255, 56, 60, 0.18),
-                                ),
-                                radius: BorderRadius.circular(10),
-                                child: hrow(
-                                  [
-                                    hsvg(
-                                      dk(context, Svgs.s79, Svgs.s80),
-                                      w: 18,
-                                      h: 18,
-                                    ),
-                                  ],
-                                  main: MainAxisAlignment.center,
-                                  cross: CrossAxisAlignment.center,
-                                  gap: 0,
-                                ),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: hcol(
-                                  [
-                                    Text(
-                                      '退出登录',
-                                      style: hts(
-                                        15,
-                                        dk(
-                                          context,
-                                          Color(0xFF18181B),
-                                          Color(0xFFFAFAFA),
-                                        ),
-                                        lh: 22,
-                                      ),
-                                    ),
-                                  ],
-                                  main: MainAxisAlignment.start,
-                                  cross: CrossAxisAlignment.stretch,
-                                  gap: 1,
-                                ),
-                              ),
-                              hsvg(
-                                dk(context, Svgs.s45, Svgs.s46),
-                                w: 16,
-                                h: 16,
-                              ),
-                            ],
-                            main: MainAxisAlignment.start,
-                            cross: CrossAxisAlignment.center,
-                            gap: 12,
-                          ),
-                        ),
+                      AppButton(
+                        expanded: true,
+                        label: '退出登录',
+                        kind: AppButtonKind.secondary,
+                        size: AppButtonSize.large,
+                        onPressed: () => AccessFlow.signOut(context),
                       ),
                     ],
                     main: MainAxisAlignment.start,

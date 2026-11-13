@@ -1,3 +1,5 @@
+import '../../kit/buttons.dart';
+
 // 正式维护源码；保留既有视觉布局。
 import 'package:flutter/material.dart';
 
@@ -215,29 +217,14 @@ class ScanProductResultBoundTemplate extends StatelessWidget {
                   child: UnconstrainedBox(
                     alignment: Alignment.topLeft,
                     constrainedAxis: Axis.horizontal,
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: c.busy
+                    child: AppButton(
+                      label: '继续扫码',
+                      kind: AppButtonKind.secondary,
+                      size: AppButtonSize.large,
+                      expanded: true,
+                      onPressed: c.busy
                           ? null
                           : () => Navigator.of(context).maybePop(),
-                      child: hbox(
-                        h: 50,
-                        bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
-                        radius: BorderRadius.circular(25),
-                        child: Align(
-                          alignment: Alignment(0, 0),
-                          widthFactor: 1,
-                          child: Text(
-                            '继续扫码',
-                            style: hts(
-                              15,
-                              dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                              w: FontWeight.w500,
-                              lh: 22,
-                            ),
-                          ),
-                        ),
-                      ),
                     ),
                   ),
                 ),
@@ -246,30 +233,15 @@ class ScanProductResultBoundTemplate extends StatelessWidget {
                   child: UnconstrainedBox(
                     alignment: Alignment.topLeft,
                     constrainedAxis: Axis.horizontal,
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: c.busy
+                    child: AppButton(
+                      label: '入库补货',
+                      kind: AppButtonKind.primary,
+                      size: AppButtonSize.large,
+                      expanded: true,
+                      onPressed: c.busy
                           ? null
                           : () =>
                                 c.openScannedProduct(context, replenish: true),
-                      child: hbox(
-                        h: 50,
-                        bg: Color(0xFF0485F7),
-                        radius: BorderRadius.circular(25),
-                        child: Align(
-                          alignment: Alignment(0, 0),
-                          widthFactor: 1,
-                          child: Text(
-                            '入库补货',
-                            style: hts(
-                              15,
-                              Color(0xFFFFFFFF),
-                              w: FontWeight.w600,
-                              lh: 22,
-                            ),
-                          ),
-                        ),
-                      ),
                     ),
                   ),
                 ),

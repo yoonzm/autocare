@@ -1,3 +1,4 @@
+import '../../kit/buttons.dart';
 import '../../kit/async_kit.dart';
 import '../../kit/single_selection.dart';
 
@@ -371,33 +372,14 @@ class StockVoidBoundTemplate extends StatelessWidget {
                     child: UnconstrainedBox(
                       alignment: Alignment.topLeft,
                       constrainedAxis: Axis.horizontal,
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: c.busy
+                      child: AppButton(
+                        label: '再想想',
+                        kind: AppButtonKind.secondary,
+                        size: AppButtonSize.large,
+                        expanded: true,
+                        onPressed: c.busy
                             ? null
                             : () => Navigator.of(context).maybePop(),
-                        child: hbox(
-                          h: 50,
-                          bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
-                          radius: BorderRadius.circular(25),
-                          child: Align(
-                            alignment: Alignment(0, 0),
-                            widthFactor: 1,
-                            child: Text(
-                              '再想想',
-                              style: hts(
-                                15,
-                                dk(
-                                  context,
-                                  Color(0xFF18181B),
-                                  Color(0xFFFAFAFA),
-                                ),
-                                w: FontWeight.w500,
-                                lh: 22,
-                              ),
-                            ),
-                          ),
-                        ),
                       ),
                     ),
                   ),
@@ -406,33 +388,13 @@ class StockVoidBoundTemplate extends StatelessWidget {
                     child: UnconstrainedBox(
                       alignment: Alignment.topLeft,
                       constrainedAxis: Axis.horizontal,
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: c.busy ? null : () => c.confirmVoid(context),
-                        child: hbox(
-                          h: 50,
-                          bg: dk(context, Color(0xFFE4E4E7), Color(0xFF3A3A40)),
-                          radius: BorderRadius.circular(25),
-                          child: Align(
-                            alignment: Alignment.center,
-                            widthFactor: 1,
-                            child: c.busyLabel(
-                              Text(
-                                c.voidConfirmLabel,
-                                style: hts(
-                                  15,
-                                  dk(
-                                    context,
-                                    Color(0xFFA1A1AA),
-                                    Color(0xFF80808A),
-                                  ),
-                                  w: FontWeight.w600,
-                                  lh: 22,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
+                      child: ActionButton(
+                        actionKey: c.actionKey,
+                        label: c.voidConfirmLabel,
+                        kind: AppButtonKind.danger,
+                        size: AppButtonSize.large,
+                        expanded: true,
+                        onPressed: c.busy ? null : () => c.confirmVoid(context),
                       ),
                     ),
                   ),

@@ -1,3 +1,5 @@
+import '../../kit/buttons.dart';
+
 import 'package:flutter/material.dart';
 
 import 'staff_route_data.dart';
@@ -116,52 +118,10 @@ class StaffDetailTemplate extends StatelessWidget {
               [
                 hrow(
                   [
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => Navigator.of(context).maybePop(),
-                      child: hbox(
-                        w: 44,
-                        h: 44,
-                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                        radius: BorderRadius.circular(22),
-                        shadow: dk(
-                          context,
-                          [
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 1),
-                              blurRadius: 2,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
-                              spreadRadius: 0,
-                            ),
-                          ],
-                          [
-                            BoxShadow(
-                              color: Color(0xFF26262B),
-                              offset: Offset(0, 0),
-                              blurRadius: 0,
-                              spreadRadius: 1,
-                            ),
-                          ],
-                        ),
-                        child: hrow(
-                          [hsvg(dk(context, Svgs.s0, Svgs.s1), w: 20, h: 20)],
-                          main: MainAxisAlignment.center,
-                          cross: CrossAxisAlignment.center,
-                          gap: 0,
-                        ),
-                      ),
+                    AppIconButton(
+                      svg: dk(context, Svgs.s0, Svgs.s1),
+                      semanticLabel: "返回",
+                      onPressed: () => Navigator.of(context).maybePop(),
                     ),
                     Expanded(
                       flex: 1,
@@ -176,62 +136,15 @@ class StaffDetailTemplate extends StatelessWidget {
                         textAlign: TextAlign.center,
                       ),
                     ),
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => Navigator.of(context).push(
+                    AppButton(
+                      label: '编辑',
+                      kind: AppButtonKind.surface,
+                      size: AppButtonSize.medium,
+                      expanded: false,
+                      onPressed: () => Navigator.of(context).push(
                         appSheetRoute<void>(
                           settings: const RouteSettings(name: 'StaffEdit'),
                           page: StaffEditorPage(row: d),
-                        ),
-                      ),
-                      child: hbox(
-                        h: 44,
-                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                        radius: BorderRadius.circular(22),
-                        shadow: dk(
-                          context,
-                          [
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 1),
-                              blurRadius: 2,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
-                              spreadRadius: 0,
-                            ),
-                          ],
-                          [
-                            BoxShadow(
-                              color: Color(0xFF26262B),
-                              offset: Offset(0, 0),
-                              blurRadius: 0,
-                              spreadRadius: 1,
-                            ),
-                          ],
-                        ),
-                        pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                        child: Align(
-                          alignment: Alignment(-1, 0),
-                          widthFactor: 1,
-                          child: Text(
-                            '编辑',
-                            style: hts(
-                              14,
-                              dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                              w: FontWeight.w500,
-                              lh: 20,
-                            ),
-                          ),
                         ),
                       ),
                     ),
@@ -808,26 +721,16 @@ class StaffDetailTemplate extends StatelessWidget {
                               ),
                             ),
                           ),
-                          GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: () => openRoute(
+                          AppButton(
+                            label: '全部记录',
+                            kind: AppButtonKind.text,
+                            size: AppButtonSize.medium,
+                            expanded: false,
+                            onPressed: () => openRoute(
                               context,
                               'StaffRecords',
                               arguments: StaffRouteData(
                                 staffId: d['id'] as String?,
-                              ),
-                            ),
-                            child: Text(
-                              '全部记录',
-                              style: hts(
-                                13,
-                                dk(
-                                  context,
-                                  Color(0xFF1E63AE),
-                                  Color(0xFF6AB4FA),
-                                ),
-                                w: FontWeight.w500,
-                                lh: 18,
                               ),
                             ),
                           ),
@@ -863,61 +766,15 @@ class StaffDetailTemplate extends StatelessWidget {
                     gap: 12,
                   ),
                 ),
-                GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () => openRoute(
+                AppButton(
+                  label: '停用账号',
+                  kind: AppButtonKind.danger,
+                  size: AppButtonSize.large,
+                  expanded: true,
+                  onPressed: () => openRoute(
                     context,
                     'DisableStaff',
                     arguments: StaffRouteData(staffId: d['id'] as String?),
-                  ),
-                  child: hbox(
-                    h: 48,
-                    bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                    radius: BorderRadius.circular(24),
-                    shadow: dk(
-                      context,
-                      [
-                        BoxShadow(
-                          color: Color.fromRGBO(0, 0, 0, 0.06),
-                          offset: Offset(0, 0),
-                          blurRadius: 1,
-                          spreadRadius: 0,
-                        ),
-                        BoxShadow(
-                          color: Color.fromRGBO(0, 0, 0, 0.06),
-                          offset: Offset(0, 1),
-                          blurRadius: 2,
-                          spreadRadius: 0,
-                        ),
-                        BoxShadow(
-                          color: Color.fromRGBO(0, 0, 0, 0.04),
-                          offset: Offset(0, 2),
-                          blurRadius: 4,
-                          spreadRadius: 0,
-                        ),
-                      ],
-                      [
-                        BoxShadow(
-                          color: Color(0xFF26262B),
-                          offset: Offset(0, 0),
-                          blurRadius: 0,
-                          spreadRadius: 1,
-                        ),
-                      ],
-                    ),
-                    child: Align(
-                      alignment: Alignment(0, 0),
-                      widthFactor: 1,
-                      child: Text(
-                        '停用账号',
-                        style: hts(
-                          15,
-                          dk(context, Color(0xFFA43433), Color(0xFFFF7B7E)),
-                          w: FontWeight.w500,
-                          lh: 22,
-                        ),
-                      ),
-                    ),
                   ),
                 ),
               ],

@@ -1,3 +1,4 @@
+import '../../kit/buttons.dart';
 import '../../backend/merchant_api.dart';
 import '../../kit/async_kit.dart';
 import '../../kit/single_selection.dart';
@@ -119,18 +120,12 @@ class _MemberFilterTemplate extends StatelessWidget {
                   ),
                 ),
               ),
-              GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () => c.reset(),
-                child: Text(
-                  '重置',
-                  style: hts(
-                    14,
-                    dk(context, Color(0xFF52525B), Color(0xFFA8A8B3)),
-                    w: FontWeight.w500,
-                    lh: 20,
-                  ),
-                ),
+              AppButton(
+                label: '重置',
+                kind: AppButtonKind.text,
+                size: AppButtonSize.medium,
+                expanded: false,
+                onPressed: () => c.reset(),
               ),
             ],
             main: MainAxisAlignment.start,
@@ -1285,27 +1280,12 @@ class _MemberFilterTemplate extends StatelessWidget {
                   child: UnconstrainedBox(
                     alignment: Alignment.topLeft,
                     constrainedAxis: Axis.horizontal,
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => Navigator.of(context).pop(),
-                      child: hbox(
-                        h: 50,
-                        bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
-                        radius: BorderRadius.circular(25),
-                        child: Align(
-                          alignment: Alignment(0, 0),
-                          widthFactor: 1,
-                          child: Text(
-                            '取消',
-                            style: hts(
-                              15,
-                              dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                              w: FontWeight.w500,
-                              lh: 22,
-                            ),
-                          ),
-                        ),
-                      ),
+                    child: AppButton(
+                      label: '取消',
+                      kind: AppButtonKind.secondary,
+                      size: AppButtonSize.large,
+                      expanded: true,
+                      onPressed: () => Navigator.of(context).pop(),
                     ),
                   ),
                 ),
@@ -1314,27 +1294,12 @@ class _MemberFilterTemplate extends StatelessWidget {
                   child: UnconstrainedBox(
                     alignment: Alignment.topLeft,
                     constrainedAxis: Axis.horizontal,
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => Navigator.of(context).pop(c.filters),
-                      child: hbox(
-                        h: 50,
-                        bg: Color(0xFF0485F7),
-                        radius: BorderRadius.circular(25),
-                        child: Align(
-                          alignment: Alignment(0, 0),
-                          widthFactor: 1,
-                          child: Text(
-                            c.matched == null ? '查看会员' : '查看 ${c.matched} 位会员',
-                            style: hts(
-                              15,
-                              Color(0xFFFFFFFF),
-                              w: FontWeight.w600,
-                              lh: 22,
-                            ),
-                          ),
-                        ),
-                      ),
+                    child: AppButton(
+                      label: c.matched == null ? '查看会员' : '查看 ${c.matched} 位会员',
+                      kind: AppButtonKind.secondary,
+                      size: AppButtonSize.large,
+                      expanded: true,
+                      onPressed: () => Navigator.of(context).pop(c.filters),
                     ),
                   ),
                 ),

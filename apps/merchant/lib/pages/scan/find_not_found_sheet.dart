@@ -1,3 +1,4 @@
+import '../../kit/buttons.dart';
 import 'scan_result.dart';
 import '../../kit/async_kit.dart';
 import '../members/member_route_data.dart';
@@ -283,33 +284,22 @@ class FindNotFoundSheet extends StatelessWidget {
             [
               Flexible(
                 flex: 117,
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () => Navigator.of(context).maybePop(),
-                  child: Text(
-                    '识别不对？重新扫描',
-                    style: hts(
-                      13,
-                      dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
-                      lh: 18,
-                    ),
-                  ),
+                child: AppButton(
+                  label: '识别不对？重新扫描',
+                  kind: AppButtonKind.text,
+                  size: AppButtonSize.medium,
+                  expanded: false,
+                  onPressed: () => Navigator.of(context).maybePop(),
                 ),
               ),
               Flexible(
                 flex: 52,
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () => openRoute(context, 'Members'),
-                  child: Text(
-                    '手动搜索',
-                    style: hts(
-                      13,
-                      dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
-                      w: FontWeight.w500,
-                      lh: 18,
-                    ),
-                  ),
+                child: AppButton(
+                  label: '手动搜索',
+                  kind: AppButtonKind.text,
+                  size: AppButtonSize.medium,
+                  expanded: false,
+                  onPressed: () => openRoute(context, 'Members'),
                 ),
               ),
             ],

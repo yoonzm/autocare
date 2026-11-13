@@ -1,3 +1,4 @@
+import '../../kit/buttons.dart';
 import 'member_adjust_controller.dart';
 import '../../backend/merchant_api.dart';
 import '../../kit/async_kit.dart';
@@ -90,52 +91,10 @@ class _MemberAdjustPageTemplate extends StatelessWidget {
               [
                 hrow(
                   [
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => Navigator.of(context).maybePop(),
-                      child: hbox(
-                        w: 44,
-                        h: 44,
-                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                        radius: BorderRadius.circular(22),
-                        shadow: dk(
-                          context,
-                          [
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 1),
-                              blurRadius: 2,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
-                              spreadRadius: 0,
-                            ),
-                          ],
-                          [
-                            BoxShadow(
-                              color: Color(0xFF26262B),
-                              offset: Offset(0, 0),
-                              blurRadius: 0,
-                              spreadRadius: 1,
-                            ),
-                          ],
-                        ),
-                        child: hrow(
-                          [hsvg(dk(context, Svgs.s26, Svgs.s27), w: 20, h: 20)],
-                          main: MainAxisAlignment.center,
-                          cross: CrossAxisAlignment.center,
-                          gap: 0,
-                        ),
-                      ),
+                    AppIconButton(
+                      svg: dk(context, Svgs.s26, Svgs.s27),
+                      semanticLabel: "返回",
+                      onPressed: () => Navigator.of(context).maybePop(),
                     ),
                     Expanded(
                       flex: 1,
@@ -816,28 +775,7 @@ class _MemberAdjustPageTemplate extends StatelessWidget {
                         child: HNumberStepper.controlled(
                           onDecrease: () => c.changePoints(c.points - 10),
                           onIncrease: () => c.changePoints(c.points + 10),
-                          minus: hbox(
-                            w: 40,
-                            h: 40,
-                            bg: dk(
-                              context,
-                              Color(0xFFF4F4F5),
-                              Color(0xFF27272A),
-                            ),
-                            radius: BorderRadius.circular(20),
-                            align: Alignment(0, 0),
-                            child: Text(
-                              '−',
-                              style: hts(
-                                16,
-                                dk(
-                                  context,
-                                  Color(0xFF18181B),
-                                  Color(0xFFFAFAFA),
-                                ),
-                              ),
-                            ),
-                          ),
+
                           value: Flexible(
                             flex: 56,
                             child: hbox(
@@ -862,28 +800,7 @@ class _MemberAdjustPageTemplate extends StatelessWidget {
                               ),
                             ),
                           ),
-                          plus: hbox(
-                            w: 40,
-                            h: 40,
-                            bg: dk(
-                              context,
-                              Color(0xFFF4F4F5),
-                              Color(0xFF27272A),
-                            ),
-                            radius: BorderRadius.circular(20),
-                            child: hrow(
-                              [
-                                hsvg(
-                                  dk(context, Svgs.s214, Svgs.s215),
-                                  w: 18,
-                                  h: 18,
-                                ),
-                              ],
-                              main: MainAxisAlignment.center,
-                              cross: CrossAxisAlignment.center,
-                              gap: 0,
-                            ),
-                          ),
+
                           main: MainAxisAlignment.center,
                           cross: CrossAxisAlignment.center,
                           gap: 14,
@@ -1406,62 +1323,23 @@ class _MemberAdjustPageTemplate extends StatelessWidget {
               [
                 Expanded(
                   flex: 10,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => Navigator.of(context).maybePop(),
-                    child: hbox(
-                      h: 50,
-                      bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
-                      radius: BorderRadius.circular(25),
-                      child: Align(
-                        alignment: Alignment(0, 0),
-                        widthFactor: 1,
-                        child: Text(
-                          '取消',
-                          style: hts(
-                            15,
-                            dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                            w: FontWeight.w500,
-                            lh: 22,
-                          ),
-                        ),
-                      ),
-                    ),
+                  child: AppButton(
+                    label: '取消',
+                    kind: AppButtonKind.secondary,
+                    size: AppButtonSize.large,
+                    expanded: true,
+                    onPressed: () => Navigator.of(context).maybePop(),
                   ),
                 ),
                 Expanded(
                   flex: 16,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => c.submit(context),
-                    child: hbox(
-                      h: 50,
-                      bg: Color(0xFF0485F7),
-                      radius: BorderRadius.circular(25),
-                      child: Align(
-                        alignment: Alignment(0, 0),
-                        widthFactor: 1,
-                        child: hBusy(
-                          c.actionKey,
-                          Text(
-                            '确认调整',
-                            style: hts(
-                              15,
-                              Color(0xFFFFFFFF),
-                              w: FontWeight.w600,
-                              lh: 22,
-                            ),
-                          ),
-                          style: hts(
-                            15,
-                            Color(0xFFFFFFFF),
-                            w: FontWeight.w600,
-                            lh: 22,
-                          ),
-                          label: '提交中…',
-                        ),
-                      ),
-                    ),
+                  child: ActionButton(
+                    actionKey: c.actionKey,
+                    label: '确认调整',
+                    kind: AppButtonKind.primary,
+                    size: AppButtonSize.large,
+                    expanded: true,
+                    onPressed: () => c.submit(context),
                   ),
                 ),
               ],

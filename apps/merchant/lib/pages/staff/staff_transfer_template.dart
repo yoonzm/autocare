@@ -1,3 +1,5 @@
+import '../../kit/buttons.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../backend/staff_flow.dart';
@@ -350,30 +352,16 @@ class _StaffTransferTemplateState extends State<StaffTransferTemplate> {
                   child: UnconstrainedBox(
                     alignment: Alignment.topLeft,
                     constrainedAxis: Axis.horizontal,
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () {
+                    child: AppButton(
+                      label: '取消',
+                      kind: AppButtonKind.secondary,
+                      size: AppButtonSize.large,
+                      expanded: true,
+                      onPressed: () {
                         final nav = Navigator.of(context);
                         nav.pop();
                         openRoute(nav.context, 'DisableStaff');
                       },
-                      child: hbox(
-                        h: 50,
-                        bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
-                        radius: BorderRadius.circular(25),
-                        child: Align(
-                          alignment: Alignment(0, 0),
-                          widthFactor: 1,
-                          child: Text(
-                            '取消',
-                            style: hts(
-                              15,
-                              dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                              w: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ),
                     ),
                   ),
                 ),
@@ -382,9 +370,14 @@ class _StaffTransferTemplateState extends State<StaffTransferTemplate> {
                   child: UnconstrainedBox(
                     alignment: Alignment.topLeft,
                     constrainedAxis: Axis.horizontal,
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: sel == null
+                    child: ActionButton(
+                      actionKey:
+                          'StaffTransfer>Staff-${identityHashCode(context)}',
+                      label: '转交并停用',
+                      kind: AppButtonKind.danger,
+                      size: AppButtonSize.large,
+                      expanded: true,
+                      onPressed: sel == null
                           ? () => AppToast.show(context, '没有可接手的技师，请先添加或启用其他技师')
                           : () => runBusy(
                               'StaffTransfer>Staff-${identityHashCode(context)}',
@@ -405,32 +398,6 @@ class _StaffTransferTemplateState extends State<StaffTransferTemplate> {
                                 }
                               },
                             ),
-                      child: hbox(
-                        h: 50,
-                        bg: Color(0xFFA43433),
-                        radius: BorderRadius.circular(25),
-                        child: Align(
-                          alignment: Alignment(0, 0),
-                          widthFactor: 1,
-                          child: hBusy(
-                            'StaffTransfer>Staff-${identityHashCode(context)}',
-                            Text(
-                              '转交并停用',
-                              style: hts(
-                                15,
-                                Color(0xFFFFFFFF),
-                                w: FontWeight.w600,
-                              ),
-                            ),
-                            style: hts(
-                              15,
-                              Color(0xFFFFFFFF),
-                              w: FontWeight.w600,
-                            ),
-                            label: '提交中…',
-                          ),
-                        ),
-                      ),
                     ),
                   ),
                 ),

@@ -1,4 +1,4 @@
-import '../kit/async_kit.dart' show AppSpinner;
+import '../kit/buttons.dart';
 import '../kit/kit.dart';
 
 import 'package:flutter/material.dart';
@@ -150,49 +150,21 @@ class RoundBtn extends StatelessWidget {
   final String label;
   final VoidCallback? onTap;
   final bool dot;
+  final AppIconButtonKind kind;
   const RoundBtn(
     this.icon, {
     super.key,
     required this.label,
     this.onTap,
     this.dot = false,
+    this.kind = AppIconButtonKind.surface,
   });
   @override
-  Widget build(BuildContext context) => Semantics(
-    button: true,
-    label: label,
-    child: GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 44,
-        height: 44,
-        decoration: BoxDecoration(
-          color: C.card,
-          shape: BoxShape.circle,
-          boxShadow: softShadow,
-        ),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            AppIcon(icon, size: 20, color: C.ink),
-            if (dot)
-              Positioned(
-                top: 11,
-                right: 12,
-                child: Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: C.red,
-                    shape: BoxShape.circle,
-                    boxShadow: [BoxShadow(color: C.card, spreadRadius: 2)],
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ),
-    ),
+  Widget build(BuildContext context) => AppIconButton(
+    svg: AppIcon.svg(icon),
+    semanticLabel: label,
+    kind: kind,
+    onPressed: onTap,
   );
 }
 
@@ -259,12 +231,11 @@ class SectionTitle extends StatelessWidget {
         ),
       ),
       if (action != null)
-        GestureDetector(
-          onTap: onAction,
-          child: Text(
-            action!,
-            style: ts(13, w: FontWeight.w500, color: C.primaryInk, h: 18),
-          ),
+        AppButton(
+          label: action!,
+          kind: AppButtonKind.text,
+          size: AppButtonSize.medium,
+          onPressed: onAction,
         ),
     ],
   );
@@ -364,58 +335,6 @@ class Segmented extends StatelessWidget {
             ),
           ),
       ],
-    ),
-  );
-}
-
-class PrimaryButton extends StatelessWidget {
-  final String text;
-  final VoidCallback? onTap;
-  final Color bg, fg;
-  final EdgeInsetsGeometry padding;
-
-  /// 提交中：转圈 + [loadingText]，宽高不变，忽略点击（防连点）。
-  final bool loading;
-  final String? loadingText;
-  const PrimaryButton(
-    this.text, {
-    super.key,
-    this.onTap,
-    this.bg = C.primary,
-    this.fg = Colors.white,
-    this.padding = const EdgeInsets.symmetric(horizontal: 24),
-    this.loading = false,
-    this.loadingText,
-  });
-  @override
-  Widget build(BuildContext context) => Semantics(
-    button: true,
-    enabled: !loading && onTap != null,
-    label: loading ? (loadingText ?? text) : text,
-    child: GestureDetector(
-      onTap: loading ? null : onTap,
-      child: Container(
-        height: 50,
-        padding: padding,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: onTap == null ? C.faint : bg,
-          borderRadius: BorderRadius.circular(25),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (loading) ...[
-              AppSpinner(size: 18, color: fg),
-              const SizedBox(width: 8),
-            ],
-            Text(
-              loading ? (loadingText ?? text) : text,
-              style: ts(16, w: FontWeight.w600, color: fg, h: 24),
-            ),
-          ],
-        ),
-      ),
     ),
   );
 }

@@ -3425,8 +3425,8 @@
   "buildArtifact": {
     "command": "flutter build apk --release --no-pub",
     "path": "apps/merchant/build/app/outputs/flutter-apk/app-release.apk",
-    "bytes": 90787922,
-    "sha256": "2d80b4fba32ad089c269a753f2dd20c47920138ccc7fb488f634913f382084b4",
+    "bytes": 89837786,
+    "sha256": "f789fb31eab01813406ab30a1d9ec785e61a76040e97f011eeca5d48ee961cb7",
     "package": "com.yoonzm.autocare.merchant",
     "versionName": "1.0.0",
     "versionCode": 1,
@@ -3440,10 +3440,36 @@
     "signer": "C=US, O=Android, CN=Android Debug",
     "signingScheme": "v2",
     "logs": [
-      "apps/merchant/build/final-apk-build.log",
-      "apps/merchant/build/final-apk-signature.log",
-      "apps/merchant/build/final-apk-manifest.log"
+      "apps/merchant/build/button-apk-verified.log",
+      "apps/merchant/build/button-apk-signature.log",
+      "apps/merchant/build/button-apk-manifest.log"
     ],
-    "runtimeValidation": "未连接Android真机；未声称真机或生产业务数据验收。"
+    "runtimeValidation": "未连接Android真机；未声称真机或生产业务数据验收。",
+    "source": "2026-11-13 main 工作区商户按钮标准化源码；未提交、推送或发布。"
+  },
+  "buttonMigration": {
+    "date": "2026-11-13",
+    "status": "complete",
+    "scope": "商户全部普通/图标按钮，包括页头、确认弹窗、数量增减、空态/错误重试和Toast动作；7处短信按钮统一为AppSmsCodeButton。列表、标签、开关、键盘等专用输入交互保留。",
+    "components": "AppButton、AppIconButton、AppSmsCodeButton；ActionButton/RequestButton仅适配既有异步状态，AsyncButtonTheme注入反馈按钮，不新增业务请求。",
+    "behavior": "保留业务字段、导航和调用链；短信复用SmsCodeController及真实请求/错误处理。加载尺寸稳定、防重复、失败保留输入、实例隔离和未接通渠道的TODO阻止规则继续验证。",
+    "tests": {
+      "merchant": 692,
+      "uiKit": 69,
+      "asyncKit": 9,
+      "adminPreviewAndTheme": 10,
+      "result": "全部通过",
+      "logs": [
+        "apps/merchant/build/button-tests-verified.log",
+        "packages/ui_kit/build/button-tests.log",
+        "packages/async_kit/build/button-tests.log",
+        "apps/admin/build/button-preview-verified.log"
+      ]
+    },
+    "visual": "登录、服务编辑和按钮/验证码/反馈状态，浅深色及360/390两种宽度共12张截图，apps/merchant/build/button-visuals/。",
+    "staticAnalysis": "商户端与后台均无问题，日志为各端build/button-analyze-verified.log；git diff --check通过。",
+    "sourceAudit": "apps/merchant/lib内无TextButton/ElevatedButton/OutlinedButton/IconButton/PrimaryButton/LoadingButton调用；保留的GestureDetector用于列表、选择、输入和媒体等专用交互。",
+    "backend": "后端与数据库未修改或部署；未操作生产业务数据。",
+    "artifact": "使用本文件buildArtifact记录的最新Android Release APK；已通过apksigner和aapt2核对，仍为当前工程Android Debug签名。"
   }
 }

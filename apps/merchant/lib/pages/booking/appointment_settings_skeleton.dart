@@ -1,3 +1,5 @@
+import '../../kit/buttons.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../kit/async_kit.dart';
@@ -20,22 +22,10 @@ class AppointmentSettingsSkeleton extends StatelessWidget {
         children: [
           Row(
             children: [
-              GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () => Navigator.of(context).maybePop(),
-                child: hbox(
-                  w: 44,
-                  h: 44,
-                  bg: dk(
-                    context,
-                    const Color(0xFFFFFFFF),
-                    const Color(0xFF18181B),
-                  ),
-                  radius: BorderRadius.circular(22),
-                  child: Center(
-                    child: hsvg(dk(context, Svgs.s0, Svgs.s1), w: 20, h: 20),
-                  ),
-                ),
+              AppIconButton(
+                svg: dk(context, Svgs.s0, Svgs.s1),
+                semanticLabel: "返回",
+                onPressed: () => Navigator.of(context).maybePop(),
               ),
               Expanded(
                 child: Text(

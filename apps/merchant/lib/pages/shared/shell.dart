@@ -1,3 +1,5 @@
+import '../../kit/buttons.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../theme.dart';
@@ -108,46 +110,11 @@ class _BottomBar extends StatelessWidget {
             left: 0,
             right: 0,
             child: Center(
-              child: GestureDetector(
-                onTap: onOrder,
-                child: Semantics(
-                  label: '扫码找会员',
-                  button: true,
-                  child: Container(
-                    width: 56,
-                    height: 56,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Color(0xFF4DB0FF),
-                          Color(0xFF0485F7),
-                          Color(0xFF0568D8),
-                        ],
-                        stops: [0, 0.55, 1],
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Color(0x8C0485F7),
-                          blurRadius: 26,
-                          offset: Offset(0, 10),
-                        ),
-                        BoxShadow(
-                          color: Color(0x590485F7),
-                          blurRadius: 6,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: const AppIcon(
-                      'scanPlate',
-                      color: Colors.white,
-                      size: 26,
-                    ),
-                  ),
-                ),
+              child: AppIconButton(
+                icon: Icons.qr_code_scanner,
+                semanticLabel: '扫码找会员',
+                kind: AppIconButtonKind.primary,
+                onPressed: onOrder,
               ),
             ),
           ),

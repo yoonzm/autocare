@@ -16,9 +16,9 @@ class PreviewSection {
 
 /// 设计稿「组件库」各画板对应的预览分区。
 final List<PreviewSection> previewSections = [
-  PreviewSection('overview', '总览与分层', '5 层 · 26 个组件', Icons.layers_outlined, _overview),
+  PreviewSection('overview', '总览与分层', '5 层 · 27 个组件', Icons.layers_outlined, _overview),
   PreviewSection('tokens', '令牌', '颜色 · 字号 · 圆角 · 阴影', Icons.palette_outlined, _tokens),
-  PreviewSection('buttons', '按钮', 'AppButton · AppIconButton', Icons.smart_button_outlined, _buttons),
+  PreviewSection('buttons', '按钮', 'AppButton · AppIconButton · AppSmsCodeButton', Icons.smart_button_outlined, _buttons),
   PreviewSection('choice', '选择类', '标签 · 分段 · 开关 · 加减', Icons.toggle_on_outlined, _choice),
   PreviewSection('input', '输入类', '行内输入 · 金额 · 搜索', Icons.edit_note_outlined, _input),
   PreviewSection('display', '展示类', '卡片 · 列表行 · 标签 · 头像', Icons.view_agenda_outlined, _display),
@@ -65,6 +65,7 @@ List<Widget> _overview(BuildContext context) {
   );
   const names = [
     ('AppButton', '按钮'), ('AppIconButton', '圆形图标按钮'), ('AppChoiceChip', '选择标签'),
+    ('AppSmsCodeButton', '短信验证码按钮'),
     ('AppSegmented', '分段控件'), ('AppSwitch', '开关'), ('AppStepper', '数量加减'),
     ('AppCheck / AppRadio', '多选 / 单选'), ('AppAddToggle', '加入 / 已选'), ('AppFormRow 等', '输入框'),
     ('AppSelectField', '选择行'), ('AppSearchBar', '搜索框'), ('AppCard', '卡片'),
@@ -93,8 +94,8 @@ List<Widget> _overview(BuildContext context) {
       ],
     ),
     Demo(
-      title: '组件一览（共 26 个）',
-      tag: '26 个',
+      title: '组件一览（共 27 个）',
+      tag: '27 个',
       notes: const [
         '空 / 加载 / 错误等状态组件在「前端加载与反馈规范」里定义，由 async_kit 实现，组件库只引用。',
       ],
@@ -270,6 +271,20 @@ List<Widget> _tokens(BuildContext context) {
 // ───────────────────────── 按钮 ─────────────────────────
 List<Widget> _buttons(BuildContext context) => [
   Demo(
+    title: '短信验证码',
+    tag: 'AppSmsCodeButton',
+    notes: const ['宽 132、视觉高 36、热区高 44；仅展示状态与回调，发送请求和倒计时由应用持有。'],
+    children: [
+      Wrap(spacing: AppSpacing.s10, runSpacing: AppSpacing.s10, children: [
+        AppSmsCodeButton(onPressed: () {}),
+        AppSmsCodeButton(sending: true, onPressed: () {}),
+        AppSmsCodeButton(seconds: 60, sent: true, onPressed: () {}),
+        AppSmsCodeButton(sent: true, onPressed: () {}),
+        const AppSmsCodeButton(),
+      ]),
+    ],
+  ),
+  Demo(
     title: '按钮',
     tag: 'AppButton',
     notes: const [
@@ -292,6 +307,7 @@ List<Widget> _buttons(BuildContext context) => [
       const GroupLabel('状态'),
       Wrap(spacing: AppSpacing.s10, runSpacing: AppSpacing.s10, children: [
         StateLabel('默认', AppButton(label: '确认收款', onPressed: () {})),
+        StateLabel('SVG 图标', AppButton(label: '新增', svg: _buttonSvg, onPressed: () {})),
         const StateLabel('加载中', AppButton(label: '提交中', loading: true, onPressed: _noop)),
         const StateLabel('禁用', AppButton(label: '确认收款')),
       ]),
@@ -309,6 +325,8 @@ List<Widget> _buttons(BuildContext context) => [
     notes: const [
       '页面头部的返回、关闭、右上角入口用它：白底 + 卡片阴影，44 × 44；「添加」这类入口用 kind: primary（主色实心）。',
       '带文字的入口（如「挂单 4」）是胶囊形，高度同样 44。右上角入口不放保存、提交这类主要操作，主要操作放在底栏。',
+      'loading 时隐藏图标、文字和数量，原位显示 20px 转圈并禁用点击，圆形与胶囊宽高保持不变；主色按钮用白色转圈，其余使用主色。',
+      'icon 接收 IconData；svg 接收现有单色 SVG 源码，darkSvg 可选；二者互斥，图标颜色跟随按钮状态。',
     ],
     code: "AppIconButton(icon: Icons.chevron_left_rounded, semanticLabel: '返回', onPressed: pop)\nAppIconButton.pill(label: '挂单', badge: 4, onPressed: openHold)",
     children: [
@@ -317,10 +335,18 @@ List<Widget> _buttons(BuildContext context) => [
         AppIconButton.pill(label: '挂单', badge: 4, onPressed: () {}),
         AppIconButton(icon: Icons.search_rounded, semanticLabel: '搜索', size: AppIconButtonSize.small, onPressed: () {}),
         AppIconButton(icon: Icons.add_rounded, semanticLabel: '添加', kind: AppIconButtonKind.primary, onPressed: () {}),
+        AppIconButton(svg: _buttonSvg, semanticLabel: 'SVG 添加', onPressed: () {}),
+        const AppIconButton(svg: _buttonSvg, semanticLabel: 'SVG 禁用'),
+        const AppIconButton(icon: Icons.add_rounded, semanticLabel: '加载中', loading: true, onPressed: _noop),
+        const AppIconButton(icon: Icons.add_rounded, semanticLabel: '主色加载中', kind: AppIconButtonKind.primary, loading: true, onPressed: _noop),
+        const AppIconButton(icon: Icons.search_rounded, semanticLabel: '小号加载中', size: AppIconButtonSize.small, loading: true, onPressed: _noop),
+        const AppIconButton.pill(label: '挂单', badge: 4, svg: _buttonSvg, loading: true, onPressed: _noop),
       ]),
     ],
   ),
 ];
+
+const _buttonSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
 
 void _noop() {}
 

@@ -1,3 +1,5 @@
+import '../../kit/buttons.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -15,7 +17,7 @@ import '../../routes.dart';
 import '../../theme.dart';
 import '../../widgets/app_icon.dart';
 import '../../widgets/choice_chip_group.dart';
-import '../../widgets/common.dart' show PrimaryButton, Segmented;
+import '../../widgets/common.dart' show Segmented;
 import '../../resources/merchant_svgs.dart';
 
 // ───────────────────────── 通用小件（样式取自设计稿 OrderList / OrderDetail）─────────────────────────
@@ -393,23 +395,10 @@ class _SearchRow extends StatelessWidget {
         ),
       ),
       const SizedBox(width: 8),
-      Semantics(
-        button: true,
-        label: '筛选',
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: onFilter,
-          child: hbox(
-            w: 44,
-            h: 44,
-            bg: C.card,
-            radius: BorderRadius.circular(22),
-            shadow: softShadow,
-            child: Center(
-              child: hsvg(dk(context, Svgs.s12, Svgs.s13), w: 20, h: 20),
-            ),
-          ),
-        ),
+      AppIconButton(
+        svg: dk(context, Svgs.s12, Svgs.s13),
+        semanticLabel: '筛选',
+        onPressed: onFilter,
       ),
     ],
   );
@@ -676,10 +665,13 @@ class _EmptyDay extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 20),
-        PrimaryButton(
-          '去开单',
-          onTap: () => openRoute(context, 'Order'),
-          padding: const EdgeInsets.symmetric(horizontal: 28),
+        AppButton(
+          expanded: true,
+          label: '去开单',
+          onPressed: () => openRoute(context, 'Order'),
+          kind: AppButtonKind.primary,
+          size: AppButtonSize.large,
+          loading: false,
         ),
       ],
     ),
@@ -1071,11 +1063,12 @@ class _DetailBody extends StatelessWidget {
               child: Row(
                 children: [
                   Expanded(
-                    child: _BarButton(
-                      '退款',
-                      bg: C.redSoft,
-                      fg: C.redInk,
-                      onTap: onRefund,
+                    child: AppButton(
+                      expanded: true,
+                      label: '退款',
+                      kind: AppButtonKind.danger,
+                      size: AppButtonSize.large,
+                      onPressed: onRefund,
                     ),
                   ),
                 ],
@@ -1094,38 +1087,6 @@ class _DetailBody extends StatelessWidget {
     final sameDay = d.year == t.year && d.month == t.month && d.day == t.day;
     return '${sameDay ? '今天' : '${d.year}.${OrderListController.md(d)}'} ${OrderListController.hm(iso)}';
   }
-}
-
-class _BarButton extends StatelessWidget {
-  final String label;
-  final Color bg, fg;
-  final VoidCallback onTap;
-  const _BarButton(
-    this.label, {
-    required this.bg,
-    required this.fg,
-    required this.onTap,
-  });
-  @override
-  Widget build(BuildContext context) => Semantics(
-    button: true,
-    label: label,
-    child: GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 50,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.circular(25),
-        ),
-        child: Text(
-          label,
-          style: ts(15, w: FontWeight.w500, color: fg, h: 22),
-        ),
-      ),
-    ),
-  );
 }
 
 // ───────────────────────── 底部弹层：筛选订单 / 订单退款 ─────────────────────────
@@ -1210,11 +1171,12 @@ class _FilterState extends State<OrderFilterLiveSheet> {
           child: Row(
             children: [
               Expanded(
-                child: _BarButton(
-                  '重置',
-                  bg: C.chip,
-                  fg: C.ink,
-                  onTap: () => setState(() {
+                child: AppButton(
+                  expanded: true,
+                  label: '重置',
+                  kind: AppButtonKind.secondary,
+                  size: AppButtonSize.large,
+                  onPressed: () => setState(() {
                     type = 0;
                     method = 0;
                     status = 0;
@@ -1225,11 +1187,12 @@ class _FilterState extends State<OrderFilterLiveSheet> {
               const SizedBox(width: 10),
               Expanded(
                 flex: 2,
-                child: _BarButton(
-                  '查看订单',
-                  bg: C.primary,
-                  fg: Colors.white,
-                  onTap: () {
+                child: AppButton(
+                  expanded: true,
+                  label: '查看订单',
+                  kind: AppButtonKind.primary,
+                  size: AppButtonSize.large,
+                  onPressed: () {
                     Navigator.of(context).pop(
                       OrderFilters(
                         type: type,
@@ -1382,11 +1345,12 @@ class _RefundState extends State<OrderRefundLiveSheet> {
                   children: [
                     Expanded(
                       flex: 10,
-                      child: _BarButton(
-                        '再想想',
-                        bg: C.chip,
-                        fg: C.ink,
-                        onTap: busy
+                      child: AppButton(
+                        expanded: true,
+                        label: '再想想',
+                        kind: AppButtonKind.secondary,
+                        size: AppButtonSize.large,
+                        onPressed: busy
                             ? () {}
                             : () => Navigator.of(context).maybePop(),
                       ),
@@ -1394,13 +1358,13 @@ class _RefundState extends State<OrderRefundLiveSheet> {
                     const SizedBox(width: 10),
                     Expanded(
                       flex: 14,
-                      child: PrimaryButton(
-                        '确认退款 $total',
-                        bg: C.redSoft,
-                        fg: C.redInk,
+                      child: AppButton(
+                        expanded: true,
+                        label: '确认退款 $total',
+                        onPressed: _submit,
+                        kind: AppButtonKind.danger,
+                        size: AppButtonSize.large,
                         loading: busy,
-                        loadingText: '提交中…',
-                        onTap: _submit,
                       ),
                     ),
                   ],
