@@ -100,7 +100,7 @@ class _MemberAddPageTemplate extends StatelessWidget {
                           child: hcol(
                             [
                               Text(
-                                '扫描行驶证 / 车牌快速建档',
+                                '扫描车牌快速建档',
                                 style: hts(
                                   15,
                                   Color(0xFFFAFAFA),

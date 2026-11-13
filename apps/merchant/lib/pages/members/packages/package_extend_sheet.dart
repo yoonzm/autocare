@@ -538,7 +538,7 @@ class _PackageExtendSheetTemplate extends StatelessWidget {
                       kind: AppButtonKind.primary,
                       size: AppButtonSize.large,
                       expanded: true,
-                      onPressed: () => c.submit(context, refund: false),
+                      onPressed: () => c.submit(context),
                     ),
                   ),
                 ),

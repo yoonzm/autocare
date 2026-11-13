@@ -288,7 +288,7 @@ class _MembersPageState extends State<MembersPage> {
                   ),
                   AppIconButton(
                     svg: AppIcon.svg('scan'),
-                    semanticLabel: '扫车牌或会员码找会员',
+                    semanticLabel: '扫车牌找会员',
                     onPressed: () => openRoute(context, 'FindScanPlate'),
                   ),
                 ],

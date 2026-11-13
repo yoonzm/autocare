@@ -70,19 +70,7 @@ export async function handleMemberPackages(input: Input, storeId: string): Promi
     return json({ item: data });
   }
   if (input.action === 'refund') {
-    if (!uuid(input.id)) return fail('记录 ID 无效');
-    const v = parseRefund(input);
-    if (typeof v === 'string') return fail(v);
-    const { data, error } = await admin.rpc('refund_package', {
-      p_store: storeId, p_mp: input.id, p_to: v.to, p_reason: v.reason, p_operator: await operatorOf(storeId),
-    });
-    if (error) {
-      if (error.code === 'P0001') {
-        return fail(error.message.includes('already') ? '这张次卡已经退款' : '没有可退金额', 400);
-      }
-      return rpcFail(error.message, error.code);
-    }
-    return json({ item: data });
+    return fail(parseRefund(input), 403);
   }
   return fail('不支持的操作');
 }

@@ -697,22 +697,6 @@ class MerchantApi {
     return Map<String, dynamic>.from(data['item'] as Map);
   }
 
-  Future<Map<String, dynamic>> refundPackage({
-    required String id,
-    String? requestId,
-    required String to,
-    required String reason,
-  }) async {
-    final data = await invoke({
-      'action': 'refund',
-      'kind': 'member_packages',
-      'id': id,
-      'to': to,
-      'reason': reason,
-    }, requestId: requestId);
-    return Map<String, dynamic>.from(data['item'] as Map);
-  }
-
   /// 充值档位和赠送金额：`[{amount, gift}]`。
   Future<List<Map<String, dynamic>>> rechargeOptions() async {
     final data = await invoke({

@@ -179,8 +179,6 @@ void main() {
     'Login': () => const LoginPage(),
     'LoginPwd': () => const LoginPage(initialTab: 1),
     'FindScanPlate': () => const ScanPage(ScanKind.findPlate),
-    'FindScanCode': () => const ScanPage(ScanKind.findCode),
-    'ScanLicense': () => const ScanPage(ScanKind.licenseCard),
     'ScanPlate': () => const ScanPage(ScanKind.plateCard),
     'MemberDetail': () => MemberDetailPage(member: previewMember),
   };

@@ -326,7 +326,6 @@ class MemberFakeApi extends MerchantApi {
 
   final memberPkgs = <Map<String, dynamic>>[];
   final extended = <Map<String, dynamic>>[];
-  final refunded = <Map<String, dynamic>>[];
   @override
   Future<List<Map<String, dynamic>>> memberPackages(String memberId) async => [
     ...memberPkgs,
@@ -349,19 +348,6 @@ class MemberFakeApi extends MerchantApi {
         .add(Duration(days: days))
         .toIso8601String();
     return {'expires_at': p['expires_at']};
-  }
-
-  @override
-  Future<Map<String, dynamic>> refundPackage({
-    required String id,
-    String? requestId,
-    required String to,
-    required String reason,
-  }) async {
-    refunded.add({'id': id, 'to': to, 'reason': reason});
-    final p = memberPkgs.firstWhere((e) => e['id'] == id);
-    p['refunded_at'] = DateTime.now().toIso8601String();
-    return {'refund': 432, 'balance': 4112};
   }
 
   final sales = <Map<String, dynamic>>[];
@@ -1645,7 +1631,7 @@ void main() {
     });
   });
 
-  group('次卡详情 / 延期 / 退款', () {
+  group('次卡详情 / 延期', () {
     Map<String, dynamic> myPkg() => {
       'id': 'mp1',
       'name': '精致洗车年卡',
@@ -1748,37 +1734,16 @@ void main() {
       });
     });
 
-    testWidgets('退款：按“实付 − 已用次数 × 单次均价”预览可退金额，提交后回到会员详情', (t) async {
+    testWidgets('次卡详情移除退款，保留延期与开单抵扣', (t) async {
       phone(t);
       await openDetail(t);
       await t.tap(find.text('精致洗车年卡'));
       await t.pumpAndSettle();
-      await t.ensureVisible(find.text('退款'));
-      await t.tap(find.text('退款'));
-      await t.pumpAndSettle();
-      expect(find.text('次卡退款'), findsOneWidget);
-      expect(find.text('已用 12 次 × 单次 ¥54'), findsOneWidget);
-      expect(find.text('−¥648.00'), findsOneWidget);
-      expect(find.text('¥432.00'), findsOneWidget);
-      expect(find.text('确认退款 ¥432'), findsOneWidget);
-      await t.tap(find.text('确认退款 ¥432'));
-      await t.pumpAndSettle();
-      expect(find.text('请选择退款原因'), findsOneWidget); // 原因要自己选
-      for (var i = 0; i < 6; i++) {
-        await t.pump(const Duration(seconds: 1));
-      }
-      await t.tap(find.text('退到储值余额'));
-      await t.pump();
-      await t.tap(find.text('搬家 / 换车'));
-      await t.pump();
-      await t.tap(find.text('确认退款 ¥432'));
-      await t.pumpAndSettle();
-      expect(fake.refunded.single, {
-        'id': 'mp1',
-        'to': '储值余额',
-        'reason': '搬家 / 换车',
-      });
+      expect(find.text('退款'), findsNothing);
+      expect(find.text('延期'), findsOneWidget);
+      expect(find.text('开单抵扣'), findsOneWidget);
     });
+
   });
 
   group('开单收银', () {

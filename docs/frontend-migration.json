@@ -367,12 +367,6 @@
       "legacyDependencies": []
     },
     {
-      "path": "pages/members/packages/package_refund_sheet.dart",
-      "domain": "members",
-      "status": "verified",
-      "legacyDependencies": []
-    },
-    {
       "path": "pages/members/packages/package_sold_page.dart",
       "domain": "members",
       "status": "verified",
@@ -1255,7 +1249,10 @@
       "legacyDependencies": []
     }
   ],
+  "plateOnlyScanning": "2026-11-13 用户要求只支持扫车牌：删除行驶证、会员码扫描模式、切换控件和专用路由；会员及车辆建档直接进入车牌扫描，保留相机、相册与结果回填。",
+  "retiredPackageRefund": "2026-11-13 用户要求取消次卡退款：移除详情按钮、弹层、路由及专用客户端逻辑；延期与开单抵扣保留，旧客户端退款请求由后端拒绝，历史退款记录保留。",
   "sharedCleanup": {
+    "pages/members/packages/package_refund_sheet.dart": "removed",
     "kit/kit.dart": "verified",
     "kit/pickers.dart": "verified",
     "routes.dart": "verified",
@@ -1953,12 +1950,6 @@
       "visual": "保留原布局；共享套餐行浅深色、选中与未选中四组固定输入截图与迁移前逐字节一致；不为纯路径或事件修改重复逐页截图"
     },
     "pages/members/packages/package_extend_sheet.dart": {
-      "batch": "memberWalletBatch",
-      "behavior": "显式会员/次卡参数、页面实例状态和服务端回执；无通用组件业务推断或全局当前编辑对象",
-      "tests": "223 项相关检查通过；追加复用/晚到响应与迁移守卫后 19 项通过（11 项钱包状态、8 项守卫，包含重叠，不与前批相加）",
-      "visual": "保留原布局；共享套餐行浅深色、选中与未选中四组固定输入截图与迁移前逐字节一致；不为纯路径或事件修改重复逐页截图"
-    },
-    "pages/members/packages/package_refund_sheet.dart": {
       "batch": "memberWalletBatch",
       "behavior": "显式会员/次卡参数、页面实例状态和服务端回执；无通用组件业务推断或全局当前编辑对象",
       "tests": "223 项相关检查通过；追加复用/晚到响应与迁移守卫后 19 项通过（11 项钱包状态、8 项守卫，包含重叠，不与前批相加）",

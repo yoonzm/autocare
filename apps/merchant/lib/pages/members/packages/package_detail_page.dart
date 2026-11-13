@@ -373,17 +373,7 @@ class _PackageDetailPageTemplate extends StatelessWidget {
                     kind: AppButtonKind.secondary,
                     size: AppButtonSize.large,
                     expanded: true,
-                    onPressed: () => c.openOperation(context, refund: false),
-                  ),
-                ),
-                Expanded(
-                  flex: 10,
-                  child: AppButton(
-                    label: '退款',
-                    kind: AppButtonKind.danger,
-                    size: AppButtonSize.large,
-                    expanded: true,
-                    onPressed: () => c.openOperation(context, refund: true),
+                    onPressed: () => c.openExtend(context),
                   ),
                 ),
                 Expanded(

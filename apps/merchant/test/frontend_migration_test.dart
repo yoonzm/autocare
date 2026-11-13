@@ -6,6 +6,23 @@ import 'package:autocare_merchant/routes.dart';
 import 'package:autocare_merchant/navigation/page_registry.dart';
 
 void main() {
+  test('扫描只保留车牌路由', () {
+    expect(pageFor('ScanPlate'), isNotNull);
+    expect(pageFor('FindScanPlate'), isNotNull);
+    expect(pageFor('ScanLicense'), isNull);
+    expect(pageFor('FindScanCode'), isNull);
+    expect(pageFor('StVerifyCode'), isNull);
+  });
+
+  test('次卡退款弹层及路由已移除', () {
+    expect(sheetBuilders.containsKey('PackageRefund'), isFalse);
+    expect(sheetParents.containsKey('PackageRefund'), isFalse);
+    expect(
+      File('lib/pages/members/packages/package_refund_sheet.dart').existsSync(),
+      isFalse,
+    );
+  });
+
   final inventory = jsonDecode(
     File('../../docs/frontend-migration.json').readAsStringSync(),
   ) as Map<String, dynamic>;

@@ -105,7 +105,7 @@ class _VehicleAddPageTemplate extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            '扫描行驶证或车牌，自动填写',
+                            '扫描车牌，自动填写',
                             style: hts(
                               14,
                               dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
