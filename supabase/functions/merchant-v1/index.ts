@@ -1,3 +1,4 @@
+import { handleMedia } from './media.ts';
 import { handleStores } from './stores.ts';
 import { handleRegions } from './regions.ts';
 import { handleSupport } from './support.ts';
@@ -40,6 +41,7 @@ Deno.serve(async (request: Request): Promise<Response> => {
     const refused = await gateStaff(request, input);
     if (refused) return refused;
   }
+  if (/^(store_media_|staff_task_photo_)/.test(String(input.action))) return handleMedia(input, request);
   if (input.action === 'staff_home') return handleIdentity(input, request);
   // 一期限时免费：不向客户端开放订阅/续费/模拟支付；权益由注册时的内部限时免费套餐提供。
   if (String(input.action).startsWith('subscription_')) return fail('限时免费期间暂不开放订阅', 403);

@@ -1,12 +1,8 @@
+import 'voucher_gallery.dart';
 import '../../kit/buttons.dart';
 
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 
-import '../../kit/async_kit.dart';
-import '../../backend/merchant_api.dart';
 import 'expense_controller.dart';
 
 /// Only renders the supplied value and forwards input; no screen/field/index lookup.
@@ -109,63 +105,18 @@ Future<String?> expenseInput(
 
 class ExpenseAttachment extends StatelessWidget {
   final ExpenseController c;
-  final Widget child;
-  const ExpenseAttachment({super.key, required this.c, required this.child});
+  const ExpenseAttachment({super.key, required this.c});
   @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      c.vouchers(context),
-      GestureDetector(
-        onTap: () => runBusy(c.uploadKey, () async {
-          c.setBusy(true);
-          try {
-            if ((c.draft['attachments'] as List).length >= 5) {
-              throw const AppError('最多上传五张凭证');
-            }
-            final source = await showModalBottomSheet<ImageSource>(
-              context: context,
-              builder: (ctx) => SafeArea(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ListTile(
-                      title: const Text('拍照'),
-                      onTap: () => Navigator.pop(ctx, ImageSource.camera),
-                    ),
-                    ListTile(
-                      title: const Text('从相册选择'),
-                      onTap: () => Navigator.pop(ctx, ImageSource.gallery),
-                    ),
-                  ],
-                ),
-              ),
-            );
-            if (source == null || !context.mounted || c.disposed) return;
-            final f = await ImagePicker().pickImage(
-              source: source,
-              maxWidth: 1600,
-              imageQuality: 85,
-            );
-            if (f == null || !context.mounted || c.disposed) return;
-            final r = await merchantApi.invoke({
-              'action': 'expense_upload',
-              'data': base64Encode(await f.readAsBytes()),
-            }, timeout: const Duration(seconds: 60));
-            if (c.disposed) return;
-            final a = List<String>.from(c.draft['attachments']);
-            if (a.length >= 5) throw const AppError('最多上传五张凭证');
-            a.add(r['item']['path']);
-            c.draft['attachments'] = a;
-            c.changed();
-          } catch (e) {
-            if (context.mounted) AppToast.error(context, e);
-          } finally {
-            c.setBusy(false);
-          }
-        }),
-        child: hBusy(c.uploadKey, child, icon: true),
-      ),
-    ],
+  Widget build(BuildContext context) => VoucherGallery(
+    helper: '发票、收据、转账截图',
+    paths: List<String>.from(c.draft['attachments'] ?? []),
+    request: c.request,
+    enabled: !c.busy,
+    onBusyChanged: c.setBusy,
+    onChanged: (paths) {
+      if (c.disposed) return;
+      c.draft['attachments'] = paths;
+      c.changed();
+    },
   );
 }

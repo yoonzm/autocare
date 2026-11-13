@@ -1247,6 +1247,12 @@
       "domain": "catalog",
       "status": "verified",
       "legacyDependencies": []
+    },
+    {
+      "path": "pages/expenses/voucher_gallery.dart",
+      "domain": "expenses",
+      "status": "verified",
+      "legacyDependencies": []
     }
   ],
   "plateOnlyScanning": "2026-11-13 用户要求只支持扫车牌：删除行驶证、会员码扫描模式、切换控件和专用路由；会员及车辆建档直接进入车牌扫描，保留相机、相册与结果回填。",
@@ -3416,8 +3422,8 @@
   "buildArtifact": {
     "command": "flutter build apk --release --no-pub",
     "path": "apps/merchant/build/app/outputs/flutter-apk/app-release.apk",
-    "bytes": 88592662,
-    "sha256": "f3cefe22459fd0de5d7e4c47f7cba7f8585cc64753351316df682ed66501d235",
+    "bytes": 88740222,
+    "sha256": "a56437f56c6be3d9befb7e7c945c96bca708a33ae426a711ea7604a67b0cb145",
     "package": "com.yoonzm.autocare.merchant",
     "versionName": "1.0.0",
     "versionCode": 1,
@@ -3431,12 +3437,13 @@
     "signer": "C=US, O=Android, CN=Android Debug",
     "signingScheme": "v2",
     "logs": [
-      "apps/merchant/build/segment-audit/apk-final.log",
-      "apps/merchant/build/segment-audit/apk-signature.log",
-      "apps/merchant/build/segment-audit/apk-manifest.log"
+      "apps/merchant/build/image-apk.log",
+      "apps/merchant/build/image-apk-signature.log",
+      "apps/merchant/build/image-apk-manifest.log"
     ],
-    "runtimeValidation": "未连接Android真机；未声称真机或生产业务数据验收。",
-    "source": "2026-11-13 main 工作区分段选择迁移最终源码，构建前后源码指纹一致；未提交、推送或发布。"
+    "runtimeValidation": "未做 Android 真机相机/相册与真实商户数据上传删除验收。",
+    "source": "2026-11-13 main 图片上传迁移完成源码；构建前后源码指纹一致；Git 未提交或推送，后端已单独部署生产。",
+    "sourceSha256": "954f0f6d9c9e71e1586116612f0c9e7f45531484c9f57e8f7c23f51f93b93f1e"
   },
   "buttonMigration": {
     "date": "2026-11-13",
@@ -3528,5 +3535,18 @@
     "limits": "未做Android真机、iOS或生产数据验收；未提交、推送、部署。",
     "status": "complete",
     "artifact": "Android Release APK构建成功，通过apksigner与aapt2核对；源码指纹一致，使用当前工程Android Debug签名，见buildArtifact。"
+  },
+  "imageUploadMigration": {
+    "documentation": "docs/image-upload-migration.md",
+    "status": "verified",
+    "merchantTests": 711,
+    "uiKitTests": 82,
+    "adminRelatedTests": 10,
+    "backendTests": 96,
+    "deploymentTests": 10,
+    "productionSourceSha256": "1014cc9e44a9eee5b5db5ee83b8fee7468379db5df0a4a39b45e38905c1ae597",
+    "productionDeployedAt": "2026-11-13T08:47:57Z",
+    "visuals": "apps/merchant/build/image-visuals",
+    "artifact": "见 buildArtifact；当前工程 Android Debug 签名的 Release 验证包。"
   }
 }

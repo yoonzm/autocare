@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../states/states.dart' show AppSpinner;
+
 import '../atoms/app_tap_target.dart';
 import '../tokens/app_tokens.dart';
 
@@ -22,21 +24,21 @@ abstract final class AppImageRules {
   static const List<String> formats = ['jpg', 'png'];
 }
 
-/// 上传中、已传、失败三种状态；未选图用 `null` 表示。
-enum AppUploadState { uploading, uploaded, failed }
+/// 待提交、上传中、已传、失败；未选图用 `null` 表示。
+enum AppUploadState { pending, uploading, uploaded, failed }
 
 /// 一张图片的展示数据：状态、进度、缩略图。组件不持有业务数据，只显示传入的值。
 class AppUploadItem {
   final String id;
   final AppUploadState state;
 
-  /// 0~1，仅上传中有意义。
-  final double progress;
+  /// 0~1，仅上传中有意义；未知进度传 null，显示旋转加载指示。
+  final double? progress;
   final ImageProvider? image;
   const AppUploadItem({
     required this.id,
     required this.state,
-    this.progress = 0,
+    this.progress,
     this.image,
   });
 }
@@ -45,6 +47,9 @@ class AppUploadItem {
 /// 四种状态（未传、上传中、已传、失败）两种形态保持一致。
 class AppImageUploader extends StatelessWidget {
   final String? title;
+  final String? helper;
+  final bool enabled;
+  final bool readOnly;
   final String? label;
   final int max;
   final List<AppUploadItem> items;
@@ -64,6 +69,9 @@ class AppImageUploader extends StatelessWidget {
     super.key,
     required String this.title,
     required this.items,
+    this.helper,
+    this.readOnly = false,
+    this.enabled = true,
     this.max = AppImageRules.defaultMax,
     this.onPick,
     this.onRemove,
@@ -79,11 +87,14 @@ class AppImageUploader extends StatelessWidget {
   const AppImageUploader.slot({
     super.key,
     required String this.label,
+    this.enabled = true,
     this.item,
     this.onPick,
     this.onRetry,
     this.onCancel,
-  }) : title = null,
+  }) : readOnly = false,
+       helper = null,
+       title = null,
        items = const [],
        max = 1,
        onRemove = null,
@@ -98,7 +109,7 @@ class AppImageUploader extends StatelessWidget {
 
   Widget _buildGrid(BuildContext context) {
     final t = AppTokens.of(context);
-    final canAdd = items.length < max;
+    final canAdd = !readOnly && items.length < max;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -112,6 +123,8 @@ class AppImageUploader extends StatelessWidget {
             ),
           ],
         ),
+        if (helper != null)
+          Text(helper!, style: t.caption.copyWith(color: t.inkMute)),
         const SizedBox(height: AppSpacing.s10),
         Wrap(
           spacing: AppSpacing.s10,
@@ -121,12 +134,13 @@ class AppImageUploader extends StatelessWidget {
               _GridTile(
                 item: items[i],
                 index: i,
-                onRemove: onRemove,
-                onRetry: onRetry,
-                onCancel: onCancel,
+                onRemove: enabled && !readOnly ? onRemove : null,
+                onRetry: enabled && !readOnly ? onRetry : null,
+                onCancel: enabled && !readOnly ? onCancel : null,
                 onPreview: onPreview,
               ),
-            if (canAdd) _AddTile(label: '添加$title', onPick: onPick),
+            if (canAdd)
+              _AddTile(label: '添加$title', onPick: enabled ? onPick : null),
           ],
         ),
         if (permissionDenied)
@@ -166,10 +180,11 @@ class AppImageUploader extends StatelessWidget {
     } else {
       // 已上传的格子再点一下，就是重新选择并替换，不先弹删除确认。
       tap = onPick;
-      semantic = '$label 已上传，重新选择';
+      semantic =
+          '$label ${it.state == AppUploadState.pending ? '待上传' : '已上传'}，重新选择';
     }
     return AppTapTarget(
-      onTap: tap,
+      onTap: enabled ? tap : null,
       semanticLabel: semantic,
       minWidth: 0,
       minHeight: 0,
@@ -187,24 +202,32 @@ class AppImageUploader extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  if (it?.image != null)
-                    Image(image: it!.image!, fit: BoxFit.cover),
+                  if (it?.image != null) _UploadImage(image: it!.image!),
                   Center(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         if (it == null)
-                          Icon(Icons.photo_camera_outlined, size: 24, color: t.inkMute)
+                          Icon(
+                            Icons.photo_camera_outlined,
+                            size: 24,
+                            color: t.inkMute,
+                          )
+                        else if (uploading && it!.progress == null)
+                          AppSpinner(size: 20, color: t.heroInk)
                         else if (uploading)
                           Text(
-                            '${(it.progress * 100).round()}%',
+                            '${(it!.progress! * 100).round()}%',
                             style: t.body.copyWith(
                               fontFeatures: AppTokens.tabular,
                               color: t.primaryText,
                             ),
                           )
                         else if (failed)
-                          Text('重试', style: t.base.copyWith(color: t.danger.fg)),
+                          Text(
+                            '重试',
+                            style: t.base.copyWith(color: t.danger.fg),
+                          ),
                         const SizedBox(height: AppSpacing.s4),
                         Text(
                           label!,
@@ -226,15 +249,19 @@ class AppImageUploader extends StatelessWidget {
                           color: t.success,
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(Icons.check_rounded, size: 14, color: t.onPrimary),
+                        child: Icon(
+                          Icons.check_rounded,
+                          size: 14,
+                          color: t.onPrimary,
+                        ),
                       ),
                     ),
-                  if (uploading)
+                  if (uploading && it!.progress != null)
                     Positioned(
                       left: 0,
                       right: 0,
                       bottom: 0,
-                      child: _ProgressBar(it!.progress),
+                      child: _ProgressBar(it!.progress!),
                     ),
                 ],
               ),
@@ -330,7 +357,6 @@ class _GridTile extends StatelessWidget {
     final t = AppTokens.of(context);
     final uploading = item.state == AppUploadState.uploading;
     final failed = item.state == AppUploadState.failed;
-    final uploaded = item.state == AppUploadState.uploaded;
     VoidCallback? tap;
     String semantic;
     if (uploading) {
@@ -362,25 +388,27 @@ class _GridTile extends StatelessWidget {
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      if (item.image != null)
-                        Image(image: item.image!, fit: BoxFit.cover),
+                      if (item.image != null) _UploadImage(image: item.image!),
                       if (uploading) ...[
                         ColoredBox(color: t.overlay),
                         Center(
-                          child: Text(
-                            '${(item.progress * 100).round()}%',
-                            style: t.small.copyWith(
-                              color: t.heroInk,
-                              fontFeatures: AppTokens.tabular,
-                            ),
+                          child: item.progress == null
+                              ? AppSpinner(size: 20, color: t.heroInk)
+                              : Text(
+                                  '${(item.progress! * 100).round()}%',
+                                  style: t.small.copyWith(
+                                    color: t.heroInk,
+                                    fontFeatures: AppTokens.tabular,
+                                  ),
+                                ),
+                        ),
+                        if (item.progress != null)
+                          Positioned(
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            child: _ProgressBar(item.progress!),
                           ),
-                        ),
-                        Positioned(
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          child: _ProgressBar(item.progress),
-                        ),
                       ],
                       if (failed)
                         Center(
@@ -395,7 +423,7 @@ class _GridTile extends StatelessWidget {
               ),
             ),
           ),
-          if (uploaded && onRemove != null)
+          if (!uploading && onRemove != null)
             Positioned(
               right: -10,
               top: -10,
@@ -449,4 +477,22 @@ class _DashedBorderPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _DashedBorderPainter old) =>
       old.color != color || old.radius != radius;
+}
+
+/// 读取失败不冒充空槽；仍保留外围预览/重试操作。
+class _UploadImage extends StatelessWidget {
+  final ImageProvider image;
+  const _UploadImage({required this.image});
+  @override
+  Widget build(BuildContext context) => Image(
+    image: image,
+    fit: BoxFit.cover,
+    errorBuilder: (_, _, _) => Center(
+      child: Icon(
+        Icons.broken_image_outlined,
+        color: AppTokens.of(context).inkMute,
+        semanticLabel: '图片加载失败',
+      ),
+    ),
+  );
 }

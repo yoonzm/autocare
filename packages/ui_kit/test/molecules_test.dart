@@ -296,6 +296,42 @@ void main() {
       expect(retries, 1);
     });
 
+    testWidgets('未知进度不显示百分比，只读禁用写操作', (t) async {
+      var removed = 0;
+      await pump(
+        t,
+        SizedBox(
+          width: 350,
+          child: AppImageUploader.grid(
+            title: '照片',
+            items: const [
+              AppUploadItem(id: 'a', state: AppUploadState.uploading),
+            ],
+          ),
+        ),
+      );
+      expect(find.text('0%'), findsNothing);
+      expect(find.byType(AppSpinner), findsOneWidget);
+      await pump(
+        t,
+        SizedBox(
+          width: 350,
+          child: AppImageUploader.grid(
+            title: '照片',
+            readOnly: true,
+            onRemove: (_) => removed++,
+            onPick: () {},
+            items: const [
+              AppUploadItem(id: 'a', state: AppUploadState.pending),
+            ],
+          ),
+        ),
+      );
+      expect(find.bySemanticsLabel('添加照片'), findsNothing);
+      expect(find.bySemanticsLabel('第 1 张，删除'), findsNothing);
+      expect(removed, 0);
+    });
+
     test('通用规则常量', () {
       expect(AppImageRules.maxEdge, 2048);
       expect(AppImageRules.maxBytes, 5 * 1024 * 1024);

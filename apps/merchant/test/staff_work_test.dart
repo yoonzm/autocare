@@ -70,6 +70,20 @@ class WorkApi extends BookingApi {
   };
 
   @override
+  Future<Map<String, dynamic>> invoke(
+    Map<String, dynamic> body, {
+    Duration timeout = const Duration(seconds: 15),
+    String? requestId,
+  }) async {
+    if (body['action'] == 'store_media_list' ||
+        body['action'] == 'staff_task_photo_list') {
+      calls.add(body);
+      return {'items': []};
+    }
+    return super.invoke(body, timeout: timeout, requestId: requestId);
+  }
+
+  @override
   Future<Map<String, dynamic>> staffWork(
     String action, [
     Map<String, dynamic> values = const {},
@@ -82,6 +96,8 @@ class WorkApi extends BookingApi {
     switch (action) {
       case 'staff_task_list':
         return {'items': tasks.values.toList()};
+      case 'staff_task_photo_list':
+        return {'items': []};
       case 'staff_task_detail':
         return {...tasks[values['id']]!};
       case 'staff_task_progress':
@@ -235,7 +251,8 @@ void main() {
     expect(text('37%'), findsOneWidget);
     expect(text('更新进度'), findsOneWidget);
     expect(text('提交完工'), findsOneWidget);
-    expect(text('施工照片 · 0 张'), findsOneWidget);
+    expect(text('施工照片'), findsOneWidget);
+    expect(calls('staff_task_photo_list').single['target_id'], 'a1');
     expect(find.textContaining('宝马'), findsNothing, reason: '车型没有数据来源，不显示示例车型');
   });
 

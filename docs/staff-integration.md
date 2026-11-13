@@ -37,3 +37,6 @@
 1. 先执行 `202611090001_staff.sql`（迁移会把既有预约技师回填为员工），再部署 `merchant-v1`，最后发布客户端；缺一时前端显示错误和重试，不回退示例数据。
 2. 配置 `STAFF_INVITE_BASE_URL` 后才能复制邀请链接。
 3. SQL：`supabase/tests/staff.sql`（权限、事务、转交、提成快照、RLS）；规则：`staff_rules.test.ts`；前端：`test/staff_live_test.dart`、`test/staff_ui_test.dart`。
+
+
+2026-11-13 范围更新：用户已批准并实现商户 App 本人任务的施工照片上传、读取、预览与移除；历史章节的施工照片 TODO 由本次接入替代。会员小程序施工照片展示仍不在本次范围。接口、权限、上限与迁移说明见 [图片上传迁移](image-upload-migration.md)。

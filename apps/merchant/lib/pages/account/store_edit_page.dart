@@ -1,3 +1,5 @@
+import '../../kit/upload_gallery.dart';
+import '../../backend/media_api.dart';
 import '../../kit/buttons.dart';
 
 import 'package:flutter/material.dart';
@@ -25,6 +27,8 @@ class _StoreEditPageState extends State<StoreEditPage> {
   final _address = TextEditingController(text: storeProfile.address);
   final _request = StoreFormRequest.update(storeId: StoreContext.id);
   late final _api = merchantApi;
+  late final _media = MediaApi.store(_api);
+  bool _mediaBusy = false;
   @override
   void dispose() {
     _name.dispose();
@@ -51,11 +55,6 @@ class _StoreEditPageState extends State<StoreEditPage> {
     nav.pop();
   }
 
-  void _pickImage() {
-    // TODO: 门店图片尚无存储与上传闭环，预期 store_media_upload 接口；不保存本地假图片。
-    AppToast.show(context, '门店图片上传暂未接通');
-  }
-
   void _locate() {
     // TODO: 地图定位尚无真实渠道，预期地图选址适配；地址由用户手动填写。
     AppToast.show(context, '地图定位暂未接通，请手动填写地址');
@@ -63,6 +62,14 @@ class _StoreEditPageState extends State<StoreEditPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (!_api.hasSession) {
+      return Scaffold(
+        body: ErrorView(
+          error: const AppError('请先登录后编辑门店', type: AppErrorType.auth),
+          onNext: () => openRoute(context, 'Login'),
+        ),
+      );
+    }
     return AsyncAction(
       onTap: _save,
       builder: (actionKey, onSave) => AsyncActionScope(
@@ -103,7 +110,7 @@ class _StoreEditPageState extends State<StoreEditPage> {
                           kind: AppButtonKind.primary,
                           size: AppButtonSize.medium,
                           expanded: false,
-                          onPressed: onSave,
+                          onPressed: _mediaBusy ? null : onSave,
                         ),
                       ],
                       main: MainAxisAlignment.start,
@@ -145,233 +152,18 @@ class _StoreEditPageState extends State<StoreEditPage> {
                         ],
                       ),
                       pad: EdgeInsets.fromLTRB(16, 16, 16, 16),
-                      child: hcol(
-                        [
-                          hrow(
-                            [
-                              Expanded(
-                                flex: 1,
-                                child: Text(
-                                  '门店照片',
-                                  style: hts(
-                                    15,
-                                    dk(
-                                      context,
-                                      Color(0xFF18181B),
-                                      Color(0xFFFAFAFA),
-                                    ),
-                                    w: FontWeight.w600,
-                                    lh: 22,
-                                  ),
-                                ),
-                              ),
-                              Text(
-                                '第一张为封面 · 最多 9 张',
-                                style: hts(
-                                  12,
-                                  dk(
-                                    context,
-                                    Color(0xFF71717A),
-                                    Color(0xFF9A9AA3),
-                                  ),
-                                  lh: 16,
-                                ),
-                              ),
-                            ],
-                            main: MainAxisAlignment.start,
-                            cross: CrossAxisAlignment.baseline,
-                            gap: 0,
-                          ),
-                          hcol([
-                            hrow(
-                              [
-                                Expanded(
-                                  flex: 1,
-                                  child: ImageSlot(
-                                    localPath: '',
-                                    onPick: _pickImage,
-                                    onClear: () {},
-                                    radius: 14,
-                                    child: AspectRatio(
-                                      aspectRatio: 1,
-                                      child: hbox(
-                                        bg: dk(
-                                          context,
-                                          Color(0xFFE4E4E7),
-                                          Color(0xFF3A3A40),
-                                        ),
-                                        radius: BorderRadius.circular(14),
-                                        child: hstack(
-                                          hrow(
-                                            [
-                                              hsvg(
-                                                dk(
-                                                  context,
-                                                  Svgs.s366,
-                                                  Svgs.s367,
-                                                ),
-                                                w: 20,
-                                                h: 20,
-                                              ),
-                                            ],
-                                            main: MainAxisAlignment.center,
-                                            cross: CrossAxisAlignment.center,
-                                            gap: 0,
-                                          ),
-                                          [
-                                            Positioned(
-                                              left: 6,
-                                              bottom: 6,
-                                              child: hbox(
-                                                bg: dk(
-                                                  context,
-                                                  Color(0xFF18181B),
-                                                  Color(0xFF1F1F23),
-                                                ),
-                                                radius: BorderRadius.circular(
-                                                  8,
-                                                ),
-                                                pad: EdgeInsets.fromLTRB(
-                                                  6,
-                                                  0,
-                                                  6,
-                                                  0,
-                                                ),
-                                                child: Text(
-                                                  '封面',
-                                                  style: hts(
-                                                    10,
-                                                    Color(0xFFFFFFFF),
-                                                    w: FontWeight.w600,
-                                                    lh: 16,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 1,
-                                  child: ImageSlot(
-                                    localPath: '',
-                                    onPick: _pickImage,
-                                    onClear: () {},
-                                    radius: 14,
-                                    child: AspectRatio(
-                                      aspectRatio: 1,
-                                      child: hbox(
-                                        bg: dk(
-                                          context,
-                                          Color(0xFFE4E4E7),
-                                          Color(0xFF3A3A40),
-                                        ),
-                                        radius: BorderRadius.circular(14),
-                                        child: hrow(
-                                          [
-                                            hsvg(
-                                              dk(context, Svgs.s366, Svgs.s367),
-                                              w: 20,
-                                              h: 20,
-                                            ),
-                                          ],
-                                          main: MainAxisAlignment.center,
-                                          cross: CrossAxisAlignment.center,
-                                          gap: 0,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 1,
-                                  child: ImageSlot(
-                                    localPath: '',
-                                    onPick: _pickImage,
-                                    onClear: () {},
-                                    radius: 14,
-                                    child: AspectRatio(
-                                      aspectRatio: 1,
-                                      child: hbox(
-                                        bg: dk(
-                                          context,
-                                          Color(0xFFE4E4E7),
-                                          Color(0xFF3A3A40),
-                                        ),
-                                        radius: BorderRadius.circular(14),
-                                        child: hrow(
-                                          [
-                                            hsvg(
-                                              dk(context, Svgs.s366, Svgs.s367),
-                                              w: 20,
-                                              h: 20,
-                                            ),
-                                          ],
-                                          main: MainAxisAlignment.center,
-                                          cross: CrossAxisAlignment.center,
-                                          gap: 0,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 1,
-                                  child: ImageSlot(
-                                    localPath: '',
-                                    onPick: _pickImage,
-                                    onClear: () {},
-                                    radius: 14,
-                                    child: AspectRatio(
-                                      aspectRatio: 1,
-                                      child: hbox(
-                                        bg: dk(
-                                          context,
-                                          Color(0xFFF4F4F5),
-                                          Color(0xFF27272A),
-                                        ),
-                                        radius: BorderRadius.circular(14),
-                                        border: dk(
-                                          context,
-                                          Border.all(
-                                            color: Color(0xFFD4D4D8),
-                                            width: 1.5,
-                                          ),
-                                          Border.all(
-                                            color: Color(0xFF3F3F46),
-                                            width: 1.5,
-                                          ),
-                                        ),
-                                        child: hrow(
-                                          [
-                                            hsvg(
-                                              dk(context, Svgs.s368, Svgs.s369),
-                                              w: 22,
-                                              h: 22,
-                                            ),
-                                          ],
-                                          main: MainAxisAlignment.center,
-                                          cross: CrossAxisAlignment.center,
-                                          gap: 0,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                              cross: CrossAxisAlignment.stretch,
-                              gap: 8,
-                              intrinsic: true,
-                              min: false,
-                            ),
-                          ], gap: 8),
-                        ],
-                        main: MainAxisAlignment.start,
-                        cross: CrossAxisAlignment.stretch,
-                        gap: 12,
+                      child: UploadGallery(
+                        title: '门店照片',
+                        max: 9,
+                        helper: '第一张为封面 · 上传后立即保存',
+                        onBusyChanged: (busy) {
+                          if (mounted) setState(() => _mediaBusy = busy);
+                        },
+                        load: _media.load,
+                        upload: _media.upload,
+                        remove: _media.remove,
+                        discard: _media.discard,
+                        refresh: _media.refresh,
                       ),
                     ),
                     hcol(

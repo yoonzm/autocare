@@ -13,6 +13,7 @@ typedef FeedbackRequest = Future<Map<String, dynamic>> Function(
 class FeedbackImage {
   final Uint8List bytes;
   String? uploadedId;
+  bool uploading = false, failed = false;
   FeedbackImage(this.bytes);
 }
 
@@ -36,11 +37,16 @@ class FeedbackDraft {
       ? '联系方式不能超过 200 字'
       : null;
 
-  Future<String> submit(FeedbackRequest request) async {
-    if (submitted) throw const AppError('反馈已提交');
-    if (problem != null) throw AppError(problem!);
-    for (final image in images.whereType<FeedbackImage>()) {
-      if (image.uploadedId != null) continue;
+  Future<void> uploadImage(
+    FeedbackImage image,
+    FeedbackRequest request, {
+    void Function()? onChanged,
+  }) async {
+    if (image.uploadedId != null) return;
+    image.uploading = true;
+    image.failed = false;
+    onChanged?.call();
+    try {
       final result = await request({
         'action': 'support_upload',
         'data': base64Encode(image.bytes),
@@ -48,6 +54,24 @@ class FeedbackDraft {
       final id = result['id'];
       if (id is! String || id.isEmpty) throw const AppError('截图上传未完成，请重试');
       image.uploadedId = id;
+    } catch (_) {
+      image.failed = true;
+      rethrow;
+    } finally {
+      image.uploading = false;
+      onChanged?.call();
+    }
+  }
+
+  Future<String> submit(
+    FeedbackRequest request, {
+    void Function()? onChanged,
+  }) async {
+    if (submitted) throw const AppError('反馈已提交');
+    if (problem != null) throw AppError(problem!);
+    for (final image in images.whereType<FeedbackImage>()) {
+      if (image.uploadedId != null) continue;
+      await uploadImage(image, request, onChanged: onChanged);
     }
     final body = <String, dynamic>{
       'action': 'support_create',
