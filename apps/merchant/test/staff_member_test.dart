@@ -3,9 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:autocare_merchant/backend/access_flow.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
-import 'package:autocare_merchant/pages/st_cash_queue_template.dart';
-import 'package:autocare_merchant/pages/st_member_info_template.dart';
-import 'package:autocare_merchant/pages/st_member_template.dart';
+import 'package:autocare_merchant/pages/staff_app/st_cash_queue_template.dart';
+import 'package:autocare_merchant/pages/staff_app/st_member_info_template.dart';
+import 'package:autocare_merchant/pages/staff_app/st_member_template.dart';
 import 'package:autocare_merchant/routes.dart' show navTracker;
 
 import 'members_test.dart' show phone;
@@ -14,14 +14,23 @@ import 'staff_work_test.dart' show WorkApi;
 /// 员工端会员查询 / 简况的假后端：只返回脱敏信息。
 class MemberLookupApi extends WorkApi {
   @override
-  Future<Map<String, dynamic>> staffWork(String action, [Map<String, dynamic> values = const {}]) async {
+  Future<Map<String, dynamic>> staffWork(
+    String action, [
+    Map<String, dynamic> values = const {},
+  ]) async {
     if (action == 'staff_member_search') {
       calls.add({'action': action, ...values});
       final q = '${values['q'] ?? ''}';
       if (q == '无此人') return {'items': []};
       return {
         'items': [
-          {'id': 'm1', 'name': '王建国', 'level': '黑金卡', 'phone_masked': '138****6021', 'plate': '沪A8K29M'},
+          {
+            'id': 'm1',
+            'name': '王建国',
+            'level': '黑金卡',
+            'phone_masked': '138****6021',
+            'plate': '沪A8K29M',
+          },
         ],
       };
     }
@@ -60,7 +69,12 @@ class MemberLookupApi extends WorkApi {
             'member_id': 'm1',
             'vehicle_plate': '沪A8K29M',
             'created_at': '2026-11-10T02:42:00Z',
-            'member': {'id': 'm1', 'name': '王建国', 'phone': '138****6021', 'card': {'name': '黑金卡'}},
+            'member': {
+              'id': 'm1',
+              'name': '王建国',
+              'phone': '138****6021',
+              'card': {'name': '黑金卡'},
+            },
             'submitter': {'name': '老周', 'role': 'technician'},
             'items': [
               {'service_id': 's1', 'name': '精致洗车', 'qty': 1},
@@ -68,15 +82,26 @@ class MemberLookupApi extends WorkApi {
             'lines': [
               {'name': '精致洗车', 'qty': 1, 'unit_price': 68},
             ],
-            'quote': {'subtotal': 68, 'card_off': 0, 'discount_off': 7, 'payable': 61},
+            'quote': {
+              'subtotal': 68,
+              'card_off': 0,
+              'discount_off': 7,
+              'payable': 61,
+            },
           },
         ],
       };
     }
-    if (action == 'staff_order_return' || action == 'staff_redeem_send' || action == 'staff_redeem') {
+    if (action == 'staff_order_return' ||
+        action == 'staff_redeem_send' ||
+        action == 'staff_redeem') {
       calls.add({'action': action, ...values});
-      if (action == 'staff_redeem_send') return {'ok': true, 'retry_after': 60, 'expires_in': 300};
-      if (action == 'staff_redeem') return {'package': '精致洗车年卡', 'service': '精致洗车', 'remaining': 11};
+      if (action == 'staff_redeem_send') {
+        return {'ok': true, 'retry_after': 60, 'expires_in': 300};
+      }
+      if (action == 'staff_redeem') {
+        return {'package': '精致洗车年卡', 'service': '精致洗车', 'remaining': 11};
+      }
       return {'ok': true};
     }
     return super.staffWork(action, values);
@@ -92,7 +117,6 @@ void main() {
     merchantApi = api = MemberLookupApi();
     navTracker.stack.clear();
     Access.apply({...api.identityCtx});
-    StMemberFlow.currentId = null;
   });
   tearDown(() {
     merchantApi = original;
@@ -106,17 +130,24 @@ void main() {
     phone(t);
     await t.pumpWidget(const MaterialApp(home: StMemberLivePage()));
     await t.pumpAndSettle();
-    expect(api.calls.where((c) => c['action'] == 'staff_member_search').first['q'], '');
+    expect(
+      api.calls.where((c) => c['action'] == 'staff_member_search').first['q'],
+      '',
+    );
     expect(find.text('王建国'), findsOneWidget);
     expect(find.text('138****6021 · 沪A8K29M'), findsOneWidget);
   });
 
   testWidgets('会员简况：余额 / 积分 / 次卡 / 爱车来自服务端', (t) async {
     phone(t);
-    StMemberFlow.currentId = 'm1';
-    await t.pumpWidget(const MaterialApp(home: StMemberInfoLivePage()));
+    await t.pumpWidget(
+      const MaterialApp(home: StMemberInfoLivePage(memberId: 'm1')),
+    );
     await t.pumpAndSettle();
-    expect(api.calls.where((c) => c['action'] == 'staff_member_info').single['id'], 'm1');
+    expect(
+      api.calls.where((c) => c['action'] == 'staff_member_info').single['id'],
+      'm1',
+    );
     expect(find.text('王建国'), findsOneWidget);
     expect(find.text('¥3,680'), findsOneWidget);
     expect(find.text('12,450'), findsOneWidget);
@@ -136,13 +167,17 @@ void main() {
     expect(find.text('-¥7'), findsOneWidget);
     await t.tap(find.text('退回修改'));
     await t.pumpAndSettle();
-    expect(api.calls.where((c) => c['action'] == 'staff_order_return').single['id'], 'h1');
+    expect(
+      api.calls.where((c) => c['action'] == 'staff_order_return').single['id'],
+      'h1',
+    );
   });
 
   testWidgets('次卡核销：先给会员发验证码，再带验证码核销', (t) async {
     phone(t);
-    StMemberFlow.currentId = 'm1';
-    await t.pumpWidget(const MaterialApp(home: StMemberInfoLivePage()));
+    await t.pumpWidget(
+      const MaterialApp(home: StMemberInfoLivePage(memberId: 'm1')),
+    );
     await t.pumpAndSettle();
     await t.tap(find.text('次卡核销'));
     await t.pumpAndSettle();
@@ -150,7 +185,12 @@ void main() {
     await t.pump();
     await t.tap(find.text('发送验证码'));
     await t.pumpAndSettle();
-    expect(api.calls.where((c) => c['action'] == 'staff_redeem_send').single['member_id'], 'm1');
+    expect(
+      api.calls
+          .where((c) => c['action'] == 'staff_redeem_send')
+          .single['member_id'],
+      'm1',
+    );
     await t.enterText(find.byType(TextField), '123456');
     await t.tap(find.text('确认核销'));
     await t.pumpAndSettle();

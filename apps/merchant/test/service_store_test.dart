@@ -1,7 +1,7 @@
-import 'package:autocare_merchant/backend/catalog_draft.dart';
-import 'package:autocare_merchant/backend/member_flow.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/backend/service_store.dart';
+import 'package:autocare_merchant/pages/catalog/service_edit_page.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'members_test.dart' show MemberFakeApi;
@@ -10,6 +10,26 @@ class _CountingApi extends MemberFakeApi {
   int svcCalls = 0;
   Duration delay = Duration.zero;
   Object? error;
+  @override
+  Future<Map<String, dynamic>> save(
+    String kind,
+    Map<String, dynamic> values,
+  ) async {
+    if (kind != 'services') return super.save(kind, values);
+    final id = values['id']?.toString() ?? 's${services.length + 1}';
+    final row = {'id': id, ...values};
+    services.removeWhere((item) => item['id'] == id);
+    services.add(row);
+    return {'item': row};
+  }
+
+  @override
+  Future<void> delete(String kind, String id) async {
+    if (kind != 'services') return super.delete(kind, id);
+    deleted.add('$kind:$id');
+    services.removeWhere((item) => item['id'] == id);
+  }
+
   @override
   Future<List<Map<String, dynamic>>> list(String kind) async {
     if (kind == 'services') {
@@ -45,8 +65,7 @@ void main() {
       },
     ]);
     ServiceStore.clear();
-    CatalogDraft.current = null;
-    MemberFlow.current = null;
+
   });
   tearDown(() {
     merchantApi = original;
@@ -130,18 +149,43 @@ void main() {
     expect(ServiceStore.items, isNull);
   });
 
-  test('保存 / 删除服务项目后缓存立即刷新', () async {
-    await ServiceStore.load();
-    api.services.add({
-      'id': 's3',
-      'name': '新项目',
-      'price': 20,
-      'category': '内饰',
-      'active': true,
-    });
-    CatalogDraft.begin('services', {'id': 's1', 'name': '精致洗车', 'price': 68});
-    await CatalogDraft.removeCurrent('services');
+  testWidgets('通过服务编辑保存 / 删除后缓存立即刷新', (t) async {
+    t.view.physicalSize = const Size(1170, 2700);
+    t.view.devicePixelRatio = 3;
+    addTearDown(t.view.reset);
+    late BuildContext context;
+    await t.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (c) {
+            context = c;
+            return const Scaffold(body: Text('服务列表'));
+          },
+        ),
+      ),
+    );
+    await t.runAsync(() => ServiceStore.load());
+    openServiceEditor(
+      context,
+      initial: {'name': '新项目', 'price': 20, 'category': '内饰'},
+    );
+    await t.pumpAndSettle();
+    await t.tap(find.text('保存'));
+    await t.pumpAndSettle();
     expect(ServiceStore.items!.length, 3);
     expect(api.svcCalls, 2);
+    expect(ServiceStore.items!.last['name'], '新项目');
+    await t.pump(const Duration(seconds: 4));
+    await t.pumpAndSettle();
+    openServiceEditor(context, initial: api.services.first);
+    await t.pumpAndSettle();
+    await t.ensureVisible(find.text('删除此项目'));
+    await t.tap(find.text('删除此项目'));
+    await t.pumpAndSettle();
+    await t.tap(find.text('确定'));
+    await t.pumpAndSettle();
+    expect(ServiceStore.items!.length, 2);
+    expect(ServiceStore.items!.any((row) => row['id'] == 's1'), isFalse);
+    expect(api.svcCalls, 3);
   });
 }

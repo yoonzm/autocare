@@ -4,7 +4,7 @@ import 'dart:ui' as ui;
 
 import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/kit/async_kit.dart';
-import 'package:autocare_merchant/pages/gen/feedback_page.dart';
+import 'package:autocare_merchant/pages/account/feedback_page.dart';
 import 'package:autocare_merchant/routes.dart';
 import 'package:autocare_merchant/theme.dart';
 import 'package:flutter/material.dart';

@@ -9,7 +9,7 @@ import 'package:autocare_merchant/backend/app_cache.dart';
 import 'package:autocare_merchant/backend/cache_files_io.dart' as cache_files;
 import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/backend/store_profile.dart';
-import 'package:autocare_merchant/pages/gen/gen_routes.dart';
+import 'package:autocare_merchant/navigation/page_registry.dart';
 import 'package:autocare_merchant/theme.dart';
 
 class ToolsApi extends MerchantApi {
@@ -97,7 +97,7 @@ void main() {
       MaterialApp(
         initialRoute: route,
         onGenerateRoute: (s) =>
-            MaterialPageRoute(settings: s, builder: genRoutes[s.name]!),
+            MaterialPageRoute(settings: s, builder: pageBuilders[s.name]!),
       ),
     );
     await t.pumpAndSettle();

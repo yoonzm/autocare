@@ -1,16 +1,37 @@
 import 'dart:io';
+import 'dart:async';
 
 import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/kit/async_kit.dart';
-import 'package:autocare_merchant/pages/card_tiers_live_page.dart';
-import 'package:autocare_merchant/pages/gen/gen_routes.dart';
-import 'package:autocare_merchant/pages/services_page.dart';
+import 'package:autocare_merchant/pages/catalog/card_tiers_live_page.dart';
+import 'package:autocare_merchant/navigation/page_registry.dart';
+import 'package:autocare_merchant/pages/catalog/services_page.dart';
+import 'package:autocare_merchant/pages/catalog/service_edit_page.dart';
+import 'package:autocare_merchant/pages/catalog/card_tier_edit_page.dart';
+import 'package:autocare_merchant/pages/catalog/package_edit_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// 加载态的视觉规范（docs/frontend-guidelines.md · 加载态的通用要求）：
 /// 骨架贴顶、行数一致、按钮 loading 尺寸不变且只显示转圈、图标按钮只显示转圈。
 class _Api extends MerchantApi {
+  Completer<void>? saveGate;
+  Completer<void>? codeGate;
+  @override
+  Future<void> checkCode(String phone, String code) async {
+    await codeGate?.future;
+    throw const AppError('测试校验失败');
+  }
+
+  @override
+  Future<Map<String, dynamic>> save(
+    String kind,
+    Map<String, dynamic> values,
+  ) async {
+    await saveGate?.future;
+    throw const AppError('测试保存失败');
+  }
+
   @override
   Future<List<Map<String, dynamic>>> accountDevices() async => [];
   @override
@@ -135,7 +156,7 @@ void main() {
           initialRoute: route,
           onGenerateRoute: (s) => MaterialPageRoute(
             settings: s,
-            builder: (_) => Builder(builder: genRoutes[s.name]!),
+            builder: (_) => Builder(builder: pageBuilders[s.name]!),
           ),
         ),
       );
@@ -144,13 +165,20 @@ void main() {
 
     testWidgets('注册底部“下一步”：loading 时宽高不变（不会缩成圆），只显示转圈', (t) async {
       await openGen(t, 'RegPhone');
+      await t.enterText(find.byType(TextFormField).at(0), '13800001234');
+      await t.enterText(find.byType(TextFormField).at(1), '246810');
+      await t.enterText(find.byType(TextFormField).at(2), 'Pass1234');
+      FocusManager.instance.primaryFocus?.unfocus();
+      await t.pumpAndSettle();
+      final api = merchantApi as _Api;
+      api.codeGate = Completer<void>();
       final button = find
           .ancestor(of: find.text('下一步'), matching: find.byType(Container))
           .first;
       final before = t.getSize(button);
       expect(find.byType(AppSpinner), findsNothing);
 
-      busyActions.value = {'RegPhone>RegShop'};
+      await t.tap(find.text('下一步'));
       await t.pump();
       final after = t.getSize(button);
       expect(after, before);
@@ -169,26 +197,55 @@ void main() {
       expect(t.getRect(button).contains(spinner.center), isTrue);
       expect(t.getRect(button).contains(label.center), isTrue);
 
-      busyActions.value = const {};
-      await t.pump();
+      api.codeGate!.complete();
+      await t.pumpAndSettle();
       expect(find.byType(AppSpinner), findsNothing);
       expect(t.getSize(button), before);
+      await t.pump(const Duration(seconds: 6));
+      await t.pumpAndSettle();
     });
 
     testWidgets('保存页：“保存”加载时和设计稿图标按钮一样：44×44 的圆 + 20px 转圈，取消 ✕ 不转圈', (t) async {
-      for (final route in ['ServiceEdit', 'CardTierEdit', 'PackageEdit']) {
+      final pages = <Widget>[
+        const ServiceEditPage(initial: {'name': '测试服务', 'price': 88}),
+        const CardTierEditPage(initial: {'name': '测试卡种'}),
+        const PackageEditPage(
+          initial: {
+            'name': '测试套餐',
+            'price': 88,
+            'items': [
+              {'service_id': 's1', 'name': '测试服务', 'price': 88, 'count': 1},
+            ],
+          },
+        ),
+      ];
+      for (final page in pages) {
         await t.pumpWidget(const SizedBox());
-        await openGen(t, route);
-        final key = {
-          'ServiceEdit': 'ServiceEdit>Services',
-          'CardTierEdit': 'CardTierEdit>CardTiers',
-          'PackageEdit': 'PackageEdit>CardPackages',
-        }[route]!;
+        phone(t);
+        await t.pumpWidget(
+          MaterialApp(
+            home: Builder(
+              builder: (context) => Scaffold(
+                body: TextButton(
+                  onPressed: () =>
+                      Navigator.of(context)
+                          .push(MaterialPageRoute<void>(builder: (_) => page)),
+                  child: const Text('打开'),
+                ),
+              ),
+            ),
+          ),
+        );
+        await t.tap(find.text('打开'));
+        await t.pumpAndSettle();
+        final route = page.runtimeType.toString();
+        final api = merchantApi as _Api;
+        api.saveGate = Completer<void>();
         final save = find
             .ancestor(of: find.text('保存'), matching: find.byType(Container))
             .first;
         expect(t.getSize(save).width, greaterThan(50), reason: route);
-        busyActions.value = {key};
+        await t.tap(find.text('保存'));
         await t.pump();
         expect(find.byType(AppSpinner), findsOneWidget, reason: route);
         expect(find.text('保存中…'), findsNothing);
@@ -206,36 +263,12 @@ void main() {
           (t.getCenter(find.byType(AppSpinner)) - c).distance,
           lessThan(0.5),
         );
-        busyActions.value = const {};
-        await t.pump();
+        api.saveGate!.complete();
+        await t.pumpAndSettle();
         expect(find.text('保存'), findsOneWidget, reason: route);
         expect(t.getSize(save).width, greaterThan(50), reason: route);
-      }
-    });
-
-    testWidgets('每个提交按钮都有 loading：逐页检查生成页里的转圈', (t) async {
-      const pages = {
-        'RegShop': 'RegShop>RegDone',
-        'ChangePassword': 'ChangePassword>Security',
-        'ChangePhone': 'ChangePhone>Security',
-        'DeleteAccount': 'DeleteAccount>Login',
-        'Security': 'Security>Login',
-        'CardTierEdit': 'CardTierEdit>CardTiers',
-        'ForgotVerify': 'ForgotVerify>ForgotReset',
-        'ForgotReset': 'ForgotReset>ForgotDone',
-      };
-      for (final e in pages.entries) {
-        await t.pumpWidget(const SizedBox());
-        await openGen(t, e.key);
-        busyActions.value = {e.value};
-        await t.pump();
-        expect(
-          find.byType(AppSpinner),
-          findsOneWidget,
-          reason: '${e.key} 的提交按钮应显示转圈',
-        );
-        busyActions.value = const {};
-        await t.pump();
+        await t.pump(const Duration(seconds: 6));
+        await t.pumpAndSettle();
       }
     });
 
@@ -283,24 +316,11 @@ void main() {
     });
   });
 
-  test('生成脚本里的异步按钮和 asyncActionKeys 完全一致', () {
-    final src = File('tools/design_to_flutter.py').readAsStringSync();
-    final block = RegExp(
-      r'ASYNC_ACTIONS = \{(.*?)\n\}',
-      dotAll: true,
-    ).firstMatch(src)!.group(1)!;
-    // 同一个路由里的几个页签共用动作键前缀（如 RechargeCard 属于 Recharge 路由）
-    final keyPage = {
-      for (final m in RegExp(
-        r"'(\w+)': '(\w+)'",
-      ).allMatches(RegExp(r'KEY_PAGE = \{(.*?)\}').firstMatch(src)!.group(1)!))
-        m.group(1)!: m.group(2)!,
-    };
-    final fromGenerator = {
-      for (final m in RegExp(r"\('(\w+)', '(\w+)'\)").allMatches(block))
-        '${keyPage[m.group(1)] ?? m.group(1)}>${m.group(2)}',
-    };
-    expect(fromGenerator, asyncActionKeys);
+  test('点击组件不再按路由和目的页猜测提交状态', () {
+    expect(File('lib/kit/async_action_keys.dart').existsSync(), isFalse);
+    final source = File('lib/kit/kit.dart').readAsStringSync();
+    expect(source, isNot(contains('asyncActionKeys')));
+    expect(source, isNot(contains('final busyKey =')));
   });
 
   testWidgets('AppSpinner 按设计稿的尺寸绘制，减少动态效果时不转动', (t) async {

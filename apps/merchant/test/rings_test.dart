@@ -56,8 +56,8 @@ void main() {
     );
   });
 
-  test('生成页里的同心圆装饰深色模式不换色（不能变成一圈亮白线）', () {
-    final svgs = File('lib/pages/gen/svgs.dart').readAsStringSync();
+  test('商户界面的同心圆装饰深色模式不换色（不能变成一圈亮白线）', () {
+    final svgs = File('lib/resources/merchant_svgs.dart').readAsStringSync();
     final rings = <String>{};
     for (final m in RegExp(
       r"static const (s\d+) =\s*'((?:[^'\\]|\\.)*)';",
@@ -71,9 +71,11 @@ void main() {
     }
     expect(rings, isNotEmpty);
     final bad = <String>[];
-    for (final f in Directory('lib/pages/gen').listSync()) {
-      if (f is! File || f.path.endsWith('svgs.dart')) continue;
+    for (final f in Directory('lib').listSync(recursive: true)) {
+      if (f is! File || !f.path.endsWith('.dart')) continue;
       final src = f.readAsStringSync();
+      // 员工图标有独立编号，不能与商户图标混用编号判断。
+      if (!src.contains("merchant_svgs.dart'")) continue;
       for (final m in RegExp(
         r'dk\(\s*context,\s*Svgs\.(s\d+),\s*Svgs\.(s\d+)\s*\)',
       ).allMatches(src)) {

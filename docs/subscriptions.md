@@ -33,4 +33,4 @@
 
 先应用 `202611080001_subscription_simulation.sql`，再部署云函数、后台和商户端。新版本依赖前一版账号/多门店迁移。
 
-`supabase/tests/multistore.mjs` 覆盖目录、金额防篡改、幂等、续费、升级、降级限额、过期价格、权益生效和模拟收入排除。`apps/merchant/test/subscription_test.dart` 覆盖选择套餐/周期、提交状态、成功回执、续费和失败重试。生成代码通过 `tools/design_to_flutter.py --bind-subscriptions lib/pages/gen` 更新，绑定过程可重复执行。
+`supabase/tests/multistore.mjs` 覆盖目录、金额防篡改、幂等、续费、升级、降级限额、过期价格、权益生效和模拟收入排除。`apps/merchant/test/subscription_test.dart` 覆盖选择套餐/周期、提交状态、成功回执、续费和失败重试。现有页面绑定保留；原生成脚本已移除，后续按 `docs/frontend-guidelines.md` 第 18 节迁移维护。

@@ -1,6 +1,5 @@
 // 表单选择组件；地区来自后端公共字典。
 import 'async_kit.dart';
-import 'kit.dart';
 
 import 'dart:async';
 
@@ -9,12 +8,8 @@ import 'package:flutter/material.dart';
 
 import '../backend/merchant_api.dart';
 import '../backend/region_dictionary.dart';
-import '../backend/registration_draft.dart';
-import '../backend/store_profile.dart';
-import '../backend/catalog_draft.dart';
-import '../backend/scan_flow.dart';
 import '../backend/member_flow.dart' show memberFromRow;
-import '../mock/mock_data.dart';
+import '../pages/members/member_models.dart';
 import 'keyboard.dart';
 
 import '../theme.dart' show C;
@@ -37,142 +32,6 @@ class StrCtrl extends ChangeNotifier {
       notifyListeners();
     }
   }
-}
-
-/// 会员 / 车辆表单里的选择项（生日、品牌车型、推荐人）对应的草稿字段。
-({String kind, String field, String placeholder})? _memberField(
-  String? route,
-  String initial,
-) => switch ((route, initial)) {
-  ('MemberAdd', '选填，用于生日礼') => (
-    kind: 'members',
-    field: 'birthday',
-    placeholder: '选填，用于生日礼',
-  ),
-  ('MemberAdd', '宝马 5系 525Li') => (
-    kind: 'members',
-    field: 'brand_model',
-    placeholder: '请选择品牌车型',
-  ),
-  ('MemberAdd', '王建国 · 黑金') => (
-    kind: 'members',
-    field: 'referrer_label',
-    placeholder: '选填',
-  ),
-  ('VehicleAdd', '理想 L7 · 灰') => (
-    kind: 'vehicles',
-    field: 'brand_model',
-    placeholder: '请选择品牌车型',
-  ),
-  _ => null,
-};
-
-class HStrHolder extends StatefulWidget {
-  final String initial;
-  final Widget Function(BuildContext, StrCtrl) builder;
-  const HStrHolder({super.key, required this.initial, required this.builder});
-  @override
-  State<HStrHolder> createState() => _HStrHolderState();
-}
-
-class _HStrHolderState extends State<HStrHolder> {
-  late final StrCtrl ctrl;
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!initialized) {
-      final route = ModalRoute.of(context)?.settings.name;
-      if (route == 'RegShop' && widget.initial == '上海市 · 浦东新区') {
-        // 注册时城市必须自己选，不预设成设计稿里的示例城市。
-        ctrl = StrCtrl(
-          RegistrationDraft.cityPlaceholder,
-          placeholder: RegistrationDraft.cityPlaceholder,
-        );
-        RegistrationDraft.city = '';
-        RegistrationDraft.provinceCode = RegistrationDraft.cityCode = '';
-        ctrl.addListener(() {
-          RegistrationDraft.city = ctrl.v == ctrl.placeholder ? '' : ctrl.v;
-        });
-      } else if (merchantApi.hasSession &&
-          route == 'ServiceEdit' &&
-          widget.initial == '4 小时') {
-        final minutes =
-            int.tryParse(
-              CatalogDraft.text('services', 'duration_minutes', '30'),
-            ) ??
-            30;
-        ctrl = StrCtrl('$minutes 分钟');
-        ctrl.addListener(() {
-          final value =
-              num.tryParse(ctrl.v.replaceAll(RegExp(r'[^\d.]'), '')) ?? 30;
-          CatalogDraft.set(
-            'services',
-            'duration_minutes',
-            ctrl.v.contains('小时') ? (value * 60).round() : value.round(),
-          );
-        });
-      } else if (merchantApi.hasSession &&
-          route == 'CardTierEdit' &&
-          (widget.initial == '2 倍' || widget.initial == '赠精致洗车 2 次')) {
-        // 卡种编辑页的积分倍率 / 生日礼：值来自正在编辑的卡种，选择后写回草稿
-        final multiplier = widget.initial == '2 倍';
-        ctrl = StrCtrl(
-          multiplier ? CatalogDraft.multiplierLabel : CatalogDraft.giftLabel,
-        );
-        ctrl.addListener(
-          () => multiplier
-              ? CatalogDraft.setMultiplier(ctrl.v)
-              : CatalogDraft.setGift(ctrl.v),
-        );
-      } else if (merchantApi.hasSession &&
-          _memberField(route, widget.initial) != null) {
-        // 会员 / 车辆表单里的选择项：开始是占位文字，选择后写回草稿
-        final f = _memberField(route, widget.initial)!;
-        ctrl = StrCtrl(f.placeholder, placeholder: f.placeholder);
-        final saved = CatalogDraft.text(f.kind, f.field, '');
-        if (saved.isNotEmpty) ctrl.v = saved;
-        ctrl.addListener(
-          () => CatalogDraft.set(
-            f.kind,
-            f.field,
-            ctrl.v == f.placeholder ? '' : ctrl.v,
-          ),
-        );
-      } else if (merchantApi.hasSession &&
-          route == 'PackageEdit' &&
-          (widget.initial == '2 份' || widget.initial == '全部车型')) {
-        // 套餐编辑页的每人限购 / 适用车型：值来自正在编辑的套餐，选择后写回草稿
-        final limit = widget.initial == '2 份';
-        ctrl = StrCtrl(
-          limit
-              ? CatalogDraft.packageLimitLabel
-              : CatalogDraft.packageVehicleScope,
-        );
-        ctrl.addListener(
-          () => limit
-              ? CatalogDraft.setPackageLimit(ctrl.v)
-              : CatalogDraft.set('packages', 'vehicle_scope', ctrl.v),
-        );
-      } else {
-        ctrl = StrCtrl(
-          route == 'ServiceEdit' && widget.initial == '镀晶镀膜'
-              ? CatalogDraft.text('services', 'category', widget.initial)
-              : widget.initial,
-        );
-      }
-      initialized = true;
-    }
-  }
-
-  bool initialized = false;
-  @override
-  void dispose() {
-    ctrl.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => widget.builder(context, ctrl);
 }
 
 /// 显示选择结果；初始是“选填/请选择”这类占位文案时，选择后改用正文颜色。
@@ -268,7 +127,16 @@ Future<String?> pickFromList(
   String title,
   List<String> options,
   String current,
-) => _sheet<String>(
+) => pickValue<String>(context, title, options, current, (value) => value);
+
+/// The returned value is independent of its label; labels may be duplicated.
+Future<T?> pickValue<T>(
+  BuildContext context,
+  String title,
+  List<T> options,
+  T? current,
+  String Function(T) label,
+) => _sheet<T>(
   context,
   (ctx) => ConstrainedBox(
     constraints: BoxConstraints(
@@ -297,7 +165,7 @@ Future<String?> pickFromList(
                       children: [
                         Expanded(
                           child: Text(
-                            o,
+                            label(o),
                             style: _ts(
                               15,
                               w: o == current
@@ -339,31 +207,6 @@ Widget _wheelTheme(Widget child) => CupertinoTheme(
 );
 
 // ───────── 客户选择（支持按姓名 / 车牌 / 手机号检索）─────────
-bool memberMatches(Member m, String q) {
-  final k = q.trim().toLowerCase().replaceAll(RegExp(r'[\s·]'), '');
-  if (k.isEmpty) return true;
-  return m.name.toLowerCase().contains(k) ||
-      m.plate.toLowerCase().replaceAll('·', '').contains(k) ||
-      m.phone.contains(k) ||
-      m.level.contains(k);
-}
-
-Future<Member?> pickMember(
-  BuildContext context, {
-  Member? current,
-  String title = '选择客户',
-}) {
-  return showModalBottomSheet<Member>(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: C.card,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-    ),
-    builder: (ctx) => _MemberPicker(current: current, title: title),
-  );
-}
-
 /// 登录后的会员选择：搜索 / 列表来自后端（姓名、手机号、车牌）。
 Future<Member?> pickLiveMember(BuildContext context, {String title = '选择客户'}) =>
     showModalBottomSheet<Member>(
@@ -586,194 +429,7 @@ class _LiveMemberPickerState extends State<_LiveMemberPicker> {
   }
 }
 
-class _MemberPicker extends StatefulWidget {
-  final Member? current;
-  final String title;
-  const _MemberPicker({this.current, required this.title});
-  @override
-  State<_MemberPicker> createState() => _MemberPickerState();
-}
-
-class _MemberPickerState extends State<_MemberPicker> {
-  String q = '';
-  @override
-  Widget build(BuildContext context) {
-    final list = [
-      for (final m in members)
-        if (memberMatches(m, q)) m,
-    ];
-    final h = MediaQuery.of(context).size.height;
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
-      child: SafeArea(
-        child: SizedBox(
-          height: h * 0.72,
-          child: Column(
-            children: [
-              _handle(),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 6, 20, 10),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        widget.title,
-                        style: _ts(17, w: FontWeight.w600),
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: Text(
-                        '取消',
-                        style: _ts(15, w: FontWeight.w500, c: _muted),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-                child: Container(
-                  height: 44,
-                  padding: const EdgeInsets.symmetric(horizontal: 14),
-                  decoration: BoxDecoration(
-                    color: C.inset,
-                    borderRadius: BorderRadius.circular(22),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.search_rounded, size: 20, color: _muted),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: TextField(
-                          onChanged: (v) => setState(() => q = v),
-                          onTapOutside: onTapOutsideDismiss,
-                          style: _ts(14),
-                          decoration: InputDecoration(
-                            isCollapsed: true,
-                            border: InputBorder.none,
-                            hintText: '搜索姓名 / 车牌 / 手机号',
-                            hintStyle: TextStyle(fontSize: 14, color: _muted),
-                          ),
-                        ),
-                      ),
-                      if (q.isNotEmpty)
-                        GestureDetector(
-                          onTap: () => setState(() => q = ''),
-                          child: Icon(
-                            Icons.cancel_rounded,
-                            size: 18,
-                            color: C.faint,
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-              Expanded(
-                child: list.isEmpty
-                    ? Center(
-                        child: Text('没有找到匹配的客户', style: _ts(14, c: _muted)),
-                      )
-                    : ListView(
-                        keyboardDismissBehavior:
-                            ScrollViewKeyboardDismissBehavior.onDrag,
-                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-                        children: [
-                          for (final m in list)
-                            GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              onTap: () => Navigator.pop(context, m),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 10,
-                                ),
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    bottom: BorderSide(color: _line),
-                                  ),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 40,
-                                      height: 40,
-                                      alignment: Alignment.center,
-                                      decoration: BoxDecoration(
-                                        color: m.level == '黑金' ? _ink : C.chip,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Text(
-                                        m.name.substring(0, 1),
-                                        style: _ts(
-                                          15,
-                                          w: FontWeight.w600,
-                                          c: m.level == '黑金'
-                                              ? const Color(0xFFF5D78E)
-                                              : C.sub,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Text(
-                                                m.name,
-                                                style: _ts(
-                                                  15,
-                                                  w: FontWeight.w500,
-                                                ),
-                                              ),
-                                              const SizedBox(width: 6),
-                                              Text(
-                                                m.level,
-                                                style: _ts(
-                                                  11,
-                                                  w: FontWeight.w600,
-                                                  c: _muted,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          const SizedBox(height: 2),
-                                          Text(
-                                            '${m.plate} · ${m.phone.isEmpty ? '' : '${m.phone.substring(0, 3)} **** ${m.phone.substring(7)}'}',
-                                            style: _ts(12, c: _muted),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    if (widget.current == m)
-                                      const Icon(
-                                        Icons.check_rounded,
-                                        size: 20,
-                                        color: _primary,
-                                      ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 // ───────── 日期 ─────────
-const _today = (2026, 10, 31);
-
 /// 日期选择。年 / 月 / 日三列联动：月份决定天数（含闰年），并受 [min]、[max] 限制。
 /// 生日：1930 年至今天；入库 / 开支等已发生的日期：最近一年内、不晚于今天；其余：前后各一年。
 Future<String?> pickDate(
@@ -784,7 +440,8 @@ Future<String?> pickDate(
   bool pastOnly = false,
   bool fullFormat = false,
 }) {
-  final now = DateTime(_today.$1, _today.$2, _today.$3);
+  final clock = DateTime.now();
+  final now = DateTime(clock.year, clock.month, clock.day);
   final min = birthday
       ? DateTime(1930)
       : DateTime(now.year - 1, now.month, now.day);
@@ -1169,182 +826,11 @@ Future<String?> pickAmount(BuildContext context, String title, String current) {
   );
 }
 
-// ───────── 入口：按字段类型选择 ─────────
-const _techs = ['老周', '小陈', '张师傅', '李国强', '王磊'];
-
-Future<void> hPick(
-  BuildContext context,
-  String kind,
-  String label,
-  StrCtrl c,
-) async {
-  final route = ModalRoute.of(context)?.settings.name;
-  String? r;
-  switch (kind) {
-    case 'birthday':
-      r = await pickDate(context, '选择生日', birthday: true, current: c.v);
-    case 'datefull':
-      r = await pickDate(
-        context,
-        '选择$label',
-        birthday: false,
-        current: c.v,
-        fullFormat: true,
-      );
-    case 'date':
-      r = await pickDate(
-        context,
-        '选择$label',
-        birthday: false,
-        current: c.v,
-        pastOnly: true,
-      );
-    case 'time':
-      r = await pickTime(context, label.isEmpty ? '选择时间' : '选择$label时间', c.v);
-    case 'car':
-      r = await pickCarModel(context, c.v);
-    case 'city':
-      final selection = await pickCity(context, c.v);
-      if (selection != null) {
-        r = selection.label;
-        if (route == 'RegShop') {
-          RegistrationDraft.provinceCode = selection.province.code;
-          RegistrationDraft.cityCode = selection.city.code;
-        }
-      }
-    case 'amount':
-      r = await pickAmount(context, label, c.v);
-    case 'referrer':
-      if (merchantApi.hasSession) {
-        // 推荐人是本店已有的会员，选中后保存会员 ID（云函数校验属于本店）
-        final m = await pickLiveMember(context, title: '选择推荐人');
-        if (m != null) {
-          CatalogDraft.set('members', 'referrer_id', m.id);
-          r = '${m.name} · ${m.level}';
-        }
-      } else {
-        final m = await pickMember(context, title: '选择推荐人');
-        if (m != null) r = '${m.name} · ${m.level}';
-      }
-    case 'category':
-      r = await pickFromList(context, '选择分类', [
-        '镀晶镀膜',
-        '洗车',
-        '贴膜',
-        '内饰',
-        '改色膜',
-        '保养维修',
-      ], c.v);
-    case 'duration':
-      r = await pickFromList(context, '标准工时', [
-        '0.5 小时',
-        '1 小时',
-        '2 小时',
-        '3 小时',
-        '4 小时',
-        '6 小时',
-        '8 小时',
-        if (!(merchantApi.hasSession && route == 'ServiceEdit')) '2 天',
-      ], c.v);
-    case 'supplier':
-      r = await pickFromList(context, '选择供应商', [
-        '蓝盾膜业',
-        '驰光化工',
-        '车美汇',
-        '金牌耗材',
-        '新材科技',
-      ], c.v);
-    case 'payee':
-      r = await pickFromList(context, '选择收款方', [
-        '市供电局',
-        '自来水公司',
-        '房东',
-        '美团',
-        '广告公司',
-        '物业',
-      ], c.v);
-    case 'account':
-      r = await pickFromList(context, '选择$label', [
-        '微信',
-        '支付宝',
-        '现金',
-        '对公转账',
-        '银行卡',
-      ], c.v);
-    case 'station':
-      r = await pickFromList(context, '选择工位', [
-        '1 号工位 · 空闲',
-        '2 号工位 · 施工中',
-        '3 号工位 · 施工中',
-        '4 号工位 · 空闲（推荐）',
-        '5 号工位 · 空闲',
-      ], c.v);
-    case 'tech':
-      r = await pickFromList(context, '选择技师', _techs, c.v);
-    case 'workorder':
-      r = await pickFromList(context, '关联工单', [
-        '沪A·8K29M 镀晶养护',
-        '沪AD·61207 全车隐形车衣',
-        '沪B·2C519 全车精洗 · 打蜡',
-      ], c.v);
-    case 'multiplier':
-      r = await pickFromList(context, '积分倍率', [
-        '1 倍',
-        '1.5 倍',
-        '2 倍',
-        '3 倍',
-      ], c.v);
-    case 'gift':
-      r = await pickFromList(context, '生日礼', [
-        '不赠送',
-        '赠精致洗车 1 次',
-        '赠精致洗车 2 次',
-        '赠 50 元券',
-      ], c.v);
-    case 'packageLimit':
-      r = await pickFromList(context, '每人限购', [
-        '不限',
-        '1 份',
-        '2 份',
-        '3 份',
-        '5 份',
-        '10 份',
-      ], c.v);
-    case 'vehicleScope':
-      r = await pickFromList(context, '适用车型', [
-        '全部车型',
-        '仅轿车',
-        '仅 SUV',
-        '仅 MPV',
-        '新能源车',
-      ], c.v);
-    case 'budgetFrom':
-      r = await pickFromList(context, '调剂来源', [
-        '营销',
-        '人工',
-        '房租',
-        '水电',
-        '其他',
-      ], c.v);
-    default:
-      r = await pickFromList(context, label, [c.v], c.v);
-  }
-  if (r != null) {
-    c.set(r);
-    if (!context.mounted) return;
-    if (kind == 'category' &&
-        ModalRoute.of(context)?.settings.name == 'ServiceEdit') {
-      CatalogDraft.set('services', 'category', r);
-    }
-  }
-}
-
 // ───────── 车牌输入 ─────────
 const _provinces = '京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼';
 const _alnum = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
 
 /// 新能源 / 燃油车切换（与页面上的“燃油车 · 蓝牌 / 新能源 · 绿牌”分段控件联动）。
-final ValueNotifier<bool> plateEnergy = ValueNotifier<bool>(true);
 
 class PlateCtrl extends ChangeNotifier {
   final List<String> chars = List.filled(8, '');
@@ -1362,6 +848,15 @@ class PlateCtrl extends ChangeNotifier {
 
   /// 已输入的车牌（不含空位）。
   String get text => chars.take(length).join();
+
+  void setText(String value) {
+    final next = value.characters.take(8).toList();
+    for (var i = 0; i < chars.length; i++) {
+      chars[i] = i < next.length ? next[i] : '';
+    }
+    focus = next.length.clamp(0, length - 1);
+    notifyListeners();
+  }
 
   void setGreen(bool g) {
     if (g == green) return;
@@ -1390,66 +885,15 @@ class PlateCtrl extends ChangeNotifier {
 }
 
 class HPlate extends StatefulWidget {
-  final String initial;
-  final bool green;
-
-  /// 是否跟随页面上的 plateEnergy 分段控件。
-  final bool linked;
-  const HPlate({
-    super.key,
-    required this.initial,
-    required this.green,
-    this.linked = false,
-  });
+  final PlateCtrl controller;
+  const HPlate({super.key, required this.controller});
   @override
   State<HPlate> createState() => _HPlateState();
 }
 
 class _HPlateState extends State<HPlate> {
-  late final PlateCtrl ctrl = _make();
+  PlateCtrl get ctrl => widget.controller;
   bool _sheetOpen = false;
-
-  /// 办卡 / 添加车辆页：从空白开始，输入的车牌和车牌类型写回草稿；其他页面沿用设计稿示例。
-  PlateCtrl _make() {
-    final route = ModalRoute.of(context)?.settings.name;
-    final kind = route == 'MemberAdd'
-        ? 'members'
-        : route == 'VehicleAdd'
-        ? 'vehicles'
-        : null;
-    if (!merchantApi.hasSession || kind == null) {
-      return PlateCtrl(widget.initial, widget.green);
-    }
-    // 从“扫码找会员 · 没找到”进来办卡时，车牌用识别出的那个
-    final prefill = kind == 'members' ? ScanFlow.takePrefillPlate() : null;
-    final green = prefill == null ? widget.green : prefill.length == 8;
-    if (widget.linked && prefill != null) plateEnergy.value = green;
-    final c = PlateCtrl(prefill ?? '', green);
-    void write() {
-      CatalogDraft.set(kind, 'plate', c.text);
-      CatalogDraft.set(kind, 'energy', c.green ? 'ev' : 'fuel');
-    }
-
-    write();
-    c.addListener(write);
-    return c;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.linked) plateEnergy.value = widget.green;
-    if (widget.linked) plateEnergy.addListener(_sync);
-  }
-
-  void _sync() => ctrl.setGreen(plateEnergy.value);
-
-  @override
-  void dispose() {
-    if (widget.linked) plateEnergy.removeListener(_sync);
-    ctrl.dispose();
-    super.dispose();
-  }
 
   Future<void> _openKeyboard() async {
     if (_sheetOpen) return;
@@ -1496,7 +940,6 @@ class _HPlateState extends State<HPlate> {
       return GestureDetector(
         onTap: () => setState(() {
           ctrl.setGreen(true);
-          if (widget.linked) plateEnergy.value = true;
           ctrl.focusAt(7);
           _openKeyboard();
         }),
@@ -1629,172 +1072,3 @@ class _PlateKeyboard extends StatelessWidget {
     ),
   );
 }
-
-// ───────── 获取验证码（60 秒倒计时）─────────
-class CodeCtrl extends ChangeNotifier {
-  /// 同一页有多个“获取验证码”时的序号（按出现顺序，0 起）。
-  int slot = 0;
-  int seconds = 0;
-
-  /// 请求验证码中：按钮显示转圈和“发送中…”，期间不可再点；失败立即恢复。
-  bool sending = false;
-  void setSending(bool v) {
-    if (sending == v) return;
-    sending = v;
-    notifyListeners();
-  }
-
-  Timer? _timer;
-  void start() {
-    seconds = 60;
-    notifyListeners();
-    _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (t) {
-      seconds--;
-      if (seconds <= 0) t.cancel();
-      notifyListeners();
-    });
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
-}
-
-class HCodeHolder extends StatefulWidget {
-  final Widget Function(BuildContext, CodeCtrl) builder;
-  const HCodeHolder({super.key, required this.builder});
-  @override
-  State<HCodeHolder> createState() => _HCodeHolderState();
-}
-
-class _HCodeHolderState extends State<HCodeHolder> {
-  final CodeCtrl ctrl = CodeCtrl();
-  bool _claimed = false;
-  String _route = '';
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_claimed) return;
-    _claimed = true;
-    _route = ModalRoute.of(context)?.settings.name ?? '';
-    ctrl.slot = RegistrationDraft.claim('code:$_route', this);
-  }
-
-  @override
-  void dispose() {
-    if (_claimed) RegistrationDraft.release('code:$_route', this);
-    ctrl.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => widget.builder(context, ctrl);
-}
-
-void hSendCode(BuildContext context, CodeCtrl c) {
-  if (c.seconds > 0 || c.sending) return;
-  final route = ModalRoute.of(context)?.settings.name;
-  if (route == 'RegPhone') {
-    _sendRegistrationCode(context, c);
-    return;
-  }
-  if (route == 'ForgotVerify') {
-    // 忘记密码：手机号手动输入（登录页和修改密码页两个入口一样）
-    unawaited(
-      sendCodeTo(
-        context,
-        c,
-        RegistrationDraft.get('ForgotVerify', '请输入手机号'),
-        purpose: 'reset_password',
-      ),
-    );
-    return;
-  }
-  if (merchantApi.hasSession && route == 'DeleteAccount') {
-    // 注销账号：验证码发到当前账号绑定的手机号
-    unawaited(
-      sendCodeTo(
-        context,
-        c,
-        storeProfile.localPhone,
-        purpose: 'delete_account',
-      ),
-    );
-    return;
-  }
-  if (merchantApi.hasSession && route == 'ChangePhone') {
-    // 第一个按钮发到当前手机号，第二个发到新手机号。
-    final phone = c.slot == 0
-        ? storeProfile.localPhone
-        : RegistrationDraft.get('ChangePhone', '请输入新手机号');
-    unawaited(
-      sendCodeTo(
-        context,
-        c,
-        phone,
-        purpose: c.slot == 0 ? 'change_phone_old' : 'change_phone_new',
-      ),
-    );
-    return;
-  }
-  hToastOn(ScaffoldMessenger.of(context), '当前页面暂不支持短信验证码');
-}
-
-Future<void> _sendRegistrationCode(BuildContext context, CodeCtrl c) =>
-    sendCodeTo(context, c, RegistrationDraft.get('RegPhone', '请输入手机号'));
-
-/// 向 [phone] 发送用途明确的验证码，验证码只通过短信交付。
-Future<void> sendCodeTo(
-  BuildContext context,
-  CodeCtrl c,
-  String phone, {
-  String purpose = 'register',
-}) async {
-  if (c.sending) return;
-  if (!RegExp(r'^1[3-9]\d{9}$').hasMatch(phone)) {
-    hToastOn(ScaffoldMessenger.of(context), '请输入正确的 11 位手机号');
-    return;
-  }
-  c.setSending(true);
-  try {
-    // 加载指示至少停留 500ms，避免一闪而过
-    await Future.wait<void>([
-      merchantApi.sendCode(phone, purpose: purpose),
-      Future<void>.delayed(kIndicatorMinShow),
-    ]);
-    c.setSending(false);
-    if (!context.mounted) return;
-    c.start();
-    hToastOn(ScaffoldMessenger.of(context), '验证码已发送，请查看短信');
-  } catch (e) {
-    c.setSending(false);
-    // 失败立即恢复可点，直接展示服务端的原因（如“今日发送次数已达上限”）
-    if (context.mounted) AppToast.error(context, e);
-  }
-}
-
-Widget hCodeText(CodeCtrl c, TextStyle style) => ListenableBuilder(
-  listenable: c,
-  builder: (_, _) {
-    if (c.sending) {
-      // 设计稿的验证码按钮加载态：转圈（16）+ “发送中…”，灰色
-      final grey = style.copyWith(color: _muted);
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          AppSpinner(size: 16, color: _muted),
-          const SizedBox(width: 6),
-          Text('发送中…', style: grey),
-        ],
-      );
-    }
-    return Text(
-      c.seconds > 0 ? '${c.seconds} 秒后重发' : '获取验证码',
-      style: c.seconds > 0 ? style.copyWith(color: _muted) : style,
-    );
-  },
-);

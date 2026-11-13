@@ -1,11 +1,12 @@
 import 'dart:async';
 
-import 'package:autocare_merchant/backend/catalog_draft.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/backend/store_profile.dart';
 import 'package:autocare_merchant/kit/kit.dart' show HSel, HSwitch;
-import 'package:autocare_merchant/pages/card_tiers_live_page.dart';
-import 'package:autocare_merchant/pages/gen/gen_routes.dart';
+import 'package:autocare_merchant/pages/catalog/card_tiers_live_page.dart';
+import 'package:autocare_merchant/pages/catalog/card_tier_edit_page.dart';
+import 'package:autocare_merchant/widgets/card_face.dart';
+import 'package:autocare_merchant/widgets/color_fields.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -84,11 +85,12 @@ Map<String, dynamic> _card({
 void main() {
   late MerchantApi original;
   late _Api api;
+  Map<String, dynamic>? initial;
   setUp(() {
     original = merchantApi;
     api = _Api();
     merchantApi = api;
-    CatalogDraft.current = null;
+    initial = null;
     storeProfile.clear();
   });
   tearDown(() {
@@ -114,7 +116,7 @@ void main() {
         initialRoute: 'CardTierEdit',
         onGenerateRoute: (s) => MaterialPageRoute(
           settings: s,
-          builder: (_) => Builder(builder: genRoutes[s.name]!),
+          builder: (_) => CardTierEditPage(initial: initial),
         ),
       ),
     );
@@ -125,9 +127,17 @@ void main() {
     (w) => w is TextField && w.decoration?.hintText == hint,
   );
 
+  Future<void> select(WidgetTester t, String current, String next) async {
+    await t.ensureVisible(find.text(current).last);
+    await t.tap(find.text(current).last);
+    await t.pumpAndSettle();
+    await t.tap(find.text(next).last);
+    await t.pumpAndSettle();
+  }
+
   group('编辑页读写真实字段', () {
     testWidgets('已有卡种：各项配置回显', (t) async {
-      CatalogDraft.begin('cards', _card());
+      initial = _card();
       await openEdit(t);
       expect(t.widget<TextField>(field('请输入单次充值满')).controller!.text, '10000');
       expect(t.widget<TextField>(field('请输入累计消费满')).controller!.text, '30000');
@@ -139,19 +149,19 @@ void main() {
     });
 
     testWidgets('新建卡种：默认值，升级条件为空并显示 placeholder', (t) async {
-      CatalogDraft.begin('cards');
+      initial = null;
       await openEdit(t);
       expect(t.widget<TextField>(field('请输入单次充值满')).controller!.text, isEmpty);
       expect(t.widget<TextField>(field('请输入累计消费满')).controller!.text, isEmpty);
       expect(find.text('1 倍'), findsOneWidget);
       expect(find.text('不赠送'), findsOneWidget);
-      expect(CatalogDraft.priorityBooking, isFalse);
+      expect(t.widget<HSwitch>(find.byType(HSwitch)).value, isFalse);
       expect(find.text('卡种名称'), findsWidgets); // 预览里的占位名
     });
 
     testWidgets('卡面预览随名称实时变化，门店名来自当前门店', (t) async {
       storeProfile.apply({'name': '蓝鲸养护', 'phone': '+8613900000000'});
-      CatalogDraft.begin('cards');
+      initial = null;
       await openEdit(t);
       expect(find.text('蓝鲸养护'), findsOneWidget);
       await t.enterText(field('请输入卡种名称'), '至尊卡');
@@ -160,23 +170,23 @@ void main() {
     });
 
     testWidgets('普通会员是白色卡面：编辑时不选任何色块，保存后仍是白色', (t) async {
-      CatalogDraft.begin(
-        'cards',
-        _card(
-          name: '普通会员',
-          color: 'white',
-          discount: 1,
-          recharge: null,
-          cumulative: null,
-          multiplier: 1,
-          gift: '',
-          priority: false,
-          validity: 'forever',
-        ),
+      initial = _card(
+        name: '普通会员',
+        color: 'white',
+        discount: 1,
+        recharge: null,
+        cumulative: null,
+        multiplier: 1,
+        gift: '',
+        priority: false,
+        validity: 'forever',
       );
       await openEdit(t);
-      expect(CatalogDraft.colorIndex, 3); // 普通会员配色是第 4 个系统默认配色
-      expect(CatalogDraft.cardColor, 'white');
+      expect(
+        t.widget<CardColorChoices>(find.byType(CardColorChoices)).value,
+        'white',
+      ); // 普通会员配色是第 4 个系统默认配色
+      expect(t.widget<CardPreview>(find.byType(CardPreview)).color, 'white');
       await t.tap(find.text('保存').first);
       await t.pump(const Duration(milliseconds: 800));
       expect(api.saved.single['color'], 'white');
@@ -186,61 +196,70 @@ void main() {
     });
 
     testWidgets('白色卡面的卡种可以改成别的颜色', (t) async {
-      CatalogDraft.begin('cards', _card(color: 'white'));
+      initial = _card(color: 'white');
       await openEdit(t);
       final sem = t.ensureSemantics();
       await t.tap(find.bySemanticsLabel('银卡配色'));
       await t.pumpAndSettle();
-      expect(CatalogDraft.cardColor, 'silver');
+      expect(t.widget<CardPreview>(find.byType(CardPreview)).color, 'silver');
       sem.dispose();
     });
 
-    testWidgets('选卡面颜色 / 有效期 / 预约优先：写回草稿并刷新预览', (t) async {
-      CatalogDraft.begin('cards', _card(validity: 'forever', priority: false));
+    testWidgets('选卡面颜色 / 有效期 / 预约优先：更新页面状态并刷新预览', (t) async {
+      initial = _card(validity: 'forever', priority: false);
       await openEdit(t);
       final sem = t.ensureSemantics();
-      expect(CatalogDraft.colorIndex, 0);
+      expect(
+        t.widget<CardColorChoices>(find.byType(CardColorChoices)).value,
+        'black',
+      );
       await t.tap(find.bySemanticsLabel('金卡配色'));
       await t.pumpAndSettle();
-      expect(CatalogDraft.cardColors[CatalogDraft.colorIndex], 'champagne');
+      expect(
+        t.widget<CardPreview>(find.byType(CardPreview)).color,
+        'champagne',
+      );
       // 卡面颜色换成了通用色块组，页面里的 HSel 只剩有效期 3 个
       final chips = find.byType(HSel);
       expect(chips, findsNWidgets(3));
       await t.tap(chips.at(1));
       await t.pumpAndSettle();
-      expect(CatalogDraft.cardValidities[CatalogDraft.validityIndex], '1y');
+      expect(t.widget<HSel>(chips.at(1)).ctrl.selected, {1});
       await t.ensureVisible(find.byType(HSwitch));
       await t.tap(find.byType(HSwitch));
       await t.pumpAndSettle();
-      expect(CatalogDraft.priorityBooking, isTrue);
+      expect(t.widget<HSwitch>(find.byType(HSwitch)).value, isTrue);
       sem.dispose();
     });
 
     testWidgets('积分倍率 / 生日礼的选择器可以打开，不再提示未接通', (t) async {
-      CatalogDraft.begin('cards', _card());
+      initial = _card();
       await openEdit(t);
       await t.ensureVisible(find.text('2 倍'));
       await t.tap(find.text('2 倍'));
       await t.pumpAndSettle();
       expect(find.text('暂未接通'), findsNothing);
       expect(find.text('1.5 倍'), findsWidgets);
-      // 选择器的结果写回草稿
-      CatalogDraft.setMultiplier('3 倍');
-      CatalogDraft.setGift('赠 50 元券');
-      expect(CatalogDraft.multiplierLabel, '3 倍');
-      expect(CatalogDraft.giftLabel, '赠 50 元券');
-      CatalogDraft.setGift('不赠送');
-      expect(CatalogDraft.giftLabel, '不赠送');
+      await t.tap(find.text('3 倍').last);
+      await t.pumpAndSettle();
+      expect(find.text('3 倍'), findsOneWidget);
+      await select(t, '赠精致洗车 2 次', '赠 50 元券');
+      expect(find.text('赠 50 元券'), findsOneWidget);
+      await select(t, '赠 50 元券', '不赠送');
+      expect(find.text('不赠送'), findsOneWidget);
     });
 
     testWidgets('保存：所有配置一起提交', (t) async {
-      CatalogDraft.begin('cards', _card());
+      initial = _card();
       await openEdit(t);
       await t.enterText(field('请输入单次充值满'), '8,000');
       await t.enterText(field('请输入累计消费满'), '');
-      CatalogDraft.set('cards', 'color', 'silver');
-      CatalogDraft.setMultiplier('1.5 倍');
-      CatalogDraft.setGift('不赠送');
+      final semantics = t.ensureSemantics();
+      await t.tap(find.bySemanticsLabel('银卡配色'));
+      await t.pumpAndSettle();
+      semantics.dispose();
+      await select(t, '2 倍', '1.5 倍');
+      await select(t, '赠精致洗车 2 次', '不赠送');
       await t.tap(find.text('保存').first);
       await t.pump(const Duration(milliseconds: 800));
       expect(api.saved, hasLength(1));
@@ -259,7 +278,7 @@ void main() {
     });
 
     testWidgets('升级条件金额不合法：提示并且不提交', (t) async {
-      CatalogDraft.begin('cards', _card());
+      initial = _card();
       await openEdit(t);
       await t.enterText(field('请输入单次充值满'), 'abc');
       await t.tap(find.text('保存').first);

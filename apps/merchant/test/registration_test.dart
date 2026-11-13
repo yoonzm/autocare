@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
-import 'package:autocare_merchant/backend/registration_draft.dart';
 import 'package:autocare_merchant/kit/kit.dart' show HCheck;
-import 'package:autocare_merchant/pages/gen/gen_routes.dart';
+import 'package:autocare_merchant/navigation/page_registry.dart';
 
 /// 记录调用的假后端。
 class _FakeApi extends MerchantApi {
@@ -26,7 +25,6 @@ void main() {
     original = merchantApi;
     api = _FakeApi();
     merchantApi = api;
-    RegistrationDraft.clear();
   });
   tearDown(() => merchantApi = original);
 
@@ -39,7 +37,7 @@ void main() {
         initialRoute: 'RegPhone',
         onGenerateRoute: (s) => MaterialPageRoute(
           settings: s,
-          builder: (_) => Builder(builder: genRoutes[s.name]!),
+          builder: (_) => Builder(builder: pageBuilders[s.name]!),
         ),
       ),
     );

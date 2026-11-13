@@ -5,10 +5,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:autocare_merchant/backend/appointment_flow.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/backend/member_flow.dart';
-import 'package:autocare_merchant/backend/hold_flow.dart';
+import 'package:autocare_merchant/backend/hold_store.dart';
 import 'package:autocare_merchant/backend/service_store.dart';
 import 'package:autocare_merchant/kit/async_kit.dart';
-import 'package:autocare_merchant/pages/order_page.dart';
+import 'package:autocare_merchant/pages/orders/order_page.dart';
 
 import 'members_test.dart' show MemberFakeApi, phone, row;
 
@@ -52,14 +52,14 @@ void main() {
     original = merchantApi;
     merchantApi = api = TechnicianApi();
     ServiceStore.clear();
-    HoldFlow.reset();
-    MemberFlow.current = row();
+    HoldStore.reset();
+
   });
   tearDown(() {
     merchantApi = original;
-    MemberFlow.current = null;
+
     ServiceStore.clear();
-    HoldFlow.reset();
+    HoldStore.reset();
   });
   Future<void> open(
     WidgetTester t, {

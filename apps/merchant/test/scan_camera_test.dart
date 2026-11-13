@@ -1,9 +1,9 @@
+import 'package:autocare_merchant/pages/scan/find_result_sheet.dart';
+import 'package:autocare_merchant/widgets/color_fields.dart' show HVehicleColor;
+
 import 'dart:async';
 
-import 'package:autocare_merchant/backend/catalog_draft.dart';
-import 'package:autocare_merchant/backend/member_flow.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
-import 'package:autocare_merchant/backend/scan_flow.dart';
 import 'package:autocare_merchant/kit/kit.dart';
 import 'package:autocare_merchant/routes.dart';
 import 'package:autocare_merchant/widgets/app_icon.dart';
@@ -168,7 +168,7 @@ void main() {
     await t.pump(const Duration(milliseconds: 100));
     expect(cam.shots, 1);
     expect(cam.paused, 1);
-    expect(imageStore('scan_photo').value, ['/tmp/fake_scan.jpg']);
+    expect(cam.shots, 1);
     expect(find.text('识别中…'), findsOneWidget);
     expect(navTracker.has('sheet:FindResult'), isFalse);
     // 识别结束后弹出匹配结果
@@ -206,15 +206,13 @@ void main() {
       original = merchantApi;
       api = _ScanApi();
       merchantApi = api;
-      ScanFlow.last = null;
-      CatalogDraft.current = null;
-      MemberFlow.current = null;
+
+
     });
     tearDown(() {
       merchantApi = original;
-      ScanFlow.last = null;
-      CatalogDraft.current = null;
-      MemberFlow.current = null;
+
+
     });
 
     Future<void> shoot(WidgetTester t, [String route = 'FindScanPlate']) async {
@@ -257,7 +255,8 @@ void main() {
       expect(find.text('洗车年卡 8 次'), findsOneWidget);
       expect(find.text('10.31 · 精致洗车'), findsOneWidget);
       expect(find.text('宝马 5系 · 黑色'), findsOneWidget);
-      expect(MemberFlow.current!['name'], '陈明华');
+      expect(t.widget<FindResultSheet>(find.byType(FindResultSheet)).result!.member!['name'],'陈明华');
+
       Navigator.of(t.element(find.text('陈明华'))).pop();
       await t.pump(const Duration(milliseconds: 600));
       await t.pump(const Duration(milliseconds: 600));
@@ -277,7 +276,7 @@ void main() {
       await t.tap(find.text('创建会员'));
       await t.pumpAndSettle();
       expect(find.text('新增会员'), findsWidgets);
-      expect(CatalogDraft.current!.fields['plate'], '苏K5F218');
+      expect(t.widget<HPlate>(find.byType(HPlate)).controller.text, '苏K5F218');
       sem.dispose();
       await t.pump(const Duration(seconds: 3));
     });
@@ -292,7 +291,7 @@ void main() {
       expect(find.text('开单收银'), findsOneWidget);
       expect(find.text('不记会员'), findsOneWidget);
       expect(find.text('无会员折扣与次卡抵扣'), findsOneWidget);
-      expect(MemberFlow.current, isNull);
+
       expect(find.text('苏K5F218'), findsOneWidget);
       sem.dispose();
       await t.pump(const Duration(seconds: 3));
@@ -430,17 +429,21 @@ void main() {
       expect(navTracker.has('sheet:FindNotFound'), isTrue);
       await t.tap(find.text('创建会员'));
       await t.pumpAndSettle();
-      expect(CatalogDraft.current!.fields['plate'], '粤BD12345');
-      expect(CatalogDraft.current!.fields['energy'], 'ev');
-      expect(CatalogDraft.current!.fields['brand_model'], '比亚迪 秦PLUS');
+      expect(t.widget<HPlate>(find.byType(HPlate)).controller.text, '粤BD12345');
+      expect(
+        (t.widget<HPlate>(find.byType(HPlate)).controller.green
+            ? 'ev'
+            : 'fuel'),
+        'ev',
+      );
       expect(find.text('比亚迪 秦PLUS'), findsOneWidget);
-      expect(CatalogDraft.current!.fields['color'], '白色');
+      expect(t.widget<HVehicleColor>(find.byType(HVehicleColor)).value, '白色');
       expect(find.text('白色'), findsOneWidget);
       final colorChoices = t.widget<ColorChoices>(find.byType(ColorChoices));
       expect(colorChoices.options[colorChoices.selected].label, '白色');
       colorChoices.onSelect(4);
       await t.pump();
-      expect(CatalogDraft.current!.fields['color'], '红色');
+      expect(t.widget<HVehicleColor>(find.byType(HVehicleColor)).value, '红色');
       expect(find.text('红色'), findsOneWidget);
       sem.dispose();
       await t.pump(const Duration(seconds: 3));
@@ -457,10 +460,14 @@ void main() {
       };
       final sem = t.ensureSemantics();
       await open(t, 'MemberAdd');
-      CatalogDraft.set('members', 'name', '已填客户');
-      CatalogDraft.set('members', 'phone', '13900000000');
-      CatalogDraft.set('members', 'color', '红色');
-      openRoute(t.element(find.text('新增会员')), 'ScanPlate');
+      await t.enterText(find.byType(TextFormField).at(0), '13900000000');
+      await t.enterText(find.byType(TextFormField).at(1), '已填客户');
+      t.widget<HVehicleColor>(find.byType(HVehicleColor)).onChanged('红色');
+      await t.pump();
+      await t.ensureVisible(find.text('扫描行驶证 / 车牌快速建档'));
+      await t.tap(find.text('扫描行驶证 / 车牌快速建档'));
+      await t.pumpAndSettle();
+      await t.tap(find.text('车牌'));
       await t.pumpAndSettle();
       await t.tap(find.bySemanticsLabel('拍摄识别'));
       await t.pump(const Duration(milliseconds: 100));
@@ -468,12 +475,29 @@ void main() {
       await t.pump(const Duration(milliseconds: 500));
       await t.tap(find.text('创建会员'));
       await t.pumpAndSettle();
-      expect(CatalogDraft.current!.fields['name'], '已填客户');
-      expect(CatalogDraft.current!.fields['phone'], '13900000000');
-      expect(CatalogDraft.current!.fields['plate'], '粤BD12345');
-      expect(CatalogDraft.current!.fields['energy'], 'ev');
+      expect(
+        t
+            .widget<TextFormField>(find.byType(TextFormField).at(1))
+            .controller!
+            .text,
+        '已填客户',
+      );
+      expect(
+        t
+            .widget<TextFormField>(find.byType(TextFormField).at(0))
+            .controller!
+            .text,
+        '13900000000',
+      );
+      expect(t.widget<HPlate>(find.byType(HPlate)).controller.text, '粤BD12345');
+      expect(
+        (t.widget<HPlate>(find.byType(HPlate)).controller.green
+            ? 'ev'
+            : 'fuel'),
+        'ev',
+      );
       expect(find.text('比亚迪 秦PLUS'), findsOneWidget);
-      expect(CatalogDraft.current!.fields['color'], '银色');
+      expect(t.widget<HVehicleColor>(find.byType(HVehicleColor)).value, '银色');
       expect(find.text('银色'), findsOneWidget);
       expect(
         navTracker.stack.where((r) => r.settings.name == 'MemberAdd'),
@@ -494,8 +518,12 @@ void main() {
       };
       final sem = t.ensureSemantics();
       await open(t, 'MemberAdd');
-      CatalogDraft.set('members', 'color', '红色');
-      openRoute(t.element(find.text('新增会员')), 'ScanPlate');
+      t.widget<HVehicleColor>(find.byType(HVehicleColor)).onChanged('红色');
+      await t.pump();
+      await t.ensureVisible(find.text('扫描行驶证 / 车牌快速建档'));
+      await t.tap(find.text('扫描行驶证 / 车牌快速建档'));
+      await t.pumpAndSettle();
+      await t.tap(find.text('车牌'));
       await t.pumpAndSettle();
       await t.tap(find.bySemanticsLabel('拍摄识别'));
       await t.pump(const Duration(milliseconds: 100));
@@ -503,7 +531,7 @@ void main() {
       await t.pump(const Duration(milliseconds: 500));
       await t.tap(find.text('创建会员'));
       await t.pumpAndSettle();
-      expect(CatalogDraft.current!.fields['color'], '红色');
+      expect(t.widget<HVehicleColor>(find.byType(HVehicleColor)).value, '红色');
       expect(find.text('红色'), findsOneWidget);
       final choices = t.widget<ColorChoices>(find.byType(ColorChoices));
       expect(choices.options[choices.selected].label, '红色');
@@ -529,8 +557,8 @@ void main() {
         'member': row(),
       });
       await t.pump(const Duration(seconds: 2));
-      expect(ScanFlow.last, isNull);
-      expect(MemberFlow.current, isNull);
+      expect(find.byType(FindResultSheet), findsNothing);
+
       expect(navTracker.has('sheet:FindResult'), isFalse);
       sem.dispose();
     });

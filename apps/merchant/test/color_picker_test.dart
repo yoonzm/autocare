@@ -1,8 +1,7 @@
-import 'package:autocare_merchant/backend/catalog_draft.dart';
-import 'package:autocare_merchant/backend/member_flow.dart';
+import 'package:autocare_merchant/widgets/color_fields.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/kit/color_picker.dart';
-import 'package:autocare_merchant/pages/member_add_page.dart';
+import 'package:autocare_merchant/pages/members/member_add_page.dart';
 import 'package:autocare_merchant/routes.dart';
 import 'package:autocare_merchant/widgets/card_face.dart';
 import 'package:flutter/material.dart';
@@ -19,12 +18,12 @@ void main() {
     RecentColors.clearMemory();
     original = merchantApi;
     merchantApi = MemberFakeApi();
-    CatalogDraft.current = null;
+
     navTracker.stack.clear();
   });
   tearDown(() {
     merchantApi = original;
-    CatalogDraft.current = null;
+
     RecentColors.clearMemory();
     navTracker.stack.clear();
   });
@@ -168,8 +167,7 @@ void main() {
 
   testWidgets('新增会员的车身颜色：自定义颜色带名称时存名称，不带名称时存色值', (t) async {
     phone(t);
-    CatalogDraft.current = null;
-    MemberFlow.beginAdd();
+
     await t.pumpWidget(
       MaterialApp(
         navigatorObservers: [navTracker],
@@ -195,18 +193,21 @@ void main() {
     await t.enterText(sheetFields.at(1), '酒红');
     await t.tap(find.text('确定'));
     await t.pumpAndSettle();
-    expect(CatalogDraft.current!.fields['color'], '酒红');
+    expect(t.widget<HVehicleColor>(find.byType(HVehicleColor)).value, '酒红');
     expect(find.text('酒红'), findsOneWidget);
     // 再选一个预设：回到预设名；再自定义不填名称：存色值
     await t.tap(find.bySemanticsLabel('蓝色'));
     await t.pumpAndSettle();
-    expect(CatalogDraft.current!.fields['color'], '蓝色');
+    expect(t.widget<HVehicleColor>(find.byType(HVehicleColor)).value, '蓝色');
     await t.tap(find.bySemanticsLabel('自定义颜色'));
     await t.pumpAndSettle();
     await t.enterText(sheetFields.at(0), '2F4F4F');
     await t.tap(find.text('确定'));
     await t.pumpAndSettle();
-    expect(CatalogDraft.current!.fields['color'], '#2F4F4F');
+    expect(
+      t.widget<HVehicleColor>(find.byType(HVehicleColor)).value,
+      '#2F4F4F',
+    );
     sem.dispose();
   });
 
@@ -232,7 +233,7 @@ void main() {
     expect(nearWhite.shadow, isTrue);
     // 预设颜色不受影响
     expect(cardPalette(ctx, 'champagne').bg, const Color(0xFFF3E2B3));
-    expect(CatalogDraft.customCardColor('#7A4B2A'), const Color(0xFF7A4B2A));
-    expect(CatalogDraft.customCardColor('black'), isNull);
+    expect(colorFromHex('#7A4B2A'), const Color(0xFF7A4B2A));
+    expect(colorFromHex('black'), isNull);
   });
 }

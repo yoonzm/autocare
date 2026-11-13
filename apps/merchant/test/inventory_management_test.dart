@@ -5,7 +5,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
-import 'package:autocare_merchant/pages/inventory_management_page.dart';
+import 'package:autocare_merchant/pages/inventory/inventory_management_page.dart';
 
 import 'members_test.dart' show MemberFakeApi, phone;
 
@@ -144,6 +144,14 @@ void main() {
   testWidgets('预警设置保存服务端字段、未接通知不会假装开启', (t) async {
     await open(t, 'settings');
     expect(find.text('库存预警设置'), findsOneWidget);
+    for (final days in ['7 天', '15 天', '30 天', '60 天']) {
+      await t.ensureVisible(find.text(days));
+      await t.tap(find.text(days));
+      await t.pump();
+      for (final channel in ['首页卡片', 'App 消息推送', '微信服务通知']) {
+        expect(find.text(channel), findsOneWidget, reason: '选择过期阈值不能按文案过滤通知渠道');
+      }
+    }
     await t.ensureVisible(find.text('保存'));
     await t.tap(find.text('保存'));
     await t.pumpAndSettle();
@@ -151,7 +159,7 @@ void main() {
       api.calls
           .where((c) => c['action'] == 'inventory_settings_save')
           .single['payload']['expiry_days'],
-      15,
+      60,
     );
   });
 }

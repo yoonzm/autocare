@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../backend/catalog_draft.dart';
 import '../kit/color_picker.dart';
 import '../kit/kit.dart' show dk, hts;
 
@@ -34,7 +33,7 @@ const vehicleColorOptions = [
   ColorOption('紫色', Color(0xFF6B46C1)),
 ];
 
-/// 卡面颜色的 4 个系统默认配色（顺序与 [CatalogDraft.cardColors] 一致）。
+/// 卡面颜色的 4 个系统默认配色（顺序与 [CardColorChoices.values] 一致）。
 const cardColorOptions = [
   ColorOption('黑金卡配色', Color(0xFF18181B), check: Color(0xFFF5D78E)),
   ColorOption('金卡配色', Color(0xFFF3E2B3), check: Color(0xFF3D2B0E)),
@@ -55,37 +54,29 @@ const cardColorOptions = [
 /// 新增会员里的“车身颜色”：标题行显示当前颜色名，下面是 6 列色块网格，末尾是自定义颜色。
 /// 选中的颜色名写入会员草稿（自定义颜色没填名称时用色值，如 `#7A4B2A`）。
 class HVehicleColor extends StatefulWidget {
-  const HVehicleColor({super.key});
+  final String value;
+  final ValueChanged<String> onChanged;
+  const HVehicleColor({
+    super.key,
+    required this.value,
+    required this.onChanged,
+  });
   @override
   State<HVehicleColor> createState() => _HVehicleColorState();
 }
 
 class _HVehicleColorState extends State<HVehicleColor> {
-  int sel = 0;
-  Color? custom;
-  String customLabel = '';
-
-  @override
-  void initState() {
-    super.initState();
-    if (CatalogDraft.current?.kind != 'members') return;
-    final saved = CatalogDraft.text('members', 'color', '');
-    if (saved.isEmpty) return;
-    final index = vehicleColorOptions.indexWhere(
-      (option) => option.label == saved,
-    );
-    if (index >= 0) {
-      sel = index;
-    } else {
-      sel = -1;
-      customLabel = saved;
-      custom = colorFromHex(saved) ?? const Color(0xFF7A4B2A);
-    }
-  }
-
-  String get label => sel >= 0 ? vehicleColorOptions[sel].label : customLabel;
-
-  void _write() => CatalogDraft.set('members', 'color', label);
+  Color? _customColor;
+  String _customLabel = '';
+  int get sel =>
+      vehicleColorOptions.indexWhere((option) => option.label == widget.value);
+  String get label => widget.value;
+  String get customLabel => widget.value;
+  Color? get custom => sel >= 0
+      ? null
+      : _customLabel == widget.value
+      ? _customColor
+      : colorFromHex(widget.value) ?? const Color(0xFF7A4B2A);
 
   Future<void> _pickCustom() async {
     final r = await showColorPicker(
@@ -99,11 +90,10 @@ class _HVehicleColorState extends State<HVehicleColor> {
     );
     if (r == null || !mounted) return;
     setState(() {
-      sel = -1;
-      custom = r.color;
-      customLabel = r.name.isEmpty ? r.hex : r.name;
+      _customColor = r.color;
+      _customLabel = r.name.isEmpty ? r.hex : r.name;
     });
-    _write();
+    widget.onChanged(_customLabel);
   }
 
   @override
@@ -128,8 +118,7 @@ class _HVehicleColorState extends State<HVehicleColor> {
             custom: sel < 0 ? custom : null,
             columns: 6,
             onSelect: (i) {
-              setState(() => sel = i);
-              _write();
+              widget.onChanged(vehicleColorOptions[i].label);
             },
             onCustom: _pickCustom,
           ),
@@ -139,54 +128,36 @@ class _HVehicleColorState extends State<HVehicleColor> {
   }
 }
 
-/// 编辑卡种里的“卡面颜色”：4 个系统默认配色 + 自定义颜色。选中的颜色写入卡种草稿
-/// （默认配色存 black / champagne / silver / white，自定义存 `#RRGGBB`）。
-Widget hCardColorChoices() => const _CardColorChoices();
+/// 卡面颜色受控输入；状态归页面所有，不读取或修改全局草稿。
+class CardColorChoices extends StatelessWidget {
+  static const values = ['black', 'champagne', 'silver', 'white'];
+  final String value;
+  final ValueChanged<String> onChanged;
+  const CardColorChoices({
+    super.key,
+    required this.value,
+    required this.onChanged,
+  });
 
-class _CardColorChoices extends StatefulWidget {
-  const _CardColorChoices();
-  @override
-  State<_CardColorChoices> createState() => _CardColorChoicesState();
-}
+  Color? get custom =>
+      RegExp(r'^#[0-9a-fA-F]{6}$').hasMatch(value) ? colorFromHex(value) : null;
 
-class _CardColorChoicesState extends State<_CardColorChoices> {
-  /// 没有草稿（设计预览）时的本地选中项。
-  String _local = 'black';
-
-  String get _value =>
-      CatalogDraft.current?.kind == 'cards' ? CatalogDraft.cardColor : _local;
-
-  void _set(String v) {
-    setState(() => _local = v);
-    if (CatalogDraft.current?.kind == 'cards') {
-      CatalogDraft.set('cards', 'color', v);
-    }
-  }
-
-  Future<void> _pickCustom() async {
-    final cur = CatalogDraft.customCardColor(_value);
-    final r = await showColorPicker(
+  Future<void> _pickCustom(BuildContext context) async {
+    final result = await showColorPicker(
       context,
       title: '自定义卡面颜色',
-      initial: cur ?? const Color(0xFF7A4B2A),
+      initial: custom ?? const Color(0xFF7A4B2A),
     );
-    if (r != null && mounted) _set(r.hex);
+    if (result != null && context.mounted) onChanged(result.hex);
   }
 
   @override
-  Widget build(BuildContext context) => ListenableBuilder(
-    listenable: CatalogDraft.preview,
-    builder: (context, _) {
-      final v = _value;
-      final custom = CatalogDraft.customCardColor(v);
-      return ColorChoices(
-        options: cardColorOptions,
-        selected: custom != null ? -1 : CatalogDraft.cardColors.indexOf(v),
-        custom: custom,
-        size: 32,
-        onSelect: (i) => _set(CatalogDraft.cardColors[i]),
-        onCustom: _pickCustom,
-      );
-    },
+  Widget build(BuildContext context) => ColorChoices(
+    options: cardColorOptions,
+    selected: custom != null ? -1 : values.indexOf(value),
+    custom: custom,
+    size: 32,
+    onSelect: (i) => onChanged(values[i]),
+    onCustom: () => _pickCustom(context),
   );
 }

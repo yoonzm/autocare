@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
-import 'package:autocare_merchant/pages/inventory_live_page.dart';
+import 'package:autocare_merchant/pages/inventory/inventory_live_page.dart';
 
 import 'members_test.dart' show MemberFakeApi, phone;
 

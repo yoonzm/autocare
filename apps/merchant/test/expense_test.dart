@@ -5,14 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:autocare_merchant/widgets/expense_bindings.dart';
-import 'package:autocare_merchant/pages/expenses_live_template.dart';
-import 'package:autocare_merchant/pages/expense_add_live_template.dart';
-import 'package:autocare_merchant/pages/expense_detail_live_template.dart';
-import 'package:autocare_merchant/pages/expense_budget_live_template.dart';
-import 'package:autocare_merchant/pages/budget_total_live_template.dart';
-import 'package:autocare_merchant/pages/budget_edit_live_template.dart';
-import 'package:autocare_merchant/pages/budget_adjust_live_template.dart';
+import 'package:autocare_merchant/pages/expenses/expense_controller.dart';
+import 'package:autocare_merchant/pages/expenses/expenses_live_template.dart';
+import 'package:autocare_merchant/pages/expenses/expense_add_live_template.dart';
+import 'package:autocare_merchant/pages/expenses/expense_detail_live_template.dart';
+import 'package:autocare_merchant/pages/expenses/expense_budget_live_template.dart';
+import 'package:autocare_merchant/pages/expenses/budget_total_live_template.dart';
+import 'package:autocare_merchant/pages/expenses/budget_edit_live_template.dart';
+import 'package:autocare_merchant/pages/expenses/budget_adjust_live_template.dart';
 import 'package:autocare_merchant/theme.dart';
 import 'package:autocare_merchant/kit/async_kit.dart';
 
@@ -163,12 +163,12 @@ void main() {
       '2026-11-01',
       board(),
       entry: entry,
-      request: (body) async {
+      request: (body, {requestId}) async {
         sent = body;
         throw const AppError('预算不足');
       },
     );
-    c.input(0, '20.50');
+    c.setEntryAmount('20.50');
     c.draft['category'] = '人工';
     await tester.pumpWidget(
       MaterialApp(

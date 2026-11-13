@@ -53,6 +53,10 @@ void main() {
     final field = t.widget<TextField>(find.byType(TextField).first);
     expect(field.controller!.text, isEmpty);
     expect(field.decoration!.hintText, '请输入手机号');
+    expect(find.bySemanticsLabel('微信登录'), findsNothing);
+    expect(find.bySemanticsLabel('本机号码一键登录'), findsNothing);
+    expect(find.text('其他方式'), findsNothing);
+    expect(find.textContaining('免费开通'), findsOneWidget);
     // 手机号为空时点登录：字段下方提示，不请求后端
     await t.ensureVisible(find.text('登录').first);
     await t.tap(find.text('登录').first);

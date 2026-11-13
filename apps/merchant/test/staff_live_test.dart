@@ -1,16 +1,15 @@
+import 'package:autocare_merchant/pages/staff/staff_editor_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
-import 'package:autocare_merchant/backend/staff_flow.dart';
 import 'package:autocare_merchant/kit/async_kit.dart';
-import 'package:autocare_merchant/pages/booking_resources_page.dart';
-import 'package:autocare_merchant/pages/role_permission_template.dart';
-import 'package:autocare_merchant/pages/staff_commission_template.dart';
-import 'package:autocare_merchant/pages/staff_detail_off_template.dart';
-import 'package:autocare_merchant/pages/staff_detail_template.dart';
-import 'package:autocare_merchant/pages/staff_invite_template.dart';
-import 'package:autocare_merchant/pages/staff_records_template.dart';
+import 'package:autocare_merchant/pages/staff/role_permission_template.dart';
+import 'package:autocare_merchant/pages/staff/staff_commission_template.dart';
+import 'package:autocare_merchant/pages/staff/staff_detail_off_template.dart';
+import 'package:autocare_merchant/pages/staff/staff_detail_template.dart';
+import 'package:autocare_merchant/pages/staff/staff_invite_template.dart';
+import 'package:autocare_merchant/pages/staff/staff_records_template.dart';
 import 'package:autocare_merchant/routes.dart' show navTracker;
 
 import 'appointments_test.dart' show BookingApi;
@@ -23,12 +22,10 @@ void main() {
     original = merchantApi;
     merchantApi = api = BookingApi();
     navTracker.stack.clear();
-    StaffFlow.reset();
   });
   tearDown(() {
     merchantApi = original;
     navTracker.stack.clear();
-    StaffFlow.reset();
   });
 
   /// 首页是空 Scaffold，被测页面压在上面，方便 openRoute 找到上一层。
@@ -56,7 +53,7 @@ void main() {
       api.calls.where((c) => c['action'] == action).toList();
 
   testWidgets('员工列表：页签人数按角色和状态统计，待激活 / 停用员工按设计稿展示', (t) async {
-    await open(t, const BookingResourcesPage(kind: 'technician'));
+    await open(t, const StaffResourcesPage());
     // 全部 / 店长 / 前台收银 / 施工技师：不含已停用
     expect(text('全部 2'), findsOneWidget);
     expect(text('店长 0'), findsOneWidget);
@@ -81,7 +78,7 @@ void main() {
   });
 
   testWidgets('「X 可以」跟随所选页签：店长 / 前台收银 / 技师各自的权限', (t) async {
-    await open(t, const BookingResourcesPage(kind: 'technician'));
+    await open(t, const StaffResourcesPage());
     await t.tap(text('前台收银 1'));
     await t.pumpAndSettle();
     expect(text('前台收银可以'), findsOneWidget);
@@ -102,13 +99,13 @@ void main() {
 
   testWidgets('没有已停用员工时不显示「已停用账号」', (t) async {
     api.staffRows.removeWhere((r) => r['status'] == 'disabled');
-    await open(t, const BookingResourcesPage(kind: 'technician'));
+    await open(t, const StaffResourcesPage());
     expect(text('已停用账号'), findsNothing);
     expect(text('0 人'), findsNothing);
   });
 
   testWidgets('角色页签筛选：前台只显示前台；店长没有员工时给出空状态', (t) async {
-    await open(t, const BookingResourcesPage(kind: 'technician'));
+    await open(t, const StaffResourcesPage());
     await t.tap(find.textContaining('前台收银').first);
     await t.pumpAndSettle();
     expect(find.textContaining('真实前台'), findsOneWidget);
@@ -133,7 +130,7 @@ void main() {
   });
 
   testWidgets('点员工行进入详情：真实本月统计、最近施工，客户好评无数据显示 —', (t) async {
-    await open(t, const BookingResourcesPage(kind: 'technician'));
+    await open(t, const StaffResourcesPage());
     await t.tap(find.textContaining('真实技师'));
     await t.pumpAndSettle();
     expect(text('员工详情'), findsOneWidget);
@@ -150,8 +147,7 @@ void main() {
   });
 
   testWidgets('详情 → 编辑：保存只提交输入，由后端校验', (t) async {
-    StaffFlow.currentId = 't1';
-    await open(t, const StaffDetailLivePage());
+    await open(t, const StaffDetailLivePage(staffId: 't1'));
     await t.tap(text('编辑'));
     await t.pumpAndSettle();
     expect(text('编辑员工'), findsOneWidget);
@@ -169,12 +165,22 @@ void main() {
 
   testWidgets('新增员工 → 邀请页：展示刚保存的员工，复制登录说明，短信明确未接通', (t) async {
     String? copied;
-    t.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
-      if (call.method == 'Clipboard.setData') copied = (call.arguments as Map)['text'] as String;
-      return null;
-    });
-    addTearDown(() => t.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
-    await open(t, const BookingResourceEditor(kind: 'technician'));
+    t.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      SystemChannels.platform,
+      (call) async {
+        if (call.method == 'Clipboard.setData') {
+          copied = (call.arguments as Map)['text'] as String;
+        }
+        return null;
+      },
+    );
+    addTearDown(
+      () => t.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        null,
+      ),
+    );
+    await open(t, const StaffEditorPage());
     final inputs = find.byType(TextFormField);
     await t.enterText(inputs.at(0), '新员工');
     await t.enterText(inputs.at(1), '13800009999');
@@ -209,8 +215,7 @@ void main() {
   });
 
   testWidgets('停用账号：无进行中订单时直接停用并回到列表', (t) async {
-    StaffFlow.currentId = 't1';
-    await open(t, const StaffDetailLivePage());
+    await open(t, const StaffDetailLivePage(staffId: 't1'));
     await t.tap(text('停用账号'));
     await t.pumpAndSettle();
     expect(text('停用 真实技师 的账号？'), findsOneWidget);
@@ -246,8 +251,7 @@ void main() {
       'busy': false,
       'month_orders': 7,
     });
-    StaffFlow.currentId = 't1';
-    await open(t, const StaffDetailLivePage());
+    await open(t, const StaffDetailLivePage(staffId: 't1'));
     await t.tap(text('停用账号'));
     await t.pumpAndSettle();
     expect(text('进行中的 1 个订单需先转交给其他技师'), findsOneWidget);
@@ -271,8 +275,7 @@ void main() {
   });
 
   testWidgets('已停用员工详情与重新启用', (t) async {
-    StaffFlow.currentId = 'x1';
-    await open(t, const StaffDetailOffLivePage());
+    await open(t, const StaffDetailOffLivePage(staffId: 'x1'));
     expect(text('已停用'), findsOneWidget);
     expect(text('原因：已离职'), findsOneWidget);
     expect(text('停用于 2026.10.18 · 操作人 店主'), findsOneWidget);
@@ -289,8 +292,7 @@ void main() {
   });
 
   testWidgets('提成方案：只有跟随项目设置可保存，其余两项提示待设计，不假装成功', (t) async {
-    StaffFlow.currentId = 't1';
-    await open(t, const StaffCommissionLivePage());
+    await open(t, const StaffCommissionLivePage(staffId: 't1'));
     expect(text('上月提成 ¥8,640'), findsNothing);
     expect(find.textContaining('上月提成 ¥8,640'), findsOneWidget);
     expect(text('真实洗车'), findsOneWidget);
@@ -308,8 +310,7 @@ void main() {
   });
 
   testWidgets('施工记录：本月 / 上月 / 全部分别按范围向后端读取', (t) async {
-    StaffFlow.currentId = 't1';
-    await open(t, const StaffRecordsLivePage());
+    await open(t, const StaffRecordsLivePage(staffId: 't1'));
     expect(find.textContaining('真实技师 · 施工记录'), findsOneWidget);
     expect(text('沪A12345'), findsOneWidget);
     expect(text('提成 待结算'), findsOneWidget);
@@ -328,14 +329,17 @@ void main() {
   });
 
   testWidgets('角色权限：技师开关逐项保存；店长固定为全部，修改只提示且不提交', (t) async {
-    StaffFlow.permissionRole = 'technician';
-    await open(t, const RolePermissionLivePage());
+    await open(t, const RolePermissionLivePage(initialRole: 'technician'));
     expect(find.textContaining('对该角色的 1 名员工立即生效'), findsOneWidget);
     // 「查看门店营业统计」默认关闭：点开后只保存技师角色这一项变化
     await t.ensureVisible(text('查看门店营业统计'));
     await t.pumpAndSettle();
-    final row = find.ancestor(of: text('查看门店营业统计'), matching: find.byType(Row)).first;
-    await t.tap(find.descendant(of: row, matching: find.byType(GestureDetector)).last);
+    final row = find
+        .ancestor(of: text('查看门店营业统计'), matching: find.byType(Row))
+        .first;
+    await t.tap(
+      find.descendant(of: row, matching: find.byType(GestureDetector)).last,
+    );
     await t.pump();
     await t.ensureVisible(text('保存'));
     await t.pumpAndSettle();
@@ -348,14 +352,17 @@ void main() {
   });
 
   testWidgets('角色权限：店长页签的开关点击只提示固定，保存不提交任何权限', (t) async {
-    StaffFlow.permissionRole = 'technician';
-    await open(t, const RolePermissionLivePage());
+    await open(t, const RolePermissionLivePage(initialRole: 'technician'));
     await t.tap(text('店长'));
     await t.pumpAndSettle();
     await t.ensureVisible(text('开单收银'));
     await t.pumpAndSettle();
-    final row = find.ancestor(of: text('开单收银'), matching: find.byType(Row)).first;
-    await t.tap(find.descendant(of: row, matching: find.byType(GestureDetector)).last);
+    final row = find
+        .ancestor(of: text('开单收银'), matching: find.byType(Row))
+        .first;
+    await t.tap(
+      find.descendant(of: row, matching: find.byType(GestureDetector)).last,
+    );
     await t.pump();
     expect(find.textContaining('店长权限固定为全部'), findsWidgets);
     await t.pump(const Duration(seconds: 4));

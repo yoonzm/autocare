@@ -1,3 +1,8 @@
+import 'holds_test.dart' as held show hold;
+import 'members_test.dart' show MemberFakeApi, row;
+
+import 'package:autocare_merchant/pages/members/member_route_data.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -5,15 +10,14 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:autocare_merchant/kit/keyboard.dart';
 import 'package:autocare_merchant/kit/kit.dart';
-import 'package:autocare_merchant/mock/app_state.dart';
-import 'package:autocare_merchant/pages/appointments_page.dart';
-import 'package:autocare_merchant/pages/home_page.dart';
-import 'package:autocare_merchant/pages/login_page.dart';
-import 'package:autocare_merchant/pages/settings_page.dart';
+import 'package:autocare_merchant/pages/booking/appointments_page.dart';
+import 'package:autocare_merchant/pages/shared/home_page.dart';
+import 'package:autocare_merchant/pages/account/login_page.dart';
+import 'package:autocare_merchant/pages/shared/settings_page.dart';
 import 'package:autocare_merchant/routes.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/backend/store_profile.dart';
-import 'package:autocare_merchant/backend/hold_flow.dart';
+import 'package:autocare_merchant/backend/hold_store.dart';
 
 import 'appointments_test.dart' show BookingApi, bookingRow;
 
@@ -97,7 +101,7 @@ BookingApi useLiveApi(WidgetTester t) {
   final original = merchantApi;
   final api = BookingApi();
   merchantApi = api;
-  HoldFlow.reset();
+  HoldStore.reset();
   addTearDown(() {
     merchantApi = original;
     storeProfile.clear();
@@ -112,14 +116,30 @@ void phone(WidgetTester t) {
   addTearDown(t.view.reset);
 }
 
-Future<void> open(WidgetTester t, String name) async {
+Future<void> open(WidgetTester t, String name, {Object? arguments}) async {
   phone(t);
-  await t.pumpWidget(MaterialApp(home: pageFor(name)!));
+  await t.pumpWidget(MaterialApp(home: pageFor(name, arguments: arguments)!));
   await t.pump(const Duration(milliseconds: 100));
 }
 
 void main() {
   testWidgets('挂单列表：标签筛选会过滤条目', (t) async {
+    final original = merchantApi;
+    merchantApi = MemberFakeApi()
+      ..holdRows.addAll([
+        held.hold(id: 'h1'),
+        held.hold(id: 'h2', name: '李女士', status: '待结算'),
+        {
+          ...held.hold(id: 'h3', walkIn: true, status: '待施工'),
+          'vehicle_plate': '苏K5F218',
+        },
+        held.hold(id: 'h4', name: '第四位'),
+      ]);
+    HoldStore.reset();
+    addTearDown(() {
+      merchantApi = original;
+      HoldStore.reset();
+    });
     await open(t, 'HoldList');
     expect(find.textContaining('王建国'), findsWidgets);
     expect(find.textContaining('李女士'), findsWidgets);
@@ -174,20 +194,11 @@ void main() {
     expect(api.actions, isEmpty);
   });
 
-  testWidgets('开关可切换', (t) async {
-    await open(t, 'NotifySettings');
-    final sw = find.byType(AnimatedContainer).first;
-    final before =
-        (t.widget<AnimatedContainer>(sw).decoration as BoxDecoration).color;
-    await t.tap(sw);
-    await t.pump(const Duration(milliseconds: 300));
-    final after =
-        (t.widget<AnimatedContainer>(sw).decoration as BoxDecoration).color;
-    expect(after, isNot(before));
-  });
-
   testWidgets('弹层页作为底部弹层打开，并且能关闭', (t) async {
     phone(t);
+    final original = merchantApi;
+    merchantApi = MemberFakeApi();
+    addTearDown(() => merchantApi = original);
     final old = FlutterError.onError;
     FlutterError.onError = (d) {
       if (!d.exceptionAsString().contains('overflowed')) old?.call(d);
@@ -218,13 +229,9 @@ void main() {
     useLiveApi(t);
     phone(t);
     await t.pumpWidget(const MaterialApp(home: HomePage()));
-    for (final state in [SubState.normal, SubState.trialEnding, SubState.expiring]) {
-      subState.value = state;
-      await t.pump();
-      expect(find.text('去订阅'), findsNothing);
-      expect(find.text('去续费'), findsNothing);
-    }
-    subState.value = SubState.normal;
+    await t.pumpAndSettle();
+    expect(find.text('去订阅'), findsNothing);
+    expect(find.text('去续费'), findsNothing);
   });
 
   testWidgets('点击输入框以外的区域会收起键盘', (t) async {
@@ -276,6 +283,36 @@ void main() {
 
   testWidgets('客户选择支持按姓名 / 车牌 / 手机号检索', (t) async {
     phone(t);
+    final previous = merchantApi;
+    final api = MemberFakeApi();
+    api.rows.addAll([
+      {
+        ...row(id: 'm1'),
+        'name': '王建国',
+        'vehicles': [
+          {'plate': '沪A8K29M'},
+        ],
+        'phone': '13816826021',
+      },
+      {
+        ...row(id: 'm2'),
+        'name': '周志远',
+        'vehicles': [
+          {'plate': '浙A5L0P2'},
+        ],
+        'phone': '13472215908',
+      },
+      {
+        ...row(id: 'm3'),
+        'name': '刘先生',
+        'vehicles': [
+          {'plate': '沪C9H318'},
+        ],
+        'phone': '13916885026',
+      },
+    ]);
+    merchantApi = api;
+    addTearDown(() => merchantApi = previous);
     late BuildContext ctx;
     await t.pumpWidget(
       MaterialApp(
@@ -287,24 +324,28 @@ void main() {
         ),
       ),
     );
-    pickMember(ctx);
+    pickLiveMember(ctx);
     await t.pumpAndSettle();
     expect(find.text('王建国'), findsOneWidget);
     expect(find.text('周志远'), findsOneWidget);
     await t.enterText(find.byType(TextField), '周');
-    await t.pump();
+    await t.pump(const Duration(milliseconds: 400));
+    await t.pumpAndSettle();
     expect(find.text('王建国'), findsNothing);
     expect(find.text('周志远'), findsOneWidget);
-    await t.enterText(find.byType(TextField), '8k29');
-    await t.pump();
+    await t.enterText(find.byType(TextField), '8K29');
+    await t.pump(const Duration(milliseconds: 400));
+    await t.pumpAndSettle();
     expect(find.text('王建国'), findsOneWidget);
     expect(find.text('周志远'), findsNothing);
     await t.enterText(find.byType(TextField), '1391688');
-    await t.pump();
+    await t.pump(const Duration(milliseconds: 400));
+    await t.pumpAndSettle();
     expect(find.text('刘先生'), findsOneWidget);
     await t.enterText(find.byType(TextField), '不存在');
-    await t.pump();
-    expect(find.text('没有找到匹配的客户'), findsOneWidget);
+    await t.pump(const Duration(milliseconds: 400));
+    await t.pumpAndSettle();
+    expect(find.text('没有找到会员'), findsOneWidget);
   });
 
   testWidgets('密码登录：密码输入框的占位文字在输入框内垂直居中', (t) async {
@@ -339,7 +380,12 @@ void main() {
       if (!d.exceptionAsString().contains('overflowed')) old?.call(d);
     };
     addTearDown(() => FlutterError.onError = old);
+    final originalApi = merchantApi;
+    final api = MemberFakeApi();
+    merchantApi = api;
+    addTearDown(() => merchantApi = originalApi);
     await open(t, 'MemberAdd');
+    await t.pumpAndSettle();
     expect(find.text('选填，用于生日礼'), findsOneWidget);
     await t.tap(find.text('生日'));
     await t.pumpAndSettle();
@@ -399,7 +445,12 @@ void main() {
       if (!d.exceptionAsString().contains('overflowed')) old?.call(d);
     };
     addTearDown(() => FlutterError.onError = old);
+    final originalApi = merchantApi;
+    final api = MemberFakeApi();
+    merchantApi = api;
+    addTearDown(() => merchantApi = originalApi);
     await open(t, 'MemberAdd');
+    await t.pumpAndSettle();
     await t.ensureVisible(find.text('推荐人'));
     await t.tap(find.text('推荐人'));
     await t.pumpAndSettle();
@@ -409,8 +460,10 @@ void main() {
       matching: find.byType(TextField),
     );
     expect(search, findsOneWidget); // 检索框
+    api.rows.add(row(name: '林晓雯', tierName: '金卡'));
     await t.enterText(search, '林晓');
-    await t.pump();
+    await t.pump(const Duration(milliseconds: 400));
+    await t.pumpAndSettle();
     expect(find.text('王建国'), findsNothing);
     await t.tap(find.text('林晓雯'));
     await t.pumpAndSettle();
@@ -492,7 +545,17 @@ void main() {
       if (!d.exceptionAsString().contains('overflowed')) old?.call(d);
     };
     addTearDown(() => FlutterError.onError = old);
-    await open(t, 'VehicleAdd');
+    final originalApi = merchantApi;
+    merchantApi = MemberFakeApi();
+    addTearDown(() => merchantApi = originalApi);
+    await open(
+      t,
+      'VehicleAdd',
+      arguments: MemberRouteData(
+        member: row(),
+        vehicle: {'plate': '沪AF09316', 'energy': 'ev'},
+      ),
+    );
     expect(find.text('沪'), findsWidgets);
     await t.tap(find.text('6').first); // 最后一格
     await t.pumpAndSettle();

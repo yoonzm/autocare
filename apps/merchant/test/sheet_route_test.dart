@@ -1,8 +1,6 @@
 import 'package:flutter/cupertino.dart' show CupertinoSheetRoute;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:autocare_merchant/backend/catalog_draft.dart';
-import 'package:autocare_merchant/backend/member_flow.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/routes.dart';
 
@@ -13,8 +11,8 @@ void main() {
   setUp(() {
     original = merchantApi;
     merchantApi = MemberFakeApi();
-    CatalogDraft.current = null;
-    MemberFlow.current = null;
+
+
     navTracker.stack.clear();
   });
   tearDown(() {

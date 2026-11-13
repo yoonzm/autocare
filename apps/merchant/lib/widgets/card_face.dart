@@ -2,11 +2,13 @@
 // 所以预览看到什么颜色，保存后列表里就是什么颜色。
 import 'package:flutter/material.dart';
 
-import '../backend/catalog_draft.dart';
-import '../backend/store_profile.dart';
+import '../kit/color_picker.dart' show colorFromHex;
 import '../kit/kit.dart';
 import 'common.dart' show Rings;
 import '../theme.dart' show softShadow;
+
+String _formatNumber(num n) =>
+    n == n.roundToDouble() ? n.round().toString() : n.toString();
 
 class CardPalette {
   final Color bg;
@@ -63,7 +65,9 @@ CardPalette _customPalette(Color bg) {
 }
 
 CardPalette cardPalette(BuildContext context, String color) {
-  final custom = CatalogDraft.customCardColor(color);
+  final custom = RegExp(r'^#[0-9a-fA-F]{6}$').hasMatch(color)
+      ? colorFromHex(color)
+      : null;
   if (custom != null) return _customPalette(custom);
   switch (color) {
     case 'champagne':
@@ -138,7 +142,7 @@ String cardBenefitLine(Map<String, dynamic> row) {
     if (cumulative != null) '累计消费 ¥${_money(cumulative)}',
   ].join(' / ');
   final points =
-      '积分 ${CatalogDraft.formatNumber(num.tryParse('${row['points_multiplier'] ?? ''}') ?? 1)} 倍';
+      '积分 ${_formatNumber(num.tryParse('${row['points_multiplier'] ?? ''}') ?? 1)} 倍';
   if (cond.isNotEmpty) return '$cond · $points';
   // 没有升级条件的卡（如新门店默认的“普通会员”）显示卡种自己的说明
   final note = '${row['description'] ?? ''}'.trim();
@@ -261,14 +265,22 @@ class CardTileFace extends StatelessWidget {
 }
 
 /// 编辑页顶部的“卡面预览”：随正在编辑的名称 / 折扣 / 颜色实时变化，
-/// 门店名来自当前登录门店。生成脚本把设计稿里的静态预览换成它。
-Widget hCardPreview() => ListenableBuilder(
-  listenable: Listenable.merge([CatalogDraft.preview, storeProfile]),
-  builder: (context, _) {
-    final p = cardPalette(context, CatalogDraft.cardColor);
-    final name = CatalogDraft.cardName.trim();
-    final discount = CatalogDraft.cardDiscount;
-    final store = storeProfile.live ? storeProfile.name : '驰光汽车美容';
+/// 名称、折扣、颜色和门店名全部由调用页面显式提供。
+class CardPreview extends StatelessWidget {
+  final String name;
+  final num discount;
+  final String color;
+  final String store;
+  const CardPreview({
+    super.key,
+    required this.name,
+    required this.discount,
+    required this.color,
+    required this.store,
+  });
+  @override
+  Widget build(BuildContext context) {
+    final p = cardPalette(context, color);
     return Container(
       height: 168,
       clipBehavior: Clip.antiAlias,
@@ -336,5 +348,5 @@ Widget hCardPreview() => ListenableBuilder(
         ],
       ),
     );
-  },
-);
+  }
+}

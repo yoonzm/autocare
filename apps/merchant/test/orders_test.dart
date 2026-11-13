@@ -3,9 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
-import 'package:autocare_merchant/backend/order_flow.dart';
+import 'package:autocare_merchant/pages/orders/order_list_controller.dart';
+import 'package:autocare_merchant/pages/orders/order_detail_ref.dart';
 import 'package:autocare_merchant/kit/async_kit.dart';
-import 'package:autocare_merchant/pages/order_live_pages.dart';
+import 'package:autocare_merchant/pages/orders/order_live_pages.dart';
 import 'package:autocare_merchant/routes.dart' show navTracker;
 
 import 'members_test.dart' show MemberFakeApi, phone;
@@ -98,6 +99,17 @@ class OrderApi extends MemberFakeApi {
   };
 
   @override
+  Future<Map<String, dynamic>> refundOrder(
+    String id,
+    String reason, {
+    String? requestId,
+  }) => orderCenter('refund', {
+    'id': id,
+    'reason': reason,
+    'request_id': requestId,
+  });
+
+  @override
   Future<Map<String, dynamic>> orderCenter(
     String action, [
     Map<String, dynamic> values = const {},
@@ -150,7 +162,7 @@ class OrderApi extends MemberFakeApi {
         ],
         'payments': [
           {'label': '储值余额', 'amount': 1000},
-          {'label': '微信支付', 'amount': 422},
+          {'label': '现金支付', 'amount': 422},
         ],
         'refund': orderRefunded
             ? {'at': _iso(13, 0), 'reason': '服务问题', 'amount': 1422}
@@ -173,12 +185,9 @@ void main() {
     original = merchantApi;
     merchantApi = api = OrderApi();
     navTracker.stack.clear();
-    OrderFlow.reset();
-    OrderRef.current = null;
   });
   tearDown(() {
     merchantApi = original;
-    OrderFlow.reset();
   });
 
   Future<void> open(WidgetTester t, Widget page) async {
@@ -287,7 +296,7 @@ void main() {
     expect(find.byType(AppSkeleton), findsNothing);
   });
 
-  testWidgets('点订单行进入详情：项目明细、支付明细（储值 + 微信）、经办人，退款按钮可见', (t) async {
+  testWidgets('点订单行进入详情：项目明细、支付明细（储值 + 现金）、经办人，退款按钮可见', (t) async {
     await open(t, const OrderListLivePage());
     await t.tap(find.text('全车镀晶 · 9H'));
     await t.pumpAndSettle();
@@ -299,7 +308,7 @@ void main() {
     expect(find.text('王建国 · 黑金会员'), findsOneWidget);
     expect(find.text('项目明细'), findsOneWidget);
     expect(find.text('储值余额'), findsOneWidget);
-    expect(find.text('微信支付'), findsOneWidget);
+    expect(find.text('现金支付'), findsOneWidget);
     expect(find.text('实付合计'), findsOneWidget);
     expect(find.text('经办人'), findsOneWidget);
     expect(find.text('退款'), findsOneWidget);
@@ -307,8 +316,12 @@ void main() {
   });
 
   testWidgets('一期订单详情隐藏补打小票，保留退款入口', (t) async {
-    OrderRef.current = (kind: 'consume', id: 'c1');
-    await open(t, const OrderDetailLivePage());
+    await open(
+      t,
+      const OrderDetailLivePage(
+        order: OrderDetailRef(kind: 'consume', id: 'c1'),
+      ),
+    );
     expect(find.text('订单详情'), findsOneWidget);
     expect(find.text('补打小票'), findsNothing);
     expect(find.text('退款'), findsOneWidget);
@@ -316,14 +329,18 @@ void main() {
   });
 
   testWidgets('退款：全额退款 + 原因提交到云函数，成功后订单显示已退款，退款按钮消失', (t) async {
-    OrderRef.current = (kind: 'consume', id: 'c1');
-    await open(t, const OrderDetailLivePage());
+    await open(
+      t,
+      const OrderDetailLivePage(
+        order: OrderDetailRef(kind: 'consume', id: 'c1'),
+      ),
+    );
     await t.tap(find.text('退款'));
     await t.pumpAndSettle();
     expect(find.text('订单退款'), findsOneWidget);
     expect(find.text('全额退款 ¥1,422'), findsOneWidget);
     expect(find.text('退回储值余额'), findsOneWidget);
-    expect(find.text('原路退回微信'), findsOneWidget);
+    expect(find.text('现金交还'), findsOneWidget);
     expect(find.text('退款后订单状态变为已退款，操作不能撤销。'), findsOneWidget);
     await t.tap(find.text('会员不再需要'));
     await t.pumpAndSettle();
@@ -340,8 +357,12 @@ void main() {
   });
 
   testWidgets('部分退款没有规则：提示暂未支持，不提交', (t) async {
-    OrderRef.current = (kind: 'consume', id: 'c1');
-    await open(t, const OrderDetailLivePage());
+    await open(
+      t,
+      const OrderDetailLivePage(
+        order: OrderDetailRef(kind: 'consume', id: 'c1'),
+      ),
+    );
     await t.tap(find.text('退款'));
     await t.pumpAndSettle();
     await t.tap(find.text('部分退款'));
@@ -352,8 +373,12 @@ void main() {
   });
 
   testWidgets('退款失败：保留弹层并说明原因，可再次提交', (t) async {
-    OrderRef.current = (kind: 'consume', id: 'c1');
-    await open(t, const OrderDetailLivePage());
+    await open(
+      t,
+      const OrderDetailLivePage(
+        order: OrderDetailRef(kind: 'consume', id: 'c1'),
+      ),
+    );
     await t.tap(find.text('退款'));
     await t.pumpAndSettle();
     api.orderRefunded = false;
@@ -370,8 +395,12 @@ void main() {
   testWidgets('充值订单详情：入账明细，没有退款按钮', (t) async {
     final recharge = _RechargeDetail(api);
     merchantApi = recharge;
-    OrderRef.current = (kind: 'recharge', id: 'r1');
-    await open(t, const OrderDetailLivePage());
+    await open(
+      t,
+      const OrderDetailLivePage(
+        order: OrderDetailRef(kind: 'recharge', id: 'r1'),
+      ),
+    );
     expect(find.text('入账明细'), findsOneWidget);
     expect(find.text('+¥2,000'), findsOneWidget);
     expect(find.text('+¥300'), findsOneWidget);
@@ -381,14 +410,23 @@ void main() {
   });
 
   test('金额与日期文字：千分位、整数不带小数、负数、日期分组标题', () {
-    expect(OrderFlow.money(1422), '¥1,422');
-    expect(OrderFlow.money(68.5), '¥68.50');
-    expect(OrderFlow.money(-432), '-¥432');
-    expect(OrderFlow.money2(1422), '¥1,422.00');
+    expect(OrderListController.money(1422), '¥1,422');
+    expect(OrderListController.money(68.5), '¥68.50');
+    expect(OrderListController.money(-432), '-¥432');
+    expect(OrderListController.money2(1422), '¥1,422.00');
     final now = DateTime.utc(2026, 11, 3, 4); // 北京时间 11-03 12:00
-    expect(OrderFlow.dayTitle('2026-11-03T02:00:00Z', now: now), '今天');
-    expect(OrderFlow.dayTitle('2026-11-02T02:00:00Z', now: now), '昨天 11.02');
-    expect(OrderFlow.dayTitle('2026-10-31T02:00:00Z', now: now), '10.31 周六');
+    expect(
+      OrderListController.dayTitle('2026-11-03T02:00:00Z', now: now),
+      '今天',
+    );
+    expect(
+      OrderListController.dayTitle('2026-11-02T02:00:00Z', now: now),
+      '昨天 11.02',
+    );
+    expect(
+      OrderListController.dayTitle('2026-10-31T02:00:00Z', now: now),
+      '10.31 周六',
+    );
   });
 }
 

@@ -1,15 +1,15 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:autocare_merchant/backend/hold_flow.dart';
+import 'package:autocare_merchant/backend/hold_store.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/backend/service_store.dart';
 import 'package:autocare_merchant/backend/store_context.dart';
 import 'package:autocare_merchant/backend/store_profile.dart';
 import 'package:autocare_merchant/kit/async_kit.dart';
 import 'package:autocare_merchant/main.dart';
-import 'package:autocare_merchant/pages/home_page.dart';
-import 'package:autocare_merchant/pages/shell.dart';
+import 'package:autocare_merchant/pages/shared/home_page.dart';
+import 'package:autocare_merchant/pages/shared/shell.dart';
 
 import 'holds_test.dart' show hold;
 import 'members_test.dart' show MemberFakeApi, phone;
@@ -88,7 +88,7 @@ void main() {
     expect(find.byType(AppSkeleton), findsWidgets);
     expect(find.byType(HomePage), findsNothing);
     expect(api.requests, isEmpty);
-    expect(HoldFlow.loading, isFalse);
+    expect(HoldStore.loading, isFalse);
     api.profile.complete(selected);
     await t.pumpAndSettle();
     expect(StoreContext.id, 'second');
@@ -97,9 +97,9 @@ void main() {
     expect(find.text('第二店会员'), findsOneWidget);
     expect(api.requests, containsAll(['home_stats', 'holds']));
     expect(api.storeIds, everyElement('second'));
-    expect(HoldFlow.loading, isFalse);
-    expect(HoldFlow.error, isNull);
-    expect(HoldFlow.holds!.single['id'], 'second-hold');
+    expect(HoldStore.loading, isFalse);
+    expect(HoldStore.error, isNull);
+    expect(HoldStore.holds!.single['id'], 'second-hold');
     expect(find.text('门店已切换，请重新操作'), findsNothing);
     expect(t.takeException(), isNull);
   });
@@ -115,75 +115,75 @@ void main() {
     await t.pumpAndSettle();
     expect(find.text('重试'), findsOneWidget);
     expect(api.requests, isEmpty);
-    expect(HoldFlow.loading, isFalse);
+    expect(HoldStore.loading, isFalse);
     api.profile = Completer()..complete(selected);
     await t.tap(find.text('重试'));
     await t.pumpAndSettle();
     expect(find.text('88.88'), findsOneWidget);
     expect(api.storeIds, everyElement('second'));
-    expect(HoldFlow.loading, isFalse);
+    expect(HoldStore.loading, isFalse);
     expect(t.takeException(), isNull);
   });
 
   test('挂单在门店标识变化后结束：丢弃旧结果，自动读取新店并结束加载', () async {
     final api = DelayedHoldsApi();
     merchantApi = api;
-    final previous = HoldFlow.load();
+    final previous = HoldStore.load();
     StoreContext.bind('second');
     api.first.complete([
       {'id': 'stale-first-store'},
     ]);
     await previous;
     expect(api.calls, 2);
-    expect(HoldFlow.holds, isNull);
+    expect(HoldStore.holds, isNull);
     api.next.complete([
       {'id': 'second-store'},
     ]);
     await Future<void>.delayed(Duration.zero);
-    expect(HoldFlow.holds!.single['id'], 'second-store');
-    expect(HoldFlow.loading, isFalse);
+    expect(HoldStore.holds!.single['id'], 'second-store');
+    expect(HoldStore.loading, isFalse);
   });
 
   test('旧请求结束不能释放切店后新请求的加载锁，也不能覆盖新请求', () async {
     final api = DelayedHoldsApi();
     merchantApi = api;
     StoreContext.bind('first');
-    final previous = HoldFlow.load();
+    final previous = HoldStore.load();
     StoreContext.bind('second');
-    HoldFlow.reset();
-    final current = HoldFlow.load();
+    HoldStore.reset();
+    final current = HoldStore.load();
     api.first.complete([
       {'id': 'first-store'},
     ]);
     await previous;
-    expect(HoldFlow.loading, isTrue);
-    expect(HoldFlow.holds, isNull);
+    expect(HoldStore.loading, isTrue);
+    expect(HoldStore.holds, isNull);
     api.next.complete([
       {'id': 'second-store'},
     ]);
     await current;
-    expect(HoldFlow.loading, isFalse);
-    expect(HoldFlow.holds!.single['id'], 'second-store');
+    expect(HoldStore.loading, isFalse);
+    expect(HoldStore.holds!.single['id'], 'second-store');
   });
 
   test('挂单重置即使没有改变 epoch，也不能被迟到的旧请求回填', () async {
     final api = DelayedHoldsApi();
     merchantApi = api;
-    final previous = HoldFlow.load();
-    HoldFlow.reset();
+    final previous = HoldStore.load();
+    HoldStore.reset();
     api.first.complete([
       {'id': 'stale'},
     ]);
     await previous;
-    expect(HoldFlow.loading, isFalse);
-    expect(HoldFlow.holds, isNull);
+    expect(HoldStore.loading, isFalse);
+    expect(HoldStore.holds, isNull);
     expect(api.calls, 1);
   });
 
   test('门店恢复后的挂单请求失败会结束加载并保留可重试错误', () async {
     final api = DelayedHoldsApi();
     merchantApi = api;
-    final previous = HoldFlow.load();
+    final previous = HoldStore.load();
     StoreContext.bind('second');
     api.first.completeError(const AppError('过期请求', type: AppErrorType.network));
     await previous;
@@ -191,7 +191,7 @@ void main() {
       const AppError('当前门店网络异常', type: AppErrorType.network),
     );
     await Future<void>.delayed(Duration.zero);
-    expect(HoldFlow.loading, isFalse);
-    expect(HoldFlow.error!.message, '当前门店网络异常');
+    expect(HoldStore.loading, isFalse);
+    expect(HoldStore.error!.message, '当前门店网络异常');
   });
 }

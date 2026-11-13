@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
-import 'package:autocare_merchant/pages/gen/gen_routes.dart';
 import 'package:autocare_merchant/routes.dart';
 
 import 'members_test.dart' show MemberFakeApi, app, phone;
@@ -162,7 +161,7 @@ void main() {
       'StockCheckResult',
       'ScanProduct',
     ]) {
-      expect(genRoutes.containsKey(n), isTrue, reason: n);
+      expect(pageFor(n), isNotNull, reason: n);
     }
     // 新增 / 编辑商品是手写的真实页面（test/product_edit_test.dart）。
     expect(pageFor('ProductEdit'), isNotNull);
@@ -175,7 +174,7 @@ void main() {
       'ScanProductResult',
       'ScanProductNotFound',
     ]) {
-      expect(genSheets.containsKey(n), isTrue, reason: n);
+      expect(sheetRoutes.containsKey(n), isTrue, reason: n);
     }
     // 设计稿里的状态页不单独成页
     for (final n in [
@@ -187,7 +186,7 @@ void main() {
       'StockOutReturn',
       'StockOutScrap',
     ]) {
-      expect(genRoutes.containsKey(n), isFalse, reason: n);
+      expect(pageFor(n), isNull, reason: n);
     }
   });
 

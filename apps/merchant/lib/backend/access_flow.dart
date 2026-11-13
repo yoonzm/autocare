@@ -1,14 +1,16 @@
+import 'data_snapshot.dart';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../kit/async_kit.dart';
-import '../pages/access_pages.dart';
-import '../pages/login_page.dart';
-import '../pages/shell.dart';
-import '../pages/staff_tabs.dart';
+import '../pages/account/access_pages.dart';
+import '../pages/account/login_page.dart';
+import '../pages/shared/shell.dart';
+import '../widgets/store_session_gate.dart';
+import '../pages/staff_app/staff_tabs.dart';
 import 'merchant_api.dart';
 import 'store_context.dart';
-import 'store_profile.dart';
 
 /// 登录后的身份与权限（合并后的 App：老板 / 店长 / 前台收银 / 施工技师）。
 /// 页面入口只用 [Access.can] 决定显示什么；权限由服务端逐请求校验，前端隐藏不是安全边界。
@@ -42,12 +44,13 @@ class Access {
   };
 
   /// 页头里的简称（设计稿写「技师」而不是「施工技师」）。
-  static String roleBrief([String? r]) => (r ?? role) == 'technician' ? '技师' : roleName(r);
+  static String roleBrief([String? r]) =>
+      (r ?? role) == 'technician' ? '技师' : roleName(r);
 
   static const _kRole = 'access_role';
 
   static void apply(Map<String, dynamic> ctx) {
-    context = ctx;
+    context = dataSnapshot(ctx);
     role = '${ctx['role'] ?? 'owner'}';
     caps = {
       for (final e in ((ctx['caps'] as Map?) ?? const {}).entries)
@@ -99,14 +102,11 @@ class Access {
 class AccessFlow {
   AccessFlow._();
 
-  static List<Map<String, dynamic>> items = const [];
-  static String phone = '';
-
   static Future<void> afterLogin(BuildContext context, String phone) async {
-    AccessFlow.phone = phone;
     final data = await merchantApi.identity('list');
-    items = [
-      for (final i in (data['items'] as List)) Map<String, dynamic>.from(i as Map),
+    final items = [
+      for (final i in (data['items'] as List))
+        Map<String, dynamic>.from(i as Map),
     ];
     if (!context.mounted) return;
     if (items.isEmpty) {
@@ -114,15 +114,20 @@ class AccessFlow {
     } else if (items.length == 1) {
       await enter(context, items.first);
     } else {
-      _replace(context, const StIdentityLivePage());
+      _replace(context, StIdentityLivePage(items: items, phone: phone));
     }
   }
 
   /// 选择身份并进入对应外壳。待确认加入的员工身份先到「加入门店」。
-  static Future<void> enter(BuildContext context, Map<String, dynamic> item) async {
+  static Future<void> enter(
+    BuildContext context,
+    Map<String, dynamic> item,
+  ) async {
     final staffId = item['kind'] == 'staff' ? '${item['staff_id']}' : null;
     await merchantApi.identity('select', {'staff_id': staffId});
+    if (!context.mounted) return;
     final ctx = await merchantApi.identity('context');
+    if (!context.mounted) return;
     Access.apply(ctx);
     await Access.remember();
     if (!context.mounted) return;
@@ -135,17 +140,12 @@ class AccessFlow {
 
   /// 加入确认之后 / 重新读取身份之后：按身份进入外壳。
   static Future<void> open(BuildContext context) async {
-    if (Access.planExpired && !Access.isOwner) {
-      _replace(context, const StPlanExpiredLivePage());
-      return;
-    }
     if (Access.usesStaffShell) {
       _replace(context, const StaffTabs());
       return;
     }
-    await storeProfile.load();
     if (!context.mounted) return;
-    _replace(context, const Shell());
+    _replace(context, const StoreSessionGate(child: Shell()));
   }
 
   static void _replace(BuildContext context, Widget page) {
@@ -158,7 +158,9 @@ class AccessFlow {
   /// 员工确认加入门店（首次登录）。
   static Future<void> join(BuildContext context) async {
     await merchantApi.identity('join');
+    if (!context.mounted) return;
     final ctx = await merchantApi.identity('context');
+    if (!context.mounted) return;
     Access.apply(ctx);
     if (!context.mounted) return;
     await open(context);
@@ -167,6 +169,7 @@ class AccessFlow {
   /// 刷新身份与权限（套餐到期页「刷新状态」、下拉刷新、被调整权限后）。
   static Future<void> refresh(BuildContext context) async {
     final ctx = await merchantApi.identity('context');
+    if (!context.mounted) return;
     Access.apply(ctx);
     if (!context.mounted) return;
     await open(context);
@@ -175,18 +178,26 @@ class AccessFlow {
   /// 「我的 → 切换身份」：重新列出身份。
   static Future<void> switchIdentity(BuildContext context) async {
     final data = await merchantApi.identity('list');
-    items = [
-      for (final i in (data['items'] as List)) Map<String, dynamic>.from(i as Map),
+    final items = [
+      for (final i in (data['items'] as List))
+        Map<String, dynamic>.from(i as Map),
     ];
     if (!context.mounted) return;
-    _replace(context, const StIdentityLivePage());
+    _replace(
+      context,
+      StIdentityLivePage(
+        items: items,
+        phone: '${Access.context['phone'] ?? ''}',
+      ),
+    );
   }
 
   static Future<void> signOut(BuildContext context) async {
     try {
       await merchantApi.signOut();
-    } catch (_) {
-      // 会话已被服务端作废，本地退出失败不影响结果
+    } catch (e) {
+      if (context.mounted) toastError(context, e);
+      return;
     }
     Access.clear();
     if (!context.mounted) return;

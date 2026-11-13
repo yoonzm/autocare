@@ -1,3 +1,4 @@
+import 'package:autocare_merchant/pages/members/member_events.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -5,10 +6,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/backend/access_flow.dart';
 import 'package:autocare_merchant/backend/store_profile.dart';
-import 'package:autocare_merchant/backend/catalog_draft.dart';
 import 'package:autocare_merchant/backend/appointment_flow.dart';
 import 'package:autocare_merchant/kit/async_kit.dart';
-import 'package:autocare_merchant/pages/settings_page.dart';
+import 'package:autocare_merchant/pages/shared/settings_page.dart';
 import 'package:autocare_merchant/theme.dart';
 
 import 'members_test.dart' show phone;
@@ -129,7 +129,7 @@ void main() {
     expect(find.text('3 种'), findsOneWidget);
     expect(find.text('08:30–21:00 · 2 工位'), findsOneWidget);
     api.counts = {'staff': 0, 'services': 0, 'cards': 0};
-    CatalogDraft.changed.value++;
+    memberChanged.value++;
     await t.pumpAndSettle();
     expect(find.text('0 项'), findsOneWidget);
     expect(find.text('0 种'), findsOneWidget);
@@ -147,7 +147,7 @@ void main() {
     await open(t);
     await t.pumpAndSettle();
     api.error = const AppError('网络不太给力', type: AppErrorType.network);
-    CatalogDraft.changed.value++;
+    memberChanged.value++;
     await t.pumpAndSettle();
     expect(find.text('2 人'), findsOneWidget);
     expect(find.text('1201 项'), findsOneWidget);

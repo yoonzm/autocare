@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:autocare_merchant/mock/mock_data.dart';
-import 'package:autocare_merchant/pages/appointment_add_page.dart';
-import 'package:autocare_merchant/pages/gen/gen_routes.dart';
-import 'package:autocare_merchant/pages/login_page.dart';
-import 'package:autocare_merchant/pages/member_detail_page.dart';
-import 'package:autocare_merchant/pages/order_page.dart';
+
+import 'fixtures/preview_member.dart';
+
+import 'package:autocare_merchant/pages/booking/appointment_add_page.dart';
+import 'package:autocare_merchant/navigation/page_registry.dart';
+import 'package:autocare_merchant/pages/account/login_page.dart';
+import 'package:autocare_merchant/pages/members/member_detail_page.dart';
+import 'package:autocare_merchant/pages/orders/order_page.dart';
 
 /// 规范：所有表单输入框没值时都必须有 placeholder（docs/frontend-guidelines.md）。
 /// 这里把每个页面里的输入框找出来检查 hintText；已有默认值的输入框也要有，
@@ -19,7 +21,7 @@ void main() {
     t.view.physicalSize = const Size(390 * 3, 1600 * 3);
     t.view.devicePixelRatio = 3;
     addTearDown(t.view.reset);
-    // 测试字体会让文字溢出，与本规范无关，忽略（gen_pages_test 同样处理）
+    // 测试字体会让文字溢出，与本规范无关，忽略（page_registry_test 同样处理）
     final old = FlutterError.onError;
     FlutterError.onError = (d) {
       if (!d.exceptionAsString().contains('overflowed')) old?.call(d);
@@ -41,13 +43,13 @@ void main() {
     return bad;
   }
 
-  for (final e in genRoutes.entries) {
+  for (final e in pageBuilders.entries) {
     testWidgets('输入框都有 placeholder · ${e.key}', (t) async {
       final bad = await missing(t, Builder(builder: e.value));
       expect(bad, isEmpty, reason: '${e.key} 有输入框缺少 placeholder：$bad');
     });
   }
-  for (final e in genSheets.entries) {
+  for (final e in sheetBuilders.entries) {
     testWidgets('输入框都有 placeholder · 弹层 ${e.key}', (t) async {
       final bad = await missing(t, Builder(builder: e.value), sheet: true);
       expect(bad, isEmpty, reason: '弹层 ${e.key} 有输入框缺少 placeholder：$bad');
@@ -58,7 +60,7 @@ void main() {
     'Login': () => const LoginPage(),
     'Order': () => const OrderPage(),
     'AppointmentAdd': () => const AppointmentAddPage(),
-    'MemberDetail': () => MemberDetailPage(member: members.first),
+    'MemberDetail': () => MemberDetailPage(member: previewMember),
   };
   for (final e in handWritten.entries) {
     testWidgets('输入框都有 placeholder · 手写页 ${e.key}', (t) async {

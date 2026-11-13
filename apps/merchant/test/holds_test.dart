@@ -1,14 +1,16 @@
-import 'package:autocare_merchant/backend/catalog_draft.dart';
-import 'package:autocare_merchant/backend/hold_flow.dart';
+import 'package:autocare_merchant/pages/orders/hold_list_page.dart';
+import 'package:autocare_merchant/backend/hold_store.dart';
 import 'package:autocare_merchant/backend/member_flow.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
 
-import 'package:autocare_merchant/pages/order_page.dart';
+import 'package:autocare_merchant/pages/orders/order_page.dart';
 import 'package:autocare_merchant/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'members_test.dart' show MemberFakeApi, phone, row;
+
+Map<String, dynamic>? fixtureMember;
 
 /// 从有名字的页面进入（真实流程里开单页的路由名就是 Order，取单后会回到它）。
 Widget appNamed(String name, Widget home) => MaterialApp(
@@ -61,16 +63,16 @@ void main() {
     original = merchantApi;
     fake = MemberFakeApi();
     merchantApi = fake;
-    CatalogDraft.current = null;
-    MemberFlow.current = null;
-    HoldFlow.reset();
+
+    fixtureMember = null;
+    HoldStore.reset();
     navTracker.stack.clear();
   });
   tearDown(() {
     merchantApi = original;
-    CatalogDraft.current = null;
-    MemberFlow.current = null;
-    HoldFlow.reset();
+
+    fixtureMember = null;
+    HoldStore.reset();
     navTracker.stack.clear();
   });
 
@@ -98,13 +100,13 @@ void main() {
         'active': true,
       },
     ]);
-    MemberFlow.current = r;
+    fixtureMember = r;
   }
 
   Future<void> openOrder(WidgetTester t) async {
     seedOrder();
     await t.pumpWidget(
-      appNamed('Order', OrderPage(member: memberFromRow(MemberFlow.current!))),
+      appNamed('Order', OrderPage(member: memberFromRow(fixtureMember!))),
     );
     await t.pumpAndSettle();
   }
@@ -161,7 +163,9 @@ void main() {
       expect(find.text('挂单待收款'), findsOneWidget);
       expect(find.text('共 1 单'), findsOneWidget);
       expect(find.text('¥342.00'), findsWidgets); // 云函数估的价
-      expect(HoldFlow.event, isNull);
+      Navigator.of(t.element(find.byType(HoldListPage))).pop();
+      await t.pumpAndSettle();
+      expect(find.text('¥0.00'), findsWidgets);
     });
 
     testWidgets('默认状态是“施工中”、提醒是“完工时”（和设计稿一致）', (t) async {
@@ -199,7 +203,7 @@ void main() {
       expect(find.text('4'), findsNothing);
       expect(find.text('0'), findsNothing);
       fake.holdRows.addAll([hold(), hold(id: 'h2')]);
-      await HoldFlow.load();
+      await HoldStore.load();
       await t.pump();
       expect(find.text('2'), findsOneWidget);
     });
@@ -254,7 +258,7 @@ void main() {
       expect(find.text('共 0 单'), findsOneWidget);
 
       await t.pumpWidget(const SizedBox());
-      HoldFlow.reset();
+      HoldStore.reset();
       fake.holdsError = const AppError('网络不稳定', type: AppErrorType.network);
       await openList(t);
       expect(find.text('重试'), findsOneWidget);
@@ -332,7 +336,7 @@ void main() {
         {'service_id': 's2', 'qty': 1},
       ]);
       expect(fake.holdRows, isEmpty);
-      expect(HoldFlow.count, 0);
+      expect(HoldStore.count, 0);
     });
 
     testWidgets('取回来再挂单：更新同一张挂单，而不是新建', (t) async {
@@ -375,7 +379,7 @@ void main() {
     testWidgets('散客挂单：只提交选择（不带会员、次卡、价格），列表里显示“散客 · 非会员”', (t) async {
       phone(t);
       seedOrder();
-      MemberFlow.current = null;
+      fixtureMember = null;
       await t.pumpWidget(appNamed('Order', const OrderPage()));
       await t.pumpAndSettle();
       await t.tap(find.text('散客开单'));
@@ -408,7 +412,7 @@ void main() {
       phone(t);
       fake.holdRows.add(hold(walkIn: true, items: ['精致洗车'], plate: 'K5F218'));
       seedOrder();
-      MemberFlow.current = null;
+      fixtureMember = null;
       await t.pumpWidget(appNamed('Order', const OrderPage()));
       await t.pumpAndSettle();
       await t.tap(find.text('挂单').first);
@@ -431,13 +435,14 @@ void main() {
     });
   });
 
-  testWidgets('未登录（设计预览）时挂单列表仍是设计稿示例', (t) async {
+  testWidgets('未登录的挂单列表引导登录，不显示示例数据', (t) async {
     phone(t);
     merchantApi = original;
     await t.pumpWidget(appNamed('HoldList', pageFor('HoldList')!));
     await t.pumpAndSettle();
-    expect(find.text('¥21,200.00'), findsOneWidget);
-    expect(find.text('全部 4'), findsOneWidget);
-    expect(find.textContaining('老周 · 3 号工位'), findsOneWidget);
+    expect(find.text('重新登录'), findsOneWidget);
+    expect(find.text('¥21,200.00'), findsNothing);
+    expect(find.text('全部 4'), findsNothing);
+    expect(find.textContaining('老周 · 3 号工位'), findsNothing);
   });
 }

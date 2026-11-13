@@ -41,4 +41,4 @@ App 切换成功后重建主页面栈，清理会员/卡种筛选、次卡、订
 
 `supabase/tests/multistore.mjs` 在本地隔离 PostgreSQL 中应用迁移，覆盖历史迁移、账号订阅共享、配额与并发创建请求、幂等重放、两设备独立切店、越权、RLS、归档恢复、后台延期、到期和权限。它不连接线上数据库。PGlite 不提供 pg_cron，测试跳过调度注册迁移，业务函数仍完整加载。
 
-Flutter 的 `store_add_test.dart`、`store_switch_test.dart`、`store_context_test.dart` 覆盖真实请求、失败重试、表单回填、切换清理、旧响应与服务缓存迟到保护。生成页的数据与 busy 绑定通过 `tools/design_to_flutter.py --bind-stores lib/pages/gen` 更新，保持页面布局。
+Flutter 的 `store_add_test.dart`、`store_switch_test.dart`、`store_context_test.dart` 覆盖真实请求、失败重试、表单回填、切换清理、旧响应与服务缓存迟到保护。现有页面的数据与 busy 绑定保留；原生成脚本已移除，后续按 `docs/frontend-guidelines.md` 第 18 节迁移维护，保持页面布局。

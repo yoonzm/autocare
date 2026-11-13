@@ -4,13 +4,15 @@ import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'backend/access_flow.dart';
+import 'backend/feedback_draft.dart';
+import 'widgets/feedback_recovery_scope.dart';
 import 'backend/merchant_api.dart';
 import 'backend/store_profile.dart';
 import 'kit/async_kit.dart';
-import 'mock/theme_state.dart';
-import 'pages/access_boot.dart';
-import 'pages/access_pages.dart';
-import 'pages/login_page.dart';
+import 'preferences/theme_preferences.dart';
+import 'pages/account/access_boot.dart';
+import 'pages/account/access_pages.dart';
+import 'pages/account/login_page.dart';
 import 'routes.dart';
 import 'theme.dart';
 
@@ -38,6 +40,7 @@ class _QimeiAppState extends State<QimeiApp> with WidgetsBindingObserver {
   final _navKey = GlobalKey<NavigatorState>();
   final _msgKey = GlobalKey<ScaffoldMessengerState>();
   bool _expiring = false;
+  final _feedbackRecovery = FeedbackRecovery();
 
   @override
   void initState() {
@@ -99,18 +102,12 @@ class _QimeiAppState extends State<QimeiApp> with WidgetsBindingObserver {
       }
     } else if (issue == 'join_required') {
       go(const StAuthLivePage());
-    } else if (issue == 'plan_expired' && !Access.isOwner) {
-      try {
-        Access.apply(await merchantApi.identity('context'));
-      } catch (_) {
-        // 读不到也先展示到期页
-      }
-      go(const StPlanExpiredLivePage());
     }
   }
 
   @override
   void dispose() {
+    _feedbackRecovery.clear();
     accessIssue.removeListener(_onAccessIssue);
     authExpired.removeListener(_onAuthExpired);
     appThemeMode.removeListener(_onMode);
@@ -155,24 +152,28 @@ class _QimeiAppState extends State<QimeiApp> with WidgetsBindingObserver {
     SystemChrome.setSystemUIOverlayStyle(
       dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
     );
-    return MaterialApp(
-      title: '汽美管家',
-      debugShowCheckedModeBanner: false,
-      theme: buildTheme(Brightness.light),
-      darkTheme: buildTheme(Brightness.dark),
-      themeMode: appThemeMode.value,
-      navigatorKey: _navKey,
-      scaffoldMessengerKey: _msgKey,
-      navigatorObservers: [navTracker],
-      builder: (context, child) => ToastHost(child: child ?? const SizedBox()),
-      locale: const Locale('zh', 'CN'),
-      supportedLocales: const [Locale('zh', 'CN')],
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      home: bootPage(),
+    return FeedbackRecoveryScope(
+      recovery: _feedbackRecovery,
+      child: MaterialApp(
+        title: '汽美管家',
+        debugShowCheckedModeBanner: false,
+        theme: buildTheme(Brightness.light),
+        darkTheme: buildTheme(Brightness.dark),
+        themeMode: appThemeMode.value,
+        navigatorKey: _navKey,
+        scaffoldMessengerKey: _msgKey,
+        navigatorObservers: [navTracker],
+        builder: (context, child) =>
+            ToastHost(child: child ?? const SizedBox()),
+        locale: const Locale('zh', 'CN'),
+        supportedLocales: const [Locale('zh', 'CN')],
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        home: bootPage(),
+      ),
     );
   }
 }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:autocare_merchant/main.dart';
-import 'package:autocare_merchant/mock/theme_state.dart';
-import 'package:autocare_merchant/pages/settings_page.dart';
+import 'package:autocare_merchant/preferences/theme_preferences.dart';
+import 'package:autocare_merchant/pages/shared/settings_page.dart';
 import 'package:autocare_merchant/theme.dart';
 
 void main() {

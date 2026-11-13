@@ -1,6 +1,6 @@
 # 商家端 / 店员端合并（一个 App，多身份）
 
-设计稿把店员端并入商家端：同一个 Flutter App（`apps/merchant`），同一套验证码登录，登录后按身份分流。用户已批准接入真实后端；界面仍以设计稿为视觉基线，生成页位于 `apps/merchant/lib/pages/gen_st/`（由 `tools/design_to_flutter.py` 生成，不手工修改），接后端的模板由 `tools/bind_st.py` 派生（只换数据来源和事件）。
+设计稿把店员端并入商家端：同一个 Flutter App（`apps/merchant`），同一套验证码登录，登录后按身份分流。用户已批准接入真实后端；界面仍以设计稿为视觉基线，历史生成页位于 `apps/merchant/lib/pages/gen_st/`，接后端的模板保留既有视觉。原生成器与派生脚本已移除；后续按 `docs/frontend-guidelines.md` 第 18 节迁移并直接维护源码。
 
 ## 身份与权限
 

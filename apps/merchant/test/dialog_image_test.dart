@@ -1,6 +1,13 @@
+import 'members_test.dart' show row, MemberFakeApi, appFromDetail;
+import 'packages_test.dart' show pkgRow;
+
+import 'package:autocare_merchant/backend/merchant_api.dart';
+
+import 'package:autocare_merchant/pages/members/member_route_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:autocare_merchant/pages/gen/gen_routes.dart';
+import 'package:autocare_merchant/navigation/page_registry.dart';
+import 'package:autocare_merchant/pages/catalog/service_edit_page.dart';
 import 'package:autocare_merchant/routes.dart';
 
 void main() {
@@ -16,7 +23,7 @@ void main() {
   testWidgets('确认弹窗：取消 / 确定后遮罩完全消失', (t) async {
     phone(t);
     await t.pumpWidget(
-      MaterialApp(home: Builder(builder: genRoutes['ServiceEdit']!)),
+      const MaterialApp(home: ServiceEditPage(initial: {'id': 'service-1'})),
     );
     await t.pumpAndSettle();
     final del = find.text('删除此项目');
@@ -40,7 +47,7 @@ void main() {
   testWidgets('上传入口：点击弹出“拍照 / 从相册选择”，取消后关闭', (t) async {
     phone(t);
     await t.pumpWidget(
-      MaterialApp(home: Builder(builder: genRoutes['ProfileEdit']!)),
+      MaterialApp(home: Builder(builder: pageBuilders['ProfileEdit']!)),
     );
     await t.pumpAndSettle();
     await t.tap(find.text('更换头像'));
@@ -76,7 +83,7 @@ void resultCloseTest() {
         ),
       ),
     );
-    openRoute(ctx, 'MemberAddDone');
+    openRoute(ctx, 'MemberAddDone', arguments: MemberRouteData(member: row()));
     await t.pumpAndSettle();
     expect(find.text('开卡成功'), findsOneWidget);
     await t.tapAt(const Offset(42, 34));
@@ -134,11 +141,17 @@ void pairTests() {
 
   testWidgets('会员充值：储值 / 购买次卡是同一页面的两个 Tab', (t) async {
     setup(t);
+    final originalApi = merchantApi;
+    final api = MemberFakeApi()..packages.add(pkgRow());
+    merchantApi = api;
+
+    addTearDown(() {
+      merchantApi = originalApi;
+    });
     late BuildContext ctx;
     await t.pumpWidget(
-      MaterialApp(
-        navigatorObservers: [navTracker],
-        home: Builder(
+      appFromDetail(
+        Builder(
           builder: (c) {
             ctx = c;
             return const Scaffold(body: Text('会员详情'));
@@ -146,7 +159,11 @@ void pairTests() {
         ),
       ),
     );
-    openRoute(ctx, 'RechargeCard'); // 会员详情“购买次卡”：默认选中购买次卡
+    openRoute(
+      ctx,
+      'RechargeCard',
+      arguments: MemberRouteData(member: row()),
+    ); // 会员详情“购买次卡”：默认选中购买次卡
     await t.pumpAndSettle();
     expect(find.text('选择套餐'), findsOneWidget);
     final depth = navTracker.stack.length;

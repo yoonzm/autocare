@@ -53,6 +53,7 @@ class MemberPage {
 }
 
 class MerchantApi {
+  String? get accountId => hasSession ? client.auth.currentUser?.id : null;
   static String get devicePlatform => kIsWeb
       ? '网页端'
       : switch (defaultTargetPlatform) {
@@ -378,6 +379,17 @@ class MerchantApi {
     return Map<String, dynamic>.from(data['item'] as Map);
   }
 
+  Future<Map<String, dynamic>> checkoutAppointment(
+    Map<String, dynamic> values, {
+    String? requestId,
+  }) async {
+    final data = await invoke({
+      ...values,
+      'action': 'appointment_checkout',
+    }, requestId: requestId);
+    return Map<String, dynamic>.from(data['item'] as Map);
+  }
+
   /// 员工管理：list / get / records 读取；save / status / commission_save / permissions_save / invite 写入。
   /// 权限、角色、提成、状态变更都在云函数与数据库事务中校验，客户端只提交输入。
   Future<Map<String, dynamic>> staff(
@@ -414,12 +426,36 @@ class MerchantApi {
     return Map<String, dynamic>.from(data['item'] as Map);
   }
 
+  Future<Map<String, dynamic>> submitStaffOrder(
+    Map<String, dynamic> values, {
+    String? requestId,
+  }) async {
+    final data = await invoke({
+      ...values,
+      'action': 'staff_order_submit',
+    }, requestId: requestId);
+    return Map<String, dynamic>.from(data['item'] as Map);
+  }
+
   /// 订单中心：list（统一订单列表 + 汇总）/ detail / refund。金额、状态、退回方式都由云函数计算。
   Future<Map<String, dynamic>> orderCenter(
     String action, [
     Map<String, dynamic> values = const {},
   ]) async {
     final data = await invoke({...values, 'action': 'order_$action'});
+    return Map<String, dynamic>.from(data['item'] as Map);
+  }
+
+  Future<Map<String, dynamic>> refundOrder(
+    String id,
+    String reason, {
+    String? requestId,
+  }) async {
+    final data = await invoke({
+      'action': 'order_refund',
+      'id': id,
+      'reason': reason,
+    }, requestId: requestId);
     return Map<String, dynamic>.from(data['item'] as Map);
   }
 
@@ -612,6 +648,7 @@ class MerchantApi {
   /// 购买次卡：价格、次数、有效期、限购都由云函数决定；收款方式只是记账。
   Future<Map<String, dynamic>> sellPackage({
     required String memberId,
+    String? requestId,
     required String packageId,
     required String method,
   }) async {
@@ -621,12 +658,13 @@ class MerchantApi {
       'member_id': memberId,
       'package_id': packageId,
       'method': method,
-    });
+    }, requestId: requestId);
     return Map<String, dynamic>.from(data['item'] as Map);
   }
 
   Future<Map<String, dynamic>> extendPackage({
     required String id,
+    String? requestId,
     required int days,
     required String reason,
   }) async {
@@ -636,12 +674,13 @@ class MerchantApi {
       'id': id,
       'days': days,
       'reason': reason,
-    });
+    }, requestId: requestId);
     return Map<String, dynamic>.from(data['item'] as Map);
   }
 
   Future<Map<String, dynamic>> refundPackage({
     required String id,
+    String? requestId,
     required String to,
     required String reason,
   }) async {
@@ -651,7 +690,7 @@ class MerchantApi {
       'id': id,
       'to': to,
       'reason': reason,
-    });
+    }, requestId: requestId);
     return Map<String, dynamic>.from(data['item'] as Map);
   }
 
@@ -676,6 +715,7 @@ class MerchantApi {
   // ───────── 开单收银 ─────────
   /// [lines]: `[{service_id, qty, member_package_id?}]`。价格、折扣、次卡抵扣、扣款都由云函数算。
   Future<Map<String, dynamic>> checkout({
+    String? requestId,
     required String memberId,
     required List<Map<String, dynamic>> lines,
     required String method,
@@ -696,12 +736,13 @@ class MerchantApi {
       'plate': plate,
       'remark': remark,
       'hold_id': ?holdId,
-    });
+    }, requestId: requestId);
     return Map<String, dynamic>.from(data['item'] as Map);
   }
 
   /// 散客开单：不记会员、没有折扣和次卡抵扣，只能用微信 / 支付宝 / 现金 / POS 刷卡。
   Future<Map<String, dynamic>> checkoutWalkIn({
+    String? requestId,
     required List<Map<String, dynamic>> lines,
     required String method,
     String plate = '',
@@ -717,7 +758,7 @@ class MerchantApi {
       'method': method,
       'plate': plate,
       'remark': remark,
-    });
+    }, requestId: requestId);
     return Map<String, dynamic>.from(data['item'] as Map);
   }
 
@@ -730,6 +771,7 @@ class MerchantApi {
 
   /// 挂起 / 修改一张挂单。[holdId] 为空 = 新挂单，否则整单替换明细。
   Future<Map<String, dynamic>> saveHold({
+    String? requestId,
     String? holdId,
 
     /// 为空 = 散客挂单（不记会员，没有折扣和次卡）。
@@ -750,12 +792,16 @@ class MerchantApi {
       'note': note,
       'remind': remind,
       'plate': plate,
-    });
+    }, requestId: requestId);
     return Map<String, dynamic>.from(data['item'] as Map);
   }
 
-  Future<void> cancelHold(String id) async {
-    await invoke({'action': 'hold_cancel', 'kind': 'orders', 'id': id});
+  Future<void> cancelHold(String id, {String? requestId}) async {
+    await invoke({
+      'action': 'hold_cancel',
+      'kind': 'orders',
+      'id': id,
+    }, requestId: requestId);
   }
 
   // ───────── 回访 ─────────
@@ -770,6 +816,7 @@ class MerchantApi {
 
   Future<void> saveFollowUp({
     required String memberId,
+    String? requestId,
     required String method,
     required String result,
     String content = '',
@@ -783,7 +830,7 @@ class MerchantApi {
       'result': result,
       'content': content,
       'next_at': ?nextAt,
-    });
+    }, requestId: requestId);
   }
 
   Future<void> markFollowedUp(String memberId, {String content = ''}) async {
@@ -802,6 +849,7 @@ class MerchantApi {
   /// 储值充值：赠送金额由云函数按规则算出；返回到账后的余额、赠送、获得积分、是否升级。
   Future<Map<String, dynamic>> recharge({
     required String memberId,
+    String? requestId,
     required num amount,
     required String method,
     String note = '',
@@ -813,13 +861,14 @@ class MerchantApi {
       'amount': amount,
       'method': method,
       'note': note,
-    });
+    }, requestId: requestId);
     return Map<String, dynamic>.from(data['item'] as Map);
   }
 
   /// 手动调整卡种 / 积分（必须带原因）。
   Future<void> adjustMember({
     required String memberId,
+    String? requestId,
     String? tierId,
     int points = 0,
     required String reason,
@@ -833,7 +882,7 @@ class MerchantApi {
       'points': points,
       'reason': reason,
       'note': note,
-    });
+    }, requestId: requestId);
   }
 
   /// 会员的流水（充值、调整、升级），新的在前。

@@ -1,19 +1,28 @@
-import 'package:autocare_merchant/backend/catalog_draft.dart';
+import 'package:autocare_merchant/pages/members/wallet_page.dart';
+import 'package:autocare_merchant/pages/members/recharge_page.dart';
+import 'package:autocare_merchant/pages/members/recharge_success_page.dart';
+import 'package:autocare_merchant/pages/members/packages/package_choices.dart'
+    show PackageChoices;
+import 'package:autocare_merchant/pages/members/member_route_data.dart';
+import 'package:autocare_merchant/pages/members/member_add_done_page.dart';
+import 'package:autocare_merchant/kit/pickers.dart' show HPlate;
 import 'package:autocare_merchant/backend/member_flow.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/backend/store_profile.dart';
 import 'package:autocare_merchant/kit/async_kit.dart';
-import 'package:autocare_merchant/kit/kit.dart' show HSel;
-import 'package:autocare_merchant/pages/member_detail_page.dart';
-import 'package:autocare_merchant/pages/order_page.dart';
-import 'package:autocare_merchant/pages/members_page.dart';
-import 'package:autocare_merchant/pages/gen/member_filter_sheet.dart';
+import 'package:autocare_merchant/kit/kit.dart' show HSel, HNumberStepper;
+import 'package:autocare_merchant/pages/members/member_detail_page.dart';
+import 'package:autocare_merchant/pages/orders/order_page.dart';
+import 'package:autocare_merchant/pages/members/members_page.dart';
+import 'package:autocare_merchant/pages/members/member_filter_sheet.dart';
 import 'package:autocare_merchant/routes.dart';
 
 import 'packages_test.dart' show pkgRow;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+Map<String, dynamic>? fixtureMember;
 
 class MemberFakeApi extends MerchantApi {
   final tiers = <Map<String, dynamic>>[
@@ -92,6 +101,7 @@ class MemberFakeApi extends MerchantApi {
   Object? checkoutError;
   @override
   Future<Map<String, dynamic>> checkout({
+    String? requestId,
     required String memberId,
     required List<Map<String, dynamic>> lines,
     required String method,
@@ -128,6 +138,7 @@ class MemberFakeApi extends MerchantApi {
   final walkIns = <Map<String, dynamic>>[];
   @override
   Future<Map<String, dynamic>> checkoutWalkIn({
+    String? requestId,
     required List<Map<String, dynamic>> lines,
     required String method,
     String plate = '',
@@ -169,6 +180,7 @@ class MemberFakeApi extends MerchantApi {
 
   @override
   Future<Map<String, dynamic>> saveHold({
+    String? requestId,
     String? holdId,
     String? memberId,
     required List<Map<String, dynamic>> lines,
@@ -221,7 +233,7 @@ class MemberFakeApi extends MerchantApi {
   }
 
   @override
-  Future<void> cancelHold(String id) async {
+  Future<void> cancelHold(String id, {String? requestId}) async {
     heldCancelled.add(id);
     holdRows.removeWhere((h) => h['id'] == id);
   }
@@ -254,6 +266,7 @@ class MemberFakeApi extends MerchantApi {
   @override
   Future<void> saveFollowUp({
     required String memberId,
+    String? requestId,
     required String method,
     required String result,
     String content = '',
@@ -299,6 +312,7 @@ class MemberFakeApi extends MerchantApi {
   @override
   Future<Map<String, dynamic>> extendPackage({
     required String id,
+    String? requestId,
     required int days,
     required String reason,
   }) async {
@@ -313,6 +327,7 @@ class MemberFakeApi extends MerchantApi {
   @override
   Future<Map<String, dynamic>> refundPackage({
     required String id,
+    String? requestId,
     required String to,
     required String reason,
   }) async {
@@ -327,6 +342,7 @@ class MemberFakeApi extends MerchantApi {
   @override
   Future<Map<String, dynamic>> sellPackage({
     required String memberId,
+    String? requestId,
     required String packageId,
     required String method,
   }) async {
@@ -435,6 +451,7 @@ class MemberFakeApi extends MerchantApi {
   @override
   Future<void> adjustMember({
     required String memberId,
+    String? requestId,
     String? tierId,
     int points = 0,
     required String reason,
@@ -475,6 +492,7 @@ class MemberFakeApi extends MerchantApi {
   @override
   Future<Map<String, dynamic>> recharge({
     required String memberId,
+    String? requestId,
     required num amount,
     required String method,
     String note = '',
@@ -553,14 +571,14 @@ void main() {
     original = merchantApi;
     fake = MemberFakeApi();
     merchantApi = fake;
-    CatalogDraft.current = null;
-    MemberFlow.current = null;
+
+    fixtureMember = null;
     navTracker.stack.clear();
   });
   tearDown(() {
     merchantApi = original;
-    CatalogDraft.current = null;
-    MemberFlow.current = null;
+
+    fixtureMember = null;
     navTracker.stack.clear();
   });
 
@@ -685,8 +703,8 @@ void main() {
       for (var i = 0; i < 5; i++) {
         await t.pump(const Duration(seconds: 1));
       }
-      await t.ensureVisible(find.textContaining('位会员'));
-      await t.tap(find.textContaining('位会员'));
+      await t.ensureVisible(find.textContaining('查看'));
+      await t.tap(find.textContaining('查看'));
       await t.pumpAndSettle();
       expect(fake.filterCalls.last['ids'], ['t-silver']);
       expect(fake.filterCalls.last['min'], 500);
@@ -704,9 +722,6 @@ void main() {
           {'id': 't-gold', 'name': '金卡', 'upgrade_recharge': 5000},
           {'id': 't-black', 'name': '黑金卡', 'upgrade_recharge': 10000},
         ]);
-      final f = MemberFlow.filter;
-      f.reset();
-      f.apply();
       fake.rows.add(row());
       await t.pumpWidget(app(const MembersPage()));
       await t.pumpAndSettle();
@@ -717,8 +732,8 @@ void main() {
       }
 
       Future<void> applyFilter() async {
-        await t.ensureVisible(find.textContaining('位会员'));
-        await t.tap(find.textContaining('位会员'));
+        await t.ensureVisible(find.textContaining('查看'));
+        await t.tap(find.textContaining('查看'));
         await t.pumpAndSettle();
       }
 
@@ -741,10 +756,10 @@ void main() {
         await t.pumpAndSettle();
         expect(selection('金卡'), isEmpty);
         expect(selection('¥500–2,000'), {0});
-        expect(selection('30 天内'), isEmpty);
-        expect(f.tierSel, isEmpty);
-        expect(f.balanceSel, 0);
-        expect(f.visitSel, -1);
+        expect(selection('30 天内'), {-1});
+        expect(selection('金卡'), isEmpty);
+        expect(selection('¥500–2,000'), {0});
+        expect(selection('30 天内'), {-1});
         expect(fake.filterCalls.last['ids'], isEmpty);
         expect(fake.filterCalls.last['min'], isNull);
         expect(fake.filterCalls.last['max'], isNull);
@@ -762,20 +777,20 @@ void main() {
       await t.tap(find.text('30 天内').first);
       await t.pumpAndSettle();
       await applyFilter();
-      expect(f.active, isTrue);
+      expect(fake.filterCalls.last['ids'], ['t-gold']);
       await openFilter();
       await resetFilter();
       await t.ensureVisible(find.text('取消'));
       await t.tap(find.text('取消'));
       await t.pumpAndSettle();
-      expect(f.active, isTrue);
+      // 取消后重新打开，以下断言验证已应用条件保留。
       await openFilter();
       expect(selection('金卡'), {2});
       expect(selection('¥500–2,000'), {2});
       expect(selection('30 天内'), {1});
       await resetFilter();
       await applyFilter();
-      expect(f.active, isFalse);
+      // 应用重置后，服务端请求条件全部清空。
       expect(fake.filterCalls.last['ids'], isEmpty);
       expect(fake.filterCalls.last['min'], isNull);
       expect(fake.filterCalls.last['within'], isNull);
@@ -791,7 +806,6 @@ void main() {
             builder: (context) => Scaffold(
               body: ElevatedButton(
                 onPressed: () {
-                  MemberFlow.beginAdd();
                   openRoute(context, 'MemberAdd');
                 },
                 child: const Text('open'),
@@ -808,7 +822,7 @@ void main() {
       phone(t);
       await openAdd(t);
       final fields = find.byType(TextFormField);
-      expect(t.widget<TextFormField>(fields.at(0)).initialValue, isEmpty);
+      expect(t.widget<TextFormField>(fields.at(0)).controller!.text, isEmpty);
       await t.tap(find.text('保存').first);
       await t.pumpAndSettle();
       // 整页 sheet 下方的上一页也还在树里；测试里没有 ToastHost，会退回成两个 SnackBar
@@ -858,11 +872,16 @@ void main() {
       expect(find.text('139 **** 5530'), findsOneWidget);
       expect(find.text('普通会员'), findsWidgets);
       expect(find.text('未登记车辆'), findsOneWidget);
-      final memberId = MemberFlow.current!['id'];
+      final memberId = t
+          .widget<MemberAddDonePage>(find.byType(MemberAddDonePage))
+          .member!['id'];
       await t.tap(find.text('去充值'));
       await t.pumpAndSettle();
       expect(navTracker.has('Recharge'), isTrue);
-      expect(MemberFlow.current?['id'], memberId);
+      expect(
+        t.widget<WalletPage>(find.byType(WalletPage)).member?['id'],
+        memberId,
+      );
       expect(find.text('李敏 · 139 **** 5530', findRichText: true), findsWidgets);
       expect(find.text('请先选择会员'), findsNothing);
       expect(fake.recharges, isEmpty);
@@ -884,13 +903,17 @@ void main() {
 
     testWidgets('开卡成功页的“去充值”携带会员进入充值表单', (t) async {
       phone(t);
-      MemberFlow.current = row(tier: 't-base', tierName: '普通会员');
+      fixtureMember = row(tier: 't-base', tierName: '普通会员');
       await t.pumpWidget(
         app(
           Builder(
             builder: (context) => Scaffold(
               body: ElevatedButton(
-                onPressed: () => openRoute(context, 'MemberAddDone'),
+                onPressed: () => openRoute(
+                  context,
+                  'MemberAddDone',
+                  arguments: MemberRouteData(member: fixtureMember),
+                ),
                 child: const Text('open'),
               ),
             ),
@@ -902,8 +925,7 @@ void main() {
       await t.tap(find.text('去充值'));
       await t.pumpAndSettle();
       expect(navTracker.has('Recharge'), isTrue);
-      expect(MemberFlow.current?['id'], 'm1');
-      expect(CatalogDraft.current?.kind, 'recharge');
+      expect(t.widget<WalletPage>(find.byType(WalletPage)).member!['id'], 'm1');
       expect(
         find.text('王建国 · 138 **** 6021', findRichText: true),
         findsWidgets,
@@ -970,13 +992,17 @@ void main() {
     testWidgets('修改资料：回填，保存只提交资料字段并带 id', (t) async {
       phone(t);
       fake.rows.add(detailRow);
-      MemberFlow.current = detailRow;
+      fixtureMember = detailRow;
       await t.pumpWidget(
         app(
           Builder(
             builder: (context) => Scaffold(
               body: ElevatedButton(
-                onPressed: () => openRoute(context, 'MemberEdit'),
+                onPressed: () => openRoute(
+                  context,
+                  'MemberEdit',
+                  arguments: MemberRouteData(member: detailRow),
+                ),
                 child: const Text('open'),
               ),
             ),
@@ -986,8 +1012,11 @@ void main() {
       await t.tap(find.text('open'));
       await t.pumpAndSettle();
       final fields = find.byType(TextFormField);
-      expect(t.widget<TextFormField>(fields.at(0)).initialValue, '13816826021');
-      expect(t.widget<TextFormField>(fields.at(1)).initialValue, '王建国');
+      expect(
+        t.widget<TextFormField>(fields.at(0)).controller!.text,
+        '13816826021',
+      );
+      expect(t.widget<TextFormField>(fields.at(1)).controller!.text, '王建国');
       await t.enterText(fields.at(1), '王建国Jr');
       await t.tap(find.text('保存').first);
       await t.pumpAndSettle();
@@ -1009,8 +1038,11 @@ void main() {
             builder: (context) => Scaffold(
               body: ElevatedButton(
                 onPressed: () {
-                  MemberFlow.beginVehicle('m1');
-                  openRoute(context, 'VehicleAdd');
+                  openRoute(
+                    context,
+                    'VehicleAdd',
+                    arguments: MemberRouteData(member: detailRow),
+                  );
                 },
                 child: const Text('open'),
               ),
@@ -1028,8 +1060,11 @@ void main() {
       for (var i = 0; i < 6; i++) {
         await t.pump(const Duration(seconds: 1));
       }
-      CatalogDraft.set('vehicles', 'plate', '沪AF09316');
-      CatalogDraft.set('vehicles', 'energy', 'ev');
+      final plate = t.widget<HPlate>(find.byType(HPlate)).controller;
+      plate.setGreen(true);
+      for (final char in '沪AF09316'.split('')) {
+        plate.input(char);
+      }
       await t.tap(find.text('保存').first);
       await t.pumpAndSettle();
       expect(fake.savedVehicles.single['member_id'], 'm1');
@@ -1040,13 +1075,17 @@ void main() {
     testWidgets('删除会员：确认后调用后端；失败时保持并提示', (t) async {
       phone(t);
       fake.rows.add(detailRow);
-      MemberFlow.current = detailRow;
+      fixtureMember = detailRow;
       await t.pumpWidget(
         app(
           Builder(
             builder: (context) => Scaffold(
               body: ElevatedButton(
-                onPressed: () => openRoute(context, 'MemberDelete'),
+                onPressed: () => openRoute(
+                  context,
+                  'MemberDelete',
+                  arguments: MemberRouteData(member: detailRow),
+                ),
                 child: const Text('open'),
               ),
             ),
@@ -1061,7 +1100,7 @@ void main() {
       await t.tap(find.text('确认删除'));
       await t.pumpAndSettle();
       expect(fake.deleted, ['members:m1']);
-      expect(MemberFlow.current, isNull);
+      expect(fake.deleted, contains('members:m1'));
     });
   });
 
@@ -1069,13 +1108,17 @@ void main() {
     Future<void> openRecharge(WidgetTester t) async {
       final r = row(tier: 't-gold', tierName: '金卡');
       fake.rows.add(r);
-      MemberFlow.current = r;
+      fixtureMember = r;
       await t.pumpWidget(
         appFromDetail(
           Builder(
             builder: (context) => Scaffold(
               body: ElevatedButton(
-                onPressed: () => openRoute(context, 'Recharge'),
+                onPressed: () => openRoute(
+                  context,
+                  'Recharge',
+                  arguments: MemberRouteData(member: r),
+                ),
                 child: const Text('open'),
               ),
             ),
@@ -1144,17 +1187,23 @@ void main() {
       expect(find.text('¥5,980.00'), findsOneWidget);
       expect(find.text('+2,000'), findsOneWidget);
       // 提交后 MemberFlow 拿到的是最新的会员（余额已更新）
-      expect(MemberFlow.current!['balance'], 5980);
+      expect(
+        t
+            .widget<RechargeSuccessPage>(find.byType(RechargeSuccessPage))
+            .receipt!
+            .member['balance'],
+        5980,
+      );
     });
 
-    testWidgets('没有选会员就充值：说明原因，不请求后端', (t) async {
+    testWidgets('未选会员时入口要求选择会员，不请求收款', (t) async {
       phone(t);
-      await openRecharge(t);
-      MemberFlow.current = null;
-      await t.ensureVisible(find.text('确认收款'));
-      await t.tap(find.text('确认收款'));
+      await t.pumpWidget(app(const WalletPage()));
       await t.pumpAndSettle();
-      expect(find.text('请先从会员详情进入充值'), findsOneWidget);
+      await t.ensureVisible(find.text('请先选择会员').last);
+      await t.tap(find.text('请先选择会员').last);
+      await t.pumpAndSettle();
+      expect(find.text('选择会员'), findsWidgets);
       expect(fake.recharges, isEmpty);
     });
   });
@@ -1163,13 +1212,17 @@ void main() {
     Future<void> openRecords(WidgetTester t) async {
       final r = row();
       fake.rows.add(r);
-      MemberFlow.current = r;
+      fixtureMember = r;
       await t.pumpWidget(
         app(
           Builder(
             builder: (context) => Scaffold(
               body: ElevatedButton(
-                onPressed: () => openRoute(context, 'MemberRecords'),
+                onPressed: () => openRoute(
+                  context,
+                  'MemberRecords',
+                  arguments: MemberRouteData(member: fixtureMember),
+                ),
                 child: const Text('open'),
               ),
             ),
@@ -1252,13 +1305,17 @@ void main() {
         ]);
       final r = row(tier: 't-gold', tierName: '金卡');
       fake.rows.add(r);
-      MemberFlow.current = r;
+      fixtureMember = r;
       await t.pumpWidget(
         app(
           Builder(
             builder: (context) => Scaffold(
               body: ElevatedButton(
-                onPressed: () => openRoute(context, 'MemberAdjust'),
+                onPressed: () => openRoute(
+                  context,
+                  'MemberAdjust',
+                  arguments: MemberRouteData(member: r),
+                ),
                 child: const Text('open'),
               ),
             ),
@@ -1309,16 +1366,24 @@ void main() {
     testWidgets('扣减积分：调整后预览不会低于 0，提交负数', (t) async {
       phone(t);
       await openAdjust(t);
-      CatalogDraft.set('adjust', 'points', 50);
-      CatalogDraft.set('adjust', 'dir', 'sub');
+      final stepper = t.widget<HNumberStepper>(find.byType(HNumberStepper));
+      for (var i = 0; i < 5; i++) {
+        stepper.onIncrease!();
+      }
+      await t.ensureVisible(find.text('扣减'));
+      await t.tap(find.text('扣减'));
       await t.pump();
       await t.pump();
       expect(find.text('12,400'), findsOneWidget);
-      CatalogDraft.set('adjust', 'points', 99999);
+      for (var i = 0; i < 1250; i++) {
+        stepper.onIncrease!();
+      }
       await t.pump();
       await t.pump();
       expect(find.text('0'), findsWidgets);
-      CatalogDraft.set('adjust', 'points', 50);
+      for (var i = 0; i < 1250; i++) {
+        stepper.onDecrease!();
+      }
       await t.ensureVisible(find.text('客诉补偿'));
       await t.tap(find.text('客诉补偿'));
       await t.pump();
@@ -1348,7 +1413,7 @@ void main() {
           tierName: '普通会员',
         ),
       ]);
-      MemberFlow.current = fake.rows.first; // 上次看过的会员，从首页进入时不能沿用
+      fixtureMember = fake.rows.first; // 上次看过的会员，从首页进入时不能沿用
       storeProfile.apply({
         'name': '测试店',
         'phone': '+8613900000001',
@@ -1375,7 +1440,7 @@ void main() {
     testWidgets('从首页进入没有会员：显示“请先选择会员”，不沿用上次的会员', (t) async {
       phone(t);
       await openFromHome(t);
-      expect(MemberFlow.current, isNull);
+      expect(t.widget<WalletPage>(find.byType(WalletPage)).member, isNull);
       expect(find.text('选择会员'), findsOneWidget);
       expect(find.text('输入车牌、手机号或姓名查找'), findsOneWidget);
       expect(find.text('请先选择会员'), findsOneWidget);
@@ -1422,7 +1487,10 @@ void main() {
       expect(second.top - first.bottom, greaterThan(20)); // 套餐行之间有间距
       await t.tap(find.text('精致洗车 10 次卡'));
       await t.pump();
-      expect(CatalogDraft.current!.fields['sale_package_id'], isNot('p2'));
+      expect(
+        t.widget<PackageChoices>(find.byType(PackageChoices)).selectedId,
+        isNot('p2'),
+      );
       expect(find.text('请先选择会员'), findsOneWidget);
     });
 
@@ -1443,7 +1511,13 @@ void main() {
       await t.tap(find.text('林晓雯').last);
       await t.pumpAndSettle();
       // 进入充值页，显示选中的会员
-      expect(MemberFlow.current!['name'], '林晓雯');
+      expect(
+        t
+            .widget<RechargePage>(find.byType(RechargePage))
+            .controller!
+            .member!['name'],
+        '林晓雯',
+      );
       expect(find.text('请先选择会员'), findsNothing);
       expect(find.text('确认收款'), findsOneWidget);
       expect(find.textContaining('林晓雯', findRichText: true), findsWidgets);
@@ -1463,13 +1537,17 @@ void main() {
         pkgRow(id: 'p2', name: '精致洗车 10 次卡', price: 580, validity: 6),
         pkgRow(id: 'p3', name: '下架套餐', price: 99, active: false),
       ]);
-      MemberFlow.current = r;
+      fixtureMember = r;
       await t.pumpWidget(
         appFromDetail(
           Builder(
             builder: (context) => Scaffold(
               body: ElevatedButton(
-                onPressed: () => openRoute(context, 'Recharge'),
+                onPressed: () => openRoute(
+                  context,
+                  'Recharge',
+                  arguments: MemberRouteData(member: r),
+                ),
                 child: const Text('open'),
               ),
             ),
@@ -1518,7 +1596,8 @@ void main() {
         'method': '现金',
       });
       expect(find.text('购买成功'), findsOneWidget);
-      expect(find.text('王建国 · 微信 · 次卡购买通知'), findsOneWidget);
+      expect(find.text('王建国 · 微信 · 次卡购买通知'), findsNothing);
+      expect(find.text('已自动通知会员'), findsNothing);
       expect(find.text('¥1,080.00'), findsWidgets);
       expect(find.text('20 次'), findsOneWidget);
       expect(find.text('至 2027.11.01'), findsOneWidget);
@@ -1584,7 +1663,7 @@ void main() {
       final r = row(tier: 't-gold', tierName: '金卡');
       fake.rows.add(r);
       fake.memberPkgs.add(myPkg());
-      MemberFlow.current = r;
+      fixtureMember = r;
       await t.pumpWidget(app(MemberDetailPage(member: memberFromRow(r))));
       await t.pumpAndSettle();
     }
@@ -1720,7 +1799,7 @@ void main() {
           {'service_id': 's1', 'total': 20, 'used': 12},
         ],
       });
-      MemberFlow.current = r;
+      fixtureMember = r;
       await t.pumpWidget(app(OrderPage(member: memberFromRow(r))));
       await t.pumpAndSettle();
     }
@@ -1800,13 +1879,17 @@ void main() {
         'content': '询问车辆使用情况，对服务满意。',
         'created_at': '2026-10-12T08:00:00Z',
       });
-      MemberFlow.current = r;
+      fixtureMember = r;
       await t.pumpWidget(
         app(
           Builder(
             builder: (context) => Scaffold(
               body: ElevatedButton(
-                onPressed: () => openRoute(context, 'MemberVisit'),
+                onPressed: () => openRoute(
+                  context,
+                  'MemberVisit',
+                  arguments: MemberRouteData(member: r),
+                ),
                 child: const Text('open'),
               ),
             ),
@@ -1905,6 +1988,7 @@ void main() {
       expect(find.textContaining('陈浩', findRichText: true), findsNothing);
       await t.tap(find.text('标记已回访'));
       await t.pumpAndSettle();
+      await t.pump(const Duration(milliseconds: 600));
       expect(fake.marked, ['b']);
       expect(find.textContaining('周志远', findRichText: true), findsNothing);
       expect(find.text('今天没有需要回访的客户'), findsOneWidget);

@@ -120,23 +120,21 @@ List<BoxShadow> _ring(Color gap) => [
 class HTierPicker extends StatefulWidget {
   final int initial;
   final ValueChanged<int>? onChanged;
-  const HTierPicker({super.key, this.initial = 0, this.onChanged});
-
-  static const tiers = ['普通', '银卡', '金卡', '黑金'];
-  // 升级门槛（普通为默认等级，无门槛说明）
-  static const _rules = [
-    '',
-    '充值 ¥2,000\n或消费 ¥3,000',
-    '充值 ¥5,000\n或消费 ¥10,000',
-    '充值 ¥10,000\n或消费 ¥30,000',
-  ];
+  final List<String> labels, rules;
+  const HTierPicker({
+    super.key,
+    required this.labels,
+    required this.rules,
+    this.initial = 0,
+    this.onChanged,
+  });
 
   @override
   State<HTierPicker> createState() => _HTierPickerState();
 }
 
 class _HTierPickerState extends State<HTierPicker> {
-  late int sel = widget.initial;
+  int get sel => widget.initial;
 
   (Color, Color) _colors(int i) => switch (i) {
     0 => (C.inset, C.ink),
@@ -161,13 +159,12 @@ class _HTierPickerState extends State<HTierPicker> {
       Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          for (var i = 0; i < HTierPicker.tiers.length; i++)
+          for (var i = 0; i < widget.labels.length; i++)
             Expanded(
               child: _selectable(
                 selected: sel == i,
-                label: '${HTierPicker.tiers[i]}${sel == i ? '，当前' : ''}',
+                label: '${widget.labels[i]}${sel == i ? '，当前' : ''}',
                 onTap: () {
-                  setState(() => sel = i);
                   widget.onChanged?.call(i);
                 },
                 child: Column(
@@ -185,7 +182,7 @@ class _HTierPickerState extends State<HTierPicker> {
                       child: Center(
                         widthFactor: 1,
                         child: Text(
-                          HTierPicker.tiers[i],
+                          widget.labels[i],
                           style: ts(
                             13,
                             w: FontWeight.w600,
@@ -201,7 +198,7 @@ class _HTierPickerState extends State<HTierPicker> {
                       child: sel == i
                           ? Text('当前', style: ts(11, w: FontWeight.w600, h: 14))
                           : Text(
-                              HTierPicker._rules[i],
+                              widget.rules[i],
                               textAlign: TextAlign.center,
                               softWrap: false,
                               style: ts(

@@ -3,8 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:autocare_merchant/backend/access_flow.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
-import 'package:autocare_merchant/pages/access_pages.dart';
-import 'package:autocare_merchant/pages/staff_tabs.dart';
+import 'package:autocare_merchant/pages/account/access_pages.dart';
+import 'package:autocare_merchant/pages/staff_app/staff_tabs.dart';
 import 'package:autocare_merchant/routes.dart' show navTracker, openRoute;
 
 import 'appointments_test.dart' show BookingApi;
@@ -21,7 +21,6 @@ void main() {
     Access.role = 'owner';
     Access.caps = const {};
     Access.context = const {};
-    AccessFlow.items = const [];
   });
   tearDown(() {
     merchantApi = original;
@@ -34,21 +33,20 @@ void main() {
   Future<void> open(WidgetTester t, Widget page) async {
     phone(t);
     await t.pumpWidget(
-      MaterialApp(
-        navigatorObservers: [navTracker],
-        home: page,
-      ),
+      MaterialApp(navigatorObservers: [navTracker], home: page),
     );
     await t.pumpAndSettle();
   }
 
   Finder text(String s) => find.text(s);
-  List<Map<String, dynamic>> calls(String action) => api.calls.where((c) => c['action'] == action).toList();
+  List<Map<String, dynamic>> calls(String action) =>
+      api.calls.where((c) => c['action'] == action).toList();
 
   testWidgets('选择身份：三种身份按设计稿展示，点技师进入技师工作台', (t) async {
-    AccessFlow.items = api.identities;
-    AccessFlow.phone = '13877127712';
-    await open(t, const StIdentityLivePage());
+    await open(
+      t,
+      StIdentityLivePage(items: api.identities, phone: '13877127712'),
+    );
     expect(text('选择身份'), findsOneWidget);
     expect(find.textContaining('138 **** 7712 在以下门店有身份'), findsOneWidget);
     expect(text('驰光汽车美容 · 徐汇店'), findsOneWidget);
@@ -73,8 +71,10 @@ void main() {
 
   testWidgets('待确认加入的身份：先到「加入门店」，确认后才进入工作台', (t) async {
     api.identityCtx = {...api.identityCtx, 'status': 'pending'};
-    AccessFlow.items = [api.identities[2]];
-    await open(t, const StIdentityLivePage());
+    await open(
+      t,
+      StIdentityLivePage(items: [api.identities[2]], phone: '13877127712'),
+    );
     await t.tap(text('悦驰汽车装饰 · 松江店'));
     await t.pumpAndSettle();
     expect(find.textContaining('欢迎加入悦驰汽车美容'), findsNothing);
@@ -99,28 +99,16 @@ void main() {
     expect(text('换个手机号'), findsOneWidget);
   });
 
-  testWidgets('套餐到期：员工只读提示，刷新状态重新读取身份，没有续费入口', (t) async {
-    api.identityCtx = {...api.identityCtx, 'plan_expired': true, 'plan_ends_at': '2026-11-09T00:00:00Z'};
-    Access.apply(api.identityCtx);
-    await open(t, const StPlanExpiredLivePage());
-    expect(text('门店套餐已到期'), findsOneWidget);
-    expect(find.textContaining('悦驰汽车装饰 · 松江店的套餐已于 2026.11.09 到期'), findsOneWidget);
-    expect(find.textContaining('续费'), findsWidgets);
-    expect(text('立即续费'), findsNothing);
-    api.identityCtx = {...api.identityCtx, 'plan_expired': false};
-    await t.tap(text('刷新状态'));
-    await t.pumpAndSettle();
-    expect(calls('identity_context'), hasLength(1));
-    expect(text('¥3,860'), findsOneWidget, reason: '续费后刷新直接回到工作台');
-  });
-
   testWidgets('员工外壳：技师底部导航四项，「我的」只对多身份账号显示切换身份', (t) async {
     Access.apply(api.identityCtx);
     await open(t, const StaffTabs());
     for (final label in ['工作台', '任务', '会员', '我的']) {
       expect(text(label), findsWidgets);
     }
-    Finder nav(String label) => find.descendant(of: find.byType(StaffNavBar), matching: find.text(label));
+    Finder nav(String label) => find.descendant(
+      of: find.byType(StaffNavBar),
+      matching: find.text(label),
+    );
     await t.tap(nav('我的'));
     await t.pumpAndSettle();
     expect(text('老周'), findsWidgets);
@@ -147,7 +135,16 @@ void main() {
       'waiting': 3,
       'working': 2,
       'upcoming': [
-        {'id': 'a2', 'plate': '沪AF09316', 'status': 'waiting', 'starts_at': '2026-11-10T05:00:00Z', 'customer': '李梅', 'items': [{'name': '精致洗车'}]},
+        {
+          'id': 'a2',
+          'plate': '沪AF09316',
+          'status': 'waiting',
+          'starts_at': '2026-11-10T05:00:00Z',
+          'customer': '李梅',
+          'items': [
+            {'name': '精致洗车'},
+          ],
+        },
       ],
     };
     Access.apply(api.identityCtx);
@@ -168,10 +165,15 @@ void main() {
       'caps': {'order_view_own': true},
     });
     late BuildContext ctx;
-    await open(t, Builder(builder: (c) {
-      ctx = c;
-      return const Scaffold();
-    }));
+    await open(
+      t,
+      Builder(
+        builder: (c) {
+          ctx = c;
+          return const Scaffold();
+        },
+      ),
+    );
     openRoute(ctx, 'Stats');
     await t.pumpAndSettle();
     expect(text('暂无权限访问'), findsOneWidget);

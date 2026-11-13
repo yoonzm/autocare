@@ -1,10 +1,10 @@
+import 'package:autocare_merchant/pages/members/member_events.dart';
 import 'dart:async';
 
-import 'package:autocare_merchant/backend/hold_flow.dart';
-import 'package:autocare_merchant/backend/catalog_draft.dart';
+import 'package:autocare_merchant/backend/hold_store.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/kit/async_kit.dart';
-import 'package:autocare_merchant/pages/home_page.dart';
+import 'package:autocare_merchant/pages/shared/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -37,11 +37,11 @@ void main() {
   setUp(() {
     original = merchantApi;
     merchantApi = api = StatsApi();
-    HoldFlow.reset();
+    HoldStore.reset();
   });
   tearDown(() {
     merchantApi = original;
-    HoldFlow.reset();
+    HoldStore.reset();
   });
   Future<void> open(WidgetTester t) async {
     phone(t);
@@ -101,7 +101,7 @@ void main() {
     await open(t);
     await t.pumpAndSettle();
     api.stats = {...api.stats, 'revenue': 2468, 'recharge': 900};
-    CatalogDraft.changed.value++;
+    memberChanged.value++;
     await t.pumpAndSettle();
     expect(find.text('2,468.00'), findsOneWidget);
     expect(find.text('今日 ¥900.00'), findsOneWidget);

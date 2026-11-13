@@ -1,3 +1,4 @@
+import 'data_snapshot.dart';
 import 'store_context.dart';
 
 import 'dart:async';
@@ -28,9 +29,13 @@ class ServiceStore {
 
   /// 缓存属于哪个 API 客户端；换了客户端（测试里换成假接口、重新初始化）就当作没有缓存。
   static Object? _owner;
+  static int _revision = 0;
+  static int? _storeEpoch;
 
   static void _sync() {
-    if (!identical(_owner, merchantApi)) {
+    if (!identical(_owner, merchantApi) || _storeEpoch != StoreContext.epoch) {
+      _revision++;
+      _storeEpoch = StoreContext.epoch;
       _cached = null;
       _loadedAt = null;
       _inflight = null;
@@ -77,16 +82,28 @@ class ServiceStore {
     final running = _inflight;
     if (running != null) return running;
     final epoch = StoreContext.epoch;
+    final revision = _revision;
+    final api = merchantApi;
     final future = () async {
       try {
-        final rows = await merchantApi.list('services');
-        if (epoch != StoreContext.epoch) return rows;
+        final rows = List<Map<String, dynamic>>.unmodifiable(
+          (await api.list('services')).map(dataSnapshot),
+        );
+        if (epoch != StoreContext.epoch ||
+            revision != _revision ||
+            !identical(api, merchantApi)) {
+          return rows;
+        }
         _cached = rows;
         _loadedAt = DateTime.now();
         changed.value++;
         return rows;
       } finally {
-        if (epoch == StoreContext.epoch) _inflight = null;
+        if (epoch == StoreContext.epoch &&
+            revision == _revision &&
+            identical(api, merchantApi)) {
+          _inflight = null;
+        }
       }
     }();
     _inflight = future;
@@ -100,6 +117,7 @@ class ServiceStore {
 
   /// 清空（退出登录 / 换账号）。
   static void clear() {
+    _revision++;
     _cached = null;
     _loadedAt = null;
     _inflight = null;

@@ -1,9 +1,28 @@
 import 'package:autocare_merchant/routes.dart';
 import 'package:autocare_merchant/theme.dart';
+import 'package:autocare_merchant/backend/merchant_api.dart';
+import 'package:autocare_merchant/widgets/choice_controls.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'members_test.dart' show MemberFakeApi;
+
 void main() {
+  late MerchantApi original;
+  late MemberFakeApi api;
+  setUp(() {
+    original = merchantApi;
+    merchantApi = api = MemberFakeApi();
+    api.tiers
+      ..clear()
+      ..addAll([
+        {'id': 'base', 'name': '普通'},
+        {'id': 'silver', 'name': '银卡', 'upgrade_recharge': 2000},
+        {'id': 'gold', 'name': '金卡', 'upgrade_recharge': 5000},
+        {'id': 'black', 'name': '黑金', 'upgrade_recharge': 10000},
+      ]);
+  });
+  tearDown(() => merchantApi = original);
   tearDown(() => C.dark = false);
 
   Future<void> openAdd(WidgetTester t) async {
@@ -16,7 +35,14 @@ void main() {
     };
     addTearDown(() => FlutterError.onError = old);
     await t.pumpWidget(const SizedBox()); // 丢弃上一次的 State
-    await t.pumpWidget(MaterialApp(home: pageFor('MemberAdd')!));
+    await t.pumpWidget(
+      MaterialApp(
+        theme: ThemeData(
+          brightness: C.dark ? Brightness.dark : Brightness.light,
+        ),
+        home: pageFor('MemberAdd')!,
+      ),
+    );
     await t.pumpAndSettle();
   }
 
@@ -63,6 +89,11 @@ void main() {
   testWidgets('客户来源：单选标签完整蓝色选中态且互斥', (t) async {
     await openAdd(t);
     await t.ensureVisible(find.text('短视频'));
+    for (final source in ['到店自然客', '老客推荐', '团购平台', '短视频']) {
+      expect(sourceLook(t, source).$1, const Color(0xFFF4F4F5));
+    }
+    await t.tap(find.text('老客推荐'));
+    await t.pumpAndSettle();
     expect(sourceLook(t, '老客推荐').$1, const Color(0xFFE1F0FE));
     expect(sourceLook(t, '老客推荐').$2, const Color(0xFF1E63AE));
     expect(sourceLook(t, '到店自然客').$1, const Color(0xFFF4F4F5));
@@ -83,6 +114,8 @@ void main() {
     C.dark = true;
     await openAdd(t);
     await t.ensureVisible(find.text('老客推荐'));
+    await t.tap(find.text('老客推荐'));
+    await t.pumpAndSettle();
     final on = sourceLook(t, '老客推荐');
     expect(on.$1, const Color.fromRGBO(4, 133, 247, 0.18));
     expect(on.$1, isNot(C.card));
@@ -90,7 +123,7 @@ void main() {
     expect(sourceLook(t, '团购平台').$1, const Color(0xFF27272A));
   });
 
-  testWidgets('会员等级：点选后「当前」跟随选中项，其余显示升级门槛', (t) async {
+  testWidgets('会员等级：展示真实门槛，点选不伪造服务端开通等级', (t) async {
     await openAdd(t);
     await t.ensureVisible(find.text('金卡'));
     expect(find.text('当前'), findsOneWidget);
@@ -101,12 +134,44 @@ void main() {
     final col = find
         .ancestor(of: find.text('金卡'), matching: find.byType(Column))
         .first;
-    expect(find.descendant(of: col, matching: find.text('当前')), findsOneWidget);
-    expect(find.textContaining('充值 ¥5,000'), findsNothing);
+    expect(find.descendant(of: col, matching: find.text('当前')), findsNothing);
+    expect(find.textContaining('充值 ¥5,000'), findsOneWidget);
     expect(find.textContaining('充值 ¥2,000'), findsOneWidget);
+    expect(find.text('会员等级由后台按门店规则开通与升级'), findsOneWidget);
+    expect(api.saved, isEmpty);
     // 品牌配色不随选中变化
     expect(look(t, '金卡').$1, const Color(0xFFF3E2B3));
     expect(look(t, '黑金').$2, C.gold);
+  });
+
+  testWidgets('会员等级样式由调用者提供的当前项控制', (t) async {
+    var selected = 0;
+    await t.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: StatefulBuilder(
+            builder: (_, setState) => HTierPicker(
+              initial: selected,
+              labels: const ['普通', '银卡', '金卡', '黑金'],
+              rules: const ['', '充值 ¥2,000', '充值 ¥5,000', '充值 ¥10,000'],
+              onChanged: (i) => setState(() => selected = i),
+            ),
+          ),
+        ),
+      ),
+    );
+    await t.tap(find.text('金卡'));
+    await t.pumpAndSettle();
+    expect(selected, 2);
+    final column = find
+        .ancestor(of: find.text('金卡'), matching: find.byType(Column))
+        .first;
+    expect(
+      find.descendant(of: column, matching: find.text('当前')),
+      findsOneWidget,
+    );
+    expect(find.textContaining('充值 ¥5,000'), findsNothing);
+    expect(look(t, '金卡').$1, const Color(0xFFF3E2B3));
   });
 
   testWidgets('车身颜色：11 个色块 + 自定义，色值固定，选中环跟随点击（深色模式同样）', (t) async {

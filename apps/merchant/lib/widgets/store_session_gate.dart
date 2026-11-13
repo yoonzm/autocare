@@ -6,7 +6,7 @@ import '../backend/merchant_api.dart';
 import '../backend/service_store.dart';
 import '../backend/store_profile.dart';
 import '../kit/async_kit.dart';
-import '../pages/login_page.dart';
+import '../pages/account/login_page.dart';
 
 /// Restore the server-selected store before mounting any store-dependent pages.
 /// A delayed/failed profile must never race their requests or use cached identity.

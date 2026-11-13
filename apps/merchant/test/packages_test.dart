@@ -1,12 +1,15 @@
 import 'dart:io';
 import 'dart:ui' as ui;
 
-import 'package:autocare_merchant/backend/catalog_draft.dart';
+import 'package:autocare_merchant/backend/catalog_counts.dart';
 import 'package:autocare_merchant/backend/access_flow.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/backend/package_calc.dart';
 import 'package:autocare_merchant/kit/async_kit.dart';
-import 'package:autocare_merchant/pages/card_packages_live_page.dart';
+import 'package:autocare_merchant/pages/catalog/card_packages_live_page.dart';
+import 'package:autocare_merchant/pages/catalog/package_edit_page.dart';
+import 'package:autocare_merchant/widgets/package_widgets.dart';
+import 'package:autocare_merchant/kit/kit.dart' show HSwitch;
 import 'package:autocare_merchant/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -146,7 +149,7 @@ void main() {
     original = merchantApi;
     fake = PkgFakeApi();
     merchantApi = fake;
-    CatalogDraft.current = null;
+
     CatalogCounts.cards = null;
     CatalogCounts.packages = null;
     navTracker.stack.clear();
@@ -155,11 +158,11 @@ void main() {
     Access.role = 'owner';
     Access.caps = const {};
     merchantApi = original;
-    CatalogDraft.current = null;
+
     navTracker.stack.clear();
   });
 
-  group('计算与草稿', () {
+  group('计算与接口数据', () {
     test('列表行：次数 / 有效期 / 原价 / 划线价', () {
       final info = PackageRowInfo(pkgRow());
       expect(info.subtitle, '20 次 · 12 个月有效');
@@ -172,29 +175,25 @@ void main() {
     });
 
     test('编辑草稿：服务拍平，汇总与设计稿一致（省 ¥280 · 约 7.9 折）', () {
-      CatalogDraft.begin('packages', pkgRow());
-      expect(CatalogDraft.packageItems.single, {
+      final calc = PackageCalc.fromRow(pkgRow());
+      expect(calc.items.single, {
         'service_id': 's1',
         'name': '精致洗车',
         'price': 68,
         'count': 20,
       });
-      expect(PackageCalc.originalText, '¥1,360');
-      expect(PackageCalc.perUseText, '相当于单次 ¥54');
-      expect(PackageCalc.savingText, '省 ¥280 · 约 7.9 折');
-      expect(PackageCalc.summary, '20 次 · 12 个月有效');
-      expect(CatalogDraft.packageLimitLabel, '2 份');
+      expect(calc.originalText, '¥1,360');
+      expect(calc.perUseText, '相当于单次 ¥54');
+      expect(calc.savingText, '省 ¥280 · 约 7.9 折');
+      expect(calc.summary, '20 次 · 12 个月有效');
     });
 
-    test('新建草稿的默认值', () {
-      CatalogDraft.begin('packages');
-      expect(CatalogDraft.packageItems, isEmpty);
-      expect(CatalogDraft.packageValidityIndex, 2); // 12 个月
-      expect(CatalogDraft.packageLimitLabel, '不限');
-      expect(CatalogDraft.packageVehicleScope, '全部车型');
-      expect(CatalogDraft.packageShowInMini, isTrue);
-      expect(CatalogDraft.packageActive, isTrue);
-      expect(PackageCalc.savingText, '无优惠');
+    test('空套餐的汇总默认值', () {
+      const calc = PackageCalc();
+      expect(calc.items, isEmpty);
+      expect(calc.validityMonths, 12);
+      expect(calc.totalCount, 0);
+      expect(calc.savingText, '无优惠');
     });
   });
 
@@ -304,7 +303,9 @@ void main() {
       await t.pumpAndSettle();
       expect(find.text('¥1,234.56'), findsOneWidget);
       fake.statsError = const AppError('读取次卡统计失败', type: AppErrorType.server);
-      CatalogDraft.changed.value++;
+      await t.tap(find.text('精致洗车年卡').first);
+      await t.pumpAndSettle();
+      await t.tap(find.text('保存').first);
       await t.pumpAndSettle();
       expect(find.text('¥1,234.56'), findsOneWidget);
       expect(find.byType(ErrorView), findsNothing);
@@ -346,10 +347,7 @@ void main() {
           Builder(
             builder: (context) => Scaffold(
               body: ElevatedButton(
-                onPressed: () {
-                  CatalogDraft.begin('packages', row);
-                  openRoute(context, 'PackageEdit');
-                },
+                onPressed: () => openPackageEditor(context, initial: row),
                 child: const Text('open'),
               ),
             ),
@@ -359,6 +357,17 @@ void main() {
       await t.tap(find.text('open'));
       await t.pumpAndSettle();
     }
+
+    testWidgets('新建套餐的默认配置属于当前页面', (t) async {
+      phone(t);
+      await openEdit(t);
+      expect(find.text('不限'), findsOneWidget);
+      expect(find.text('全部车型'), findsOneWidget);
+      expect(find.text('0 次 · 12 个月有效'), findsOneWidget);
+      final switches = t.widgetList<HSwitch>(find.byType(HSwitch));
+      expect(switches.map((w) => w.value), [true, true]);
+      expect(t.widget<PackageItems>(find.byType(PackageItems)).items, isEmpty);
+    });
 
     testWidgets('新建：没有名称 / 服务 / 售价时给出原因，不请求后端', (t) async {
       phone(t);
@@ -379,7 +388,7 @@ void main() {
       phone(t);
       await openEdit(t, pkgRow());
       final fields = find.byType(TextFormField);
-      expect(t.widget<TextFormField>(fields.at(0)).initialValue, '精致洗车年卡');
+      expect(find.widgetWithText(TextFormField, '精致洗车年卡'), findsOneWidget);
       expect(find.text('省 ¥280 · 约 7.9 折'), findsOneWidget);
       await t.enterText(fields.at(0), '精致洗车半年卡');
       await t.tap(find.text('保存').first);
@@ -409,11 +418,14 @@ void main() {
       expect(find.text('合计原价 ¥1,458'), findsOneWidget); // 68×20 + 98×1
       await t.tap(find.text('确认添加'));
       await t.pumpAndSettle();
-      expect(CatalogDraft.packageItems.map((e) => e['service_id']), [
-        's1',
-        's2',
-      ]);
-      expect(PackageCalc.originalText, '¥1,458');
+      expect(
+        t
+            .widget<PackageItems>(find.byType(PackageItems))
+            .items
+            .map((e) => e['service_id']),
+        ['s1', 's2'],
+      );
+      expect(find.text('¥1,458'), findsOneWidget);
     });
 
     testWidgets('删除套餐：确认后调用后端并返回', (t) async {

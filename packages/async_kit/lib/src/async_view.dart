@@ -26,6 +26,10 @@ class AsyncView<T> extends StatefulWidget {
   /// 数据加载成功后回调（用于页面其他位置同步显示条数等）。
   final void Function(T data)? onLoaded;
 
+  /// Called after a request settles, including errors, once the loading lock clears.
+  /// Hosts can use this to drain refresh signals received while loading.
+  final VoidCallback? onSettled;
+
   /// 空状态 / 错误状态下也可下拉刷新；内容状态需 builder 返回可滚动控件。
   final bool pullToRefresh;
 
@@ -44,6 +48,7 @@ class AsyncView<T> extends StatefulWidget {
     required this.empty,
     required this.builder,
     this.onLoaded,
+    this.onSettled,
     this.pullToRefresh = true,
     this.onNext,
   });
@@ -123,6 +128,7 @@ class AsyncViewState<T> extends State<AsyncView<T>> {
         onAction: failed.retryable ? reload : null,
       );
     }
+    if (mounted) widget.onSettled?.call();
   }
 
   Widget _scrollable(Widget child) {

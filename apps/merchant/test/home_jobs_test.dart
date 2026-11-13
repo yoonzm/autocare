@@ -1,8 +1,6 @@
-import 'package:autocare_merchant/backend/catalog_draft.dart';
-import 'package:autocare_merchant/backend/hold_flow.dart';
-import 'package:autocare_merchant/backend/member_flow.dart';
+import 'package:autocare_merchant/backend/hold_store.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
-import 'package:autocare_merchant/pages/home_page.dart';
+import 'package:autocare_merchant/pages/shared/home_page.dart';
 import 'package:autocare_merchant/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -17,14 +15,14 @@ void main() {
     original = merchantApi;
     fake = MemberFakeApi();
     merchantApi = fake;
-    CatalogDraft.current = null;
-    MemberFlow.current = null;
-    HoldFlow.reset();
+
+
+    HoldStore.reset();
     navTracker.stack.clear();
   });
   tearDown(() {
     merchantApi = original;
-    HoldFlow.reset();
+    HoldStore.reset();
     navTracker.stack.clear();
   });
 
@@ -65,7 +63,7 @@ void main() {
     );
 
     await t.pumpWidget(const SizedBox());
-    HoldFlow.reset();
+    HoldStore.reset();
     fake.holdsError = const AppError('网络不稳定', type: AppErrorType.network);
     await openHome(t);
     expect(find.text('重试'), findsOneWidget);

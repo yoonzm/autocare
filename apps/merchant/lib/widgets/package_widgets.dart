@@ -1,22 +1,23 @@
-// 次卡套餐编辑页里随草稿变化的几块：套餐预览、包含服务列表、定价文字。
-// 生成脚本把设计稿里对应的静态区域换成这里的组件（生成页面不能手改）。
+// 次卡套餐预览与服务列表；数据及操作均由页面显式传入。
 import 'package:flutter/material.dart';
 
-import '../backend/catalog_draft.dart';
-import '../backend/merchant_api.dart';
 import '../backend/package_calc.dart';
-import '../backend/store_profile.dart';
 import '../kit/kit.dart';
-import '../pages/gen/svgs.dart';
-import '../routes.dart';
+import '../resources/merchant_svgs.dart';
 import '../theme.dart' show C, softShadow;
 
 /// 套餐编辑页顶部的“套餐预览”：名称、次数 / 有效期、售价都跟着编辑实时变化。
-Widget hPackagePreview() => ListenableBuilder(
-  listenable: Listenable.merge([CatalogDraft.preview, storeProfile]),
-  builder: (context, _) {
-    final name = (CatalogDraft.current?.fields['name'] ?? '').toString().trim();
-    final store = storeProfile.live ? storeProfile.name : '驰光汽车美容';
+class PackagePreview extends StatelessWidget {
+  final String name, store;
+  final PackageCalc calc;
+  const PackagePreview({
+    super.key,
+    required this.name,
+    required this.store,
+    required this.calc,
+  });
+  @override
+  Widget build(BuildContext context) {
     return Container(
       clipBehavior: Clip.antiAlias,
       padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
@@ -82,7 +83,7 @@ Widget hPackagePreview() => ListenableBuilder(
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          PackageCalc.summary,
+                          calc.summary,
                           style: hts(12, const Color(0xD9FFFFFF), lh: 17),
                         ),
                       ],
@@ -90,7 +91,7 @@ Widget hPackagePreview() => ListenableBuilder(
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    PackageCalc.priceText,
+                    calc.priceText,
                     style: hts(26, Colors.white, w: FontWeight.w600, lh: 32),
                   ),
                 ],
@@ -100,68 +101,33 @@ Widget hPackagePreview() => ListenableBuilder(
         ],
       ),
     );
-  },
-);
-
-/// 随套餐草稿变化的文字（原价合计 / 相当于单次 / 省 ¥… 约 … 折）。
-Widget hPkgText(
-  String Function() text,
-  String sample,
-  TextStyle style, {
-  TextAlign? textAlign,
-  bool? softWrap,
-  int? maxLines,
-}) => ListenableBuilder(
-  listenable: CatalogDraft.preview,
-  builder: (_, _) => Text(
-    merchantApi.hasSession ? text() : sample,
-    style: style,
-    textAlign: textAlign,
-    softWrap: softWrap,
-    maxLines: maxLines,
-  ),
-);
+  }
+}
 
 /// “包含服务”卡片：每个服务一行（名称、单次价、次数加减），最后是“添加服务项目”。
 /// 次数减到 1 以后再点“−”会把这个服务从套餐里去掉。
-Widget hPackageItems() => ListenableBuilder(
-  listenable: CatalogDraft.preview,
-  builder: (context, _) {
-    final items = CatalogDraft.packageItems;
-    void change(int index, int delta) {
-      final next = CatalogDraft.packageItems;
-      final count = (int.tryParse('${next[index]['count']}') ?? 1) + delta;
-      if (count < 1) {
-        next.removeAt(index);
-      } else if (count <= 999) {
-        next[index]['count'] = count;
-      }
-      CatalogDraft.setPackageItems(next);
-    }
-
-    Widget stepButton(String label, IconData icon, VoidCallback onTap) =>
-        Semantics(
-          button: true,
-          label: label,
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: onTap,
-            child: Container(
-              width: 32,
-              height: 32,
-              margin: const EdgeInsets.all(6), // 点击区域扩大到 44
-              decoration: BoxDecoration(
-                color: dk(
-                  context,
-                  const Color(0xFFF4F4F5),
-                  const Color(0xFF27272A),
-                ),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, size: 16, color: C.ink),
-            ),
-          ),
-        );
+class PackageItems extends StatelessWidget {
+  final List<Map<String, dynamic>> items;
+  final void Function(int index, int delta) onStep;
+  final VoidCallback onAdd;
+  const PackageItems({
+    super.key,
+    required this.items,
+    required this.onStep,
+    required this.onAdd,
+  });
+  @override
+  Widget build(BuildContext context) {
+    Widget stepButton(IconData icon) => Container(
+      width: 32,
+      height: 32,
+      margin: const EdgeInsets.all(6), // 点击区域扩大到 44
+      decoration: BoxDecoration(
+        color: dk(context, const Color(0xFFF4F4F5), const Color(0xFF27272A)),
+        shape: BoxShape.circle,
+      ),
+      child: Icon(icon, size: 16, color: C.ink),
+    );
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -217,16 +183,21 @@ Widget hPackageItems() => ListenableBuilder(
                         ],
                       ),
                     ),
-                    stepButton('减少', Icons.remove_rounded, () => change(i, -1)),
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(minWidth: 36),
-                      child: Text(
-                        '${items[i]['count']}',
-                        textAlign: TextAlign.center,
-                        style: hts(15, C.ink, w: FontWeight.w600, lh: 22),
+                    HNumberStepper.controlled(
+                      onDecrease: () => onStep(i, -1),
+                      onIncrease: () => onStep(i, 1),
+                      minus: stepButton(Icons.remove_rounded),
+                      value: ConstrainedBox(
+                        constraints: const BoxConstraints(minWidth: 36),
+                        child: Text(
+                          '${items[i]['count']}',
+                          textAlign: TextAlign.center,
+                          style: hts(15, C.ink, w: FontWeight.w600, lh: 22),
+                        ),
                       ),
+                      plus: stepButton(Icons.add_rounded),
+                      gap: 0,
                     ),
-                    stepButton('增加', Icons.add_rounded, () => change(i, 1)),
                   ],
                 ),
               ),
@@ -239,7 +210,7 @@ Widget hPackageItems() => ListenableBuilder(
           ],
           GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTap: () => openRoute(context, 'PackageSvcPick'),
+            onTap: onAdd,
             child: ConstrainedBox(
               constraints: const BoxConstraints(minHeight: 54),
               child: Padding(
@@ -264,5 +235,5 @@ Widget hPackageItems() => ListenableBuilder(
         ],
       ),
     );
-  },
-);
+  }
+}

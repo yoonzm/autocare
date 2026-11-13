@@ -1,15 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
-import 'package:autocare_merchant/backend/registration_draft.dart';
 import 'package:autocare_merchant/backend/store_profile.dart';
+import 'package:autocare_merchant/backend/registration_data.dart';
+import 'package:autocare_merchant/pages/account/reg_shop_page.dart';
+import 'package:autocare_merchant/pages/account/reg_done_page.dart';
 import 'package:autocare_merchant/kit/kit.dart' show HCheck;
-import 'package:autocare_merchant/pages/gen/gen_routes.dart';
+import 'package:autocare_merchant/navigation/page_registry.dart';
 
 /// 记录调用的假后端（模拟已登录）。
 class _FakeApi extends MerchantApi {
   @override
   Future<List<Map<String, dynamic>>> accountDevices() async => [];
+  @override
+  Future<Map<String, dynamic>> invoke(
+    Map<String, dynamic> body, {
+    Duration timeout = const Duration(seconds: 15),
+    String? requestId,
+  }) async {
+    if (body['action'] != 'regions') {
+      throw UnimplementedError('${body['action']}');
+    }
+    return {
+      'version': 'account-test',
+      'items': [
+        {'code': '330000', 'name': '浙江省', 'parent_code': null, 'level': 1},
+        {'code': '330100', 'name': '杭州市', 'parent_code': '330000', 'level': 2},
+      ],
+    };
+  }
+
   @override
   Future<Map<String, dynamic>> cancellationCheck() async => {
     'holds': 0,
@@ -87,10 +108,10 @@ void main() {
   late MerchantApi original;
 
   setUp(() {
+    SharedPreferences.setMockInitialValues({});
     original = merchantApi;
     api = _FakeApi();
     merchantApi = api;
-    RegistrationDraft.clear();
     storeProfile.clear();
     storeProfile.apply({'phone': '+8613988888812', 'name': '蓝鲸养护'});
   });
@@ -108,7 +129,23 @@ void main() {
         initialRoute: route,
         onGenerateRoute: (s) => MaterialPageRoute(
           settings: s,
-          builder: (_) => Builder(builder: genRoutes[s.name]!),
+          builder: (_) => s.name == 'RegShop'
+              ? const RegShopPage(
+                  credentials: RegistrationCredentials(
+                    phone: '13900000000',
+                    code: '123456',
+                    password: 'abcd1234',
+                  ),
+                )
+              : s.name == 'RegDone'
+              ? RegDonePage(
+                  receipt: RegistrationReceipt(
+                    storeName: storeProfile.name,
+                    maskedPhone: storeProfile.maskedPhone,
+                    seededServices: 12,
+                  ),
+                )
+              : Builder(builder: pageBuilders[s.name]!),
         ),
       ),
     );
@@ -130,6 +167,15 @@ void main() {
     await t.pump(const Duration(milliseconds: 700));
   }
 
+  Future<void> selectCity(WidgetTester t) async {
+    await t.ensureVisible(find.text('请选择所在城市').first);
+    await t.tap(find.text('请选择所在城市').first);
+    await t.pumpAndSettle();
+    await t.tap(find.text('确定'));
+    await t.pumpAndSettle();
+    expect(find.text('浙江省 · 杭州市'), findsOneWidget);
+  }
+
   testWidgets('注册第二页：未选城市 / 没填联系人不能提交，选项会随资料提交', (t) async {
     await open(t, 'RegShop');
     // 设计稿的示例文字不应成为默认值
@@ -143,9 +189,7 @@ void main() {
     await t.pump(const Duration(seconds: 4));
     expect(find.text('请选择所在城市'), findsWidgets);
 
-    RegistrationDraft.city = '浙江省 · 杭州市';
-    RegistrationDraft.provinceCode = '330000';
-    RegistrationDraft.cityCode = '330100'; // 城市选择器是原生滚轮，直接写入选中结果
+    await selectCity(t);
     await tapText(t, '免费开通');
     await t.pump(const Duration(seconds: 4));
     expect(find.text('请输入联系人姓名'), findsOneWidget);
@@ -154,7 +198,9 @@ void main() {
     await t.enterText(input('街道、门牌号（选填）'), '文三路 1 号');
     await tapText(t, '店长');
     await tapText(t, '7-10 个');
-    final p = RegistrationDraft.profile();
+    await tapText(t, '免费开通');
+    await t.pumpAndSettle();
+    final p = api.registered!;
     expect(p['province_code'], '330000');
     expect(p['city_code'], '330100');
     expect(p['contact_name'], '林');
@@ -162,7 +208,7 @@ void main() {
     expect(p['contact_role'], '店长');
     expect(p['bay_range'], '7-10 个');
     expect(p['business_types'], ['洗车美容', '镀晶镀膜', '隐形车衣']);
-    expect(RegistrationDraft.shopStepError(), isNull);
+    expect(find.byType(RegDonePage), findsOneWidget);
   });
 
   testWidgets('开通成功页：显示后端返回的门店名 / 手机号 / 限时免费', (t) async {
@@ -177,19 +223,17 @@ void main() {
 
   testWidgets('开通门店：成功页显示云函数按主营业务初始化的服务项目数', (t) async {
     await open(t, 'RegShop');
-    RegistrationDraft.set('RegPhone', '请输入手机号', '13900000000');
-    RegistrationDraft.set('RegPhone', '6 位数字', '123456');
-    RegistrationDraft.set('RegPhone', '8-20 位，含字母和数字', 'abcd1234');
     await t.enterText(input('如：驰光汽车美容'), '蓝鲸养护');
     await t.enterText(input('您的姓名'), '林');
-    RegistrationDraft.city = '浙江省 · 杭州市';
-    RegistrationDraft.provinceCode = '330000';
-    RegistrationDraft.cityCode = '330100';
+    await selectCity(t);
     await tapText(t, '免费开通');
     await t.pumpAndSettle(); // 等跳转到「开通成功」页
     expect(api.registered!['store_name'], '蓝鲸养护');
     expect(find.text('已按主营业务生成 8 项'), findsOneWidget);
-    expect(storeProfile.seededServices, 8);
+    expect(
+      t.widget<RegDonePage>(find.byType(RegDonePage)).receipt!.seededServices,
+      8,
+    );
   });
 
   testWidgets('账号与安全：手机号来自门店资料；退出所有设备走后端', (t) async {

@@ -1,4 +1,4 @@
-// 图片选择：拍照 / 从相册选择，选完在原处回显（不真正上传）。
+// 图片选择返回路径，预览与保存由页面显式处理。
 import 'kit.dart';
 
 import 'dart:io';
@@ -6,65 +6,26 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../backend/store_profile.dart';
-import '../pages/gen/svgs.dart';
 import '../theme.dart';
-
-/// 按 key 保存已选图片路径（仅内存，mock）。
-final Map<String, ValueNotifier<List<String>>> _imgStore = {};
-
-ValueNotifier<List<String>> imageStore(String key) =>
-    _imgStore.putIfAbsent(key, () => ValueNotifier<List<String>>([]));
 
 bool _picking = false;
 
-/// 不弹来源选择，直接调用系统相机 / 相册，选中后写入 [key]，返回是否拿到了图片。
-Future<bool> hCaptureImage(
-  BuildContext context,
-  String key, {
-  required bool camera,
+/// 选择并返回图片，由调用页面管理路径；指定来源时直接打开相机或相册。
+Future<XFile?> pickSingleImage(
+  BuildContext context, {
+  ImageSource? source,
 }) async {
-  if (_picking) return false;
+  if (_picking) return null;
   _picking = true;
   try {
-    final f = await ImagePicker().pickImage(
-      source: camera ? ImageSource.camera : ImageSource.gallery,
-      maxWidth: 1600,
-      imageQuality: 85,
-    );
-    if (f == null) return false;
-    imageStore(key).value = [f.path];
-    return true;
-  } catch (_) {
-    if (context.mounted) {
-      hToastOn(
-        ScaffoldMessenger.of(context),
-        camera ? '无法打开相机，请在系统设置中允许访问' : '无法访问相册，请在系统设置中允许访问',
-      );
-    }
-    return false;
-  } finally {
-    _picking = false;
-  }
-}
-
-/// 弹出“拍照 / 从相册选择”，选中后写入 [key]。
-/// [replaceAt] 不为空时替换该位置，否则追加（受 [max] 限制）。
-Future<void> hPickImage(
-  BuildContext context,
-  String key, {
-  int? replaceAt,
-  int max = 1,
-}) async {
-  if (_picking) return;
-  _picking = true;
-  try {
-    final src = await showModalBottomSheet<ImageSource>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => const _SourceSheet(),
-    );
-    if (src == null) return;
+    final src =
+        source ??
+        await showModalBottomSheet<ImageSource>(
+          context: context,
+          backgroundColor: Colors.transparent,
+          builder: (ctx) => const _SourceSheet(),
+        );
+    if (src == null) return null;
     final XFile? f;
     try {
       f = await ImagePicker().pickImage(
@@ -81,21 +42,10 @@ Future<void> hPickImage(
               : '无法访问相册，请在系统设置中允许访问',
         );
       }
-      return;
+      return null;
     }
-    if (f == null) return;
-    final n = imageStore(key);
-    final list = [...n.value];
-    if (replaceAt != null && replaceAt < list.length) {
-      list[replaceAt] = f.path;
-    } else if (max <= 1) {
-      list
-        ..clear()
-        ..add(f.path);
-    } else if (list.length < max) {
-      list.add(f.path);
-    }
-    n.value = list;
+    if (f == null) return null;
+    return f;
   } finally {
     _picking = false;
   }
@@ -187,191 +137,85 @@ class _SourceSheet extends StatelessWidget {
   }
 }
 
-Widget _thumb(
-  String path,
-  double size,
-  double radius,
-  VoidCallback onClear,
-  VoidCallback onTap,
-) => GestureDetector(
-  onTap: onTap,
-  child: SizedBox(
-    width: size,
-    height: size,
+/// 受控单图槽位：页面提供本地图片、远端地址和事件。
+class ImageSlot extends StatelessWidget {
+  final String localPath, remoteUrl;
+  final VoidCallback onPick, onClear;
+  final Widget? badge;
+  final Clip clipBehavior;
+  final double radius;
+  final Widget child;
+  const ImageSlot({
+    super.key,
+    required this.localPath,
+    required this.onPick,
+    required this.onClear,
+    this.remoteUrl = '',
+    this.badge,
+    this.clipBehavior = Clip.hardEdge,
+    required this.child,
+    this.radius = 16,
+  });
+
+  @override
+  Widget build(BuildContext context) => GestureDetector(
+    behavior: HitTestBehavior.opaque,
+    onTap: onPick,
     child: Stack(
-      fit: StackFit.expand,
+      clipBehavior: clipBehavior,
       children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(radius),
-          child: Image.file(
-            File(path),
-            fit: BoxFit.cover,
-            cacheWidth: 400,
-            errorBuilder: (_, _, _) => Container(color: C.chip),
-          ),
-        ),
-        Positioned(
-          top: 4,
-          right: 4,
-          child: GestureDetector(
-            onTap: onClear,
-            child: Container(
-              width: 20,
-              height: 20,
-              decoration: const BoxDecoration(
-                color: Color(0x99000000),
-                shape: BoxShape.circle,
+        child,
+        // 已保存的头像（来自服务端）；本地新选的图片盖在它上面，保存时才上传。
+        if (localPath.isEmpty && remoteUrl.isNotEmpty)
+          Positioned.fill(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(radius),
+              child: Image.network(
+                remoteUrl,
+                fit: BoxFit.cover,
+                cacheWidth: 400,
+                errorBuilder: (_, _, _) => const SizedBox.shrink(),
               ),
-              child: const Icon(Icons.close, size: 13, color: Colors.white),
             ),
           ),
-        ),
-      ],
-    ),
-  ),
-);
-
-/// 单张图片槽位：没选时显示原有占位，选了之后盖上图片；点击重新选择。
-class HImageSlot extends StatelessWidget {
-  final String imgKey;
-  final double radius;
-  final Widget child;
-  const HImageSlot({
-    super.key,
-    required this.imgKey,
-    required this.child,
-    this.radius = 16,
-  });
-
-  @override
-  Widget build(BuildContext context) => ValueListenableBuilder<List<String>>(
-    valueListenable: imageStore(imgKey),
-    builder: (context, list, _) => GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => hPickImage(context, imgKey),
-      child: Stack(
-        clipBehavior: imgKey == 'ProfileEdit_avatar' ? Clip.none : Clip.hardEdge,
-        children: [
-          child,
-          // 已保存的头像（来自服务端）；本地新选的图片盖在它上面，保存时才上传。
-          if (list.isEmpty && imgKey == 'ProfileEdit_avatar')
-            Positioned.fill(
-              child: ListenableBuilder(
-                listenable: storeProfile,
-                builder: (_, _) => storeProfile.avatarUrl.isEmpty
-                    ? const SizedBox.shrink()
-                    : ClipRRect(
-                        borderRadius: BorderRadius.circular(radius),
-                        child: Image.network(
-                          storeProfile.avatarUrl,
-                          fit: BoxFit.cover,
-                          cacheWidth: 400,
-                          errorBuilder: (_, _, _) => const SizedBox.shrink(),
+        if (localPath.isNotEmpty)
+          Positioned.fill(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(radius),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.file(
+                    File(localPath),
+                    fit: BoxFit.cover,
+                    cacheWidth: 800,
+                    errorBuilder: (_, _, _) => Container(color: C.chip),
+                  ),
+                  Positioned(
+                    top: 6,
+                    right: 6,
+                    child: GestureDetector(
+                      onTap: onClear,
+                      child: Container(
+                        width: 22,
+                        height: 22,
+                        decoration: const BoxDecoration(
+                          color: Color(0x99000000),
+                          shape: BoxShape.circle,
                         ),
-                      ),
-              ),
-            ),
-          if (list.isNotEmpty)
-            Positioned.fill(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(radius),
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    Image.file(
-                      File(list.first),
-                      fit: BoxFit.cover,
-                      cacheWidth: 800,
-                      errorBuilder: (_, _, _) => Container(color: C.chip),
-                    ),
-                    Positioned(
-                      top: 6,
-                      right: 6,
-                      child: GestureDetector(
-                        onTap: () => imageStore(imgKey).value = [],
-                        child: Container(
-                          width: 22,
-                          height: 22,
-                          decoration: const BoxDecoration(
-                            color: Color(0x99000000),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.close,
-                            size: 14,
-                            color: Colors.white,
-                          ),
+                        child: const Icon(
+                          Icons.close,
+                          size: 14,
+                          color: Colors.white,
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-          // 头像右下角的相机角标：图片盖上来后要重新画在最上层，否则会被图片遮住。
-          if (imgKey == 'ProfileEdit_avatar')
-            Positioned(
-              right: -2,
-              bottom: -2,
-              width: 30,
-              height: 30,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: dk(context, const Color(0xFF18181B), const Color(0xFF34343A)),
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: dk(context, const Color(0xFFF4F4F5), const Color(0xFF09090B)),
-                      spreadRadius: 3,
-                    ),
-                  ],
-                ),
-                child: Center(child: hsvg(Svgs.s322, w: 15, h: 15)),
-              ),
-            ),
-        ],
-      ),
-    ),
-  );
-}
-
-/// “+”添加按钮：已选图片以缩略图排在按钮前面，达到上限后按钮消失。
-class HImageAdd extends StatelessWidget {
-  final String imgKey;
-  final double size;
-  final double radius;
-  final int max;
-  final Widget child;
-  const HImageAdd({
-    super.key,
-    required this.imgKey,
-    required this.child,
-    this.size = 72,
-    this.radius = 16,
-    this.max = 9,
-  });
-
-  @override
-  Widget build(BuildContext context) => ValueListenableBuilder<List<String>>(
-    valueListenable: imageStore(imgKey),
-    builder: (context, list, _) => Wrap(
-      spacing: 10,
-      runSpacing: 10,
-      children: [
-        for (var i = 0; i < list.length; i++)
-          _thumb(
-            list[i],
-            size,
-            radius,
-            () => imageStore(imgKey).value = [...list]..removeAt(i),
-            () => hPickImage(context, imgKey, replaceAt: i, max: max),
           ),
-        if (list.length < max)
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () => hPickImage(context, imgKey, max: max),
-            child: child,
-          ),
+        ?badge,
       ],
     ),
   );

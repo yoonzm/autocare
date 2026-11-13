@@ -1,11 +1,10 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:autocare_merchant/backend/catalog_draft.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/kit/async_kit.dart';
-import 'package:autocare_merchant/pages/card_tiers_live_page.dart';
-import 'package:autocare_merchant/pages/services_page.dart';
+import 'package:autocare_merchant/pages/catalog/card_tiers_live_page.dart';
+import 'package:autocare_merchant/pages/catalog/services_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -90,9 +89,11 @@ void main() {
       expect(b.type, AppErrorType.business);
       expect(b.message, '验证码错误');
       expect(b.retryable, isFalse);
-      // 业务失败（含 403 / 404 带服务端文案）不当成无权限 / 不存在
-      expect(AppError.fromStatus(403, '当前密码错误').type, AppErrorType.business);
-      expect(AppError.fromStatus(404, '该手机号尚未注册').type, AppErrorType.business);
+      // 403 / 404 保留状态分类，服务端文案仍原样展示。
+      expect(AppError.fromStatus(403, '当前密码错误').type, AppErrorType.forbidden);
+      expect(AppError.fromStatus(403, '当前密码错误').message, '当前密码错误');
+      expect(AppError.fromStatus(404, '该手机号尚未注册').type, AppErrorType.notFound);
+      expect(AppError.fromStatus(404, '该手机号尚未注册').message, '该手机号尚未注册');
       expect(AppError.fromStatus(403).type, AppErrorType.forbidden);
       expect(AppError.fromStatus(404).type, AppErrorType.notFound);
       expect(AppError.fromStatus(403).retryable, isFalse);
@@ -458,7 +459,6 @@ void main() {
     setUp(() {
       api = _Api();
       merchantApi = api;
-      CatalogDraft.current = null;
     });
 
     void phone(WidgetTester t) {

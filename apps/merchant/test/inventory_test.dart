@@ -5,11 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:autocare_merchant/widgets/inventory_bindings.dart';
-import 'package:autocare_merchant/pages/stock_in_live_template.dart';
-import 'package:autocare_merchant/pages/stock_out_live_template.dart';
-import 'package:autocare_merchant/pages/stock_check_live_template.dart';
-import 'package:autocare_merchant/pages/product_detail_live_template.dart';
+import 'package:autocare_merchant/pages/inventory/inventory_controller.dart';
+import 'package:autocare_merchant/pages/inventory/stock_in_live_template.dart';
+import 'package:autocare_merchant/pages/inventory/stock_out_live_template.dart';
+import 'package:autocare_merchant/pages/inventory/stock_check_live_template.dart';
+import 'package:autocare_merchant/pages/inventory/product_detail_live_template.dart';
 import 'package:autocare_merchant/theme.dart';
 
 void main() {

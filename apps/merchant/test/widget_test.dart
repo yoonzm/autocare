@@ -3,13 +3,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:autocare_merchant/main.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/backend/store_profile.dart';
-import 'package:autocare_merchant/mock/mock_data.dart';
-import 'package:autocare_merchant/pages/appointment_add_page.dart';
-import 'package:autocare_merchant/pages/appointments_page.dart';
-import 'package:autocare_merchant/pages/member_detail_page.dart';
-import 'package:autocare_merchant/pages/order_page.dart';
-import 'package:autocare_merchant/pages/services_page.dart';
-import 'package:autocare_merchant/pages/settings_page.dart';
+
+import 'fixtures/preview_member.dart';
+
+import 'package:autocare_merchant/pages/booking/appointment_add_page.dart';
+import 'package:autocare_merchant/pages/booking/appointments_page.dart';
+import 'package:autocare_merchant/pages/members/member_detail_page.dart';
+import 'package:autocare_merchant/pages/orders/order_page.dart';
+import 'package:autocare_merchant/pages/catalog/services_page.dart';
+import 'package:autocare_merchant/pages/shared/settings_page.dart';
 
 import 'members_test.dart' show MemberFakeApi;
 
@@ -48,7 +50,7 @@ void main() {
       const OrderPage(),
       const AppointmentsPage(),
       const AppointmentAddPage(),
-      MemberDetailPage(member: members.first),
+      MemberDetailPage(member: previewMember),
       const ServicesPage(),
       const SettingsPage(),
     ];

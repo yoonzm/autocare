@@ -1,13 +1,14 @@
+import 'data_snapshot.dart';
+import 'catalog_counts.dart';
+
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
 import 'access_flow.dart';
 import 'store_context.dart';
-import 'subscription_flow.dart';
-import 'hold_flow.dart';
+import 'hold_store.dart';
 import 'merchant_api.dart';
-import 'scan_flow.dart';
 import 'service_store.dart';
 
 /// The signed-in owner's store as stored in the backend.
@@ -16,22 +17,9 @@ import 'service_store.dart';
 /// Failed refreshes retain the last confirmed profile; they never use demo data.
 class StoreProfile extends ChangeNotifier {
   bool live = false;
+  int _revision = 0;
   String accountPhone = '';
   String hoursLine = '未设置营业时间与工位';
-  String storeOffer = '正在读取套餐名额';
-  Map<String, dynamic> subscription = const {};
-  int storeCount = 0;
-  String get subscriptionName => '${subscription['name'] ?? '—'}';
-  int get subscriptionDays => trialEndsAt == null
-      ? 0
-      : ((trialEndsAt!.difference(DateTime.now()).inSeconds / 86400).ceil())
-            .clamp(0, 100000);
-
-  void applyDirectory(Map<String, dynamic> data) {
-    storeOffer = '${data['add_hint']}';
-    storeCount = (data['used'] as num?)?.toInt() ?? storeCount;
-    notifyListeners();
-  }
 
   /// 当前登录人自己的资料（「我的 · 编辑资料」）：老板是账号联系人，员工是自己的员工档案。
   Map<String, dynamic> profile = const {};
@@ -42,7 +30,9 @@ class StoreProfile extends ChangeNotifier {
   String get profileMaskedPhone {
     final d = '${profile['phone'] ?? ''}'.replaceAll(RegExp(r'\D'), '');
     final p = d.length >= 11 ? d.substring(d.length - 11) : d;
-    return p.length == 11 ? '${p.substring(0, 3)} **** ${p.substring(7)}' : (p.isEmpty ? '—' : p);
+    return p.length == 11
+        ? '${p.substring(0, 3)} **** ${p.substring(7)}'
+        : (p.isEmpty ? '—' : p);
   }
 
   String get profileInitial =>
@@ -66,13 +56,7 @@ class StoreProfile extends ChangeNotifier {
   String address = '';
   String contactName = '';
   String contactRole = '';
-  String bayRange = '';
-  String plan = 'trial';
   List<String> businessTypes = const [];
-  DateTime? trialEndsAt;
-
-  /// 开通时按主营业务给新门店生成的服务项目数（「开通成功」页展示）。
-  int seededServices = 12;
 
   /// 11-digit mainland number, e.g. `13988888812` (the backend keeps `+86…`).
   String get localPhone {
@@ -94,17 +78,6 @@ class StoreProfile extends ChangeNotifier {
     return p.length == 11 ? '${p.substring(0, 3)} **** ${p.substring(7)}' : p;
   }
 
-  /// 一期限时免费，应用内不展示任何套餐/订阅信息。
-  String get planText => '限时免费';
-
-  /// `2026.11.14`, or `—` when the account has no trial end date.
-  String get trialEndText {
-    final t = trialEndsAt?.toLocal();
-    if (t == null) return '—';
-    String two(int n) => n.toString().padLeft(2, '0');
-    return '${t.year}.${two(t.month)}.${two(t.day)}';
-  }
-
   /// 设置页 / 门店信息里的套餐行。
   String get expiryLine => '限时免费';
 
@@ -112,12 +85,11 @@ class StoreProfile extends ChangeNotifier {
       [city, address].where((s) => s.isNotEmpty).join(' ');
 
   void apply(Map<String, dynamic> s) {
+    _revision++;
     live = true;
-    profile = Map<String, dynamic>.from((s['profile'] as Map?) ?? const {});
-    subscription = Map<String, dynamic>.from(
-      (s['subscription'] as Map?) ?? const {},
+    profile = dataSnapshot(
+      Map<String, dynamic>.from((s['profile'] as Map?) ?? const {}),
     );
-    storeCount = (s['store_count'] as num?)?.toInt() ?? 1;
     if (s['id'] != null) StoreContext.bind('${s['id']}');
     hoursLine = '${s['hours_line'] ?? '未设置营业时间与工位'}';
     accountPhone = '${s['account_phone'] ?? s['phone'] ?? ''}';
@@ -127,13 +99,9 @@ class StoreProfile extends ChangeNotifier {
     address = (s['address'] as String?) ?? '';
     contactName = (s['contact_name'] as String?) ?? '';
     contactRole = (s['contact_role'] as String?) ?? '';
-    bayRange = (s['bay_range'] as String?) ?? '';
-    plan = (s['plan'] as String?) ?? 'trial';
-    businessTypes = List<String>.from(
+    businessTypes = List<String>.unmodifiable(
       (s['business_types'] as List?) ?? const [],
     );
-    final t = s['trial_ends_at'] as String?;
-    trialEndsAt = t == null ? null : DateTime.tryParse(t);
     notifyListeners();
   }
 
@@ -141,8 +109,17 @@ class StoreProfile extends ChangeNotifier {
   /// StoreSessionGate so restoration failures remain visible and retryable.
   Future<void> load() async {
     if (!merchantApi.hasSession) return;
+    final revision = ++_revision;
+    final epoch = StoreContext.epoch;
+    final api = merchantApi;
     try {
-      apply(await merchantApi.getStore());
+      final data = await api.getStore();
+      if (revision != _revision ||
+          epoch != StoreContext.epoch ||
+          !identical(api, merchantApi)) {
+        return;
+      }
+      apply(data);
       // 服务项目几乎每个页面都要用：读到门店资料后预加载进全局缓存
       unawaited(ServiceStore.load().then((_) {}, onError: (_) {}));
     } catch (e) {
@@ -151,23 +128,19 @@ class StoreProfile extends ChangeNotifier {
   }
 
   void clear() {
+    _revision++;
     Access.clear();
     StoreContext.invalidate();
-    subscriptionFlow.reset();
     live = false;
     profile = const {};
-    name = phone = city = address = contactName = contactRole = bayRange = '';
-    plan = 'trial';
+    name = phone = city = address = contactName = contactRole = '';
     businessTypes = const [];
-    trialEndsAt = null;
     // 换账号 / 退出登录后不保留上一家店的挂单和识别结果
-    HoldFlow.reset();
-    ScanFlow.last = null;
+    HoldStore.reset();
+    CatalogCounts.cards = null;
+    CatalogCounts.packages = null;
     ServiceStore.clear();
     accountPhone = '';
-    subscription = const {};
-    storeCount = 0;
-    storeOffer = '正在读取套餐名额';
     notifyListeners();
   }
 }

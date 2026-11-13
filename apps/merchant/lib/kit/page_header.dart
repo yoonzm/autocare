@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../pages/gen/svgs.dart';
+import '../resources/merchant_svgs.dart';
 import 'kit.dart';
 
 /// 顶部栏左侧按钮的图标：返回箭头 / 关闭 ✕。
@@ -25,9 +25,10 @@ class AppPageHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Row(
     children: [
-      hTap(
-        context,
-        hbox(
+      GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => Navigator.of(context).maybePop(),
+        child: hbox(
           w: 44,
           h: 44,
           bg: dk(context, const Color(0xFFFFFFFF), const Color(0xFF18181B)),
@@ -59,7 +60,6 @@ class AppPageHeader extends StatelessWidget {
             ),
           ),
         ),
-        back: true,
       ),
       const SizedBox(width: 8),
       Expanded(
@@ -96,9 +96,10 @@ class AppHeaderAction extends StatelessWidget {
   Widget build(BuildContext context) => Semantics(
     button: true,
     label: label,
-    child: hTap(
-      context,
-      hbox(
+    child: GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: hbox(
         w: 44,
         h: 44,
         bg: dk(context, const Color(0xFF18181B), const Color(0xFFFAFAFA)),
@@ -107,7 +108,6 @@ class AppHeaderAction extends StatelessWidget {
           child: hsvg(dk(context, lightSvg, darkSvg), w: 20, h: 20),
         ),
       ),
-      onTap: onTap,
     ),
   );
 }

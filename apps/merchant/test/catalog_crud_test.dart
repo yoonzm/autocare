@@ -1,6 +1,7 @@
-import 'package:autocare_merchant/backend/catalog_draft.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
-import 'package:autocare_merchant/pages/card_tiers_live_page.dart';
+import 'package:autocare_merchant/pages/catalog/card_tiers_live_page.dart';
+import 'package:autocare_merchant/pages/catalog/service_edit_page.dart';
+import 'package:autocare_merchant/pages/catalog/card_tier_edit_page.dart';
 import 'package:autocare_merchant/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -75,11 +76,11 @@ void main() {
     original = merchantApi;
     fake = CatalogFakeApi();
     merchantApi = fake;
-    CatalogDraft.current = null;
+
   });
   tearDown(() {
     merchantApi = original;
-    CatalogDraft.current = null;
+
   });
 
   testWidgets('服务项目新增、修改、删除通过云函数适配层', (t) async {
@@ -90,10 +91,7 @@ void main() {
         home: Builder(
           builder: (context) => Scaffold(
             body: ElevatedButton(
-              onPressed: () {
-                CatalogDraft.begin('services');
-                openRoute(context, 'ServiceEdit');
-              },
+              onPressed: () => openServiceEditor(context),
               child: const Text('open'),
             ),
           ),
@@ -112,8 +110,10 @@ void main() {
     expect(fake.services.single['price'], 88);
     await toastGone(t);
 
-    CatalogDraft.begin('services', fake.services.single);
-    openRoute(t.element(find.text('open')), 'ServiceEdit');
+    openServiceEditor(
+      t.element(find.text('open')),
+      initial: fake.services.single,
+    );
     await t.pumpAndSettle();
     await t.enterText(find.byType(TextFormField).at(0), '精洗升级');
     await t.tap(find.text('保存').first);
@@ -121,8 +121,10 @@ void main() {
     expect(fake.services.single['name'], '精洗升级');
     await toastGone(t);
 
-    CatalogDraft.begin('services', fake.services.single);
-    openRoute(t.element(find.text('open')), 'ServiceEdit');
+    openServiceEditor(
+      t.element(find.text('open')),
+      initial: fake.services.single,
+    );
     await t.pumpAndSettle();
     await t.scrollUntilVisible(
       find.text('删除此项目').last,
@@ -157,23 +159,30 @@ void main() {
     await t.tap(find.text('测试卡').last);
     await t.pumpAndSettle();
     await t.enterText(find.byType(TextFormField).at(0), '升级卡');
-    CatalogDraft.set('cards', 'discount', 0.75);
+    for (var i = 0; i < 5; i++) {
+      await t.tap(find.text('−'));
+      await t.pump();
+    }
     await t.tap(find.text('保存').first);
     await t.pumpAndSettle();
     expect(fake.cards.single['name'], '升级卡');
     expect(fake.cards.single['discount'], 0.75);
 
-    CatalogDraft.begin('cards');
-    openRoute(t.element(find.byType(CardTiersLivePage)), 'CardTierEdit');
+    openCardTierEditor(t.element(find.byType(CardTiersLivePage)));
     await t.pumpAndSettle();
     await t.enterText(find.byType(TextFormField).at(0), '新卡');
-    CatalogDraft.set('cards', 'discount', 0.95);
+    for (var i = 0; i < 5; i++) {
+      await t.tap(find.text('+'));
+      await t.pump();
+    }
     await t.tap(find.text('保存').first);
     await t.pumpAndSettle();
     expect(fake.cards.map((e) => e['name']), contains('新卡'));
 
-    CatalogDraft.begin('cards', fake.cards.last);
-    openRoute(t.element(find.byType(CardTiersLivePage)), 'CardTierEdit');
+    openCardTierEditor(
+      t.element(find.byType(CardTiersLivePage)),
+      initial: fake.cards.last,
+    );
     await t.pumpAndSettle();
     await t.scrollUntilVisible(
       find.text('停用此卡种').last,

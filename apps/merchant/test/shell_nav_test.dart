@@ -1,4 +1,4 @@
-import 'package:autocare_merchant/pages/shell.dart';
+import 'package:autocare_merchant/pages/shared/shell.dart';
 import 'package:autocare_merchant/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';

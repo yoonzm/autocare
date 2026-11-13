@@ -1,22 +1,22 @@
+import 'package:autocare_merchant/pages/staff/staff_editor_page.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:autocare_merchant/backend/appointment_flow.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
-import 'package:autocare_merchant/backend/member_flow.dart';
-import 'package:autocare_merchant/backend/hold_flow.dart';
+import 'package:autocare_merchant/backend/hold_store.dart';
 import 'package:autocare_merchant/backend/service_store.dart';
 import 'package:autocare_merchant/kit/async_kit.dart';
-import 'package:autocare_merchant/pages/appointments_page.dart';
-import 'package:autocare_merchant/pages/appointment_add_page.dart';
-import 'package:autocare_merchant/pages/appointment_detail_live_page.dart';
-import 'package:autocare_merchant/pages/appointment_settings_live_page.dart';
-import 'package:autocare_merchant/pages/appointment_settings_skeleton.dart';
-import 'package:autocare_merchant/pages/booking_resources_page.dart';
-import 'package:autocare_merchant/pages/gen/member_picker_sheet.dart';
+import 'package:autocare_merchant/pages/booking/appointments_page.dart';
+import 'package:autocare_merchant/pages/booking/appointment_add_page.dart';
+import 'package:autocare_merchant/pages/booking/appointment_detail_live_page.dart';
+import 'package:autocare_merchant/pages/booking/appointment_settings_live_page.dart';
+import 'package:autocare_merchant/pages/booking/appointment_settings_skeleton.dart';
+import 'package:autocare_merchant/pages/booking/booking_resources_page.dart';
+import 'package:autocare_merchant/pages/members/member_picker_sheet.dart';
 import 'package:autocare_merchant/routes.dart' show navTracker;
-import 'package:autocare_merchant/widgets/booking_template_bindings.dart';
 
 import 'members_test.dart' show MemberFakeApi, phone, row;
 
@@ -47,6 +47,36 @@ Map<String, dynamic> bookingRow({
 };
 
 class BookingApi extends MemberFakeApi {
+  @override
+  Future<Map<String, dynamic>> checkoutAppointment(
+    Map<String, dynamic> values, {
+    String? requestId,
+  }) => appointment('checkout', values);
+  final writeRequests = <Map<String, dynamic>>[];
+  @override
+  Future<Map<String, dynamic>> invoke(
+    Map<String, dynamic> body, {
+    Duration timeout = const Duration(seconds: 20),
+    String? requestId,
+  }) async {
+    final action = '${body['action']}';
+    final values = Map<String, dynamic>.from(body)..remove('action');
+    if (action.startsWith('appointment_')) {
+      writeRequests.add({'body': body, 'requestId': requestId});
+      return {
+        'item': await appointment(
+          action.substring('appointment_'.length),
+          values,
+        ),
+      };
+    }
+    if (action == 'staff_save') {
+      writeRequests.add({'body': body, 'requestId': requestId});
+      return {'item': await staff('save', values)};
+    }
+    return super.invoke(body, timeout: timeout, requestId: requestId);
+  }
+
   final bookings = <Map<String, dynamic>>[];
   final calls = <Map<String, dynamic>>[];
   final resources = <Map<String, dynamic>>[
@@ -96,11 +126,35 @@ class BookingApi extends MemberFakeApi {
       'active': true,
     });
   }
+
   /// 合并后的 App：登录后的身份（老板 / 前台 / 技师）与当前身份上下文。
   List<Map<String, dynamic>> identities = [
-    {'kind': 'owner', 'role': 'owner', 'store_id': 's1', 'store_name': '驰光汽车美容 · 徐汇店', 'stores': 2, 'current': true},
-    {'kind': 'staff', 'staff_id': 'c1', 'role': 'cashier', 'store_id': 's2', 'store_name': '星航汽车养护 · 闵行店', 'status': 'active', 'hint': ''},
-    {'kind': 'staff', 'staff_id': 't1', 'role': 'technician', 'store_id': 's3', 'store_name': '悦驰汽车装饰 · 松江店', 'status': 'active', 'hint': '待施工 2'},
+    {
+      'kind': 'owner',
+      'role': 'owner',
+      'store_id': 's1',
+      'store_name': '驰光汽车美容 · 徐汇店',
+      'stores': 2,
+      'current': true,
+    },
+    {
+      'kind': 'staff',
+      'staff_id': 'c1',
+      'role': 'cashier',
+      'store_id': 's2',
+      'store_name': '星航汽车养护 · 闵行店',
+      'status': 'active',
+      'hint': '',
+    },
+    {
+      'kind': 'staff',
+      'staff_id': 't1',
+      'role': 'technician',
+      'store_id': 's3',
+      'store_name': '悦驰汽车装饰 · 松江店',
+      'status': 'active',
+      'hint': '待施工 2',
+    },
   ];
   Map<String, dynamic> identityCtx = {
     'role': 'technician',
@@ -112,7 +166,14 @@ class BookingApi extends MemberFakeApi {
     'status': 'active',
     'plan_expired': false,
     'identity_count': 3,
-    'caps': {'order_view_own': true, 'progress_update': true, 'order_submit': true, 'member_lookup': true, 'stock_use': true, 'perf_view_own': true},
+    'caps': {
+      'order_view_own': true,
+      'progress_update': true,
+      'order_submit': true,
+      'member_lookup': true,
+      'stock_use': true,
+      'perf_view_own': true,
+    },
   };
   Map<String, dynamic> home = {
     'role': 'technician',
@@ -120,8 +181,30 @@ class BookingApi extends MemberFakeApi {
     'phone': '13877127712',
     'joined_on': '2022-03-14',
     'tasks': [
-      {'id': 'a1', 'plate': '沪A8K29M', 'status': 'arrived', 'starts_at': '2026-11-10T02:30:00Z', 'duration_minutes': 240, 'customer': '王建国', 'items': [{'name': '全车镀晶 · 9H 陶瓷'}], 'bay_name': '3 号工位'},
-      {'id': 'a2', 'plate': '沪AF09316', 'status': 'waiting', 'starts_at': '2026-11-10T05:00:00Z', 'duration_minutes': 30, 'customer': '李梅', 'items': [{'name': '精致洗车'}], 'bay_name': null},
+      {
+        'id': 'a1',
+        'plate': '沪A8K29M',
+        'status': 'arrived',
+        'starts_at': '2026-11-10T02:30:00Z',
+        'duration_minutes': 240,
+        'customer': '王建国',
+        'items': [
+          {'name': '全车镀晶 · 9H 陶瓷'},
+        ],
+        'bay_name': '3 号工位',
+      },
+      {
+        'id': 'a2',
+        'plate': '沪AF09316',
+        'status': 'waiting',
+        'starts_at': '2026-11-10T05:00:00Z',
+        'duration_minutes': 30,
+        'customer': '李梅',
+        'items': [
+          {'name': '精致洗车'},
+        ],
+        'bay_name': null,
+      },
     ],
     'done_today': 4,
     'revenue_today': 3860,
@@ -132,9 +215,14 @@ class BookingApi extends MemberFakeApi {
     'month_commission': 4620,
   };
   @override
-  Future<Map<String, dynamic>> identity(String action, [Map<String, dynamic> values = const {}]) async {
+  Future<Map<String, dynamic>> identity(
+    String action, [
+    Map<String, dynamic> values = const {},
+  ]) async {
     calls.add({'action': 'identity_$action', ...values});
-    if (writeError != null && action != 'list' && action != 'context') throw writeError!;
+    if (writeError != null && action != 'list' && action != 'context') {
+      throw writeError!;
+    }
     return switch (action) {
       'list' => {'items': identities},
       'select' => {'ok': true},
@@ -203,24 +291,66 @@ class BookingApi extends MemberFakeApi {
   Map<String, dynamic> permissions = {
     'manager': {for (final k in _permKeys) k: true},
     'cashier': {
-      for (final k in _permKeys) k: ['order_view_all', 'cashier', 'member_view', 'stock_use'].contains(k),
+      for (final k in _permKeys)
+        k: [
+          'order_view_all',
+          'cashier',
+          'member_view',
+          'stock_use',
+        ].contains(k),
     },
     'technician': {
-      for (final k in _permKeys) k: ['order_view_own', 'progress_update', 'member_view', 'stock_use', 'perf_view_own'].contains(k),
+      for (final k in _permKeys)
+        k: [
+          'order_view_own',
+          'progress_update',
+          'member_view',
+          'stock_use',
+          'perf_view_own',
+        ].contains(k),
     },
   };
   static const _permKeys = [
-    'order_view_own', 'order_view_all', 'progress_update', 'cashier', 'member_view',
-    'member_recharge_refund', 'stock_use', 'stock_manage', 'perf_view_own', 'stats_view_store',
+    'order_view_own',
+    'order_view_all',
+    'progress_update',
+    'cashier',
+    'member_view',
+    'member_recharge_refund',
+    'stock_use',
+    'stock_manage',
+    'perf_view_own',
+    'stats_view_store',
   ];
   List<Map<String, dynamic>> openWork = [];
   Map<String, dynamic> recordsFor(String range) => {
-    'summary': {'orders': range == 'last' ? 0 : 2, 'commission': range == 'last' ? 0 : 96, 'avg_hours': range == 'last' ? null : 1.8},
+    'summary': {
+      'orders': range == 'last' ? 0 : 2,
+      'commission': range == 'last' ? 0 : 96,
+      'avg_hours': range == 'last' ? null : 1.8,
+    },
     'rows': range == 'last'
         ? []
         : [
-            {'appointment_id': 'a1', 'plate': '沪A12345', 'status': 'arrived', 'service': '真实洗车', 'at': DateTime.now().toUtc().toIso8601String(), 'commission': null},
-            {'appointment_id': 'a2', 'plate': '沪AF09316', 'status': 'done', 'service': '漆面抛光', 'at': DateTime.now().toUtc().subtract(const Duration(days: 1)).toIso8601String(), 'commission': 60},
+            {
+              'appointment_id': 'a1',
+              'plate': '沪A12345',
+              'status': 'arrived',
+              'service': '真实洗车',
+              'at': DateTime.now().toUtc().toIso8601String(),
+              'commission': null,
+            },
+            {
+              'appointment_id': 'a2',
+              'plate': '沪AF09316',
+              'status': 'done',
+              'service': '漆面抛光',
+              'at': DateTime.now()
+                  .toUtc()
+                  .subtract(const Duration(days: 1))
+                  .toIso8601String(),
+              'commission': 60,
+            },
           ],
   };
 
@@ -234,11 +364,23 @@ class BookingApi extends MemberFakeApi {
       await optionsGate?.future;
       if (readError != null) throw readError!;
       return {
-        'staff': [for (final r in staffRows) {...r}],
+        'staff': [
+          for (final r in staffRows) {...r},
+        ],
         'permissions': permissions,
         'services': [
-          {'id': 's1', 'name': '真实洗车', 'commission_type': 'percent', 'commission_value': 8},
-          {'id': 's2', 'name': '漆面抛光', 'commission_type': 'fixed', 'commission_value': 60},
+          {
+            'id': 's1',
+            'name': '真实洗车',
+            'commission_type': 'percent',
+            'commission_value': 8,
+          },
+          {
+            'id': 's2',
+            'name': '漆面抛光',
+            'commission_type': 'fixed',
+            'commission_value': 60,
+          },
         ],
         'bays': [
           {'id': 'b1', 'name': '真实工位'},
@@ -254,8 +396,18 @@ class BookingApi extends MemberFakeApi {
         'recent': recordsFor('month')['rows'],
         'last_month_commission': 8640,
         'services': [
-          {'id': 's1', 'name': '真实洗车', 'commission_type': 'percent', 'commission_value': 8},
-          {'id': 's2', 'name': '漆面抛光', 'commission_type': 'fixed', 'commission_value': 60},
+          {
+            'id': 's1',
+            'name': '真实洗车',
+            'commission_type': 'percent',
+            'commission_value': 8,
+          },
+          {
+            'id': 's2',
+            'name': '漆面抛光',
+            'commission_type': 'fixed',
+            'commission_value': 60,
+          },
         ],
       };
     }
@@ -285,12 +437,17 @@ class BookingApi extends MemberFakeApi {
       return {...staffRows.firstWhere((r) => r['id'] == values['id'])};
     }
     if (action == 'permissions_save') {
-      (permissions[values['role']] as Map).addAll(Map<String, dynamic>.from(values['permissions'] as Map));
+      (permissions[values['role']] as Map).addAll(
+        Map<String, dynamic>.from(values['permissions'] as Map),
+      );
       return permissions;
     }
     if (action == 'invite') {
       if (values['via'] == 'sms') throw const AppError('短信邀请尚未接通：缺少助通邀请短信模板');
-      return {'expires_at': '2026-11-15T00:00:00Z', 'link': 'https://staff.example.com/?invite=abc'};
+      return {
+        'expires_at': '2026-11-15T00:00:00Z',
+        'link': 'https://staff.example.com/?invite=abc',
+      };
     }
     throw UnsupportedError(action);
   }
@@ -391,13 +548,13 @@ void main() {
   setUp(() {
     original = merchantApi;
     merchantApi = api = BookingApi();
-    HoldFlow.reset();
+    HoldStore.reset();
     ServiceStore.clear();
     navTracker.stack.clear();
   });
   tearDown(() {
     merchantApi = original;
-    HoldFlow.reset();
+    HoldStore.reset();
     ServiceStore.clear();
     navTracker.stack.clear();
   });
@@ -482,7 +639,7 @@ void main() {
   });
   testWidgets('新建预约选择客户复用结账和充值的会员选择弹层', (t) async {
     api.rows.add(row());
-    MemberFlow.current = null;
+
     await open(t, const AppointmentAddPage());
     await t.tap(find.text('请选择会员'));
     await t.pumpAndSettle();
@@ -534,6 +691,15 @@ void main() {
     expect(call.containsKey('duration_minutes'), isFalse);
     expect(find.text('车身检查'), findsOneWidget);
     expect(api.bookings, isEmpty);
+    await t.tap(find.text('确认预约'));
+    await t.pumpAndSettle();
+    final attempts = api.writeRequests
+        .where((r) => r['body']['action'] == 'appointment_save')
+        .toList();
+    expect(attempts, hasLength(2));
+    expect(attempts.first['requestId'], isNotNull);
+    expect(attempts.first['requestId'], attempts.last['requestId']);
+    expect(find.text('车身检查'), findsOneWidget);
     await t.pump(const Duration(seconds: 9));
   });
   testWidgets('预约详情使用真实字段，通知不会伪装已送达', (t) async {
@@ -582,7 +748,7 @@ void main() {
     expect(find.text('客户到店 · 开单'), findsOneWidget);
   });
   testWidgets('新建工位保存真实名称，技师资料不会预填示例姓名', (t) async {
-    await open(t, const BookingResourceEditor(kind: 'bay'));
+    await open(t, const BayEditorPage());
     final input = find.byType(TextFormField).first;
     await t.enterText(input, '新工位');
     await t.tap(find.text('保存').first);
@@ -591,7 +757,7 @@ void main() {
     expect(call['name'], '新工位');
     expect(call['kind'], 'bay');
     await t.pumpWidget(const SizedBox());
-    await open(t, const BookingResourceEditor(kind: 'technician'));
+    await open(t, const StaffEditorPage());
     expect(find.text('李国强'), findsNothing);
     expect(find.text('员工姓名'), findsOneWidget);
   });
@@ -608,9 +774,7 @@ void main() {
     expect((thirty.dy - sixty.dy).abs(), lessThan(2));
     expect(find.text('保存'), findsNothing);
     expect(find.text('保存设置'), findsOneWidget);
-    final number = find.byWidgetPredicate(
-      (w) => w is BookingNumber && w.field == 'capacity',
-    );
+    final number = find.byKey(const ValueKey('capacity'));
     expect(
       find.descendant(of: number, matching: find.text('2')),
       findsOneWidget,
@@ -623,9 +787,7 @@ void main() {
   });
   testWidgets('预约设置数字增减使用通用控件并保存更新值', (t) async {
     await open(t, const AppointmentSettingsLivePage());
-    final capacity = find.byWidgetPredicate(
-      (w) => w is BookingNumber && w.field == 'capacity',
-    );
+    final capacity = find.byKey(const ValueKey('capacity'));
     await t.ensureVisible(capacity);
     final plus = find.descendant(
       of: capacity,

@@ -1,8 +1,5 @@
 import 'package:flutter/foundation.dart';
 
-import 'merchant_api.dart';
-import '../kit/async_kit.dart' show kIndicatorMinShow;
-
 DateTime get bookingToday =>
     DateTime.now().toUtc().add(const Duration(hours: 8));
 String bookingDay(DateTime d) =>
@@ -48,30 +45,4 @@ class Appointment {
 class AppointmentFlow {
   static final changed = ValueNotifier<int>(0);
   static void notify() => changed.value++;
-  static Future<Map<String, dynamic>> save(Map<String, dynamic> input) async {
-    final pending = merchantApi.appointment('save', input);
-    await Future.wait<Object?>([
-      pending,
-      Future<void>.delayed(kIndicatorMinShow),
-    ]);
-    notify();
-    return pending;
-  }
-
-  static Future<Map<String, dynamic>> change(
-    String id,
-    String action, {
-    String reason = '',
-  }) async {
-    final pending = merchantApi.appointment(action, {
-      'id': id,
-      'reason': reason,
-    });
-    await Future.wait<Object?>([
-      pending,
-      Future<void>.delayed(kIndicatorMinShow),
-    ]);
-    notify();
-    return pending;
-  }
 }

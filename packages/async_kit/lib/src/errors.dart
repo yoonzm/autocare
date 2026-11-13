@@ -59,13 +59,17 @@ class AppError implements Exception {
         code: 'SRV_$status',
       );
     }
-    if (text.isEmpty) {
-      if (status == 403) {
-        return const AppError('暂无权限访问', type: AppErrorType.forbidden);
-      }
-      if (status == 404) {
-        return const AppError('内容不存在或已删除', type: AppErrorType.notFound);
-      }
+    if (status == 403) {
+      return AppError(
+        text.isNotEmpty ? text : '暂无权限访问',
+        type: AppErrorType.forbidden,
+      );
+    }
+    if (status == 404) {
+      return AppError(
+        text.isNotEmpty ? text : '内容不存在或已删除',
+        type: AppErrorType.notFound,
+      );
     }
     return AppError(text.isNotEmpty ? text : '操作失败（$status）');
   }

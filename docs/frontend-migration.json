@@ -1,0 +1,3451 @@
+{
+  "scope": "整个商户App一期保留业务的完整页面调用链已完成规范迁移：删除重复与一期不用的前端，保留后端；按业务维护页面、显式绑定字段/动作/参数并移除全局编辑草稿。最终静态检查、App全量测试、共享组件测试与Android Release APK构建已通过。",
+  "forbiddenFinalDirectories": [
+    "pages/gen",
+    "pages/gen_st",
+    "pages/st_gen"
+  ],
+  "statusMeaning": {
+    "pending": "尚未核对真实调用链、一期范围及处置方式，不能仅据此判断需要保留或迁移",
+    "verified": "显式行为与状态归属、关键流程和视觉已验证",
+    "in_progress": "已开始修改，尚未完成全部验证",
+    "moved_resource": "共享资源已迁出页面目录，内容及调用保持不变"
+  },
+  "entries": [
+    {
+      "path": "pages/account/access_boot.dart",
+      "domain": "shared",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/account/access_pages.dart",
+      "domain": "shared",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/booking/appointment_add_page.dart",
+      "domain": "booking",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/booking/appointment_detail_live_page.dart",
+      "domain": "booking",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/booking/appointment_detail_template.dart",
+      "domain": "booking",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/booking/appointment_reschedule_template.dart",
+      "domain": "booking",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/booking/appointment_schedule_legend.dart",
+      "domain": "booking",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/booking/appointment_schedule_live.dart",
+      "domain": "booking",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/booking/appointment_settings_live_page.dart",
+      "domain": "booking",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/booking/appointment_settings_skeleton.dart",
+      "domain": "booking",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/booking/appointment_settings_template.dart",
+      "domain": "booking",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/booking/appointments_page.dart",
+      "domain": "booking",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/booking/bay_edit_template.dart",
+      "domain": "booking",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/booking/booking_resources_page.dart",
+      "domain": "booking",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/expenses/budget_adjust_live_template.dart",
+      "domain": "expenses",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/expenses/budget_edit_live_template.dart",
+      "domain": "expenses",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/expenses/budget_total_live_template.dart",
+      "domain": "expenses",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/booking/business_hours_template.dart",
+      "domain": "booking",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/catalog/card_packages_live_page.dart",
+      "domain": "catalog",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/catalog/card_tiers_live_page.dart",
+      "domain": "catalog",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/catalog/service_edit_page.dart",
+      "domain": "catalog",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/inventory/category_manage_bound_template.dart",
+      "domain": "inventory",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff/disable_staff_template.dart",
+      "domain": "staff",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/expenses/expense_add_live_template.dart",
+      "domain": "expenses",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/expenses/expense_allocation_template.dart",
+      "domain": "expenses",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/expenses/expense_budget_live_template.dart",
+      "domain": "expenses",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/expenses/expense_category_template.dart",
+      "domain": "expenses",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/expenses/expense_detail_live_template.dart",
+      "domain": "expenses",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/expenses/expense_entry_template.dart",
+      "domain": "expenses",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/expenses/expense_live_page.dart",
+      "domain": "expenses",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/expenses/expenses_live_template.dart",
+      "domain": "expenses",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/account/about_app_page.dart",
+      "domain": "account",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/catalog/card_tier_edit_page.dart",
+      "domain": "catalog",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/account/change_password_page.dart",
+      "domain": "account",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/account/change_phone_page.dart",
+      "domain": "account",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/shared/changelog_page.dart",
+      "domain": "shared",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/account/clear_cache_sheet.dart",
+      "domain": "account",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/account/delete_account_page.dart",
+      "domain": "account",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/account/feedback_page.dart",
+      "domain": "account",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/scan/find_not_found_sheet.dart",
+      "domain": "scan",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/scan/find_result_sheet.dart",
+      "domain": "scan",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/account/forgot_done_page.dart",
+      "domain": "account",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/account/forgot_reset_page.dart",
+      "domain": "account",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/account/forgot_verify_page.dart",
+      "domain": "account",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "navigation/page_registry.dart",
+      "domain": "shared",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/orders/hold_list_page.dart",
+      "domain": "orders",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/orders/hold_sheet_sheet.dart",
+      "domain": "orders",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/member_add_done_page.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/member_adjust_page.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/member_delete_sheet.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/member_edit_page.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/member_filter_sheet.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/member_follow_up_page.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/member_more_sheet.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/member_picker_sheet.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/member_visit_page.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/packages/package_detail_page.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/catalog/package_edit_page.dart",
+      "domain": "catalog",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/packages/package_extend_sheet.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/packages/package_refund_sheet.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/packages/package_sold_page.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/orders/pay_success_page.dart",
+      "domain": "orders",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/account/privacy_page.dart",
+      "domain": "account",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/account/profile_edit_page.dart",
+      "domain": "account",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/recharge_card_page.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/recharge_empty_card_page.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/recharge_empty_page.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/recharge_page.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/recharge_pick_sheet.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/recharge_success_page.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/account/reg_done_page.dart",
+      "domain": "account",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/account/reg_phone_page.dart",
+      "domain": "account",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/account/reg_shop_page.dart",
+      "domain": "account",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/account/security_page.dart",
+      "domain": "account",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/account/store_edit_page.dart",
+      "domain": "stores",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/account/store_info_page.dart",
+      "domain": "stores",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "resources/merchant_svgs.dart",
+      "domain": "resources",
+      "status": "moved_resource",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/account/terms_page.dart",
+      "domain": "account",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/vehicle_add_page.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "resources/staff_svgs.dart",
+      "domain": "resources",
+      "status": "moved_resource",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/shared/home_page.dart",
+      "domain": "shared",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/inventory/inventory_live_page.dart",
+      "domain": "inventory",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/inventory/inventory_management_page.dart",
+      "domain": "inventory",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/inventory/inventory_management_row_templates.dart",
+      "domain": "inventory",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/inventory/inventory_page.dart",
+      "domain": "inventory",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/inventory/inventory_pickers.dart",
+      "domain": "inventory",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/inventory/inventory_record_templates.dart",
+      "domain": "inventory",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/account/login_page.dart",
+      "domain": "account",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/member_add_page.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/member_detail_page.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/member_records_live_page.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/members_page.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/orders/order_live_pages.dart",
+      "domain": "orders",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/orders/order_page.dart",
+      "domain": "orders",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/catalog/package_service_picker.dart",
+      "domain": "catalog",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/scan/plate_scan_result_live_sheet.dart",
+      "domain": "scan",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/inventory/product_detail_live_template.dart",
+      "domain": "inventory",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/inventory/product_edit_live_page.dart",
+      "domain": "inventory",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/inventory/product_list_live_page.dart",
+      "domain": "inventory",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff/role_permission_template.dart",
+      "domain": "staff",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/scan/scan_page.dart",
+      "domain": "scan",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/inventory/scan_product_bound_template.dart",
+      "domain": "inventory",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/inventory/scan_product_not_found_bound_template.dart",
+      "domain": "inventory",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/inventory/scan_product_result_bound_template.dart",
+      "domain": "inventory",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/catalog/services_page.dart",
+      "domain": "catalog",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/shared/settings_page.dart",
+      "domain": "shared",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/shared/shell.dart",
+      "domain": "shared",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff_app/st_arrivals_template.dart",
+      "domain": "staff_app",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff_app/st_auth_fail_template.dart",
+      "domain": "staff_app",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff_app/st_auth_template.dart",
+      "domain": "staff_app",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff_app/st_cash_queue_template.dart",
+      "domain": "staff_app",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff_app/st_done_template.dart",
+      "domain": "staff_app",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff_app/st_finish_template.dart",
+      "domain": "staff_app",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff_app/st_front_home_template.dart",
+      "domain": "staff_app",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff_app/st_home_template.dart",
+      "domain": "staff_app",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff_app/st_identity_template.dart",
+      "domain": "staff_app",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff_app/st_live.dart",
+      "domain": "staff_app",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff_app/st_member_info_template.dart",
+      "domain": "staff_app",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff_app/st_member_template.dart",
+      "domain": "staff_app",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff_app/st_mine_template.dart",
+      "domain": "staff_app",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff_app/st_msgs_template.dart",
+      "domain": "staff_app",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff_app/st_no_perm_template.dart",
+      "domain": "staff_app",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff_app/st_order_template.dart",
+      "domain": "staff_app",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff_app/st_perf_template.dart",
+      "domain": "staff_app",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff_app/st_progress_template.dart",
+      "domain": "staff_app",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff_app/st_redeem_sheet.dart",
+      "domain": "staff_app",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff_app/st_task_detail_template.dart",
+      "domain": "staff_app",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff_app/st_tasks_template.dart",
+      "domain": "staff_app",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff/staff_add_template.dart",
+      "domain": "staff",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff/staff_commission_template.dart",
+      "domain": "staff",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff/staff_detail_off_template.dart",
+      "domain": "staff",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff/staff_detail_template.dart",
+      "domain": "staff",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff/staff_edit_template.dart",
+      "domain": "staff",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff/staff_enable_template.dart",
+      "domain": "staff",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff/staff_invite_template.dart",
+      "domain": "staff",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff/staff_list_template.dart",
+      "domain": "staff",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff/staff_live.dart",
+      "domain": "staff",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff/staff_records_template.dart",
+      "domain": "staff",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff/staff_skeletons.dart",
+      "domain": "staff",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff_app/staff_tabs.dart",
+      "domain": "staff_app",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff/staff_transfer_template.dart",
+      "domain": "staff",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/shared/stats_page.dart",
+      "domain": "shared",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/inventory/stock_alert_settings_bound_template.dart",
+      "domain": "inventory",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/inventory/stock_check_input_bound_template.dart",
+      "domain": "inventory",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/inventory/stock_check_line_template.dart",
+      "domain": "inventory",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/inventory/stock_check_live_template.dart",
+      "domain": "inventory",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/inventory/stock_check_new_bound_template.dart",
+      "domain": "inventory",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/inventory/stock_check_result_bound_template.dart",
+      "domain": "inventory",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/inventory/stock_docs_bound_template.dart",
+      "domain": "inventory",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/inventory/stock_in_detail_bound_template.dart",
+      "domain": "inventory",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/inventory/stock_in_line_template.dart",
+      "domain": "inventory",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/inventory/stock_in_live_template.dart",
+      "domain": "inventory",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/inventory/stock_out_detail_bound_template.dart",
+      "domain": "inventory",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/inventory/stock_out_line_template.dart",
+      "domain": "inventory",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/inventory/stock_out_live_template.dart",
+      "domain": "inventory",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/inventory/stock_out_short_bound_template.dart",
+      "domain": "inventory",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/inventory/stock_void_bound_template.dart",
+      "domain": "inventory",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/shared/theme_sheet.dart",
+      "domain": "shared",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff/staff_route_data.dart",
+      "domain": "staff",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff_app/task_route_data.dart",
+      "domain": "staff_app",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/inventory/inventory_controller.dart",
+      "domain": "inventory",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/inventory/inventory_management_controller.dart",
+      "domain": "inventory",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/member_route_data.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/member_events.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/member_form_controller.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/member_form_host.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/member_view.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/member_tier_preview.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/packages/member_package_controller.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/packages/member_package_host.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/packages/member_package_route_data.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/packages/owned_package_view.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/packages/package_choices.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/packages/package_detail_widgets.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/member_picker_widgets.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/wallet_controller.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/wallet_page.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/wallet_receipt_view.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/member_adjust_controller.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/member_filter_controller.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/member_reminder_controller.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/member_visit_controller.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/reminder_widgets.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/visit_history.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/members/member_models.dart",
+      "domain": "members",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/orders/hold_board.dart",
+      "domain": "orders",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/orders/hold_controller.dart",
+      "domain": "orders",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/orders/hold_draft.dart",
+      "domain": "orders",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/orders/order_checkout.dart",
+      "domain": "orders",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/orders/order_receipt_view.dart",
+      "domain": "orders",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/orders/order_route_data.dart",
+      "domain": "orders",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/scan/scan_result.dart",
+      "domain": "scan",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/orders/order_detail_ref.dart",
+      "domain": "orders",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/orders/order_list_controller.dart",
+      "domain": "orders",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/orders/order_refund_controller.dart",
+      "domain": "orders",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff_app/st_member_route_data.dart",
+      "domain": "staff_app",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff_app/st_order_controller.dart",
+      "domain": "staff_app",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/expenses/expense_controller.dart",
+      "domain": "expenses",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/expenses/expense_view.dart",
+      "domain": "expenses",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/expenses/expense_widgets.dart",
+      "domain": "expenses",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/booking/booking_settings_controller.dart",
+      "domain": "booking",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/booking/reschedule_controller.dart",
+      "domain": "booking",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/booking/reschedule_slots.dart",
+      "domain": "booking",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff/staff_editor_controller.dart",
+      "domain": "staff",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/staff/staff_editor_page.dart",
+      "domain": "staff",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/catalog/service_item.dart",
+      "domain": "catalog",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "pages/catalog/catalog_page.dart",
+      "domain": "catalog",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
+      "path": "navigation/catalog_route.dart",
+      "domain": "catalog",
+      "status": "verified",
+      "legacyDependencies": []
+    }
+  ],
+  "sharedCleanup": {
+    "kit/kit.dart": "verified",
+    "kit/pickers.dart": "verified",
+    "routes.dart": "verified",
+    "backend/catalog_draft.dart": "removed",
+    "backend/registration_draft.dart": "removed",
+    "backend/forgot_flow.dart": "removed",
+    "kit/legacy_control_slots.dart": "removed",
+    "widgets/feedback_fields.dart": "removed",
+    "navigation/page_registry.dart": "verified",
+    "backend/staff_flow.dart": "verified",
+    "backend/task_flow.dart": "verified",
+    "widgets/inventory_bindings.dart": "removed",
+    "widgets/inventory_management_bindings.dart": "removed",
+    "pages/inventory/inventory_controller.dart": "verified",
+    "pages/inventory/inventory_management_controller.dart": "verified",
+    "widgets/color_fields.dart": "verified",
+    "backend/scan_flow.dart": "removed",
+    "backend/hold_flow.dart": "removed",
+    "widgets/member_widgets.dart": "removed",
+    "widgets/hold_widgets.dart": "removed",
+    "backend/catalog_counts.dart": "verified",
+    "backend/hold_store.dart": "verified",
+    "backend/member_flow.dart": "verified",
+    "kit/image_pick.dart": "verified",
+    "backend/order_flow.dart": "removed",
+    "pages/orders/order_refund_sheet.dart": "removed",
+    "widgets/expense_bindings.dart": "removed",
+    "widgets/booking_template_bindings.dart": "removed",
+    "kit/async_action_keys.dart": "removed",
+    "backend/appointment_flow.dart": "verified",
+    "backend/mutation_request.dart": "verified",
+    "backend/access_flow.dart": "verified",
+    "preferences/theme_preferences.dart": "verified",
+    "mock/mock_data.dart": "removed",
+    "mock/theme_state.dart": "moved",
+    "pages/staff/staff_live.dart": "verified",
+    "backend/service_store.dart": "verified",
+    "backend/store_profile.dart": "verified",
+    "pages/catalog/catalog_page.dart": "verified",
+    "navigation/catalog_route.dart": "verified"
+  },
+  "evidence": {
+    "pages/catalog/service_edit_page.dart": {
+      "tests": "service_edit_page_test、catalog_crud_test、busy_ui_test、placeholder_test、dialog_image_test，共 179 项通过",
+      "lightScreenshotSha256": "1936896EA489277EBDF2916A9A439D7795D463DD10B85D01CF873C8FAE72955E",
+      "darkScreenshotSha256": "C35A553680B2634D035DD5B206738BE6623A70438D0A1AF6077C02FC873FD9B2",
+      "visualFixture": "390x2200，FONT=msyh.ttc，旧页面原始输入，迁移前后 PNG 字节一致",
+      "remainingTODO": [
+        "提成配置",
+        "耗材关联",
+        "服务设置开关"
+      ]
+    },
+    "pages/catalog/card_tier_edit_page.dart": {
+      "tests": "card_config_test 18 项、card_editor_state_test 3 项通过；catalog_crud、busy_ui、color_picker 在全量回归中通过",
+      "lightScreenshotSha256": "7B2028310115B538D9A12F473C2E750C24C1C6AB4CAD830FCEE25DB53B3EFA70",
+      "darkScreenshotSha256": "8D6487D5F122AF796054E42B544C4630C8E7C6E02843D5EBB2999120473D61D8",
+      "visualFixture": "390x2200，FONT=msyh.ttc，固定卡种与门店数据，迁移前后 PNG 字节一致",
+      "remainingTODO": []
+    },
+    "pages/catalog/package_edit_page.dart": {
+      "tests": "packages_test、busy_ui_test、number_stepper_test、frontend_migration_test 共 30 项，以及 package_editor_state_test 5 项通过",
+      "lightScreenshotSha256": "8006449183A5AFF73893985024A369387FB85409F7CCF9CA20371A2B7D46D132",
+      "darkScreenshotSha256": "D2F8ABA2C7481A468291706ECBF028151C08DFA3CEAA46904A3349C6C291B3BA",
+      "visualFixture": "390x2400，FONT=msyh.ttc，固定套餐与门店数据，迁移前后 PNG 字节一致",
+      "remainingTODO": []
+    },
+    "pages/catalog/package_service_picker.dart": {
+      "tests": "套餐选择确认、取消不修改调用者、仅在售服务和汇总校验通过；原已提交弹层源码与新弹层直接截图比较 2 项通过",
+      "lightScreenshotSha256": "f6b4eec64919031cacf5c8573b586192331374ce05109e022a03864e6745297f",
+      "darkScreenshotSha256": "a9881ac081a0b535b0e16e10f8d3f8abdac9065a35ca1cfcd0120c4d4afc77a6",
+      "visualFixture": "390x844，FONT=msyh.ttc，固定服务项，原已提交源码与新源码 PNG 字节一致",
+      "remainingTODO": []
+    },
+    "pages/account/change_password_page.dart": {
+      "tests": "账号相关 199 项及 password_form_state_test 3 项通过",
+      "visualFixture": "390x900，FONT=msyh.ttc，真实路由名与固定账户手机号，迁移前后 PNG 字节一致",
+      "remainingTODO": [],
+      "lightScreenshotSha256": "4b1e476620c2d6452dd634b9c1752bd4fb65ab7fe51e5ba3ced18358452e1fa2",
+      "darkScreenshotSha256": "9889481b1b852c5e9428c8beae02d49789f8db390eb0d95d1cc0939d207d5ca2"
+    },
+    "pages/account/change_phone_page.dart": {
+      "tests": "账号 / 登录短信 / 注册 / 忘记密码 / busy / 迁移检查 44 项及 phone_form_state_test 4 项通过",
+      "visualFixture": "390x900，FONT=msyh.ttc，真实路由名与固定账户手机号，迁移前后 PNG 字节一致",
+      "remainingTODO": [],
+      "lightScreenshotSha256": "792c164917f8fe70c076bd727916af3c3351e7e8953bd7d3e3a81519853bb954",
+      "darkScreenshotSha256": "b19288757a28917bf7b3fb1af4308f1870ef019fc3ed1a36a78c41fff30f1959"
+    },
+    "pages/account/forgot_verify_page.dart": {
+      "tests": "忘记密码 / 账号 / 注册 / 登录短信 / busy / 迁移检查 44 项，以及 password_reset_state_test 4 项通过",
+      "visualFixture": "390x1000，FONT=msyh.ttc，真实路由名；重置页使用已验证手机号参数、成功页使用显式完成状态，前后 PNG 字节一致",
+      "remainingTODO": [],
+      "lightScreenshotSha256": "518c7e1b6faf2a9bf611af615bb1f96c08f8d58057922e4e27694ad409956b35",
+      "darkScreenshotSha256": "5cb2395006f84eb3da7340708fe43749a1ad8020e9b3d2bb0ebdb40bce587efa"
+    },
+    "pages/account/forgot_reset_page.dart": {
+      "tests": "忘记密码 / 账号 / 注册 / 登录短信 / busy / 迁移检查 44 项，以及 password_reset_state_test 4 项通过",
+      "visualFixture": "390x1000，FONT=msyh.ttc，真实路由名；重置页使用已验证手机号参数、成功页使用显式完成状态，前后 PNG 字节一致",
+      "remainingTODO": [],
+      "lightScreenshotSha256": "12af8d1b8ef6f7341fce49d197c09f4ddac1be827a514acb0b67c1a204c2a9a4",
+      "darkScreenshotSha256": "575fa966fcda96969a8bf71a2b1fb8604a5a3ab1cfb3dfb07e0c22ad1975148d"
+    },
+    "pages/account/forgot_done_page.dart": {
+      "tests": "忘记密码 / 账号 / 注册 / 登录短信 / busy / 迁移检查 44 项，以及 password_reset_state_test 4 项通过",
+      "visualFixture": "390x1000，FONT=msyh.ttc，真实路由名；重置页使用已验证手机号参数、成功页使用显式完成状态，前后 PNG 字节一致",
+      "remainingTODO": [],
+      "lightScreenshotSha256": "2d7ae2648b59a6acf89a33768a419350ee0619ad6700b681644bf2e8218db187",
+      "darkScreenshotSha256": "40c55de29cf5e6080225007358f57b85b6779dcfedc41914d02170849a7ee651"
+    },
+    "pages/account/reg_phone_page.dart": {
+      "tests": "registration_state 4 项及账号/注册/busy/迁移检查合计 27 项通过",
+      "visualFixture": "390x1500，FONT=msyh.ttc，真实路由名与固定门店回执；浅色/深色迁移前后 PNG 字节一致",
+      "remainingTODO": [],
+      "lightScreenshotSha256": "a913a4ef4fbcdf89a350df585966c470763c7d35343f62b0c66c722e24c84ca8",
+      "darkScreenshotSha256": "b07d5a33efd995e5ff13afeb2f9e2bed5ac26a79b3c519cd35a67f1dd164dc50"
+    },
+    "pages/account/reg_shop_page.dart": {
+      "tests": "registration_state 4 项及账号/注册/busy/迁移检查合计 27 项通过",
+      "visualFixture": "390x1500，FONT=msyh.ttc，真实路由名与固定门店回执；浅色/深色迁移前后 PNG 字节一致",
+      "remainingTODO": [],
+      "lightScreenshotSha256": "58f17d456a1ffe316e843d70267153183c4660e1459072ccd3f5d48b4a920506",
+      "darkScreenshotSha256": "43931d2073d941bcc9a42881b62a6f1649d46080aa84b4e021e168d348ccc880"
+    },
+    "pages/account/reg_done_page.dart": {
+      "tests": "registration_state 4 项及账号/注册/busy/迁移检查合计 27 项通过",
+      "visualFixture": "390x1500，FONT=msyh.ttc，真实路由名与固定门店回执；浅色/深色迁移前后 PNG 字节一致",
+      "remainingTODO": [],
+      "lightScreenshotSha256": "483ce90898d63780552d4f5c6c03f5c72ddc0c9e0ca4391a9bfb043acbe12ddf",
+      "darkScreenshotSha256": "278537d4398c6d6ec3be186ce57c7a5f5331adf01eb8cdc84ee482186fc64210"
+    },
+    "pages/account/delete_account_page.dart": {
+      "tests": "account_test 7 项、delete_account_state_test 3 项通过；验证验证码真实用途、防重复、错误重试、后端拒绝不退出、销毁安全及实例隔离",
+      "visualFixture": "390x1500，FONT=msyh.ttc，固定后端注销检查与账号；浅色/深色迁移前后 PNG 字节一致",
+      "remainingTODO": [],
+      "lightScreenshotSha256": "90c0e35e295059505ebd730e63eb883f6a3ca172785e8fbc1b54b6f09ae1c059",
+      "darkScreenshotSha256": "3497a986c680f60c1304f956198fc3b40f005908e2147daa2af2979d9736aff2"
+    },
+    "pages/account/profile_edit_page.dart": {
+      "tests": "profile_edit 6 项及图片/弹层/busy/迁移守卫共 23 项通过；头像实际字节上传、失败重试、防重复与实例隔离",
+      "visualFixture": "390x1500，FONT=msyh.ttc，固定个人资料；浅色/深色迁移前后 PNG 字节一致",
+      "remainingTODO": [],
+      "lightScreenshotSha256": "5af542e0e1122f8d9ec8e2d818c5830e7a9674847790587a1c30cf74716f887e",
+      "darkScreenshotSha256": "58bbabf945a4657122bb1f1ce1d80491c8522ffe3fb043037823031095ed60c0"
+    },
+    "pages/account/store_edit_page.dart": {
+      "tests": "门店创建/编辑/切换/重启/busy/迁移检查 30 项通过；store_add 追加实例与请求编号隔离、内容变更及 TODO 阻止后 10 项通过",
+      "visualFixture": "390x1600，FONT=msyh.ttc，固定门店数据与真实路由名；浅色/深色迁移前后 PNG 字节一致",
+      "remainingTODO": [
+        "门店图片上传：等待 store_media_upload 接口",
+        "地图选址：等待真实地图适配"
+      ],
+      "lightScreenshotSha256": "4a740acfea9e8b96a58bb28ea26dd3cb3e2faeaad0168e4dcdf64701f2322542",
+      "darkScreenshotSha256": "8921852b3f29c0f8bc0d317eb7d42f97edde3c7919024dd1cff0553d89a97711"
+    },
+    "pages/account/security_page.dart": {
+      "tests": "账号/账号工具/busy/交互/迁移守卫共 39 项及 security_page_state 2 项通过；退出防重复、失败重试、栈清理及无路由名协议返回",
+      "visualFixture": "390x1600，FONT=msyh.ttc，SETTLE=true；原已提交源码与新源码均在设备/版本/缓存加载完成后截图，浅色/深色 PNG 字节一致",
+      "remainingTODO": [],
+      "lightScreenshotSha256": "3d89745d975512cfa78f24d353f63562012b8d822584ad9a264596df99297436",
+      "darkScreenshotSha256": "f242953bc7cbac23d40ef9a0b634984f7afdb27f1851fbab94903cd29f802c4a"
+    },
+    "pages/account/about_app_page.dart": {
+      "tests": "账号/账号工具/busy/交互/迁移守卫共 39 项及 security_page_state 2 项通过；退出防重复、失败重试、栈清理及无路由名协议返回",
+      "visualFixture": "390x1600，FONT=msyh.ttc，SETTLE=true；原已提交源码与新源码均在设备/版本/缓存加载完成后截图，浅色/深色 PNG 字节一致",
+      "remainingTODO": [
+        "客服热线依赖生产配置；缺失时明确阻止拨打"
+      ],
+      "lightScreenshotSha256": "7edd57724cd486421e46055825a2eea8542cfeacfbcdeb236cbea318996dcbd1",
+      "darkScreenshotSha256": "2c6fd685e8fbc600264fc8796419ef6e9030e58e4050431b911e503de1ef13e4"
+    },
+    "pages/account/terms_page.dart": {
+      "tests": "账号/账号工具/busy/交互/迁移守卫共 39 项及 security_page_state 2 项通过；退出防重复、失败重试、栈清理及无路由名协议返回",
+      "visualFixture": "390x1600，FONT=msyh.ttc，SETTLE=true；原已提交源码与新源码均在设备/版本/缓存加载完成后截图，浅色/深色 PNG 字节一致",
+      "remainingTODO": [],
+      "lightScreenshotSha256": "8ca947169a4f23e72c9673a67bd67c2c1bf8a18916a7e03c31c5bc1d30a829b2",
+      "darkScreenshotSha256": "17b947fddf2b6e15a158b053f9c34b1c750e00ad27e7478cd770f60b6efd5ace"
+    },
+    "pages/account/privacy_page.dart": {
+      "tests": "账号/账号工具/busy/交互/迁移守卫共 39 项及 security_page_state 2 项通过；退出防重复、失败重试、栈清理及无路由名协议返回",
+      "visualFixture": "390x1600，FONT=msyh.ttc，SETTLE=true；原已提交源码与新源码均在设备/版本/缓存加载完成后截图，浅色/深色 PNG 字节一致",
+      "remainingTODO": [],
+      "lightScreenshotSha256": "0c9efd437891041f3a6817ec5e949516aaef17c917c01606224c42979d8e127f",
+      "darkScreenshotSha256": "b9085761ba0b8d8f574badc178f93adb7486d3d39ac709ed25f656241d48d0f3"
+    },
+    "pages/account/clear_cache_sheet.dart": {
+      "tests": "账号/账号工具/busy/交互/迁移守卫共 39 项及 security_page_state 2 项通过；退出防重复、失败重试、栈清理及无路由名协议返回",
+      "visualFixture": "390x1600，FONT=msyh.ttc，SETTLE=true；原已提交源码与新源码均在设备/版本/缓存加载完成后截图，浅色/深色 PNG 字节一致",
+      "remainingTODO": [],
+      "lightScreenshotSha256": "7ca61d08c9e245e53f80b59c12afcd5242475d7bc16389897c7d3f39f7dd822c",
+      "darkScreenshotSha256": "36faf313195af577994c5b3546c79715e7665da74545a3d923d36c23a661b8fa"
+    },
+    "pages/account/login_page.dart": {
+      "tests": "login_code/widget/interaction/迁移守卫共 26 项及 login_page_state 3 项通过；验证失败保留、防重复、控件锁定、短信迟到响应销毁安全及请求手机号隔离",
+      "visualFixture": "390x1100，FONT=msyh.ttc，SETTLE=true，验证码和密码两个登录标签；浅色/深色迁移前后 PNG 字节一致；此为历史截图，随后按最新一期范围删除微信与本机一键登录入口，保留短信/密码登录与注册入口。",
+      "remainingTODO": [],
+      "code_lightScreenshotSha256": "6d2590c5bfd33d94f45ca3aa9a86cfe07d03e8cec44b6e0667cb426b3e5a206b",
+      "code_darkScreenshotSha256": "c5ff7a243e9597f31854ad0d283b22d7c59e5ba85071322984202f6c0a272b25",
+      "password_lightScreenshotSha256": "38706b0fba4f02b9049528168dce0747191f199d416c7d934275b158582f145a",
+      "password_darkScreenshotSha256": "9161534ff2a8dac546f307ab9d471e281828702e85f91af67ffa09b3d2711cdb"
+    },
+    "pages/account/feedback_page.dart": {
+      "tests": "feedback/feedback_page/迁移守卫 9 项及 feedback_recovery/feedback_form_state 5 项通过；实例隔离、会话恢复副本、幂等编号复用和真实图片字节上传",
+      "visualFixture": "390x844，FONT=msyh.ttc（FeedbackTest），原反馈手机测试夹具；浅色/深色迁移前后 PNG 字节一致",
+      "remainingTODO": [],
+      "lightScreenshotSha256": "0b2bd24a067440c7373e7827eab8f1385b02cc28d174513a508517865cdc7514",
+      "darkScreenshotSha256": "c210c931cd99abb5bdc6ccb27d14d6706647f8db305bc52f8580c13f8de7a375"
+    },
+    "pages/staff/disable_staff_template.dart": {
+      "tests": "员工管理、预约资源、员工工作与会员相关 60 项通过；staff_page_state_test 4 项通过（缺少参数阻止、详情实例刷新隔离、旧请求隔离、同名路由按员工参数复用）",
+      "visualFixture": "仅替换事件回调、显式数据参数与受控选中状态；保留原有布局与 on/off 子组件，不重复截图",
+      "remainingTODO": [
+        "短信邀请缺少真实模板，调用明确阻止",
+        "好评与施工照片未接通，保留 TODO"
+      ]
+    },
+    "pages/staff/role_permission_template.dart": {
+      "tests": "员工管理、预约资源、员工工作与会员相关 60 项通过；staff_page_state_test 4 项通过（缺少参数阻止、详情实例刷新隔离、旧请求隔离、同名路由按员工参数复用）",
+      "visualFixture": "仅替换事件回调、显式数据参数与受控选中状态；保留原有布局与 on/off 子组件，不重复截图",
+      "remainingTODO": [
+        "短信邀请缺少真实模板，调用明确阻止",
+        "好评与施工照片未接通，保留 TODO"
+      ]
+    },
+    "pages/staff/staff_add_template.dart": {
+      "tests": "员工管理、预约资源、员工工作与会员相关 60 项通过；staff_page_state_test 4 项通过（缺少参数阻止、详情实例刷新隔离、旧请求隔离、同名路由按员工参数复用）",
+      "visualFixture": "仅替换事件回调、显式数据参数与受控选中状态；保留原有布局与 on/off 子组件，不重复截图",
+      "remainingTODO": [
+        "短信邀请缺少真实模板，调用明确阻止",
+        "好评与施工照片未接通，保留 TODO"
+      ]
+    },
+    "pages/staff/staff_commission_template.dart": {
+      "tests": "员工管理、预约资源、员工工作与会员相关 60 项通过；staff_page_state_test 4 项通过（缺少参数阻止、详情实例刷新隔离、旧请求隔离、同名路由按员工参数复用）",
+      "visualFixture": "仅替换事件回调、显式数据参数与受控选中状态；保留原有布局与 on/off 子组件，不重复截图",
+      "remainingTODO": [
+        "短信邀请缺少真实模板，调用明确阻止",
+        "好评与施工照片未接通，保留 TODO"
+      ]
+    },
+    "pages/staff/staff_detail_off_template.dart": {
+      "tests": "员工管理、预约资源、员工工作与会员相关 60 项通过；staff_page_state_test 4 项通过（缺少参数阻止、详情实例刷新隔离、旧请求隔离、同名路由按员工参数复用）",
+      "visualFixture": "仅替换事件回调、显式数据参数与受控选中状态；保留原有布局与 on/off 子组件，不重复截图",
+      "remainingTODO": [
+        "短信邀请缺少真实模板，调用明确阻止",
+        "好评与施工照片未接通，保留 TODO"
+      ]
+    },
+    "pages/staff/staff_detail_template.dart": {
+      "tests": "员工管理、预约资源、员工工作与会员相关 60 项通过；staff_page_state_test 4 项通过（缺少参数阻止、详情实例刷新隔离、旧请求隔离、同名路由按员工参数复用）",
+      "visualFixture": "仅替换事件回调、显式数据参数与受控选中状态；保留原有布局与 on/off 子组件，不重复截图",
+      "remainingTODO": [
+        "短信邀请缺少真实模板，调用明确阻止",
+        "好评与施工照片未接通，保留 TODO"
+      ]
+    },
+    "pages/staff/staff_edit_template.dart": {
+      "tests": "员工管理、预约资源、员工工作与会员相关 60 项通过；staff_page_state_test 4 项通过（缺少参数阻止、详情实例刷新隔离、旧请求隔离、同名路由按员工参数复用）",
+      "visualFixture": "仅替换事件回调、显式数据参数与受控选中状态；保留原有布局与 on/off 子组件，不重复截图",
+      "remainingTODO": [
+        "短信邀请缺少真实模板，调用明确阻止",
+        "好评与施工照片未接通，保留 TODO"
+      ]
+    },
+    "pages/staff/staff_enable_template.dart": {
+      "tests": "员工管理、预约资源、员工工作与会员相关 60 项通过；staff_page_state_test 4 项通过（缺少参数阻止、详情实例刷新隔离、旧请求隔离、同名路由按员工参数复用）",
+      "visualFixture": "仅替换事件回调、显式数据参数与受控选中状态；保留原有布局与 on/off 子组件，不重复截图",
+      "remainingTODO": [
+        "短信邀请缺少真实模板，调用明确阻止",
+        "好评与施工照片未接通，保留 TODO"
+      ]
+    },
+    "pages/staff/staff_invite_template.dart": {
+      "tests": "员工管理、预约资源、员工工作与会员相关 60 项通过；staff_page_state_test 4 项通过（缺少参数阻止、详情实例刷新隔离、旧请求隔离、同名路由按员工参数复用）",
+      "visualFixture": "仅替换事件回调、显式数据参数与受控选中状态；保留原有布局与 on/off 子组件，不重复截图",
+      "remainingTODO": [
+        "短信邀请缺少真实模板，调用明确阻止",
+        "好评与施工照片未接通，保留 TODO"
+      ]
+    },
+    "pages/staff/staff_list_template.dart": {
+      "tests": "员工管理、预约资源、员工工作与会员相关 60 项通过；staff_page_state_test 4 项通过（缺少参数阻止、详情实例刷新隔离、旧请求隔离、同名路由按员工参数复用）",
+      "visualFixture": "仅替换事件回调、显式数据参数与受控选中状态；保留原有布局与 on/off 子组件，不重复截图",
+      "remainingTODO": [
+        "短信邀请缺少真实模板，调用明确阻止",
+        "好评与施工照片未接通，保留 TODO"
+      ]
+    },
+    "pages/staff/staff_live.dart": {
+      "tests": "员工管理、预约资源、员工工作与会员相关 60 项通过；staff_page_state_test 4 项通过（缺少参数阻止、详情实例刷新隔离、旧请求隔离、同名路由按员工参数复用）",
+      "visualFixture": "仅替换事件回调、显式数据参数与受控选中状态；保留原有布局与 on/off 子组件，不重复截图",
+      "remainingTODO": [
+        "短信邀请缺少真实模板，调用明确阻止",
+        "好评与施工照片未接通，保留 TODO"
+      ]
+    },
+    "pages/staff/staff_records_template.dart": {
+      "tests": "员工管理、预约资源、员工工作与会员相关 60 项通过；staff_page_state_test 4 项通过（缺少参数阻止、详情实例刷新隔离、旧请求隔离、同名路由按员工参数复用）",
+      "visualFixture": "仅替换事件回调、显式数据参数与受控选中状态；保留原有布局与 on/off 子组件，不重复截图",
+      "remainingTODO": [
+        "短信邀请缺少真实模板，调用明确阻止",
+        "好评与施工照片未接通，保留 TODO"
+      ]
+    },
+    "pages/staff/staff_skeletons.dart": {
+      "tests": "员工管理、预约资源、员工工作与会员相关 60 项通过；staff_page_state_test 4 项通过（缺少参数阻止、详情实例刷新隔离、旧请求隔离、同名路由按员工参数复用）",
+      "visualFixture": "仅替换事件回调、显式数据参数与受控选中状态；保留原有布局与 on/off 子组件，不重复截图",
+      "remainingTODO": [
+        "短信邀请缺少真实模板，调用明确阻止",
+        "好评与施工照片未接通，保留 TODO"
+      ]
+    },
+    "pages/staff/staff_transfer_template.dart": {
+      "tests": "员工管理、预约资源、员工工作与会员相关 60 项通过；staff_page_state_test 4 项通过（缺少参数阻止、详情实例刷新隔离、旧请求隔离、同名路由按员工参数复用）",
+      "visualFixture": "仅替换事件回调、显式数据参数与受控选中状态；保留原有布局与 on/off 子组件，不重复截图",
+      "remainingTODO": [
+        "短信邀请缺少真实模板，调用明确阻止",
+        "好评与施工照片未接通，保留 TODO"
+      ]
+    },
+    "pages/staff/staff_route_data.dart": {
+      "tests": "员工管理、预约资源、员工工作与会员相关 60 项通过；staff_page_state_test 4 项通过（缺少参数阻止、详情实例刷新隔离、旧请求隔离、同名路由按员工参数复用）",
+      "visualFixture": "仅替换事件回调、显式数据参数与受控选中状态；保留原有布局与 on/off 子组件，不重复截图",
+      "remainingTODO": [
+        "短信邀请缺少真实模板，调用明确阻止",
+        "好评与施工照片未接通，保留 TODO"
+      ]
+    },
+    "pages/staff_app/st_done_template.dart": {
+      "tests": "staff_work_test 11 项及 task_page_state_test 3 项通过；任务参数复用、旧任务返回后的进度读取、重复提交拦截、无回执阻止与结果实例隔离",
+      "visualFixture": "布局与原有选中/未选中子组件保持不变，仅变更事件、构造参数、选择控制器归属与异步锁定，不重复截图",
+      "remainingTODO": [
+        "施工照片、耗材领用仍未接通并明确阻止"
+      ]
+    },
+    "pages/staff_app/st_finish_template.dart": {
+      "tests": "staff_work_test 11 项及 task_page_state_test 3 项通过；任务参数复用、旧任务返回后的进度读取、重复提交拦截、无回执阻止与结果实例隔离",
+      "visualFixture": "布局与原有选中/未选中子组件保持不变，仅变更事件、构造参数、选择控制器归属与异步锁定，不重复截图",
+      "remainingTODO": [
+        "施工照片、耗材领用仍未接通并明确阻止"
+      ]
+    },
+    "pages/staff_app/st_live.dart": {
+      "tests": "staff_work_test 11 项及 task_page_state_test 3 项通过；任务参数复用、旧任务返回后的进度读取、重复提交拦截、无回执阻止与结果实例隔离",
+      "visualFixture": "布局与原有选中/未选中子组件保持不变，仅变更事件、构造参数、选择控制器归属与异步锁定，不重复截图",
+      "remainingTODO": [
+        "施工照片、耗材领用仍未接通并明确阻止"
+      ]
+    },
+    "pages/staff_app/st_progress_template.dart": {
+      "tests": "staff_work_test 11 项及 task_page_state_test 3 项通过；任务参数复用、旧任务返回后的进度读取、重复提交拦截、无回执阻止与结果实例隔离",
+      "visualFixture": "布局与原有选中/未选中子组件保持不变，仅变更事件、构造参数、选择控制器归属与异步锁定，不重复截图",
+      "remainingTODO": [
+        "施工照片、耗材领用仍未接通并明确阻止"
+      ]
+    },
+    "pages/staff_app/st_task_detail_template.dart": {
+      "tests": "staff_work_test 11 项及 task_page_state_test 3 项通过；任务参数复用、旧任务返回后的进度读取、重复提交拦截、无回执阻止与结果实例隔离",
+      "visualFixture": "布局与原有选中/未选中子组件保持不变，仅变更事件、构造参数、选择控制器归属与异步锁定，不重复截图",
+      "remainingTODO": [
+        "施工照片、耗材领用仍未接通并明确阻止"
+      ]
+    },
+    "pages/staff_app/task_route_data.dart": {
+      "tests": "staff_work_test 11 项及 task_page_state_test 3 项通过；任务参数复用、旧任务返回后的进度读取、重复提交拦截、无回执阻止与结果实例隔离",
+      "visualFixture": "布局与原有选中/未选中子组件保持不变，仅变更事件、构造参数、选择控制器归属与异步锁定，不重复截图",
+      "remainingTODO": [
+        "施工照片、耗材领用仍未接通并明确阻止"
+      ]
+    },
+    "pages/inventory/category_manage_bound_template.dart": {
+      "tests": "库存、商品、供应商选择、迁移守卫、placeholder 与步进器合计 91 项通过；追加生命周期保护后 inventory_state_test 7 项通过；flutter analyze 无问题",
+      "visualFixture": "保留原布局和原选中/未选中样式，只替换属性、回调及实例控制器；库存已有深浅色真实数据渲染用例通过，未重复逐页截图",
+      "remainingTODO": [
+        "库存 App/微信通知缺少真实渠道，明确阻止开启"
+      ]
+    },
+    "pages/inventory/inventory_live_page.dart": {
+      "tests": "库存、商品、供应商选择、迁移守卫、placeholder 与步进器合计 91 项通过；追加生命周期保护后 inventory_state_test 7 项通过；flutter analyze 无问题",
+      "visualFixture": "保留原布局和原选中/未选中样式，只替换属性、回调及实例控制器；库存已有深浅色真实数据渲染用例通过，未重复逐页截图",
+      "remainingTODO": [
+        "库存 App/微信通知缺少真实渠道，明确阻止开启"
+      ]
+    },
+    "pages/inventory/inventory_management_page.dart": {
+      "tests": "库存、商品、供应商选择、迁移守卫、placeholder 与步进器合计 91 项通过；追加生命周期保护后 inventory_state_test 7 项通过；flutter analyze 无问题",
+      "visualFixture": "保留原布局和原选中/未选中样式，只替换属性、回调及实例控制器；库存已有深浅色真实数据渲染用例通过，未重复逐页截图",
+      "remainingTODO": [
+        "库存 App/微信通知缺少真实渠道，明确阻止开启"
+      ]
+    },
+    "pages/inventory/inventory_management_row_templates.dart": {
+      "tests": "库存、商品、供应商选择、迁移守卫、placeholder 与步进器合计 91 项通过；追加生命周期保护后 inventory_state_test 7 项通过；flutter analyze 无问题",
+      "visualFixture": "保留原布局和原选中/未选中样式，只替换属性、回调及实例控制器；库存已有深浅色真实数据渲染用例通过，未重复逐页截图",
+      "remainingTODO": [
+        "库存 App/微信通知缺少真实渠道，明确阻止开启"
+      ]
+    },
+    "pages/inventory/inventory_page.dart": {
+      "tests": "库存、商品、供应商选择、迁移守卫、placeholder 与步进器合计 91 项通过；追加生命周期保护后 inventory_state_test 7 项通过；flutter analyze 无问题",
+      "visualFixture": "保留原布局和原选中/未选中样式，只替换属性、回调及实例控制器；库存已有深浅色真实数据渲染用例通过，未重复逐页截图",
+      "remainingTODO": [
+        "库存 App/微信通知缺少真实渠道，明确阻止开启"
+      ]
+    },
+    "pages/inventory/inventory_pickers.dart": {
+      "tests": "库存、商品、供应商选择、迁移守卫、placeholder 与步进器合计 91 项通过；追加生命周期保护后 inventory_state_test 7 项通过；flutter analyze 无问题",
+      "visualFixture": "保留原布局和原选中/未选中样式，只替换属性、回调及实例控制器；库存已有深浅色真实数据渲染用例通过，未重复逐页截图",
+      "remainingTODO": [
+        "库存 App/微信通知缺少真实渠道，明确阻止开启"
+      ]
+    },
+    "pages/inventory/inventory_record_templates.dart": {
+      "tests": "库存、商品、供应商选择、迁移守卫、placeholder 与步进器合计 91 项通过；追加生命周期保护后 inventory_state_test 7 项通过；flutter analyze 无问题",
+      "visualFixture": "保留原布局和原选中/未选中样式，只替换属性、回调及实例控制器；库存已有深浅色真实数据渲染用例通过，未重复逐页截图",
+      "remainingTODO": [
+        "库存 App/微信通知缺少真实渠道，明确阻止开启"
+      ]
+    },
+    "pages/inventory/product_detail_live_template.dart": {
+      "tests": "库存、商品、供应商选择、迁移守卫、placeholder 与步进器合计 91 项通过；追加生命周期保护后 inventory_state_test 7 项通过；flutter analyze 无问题",
+      "visualFixture": "保留原布局和原选中/未选中样式，只替换属性、回调及实例控制器；库存已有深浅色真实数据渲染用例通过，未重复逐页截图",
+      "remainingTODO": [
+        "库存 App/微信通知缺少真实渠道，明确阻止开启"
+      ]
+    },
+    "pages/inventory/product_edit_live_page.dart": {
+      "tests": "库存、商品、供应商选择、迁移守卫、placeholder 与步进器合计 91 项通过；追加生命周期保护后 inventory_state_test 7 项通过；flutter analyze 无问题",
+      "visualFixture": "保留原布局和原选中/未选中样式，只替换属性、回调及实例控制器；库存已有深浅色真实数据渲染用例通过，未重复逐页截图",
+      "remainingTODO": [
+        "库存 App/微信通知缺少真实渠道，明确阻止开启"
+      ]
+    },
+    "pages/inventory/product_list_live_page.dart": {
+      "tests": "库存、商品、供应商选择、迁移守卫、placeholder 与步进器合计 91 项通过；追加生命周期保护后 inventory_state_test 7 项通过；flutter analyze 无问题",
+      "visualFixture": "保留原布局和原选中/未选中样式，只替换属性、回调及实例控制器；库存已有深浅色真实数据渲染用例通过，未重复逐页截图",
+      "remainingTODO": [
+        "库存 App/微信通知缺少真实渠道，明确阻止开启"
+      ]
+    },
+    "pages/inventory/scan_product_bound_template.dart": {
+      "tests": "库存、商品、供应商选择、迁移守卫、placeholder 与步进器合计 91 项通过；追加生命周期保护后 inventory_state_test 7 项通过；flutter analyze 无问题",
+      "visualFixture": "保留原布局和原选中/未选中样式，只替换属性、回调及实例控制器；库存已有深浅色真实数据渲染用例通过，未重复逐页截图",
+      "remainingTODO": [
+        "库存 App/微信通知缺少真实渠道，明确阻止开启"
+      ]
+    },
+    "pages/inventory/scan_product_not_found_bound_template.dart": {
+      "tests": "库存、商品、供应商选择、迁移守卫、placeholder 与步进器合计 91 项通过；追加生命周期保护后 inventory_state_test 7 项通过；flutter analyze 无问题",
+      "visualFixture": "保留原布局和原选中/未选中样式，只替换属性、回调及实例控制器；库存已有深浅色真实数据渲染用例通过，未重复逐页截图",
+      "remainingTODO": [
+        "库存 App/微信通知缺少真实渠道，明确阻止开启"
+      ]
+    },
+    "pages/inventory/scan_product_result_bound_template.dart": {
+      "tests": "库存、商品、供应商选择、迁移守卫、placeholder 与步进器合计 91 项通过；追加生命周期保护后 inventory_state_test 7 项通过；flutter analyze 无问题",
+      "visualFixture": "保留原布局和原选中/未选中样式，只替换属性、回调及实例控制器；库存已有深浅色真实数据渲染用例通过，未重复逐页截图",
+      "remainingTODO": [
+        "库存 App/微信通知缺少真实渠道，明确阻止开启"
+      ]
+    },
+    "pages/inventory/stock_alert_settings_bound_template.dart": {
+      "tests": "库存、商品、供应商选择、迁移守卫、placeholder 与步进器合计 91 项通过；追加生命周期保护后 inventory_state_test 7 项通过；flutter analyze 无问题",
+      "visualFixture": "保留原布局和原选中/未选中样式，只替换属性、回调及实例控制器；库存已有深浅色真实数据渲染用例通过，未重复逐页截图",
+      "remainingTODO": [
+        "库存 App/微信通知缺少真实渠道，明确阻止开启"
+      ]
+    },
+    "pages/inventory/stock_check_input_bound_template.dart": {
+      "tests": "库存、商品、供应商选择、迁移守卫、placeholder 与步进器合计 91 项通过；追加生命周期保护后 inventory_state_test 7 项通过；flutter analyze 无问题",
+      "visualFixture": "保留原布局和原选中/未选中样式，只替换属性、回调及实例控制器；库存已有深浅色真实数据渲染用例通过，未重复逐页截图",
+      "remainingTODO": [
+        "库存 App/微信通知缺少真实渠道，明确阻止开启"
+      ]
+    },
+    "pages/inventory/stock_check_line_template.dart": {
+      "tests": "库存、商品、供应商选择、迁移守卫、placeholder 与步进器合计 91 项通过；追加生命周期保护后 inventory_state_test 7 项通过；flutter analyze 无问题",
+      "visualFixture": "保留原布局和原选中/未选中样式，只替换属性、回调及实例控制器；库存已有深浅色真实数据渲染用例通过，未重复逐页截图",
+      "remainingTODO": [
+        "库存 App/微信通知缺少真实渠道，明确阻止开启"
+      ]
+    },
+    "pages/inventory/stock_check_live_template.dart": {
+      "tests": "库存、商品、供应商选择、迁移守卫、placeholder 与步进器合计 91 项通过；追加生命周期保护后 inventory_state_test 7 项通过；flutter analyze 无问题",
+      "visualFixture": "保留原布局和原选中/未选中样式，只替换属性、回调及实例控制器；库存已有深浅色真实数据渲染用例通过，未重复逐页截图",
+      "remainingTODO": [
+        "库存 App/微信通知缺少真实渠道，明确阻止开启"
+      ]
+    },
+    "pages/inventory/stock_check_new_bound_template.dart": {
+      "tests": "库存、商品、供应商选择、迁移守卫、placeholder 与步进器合计 91 项通过；追加生命周期保护后 inventory_state_test 7 项通过；flutter analyze 无问题",
+      "visualFixture": "保留原布局和原选中/未选中样式，只替换属性、回调及实例控制器；库存已有深浅色真实数据渲染用例通过，未重复逐页截图",
+      "remainingTODO": [
+        "库存 App/微信通知缺少真实渠道，明确阻止开启"
+      ]
+    },
+    "pages/inventory/stock_check_result_bound_template.dart": {
+      "tests": "库存、商品、供应商选择、迁移守卫、placeholder 与步进器合计 91 项通过；追加生命周期保护后 inventory_state_test 7 项通过；flutter analyze 无问题",
+      "visualFixture": "保留原布局和原选中/未选中样式，只替换属性、回调及实例控制器；库存已有深浅色真实数据渲染用例通过，未重复逐页截图",
+      "remainingTODO": [
+        "库存 App/微信通知缺少真实渠道，明确阻止开启"
+      ]
+    },
+    "pages/inventory/stock_docs_bound_template.dart": {
+      "tests": "库存、商品、供应商选择、迁移守卫、placeholder 与步进器合计 91 项通过；追加生命周期保护后 inventory_state_test 7 项通过；flutter analyze 无问题",
+      "visualFixture": "保留原布局和原选中/未选中样式，只替换属性、回调及实例控制器；库存已有深浅色真实数据渲染用例通过，未重复逐页截图",
+      "remainingTODO": [
+        "库存 App/微信通知缺少真实渠道，明确阻止开启"
+      ]
+    },
+    "pages/inventory/stock_in_detail_bound_template.dart": {
+      "tests": "库存、商品、供应商选择、迁移守卫、placeholder 与步进器合计 91 项通过；追加生命周期保护后 inventory_state_test 7 项通过；flutter analyze 无问题",
+      "visualFixture": "保留原布局和原选中/未选中样式，只替换属性、回调及实例控制器；库存已有深浅色真实数据渲染用例通过，未重复逐页截图",
+      "remainingTODO": [
+        "库存 App/微信通知缺少真实渠道，明确阻止开启"
+      ]
+    },
+    "pages/inventory/stock_in_line_template.dart": {
+      "tests": "库存、商品、供应商选择、迁移守卫、placeholder 与步进器合计 91 项通过；追加生命周期保护后 inventory_state_test 7 项通过；flutter analyze 无问题",
+      "visualFixture": "保留原布局和原选中/未选中样式，只替换属性、回调及实例控制器；库存已有深浅色真实数据渲染用例通过，未重复逐页截图",
+      "remainingTODO": [
+        "库存 App/微信通知缺少真实渠道，明确阻止开启"
+      ]
+    },
+    "pages/inventory/stock_in_live_template.dart": {
+      "tests": "库存、商品、供应商选择、迁移守卫、placeholder 与步进器合计 91 项通过；追加生命周期保护后 inventory_state_test 7 项通过；flutter analyze 无问题",
+      "visualFixture": "保留原布局和原选中/未选中样式，只替换属性、回调及实例控制器；库存已有深浅色真实数据渲染用例通过，未重复逐页截图",
+      "remainingTODO": [
+        "库存 App/微信通知缺少真实渠道，明确阻止开启"
+      ]
+    },
+    "pages/inventory/stock_out_detail_bound_template.dart": {
+      "tests": "库存、商品、供应商选择、迁移守卫、placeholder 与步进器合计 91 项通过；追加生命周期保护后 inventory_state_test 7 项通过；flutter analyze 无问题",
+      "visualFixture": "保留原布局和原选中/未选中样式，只替换属性、回调及实例控制器；库存已有深浅色真实数据渲染用例通过，未重复逐页截图",
+      "remainingTODO": [
+        "库存 App/微信通知缺少真实渠道，明确阻止开启"
+      ]
+    },
+    "pages/inventory/stock_out_line_template.dart": {
+      "tests": "库存、商品、供应商选择、迁移守卫、placeholder 与步进器合计 91 项通过；追加生命周期保护后 inventory_state_test 7 项通过；flutter analyze 无问题",
+      "visualFixture": "保留原布局和原选中/未选中样式，只替换属性、回调及实例控制器；库存已有深浅色真实数据渲染用例通过，未重复逐页截图",
+      "remainingTODO": [
+        "库存 App/微信通知缺少真实渠道，明确阻止开启"
+      ]
+    },
+    "pages/inventory/stock_out_live_template.dart": {
+      "tests": "库存、商品、供应商选择、迁移守卫、placeholder 与步进器合计 91 项通过；追加生命周期保护后 inventory_state_test 7 项通过；flutter analyze 无问题",
+      "visualFixture": "保留原布局和原选中/未选中样式，只替换属性、回调及实例控制器；库存已有深浅色真实数据渲染用例通过，未重复逐页截图",
+      "remainingTODO": [
+        "库存 App/微信通知缺少真实渠道，明确阻止开启"
+      ]
+    },
+    "pages/inventory/stock_out_short_bound_template.dart": {
+      "tests": "库存、商品、供应商选择、迁移守卫、placeholder 与步进器合计 91 项通过；追加生命周期保护后 inventory_state_test 7 项通过；flutter analyze 无问题",
+      "visualFixture": "保留原布局和原选中/未选中样式，只替换属性、回调及实例控制器；库存已有深浅色真实数据渲染用例通过，未重复逐页截图",
+      "remainingTODO": [
+        "库存 App/微信通知缺少真实渠道，明确阻止开启"
+      ]
+    },
+    "pages/inventory/stock_void_bound_template.dart": {
+      "tests": "库存、商品、供应商选择、迁移守卫、placeholder 与步进器合计 91 项通过；追加生命周期保护后 inventory_state_test 7 项通过；flutter analyze 无问题",
+      "visualFixture": "保留原布局和原选中/未选中样式，只替换属性、回调及实例控制器；库存已有深浅色真实数据渲染用例通过，未重复逐页截图",
+      "remainingTODO": [
+        "库存 App/微信通知缺少真实渠道，明确阻止开启"
+      ]
+    },
+    "pages/inventory/inventory_controller.dart": {
+      "tests": "库存、商品、供应商选择、迁移守卫、placeholder 与步进器合计 91 项通过；追加生命周期保护后 inventory_state_test 7 项通过；flutter analyze 无问题",
+      "visualFixture": "保留原布局和原选中/未选中样式，只替换属性、回调及实例控制器；库存已有深浅色真实数据渲染用例通过，未重复逐页截图",
+      "remainingTODO": [
+        "库存 App/微信通知缺少真实渠道，明确阻止开启"
+      ]
+    },
+    "pages/inventory/inventory_management_controller.dart": {
+      "tests": "库存、商品、供应商选择、迁移守卫、placeholder 与步进器合计 91 项通过；追加生命周期保护后 inventory_state_test 7 项通过；flutter analyze 无问题",
+      "visualFixture": "保留原布局和原选中/未选中样式，只替换属性、回调及实例控制器；库存已有深浅色真实数据渲染用例通过，未重复逐页截图",
+      "remainingTODO": [
+        "库存 App/微信通知缺少真实渠道，明确阻止开启"
+      ]
+    },
+    "pages/members/member_delete_sheet.dart": {
+      "tests": "会员/颜色/照片/相机/状态隔离/共享交互/迁移守卫/placeholder 合计 155 项通过；flutter analyze 无问题；后端与 packages 无改动",
+      "visualFixture": "保留原布局几何与原选中/未选中子组件，改为受控字段和显式回调；现有渲染与交互检查通过，本批未做像素截图比对。等级数据改读真实卡种，车辆提醒去除虚假已开启状态并明确阻止",
+      "remainingTODO": [
+        "车辆提醒缺少配置与触达接口",
+        "行驶证 OCR 未接通，车牌识别仍为真实接口",
+        "流水日期筛选缺少日期范围接口"
+      ]
+    },
+    "pages/members/member_edit_page.dart": {
+      "tests": "会员/颜色/照片/相机/状态隔离/共享交互/迁移守卫/placeholder 合计 155 项通过；flutter analyze 无问题；后端与 packages 无改动",
+      "visualFixture": "保留原布局几何与原选中/未选中子组件，改为受控字段和显式回调；现有渲染与交互检查通过，本批未做像素截图比对。等级数据改读真实卡种，车辆提醒去除虚假已开启状态并明确阻止",
+      "remainingTODO": [
+        "车辆提醒缺少配置与触达接口",
+        "行驶证 OCR 未接通，车牌识别仍为真实接口",
+        "流水日期筛选缺少日期范围接口"
+      ]
+    },
+    "pages/members/vehicle_add_page.dart": {
+      "tests": "会员/颜色/照片/相机/状态隔离/共享交互/迁移守卫/placeholder 合计 155 项通过；flutter analyze 无问题；后端与 packages 无改动",
+      "visualFixture": "保留原布局几何与原选中/未选中子组件，改为受控字段和显式回调；现有渲染与交互检查通过，本批未做像素截图比对。等级数据改读真实卡种，车辆提醒去除虚假已开启状态并明确阻止",
+      "remainingTODO": [
+        "车辆提醒缺少配置与触达接口",
+        "行驶证 OCR 未接通，车牌识别仍为真实接口",
+        "流水日期筛选缺少日期范围接口"
+      ]
+    },
+    "pages/members/member_add_page.dart": {
+      "tests": "会员/颜色/照片/相机/状态隔离/共享交互/迁移守卫/placeholder 合计 155 项通过；flutter analyze 无问题；后端与 packages 无改动",
+      "visualFixture": "保留原布局几何与原选中/未选中子组件，改为受控字段和显式回调；现有渲染与交互检查通过，本批未做像素截图比对。等级数据改读真实卡种，车辆提醒去除虚假已开启状态并明确阻止",
+      "remainingTODO": [
+        "车辆提醒缺少配置与触达接口",
+        "行驶证 OCR 未接通，车牌识别仍为真实接口",
+        "流水日期筛选缺少日期范围接口"
+      ]
+    },
+    "pages/members/member_records_live_page.dart": {
+      "tests": "会员/颜色/照片/相机/状态隔离/共享交互/迁移守卫/placeholder 合计 155 项通过；flutter analyze 无问题；后端与 packages 无改动",
+      "visualFixture": "保留原布局几何与原选中/未选中子组件，改为受控字段和显式回调；现有渲染与交互检查通过，本批未做像素截图比对。等级数据改读真实卡种，车辆提醒去除虚假已开启状态并明确阻止",
+      "remainingTODO": [
+        "车辆提醒缺少配置与触达接口",
+        "行驶证 OCR 未接通，车牌识别仍为真实接口",
+        "流水日期筛选缺少日期范围接口"
+      ]
+    },
+    "pages/members/member_route_data.dart": {
+      "tests": "会员/颜色/照片/相机/状态隔离/共享交互/迁移守卫/placeholder 合计 155 项通过；flutter analyze 无问题；后端与 packages 无改动",
+      "visualFixture": "保留原布局几何与原选中/未选中子组件，改为受控字段和显式回调；现有渲染与交互检查通过，本批未做像素截图比对。等级数据改读真实卡种，车辆提醒去除虚假已开启状态并明确阻止",
+      "remainingTODO": [
+        "车辆提醒缺少配置与触达接口",
+        "行驶证 OCR 未接通，车牌识别仍为真实接口",
+        "流水日期筛选缺少日期范围接口"
+      ]
+    },
+    "pages/members/member_events.dart": {
+      "tests": "会员/颜色/照片/相机/状态隔离/共享交互/迁移守卫/placeholder 合计 155 项通过；flutter analyze 无问题；后端与 packages 无改动",
+      "visualFixture": "保留原布局几何与原选中/未选中子组件，改为受控字段和显式回调；现有渲染与交互检查通过，本批未做像素截图比对。等级数据改读真实卡种，车辆提醒去除虚假已开启状态并明确阻止",
+      "remainingTODO": [
+        "车辆提醒缺少配置与触达接口",
+        "行驶证 OCR 未接通，车牌识别仍为真实接口",
+        "流水日期筛选缺少日期范围接口"
+      ]
+    },
+    "pages/members/member_form_controller.dart": {
+      "tests": "会员/颜色/照片/相机/状态隔离/共享交互/迁移守卫/placeholder 合计 155 项通过；flutter analyze 无问题；后端与 packages 无改动",
+      "visualFixture": "保留原布局几何与原选中/未选中子组件，改为受控字段和显式回调；现有渲染与交互检查通过，本批未做像素截图比对。等级数据改读真实卡种，车辆提醒去除虚假已开启状态并明确阻止",
+      "remainingTODO": [
+        "车辆提醒缺少配置与触达接口",
+        "行驶证 OCR 未接通，车牌识别仍为真实接口",
+        "流水日期筛选缺少日期范围接口"
+      ]
+    },
+    "pages/members/member_form_host.dart": {
+      "tests": "会员/颜色/照片/相机/状态隔离/共享交互/迁移守卫/placeholder 合计 155 项通过；flutter analyze 无问题；后端与 packages 无改动",
+      "visualFixture": "保留原布局几何与原选中/未选中子组件，改为受控字段和显式回调；现有渲染与交互检查通过，本批未做像素截图比对。等级数据改读真实卡种，车辆提醒去除虚假已开启状态并明确阻止",
+      "remainingTODO": [
+        "车辆提醒缺少配置与触达接口",
+        "行驶证 OCR 未接通，车牌识别仍为真实接口",
+        "流水日期筛选缺少日期范围接口"
+      ]
+    },
+    "pages/members/member_view.dart": {
+      "tests": "会员/颜色/照片/相机/状态隔离/共享交互/迁移守卫/placeholder 合计 155 项通过；flutter analyze 无问题；后端与 packages 无改动",
+      "visualFixture": "保留原布局几何与原选中/未选中子组件，改为受控字段和显式回调；现有渲染与交互检查通过，本批未做像素截图比对。等级数据改读真实卡种，车辆提醒去除虚假已开启状态并明确阻止",
+      "remainingTODO": [
+        "车辆提醒缺少配置与触达接口",
+        "行驶证 OCR 未接通，车牌识别仍为真实接口",
+        "流水日期筛选缺少日期范围接口"
+      ]
+    },
+    "pages/members/member_tier_preview.dart": {
+      "tests": "会员/颜色/照片/相机/状态隔离/共享交互/迁移守卫/placeholder 合计 155 项通过；flutter analyze 无问题；后端与 packages 无改动",
+      "visualFixture": "保留原布局几何与原选中/未选中子组件，改为受控字段和显式回调；现有渲染与交互检查通过，本批未做像素截图比对。等级数据改读真实卡种，车辆提醒去除虚假已开启状态并明确阻止",
+      "remainingTODO": [
+        "车辆提醒缺少配置与触达接口",
+        "行驶证 OCR 未接通，车牌识别仍为真实接口",
+        "流水日期筛选缺少日期范围接口"
+      ]
+    },
+    "pages/members/member_add_done_page.dart": {
+      "batch": "memberWalletBatch",
+      "behavior": "显式会员/次卡参数、页面实例状态和服务端回执；无通用组件业务推断或全局当前编辑对象",
+      "tests": "223 项相关检查通过；追加复用/晚到响应与迁移守卫后 19 项通过（11 项钱包状态、8 项守卫，包含重叠，不与前批相加）",
+      "visual": "保留原布局；共享套餐行浅深色、选中与未选中四组固定输入截图与迁移前逐字节一致；不为纯路径或事件修改重复逐页截图"
+    },
+    "pages/members/member_picker_sheet.dart": {
+      "batch": "memberWalletBatch",
+      "behavior": "显式会员/次卡参数、页面实例状态和服务端回执；无通用组件业务推断或全局当前编辑对象",
+      "tests": "223 项相关检查通过；追加复用/晚到响应与迁移守卫后 19 项通过（11 项钱包状态、8 项守卫，包含重叠，不与前批相加）",
+      "visual": "保留原布局；共享套餐行浅深色、选中与未选中四组固定输入截图与迁移前逐字节一致；不为纯路径或事件修改重复逐页截图"
+    },
+    "pages/members/packages/package_detail_page.dart": {
+      "batch": "memberWalletBatch",
+      "behavior": "显式会员/次卡参数、页面实例状态和服务端回执；无通用组件业务推断或全局当前编辑对象",
+      "tests": "223 项相关检查通过；追加复用/晚到响应与迁移守卫后 19 项通过（11 项钱包状态、8 项守卫，包含重叠，不与前批相加）",
+      "visual": "保留原布局；共享套餐行浅深色、选中与未选中四组固定输入截图与迁移前逐字节一致；不为纯路径或事件修改重复逐页截图"
+    },
+    "pages/members/packages/package_extend_sheet.dart": {
+      "batch": "memberWalletBatch",
+      "behavior": "显式会员/次卡参数、页面实例状态和服务端回执；无通用组件业务推断或全局当前编辑对象",
+      "tests": "223 项相关检查通过；追加复用/晚到响应与迁移守卫后 19 项通过（11 项钱包状态、8 项守卫，包含重叠，不与前批相加）",
+      "visual": "保留原布局；共享套餐行浅深色、选中与未选中四组固定输入截图与迁移前逐字节一致；不为纯路径或事件修改重复逐页截图"
+    },
+    "pages/members/packages/package_refund_sheet.dart": {
+      "batch": "memberWalletBatch",
+      "behavior": "显式会员/次卡参数、页面实例状态和服务端回执；无通用组件业务推断或全局当前编辑对象",
+      "tests": "223 项相关检查通过；追加复用/晚到响应与迁移守卫后 19 项通过（11 项钱包状态、8 项守卫，包含重叠，不与前批相加）",
+      "visual": "保留原布局；共享套餐行浅深色、选中与未选中四组固定输入截图与迁移前逐字节一致；不为纯路径或事件修改重复逐页截图"
+    },
+    "pages/members/packages/package_sold_page.dart": {
+      "batch": "memberWalletBatch",
+      "behavior": "显式会员/次卡参数、页面实例状态和服务端回执；无通用组件业务推断或全局当前编辑对象",
+      "tests": "223 项相关检查通过；追加复用/晚到响应与迁移守卫后 19 项通过（11 项钱包状态、8 项守卫，包含重叠，不与前批相加）",
+      "visual": "保留原布局；共享套餐行浅深色、选中与未选中四组固定输入截图与迁移前逐字节一致；不为纯路径或事件修改重复逐页截图"
+    },
+    "pages/members/recharge_card_page.dart": {
+      "batch": "memberWalletBatch",
+      "behavior": "显式会员/次卡参数、页面实例状态和服务端回执；无通用组件业务推断或全局当前编辑对象",
+      "tests": "223 项相关检查通过；追加复用/晚到响应与迁移守卫后 19 项通过（11 项钱包状态、8 项守卫，包含重叠，不与前批相加）",
+      "visual": "保留原布局；共享套餐行浅深色、选中与未选中四组固定输入截图与迁移前逐字节一致；不为纯路径或事件修改重复逐页截图"
+    },
+    "pages/members/recharge_empty_card_page.dart": {
+      "batch": "memberWalletBatch",
+      "behavior": "显式会员/次卡参数、页面实例状态和服务端回执；无通用组件业务推断或全局当前编辑对象",
+      "tests": "223 项相关检查通过；追加复用/晚到响应与迁移守卫后 19 项通过（11 项钱包状态、8 项守卫，包含重叠，不与前批相加）",
+      "visual": "保留原布局；共享套餐行浅深色、选中与未选中四组固定输入截图与迁移前逐字节一致；不为纯路径或事件修改重复逐页截图"
+    },
+    "pages/members/recharge_empty_page.dart": {
+      "batch": "memberWalletBatch",
+      "behavior": "显式会员/次卡参数、页面实例状态和服务端回执；无通用组件业务推断或全局当前编辑对象",
+      "tests": "223 项相关检查通过；追加复用/晚到响应与迁移守卫后 19 项通过（11 项钱包状态、8 项守卫，包含重叠，不与前批相加）",
+      "visual": "保留原布局；共享套餐行浅深色、选中与未选中四组固定输入截图与迁移前逐字节一致；不为纯路径或事件修改重复逐页截图"
+    },
+    "pages/members/recharge_page.dart": {
+      "batch": "memberWalletBatch",
+      "behavior": "显式会员/次卡参数、页面实例状态和服务端回执；无通用组件业务推断或全局当前编辑对象",
+      "tests": "223 项相关检查通过；追加复用/晚到响应与迁移守卫后 19 项通过（11 项钱包状态、8 项守卫，包含重叠，不与前批相加）",
+      "visual": "保留原布局；共享套餐行浅深色、选中与未选中四组固定输入截图与迁移前逐字节一致；不为纯路径或事件修改重复逐页截图"
+    },
+    "pages/members/recharge_pick_sheet.dart": {
+      "batch": "memberWalletBatch",
+      "behavior": "显式会员/次卡参数、页面实例状态和服务端回执；无通用组件业务推断或全局当前编辑对象",
+      "tests": "223 项相关检查通过；追加复用/晚到响应与迁移守卫后 19 项通过（11 项钱包状态、8 项守卫，包含重叠，不与前批相加）",
+      "visual": "保留原布局；共享套餐行浅深色、选中与未选中四组固定输入截图与迁移前逐字节一致；不为纯路径或事件修改重复逐页截图"
+    },
+    "pages/members/recharge_success_page.dart": {
+      "batch": "memberWalletBatch",
+      "behavior": "显式会员/次卡参数、页面实例状态和服务端回执；无通用组件业务推断或全局当前编辑对象",
+      "tests": "223 项相关检查通过；追加复用/晚到响应与迁移守卫后 19 项通过（11 项钱包状态、8 项守卫，包含重叠，不与前批相加）",
+      "visual": "保留原布局；共享套餐行浅深色、选中与未选中四组固定输入截图与迁移前逐字节一致；不为纯路径或事件修改重复逐页截图"
+    },
+    "pages/members/packages/member_package_controller.dart": {
+      "batch": "memberWalletBatch",
+      "behavior": "显式会员/次卡参数、页面实例状态和服务端回执；无通用组件业务推断或全局当前编辑对象",
+      "tests": "223 项相关检查通过；追加复用/晚到响应与迁移守卫后 19 项通过（11 项钱包状态、8 项守卫，包含重叠，不与前批相加）",
+      "visual": "保留原布局；共享套餐行浅深色、选中与未选中四组固定输入截图与迁移前逐字节一致；不为纯路径或事件修改重复逐页截图"
+    },
+    "pages/members/packages/member_package_host.dart": {
+      "batch": "memberWalletBatch",
+      "behavior": "显式会员/次卡参数、页面实例状态和服务端回执；无通用组件业务推断或全局当前编辑对象",
+      "tests": "223 项相关检查通过；追加复用/晚到响应与迁移守卫后 19 项通过（11 项钱包状态、8 项守卫，包含重叠，不与前批相加）",
+      "visual": "保留原布局；共享套餐行浅深色、选中与未选中四组固定输入截图与迁移前逐字节一致；不为纯路径或事件修改重复逐页截图"
+    },
+    "pages/members/packages/member_package_route_data.dart": {
+      "batch": "memberWalletBatch",
+      "behavior": "显式会员/次卡参数、页面实例状态和服务端回执；无通用组件业务推断或全局当前编辑对象",
+      "tests": "223 项相关检查通过；追加复用/晚到响应与迁移守卫后 19 项通过（11 项钱包状态、8 项守卫，包含重叠，不与前批相加）",
+      "visual": "保留原布局；共享套餐行浅深色、选中与未选中四组固定输入截图与迁移前逐字节一致；不为纯路径或事件修改重复逐页截图"
+    },
+    "pages/members/packages/owned_package_view.dart": {
+      "batch": "memberWalletBatch",
+      "behavior": "显式会员/次卡参数、页面实例状态和服务端回执；无通用组件业务推断或全局当前编辑对象",
+      "tests": "223 项相关检查通过；追加复用/晚到响应与迁移守卫后 19 项通过（11 项钱包状态、8 项守卫，包含重叠，不与前批相加）",
+      "visual": "保留原布局；共享套餐行浅深色、选中与未选中四组固定输入截图与迁移前逐字节一致；不为纯路径或事件修改重复逐页截图"
+    },
+    "pages/members/packages/package_choices.dart": {
+      "batch": "memberWalletBatch",
+      "behavior": "显式会员/次卡参数、页面实例状态和服务端回执；无通用组件业务推断或全局当前编辑对象",
+      "tests": "223 项相关检查通过；追加复用/晚到响应与迁移守卫后 19 项通过（11 项钱包状态、8 项守卫，包含重叠，不与前批相加）",
+      "visual": "保留原布局；共享套餐行浅深色、选中与未选中四组固定输入截图与迁移前逐字节一致；不为纯路径或事件修改重复逐页截图"
+    },
+    "pages/members/packages/package_detail_widgets.dart": {
+      "batch": "memberWalletBatch",
+      "behavior": "显式会员/次卡参数、页面实例状态和服务端回执；无通用组件业务推断或全局当前编辑对象",
+      "tests": "223 项相关检查通过；追加复用/晚到响应与迁移守卫后 19 项通过（11 项钱包状态、8 项守卫，包含重叠，不与前批相加）",
+      "visual": "保留原布局；共享套餐行浅深色、选中与未选中四组固定输入截图与迁移前逐字节一致；不为纯路径或事件修改重复逐页截图"
+    },
+    "pages/members/member_picker_widgets.dart": {
+      "batch": "memberWalletBatch",
+      "behavior": "显式会员/次卡参数、页面实例状态和服务端回执；无通用组件业务推断或全局当前编辑对象",
+      "tests": "223 项相关检查通过；追加复用/晚到响应与迁移守卫后 19 项通过（11 项钱包状态、8 项守卫，包含重叠，不与前批相加）",
+      "visual": "保留原布局；共享套餐行浅深色、选中与未选中四组固定输入截图与迁移前逐字节一致；不为纯路径或事件修改重复逐页截图"
+    },
+    "pages/members/wallet_controller.dart": {
+      "batch": "memberWalletBatch",
+      "behavior": "显式会员/次卡参数、页面实例状态和服务端回执；无通用组件业务推断或全局当前编辑对象",
+      "tests": "223 项相关检查通过；追加复用/晚到响应与迁移守卫后 19 项通过（11 项钱包状态、8 项守卫，包含重叠，不与前批相加）",
+      "visual": "保留原布局；共享套餐行浅深色、选中与未选中四组固定输入截图与迁移前逐字节一致；不为纯路径或事件修改重复逐页截图"
+    },
+    "pages/members/wallet_page.dart": {
+      "batch": "memberWalletBatch",
+      "behavior": "显式会员/次卡参数、页面实例状态和服务端回执；无通用组件业务推断或全局当前编辑对象",
+      "tests": "223 项相关检查通过；追加复用/晚到响应与迁移守卫后 19 项通过（11 项钱包状态、8 项守卫，包含重叠，不与前批相加）",
+      "visual": "保留原布局；共享套餐行浅深色、选中与未选中四组固定输入截图与迁移前逐字节一致；不为纯路径或事件修改重复逐页截图"
+    },
+    "pages/members/wallet_receipt_view.dart": {
+      "batch": "memberWalletBatch",
+      "behavior": "显式会员/次卡参数、页面实例状态和服务端回执；无通用组件业务推断或全局当前编辑对象",
+      "tests": "223 项相关检查通过；追加复用/晚到响应与迁移守卫后 19 项通过（11 项钱包状态、8 项守卫，包含重叠，不与前批相加）",
+      "visual": "保留原布局；共享套餐行浅深色、选中与未选中四组固定输入截图与迁移前逐字节一致；不为纯路径或事件修改重复逐页截图"
+    },
+    "pages/members/member_adjust_page.dart": {
+      "batch": "memberOperationsBatch",
+      "behavior": "显式传入会员；调整、回访和筛选草稿与提醒数据均由页面实例持有。取消不应用筛选；保存直接调用接口，成功通过 memberChanged 通知刷新。无未登录示例数据回退。",
+      "tests": "类型移位与只读快照调整后，会员/状态隔离/资料/预约/订单/迁移守卫最终 107 项全部通过；交互/迁移守卫 24 项通过，批次存在重叠，不相加为唯一总量。此前受影响跨页面检查的唯一旧预览夹具失败已修正并复测。flutter analyze 无问题，git diff --check 通过；筛选两组浅深色截图与同数据基线字节一致；未运行全量套件。",
+      "visual": "沿用原布局；共享多选与筛选弹层以同数据、同选择状态做浅深色截图，两组 PNG 与迁移前字节一致；其他仅数据/事件及类型路径调整不重复逐页截图。"
+    },
+    "pages/members/member_filter_sheet.dart": {
+      "batch": "memberOperationsBatch",
+      "behavior": "显式传入会员；调整、回访和筛选草稿与提醒数据均由页面实例持有。取消不应用筛选；保存直接调用接口，成功通过 memberChanged 通知刷新。无未登录示例数据回退。",
+      "tests": "类型移位与只读快照调整后，会员/状态隔离/资料/预约/订单/迁移守卫最终 107 项全部通过；交互/迁移守卫 24 项通过，批次存在重叠，不相加为唯一总量。此前受影响跨页面检查的唯一旧预览夹具失败已修正并复测。flutter analyze 无问题，git diff --check 通过；筛选两组浅深色截图与同数据基线字节一致；未运行全量套件。",
+      "visual": "沿用原布局；共享多选与筛选弹层以同数据、同选择状态做浅深色截图，两组 PNG 与迁移前字节一致；其他仅数据/事件及类型路径调整不重复逐页截图。"
+    },
+    "pages/members/member_follow_up_page.dart": {
+      "batch": "memberOperationsBatch",
+      "behavior": "显式传入会员；调整、回访和筛选草稿与提醒数据均由页面实例持有。取消不应用筛选；保存直接调用接口，成功通过 memberChanged 通知刷新。无未登录示例数据回退。",
+      "tests": "类型移位与只读快照调整后，会员/状态隔离/资料/预约/订单/迁移守卫最终 107 项全部通过；交互/迁移守卫 24 项通过，批次存在重叠，不相加为唯一总量。此前受影响跨页面检查的唯一旧预览夹具失败已修正并复测。flutter analyze 无问题，git diff --check 通过；筛选两组浅深色截图与同数据基线字节一致；未运行全量套件。",
+      "visual": "沿用原布局；共享多选与筛选弹层以同数据、同选择状态做浅深色截图，两组 PNG 与迁移前字节一致；其他仅数据/事件及类型路径调整不重复逐页截图。"
+    },
+    "pages/members/member_more_sheet.dart": {
+      "batch": "memberOperationsBatch",
+      "behavior": "显式传入会员；调整、回访和筛选草稿与提醒数据均由页面实例持有。取消不应用筛选；保存直接调用接口，成功通过 memberChanged 通知刷新。无未登录示例数据回退。",
+      "tests": "类型移位与只读快照调整后，会员/状态隔离/资料/预约/订单/迁移守卫最终 107 项全部通过；交互/迁移守卫 24 项通过，批次存在重叠，不相加为唯一总量。此前受影响跨页面检查的唯一旧预览夹具失败已修正并复测。flutter analyze 无问题，git diff --check 通过；筛选两组浅深色截图与同数据基线字节一致；未运行全量套件。",
+      "visual": "沿用原布局；共享多选与筛选弹层以同数据、同选择状态做浅深色截图，两组 PNG 与迁移前字节一致；其他仅数据/事件及类型路径调整不重复逐页截图。"
+    },
+    "pages/members/member_visit_page.dart": {
+      "batch": "memberOperationsBatch",
+      "behavior": "显式传入会员；调整、回访和筛选草稿与提醒数据均由页面实例持有。取消不应用筛选；保存直接调用接口，成功通过 memberChanged 通知刷新。无未登录示例数据回退。",
+      "tests": "类型移位与只读快照调整后，会员/状态隔离/资料/预约/订单/迁移守卫最终 107 项全部通过；交互/迁移守卫 24 项通过，批次存在重叠，不相加为唯一总量。此前受影响跨页面检查的唯一旧预览夹具失败已修正并复测。flutter analyze 无问题，git diff --check 通过；筛选两组浅深色截图与同数据基线字节一致；未运行全量套件。",
+      "visual": "沿用原布局；共享多选与筛选弹层以同数据、同选择状态做浅深色截图，两组 PNG 与迁移前字节一致；其他仅数据/事件及类型路径调整不重复逐页截图。"
+    },
+    "pages/members/member_detail_page.dart": {
+      "batch": "memberOperationsBatch",
+      "behavior": "显式传入会员；调整、回访和筛选草稿与提醒数据均由页面实例持有。取消不应用筛选；保存直接调用接口，成功通过 memberChanged 通知刷新。无未登录示例数据回退。",
+      "tests": "类型移位与只读快照调整后，会员/状态隔离/资料/预约/订单/迁移守卫最终 107 项全部通过；交互/迁移守卫 24 项通过，批次存在重叠，不相加为唯一总量。此前受影响跨页面检查的唯一旧预览夹具失败已修正并复测。flutter analyze 无问题，git diff --check 通过；筛选两组浅深色截图与同数据基线字节一致；未运行全量套件。",
+      "visual": "沿用原布局；共享多选与筛选弹层以同数据、同选择状态做浅深色截图，两组 PNG 与迁移前字节一致；其他仅数据/事件及类型路径调整不重复逐页截图。"
+    },
+    "pages/members/members_page.dart": {
+      "batch": "memberOperationsBatch",
+      "behavior": "显式传入会员；调整、回访和筛选草稿与提醒数据均由页面实例持有。取消不应用筛选；保存直接调用接口，成功通过 memberChanged 通知刷新。无未登录示例数据回退。",
+      "tests": "类型移位与只读快照调整后，会员/状态隔离/资料/预约/订单/迁移守卫最终 107 项全部通过；交互/迁移守卫 24 项通过，批次存在重叠，不相加为唯一总量。此前受影响跨页面检查的唯一旧预览夹具失败已修正并复测。flutter analyze 无问题，git diff --check 通过；筛选两组浅深色截图与同数据基线字节一致；未运行全量套件。",
+      "visual": "沿用原布局；共享多选与筛选弹层以同数据、同选择状态做浅深色截图，两组 PNG 与迁移前字节一致；其他仅数据/事件及类型路径调整不重复逐页截图。"
+    },
+    "pages/members/member_adjust_controller.dart": {
+      "batch": "memberOperationsBatch",
+      "behavior": "显式传入会员；调整、回访和筛选草稿与提醒数据均由页面实例持有。取消不应用筛选；保存直接调用接口，成功通过 memberChanged 通知刷新。无未登录示例数据回退。",
+      "tests": "类型移位与只读快照调整后，会员/状态隔离/资料/预约/订单/迁移守卫最终 107 项全部通过；交互/迁移守卫 24 项通过，批次存在重叠，不相加为唯一总量。此前受影响跨页面检查的唯一旧预览夹具失败已修正并复测。flutter analyze 无问题，git diff --check 通过；筛选两组浅深色截图与同数据基线字节一致；未运行全量套件。",
+      "visual": "沿用原布局；共享多选与筛选弹层以同数据、同选择状态做浅深色截图，两组 PNG 与迁移前字节一致；其他仅数据/事件及类型路径调整不重复逐页截图。"
+    },
+    "pages/members/member_filter_controller.dart": {
+      "batch": "memberOperationsBatch",
+      "behavior": "显式传入会员；调整、回访和筛选草稿与提醒数据均由页面实例持有。取消不应用筛选；保存直接调用接口，成功通过 memberChanged 通知刷新。无未登录示例数据回退。",
+      "tests": "类型移位与只读快照调整后，会员/状态隔离/资料/预约/订单/迁移守卫最终 107 项全部通过；交互/迁移守卫 24 项通过，批次存在重叠，不相加为唯一总量。此前受影响跨页面检查的唯一旧预览夹具失败已修正并复测。flutter analyze 无问题，git diff --check 通过；筛选两组浅深色截图与同数据基线字节一致；未运行全量套件。",
+      "visual": "沿用原布局；共享多选与筛选弹层以同数据、同选择状态做浅深色截图，两组 PNG 与迁移前字节一致；其他仅数据/事件及类型路径调整不重复逐页截图。"
+    },
+    "pages/members/member_reminder_controller.dart": {
+      "batch": "memberOperationsBatch",
+      "behavior": "显式传入会员；调整、回访和筛选草稿与提醒数据均由页面实例持有。取消不应用筛选；保存直接调用接口，成功通过 memberChanged 通知刷新。无未登录示例数据回退。",
+      "tests": "类型移位与只读快照调整后，会员/状态隔离/资料/预约/订单/迁移守卫最终 107 项全部通过；交互/迁移守卫 24 项通过，批次存在重叠，不相加为唯一总量。此前受影响跨页面检查的唯一旧预览夹具失败已修正并复测。flutter analyze 无问题，git diff --check 通过；筛选两组浅深色截图与同数据基线字节一致；未运行全量套件。",
+      "visual": "沿用原布局；共享多选与筛选弹层以同数据、同选择状态做浅深色截图，两组 PNG 与迁移前字节一致；其他仅数据/事件及类型路径调整不重复逐页截图。"
+    },
+    "pages/members/member_visit_controller.dart": {
+      "batch": "memberOperationsBatch",
+      "behavior": "显式传入会员；调整、回访和筛选草稿与提醒数据均由页面实例持有。取消不应用筛选；保存直接调用接口，成功通过 memberChanged 通知刷新。无未登录示例数据回退。",
+      "tests": "类型移位与只读快照调整后，会员/状态隔离/资料/预约/订单/迁移守卫最终 107 项全部通过；交互/迁移守卫 24 项通过，批次存在重叠，不相加为唯一总量。此前受影响跨页面检查的唯一旧预览夹具失败已修正并复测。flutter analyze 无问题，git diff --check 通过；筛选两组浅深色截图与同数据基线字节一致；未运行全量套件。",
+      "visual": "沿用原布局；共享多选与筛选弹层以同数据、同选择状态做浅深色截图，两组 PNG 与迁移前字节一致；其他仅数据/事件及类型路径调整不重复逐页截图。"
+    },
+    "pages/members/reminder_widgets.dart": {
+      "batch": "memberOperationsBatch",
+      "behavior": "显式传入会员；调整、回访和筛选草稿与提醒数据均由页面实例持有。取消不应用筛选；保存直接调用接口，成功通过 memberChanged 通知刷新。无未登录示例数据回退。",
+      "tests": "类型移位与只读快照调整后，会员/状态隔离/资料/预约/订单/迁移守卫最终 107 项全部通过；交互/迁移守卫 24 项通过，批次存在重叠，不相加为唯一总量。此前受影响跨页面检查的唯一旧预览夹具失败已修正并复测。flutter analyze 无问题，git diff --check 通过；筛选两组浅深色截图与同数据基线字节一致；未运行全量套件。",
+      "visual": "沿用原布局；共享多选与筛选弹层以同数据、同选择状态做浅深色截图，两组 PNG 与迁移前字节一致；其他仅数据/事件及类型路径调整不重复逐页截图。"
+    },
+    "pages/members/visit_history.dart": {
+      "batch": "memberOperationsBatch",
+      "behavior": "显式传入会员；调整、回访和筛选草稿与提醒数据均由页面实例持有。取消不应用筛选；保存直接调用接口，成功通过 memberChanged 通知刷新。无未登录示例数据回退。",
+      "tests": "类型移位与只读快照调整后，会员/状态隔离/资料/预约/订单/迁移守卫最终 107 项全部通过；交互/迁移守卫 24 项通过，批次存在重叠，不相加为唯一总量。此前受影响跨页面检查的唯一旧预览夹具失败已修正并复测。flutter analyze 无问题，git diff --check 通过；筛选两组浅深色截图与同数据基线字节一致；未运行全量套件。",
+      "visual": "沿用原布局；共享多选与筛选弹层以同数据、同选择状态做浅深色截图，两组 PNG 与迁移前字节一致；其他仅数据/事件及类型路径调整不重复逐页截图。"
+    },
+    "pages/members/member_models.dart": {
+      "batch": "memberOperationsBatch",
+      "behavior": "显式传入会员；调整、回访和筛选草稿与提醒数据均由页面实例持有。取消不应用筛选；保存直接调用接口，成功通过 memberChanged 通知刷新。无未登录示例数据回退。",
+      "tests": "类型移位与只读快照调整后，会员/状态隔离/资料/预约/订单/迁移守卫最终 107 项全部通过；交互/迁移守卫 24 项通过，批次存在重叠，不相加为唯一总量。此前受影响跨页面检查的唯一旧预览夹具失败已修正并复测。flutter analyze 无问题，git diff --check 通过；筛选两组浅深色截图与同数据基线字节一致；未运行全量套件。",
+      "visual": "沿用原布局；共享多选与筛选弹层以同数据、同选择状态做浅深色截图，两组 PNG 与迁移前字节一致；其他仅数据/事件及类型路径调整不重复逐页截图。"
+    },
+    "pages/scan/find_not_found_sheet.dart": {
+      "batch": "checkoutHoldScanBatch",
+      "behavior": "编辑目标、取单快照、扫码结果和真实收银回执显式传递；状态由页面实例持有，失败重试沿用请求标识；没有通用控件业务猜测或未登录示例回退。",
+      "tests": "订单/挂单/扫码等受影响批次 211 项通过，修正旧预览夹具和补齐显式回调后 35 项通过；共享清理后全量 616 项中 611 通过，5 项旧选择夹具已修正，相关三组 23 项复测通过；缓存补强后状态 12 项通过，挂单/首页/重启/守卫另 34 项通过。批次交叉，不相加为唯一数量。",
+      "visual": "挂单共享概况、页签和卡片的浅深色两组截图与迁移前同数据基线 PNG 字节一致；其余路径、字段与事件变更按策略不逐页重复截图。"
+    },
+    "pages/scan/find_result_sheet.dart": {
+      "batch": "checkoutHoldScanBatch",
+      "behavior": "编辑目标、取单快照、扫码结果和真实收银回执显式传递；状态由页面实例持有，失败重试沿用请求标识；没有通用控件业务猜测或未登录示例回退。",
+      "tests": "订单/挂单/扫码等受影响批次 211 项通过，修正旧预览夹具和补齐显式回调后 35 项通过；共享清理后全量 616 项中 611 通过，5 项旧选择夹具已修正，相关三组 23 项复测通过；缓存补强后状态 12 项通过，挂单/首页/重启/守卫另 34 项通过。批次交叉，不相加为唯一数量。",
+      "visual": "挂单共享概况、页签和卡片的浅深色两组截图与迁移前同数据基线 PNG 字节一致；其余路径、字段与事件变更按策略不逐页重复截图。"
+    },
+    "pages/orders/hold_list_page.dart": {
+      "batch": "checkoutHoldScanBatch",
+      "behavior": "编辑目标、取单快照、扫码结果和真实收银回执显式传递；状态由页面实例持有，失败重试沿用请求标识；没有通用控件业务猜测或未登录示例回退。",
+      "tests": "订单/挂单/扫码等受影响批次 211 项通过，修正旧预览夹具和补齐显式回调后 35 项通过；共享清理后全量 616 项中 611 通过，5 项旧选择夹具已修正，相关三组 23 项复测通过；缓存补强后状态 12 项通过，挂单/首页/重启/守卫另 34 项通过。批次交叉，不相加为唯一数量。",
+      "visual": "挂单共享概况、页签和卡片的浅深色两组截图与迁移前同数据基线 PNG 字节一致；其余路径、字段与事件变更按策略不逐页重复截图。"
+    },
+    "pages/orders/hold_sheet_sheet.dart": {
+      "batch": "checkoutHoldScanBatch",
+      "behavior": "编辑目标、取单快照、扫码结果和真实收银回执显式传递；状态由页面实例持有，失败重试沿用请求标识；没有通用控件业务猜测或未登录示例回退。",
+      "tests": "订单/挂单/扫码等受影响批次 211 项通过，修正旧预览夹具和补齐显式回调后 35 项通过；共享清理后全量 616 项中 611 通过，5 项旧选择夹具已修正，相关三组 23 项复测通过；缓存补强后状态 12 项通过，挂单/首页/重启/守卫另 34 项通过。批次交叉，不相加为唯一数量。",
+      "visual": "挂单共享概况、页签和卡片的浅深色两组截图与迁移前同数据基线 PNG 字节一致；其余路径、字段与事件变更按策略不逐页重复截图。"
+    },
+    "pages/orders/pay_success_page.dart": {
+      "batch": "checkoutHoldScanBatch",
+      "behavior": "编辑目标、取单快照、扫码结果和真实收银回执显式传递；状态由页面实例持有，失败重试沿用请求标识；没有通用控件业务猜测或未登录示例回退。",
+      "tests": "订单/挂单/扫码等受影响批次 211 项通过，修正旧预览夹具和补齐显式回调后 35 项通过；共享清理后全量 616 项中 611 通过，5 项旧选择夹具已修正，相关三组 23 项复测通过；缓存补强后状态 12 项通过，挂单/首页/重启/守卫另 34 项通过。批次交叉，不相加为唯一数量。",
+      "visual": "挂单共享概况、页签和卡片的浅深色两组截图与迁移前同数据基线 PNG 字节一致；其余路径、字段与事件变更按策略不逐页重复截图。"
+    },
+    "pages/orders/order_page.dart": {
+      "batch": "checkoutHoldScanBatch",
+      "behavior": "编辑目标、取单快照、扫码结果和真实收银回执显式传递；状态由页面实例持有，失败重试沿用请求标识；没有通用控件业务猜测或未登录示例回退。",
+      "tests": "订单/挂单/扫码等受影响批次 211 项通过，修正旧预览夹具和补齐显式回调后 35 项通过；共享清理后全量 616 项中 611 通过，5 项旧选择夹具已修正，相关三组 23 项复测通过；缓存补强后状态 12 项通过，挂单/首页/重启/守卫另 34 项通过。批次交叉，不相加为唯一数量。",
+      "visual": "挂单共享概况、页签和卡片的浅深色两组截图与迁移前同数据基线 PNG 字节一致；其余路径、字段与事件变更按策略不逐页重复截图。"
+    },
+    "pages/scan/plate_scan_result_live_sheet.dart": {
+      "batch": "checkoutHoldScanBatch",
+      "behavior": "编辑目标、取单快照、扫码结果和真实收银回执显式传递；状态由页面实例持有，失败重试沿用请求标识；没有通用控件业务猜测或未登录示例回退。",
+      "tests": "订单/挂单/扫码等受影响批次 211 项通过，修正旧预览夹具和补齐显式回调后 35 项通过；共享清理后全量 616 项中 611 通过，5 项旧选择夹具已修正，相关三组 23 项复测通过；缓存补强后状态 12 项通过，挂单/首页/重启/守卫另 34 项通过。批次交叉，不相加为唯一数量。",
+      "visual": "挂单共享概况、页签和卡片的浅深色两组截图与迁移前同数据基线 PNG 字节一致；其余路径、字段与事件变更按策略不逐页重复截图。"
+    },
+    "pages/scan/scan_page.dart": {
+      "batch": "checkoutHoldScanBatch",
+      "behavior": "编辑目标、取单快照、扫码结果和真实收银回执显式传递；状态由页面实例持有，失败重试沿用请求标识；没有通用控件业务猜测或未登录示例回退。",
+      "tests": "订单/挂单/扫码等受影响批次 211 项通过，修正旧预览夹具和补齐显式回调后 35 项通过；共享清理后全量 616 项中 611 通过，5 项旧选择夹具已修正，相关三组 23 项复测通过；缓存补强后状态 12 项通过，挂单/首页/重启/守卫另 34 项通过。批次交叉，不相加为唯一数量。",
+      "visual": "挂单共享概况、页签和卡片的浅深色两组截图与迁移前同数据基线 PNG 字节一致；其余路径、字段与事件变更按策略不逐页重复截图。"
+    },
+    "pages/orders/hold_board.dart": {
+      "batch": "checkoutHoldScanBatch",
+      "behavior": "编辑目标、取单快照、扫码结果和真实收银回执显式传递；状态由页面实例持有，失败重试沿用请求标识；没有通用控件业务猜测或未登录示例回退。",
+      "tests": "订单/挂单/扫码等受影响批次 211 项通过，修正旧预览夹具和补齐显式回调后 35 项通过；共享清理后全量 616 项中 611 通过，5 项旧选择夹具已修正，相关三组 23 项复测通过；缓存补强后状态 12 项通过，挂单/首页/重启/守卫另 34 项通过。批次交叉，不相加为唯一数量。",
+      "visual": "挂单共享概况、页签和卡片的浅深色两组截图与迁移前同数据基线 PNG 字节一致；其余路径、字段与事件变更按策略不逐页重复截图。"
+    },
+    "pages/orders/hold_controller.dart": {
+      "batch": "checkoutHoldScanBatch",
+      "behavior": "编辑目标、取单快照、扫码结果和真实收银回执显式传递；状态由页面实例持有，失败重试沿用请求标识；没有通用控件业务猜测或未登录示例回退。",
+      "tests": "订单/挂单/扫码等受影响批次 211 项通过，修正旧预览夹具和补齐显式回调后 35 项通过；共享清理后全量 616 项中 611 通过，5 项旧选择夹具已修正，相关三组 23 项复测通过；缓存补强后状态 12 项通过，挂单/首页/重启/守卫另 34 项通过。批次交叉，不相加为唯一数量。",
+      "visual": "挂单共享概况、页签和卡片的浅深色两组截图与迁移前同数据基线 PNG 字节一致；其余路径、字段与事件变更按策略不逐页重复截图。"
+    },
+    "pages/orders/hold_draft.dart": {
+      "batch": "checkoutHoldScanBatch",
+      "behavior": "编辑目标、取单快照、扫码结果和真实收银回执显式传递；状态由页面实例持有，失败重试沿用请求标识；没有通用控件业务猜测或未登录示例回退。",
+      "tests": "订单/挂单/扫码等受影响批次 211 项通过，修正旧预览夹具和补齐显式回调后 35 项通过；共享清理后全量 616 项中 611 通过，5 项旧选择夹具已修正，相关三组 23 项复测通过；缓存补强后状态 12 项通过，挂单/首页/重启/守卫另 34 项通过。批次交叉，不相加为唯一数量。",
+      "visual": "挂单共享概况、页签和卡片的浅深色两组截图与迁移前同数据基线 PNG 字节一致；其余路径、字段与事件变更按策略不逐页重复截图。"
+    },
+    "pages/orders/order_checkout.dart": {
+      "batch": "checkoutHoldScanBatch",
+      "behavior": "编辑目标、取单快照、扫码结果和真实收银回执显式传递；状态由页面实例持有，失败重试沿用请求标识；没有通用控件业务猜测或未登录示例回退。",
+      "tests": "订单/挂单/扫码等受影响批次 211 项通过，修正旧预览夹具和补齐显式回调后 35 项通过；共享清理后全量 616 项中 611 通过，5 项旧选择夹具已修正，相关三组 23 项复测通过；缓存补强后状态 12 项通过，挂单/首页/重启/守卫另 34 项通过。批次交叉，不相加为唯一数量。",
+      "visual": "挂单共享概况、页签和卡片的浅深色两组截图与迁移前同数据基线 PNG 字节一致；其余路径、字段与事件变更按策略不逐页重复截图。"
+    },
+    "pages/orders/order_receipt_view.dart": {
+      "batch": "checkoutHoldScanBatch",
+      "behavior": "编辑目标、取单快照、扫码结果和真实收银回执显式传递；状态由页面实例持有，失败重试沿用请求标识；没有通用控件业务猜测或未登录示例回退。",
+      "tests": "订单/挂单/扫码等受影响批次 211 项通过，修正旧预览夹具和补齐显式回调后 35 项通过；共享清理后全量 616 项中 611 通过，5 项旧选择夹具已修正，相关三组 23 项复测通过；缓存补强后状态 12 项通过，挂单/首页/重启/守卫另 34 项通过。批次交叉，不相加为唯一数量。",
+      "visual": "挂单共享概况、页签和卡片的浅深色两组截图与迁移前同数据基线 PNG 字节一致；其余路径、字段与事件变更按策略不逐页重复截图。"
+    },
+    "pages/orders/order_route_data.dart": {
+      "batch": "checkoutHoldScanBatch",
+      "behavior": "编辑目标、取单快照、扫码结果和真实收银回执显式传递；状态由页面实例持有，失败重试沿用请求标识；没有通用控件业务猜测或未登录示例回退。",
+      "tests": "订单/挂单/扫码等受影响批次 211 项通过，修正旧预览夹具和补齐显式回调后 35 项通过；共享清理后全量 616 项中 611 通过，5 项旧选择夹具已修正，相关三组 23 项复测通过；缓存补强后状态 12 项通过，挂单/首页/重启/守卫另 34 项通过。批次交叉，不相加为唯一数量。",
+      "visual": "挂单共享概况、页签和卡片的浅深色两组截图与迁移前同数据基线 PNG 字节一致；其余路径、字段与事件变更按策略不逐页重复截图。"
+    },
+    "pages/scan/scan_result.dart": {
+      "batch": "checkoutHoldScanBatch",
+      "behavior": "编辑目标、取单快照、扫码结果和真实收银回执显式传递；状态由页面实例持有，失败重试沿用请求标识；没有通用控件业务猜测或未登录示例回退。",
+      "tests": "订单/挂单/扫码等受影响批次 211 项通过，修正旧预览夹具和补齐显式回调后 35 项通过；共享清理后全量 616 项中 611 通过，5 项旧选择夹具已修正，相关三组 23 项复测通过；缓存补强后状态 12 项通过，挂单/首页/重启/守卫另 34 项通过。批次交叉，不相加为唯一数量。",
+      "visual": "挂单共享概况、页签和卡片的浅深色两组截图与迁移前同数据基线 PNG 字节一致；其余路径、字段与事件变更按策略不逐页重复截图。"
+    },
+    "pages/orders/order_live_pages.dart": {
+      "batch": "orderCenterBatch",
+      "state": "显式订单目标、实例列表/筛选、独立退款快照与请求标识；状态/流程/路由及会员回归 135 项通过，静态分析无问题。保留既有布局；不重复逐页截图。"
+    },
+    "pages/orders/order_detail_ref.dart": {
+      "batch": "orderCenterBatch",
+      "state": "显式订单目标、实例列表/筛选、独立退款快照与请求标识；状态/流程/路由及会员回归 135 项通过，静态分析无问题。保留既有布局；不重复逐页截图。"
+    },
+    "pages/orders/order_list_controller.dart": {
+      "batch": "orderCenterBatch",
+      "state": "显式订单目标、实例列表/筛选、独立退款快照与请求标识；状态/流程/路由及会员回归 135 项通过，静态分析无问题。保留既有布局；不重复逐页截图。"
+    },
+    "pages/orders/order_refund_controller.dart": {
+      "batch": "orderCenterBatch",
+      "state": "显式订单目标、实例列表/筛选、独立退款快照与请求标识；状态/流程/路由及会员回归 135 项通过，静态分析无问题。保留既有布局；不重复逐页截图。"
+    },
+    "pages/staff_app/st_member_template.dart": {
+      "batch": "staffMemberOrderBatch",
+      "state": "显式会员ID、查询/估价状态与提交锁归实例；核销短信复用统一控制器，扫码回调明确进入员工路由。待收银真实计数，已收历史缺少接口明确阻止；假数值和旧选择器已删除。受影响业务97项与共享async_kit包7项全部通过，静态分析无问题。原布局与配色保留，无需逐页截图。"
+    },
+    "pages/staff_app/st_member_info_template.dart": {
+      "batch": "staffMemberOrderBatch",
+      "state": "显式会员ID、查询/估价状态与提交锁归实例；核销短信复用统一控制器，扫码回调明确进入员工路由。待收银真实计数，已收历史缺少接口明确阻止；假数值和旧选择器已删除。受影响业务97项与共享async_kit包7项全部通过，静态分析无问题。原布局与配色保留，无需逐页截图。"
+    },
+    "pages/staff_app/st_order_template.dart": {
+      "batch": "staffMemberOrderBatch",
+      "state": "显式会员ID、查询/估价状态与提交锁归实例；核销短信复用统一控制器，扫码回调明确进入员工路由。待收银真实计数，已收历史缺少接口明确阻止；假数值和旧选择器已删除。受影响业务97项与共享async_kit包7项全部通过，静态分析无问题。原布局与配色保留，无需逐页截图。"
+    },
+    "pages/staff_app/st_redeem_sheet.dart": {
+      "batch": "staffMemberOrderBatch",
+      "state": "显式会员ID、查询/估价状态与提交锁归实例；核销短信复用统一控制器，扫码回调明确进入员工路由。待收银真实计数，已收历史缺少接口明确阻止；假数值和旧选择器已删除。受影响业务97项与共享async_kit包7项全部通过，静态分析无问题。原布局与配色保留，无需逐页截图。"
+    },
+    "pages/staff_app/st_cash_queue_template.dart": {
+      "batch": "staffMemberOrderBatch",
+      "state": "显式会员ID、查询/估价状态与提交锁归实例；核销短信复用统一控制器，扫码回调明确进入员工路由。待收银真实计数，已收历史缺少接口明确阻止；假数值和旧选择器已删除。受影响业务97项与共享async_kit包7项全部通过，静态分析无问题。原布局与配色保留，无需逐页截图。"
+    },
+    "pages/staff_app/st_member_route_data.dart": {
+      "batch": "staffMemberOrderBatch",
+      "state": "显式会员ID、查询/估价状态与提交锁归实例；核销短信复用统一控制器，扫码回调明确进入员工路由。待收银真实计数，已收历史缺少接口明确阻止；假数值和旧选择器已删除。受影响业务97项与共享async_kit包7项全部通过，静态分析无问题。原布局与配色保留，无需逐页截图。"
+    },
+    "pages/staff_app/st_order_controller.dart": {
+      "batch": "staffMemberOrderBatch",
+      "state": "显式会员ID、查询/估价状态与提交锁归实例；核销短信复用统一控制器，扫码回调明确进入员工路由。待收银真实计数，已收历史缺少接口明确阻止；假数值和旧选择器已删除。受影响业务97项与共享async_kit包7项全部通过，静态分析无问题。原布局与配色保留，无需逐页截图。"
+    },
+    "pages/expenses/budget_adjust_live_template.dart": {
+      "batch": "expenseBatch",
+      "state": "字段/选择/开关/目标由具体页面显式提供，状态与请求标识归实例。最终支出/状态/迁移守卫40项及共享包9项通过；新增表单和分类预算4组浅深色同状态截图与迁移前字节一致。"
+    },
+    "pages/expenses/budget_edit_live_template.dart": {
+      "batch": "expenseBatch",
+      "state": "字段/选择/开关/目标由具体页面显式提供，状态与请求标识归实例。最终支出/状态/迁移守卫40项及共享包9项通过；新增表单和分类预算4组浅深色同状态截图与迁移前字节一致。"
+    },
+    "pages/expenses/budget_total_live_template.dart": {
+      "batch": "expenseBatch",
+      "state": "字段/选择/开关/目标由具体页面显式提供，状态与请求标识归实例。最终支出/状态/迁移守卫40项及共享包9项通过；新增表单和分类预算4组浅深色同状态截图与迁移前字节一致。"
+    },
+    "pages/expenses/expenses_live_template.dart": {
+      "batch": "expenseBatch",
+      "state": "字段/选择/开关/目标由具体页面显式提供，状态与请求标识归实例。最终支出/状态/迁移守卫40项及共享包9项通过；新增表单和分类预算4组浅深色同状态截图与迁移前字节一致。"
+    },
+    "pages/expenses/expense_add_live_template.dart": {
+      "batch": "expenseBatch",
+      "state": "字段/选择/开关/目标由具体页面显式提供，状态与请求标识归实例。最终支出/状态/迁移守卫40项及共享包9项通过；新增表单和分类预算4组浅深色同状态截图与迁移前字节一致。"
+    },
+    "pages/expenses/expense_allocation_template.dart": {
+      "batch": "expenseBatch",
+      "state": "字段/选择/开关/目标由具体页面显式提供，状态与请求标识归实例。最终支出/状态/迁移守卫40项及共享包9项通过；新增表单和分类预算4组浅深色同状态截图与迁移前字节一致。"
+    },
+    "pages/expenses/expense_budget_live_template.dart": {
+      "batch": "expenseBatch",
+      "state": "字段/选择/开关/目标由具体页面显式提供，状态与请求标识归实例。最终支出/状态/迁移守卫40项及共享包9项通过；新增表单和分类预算4组浅深色同状态截图与迁移前字节一致。"
+    },
+    "pages/expenses/expense_category_template.dart": {
+      "batch": "expenseBatch",
+      "state": "字段/选择/开关/目标由具体页面显式提供，状态与请求标识归实例。最终支出/状态/迁移守卫40项及共享包9项通过；新增表单和分类预算4组浅深色同状态截图与迁移前字节一致。"
+    },
+    "pages/expenses/expense_controller.dart": {
+      "batch": "expenseBatch",
+      "state": "字段/选择/开关/目标由具体页面显式提供，状态与请求标识归实例。最终支出/状态/迁移守卫40项及共享包9项通过；新增表单和分类预算4组浅深色同状态截图与迁移前字节一致。"
+    },
+    "pages/expenses/expense_detail_live_template.dart": {
+      "batch": "expenseBatch",
+      "state": "字段/选择/开关/目标由具体页面显式提供，状态与请求标识归实例。最终支出/状态/迁移守卫40项及共享包9项通过；新增表单和分类预算4组浅深色同状态截图与迁移前字节一致。"
+    },
+    "pages/expenses/expense_entry_template.dart": {
+      "batch": "expenseBatch",
+      "state": "字段/选择/开关/目标由具体页面显式提供，状态与请求标识归实例。最终支出/状态/迁移守卫40项及共享包9项通过；新增表单和分类预算4组浅深色同状态截图与迁移前字节一致。"
+    },
+    "pages/expenses/expense_live_page.dart": {
+      "batch": "expenseBatch",
+      "state": "字段/选择/开关/目标由具体页面显式提供，状态与请求标识归实例。最终支出/状态/迁移守卫40项及共享包9项通过；新增表单和分类预算4组浅深色同状态截图与迁移前字节一致。"
+    },
+    "pages/expenses/expense_view.dart": {
+      "batch": "expenseBatch",
+      "state": "字段/选择/开关/目标由具体页面显式提供，状态与请求标识归实例。最终支出/状态/迁移守卫40项及共享包9项通过；新增表单和分类预算4组浅深色同状态截图与迁移前字节一致。"
+    },
+    "pages/expenses/expense_widgets.dart": {
+      "batch": "expenseBatch",
+      "state": "字段/选择/开关/目标由具体页面显式提供，状态与请求标识归实例。最终支出/状态/迁移守卫40项及共享包9项通过；新增表单和分类预算4组浅深色同状态截图与迁移前字节一致。"
+    }
+  },
+  "verification": {
+    "analysis": "最终flutter analyze --no-pub无问题；git diff --check通过。",
+    "fullSuite": "最终商户App全量693项全部通过（apps/merchant/build/final-all.log）。",
+    "next": "本次迁移无剩余事项。后续按普通源码迭代；既定TODO与渠道限制保持，不扩大后端范围。",
+    "affectedTests": "本批保留业务实际执行 117 项通过（员工路径拼写错误后另行补跑）；员工/注册表/placeholder/会员 186 项通过；登录/会员/迁移检查 52 项通过。批次有重叠，不合计为唯一数量。",
+    "componentPackage": "共享async_kit组件包9项全部通过（apps/merchant/build/final-async-kit.log）。",
+    "appBuild": "flutter build apk --release --no-pub成功；APK签名验证通过，包名/版本/三种ABI均已核对。当前工程使用Android Debug签名，仅为本地构建验证，未做真机验收。"
+  },
+  "removed": [
+    {
+      "path": "pages/gen/category_manage_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/scan_product_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/stock_alert_settings_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/stock_check_new_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/stock_check_result_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/stock_docs_check_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/stock_docs_out_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/stock_docs_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/stock_in_detail_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/stock_out_detail_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/supplier_edit_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/account/store_add_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/pay_apply_bind_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/pay_apply_done_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/pay_apply_intro_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/pay_apply_rejected_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/pay_apply_review_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/pay_apply_reviewing_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/pay_apply_sign_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/pay_apply_step1_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/pay_apply_step2_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/pay_apply_step3_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/pay_apply_step4_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/pay_config_unopened_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/order_detail_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/order_list_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/appointment_detail_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/appointment_schedule_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/appointment_settings_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/backup_content_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/backup_sent_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/backup_target_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/bay_edit_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/bind_done_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/bind_h5_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/budget_edit_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/budget_total_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/business_hours_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/card_packages_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/card_tiers_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/channel_config_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/check_update_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/data_backup_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/expense_add_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/expense_budget_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/expense_detail_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/expenses_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/holiday_edit_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/invoices_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/main_expiring_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/main_trial_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/member_records_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/messages_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/notify_log_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/notify_settings_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/notify_template_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/pay_config_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/plan_checkout_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/plan_expired_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/plan_paid_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/plans_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/printer_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/product_detail_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/renew_paid_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/role_permission_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/staff_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/staff_add_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/staff_commission_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/staff_detail_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/staff_detail_off_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/staff_edit_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/staff_invite_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/staff_records_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/stock_check_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/stock_in_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/stock_out_page.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/store_q_r_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/subscription_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/wechat_bind_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/product_picker_sheet.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/scan_product_not_found_sheet.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/scan_product_result_sheet.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/stock_check_input_sheet.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/stock_out_short_sheet.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/stock_void_sheet.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/supplier_picker_sheet.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/order_filter_sheet.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/appointment_reschedule_sheet.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/backup_freq_sheet.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/bind_invite_sheet.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/budget_adjust_sheet.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/coupon_sheet_sheet.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/default_pay_sheet.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/disable_staff_sheet.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/export_sheet_sheet.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/package_svc_pick_sheet.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/renew_sheet.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/scan_plate_result_sheet.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/staff_enable_sheet.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/staff_transfer_sheet.dart",
+      "reason": "duplicate",
+      "evidence": "routes.dart 显式覆盖且原页仅由旧注册表导入"
+    },
+    {
+      "path": "pages/gen/store_switch_sheet.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen_st/gen_routes.dart",
+      "reason": "unused_employee_prototype",
+      "evidence": "生产代码无外部导入且员工真实页面已替代"
+    },
+    {
+      "path": "pages/gen_st/st_arrivals_page.dart",
+      "reason": "unused_employee_prototype",
+      "evidence": "生产代码无外部导入且员工真实页面已替代"
+    },
+    {
+      "path": "pages/gen_st/st_auth_fail_page.dart",
+      "reason": "unused_employee_prototype",
+      "evidence": "生产代码无外部导入且员工真实页面已替代"
+    },
+    {
+      "path": "pages/gen_st/st_auth_page.dart",
+      "reason": "unused_employee_prototype",
+      "evidence": "生产代码无外部导入且员工真实页面已替代"
+    },
+    {
+      "path": "pages/gen_st/st_cash_queue_page.dart",
+      "reason": "unused_employee_prototype",
+      "evidence": "生产代码无外部导入且员工真实页面已替代"
+    },
+    {
+      "path": "pages/gen_st/st_done_page.dart",
+      "reason": "unused_employee_prototype",
+      "evidence": "生产代码无外部导入且员工真实页面已替代"
+    },
+    {
+      "path": "pages/gen_st/st_finish_page.dart",
+      "reason": "unused_employee_prototype",
+      "evidence": "生产代码无外部导入且员工真实页面已替代"
+    },
+    {
+      "path": "pages/gen_st/st_front_home_page.dart",
+      "reason": "unused_employee_prototype",
+      "evidence": "生产代码无外部导入且员工真实页面已替代"
+    },
+    {
+      "path": "pages/gen_st/st_home_page.dart",
+      "reason": "unused_employee_prototype",
+      "evidence": "生产代码无外部导入且员工真实页面已替代"
+    },
+    {
+      "path": "pages/gen_st/st_identity_page.dart",
+      "reason": "unused_employee_prototype",
+      "evidence": "生产代码无外部导入且员工真实页面已替代"
+    },
+    {
+      "path": "pages/gen_st/st_member_info_page.dart",
+      "reason": "unused_employee_prototype",
+      "evidence": "生产代码无外部导入且员工真实页面已替代"
+    },
+    {
+      "path": "pages/gen_st/st_member_page.dart",
+      "reason": "unused_employee_prototype",
+      "evidence": "生产代码无外部导入且员工真实页面已替代"
+    },
+    {
+      "path": "pages/gen_st/st_mine_page.dart",
+      "reason": "unused_employee_prototype",
+      "evidence": "生产代码无外部导入且员工真实页面已替代"
+    },
+    {
+      "path": "pages/gen_st/st_msgs_page.dart",
+      "reason": "unused_employee_prototype",
+      "evidence": "生产代码无外部导入且员工真实页面已替代"
+    },
+    {
+      "path": "pages/gen_st/st_no_perm_page.dart",
+      "reason": "unused_employee_prototype",
+      "evidence": "生产代码无外部导入且员工真实页面已替代"
+    },
+    {
+      "path": "pages/gen_st/st_order_page.dart",
+      "reason": "unused_employee_prototype",
+      "evidence": "生产代码无外部导入且员工真实页面已替代"
+    },
+    {
+      "path": "pages/gen_st/st_perf_page.dart",
+      "reason": "unused_employee_prototype",
+      "evidence": "生产代码无外部导入且员工真实页面已替代"
+    },
+    {
+      "path": "pages/gen_st/st_plan_expired_page.dart",
+      "reason": "unused_employee_prototype",
+      "evidence": "生产代码无外部导入且员工真实页面已替代"
+    },
+    {
+      "path": "pages/gen_st/st_progress_sheet.dart",
+      "reason": "unused_employee_prototype",
+      "evidence": "生产代码无外部导入且员工真实页面已替代"
+    },
+    {
+      "path": "pages/gen_st/st_scan_code_sheet.dart",
+      "reason": "unused_employee_prototype",
+      "evidence": "生产代码无外部导入且员工真实页面已替代"
+    },
+    {
+      "path": "pages/gen_st/st_scan_plate_sheet.dart",
+      "reason": "unused_employee_prototype",
+      "evidence": "生产代码无外部导入且员工真实页面已替代"
+    },
+    {
+      "path": "pages/gen_st/st_tasks_page.dart",
+      "reason": "unused_employee_prototype",
+      "evidence": "生产代码无外部导入且员工真实页面已替代"
+    },
+    {
+      "path": "pages/gen_st/st_task_detail_page.dart",
+      "reason": "unused_employee_prototype",
+      "evidence": "生产代码无外部导入且员工真实页面已替代"
+    },
+    {
+      "path": "pages/gen_st/st_verify_code_page.dart",
+      "reason": "unused_employee_prototype",
+      "evidence": "生产代码无外部导入且员工真实页面已替代"
+    },
+    {
+      "path": "pages/gen_st/st_verify_page.dart",
+      "reason": "unused_employee_prototype",
+      "evidence": "生产代码无外部导入且员工真实页面已替代"
+    },
+    {
+      "path": "pages/subscription_live_host.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/store_switch_live_sheet.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/st_plan_expired_template.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "backend/subscription_flow.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "backend/store_flow.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "mock/app_state.dart",
+      "reason": "mvp_removed",
+      "evidence": "用户批准删除一期不用的前端；已实现后端保留"
+    },
+    {
+      "path": "pages/gen/appointment_schedule_body.dart",
+      "reason": "unreferenced_source",
+      "evidence": "main.dart 导入/导出/条件导入闭包中不存在"
+    },
+    {
+      "path": "pages/gen/pay_method_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "无生产导入；支付方式页仅服务已删除的账号订阅流程"
+    },
+    {
+      "path": "pages/members/member_send_msg_page.dart",
+      "reason": "mvp_removed",
+      "evidence": "一期不含短信营销；同时删除会员更多菜单入口与注册路由，员工邀请短信 TODO 保留"
+    },
+    {
+      "path": "pages/scan/find_result_code_sheet.dart",
+      "reason": "unused-mvp-success-template",
+      "evidence": "真实收银只使用本次服务端回执；行驶证 OCR 与会员码解析调用处仍明确 TODO 并阻止，原成功模板没有真实可达调用者"
+    },
+    {
+      "path": "pages/orders/pay_unbound_page.dart",
+      "reason": "unused-mvp-success-template",
+      "evidence": "真实收银只使用本次服务端回执；行驶证 OCR 与会员码解析调用处仍明确 TODO 并阻止，原成功模板没有真实可达调用者"
+    },
+    {
+      "path": "pages/scan/scan_result_sheet.dart",
+      "reason": "unused-mvp-success-template",
+      "evidence": "真实收银只使用本次服务端回执；行驶证 OCR 与会员码解析调用处仍明确 TODO 并阻止，原成功模板没有真实可达调用者"
+    },
+    {
+      "path": "backend/catalog_draft.dart",
+      "reason": "frontend-global-edit-state-replaced",
+      "evidence": "仅商户 Flutter 客户端旧状态/兼容文件；已由页面参数、实例控制器、结果对象或只读缓存替代，不是服务端云函数或数据库代码。"
+    },
+    {
+      "path": "backend/scan_flow.dart",
+      "reason": "frontend-global-edit-state-replaced",
+      "evidence": "仅商户 Flutter 客户端旧状态/兼容文件；已由页面参数、实例控制器、结果对象或只读缓存替代，不是服务端云函数或数据库代码。"
+    },
+    {
+      "path": "backend/hold_flow.dart",
+      "reason": "frontend-global-edit-state-replaced",
+      "evidence": "仅商户 Flutter 客户端旧状态/兼容文件；已由页面参数、实例控制器、结果对象或只读缓存替代，不是服务端云函数或数据库代码。"
+    },
+    {
+      "path": "kit/legacy_control_slots.dart",
+      "reason": "frontend-global-edit-state-replaced",
+      "evidence": "仅商户 Flutter 客户端旧状态/兼容文件；已由页面参数、实例控制器、结果对象或只读缓存替代，不是服务端云函数或数据库代码。"
+    },
+    {
+      "path": "widgets/member_widgets.dart",
+      "reason": "frontend-global-edit-state-replaced",
+      "evidence": "仅商户 Flutter 客户端旧状态/兼容文件；已由页面参数、实例控制器、结果对象或只读缓存替代，不是服务端云函数或数据库代码。"
+    },
+    {
+      "path": "widgets/hold_widgets.dart",
+      "reason": "frontend-global-edit-state-replaced",
+      "evidence": "仅商户 Flutter 客户端旧状态/兼容文件；已由页面参数、实例控制器、结果对象或只读缓存替代，不是服务端云函数或数据库代码。"
+    },
+    {
+      "path": "pages/orders/order_refund_sheet.dart",
+      "reason": "真实退款由 OrderRefundLiveSheet 显式接收订单；原无调用重复模板删除。后端保留。"
+    },
+    {
+      "path": "backend/order_flow.dart",
+      "reason": "客户端全局订单列表/筛选/当前订单已由页面实例控制器和显式参数取代；没有删除服务端能力。"
+    },
+    {
+      "path": "widgets/expense_bindings.dart",
+      "reason": "支出业务移入 pages/expenses，删除样例文字查表、按路由/控件索引分发及共享提交锁；正式调用者全部显式绑定，后端保留。"
+    },
+    {
+      "path": "pages/catalog/service_picker_sheet.dart",
+      "reason": "仅旧注册表引用的样例服务选择模板，无生产调用；开单直接选择真实服务，套餐使用package_service_picker返回真实结果。移除孤立路由。"
+    }
+  ],
+  "cleanupEvidence": {
+    "strategy": "先排除重复和一期不用的前端，再按业务批量迁移，最后集中验收",
+    "removedSourceFiles": 135,
+    "removedReasons": {
+      "duplicate": 55,
+      "mvp_removed": 54,
+      "unused_employee_prototype": 25,
+      "unreferenced_source": 1
+    },
+    "employeePrototypes": "删除前核对 lib 所有 import/export，gen_st 无目录外生产引用；真实员工路由由 staff_tabs、access_pages 和绑定页面提供。",
+    "duplicatePages": "原页面仅由旧注册表导入，生产 routes.dart 已显式覆盖为真实页面/弹层或缺少上下文的错误页；已删除副本及旧注册项。",
+    "retainedScope": "保留当前门店资料编辑、账号、员工工作消息、会员、车辆、收银、预约、库存与支出等一期业务；删除多门店新增/切换、订阅、支付进件、备份、营销、未接通第三方登录等专用前端。",
+    "backend": "本批未修改 supabase/ 或 packages/；已实现后端接口、迁移与权限校验保留。",
+    "directories": "pages/gen、pages/gen_st、pages/st_gen 不存在；保留源码按业务目录组织，实际注册表为 navigation/page_registry.dart。",
+    "remaining": "目录整理不代表整体完成；员工管理与任务链、库存已按业务清理；会员、订单/挂单、支出、其余员工 App 与公共路由/控件仍按 pending 清单继续处理。"
+  },
+  "staffManagementBatch": {
+    "scope": "员工列表、新增、编辑、详情、停用、转交、启用、提成、施工记录、权限与邀请，以及预约资源中的员工编辑宿主",
+    "state": "移除 StaffFlow.currentId/invited/transferTo/permissionRole/presetRole；员工与角色参数经 StaffRouteData 或页面构造函数显式传递；活动表单与按钮提交状态归页面实例",
+    "navigation": "同名员工页面按员工/角色参数判断是否复用，不再从全局字段读取目标",
+    "pending": "员工任务 TaskFlow 已在后续批次清理；员工 App 其他页面、公共路由、会员、订单/挂单与支出等继续按清单处理。",
+    "validation": "员工管理/预约/员工会员/员工任务/隔离与迁移守卫合计 72 项通过；flutter analyze 无问题；git diff --check 通过。没有运行全量套件，留待公共组件清理完成和最终交付。"
+  },
+  "taskBatch": {
+    "scope": "工作台/任务列表/消息打开任务、详情、进度弹层、完工确认与结果",
+    "state": "移除 TaskFlow.currentId/finished，保留刷新信号；导航通过 TaskRouteData 传 ID 和本次服务端完工回执，进度选择控制器由弹层实例持有并释放",
+    "remaining": "staff_tabs 与消息等其余页面仍按清单 pending 继续处理，不能据本批认定员工 App 全部完成",
+    "validation": "员工管理/预约/员工会员/员工任务/隔离与迁移守卫合计 72 项通过；flutter analyze 无问题；git diff --check 通过。没有运行全量套件，留待公共组件清理完成和最终交付。"
+  },
+  "inventoryBatch": {
+    "scope": "商品列表/详情/编辑、分类、供应商、入出库、盘点、单据、预警、扫码与相关弹层",
+    "state": "控制器迁至 pages/inventory；移除示例文字映射与按 action/intent/to 猜测动作，页面显式传值并绑定对应方法；通用 SingleSelection 只持有选择控制器，字段与回调由页面提供",
+    "validation": "91 项相关测试通过；追加生命周期隔离后状态测试 7 项通过；静态分析无问题。未跑全量，按策略留待公共组件清理完成和最终交付。",
+    "remainingTODO": [
+      "库存消息/微信通知渠道尚未接通，明确阻止开启"
+    ],
+    "fixedFailures": [
+      "盘点筛选入口从无动作改为显式筛选当前列表，并沿用现有单选外观",
+      "复用宿主时重置目标控制器；晚到旧单据响应不覆盖新实例；提交错误不落到已替换的页面",
+      "控制器复制调用方商品集合；不同实例提交不共用忙碌键；失败保留输入和幂等请求编号"
+    ]
+  },
+  "memberCoreBatch": {
+    "scope": "会员资料新增/编辑、车辆新增、办卡结果展示、更多菜单/删除、详情刷新与流水读取，以及扫描回填调用者",
+    "state": "表单控制器按实例持有字段、颜色、车牌与提交；移除 MemberFlow 的资料/车辆草稿命令和公共控件中相应路由/示例值推断；会员流水和删除显式接收会员，扫码通过参数或调用者结果返回",
+    "validation": "最终合并相关检查 155 项全部通过；flutter analyze 无问题；git diff --check 通过。只运行受影响检查，没有重复跑全量套件。",
+    "remaining": "订单中心、员工会员/开单与支出已由相应业务批次完成，预约及其余pending页面/公共兼容逻辑继续整批迁移；不能视为整个App完成，最终全量与App构建仍待执行。云函数与数据库未修改。",
+    "remainingTODO": [
+      "车辆提醒缺少配置和触达接口，明确阻止开启",
+      "行驶证 OCR 保持 TODO，车牌识别真实回填",
+      "流水日期筛选缺少 ledger 范围参数，明确阻止"
+    ],
+    "next": "继续整批迁移订单中心列表、详情、筛选和退款；随后支出、预约、其余员工 App 和公共残留逻辑，最后统一全量验收与 App 构建。"
+  },
+  "memberWalletBatch": {
+    "scope": "储值充值/购买次卡/会员选择/套餐选择/收款回执、会员次卡详情/延期/退款及相关会员资料与预约/开单调用者",
+    "state": "WalletController 和 MemberPackageController 按页面持有目标、输入、选择及忙碌状态；WalletReceipt 持有本次服务端结果。会员选择返回明确结果，不轮询全局选择。路由只传参和构建页面，移除充值页签全局状态、路由初始化和通用输入/点击/单选推断。专用组件迁至 pages/members 与其 packages 子目录。",
+    "validation": "223 项相关业务/静态检查通过；追加页面复用和晚到响应后 11 项钱包状态 + 8 项守卫通过；静态分析无问题；未运行全量套件。",
+    "fixedFailures": [
+      "失败重试沿用同一幂等标识，客户端四个记账方法确实传到 invoke 请求层",
+      "收款已成功但资料刷新失败仍返回真实回执，不提示重新收款",
+      "同实例防重复、不同实例独立；参数更换释放旧控制器，旧次卡响应不能覆盖新详情",
+      "套餐弹层选择仅确认后生效，取消不污染调用者；重叠会员弹层搜索独立",
+      "删除无销量数据依据、按首项索引猜测的热卖标签及未登录示例套餐回退"
+    ],
+    "remainingTODO": [
+      "自定义延期天数缺少输入，明确阻止；现有 30/60/90 天真实提交保留",
+      "退款缺少渠道时沿用服务端拒绝，不增加支付渠道或返回假成功"
+    ],
+    "visualEvidence": [
+      {
+        "path": "apps/merchant/build/wallet-visual/false-false-after.png",
+        "sha256": "839780599d16c823803186e9c9b0c4556a1761f5fb5d3c97586691ba9e5469cb"
+      },
+      {
+        "path": "apps/merchant/build/wallet-visual/false-false-before.png",
+        "sha256": "839780599d16c823803186e9c9b0c4556a1761f5fb5d3c97586691ba9e5469cb"
+      },
+      {
+        "path": "apps/merchant/build/wallet-visual/false-true-after.png",
+        "sha256": "38ee91c758bf50b1f2eb1e4ecbeab7ffb39ddebb10a73eb0ea8a21abe7032e04"
+      },
+      {
+        "path": "apps/merchant/build/wallet-visual/false-true-before.png",
+        "sha256": "38ee91c758bf50b1f2eb1e4ecbeab7ffb39ddebb10a73eb0ea8a21abe7032e04"
+      },
+      {
+        "path": "apps/merchant/build/wallet-visual/true-false-after.png",
+        "sha256": "02c2ebf7aad1706bedfab5cf6fcc38fea7ea1d1b045c633bd343e3f755d13a2f"
+      },
+      {
+        "path": "apps/merchant/build/wallet-visual/true-false-before.png",
+        "sha256": "02c2ebf7aad1706bedfab5cf6fcc38fea7ea1d1b045c633bd343e3f755d13a2f"
+      },
+      {
+        "path": "apps/merchant/build/wallet-visual/true-true-after.png",
+        "sha256": "cc8a0152d4daaa7b512ea787e3d4e71b511d24e9f11779f81bfdcc8835a6c4e2"
+      },
+      {
+        "path": "apps/merchant/build/wallet-visual/true-true-before.png",
+        "sha256": "cc8a0152d4daaa7b512ea787e3d4e71b511d24e9f11779f81bfdcc8835a6c4e2"
+      }
+    ],
+    "remaining": "会员调整/回访/提醒/筛选、详情/列表 mock，以及订单/挂单/支出/预约和其余员工 App 调用链仍在清单中 pending，不能据本批认为整体完成。后端和 packages 未改动。"
+  },
+  "memberOperationsBatch": {
+    "scope": "会员调整/回访记录与历史/回访提醒/会员筛选/会员列表与详情/更多菜单，以及相关共享控件和路由",
+    "state": "独立 MemberAdjustController、MemberVisitController、MemberReminderController、MemberFilterController；不可变 MemberFilters 通过弹层返回，只在确认后应用。数据只读模型迁出 mock 目录，真实 memberFromRow 复制只读根快照。删除全局调整/回访/筛选、通用控件按路由/顺序/placeholder 分发、路由初始化，以及 follow_widgets.dart 兼容文件。",
+    "validation": "类型移位与只读快照调整后，会员/状态隔离/资料/预约/订单/迁移守卫最终 107 项全部通过；交互/迁移守卫 24 项通过，批次存在重叠，不相加为唯一总量。此前受影响跨页面检查的唯一旧预览夹具失败已修正并复测。flutter analyze 无问题，git diff --check 通过；筛选两组浅深色截图与同数据基线字节一致；未运行全量套件。",
+    "fixedFailures": [
+      "读取卡种/回访历史/提醒失败不再吞掉错误或退回设计稿样例；通过 AsyncView 展示错误和重试",
+      "同失败调整/回访重试沿用幂等标识，两客户端方法实际向 invoke 转交 requestId；写入成功不额外读取资料来决定是否成功",
+      "多个表单和筛选草稿隔离，取消保留已应用条件；匹配人数的旧响应和销毁后响应不回写",
+      "会员列表异步请求按版本隔离，刷新显示共享进度组件并保留原数据；清空筛选同步清空输入框",
+      "会员详情移除示例车辆、次卡和数字；次卡局部加载改为 AsyncView，可错误重试，旧请求不覆盖新会员"
+    ],
+    "remainingTODO": [
+      "次卡状态/车辆项目筛选缺少列表参数，明确提示并不应用",
+      "养护到期提醒缺少施工规则数据；续卡优惠/生日礼缺少营销与通知渠道，明确阻止",
+      "回访提醒推送缺少通知渠道/发送计划接口；选择日期只保存下次回访日期，提醒方式入口明确说明未接通"
+    ],
+    "visualEvidence": [
+      {
+        "path": "apps/merchant/build/member-operations-visual/filter-false-after.png",
+        "sha256": "14ae98bcde221d257348d1eb1448e4da054932dfdfb3528b20ff1a8ae55d1411"
+      },
+      {
+        "path": "apps/merchant/build/member-operations-visual/filter-false-before.png",
+        "sha256": "14ae98bcde221d257348d1eb1448e4da054932dfdfb3528b20ff1a8ae55d1411"
+      },
+      {
+        "path": "apps/merchant/build/member-operations-visual/filter-true-after.png",
+        "sha256": "166185f34d2f2d9f167508cc57017727b4f778500a632c811fca96fcbc670232"
+      },
+      {
+        "path": "apps/merchant/build/member-operations-visual/filter-true-before.png",
+        "sha256": "166185f34d2f2d9f167508cc57017727b4f778500a632c811fca96fcbc670232"
+      }
+    ],
+    "remaining": "订单中心、员工会员/开单与支出已由相应业务批次完成，预约及其余pending页面/公共兼容逻辑继续整批迁移；不能视为整个App完成，最终全量与App构建仍待执行。云函数与数据库未修改。"
+  },
+  "checkoutHoldScanBatch": {
+    "scope": "开单收银/挂单编辑与列表/取单/扫码找会员与扫描建档的车牌入口/成功回执，以及首页、预约、员工待收银调用者",
+    "state": "OrderCheckout、HoldController 按实例持有提交状态与幂等标识；OrderRouteData、HoldDraft、OrderReceipt、ScanResult 传递独立只读快照；删除 CatalogDraft、MemberFlow 当前会员/最近订单、ScanFlow、挂单编辑事件/全局页签和按路由/文案/控件顺序分发。挂单只保留 HoldStore 只读缓存，区分读取完成和写入失效通知，防止多个列表互相触发请求。",
+    "validation": "共享清理后的全量运行 616 项：611 通过，5 项旧选择控件测试依赖未登录预览或假选等级；已改为真实接口夹具和调用者控制状态，相关 23 项复测通过。后续缓存补强：状态测试 12 项通过，最终挂单/首页/重启/迁移守卫 39 项全部通过；相关原有大批次 211 项通过及修正后 35 项通过，均有重叠，不累加。最终 flutter analyze --no-pub 无问题，git diff --check 通过。未重复跑全量，最终交付时再运行。",
+    "fixedFailures": [
+      "收银失败重试保留原输入并复用请求 ID；真实写入成功不依赖会员刷新成功，结果页只接收本次服务端回执",
+      "会员次卡读取失败阻止收银并提供重试，旧会员响应不能抵扣新会员；页面复用时重新接收目标",
+      "取单保留服务数量和次卡选择，页面总价预览与提交数量一致，仍由服务端计算结算",
+      "挂单取消不影响开单，保存后清空该开单实例；删除失败保留确认弹窗，重试沿用标识",
+      "缓存结果只读，晚到旧请求不能覆盖真实写入；多个挂单列表不发生循环重载",
+      "扫描照片、识别结果归当前页面，等待弹层返回恢复相机，不再轮询路由或写全局结果",
+      "删除未接通行驶证/会员码的成功模板和未绑定支付结果页；删除无渠道依据的自动提醒承诺、未提供真实字段的微信绑定状态前端；门店照片改为明确 TODO，移除全局图片草稿及旧图片兼容控件"
+    ],
+    "remainingTODO": [
+      "行驶证 OCR、商户扫码页会员码解析缺少真实接口，入口明确阻止，员工端已接通扫码保持现状",
+      "挂单通知、提醒取车及门店照片缺少对应渠道/读写接口，明确 TODO，不假装保存或发送",
+      "多技师/工位/预计完工缺少订单持久化字段，选择只归表单，不宣称已保存；工位候选改读真实 options",
+      "预约关联挂单未实现，明确阻止，不丢弃关联后冒充成功"
+    ],
+    "visualEvidence": [
+      {
+        "path": "apps/merchant/build/order-visual/hold-false-after.png",
+        "sha256": "ae6f2652d8cb0125be20494f23d929e10490a01824c4be2ace58ed06df75de32"
+      },
+      {
+        "path": "apps/merchant/build/order-visual/hold-false-before.png",
+        "sha256": "ae6f2652d8cb0125be20494f23d929e10490a01824c4be2ace58ed06df75de32"
+      },
+      {
+        "path": "apps/merchant/build/order-visual/hold-true-after.png",
+        "sha256": "1edd6bdb56dad1ad7ed10f0d99c355ccaa4b717195f50e570e01958f6aa9a05e"
+      },
+      {
+        "path": "apps/merchant/build/order-visual/hold-true-before.png",
+        "sha256": "1edd6bdb56dad1ad7ed10f0d99c355ccaa4b717195f50e570e01958f6aa9a05e"
+      }
+    ],
+    "remaining": "订单中心、员工会员/开单与支出已由相应业务批次完成，预约及其余pending页面/公共兼容逻辑继续整批迁移；不能视为整个App完成，最终全量与App构建仍待执行。云函数与数据库未修改。"
+  },
+  "orderCenterBatch": {
+    "scope": "订单中心列表、汇总、日期/搜索/分页、筛选、详情与整单退款；会员充值流水的详情入口",
+    "state": "OrderListController 归列表实例，筛选通过 OrderFilters 返回，OrderDetailRef 显式传递目标，详情复用重建异步读取。OrderRefundController 独立持有只读订单快照与幂等标识。删除 OrderFlow、OrderRef.current 及无调用重复退款模板；路由无订单业务拦截或全局目标回退。",
+    "validation": "订单/状态/会员/会员操作/注册表/迁移守卫 135 项全部通过；flutter analyze --no-pub 无问题。状态10项覆盖请求层标识转交、列表隔离、旧分页加载锁、搜索防抖与销毁、分页错误重试、详情目标复用、退款类型接口确认、退款快照/重试/销毁、未接通渠道阻止及筛选返回值。没有重复运行全量。",
+    "visual": "保持既有列表、详情、筛选和退款布局，纯字段与回调更换不做逐页截图；微信/支付宝及未知支付方式的退款不再宣称原路已退，现金交还与次卡次数退回使用明确文案。",
+    "remainingTODO": [
+      "order_list 的 refund 未返回原类型；目前只在消费详情明确 notFound 后读取次卡，网络/权限错误直接展示，不按标题猜测。后续接口提供明确原类型后可简化；本批不改后端。",
+      "order_refund 后端目前仅记账；微信/支付宝及未知方式缺少真实渠道闭环，客户端明确阻止提交。现金、储值、次卡记账仍由真实后端执行；部分退款仍明确阻止。"
+    ],
+    "remaining": "订单中心、员工会员/开单与支出已由相应业务批次完成，预约及其余pending页面/公共兼容逻辑继续整批迁移；不能视为整个App完成，最终全量与App构建仍待执行。云函数与数据库未修改。"
+  },
+  "staffMemberOrderBatch": {
+    "scope": "员工会员查询、简况、扫码入口动作、快速开单、更换会员、次卡验证码核销与待收银退回/取单调用链",
+    "state": "删除 StMemberFlow；StMemberRouteData 传会员ID，简况/开单按目标重建读取。首页开单没有目标先查找会员，更换通过返回值取得ID。快速开单 StOrderController 持有选择、备注、估价、提交状态与请求标识；估价失败阻止提交并可重试。核销归独立弹层，短信发送/倒计时使用 SmsCodeController；开单、核销与退回的 busy key 归实例/单据。待收银成功后才移除行，缓存仅在真实写入后失效。",
+    "validation": "员工会员/开单/核销/待收银/任务/员工管理/扫码/订单错误边界/登录短信/迁移守卫共97项全部通过，包含新增状态14项（有重叠不累加）。共享async_kit包7项全部通过，flutter analyze --no-pub无问题，git diff --check通过。原布局与样式子树保留；没有重复运行整个商户App全量或逐页截图。后端未改动。",
+    "remainingTODO": [
+      "staff_order_submit 后端尚未事务幂等。本批明确转发请求标识供后续接入，不能声称服务端已去重；网络/超时/服务异常时保留输入，当前表单阻止盲目重试，要求先联系前台核对。明确业务拒绝可修正后再提交。",
+      "员工会员码解析仍缺少接口，继续明确阻止；车牌扫描沿用真实识别，结果按钮显式进入员工简况/开单；不扩大后端范围。",
+      "staff_cash_queue 没有已收历史/汇总接口，今日已收页签明确阻止，不切换成假列表；样例34笔改为未提供，待收银数量读取真实列表。"
+    ],
+    "sharedFix": "HTTP403/404 原先在附带服务端文案时被错误归为 business；统一错误边界现保留 forbidden/notFound 类型及文案，确保退款类型确认不把权限错误当作不存在。包内边界测试通过，订单状态回归包含真实 fromStatus(404/403) 路径。",
+    "remaining": "订单中心、员工会员/开单与支出已由相应业务批次完成，预约及其余pending页面/公共兼容逻辑继续整批迁移；不能视为整个App完成，最终全量与App构建仍待执行。云函数与数据库未修改。"
+  },
+  "expenseBatch": {
+    "scope": "支出列表、分组和月份筛选、新增/编辑/详情/删除/来源单据/凭证、预算总额/分类/追加/建议/开关及导航入口",
+    "state": "ExpenseController 归页面实例，纯 ExpenseInput 接收 value/onChanged，SingleSelection 由页面明确给当前值与回调；ExpenseFormatting 使用命名字段/计算值，不按样例文字映射。请求体深拷贝并只读提交；同一失败重试复用 X-Request-Id，金额或操作改变后生成新标识，真实后端事务执行幂等/版本校验。删除失败保留确认弹窗和原预算分类，成功后再返回。",
+    "validation": "支出与状态27项全部通过。合并注册表/placeholder/库存状态等检查中146项通过，守卫发现两个无用途月份HHolder容器，移除后最终支出/状态/迁移守卫40项全部通过；批次交叉不累计。共享async_kit包9项通过，静态分析无问题，git diff --check通过。没有重复运行整个App全量。统一输入/选择重点验证新增表单和分类预算浅/深色4组同数据同状态PNG，与迁移前字节一致。",
+    "fixedFailures": [
+      "保存/建议/上传的 busy key 归实例；失败保留输入，销毁后不回写/通知旧表单，写入成功不依赖后续刷新才能返回",
+      "切换详情或月份重建目标，捕获读取目标；加载中收到刷新会继续读取最新月份，最短加载显示期间或错误结束后的刷新也会处理",
+      "删除分类预算采用独立请求快照，失败不提前删草稿；预算开关失败回滚，成功采用服务端revision后可继续编辑",
+      "默认示例分类不再用于无上下文预算入口；追加预算先从真实分类中选择。删除共享层按文案/路由/输入index推断及无用图片key参数"
+    ],
+    "remainingTODO": [
+      "expense_suggest只有沿用上月预算/按上月实际比例，没有营收预测和营收分配接口；按营收比例入口明确阻止，不能用actual冒充",
+      "手机推送渠道未接通，开关继续明确阻止；预算提醒配置仍是真实后端字段，不能宣称已发送推送"
+    ],
+    "sharedChange": "AsyncView新增不含业务的onSettled回调，在成功/失败且loading锁释放后触发，支出宿主用它处理加载中积压的刷新；补测错误后刷新和销毁不回调。",
+    "visualEvidence": [
+      {
+        "path": "apps/merchant/build/expense-after/add-dark.png",
+        "sha256": "183605b021564605fa0e29ea519c83ffa4e2eb702f2cc3a31d5734ab095a8304"
+      },
+      {
+        "path": "apps/merchant/build/expense-after/add-light.png",
+        "sha256": "48ea4dd021182152422ac4d00d82446a4c12fbac062327835a5104f07fc962d7"
+      },
+      {
+        "path": "apps/merchant/build/expense-after/category-dark.png",
+        "sha256": "e3e2c9ed70229ce403ed57968115a876aacb9fabbdf79c13c255545d43de5336"
+      },
+      {
+        "path": "apps/merchant/build/expense-after/category-light.png",
+        "sha256": "700659ae2eb6e3601e8e19e8ff302d3d4433cbcf4d180d3b93463528f0d68999"
+      }
+    ],
+    "remaining": "整个App仍待预约及其余pending业务/共享兼容链路，最终全量与App构建尚未执行。云函数和数据库未修改。"
+  },
+  "bookingBatch": {
+    "scope": "预约列表/排班/新增/详情/改约/取消/到店；预约配置/营业时间/工位；员工列表和新增/编辑共用绑定层的完整调用链",
+    "state": "删除 booking_template_bindings，表单持有独立控制器、动作锁和 MutationRequest；显式绑定初值、选择值与回调，员工使用真实 skills/bay_id。删除 AppointmentFlow 保存/状态命令、StaffFlow 保存转发和按路由生成的 async_action_keys。工位与员工使用独立业务页面类，选择器按实际值返回，不按姓名查找ID。",
+    "validation": "最终预约/状态/员工/按钮loading/选择器76项全部通过，flutter analyze --no-pub无问题。覆盖失败保留输入、重复提交、幂等编号重试、同名技师、预载编辑目标切换、晚到详情与会员查询不得打开旧目标。全量与构建留待剩余业务和公共组件完成。",
+    "retry": "appointment_save后端事务幂等，失败相同内容复用请求编号。新工位及新员工创建后端尚无事务幂等；网络/超时/服务异常导致结果不明时阻止当前表单盲目重试，提示返回列表核对。请求编号仅用于跟踪，不宣称后端去重。",
+    "visual": "工位浅/深色两组同状态PNG与迁移前字节一致。设置页浅/深色差异仅为两个未接通数值由写死0改为—，两处数值区域之外零像素差异；不改变布局样式。纯构造类/导入调整不重复截图。",
+    "remainingTODO": [
+      "通知/提醒/定金支付/迟到计费等缺少真实接口的配置明确阻止，不返回成功",
+      "未接通的设置数值使用—，不展示伪造配置"
+    ],
+    "remaining": "后端云函数和数据库未修改；其他pending业务和共享组件继续处理，整个App最终全量与构建未执行。"
+  },
+  "catalogListsBatch": {
+    "scope": "服务项目、卡种、次卡套餐列表，以及遗留服务/会员选择模板",
+    "changes": [
+      "删除无生产调用的ServicePickerSheet及注册/父路由；保留真实开单与套餐服务选择实现",
+      "删除只在旧测试调用的pickMember示例选择器，测试转为真实接口夹具与pickLiveMember；通用选择器不再依赖mock_data",
+      "ServiceItem迁入业务目录；服务列表移除未登录示例数据并引导登录，刷新积压在读取结束后处理",
+      "卡种/套餐列表使用显式导航回调，未登录显示统一错误边界；骨架计时器随实例释放，真实数据作独立只读快照；规则提交与列表读取互斥，失败仍回滚"
+    ],
+    "validation": "目录列表/缓存/卡种/套餐/交互/加载规范首轮84项通过、2项失败；登录提示补充跳转后，加载规范与注册/placeholder等复测141项通过、1项为同一登录提示剩余分支；全部补齐后，最终目录状态/静态守卫17项全部通过，flutter analyze --no-pub无问题。批次交叉不累加。HTTP状态旧断言已改为保留403/404分类且保留服务端文案，与共享错误边界修复一致。",
+    "visual": "仅替换导航回调和生命周期/数据来源，无布局改动，按策略不重复截图。已登录列表布局保持；未登录不再提供预览。",
+    "backend": "后端未修改；现有真实接口保持。"
+  },
+  "sharedClickBatch": {
+    "scope": "剩余53处页面点击包装与2处共享页头点击；不将此次回调替换当成所有页面已完成业务审计",
+    "changes": [
+      "删除通用hTap及演示Toast/结果路由判断；页面和页头直接提供onTap、返回或导航回调",
+      "无动作的预约行移除空点击包装；门店地图导航缺少渠道明确TODO并阻止",
+      "前台工作台无待收银权限时不请求；有权限时队列读取失败进入统一错误/重试，不再吞错后伪装成无队列"
+    ],
+    "validation": "共享点击调整后，整个商户App全量669项全部通过，flutter analyze --no-pub无问题；git diff --check通过。后端与数据库未修改。不是整个迁移的最终验收，仍有22项pending。",
+    "remaining": "共享字段类型分发、旧无调用控件、身份全局选择数据、统计样例及其余pending页面仍需审计；后端与数据库未改动。"
+  },
+  "remainingAppBatch": {
+    "scope": "员工工作台/任务列表/到店/业绩/消息/我的；身份选择/加入/无权限；首页/设置/门店信息/更新日志/外观；公共旧字段与样例分发",
+    "changes": [
+      "删除HInput/HHolder/HStrHolder/HCodeHolder/HSelHolder/HDyn及无调用短信包装；回访日期直接调用pickDate，不经kind/label分发；任务/消息页传单选值和回调",
+      "库存过期阈值不再通过示例文案过滤通知渠道，7/15/30/60天都保留首页卡片、App和微信行；后两项仍明确TODO阻止",
+      "AccessFlow不再持有items/phone选择草稿，身份列表和手机号随页面传递深快照；晚到选择/加入响应不改已销毁页面的会话/导航；Access.context是只读会话快照",
+      "加入确认/全部已读/退出登录按页面实例使用提交键和统一loading；退出失败显示错误并停留，不清除当前身份冒充成功；员工宿主读取期间的刷新在成功/错误解锁后继续处理",
+      "首页与设置的统计/资料/预约刷新各自积压，设置入口必须给route，不再演示回退",
+      "门店信息从现有get_store和appointment_options读取资料/营业时间/活动工位及分类；删除硬编码6张照片、工位6个、营业中、专业版、CG-0021和样例地址电话；无数据明确—；删除一期不用的门店二维码死入口",
+      "统计页今日汇总复用现有home_stats真实金额/订单及上周同日变化；周/月/自定义、分时曲线/收入构成/会员占比没有接口，明确TODO并显示—，不把七日趋势或样例比例套用为其他口径",
+      "生产lib/mock目录删除，唯一保留的视觉会员夹具放test/fixtures；真实主题偏好移至preferences；删除样例历史版本/虚假通知发布项，当前版本读本机构建信息；日期选择使用设备当前日期"
+    ],
+    "validation": "第一组合75项通过；新增状态7项通过；门店/首页/设置/员工/库存合并46项通过；最终状态/注册表/placeholder/导航及静态守卫130项全部通过（批次交叉不累加）。flutter analyze --no-pub与git diff --check通过。没有重复跑App全量；上次共享点击清理时全量669项通过，本轮修改后的最终全量与构建待最终导航/缓存审计完成。",
+    "visual": "统计浅/深色迁移前后四张PNG已渲染并查看；四个AppCard的矩形位置/尺寸在两主题中均完全相同。像素内容刻意不同：清除样例金额、占比和曲线，使用真实值或TODO。其余回调/状态改动保留原布局，不重复逐页截图。门店二维码按一期授权删除。",
+    "visualEvidence": [
+      {
+        "path": "apps/merchant/build/stats-visual/after-dark.png",
+        "sha256": "34ca7b24cb3549b1c58c9f70cf11995948149d6589526e74658fcbaaad9c2e4d"
+      },
+      {
+        "path": "apps/merchant/build/stats-visual/after-light.png",
+        "sha256": "a732593cd735961035d1bc9e18b38d74505be588ad79882c0e70ce7f46e65c88"
+      },
+      {
+        "path": "apps/merchant/build/stats-visual/before-dark.png",
+        "sha256": "3dc4dfa152868d4cf83659a9c6f4f6bab9632223508cde87e8b5d46a4d224f6b"
+      },
+      {
+        "path": "apps/merchant/build/stats-visual/before-light.png",
+        "sha256": "b0bff3adac6fa509b84d6cc034b8a52215c55e7985d8fefe6bed8f859775e320"
+      }
+    ],
+    "remaining": "本批历史剩余的导航/缓存审计与最终验收均已完成，见finalNavigationCacheBatch及completionAudit。"
+  },
+  "finalNavigationCacheBatch": {
+    "changes": [
+      "删除路由内PairPage/_pairs/pairTabs，目录组合视图归pages/catalog，CatalogRoute按导航实例持有页签，返回已有路由仅切换该实例",
+      "导航仍只构造页面、传参和权限入口提示，不调用保存/删除接口；补齐CardPackages与CardTiers相同的入口权限",
+      "ServiceStore按API实例、StoreContext epoch和清空revision隔离，深只读快照；旧请求不得回填或清除新请求的loading",
+      "StoreProfile晚到读取受revision/epoch/API归属约束；删除一期不用的订阅/门店名额适配字段与无调用历史模型，注册服务数量只由真实回执传给成功页",
+      "登录后与老板/店长身份选择后先经过StoreSessionGate，资料失败给统一重试，恢复前不挂载业务页",
+      "供应商编辑使用实例提交键与统一作用域，错误可见、失败保留输入，不同表单互不阻塞；卡种当前页签移除伪本地开关"
+    ],
+    "validation": "导航/缓存/登录/注册/员工/卡种等65项通过；补强后的状态8项通过；最终整个商户App全量693项全部通过，async_kit包9项通过，静态分析无问题。",
+    "remaining": "已完成最终全量、静态分析、Android APK构建与签名核对；无待迁移事项。"
+  },
+  "completionAudit": {
+    "scriptsAndDirectories": "9个设计生成/绑定脚本及pages/gen、gen_st、st_gen均实查不存在；静态守卫阻止旧目录/模板/全局草稿重新引入。",
+    "scope": "pages下所有现存Dart文件均纳入清单；0项pending；业务目录、独立资源、目录外模板一并覆盖。",
+    "behaviorAndState": "路由只构造、导航与传参；公共组件无业务字段/命令分发；提交、选择与编辑目标归实例或明确参数；保留全局状态仅为登录会话、导航、只读缓存、失效事件与用户偏好。",
+    "dataAndTODO": "生产mock目录已删除；真实接口页无未登录样例回退。未接通渠道/统计口径仍明确TODO并阻止假成功，不扩展后端。",
+    "visual": "各批按风险保存浅深色代表截图；纯目录移动/回调替换不重复截图。统计四个卡片位置尺寸完全一致，像素差异为去除假数据；一期不用的入口按授权删除。",
+    "validation": "最终静态分析、693项App全量、9项async_kit组件测试通过；已修复发现的问题并保留关键断言，详见各批证据。",
+    "backend": "git diff --name-only -- supabase apps/admin为空；未部署、未提交、未推送。",
+    "appBuild": "Android Release APK构建成功，apksigner验证通过，aapt2包信息核对通过；包名com.yoonzm.autocare.merchant，版本1.0.0(1)，arm64-v8a/armeabi-v7a/x86_64。",
+    "status": "complete",
+    "date": "2026-11-13",
+    "limits": "仅声明Android本地构建与自动化流程/视觉验证；未做真机或生产数据操作验收，未构建iOS；使用当前工程调试签名，未发布、提交或推送。"
+  },
+  "buildArtifact": {
+    "command": "flutter build apk --release --no-pub",
+    "path": "apps/merchant/build/app/outputs/flutter-apk/app-release.apk",
+    "bytes": 90787922,
+    "sha256": "2d80b4fba32ad089c269a753f2dd20c47920138ccc7fb488f634913f382084b4",
+    "package": "com.yoonzm.autocare.merchant",
+    "versionName": "1.0.0",
+    "versionCode": 1,
+    "targetSdk": 36,
+    "abis": [
+      "arm64-v8a",
+      "armeabi-v7a",
+      "x86_64"
+    ],
+    "signatureVerified": true,
+    "signer": "C=US, O=Android, CN=Android Debug",
+    "signingScheme": "v2",
+    "logs": [
+      "apps/merchant/build/final-apk-build.log",
+      "apps/merchant/build/final-apk-signature.log",
+      "apps/merchant/build/final-apk-manifest.log"
+    ],
+    "runtimeValidation": "未连接Android真机；未声称真机或生产业务数据验收。"
+  }
+}

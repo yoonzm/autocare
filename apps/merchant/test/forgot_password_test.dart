@@ -1,10 +1,11 @@
-import 'package:autocare_merchant/backend/forgot_flow.dart';
+import 'package:autocare_merchant/pages/account/forgot_verify_page.dart';
+import 'package:autocare_merchant/pages/account/forgot_reset_page.dart';
+import 'package:autocare_merchant/pages/account/forgot_done_page.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
-import 'package:autocare_merchant/backend/registration_draft.dart';
 import 'package:autocare_merchant/backend/store_profile.dart';
 import 'package:autocare_merchant/kit/async_kit.dart' show AppSpinner;
-import 'package:autocare_merchant/pages/gen/gen_routes.dart';
-import 'package:autocare_merchant/pages/login_page.dart';
+import 'package:autocare_merchant/navigation/page_registry.dart';
+import 'package:autocare_merchant/pages/account/login_page.dart';
 import 'package:autocare_merchant/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -53,14 +54,11 @@ void main() {
     original = merchantApi;
     api = _Api();
     merchantApi = api;
-    RegistrationDraft.clear();
-    forgotFlow.clear();
     storeProfile.clear();
     navTracker.stack.clear(); // 全局路由记录会残留上一个测试的页面
   });
   tearDown(() {
     merchantApi = original;
-    forgotFlow.clear();
   });
 
   Future<void> open(WidgetTester t, String route) async {
@@ -81,7 +79,9 @@ void main() {
           settings: s,
           builder: (_) => s.name == 'Login'
               ? const LoginPage()
-              : Builder(builder: genRoutes[s.name]!),
+              : s.name == 'ForgotDone'
+              ? const ForgotDonePage(completed: true)
+              : Builder(builder: pageBuilders[s.name]!),
         ),
       ),
     );
@@ -176,7 +176,7 @@ void main() {
       await tapText(t, '下一步');
       expect(find.text('该手机号尚未开通门店账号'), findsOneWidget);
       expect(find.text('设置新密码'), findsNothing);
-      expect(forgotFlow.live, isFalse);
+      expect(find.byType(ForgotResetPage), findsNothing);
       await t.pump(const Duration(seconds: 4));
     });
 
@@ -247,7 +247,8 @@ void main() {
       expect(api.calls.last, 'reset:13800001234:246810:newpass456');
       expect(find.text('密码已重置'), findsOneWidget);
       expect(find.text('请使用新密码登录。其他设备上的登录状态已失效。'), findsOneWidget);
-      expect(forgotFlow.live, isFalse);
+      expect(find.byType(ForgotResetPage, skipOffstage: false), findsNothing);
+      expect(find.byType(ForgotVerifyPage, skipOffstage: false), findsNothing);
       expect(api.calls, isNot(contains('signOut'))); // 本机没登录，不需要退出
     });
 
