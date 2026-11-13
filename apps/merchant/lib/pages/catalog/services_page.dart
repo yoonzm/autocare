@@ -1,3 +1,6 @@
+import 'package:autocare_ui_kit/autocare_ui_kit.dart'
+    show AppChoiceGroup, ChoiceItem, AppChoiceLayout;
+
 import '../../routes.dart' show openRoute;
 import '../../kit/buttons.dart';
 
@@ -112,10 +115,18 @@ class _ServicesPageState extends State<ServicesPage> {
               ),
             ),
             const SizedBox(height: 8),
-            ChipTabs(
-              labels: cats,
-              selected: cat,
-              onChanged: (i) => setState(() => cat = i),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: AppChoiceGroup<int>(
+                semanticLabel: '服务分类',
+                layout: AppChoiceLayout.horizontal,
+                items: [
+                  for (var i = 0; i < cats.length; i++)
+                    ChoiceItem(value: i, label: cats[i]),
+                ],
+                selected: cat,
+                onChanged: (i) => setState(() => cat = i),
+              ),
             ),
             Expanded(
               child: AsyncView<List<Map<String, dynamic>>>(

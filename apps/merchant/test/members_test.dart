@@ -1,3 +1,4 @@
+import 'package:autocare_ui_kit/autocare_ui_kit.dart' show AppChoiceGroup;
 import 'package:autocare_merchant/pages/members/wallet_page.dart';
 import 'package:autocare_merchant/pages/members/recharge_page.dart';
 import 'package:autocare_merchant/pages/members/recharge_success_page.dart';
@@ -10,7 +11,7 @@ import 'package:autocare_merchant/backend/member_flow.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/backend/store_profile.dart';
 import 'package:autocare_merchant/kit/async_kit.dart';
-import 'package:autocare_merchant/kit/kit.dart' show HSel, HNumberStepper;
+import 'package:autocare_merchant/kit/kit.dart' show HNumberStepper;
 import 'package:autocare_merchant/pages/members/member_detail_page.dart';
 import 'package:autocare_merchant/pages/orders/order_page.dart';
 import 'package:autocare_merchant/pages/members/members_page.dart';
@@ -756,12 +757,19 @@ void main() {
             matching: find.text(label),
           )
           .first;
-      Set<int> selection(String label) => t
-          .widget<HSel>(
-            find.ancestor(of: option(label), matching: find.byType(HSel)).first,
-          )
-          .ctrl
-          .selected;
+      Set<int> selection(String label) {
+        final group = t.widget<AppChoiceGroup<int>>(
+          find
+              .ancestor(
+                of: option(label),
+                matching: find.byType(AppChoiceGroup<int>),
+              )
+              .first,
+        );
+        return group.selectedValues ??
+            {if (group.selected != null) group.selected!};
+      }
+
       Future<void> resetFilter() async {
         await t.ensureVisible(find.text('重置'));
         await t.tap(find.text('重置'));

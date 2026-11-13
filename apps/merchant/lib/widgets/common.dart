@@ -241,53 +241,6 @@ class SectionTitle extends StatelessWidget {
   );
 }
 
-/// 深色选中的胶囊筛选
-class ChipTabs extends StatelessWidget {
-  final List<String> labels;
-  final int selected;
-  final ValueChanged<int> onChanged;
-  const ChipTabs({
-    super.key,
-    required this.labels,
-    required this.selected,
-    required this.onChanged,
-  });
-  @override
-  Widget build(BuildContext context) => SizedBox(
-    height: 32,
-    child: ListView.separated(
-      scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      itemCount: labels.length,
-      separatorBuilder: (_, _) => const SizedBox(width: 8),
-      itemBuilder: (_, i) {
-        final on = i == selected;
-        return GestureDetector(
-          onTap: () => onChanged(i),
-          child: Container(
-            alignment: Alignment.center,
-            padding: const EdgeInsets.symmetric(horizontal: 14),
-            decoration: BoxDecoration(
-              color: on ? C.btn : (C.dark ? C.chip : C.card),
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: on || C.dark ? null : softShadow,
-            ),
-            child: Text(
-              labels[i],
-              style: ts(
-                13,
-                w: FontWeight.w500,
-                color: on ? C.btnFg : C.sub,
-                h: 18,
-              ),
-            ),
-          ),
-        );
-      },
-    ),
-  );
-}
-
 /// 灰底分段控件
 class Segmented extends StatelessWidget {
   final List<String> labels;

@@ -51,6 +51,42 @@ AppIconButton(
 );
 ```
 
+## 选择标签：单选、多选与排列
+
+2026-11-13 用户确认商户标签统一采用组件库标准外观；预约时段保留三列等宽，移除“原时段”专用标记。此扩展沿用组件库选择类画板的 pill / tile 样式，不引入自由颜色或尺寸参数。
+
+- `AppChoiceGroup<T>` 保留 `items / selected / onChanged / kind / expanded` 单选接口。重复点击当前选项不再回调；禁用项不可点击，也不显示为有效选中。
+- `AppChoiceGroup<T>.multiple` 使用 `selectedValues: Set<T>` 与 `onChanged: ValueChanged<Set<T>>`。点击已选项取消，结果为新的只读集合，不修改调用者集合；状态始终由调用者持有。
+- 默认 `layout: AppChoiceLayout.wrap` 自动换行，横纵间距均为 8。
+- `layout: AppChoiceLayout.horizontal` 单行横向滚动，适用于动态分类；可用 `trailing` 放独立操作，操作不参与选择。外层须提供有限宽度。
+- `columns: 3` 等宽三列，保持 8px 间距；最后一行不足三项时不拉伸。须提供有限宽度，不能与 horizontal / expanded 同时使用。
+- `expanded: true` 保留既有每项一行、撑满宽度的行为。
+- `semanticLabel` 提供组名称；单选带互斥语义，多选不带互斥语义。业务层负责动态选项失效后的回退、权限和异步锁。
+- 标签文字保持单行，空间不足时省略，读屏仍获得完整文案。禁用外观遵循标准组件，不使用删除线。
+
+```dart
+AppChoiceGroup<String>.multiple(
+  items: skills,
+  selectedValues: selectedSkills,
+  onChanged: setSkills,
+);
+AppChoiceGroup<String>(
+  items: slots,
+  selected: selectedTime,
+  onChanged: setTime,
+  kind: ChipKind.tile,
+  columns: 3,
+);
+AppChoiceGroup<String?>(
+  items: categories,
+  selected: category,
+  onChanged: setCategory,
+  layout: AppChoiceLayout.horizontal,
+);
+```
+
+商户顶部会员卡种、服务分类和回访筛选使用横向标签；真正的分段条、会员等级卡、复杂支付/充值选择卡不属于此次标签迁移。
+
 ## 预览与验证
 
 - 后台端「我的 → 组件库」（仅超级管理员）逐个展示所有组件的全部状态，可切换浅色 / 深色对照，不影响业务功能。
@@ -58,7 +94,7 @@ AppIconButton(
 
 ## 暂未做
 
-- 后台端已迁移到本包（见下），商户端 `kit/`、`widgets/` 和 180+ 个生成页面仍使用各自的实现，尚未迁移。
+- 后台端已迁移到本包（见下）；商户端已统一按钮与普通选择标签，其他组件仍按设计差异保留现有实现。
 - 图片上传组件只负责展示：选图、压缩、HEIC 转 JPG、权限申请与上传请求属于适配层，尚未提供。
 - 没有 golden 截图测试（字体与平台差异会让截图不稳定）。
 

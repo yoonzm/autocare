@@ -21,7 +21,9 @@ import '../../kit/keyboard.dart';
 import '../../theme.dart';
 import '../../widgets/app_icon.dart';
 import '../../widgets/common.dart';
-import '../../widgets/choice_chip_group.dart';
+
+import 'package:autocare_ui_kit/autocare_ui_kit.dart'
+    show AppChoiceGroup, ChoiceItem, ChipKind;
 
 class AppointmentAddPage extends StatefulWidget {
   const AppointmentAddPage({super.key});
@@ -705,7 +707,6 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
         else
           Wrap(
             spacing: 8,
-            runSpacing: 8,
             children: [
               for (var i = 0; i < _services.length; i++)
                 _chip(
@@ -733,12 +734,12 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
       children: [
         Text('到店时间', style: ts(15, w: FontWeight.w600, h: 22)),
         const SizedBox(height: 12),
-        ChoiceChipGroup<int>(
+        AppChoiceGroup<int>(
           semanticLabel: '到店日期',
           kind: ChipKind.pill,
           items: [
             for (var i = 0; i < _dates.length; i++)
-              ChoiceChipItem(value: i, label: _dates[i]),
+              ChoiceItem(value: i, label: _dates[i]),
           ],
           selected: dateIdx,
           onChanged: (i) {
@@ -832,15 +833,16 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
                           title: picked.isEmpty ? '请先选择服务项目' : '所选日期没有可预约时段',
                           inline: true,
                         )
-                      : ChoiceChipGroup<String>(
+                      : AppChoiceGroup<String>(
                           semanticLabel: '到店时间',
                           kind: ChipKind.tile,
+                          columns: 3,
                           items: [
                             for (final slot in _slots)
-                              ChoiceChipItem(
+                              ChoiceItem(
                                 value: slot['time'] as String,
                                 label: slot['time'] as String,
-                                disabled: slot['available'] != true,
+                                enabled: slot['available'] == true,
                               ),
                           ],
                           selected: time.isEmpty ? null : time,

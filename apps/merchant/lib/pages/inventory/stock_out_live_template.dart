@@ -1,5 +1,7 @@
+import 'package:autocare_ui_kit/autocare_ui_kit.dart'
+    show AppChoiceGroup, ChoiceItem;
+
 import '../../kit/buttons.dart';
-import '../../kit/single_selection.dart';
 import 'inventory_controller.dart';
 
 import 'package:flutter/material.dart';
@@ -97,206 +99,17 @@ class StockOutLiveTemplate extends StatelessWidget {
                           lh: 20,
                         ),
                       ),
-                      SingleSelection(
-                        index: c.reasonIndex,
-                        onChanged: c.selectReason,
-                        builder: (context, selection) => hwrap(
-                          [
-                            HSel(
-                              ctrl: selection,
-                              index: 0,
-                              on: hbox(
-                                h: 34,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFE1F0FE),
-                                  Color.fromRGBO(4, 133, 247, 0.18),
-                                ),
-                                radius: BorderRadius.circular(17),
-                                border: Border.all(
-                                  color: Color(0xFF0485F7),
-                                  width: 1.5,
-                                ),
-                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  widthFactor: 1,
-                                  child: Text(
-                                    '施工领用',
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF1E63AE),
-                                        Color(0xFF6AB4FA),
-                                      ),
-                                      w: FontWeight.w500,
-                                      lh: 18,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              off: hbox(
-                                h: 34,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFF4F4F5),
-                                  Color(0xFF27272A),
-                                ),
-                                radius: BorderRadius.circular(17),
-                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  widthFactor: 1,
-                                  child: Text(
-                                    '施工领用',
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF3F3F46),
-                                        Color(0xFFD4D4D8),
-                                      ),
-                                      w: FontWeight.w500,
-                                      lh: 18,
-                                    ),
-                                  ),
-                                ),
-                              ),
+                      AppChoiceGroup<String>(
+                        items: [
+                          for (final reason in InventoryController.outReasons)
+                            ChoiceItem(
+                              value: reason,
+                              label: reason,
+                              enabled: !c.busy,
                             ),
-                            GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              onTap: c.busy
-                                  ? null
-                                  : () => c.setOutReason('损耗报废'),
-                              child: hbox(
-                                h: 34,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFF4F4F5),
-                                  Color(0xFF27272A),
-                                ),
-                                radius: BorderRadius.circular(17),
-                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                child: Align(
-                                  alignment: Alignment(-1, 0),
-                                  widthFactor: 1,
-                                  child: Text(
-                                    '损耗报废',
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF3F3F46),
-                                        Color(0xFFD4D4D8),
-                                      ),
-                                      w: FontWeight.w500,
-                                      lh: 18,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              onTap: c.busy
-                                  ? null
-                                  : () => c.setOutReason('退回供应商'),
-                              child: hbox(
-                                h: 34,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFF4F4F5),
-                                  Color(0xFF27272A),
-                                ),
-                                radius: BorderRadius.circular(17),
-                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                child: Align(
-                                  alignment: Alignment(-1, 0),
-                                  widthFactor: 1,
-                                  child: Text(
-                                    '退回供应商',
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF3F3F46),
-                                        Color(0xFFD4D4D8),
-                                      ),
-                                      w: FontWeight.w500,
-                                      lh: 18,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            HSel(
-                              ctrl: selection,
-                              index: 1,
-                              on: hbox(
-                                h: 34,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFE1F0FE),
-                                  Color.fromRGBO(4, 133, 247, 0.18),
-                                ),
-                                radius: BorderRadius.circular(17),
-                                border: Border.all(
-                                  color: Color(0xFF0485F7),
-                                  width: 1.5,
-                                ),
-                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  widthFactor: 1,
-                                  child: Text(
-                                    '内部使用',
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF1E63AE),
-                                        Color(0xFF6AB4FA),
-                                      ),
-                                      w: FontWeight.w500,
-                                      lh: 18,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              off: hbox(
-                                h: 34,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFF4F4F5),
-                                  Color(0xFF27272A),
-                                ),
-                                radius: BorderRadius.circular(17),
-                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  widthFactor: 1,
-                                  child: Text(
-                                    '内部使用',
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF3F3F46),
-                                        Color(0xFFD4D4D8),
-                                      ),
-                                      w: FontWeight.w500,
-                                      lh: 18,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                          gap: 8,
-                          rowGap: 8,
-                          cross: WrapCrossAlignment.start,
-                        ),
+                        ],
+                        selected: '${c.payload['reason']}',
+                        onChanged: c.setOutReason,
                       ),
                     ],
                     main: MainAxisAlignment.start,

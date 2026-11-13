@@ -50,7 +50,8 @@ class AppointmentSettingsSkeleton extends StatelessWidget {
             const SizedBox(height: 16),
             _section(context, '在线预约', const [58, 58]),
             const SizedBox(height: 16),
-            _section(context, '可预约时间', const [70, 58, 86, 76, 76]),
+            // 定休日多选采用 44px 热区，两行比旧 34px 标签增加 20px。
+            _section(context, '可预约时间', const [70, 58, 86, 76, 96]),
             const SizedBox(height: 16),
             _section(context, '接待规则', const [76, 76, 76, 76, 76, 98]),
             const SizedBox(height: 16),

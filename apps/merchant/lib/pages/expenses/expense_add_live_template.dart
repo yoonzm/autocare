@@ -1,6 +1,8 @@
+import 'package:autocare_ui_kit/autocare_ui_kit.dart'
+    show AppChoiceGroup, ChoiceItem;
+
 import '../../kit/buttons.dart';
 import 'expense_widgets.dart';
-import '../../kit/single_selection.dart';
 import 'expense_controller.dart';
 
 import 'package:flutter/material.dart';
@@ -882,141 +884,14 @@ class ExpenseAddLiveTemplate extends StatelessWidget {
                           lh: 20,
                         ),
                       ),
-                      SingleSelection(
-                        index: c.draft['status'] == 'paid' ? 0 : 1,
+                      AppChoiceGroup<int>(
+                        items: [
+                          ChoiceItem(value: 0, label: '已付款'),
+                          ChoiceItem(value: 1, label: '挂账待付'),
+                        ],
+                        selected: c.draft['status'] == 'paid' ? 0 : 1,
                         onChanged: (i) =>
                             c.setPaymentStatus(i == 0 ? 'paid' : 'unpaid'),
-                        builder: (context, selection) => hwrap(
-                          [
-                            HSel(
-                              ctrl: selection,
-                              index: 0,
-                              on: hbox(
-                                h: 34,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFE1F0FE),
-                                  Color.fromRGBO(4, 133, 247, 0.18),
-                                ),
-                                radius: BorderRadius.circular(17),
-                                border: Border.all(
-                                  color: Color(0xFF0485F7),
-                                  width: 1.5,
-                                ),
-                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  widthFactor: 1,
-                                  child: Text(
-                                    '已付款',
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF1E63AE),
-                                        Color(0xFF6AB4FA),
-                                      ),
-                                      w: FontWeight.w500,
-                                      lh: 18,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              off: hbox(
-                                h: 34,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFE1F0FE),
-                                  Color.fromRGBO(4, 133, 247, 0.18),
-                                ),
-                                radius: BorderRadius.circular(17),
-                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  widthFactor: 1,
-                                  child: Text(
-                                    '已付款',
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF3F3F46),
-                                        Color(0xFFD4D4D8),
-                                      ),
-                                      w: FontWeight.w500,
-                                      lh: 18,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            HSel(
-                              ctrl: selection,
-                              index: 1,
-                              on: hbox(
-                                h: 34,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFF4F4F5),
-                                  Color(0xFF27272A),
-                                ),
-                                radius: BorderRadius.circular(17),
-                                border: Border.all(
-                                  color: Color(0xFF0485F7),
-                                  width: 1.5,
-                                ),
-                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  widthFactor: 1,
-                                  child: Text(
-                                    '挂账待付',
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF1E63AE),
-                                        Color(0xFF6AB4FA),
-                                      ),
-                                      w: FontWeight.w500,
-                                      lh: 18,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              off: hbox(
-                                h: 34,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFF4F4F5),
-                                  Color(0xFF27272A),
-                                ),
-                                radius: BorderRadius.circular(17),
-                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  widthFactor: 1,
-                                  child: Text(
-                                    '挂账待付',
-                                    style: hts(
-                                      13,
-                                      dk(
-                                        context,
-                                        Color(0xFF3F3F46),
-                                        Color(0xFFD4D4D8),
-                                      ),
-                                      w: FontWeight.w500,
-                                      lh: 18,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                          gap: 8,
-                          rowGap: 8,
-                          cross: WrapCrossAlignment.start,
-                        ),
                       ),
                     ],
                     main: MainAxisAlignment.start,

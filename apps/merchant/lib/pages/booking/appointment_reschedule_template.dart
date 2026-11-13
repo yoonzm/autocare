@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 
 import '../../kit/kit.dart';
 import 'reschedule_controller.dart';
-import '../../widgets/choice_chip_group.dart';
+
+import 'package:autocare_ui_kit/autocare_ui_kit.dart'
+    show AppChoiceGroup, ChoiceItem, ChipKind;
 
 class AppointmentRescheduleTemplate extends StatelessWidget {
   final RescheduleController c;
@@ -47,12 +49,12 @@ class AppointmentRescheduleTemplate extends StatelessWidget {
           ),
         ),
         _sectionTitle(context, '新日期'),
-        ChoiceChipGroup<int>(
+        AppChoiceGroup<int>(
           semanticLabel: '新日期',
           kind: ChipKind.pill,
           items: [
             for (var i = 0; i < 4; i++)
-              ChoiceChipItem(value: i, label: c.dateLabel(i)),
+              ChoiceItem(value: i, label: c.dateLabel(i)),
           ],
           selected: c.rescheduleDay,
           onChanged: (value) {
@@ -174,14 +176,14 @@ class AppointmentRescheduleTemplate extends StatelessWidget {
           bg: dk(context, const Color(0xFFEFEFF1), const Color(0xFF2A2A2E)),
         ),
         _sectionTitle(context, '或者取消预约'),
-        ChoiceChipGroup<int>(
+        AppChoiceGroup<int>(
           semanticLabel: '取消原因',
           kind: ChipKind.pill,
           items: const [
-            ChoiceChipItem(value: 0, label: '客户有事'),
-            ChoiceChipItem(value: 1, label: '时间冲突'),
-            ChoiceChipItem(value: 2, label: '联系不上'),
-            ChoiceChipItem(value: 3, label: '其他'),
+            ChoiceItem(value: 0, label: '客户有事'),
+            ChoiceItem(value: 1, label: '时间冲突'),
+            ChoiceItem(value: 2, label: '联系不上'),
+            ChoiceItem(value: 3, label: '其他'),
           ],
           selected: c.cancelReason,
           onChanged: (value) {

@@ -8,7 +8,7 @@ import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/kit/async_kit.dart';
 import 'package:autocare_merchant/pages/staff/staff_skeletons.dart';
 import 'package:autocare_merchant/routes.dart' show navTracker;
-import 'package:autocare_merchant/widgets/choice_chip_group.dart';
+import 'package:autocare_ui_kit/autocare_ui_kit.dart';
 
 import 'appointments_test.dart' show BookingApi;
 import 'members_test.dart' show phone;
@@ -66,7 +66,7 @@ void main() {
 
   testWidgets('员工列表的角色页签是分段条，不套单选标签（ChoiceChip）样式', (t) async {
     await open(t, const StaffResourcesPage());
-    expect(find.byType(ChoiceChipGroup<int>), findsNothing);
+    expect(find.byType(AppChoiceGroup<int>), findsNothing);
     await t.tap(find.textContaining('施工技师'));
     await t.pumpAndSettle();
     expect(find.textContaining('真实技师'), findsOneWidget);

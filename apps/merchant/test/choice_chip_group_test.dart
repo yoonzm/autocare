@@ -1,4 +1,4 @@
-import 'package:autocare_merchant/widgets/choice_chip_group.dart';
+import 'package:autocare_ui_kit/autocare_ui_kit.dart';
 import 'package:autocare_merchant/kit/kit.dart' show HSel, SelCtrl, hbox;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -10,12 +10,12 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: StatefulBuilder(
-            builder: (context, setState) => ChoiceChipGroup<int>(
+            builder: (context, setState) => AppChoiceGroup<int>(
               semanticLabel: '新日期',
               kind: ChipKind.pill,
               items: const [
-                ChoiceChipItem(value: 0, label: '今天 11.03'),
-                ChoiceChipItem(value: 1, label: '明天 11.04'),
+                ChoiceItem(value: 0, label: '今天 11.03'),
+                ChoiceItem(value: 1, label: '明天 11.04'),
               ],
               selected: selected,
               onChanged: (value) => setState(() => selected = value),
@@ -75,23 +75,20 @@ void main() {
     expect(size.height, 44);
   });
 
-  testWidgets('原预约时间为灰色，禁用时间有删除线且不可选', (t) async {
+  testWidgets('预约时间不再标原，禁用时间不可选', (t) async {
     String? selected;
     await t.pumpWidget(
       MaterialApp(
         home: Scaffold(
           body: StatefulBuilder(
-            builder: (context, setState) => ChoiceChipGroup<String>(
+            builder: (context, setState) => AppChoiceGroup<String>(
               semanticLabel: '新时间',
               kind: ChipKind.tile,
+              columns: 3,
               items: const [
-                ChoiceChipItem(
-                  value: '17:30',
-                  label: '17:30',
-                  isOriginal: true,
-                ),
-                ChoiceChipItem(value: '18:00', label: '18:00', disabled: true),
-                ChoiceChipItem(value: '18:30', label: '18:30'),
+                ChoiceItem(value: '17:30', label: '17:30'),
+                ChoiceItem(value: '18:00', label: '18:00', enabled: false),
+                ChoiceItem(value: '18:30', label: '18:30'),
               ],
               selected: selected,
               onChanged: (value) => setState(() => selected = value),
@@ -112,25 +109,25 @@ void main() {
                 )
                 .decoration!
             as BoxDecoration);
-    expect(decoration('17:30 原').color, const Color(0xFFEEEEF0));
+    expect(decoration('17:30').color, const Color(0xFFF4F4F5));
     expect(
-      (decoration('17:30 原').border! as Border).top.color,
-      const Color(0xFFC7C7CC),
+      (decoration('17:30').border! as Border).top.color,
+      Colors.transparent,
     );
     expect(
       t.widget<Text>(find.text('18:00')).style!.decoration,
-      TextDecoration.lineThrough,
+      isNot(TextDecoration.lineThrough),
     );
     await t.tap(find.text('18:00'));
     await t.pump();
     expect(selected, isNull);
-    await t.tap(find.text('17:30 原'));
+    await t.tap(find.text('17:30'));
     await t.pump();
     expect(selected, '17:30');
-    expect(decoration('17:30 原').color, const Color(0xFFE1F0FE));
+    expect(decoration('17:30').color, const Color(0xFFE1F0FE));
   });
 
-  testWidgets('既有单选胶囊 HSel 走统一 ChoiceChip 样式', (t) async {
+  testWidgets('保留的 HSel 复杂选择只渲染调用者布局', (t) async {
     final ctrl = SelCtrl({0}, false);
     addTearDown(ctrl.dispose);
     await t.pumpWidget(
@@ -145,12 +142,7 @@ void main() {
         ),
       ),
     );
-    expect(find.byType(ChoiceChipGroup<int>), findsOneWidget);
-    final box = t.widget<Container>(
-      find
-          .ancestor(of: find.text('洗车'), matching: find.byType(Container))
-          .first,
-    );
-    expect((box.decoration as BoxDecoration).color, const Color(0xFFE1F0FE));
+    expect(find.byType(AppChoiceGroup<int>), findsNothing);
+    expect(find.text('洗车'), findsOneWidget);
   });
 }

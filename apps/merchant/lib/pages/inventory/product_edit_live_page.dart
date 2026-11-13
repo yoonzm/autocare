@@ -8,7 +8,10 @@ import '../../kit/async_kit.dart';
 import '../../kit/kit.dart';
 import '../../kit/page_header.dart';
 import '../../theme.dart';
-import '../../widgets/choice_chip_group.dart';
+
+import 'package:autocare_ui_kit/autocare_ui_kit.dart'
+    show AppChoiceGroup, ChoiceItem, ChipKind;
+
 import 'inventory_controller.dart';
 import '../../resources/merchant_svgs.dart';
 import 'inventory_pickers.dart';
@@ -253,10 +256,10 @@ class _ProductEditState extends State<ProductEditLivePage> {
     String? selected,
     ValueChanged<String> onChanged,
     String semantic,
-  ) => ChoiceChipGroup<String>(
+  ) => AppChoiceGroup<String>(
     items: [
       for (final v in items)
-        ChoiceChipItem(
+        ChoiceItem(
           value: v,
           label: semantic == '分类'
               ? (_categoryToBackend.entries
@@ -274,7 +277,6 @@ class _ProductEditState extends State<ProductEditLivePage> {
       _touch();
     },
     kind: ChipKind.pill,
-    runSpacing: 8,
     semanticLabel: semantic,
   );
 

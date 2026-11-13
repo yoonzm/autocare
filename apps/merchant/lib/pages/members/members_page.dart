@@ -1,3 +1,6 @@
+import 'package:autocare_ui_kit/autocare_ui_kit.dart'
+    show AppChoiceGroup, ChoiceItem, AppChoiceLayout;
+
 import '../../kit/buttons.dart';
 import 'member_filter_controller.dart';
 import 'member_filter_sheet.dart';
@@ -131,6 +134,14 @@ class _MembersPageState extends State<MembersPage> {
       if (left > Duration.zero) await Future<void>.delayed(left);
     }
     if (!mounted || version != _loadVersion) return;
+    if (failed == null &&
+        asked.tier != null &&
+        _tierId == asked.tier &&
+        !tiers!.any((tier) => '${tier['id']}' == asked.tier)) {
+      _tierId = null;
+      await _load();
+      return;
+    }
     setState(() {
       _loading = false;
       _loadingMore = false;
@@ -301,29 +312,25 @@ class _MembersPageState extends State<MembersPage> {
             child: _summary(),
           ),
           const SizedBox(height: 16),
-          SizedBox(
-            height: 34,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              children: [
-                _liveChip(
-                  _liveList == null ? '全部' : '全部 $_total',
-                  _tierId == null,
-                  () => _pickTier(null),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: AppChoiceGroup<String?>(
+              semanticLabel: '会员卡种',
+              trailing: _followChip(),
+              layout: AppChoiceLayout.horizontal,
+              items: [
+                ChoiceItem(
+                  value: null,
+                  label: _liveList == null ? '全部' : '全部 $_total',
                 ),
-                for (final t in _tiers) ...[
-                  const SizedBox(width: 8),
-                  _liveChip(
-                    '${t['name']} ${_counts['${t['id']}'] ?? 0}',
-                    _tierId == '${t['id']}',
-                    () => _pickTier('${t['id']}'),
+                for (final tier in _tiers)
+                  ChoiceItem(
+                    value: '${tier['id']}',
+                    label: '${tier['name']} ${_counts['${tier['id']}'] ?? 0}',
                   ),
-                ],
-                // 待回访数量来自 reminders 接口。
-                const SizedBox(width: 8),
-                _followChip(),
               ],
+              selected: _tierId,
+              onChanged: _pickTier,
             ),
           ),
           const SizedBox(height: 16),
@@ -430,32 +437,6 @@ class _MembersPageState extends State<MembersPage> {
     final w = (v / 10000);
     return '¥${w >= 100 ? w.round() : w.toStringAsFixed(1)}万';
   }
-
-  Widget _liveChip(String label, bool on, VoidCallback onTap) =>
-      GestureDetector(
-        onTap: onTap,
-        child: Container(
-          height: 34,
-          padding: const EdgeInsets.symmetric(horizontal: 14),
-          decoration: BoxDecoration(
-            color: on ? C.btn : (C.dark ? C.chip : C.card),
-            borderRadius: BorderRadius.circular(17),
-            border: on || C.dark ? null : Border.all(color: C.stroke),
-          ),
-          child: Center(
-            widthFactor: 1,
-            child: Text(
-              label,
-              style: ts(
-                13,
-                w: FontWeight.w500,
-                color: on ? C.btnFg : C.sub,
-                h: 18,
-              ),
-            ),
-          ),
-        ),
-      );
 
   Widget _followChip() => AppButton(
     label: _pendingReminders == null ? '待回访' : '待回访 $_pendingReminders',

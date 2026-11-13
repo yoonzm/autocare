@@ -11,6 +11,7 @@ class AppTapTarget extends StatefulWidget {
   final String? semanticLabel;
   final bool button;
   final bool? selected;
+  final bool mutuallyExclusive;
   final bool? toggled;
   final double minWidth;
   final double minHeight;
@@ -23,6 +24,7 @@ class AppTapTarget extends StatefulWidget {
     this.semanticLabel,
     this.button = true,
     this.selected,
+    this.mutuallyExclusive = false,
     this.toggled,
     this.minWidth = AppSpacing.minTap,
     this.minHeight = AppSpacing.minTap,
@@ -46,6 +48,7 @@ class _AppTapTargetState extends State<AppTapTarget> {
       button: widget.button,
       enabled: enabled,
       selected: widget.selected,
+      inMutuallyExclusiveGroup: widget.mutuallyExclusive,
       toggled: widget.toggled,
       label: widget.semanticLabel,
       onTap: widget.onTap,

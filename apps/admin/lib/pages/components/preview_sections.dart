@@ -357,7 +357,7 @@ List<Widget> _choice(BuildContext context) => [
     tag: 'AppChoiceChip / AppChoiceGroup',
     notes: const [
       '选中 = 浅蓝底 + 1.5px 内描边蓝 + 蓝字，三者同时出现；未选中也预留同样空间，切换时不抖动。',
-      '选中状态只来自一个受控变量 selected；同组最多一个。筛选、分类、客户来源、技师、支付方式都用这一个组件。',
+      '单选由 selected 控制，多选由 selectedValues 控制；支持自动换行、横向滚动和指定列数等宽。筛选、分类、客户来源、技师、支付方式复用这一组件。',
     ],
     code: "AppChoiceGroup<int>(\n  items: [ChoiceItem(value: 1, label: '洗车'), ...],\n  selected: state.category,\n  onChanged: vm.setCategory,\n  kind: ChipKind.pill,   // tile | avatar | option\n)",
     children: [
@@ -403,6 +403,32 @@ List<Widget> _choice(BuildContext context) => [
         ],
         selected: v,
         onChanged: set,
+      )),
+    ],
+  ),
+  Demo(
+    title: '选择组：多选与排列',
+    tag: 'AppChoiceGroup.multiple / layout / columns',
+    notes: const ['多选可再次点击取消；禁用项不可选。横向滚动适合动态分类，三列等宽适合预约时段。'],
+    code: 'AppChoiceGroup.multiple(items: items, selectedValues: values, onChanged: setValues)',
+    children: [
+      const GroupLabel('多选 · 自动换行'),
+      _Stateful<Set<String>>({'洗车'}, (values, set) => AppChoiceGroup<String>.multiple(
+        semanticLabel: '服务技能',
+        items: const [ChoiceItem(value:'洗车',label:'洗车'),ChoiceItem(value:'抛光',label:'抛光'),ChoiceItem(value:'贴膜',label:'贴膜'),ChoiceItem(value:'禁用',label:'已停用',enabled:false)],
+        selectedValues: values, onChanged: set,
+      )),
+      const GroupLabel('单行横向滚动'),
+      _Stateful<int>(0, (value, set) => AppChoiceGroup<int>(
+        layout: AppChoiceLayout.horizontal,
+        items: [for(var i=0;i<8;i++) ChoiceItem(value:i,label:'会员分类 $i')],
+        selected:value,onChanged:set,
+      )),
+      const GroupLabel('预约时段 · 三列等宽'),
+      _Stateful<String>('09:00', (value, set) => AppChoiceGroup<String>(
+        kind:ChipKind.tile,columns:3,
+        items:const [ChoiceItem(value:'09:00',label:'09:00'),ChoiceItem(value:'09:30',label:'09:30',enabled:false),ChoiceItem(value:'10:00',label:'10:00'),ChoiceItem(value:'10:30',label:'10:30')],
+        selected:value,onChanged:set,
       )),
     ],
   ),

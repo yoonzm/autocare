@@ -16,7 +16,10 @@ import '../../kit/sheet_frame.dart';
 import '../../routes.dart';
 import '../../theme.dart';
 import '../../widgets/app_icon.dart';
-import '../../widgets/choice_chip_group.dart';
+
+import 'package:autocare_ui_kit/autocare_ui_kit.dart'
+    show AppChoiceGroup, ChoiceItem, ChipKind;
+
 import '../../widgets/common.dart' show Segmented;
 import '../../resources/merchant_svgs.dart';
 
@@ -1104,13 +1107,13 @@ Widget _group(
       style: ts(13, w: FontWeight.w500, color: C.sub, h: 18),
     ),
     const SizedBox(height: 8),
-    ChoiceChipGroup<int>(
+    AppChoiceGroup<int>(
       semanticLabel: label,
       kind: ChipKind.pill,
       selected: selected,
       onChanged: onChanged,
       items: [
-        for (final (i, l) in labels.indexed) ChoiceChipItem(value: i, label: l),
+        for (final (i, l) in labels.indexed) ChoiceItem(value: i, label: l),
       ],
     ),
   ],

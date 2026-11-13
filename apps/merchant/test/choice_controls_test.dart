@@ -117,7 +117,7 @@ void main() {
     await t.tap(find.text('老客推荐'));
     await t.pumpAndSettle();
     final on = sourceLook(t, '老客推荐');
-    expect(on.$1, const Color.fromRGBO(4, 133, 247, 0.18));
+    expect(on.$1, const Color(0x2E0485F7));
     expect(on.$1, isNot(C.card));
     expect(on.$2, const Color(0xFF6AB4FA));
     expect(sourceLook(t, '团购平台').$1, const Color(0xFF27272A));

@@ -1,3 +1,6 @@
+import 'package:autocare_ui_kit/autocare_ui_kit.dart'
+    show AppChoiceGroup, ChoiceItem;
+
 import '../../kit/buttons.dart';
 import 'member_tier_preview.dart';
 import '../../kit/text_input.dart';
@@ -742,12 +745,14 @@ class _MemberAddPageTemplate extends StatelessWidget {
                           lh: 22,
                         ),
                       ),
-                      HChipGroup(
-                        labels: MemberFormController.sources,
-                        // 登录后办卡：来源要自己选，不沿用设计稿示例里选中的“老客推荐”
-                        initial: -1,
-                        onChanged: (i) =>
-                            c.set('source', MemberFormController.sources[i]),
+                      AppChoiceGroup<String>(
+                        semanticLabel: '客户来源',
+                        items: [
+                          for (final source in MemberFormController.sources)
+                            ChoiceItem(value: source, label: source),
+                        ],
+                        selected: c.text('source'),
+                        onChanged: (source) => c.set('source', source),
                       ),
                       Builder(
                         builder: (context) => GestureDetector(

@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../theme.dart';
-import 'choice_chip_group.dart';
 
 const Duration _kAnim = Duration(milliseconds: 140);
 
@@ -216,39 +215,5 @@ class _HTierPickerState extends State<HTierPicker> {
         ],
       ),
     ],
-  );
-}
-
-/// 客户来源：单选标签组，沿用统一 ChoiceChip 选中态。
-class HChipGroup extends StatefulWidget {
-  final List<String> labels;
-  final int initial;
-  final ValueChanged<int>? onChanged;
-  const HChipGroup({
-    super.key,
-    required this.labels,
-    this.initial = 0,
-    this.onChanged,
-  });
-  @override
-  State<HChipGroup> createState() => _HChipGroupState();
-}
-
-class _HChipGroupState extends State<HChipGroup> {
-  late int sel = widget.initial;
-
-  @override
-  Widget build(BuildContext context) => ChoiceChipGroup<int>(
-    semanticLabel: '客户来源',
-    kind: ChipKind.pill,
-    items: [
-      for (var i = 0; i < widget.labels.length; i++)
-        ChoiceChipItem(value: i, label: widget.labels[i]),
-    ],
-    selected: sel,
-    onChanged: (i) {
-      setState(() => sel = i);
-      widget.onChanged?.call(i);
-    },
   );
 }

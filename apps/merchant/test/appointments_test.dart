@@ -869,7 +869,7 @@ void main() {
     await t.pumpAndSettle();
     await t.tap(find.textContaining('今天 '));
     await t.pumpAndSettle();
-    await t.tap(find.text('17:30 原'));
+    await t.tap(find.text('17:30'));
     await t.pumpAndSettle();
     await t.tap(find.text('确认改期'));
     await t.pumpAndSettle();
@@ -908,8 +908,9 @@ void main() {
     await t.tap(find.textContaining('今天 '));
     await t.pumpAndSettle();
     expect(api.calls.where((c) => c['action'] == 'slots'), hasLength(1));
-    expect(find.text('17:30 原'), findsOneWidget);
-    await t.tap(find.text('17:30 原'));
+    expect(find.text('17:30'), findsOneWidget);
+    expect(find.text('17:30 原'), findsNothing);
+    await t.tap(find.text('17:30'));
     await t.pumpAndSettle();
     expect(find.text('新时间 · 17:30'), findsOneWidget);
     await t.tap(find.textContaining('明天 '));
@@ -943,7 +944,7 @@ void main() {
     await t.pumpAndSettle();
     await t.tap(find.textContaining('今天 '));
     await t.pumpAndSettle();
-    await t.tap(find.text('17:30 原'));
+    await t.tap(find.text('17:30'));
     await t.pumpAndSettle();
     final button = find.byKey(const ValueKey('reschedule-confirm-button'));
     final before = t.getSize(button);
