@@ -255,8 +255,6 @@ class InventoryManagementController extends ChangeNotifier {
           notifyListeners();
         },
       );
-  Color documentTabBackground(int index) =>
-      index == tab ? C.primarySoft : C.chip;
   Color documentStatusBackground(int index) =>
       index == status ? C.primarySoft : C.chip;
 

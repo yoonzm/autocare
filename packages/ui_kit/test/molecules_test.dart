@@ -138,7 +138,7 @@ void main() {
       expect(find.text('失败 3', findRichText: true), findsOneWidget);
     });
 
-    test('只支持 2~4 项', () {
+    test('只支持 2~5 项', () {
       expect(
         () => AppSegmented<int>(items: const [SegmentItem(value: 0, label: 'a')], selected: 0, onChanged: (_) {}),
         throwsAssertionError,

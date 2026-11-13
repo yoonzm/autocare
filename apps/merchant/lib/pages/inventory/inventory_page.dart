@@ -1,3 +1,6 @@
+import 'package:autocare_ui_kit/autocare_ui_kit.dart'
+    show AppChoiceGroup, AppChoiceLayout, ChoiceItem;
+
 import '../../kit/buttons.dart';
 import 'inventory_controller.dart';
 import 'inventory_live_page.dart';
@@ -181,8 +184,12 @@ class _InventoryPageState extends State<InventoryPage> {
             ],
           ),
           const SizedBox(height: 16),
-          Segmented(
-            labels: _cats,
+          AppChoiceGroup<int>(
+            layout: AppChoiceLayout.horizontal,
+            items: [
+              for (var i = 0; i < _cats.length; i++)
+                ChoiceItem(value: i, label: _cats[i]),
+            ],
             selected: cat,
             onChanged: (i) => setState(() => cat = i),
           ),

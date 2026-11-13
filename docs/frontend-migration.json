@@ -3416,8 +3416,8 @@
   "buildArtifact": {
     "command": "flutter build apk --release --no-pub",
     "path": "apps/merchant/build/app/outputs/flutter-apk/app-release.apk",
-    "bytes": 88838422,
-    "sha256": "37c282d2b484f37d48afebd023e1d8e16e4a5e8a9d14adb9ca3538004adae061",
+    "bytes": 88592662,
+    "sha256": "f3cefe22459fd0de5d7e4c47f7cba7f8585cc64753351316df682ed66501d235",
     "package": "com.yoonzm.autocare.merchant",
     "versionName": "1.0.0",
     "versionCode": 1,
@@ -3431,12 +3431,12 @@
     "signer": "C=US, O=Android, CN=Android Debug",
     "signingScheme": "v2",
     "logs": [
-      "apps/merchant/build/choice-audit/apk-build.log",
-      "apps/merchant/build/choice-audit/apk-signature.log",
-      "apps/merchant/build/choice-audit/apk-manifest.log"
+      "apps/merchant/build/segment-audit/apk-final.log",
+      "apps/merchant/build/segment-audit/apk-signature.log",
+      "apps/merchant/build/segment-audit/apk-manifest.log"
     ],
     "runtimeValidation": "未连接Android真机；未声称真机或生产业务数据验收。",
-    "source": "2026-11-13 main 工作区选择标签标准化及构建时已有的并行改动；未提交、推送或发布。"
+    "source": "2026-11-13 main 工作区分段选择迁移最终源码，构建前后源码指纹一致；未提交、推送或发布。"
   },
   "buttonMigration": {
     "date": "2026-11-13",
@@ -3480,5 +3480,53 @@
     "cleanup": "移除HChipGroup、ChipTabs及旧ChoiceChipGroup；清理HSel隐式高度修正，保留复杂选择使用。",
     "limits": "未做真机、iOS或生产业务数据验收；未提交、推送、部署。工作区存在其他并行改动，APK包含构建时工作区源码。",
     "artifact": "见buildArtifact；Android Release构建使用现有Android Debug签名。"
+  },
+  "segmentedMigration": {
+    "date": "2026-11-13",
+    "scope": "25处AppSegmented（含1处员工加载态）和1处库存动态分类AppChoiceGroup，覆盖26个页面源码文件。",
+    "components": "AppSegmented扩展expanded/compact排列、count含0、整组与单项enabled；重复点击不回调；长文省略且读屏保留完整文案、数量与互斥状态。",
+    "approvedVisualChanges": "采用标准32px滑块、4px内边距、40px总高、组件库配色/阴影/字号；用户补充批准2～5项，保留订单5项日期；库存动态分类改用横向标签。",
+    "preserved": "表单字段、导航和后端调用保持；库存单据忙碌锁、服务提成与今日已收等未接通提示保持；预算卡、充值金额/方式卡、角色说明卡、施工进度卡保留原实现。",
+    "cleanup": "删除Segmented/HSegmented旧封装、HSel已无用途的segment参数、旧计数字符串与单据页签颜色辅助函数。",
+    "sourceFiles": [
+      "apps/merchant/lib/pages/booking/appointments_page.dart",
+      "apps/merchant/lib/pages/booking/appointment_add_page.dart",
+      "apps/merchant/lib/pages/catalog/card_packages_live_page.dart",
+      "apps/merchant/lib/pages/catalog/card_tiers_live_page.dart",
+      "apps/merchant/lib/pages/catalog/card_tier_edit_page.dart",
+      "apps/merchant/lib/pages/catalog/service_edit_page.dart",
+      "apps/merchant/lib/pages/expenses/expenses_live_template.dart",
+      "apps/merchant/lib/pages/inventory/product_detail_live_template.dart",
+      "apps/merchant/lib/pages/inventory/stock_check_live_template.dart",
+      "apps/merchant/lib/pages/inventory/stock_docs_bound_template.dart",
+      "apps/merchant/lib/pages/members/member_add_page.dart",
+      "apps/merchant/lib/pages/members/member_records_live_page.dart",
+      "apps/merchant/lib/pages/members/recharge_card_page.dart",
+      "apps/merchant/lib/pages/members/recharge_empty_card_page.dart",
+      "apps/merchant/lib/pages/members/recharge_empty_page.dart",
+      "apps/merchant/lib/pages/members/recharge_page.dart",
+      "apps/merchant/lib/pages/orders/hold_board.dart",
+      "apps/merchant/lib/pages/orders/order_live_pages.dart",
+      "apps/merchant/lib/pages/shared/stats_page.dart",
+      "apps/merchant/lib/pages/staff/role_permission_template.dart",
+      "apps/merchant/lib/pages/staff/staff_list_template.dart",
+      "apps/merchant/lib/pages/staff/staff_records_template.dart",
+      "apps/merchant/lib/pages/staff/staff_skeletons.dart",
+      "apps/merchant/lib/pages/staff_app/st_cash_queue_template.dart",
+      "apps/merchant/lib/pages/staff_app/st_tasks_template.dart",
+      "apps/merchant/lib/pages/inventory/inventory_page.dart"
+    ],
+    "productionNetLinesRemoved": 3918,
+    "visual": "员工列表与新增会员迁移前8张、迁移后含订单共12张，浅深色、360/390宽度，apps/merchant/build/segment-visuals/；人工核对代表截图，测试检查无布局异常。",
+    "validation": {
+      "merchant": "最终全量705项通过，apps/merchant/build/segment-audit/full-final.log",
+      "uiKit": "最终全量81项通过，packages/ui_kit/build/segment-final.log",
+      "admin": "组件预览与主题10项通过，apps/admin/build/segment-final.log",
+      "staticAnalysis": "商户、ui_kit、后台联合分析仅有1条测试if花括号提示；修复后该文件复查无问题，见analyze-verified.log及analyze-recheck.log；git diff --check通过。"
+    },
+    "backend": "未修改云函数或数据库，未操作生产业务数据。",
+    "limits": "未做Android真机、iOS或生产数据验收；未提交、推送、部署。",
+    "status": "complete",
+    "artifact": "Android Release APK构建成功，通过apksigner与aapt2核对；源码指纹一致，使用当前工程Android Debug签名，见buildArtifact。"
   }
 }

@@ -1,3 +1,6 @@
+import 'package:autocare_ui_kit/autocare_ui_kit.dart'
+    show AppSegmented, SegmentItem;
+
 import '../../kit/buttons.dart';
 
 import 'dart:math' as math;
@@ -245,8 +248,13 @@ class _StatsPageState extends State<StatsPage> {
         ],
       ),
       const SizedBox(height: 16),
-      Segmented(
-        labels: const ['今日', '本周', '本月', '自定义'],
+      AppSegmented<int>(
+        items: [
+          SegmentItem(value: 0, label: '今日'),
+          SegmentItem(value: 1, label: '本周'),
+          SegmentItem(value: 2, label: '本月'),
+          SegmentItem(value: 3, label: '自定义'),
+        ],
         selected: range,
         onChanged: _select,
       ),

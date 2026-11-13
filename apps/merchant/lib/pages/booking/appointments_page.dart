@@ -1,3 +1,6 @@
+import 'package:autocare_ui_kit/autocare_ui_kit.dart'
+    show AppSegmented, SegmentItem;
+
 import '../../kit/buttons.dart';
 
 import 'package:flutter/material.dart';
@@ -243,8 +246,11 @@ class _AppointmentsPageState extends State<AppointmentsPage>
                         ),
                       ),
                       const SizedBox(height: 16),
-                      Segmented(
-                        labels: const ['列表', '工位时间表'],
+                      AppSegmented<int>(
+                        items: [
+                          SegmentItem(value: 0, label: '列表'),
+                          SegmentItem(value: 1, label: '工位时间表'),
+                        ],
                         selected: view,
                         onChanged: (i) => setState(() => view = i),
                       ),

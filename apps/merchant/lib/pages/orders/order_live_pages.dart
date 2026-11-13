@@ -1,3 +1,6 @@
+import 'package:autocare_ui_kit/autocare_ui_kit.dart'
+    show AppSegmented, SegmentItem;
+
 import '../../kit/buttons.dart';
 
 import 'dart:async';
@@ -20,7 +23,6 @@ import '../../widgets/app_icon.dart';
 import 'package:autocare_ui_kit/autocare_ui_kit.dart'
     show AppChoiceGroup, ChoiceItem, ChipKind;
 
-import '../../widgets/common.dart' show Segmented;
 import '../../resources/merchant_svgs.dart';
 
 // ───────────────────────── 通用小件（样式取自设计稿 OrderList / OrderDetail）─────────────────────────
@@ -118,8 +120,14 @@ class _OrderListState extends State<OrderListLivePage> {
           children: [
             const AppPageHeader(title: '订单'),
             const SizedBox(height: 16),
-            Segmented(
-              labels: OrderListController.rangeLabels,
+            AppSegmented<int>(
+              items: [
+                for (var i = 0; i < OrderListController.rangeLabels.length; i++)
+                  SegmentItem(
+                    value: i,
+                    label: OrderListController.rangeLabels[i],
+                  ),
+              ],
               selected: orders.rangeIndex,
               onChanged: _pickRange,
             ),

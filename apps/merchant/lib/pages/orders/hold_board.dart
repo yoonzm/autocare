@@ -1,3 +1,6 @@
+import 'package:autocare_ui_kit/autocare_ui_kit.dart'
+    show AppSegmented, SegmentItem;
+
 import '../../kit/buttons.dart';
 import 'order_route_data.dart';
 
@@ -92,10 +95,6 @@ _HoldCard _cardOf(Map<String, dynamic> h) {
 
 const _shadowLight = [
   BoxShadow(color: Color(0x0F000000), blurRadius: 1),
-  BoxShadow(color: Color(0x0F000000), offset: Offset(0, 1), blurRadius: 2),
-  BoxShadow(color: Color(0x0A000000), offset: Offset(0, 2), blurRadius: 4),
-];
-const _shadowTab = [
   BoxShadow(color: Color(0x0F000000), offset: Offset(0, 1), blurRadius: 2),
   BoxShadow(color: Color(0x0A000000), offset: Offset(0, 2), blurRadius: 4),
 ];
@@ -314,57 +313,15 @@ class _HoldBoardState extends State<HoldBoard> {
       hToast(context, '提醒取车暂未接通（依赖微信 / 消息通知模块）');
 
   // ── 状态页签 ──
-  Widget _tabs(BuildContext context, List<String> labels, int tab) {
-    return hbox(
-      bg: dk(context, const Color(0xFFE9E9EB), const Color(0xFF1F1F23)),
-      radius: BorderRadius.circular(20),
-      pad: const EdgeInsets.all(4),
-      child: hrow([
-        for (var i = 0; i < labels.length; i++)
-          Expanded(
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () => setState(() => this.tab = i),
-              child: hbox(
-                h: 32,
-                bg: i == tab
-                    ? dk(
-                        context,
-                        const Color(0xFFFFFFFF),
-                        const Color(0xFF18181B),
-                      )
-                    : null,
-                radius: BorderRadius.circular(16),
-                shadow: i == tab
-                    ? dk<List<BoxShadow>>(context, _shadowTab, _shadowDark)
-                    : null,
-                child: Align(
-                  child: Text(
-                    labels[i],
-                    style: hts(
-                      13,
-                      i == tab
-                          ? dk(
-                              context,
-                              const Color(0xFF18181B),
-                              const Color(0xFFFAFAFA),
-                            )
-                          : dk(
-                              context,
-                              const Color(0xFF52525B),
-                              const Color(0xFFA8A8B3),
-                            ),
-                      w: FontWeight.w500,
-                      lh: 18,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-      ], gap: 2),
-    );
-  }
+  Widget _tabs(BuildContext context, List<String> labels, int tab) =>
+      AppSegmented<int>(
+        items: [
+          for (var i = 0; i < labels.length; i++)
+            SegmentItem(value: i, label: labels[i]),
+        ],
+        selected: tab,
+        onChanged: (i) => setState(() => this.tab = i),
+      );
 
   // ── 挂单卡片 ──
   Widget _card(BuildContext context, _HoldCard c) {

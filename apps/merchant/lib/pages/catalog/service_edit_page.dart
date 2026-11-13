@@ -1,3 +1,6 @@
+import 'package:autocare_ui_kit/autocare_ui_kit.dart'
+    show AppSegmented, SegmentItem;
+
 import '../../kit/buttons.dart';
 
 import 'package:flutter/material.dart';
@@ -38,7 +41,6 @@ class _ServiceEditPageState extends State<ServiceEditPage> {
     text: widget.initial?['price']?.toString() ?? '',
   );
   final _commission = TextEditingController(text: '8');
-  final _commissionMode = SelCtrl({0}, false);
   late final _category = StrCtrl(
     widget.initial?['category']?.toString() ?? '镀晶镀膜',
   );
@@ -55,7 +57,6 @@ class _ServiceEditPageState extends State<ServiceEditPage> {
     _name.dispose();
     _price.dispose();
     _commission.dispose();
-    _commissionMode.dispose();
     _category.dispose();
     _duration.dispose();
     super.dispose();
@@ -778,190 +779,13 @@ class _ServiceEditPageState extends State<ServiceEditPage> {
                               lh: 22,
                             ),
                           ),
-                          hbox(
-                            bg: dk(
-                              context,
-                              Color(0xFFEEEEF0),
-                              Color(0xFF27272A),
-                            ),
-                            radius: BorderRadius.circular(18),
-                            pad: EdgeInsets.fromLTRB(4, 4, 4, 4),
-                            child: Builder(
-                              builder: (context) => hrow(
-                                [
-                                  Expanded(
-                                    flex: 1,
-                                    child: UnconstrainedBox(
-                                      alignment: Alignment.topLeft,
-                                      constrainedAxis: Axis.horizontal,
-                                      child: HSel(
-                                        ctrl: _commissionMode,
-                                        onTap: _unsupported,
-                                        index: 0,
-                                        on: hbox(
-                                          h: 32,
-                                          bg: dk(
-                                            context,
-                                            Color(0xFFFFFFFF),
-                                            Color(0xFF18181B),
-                                          ),
-                                          radius: BorderRadius.circular(16),
-                                          shadow: dk(
-                                            context,
-                                            [
-                                              BoxShadow(
-                                                color: Color.fromRGBO(
-                                                  0,
-                                                  0,
-                                                  0,
-                                                  0.08,
-                                                ),
-                                                offset: Offset(0, 1),
-                                                blurRadius: 2,
-                                                spreadRadius: 0,
-                                              ),
-                                            ],
-                                            [
-                                              BoxShadow(
-                                                color: Color(0xFF26262B),
-                                                offset: Offset(0, 0),
-                                                blurRadius: 0,
-                                                spreadRadius: 1,
-                                              ),
-                                            ],
-                                          ),
-                                          child: Align(
-                                            alignment: Alignment.center,
-                                            widthFactor: 1,
-                                            child: Text(
-                                              '按实收比例',
-                                              style: hts(
-                                                13,
-                                                dk(
-                                                  context,
-                                                  Color(0xFF18181B),
-                                                  Color(0xFFFAFAFA),
-                                                ),
-                                                w: FontWeight.w500,
-                                                lh: 18,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        off: hbox(
-                                          h: 32,
-                                          radius: BorderRadius.circular(16),
-                                          child: Align(
-                                            alignment: Alignment.center,
-                                            widthFactor: 1,
-                                            child: Text(
-                                              '按实收比例',
-                                              style: hts(
-                                                13,
-                                                dk(
-                                                  context,
-                                                  Color(0xFF52525B),
-                                                  Color(0xFFA8A8B3),
-                                                ),
-                                                w: FontWeight.w500,
-                                                lh: 18,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 1,
-                                    child: UnconstrainedBox(
-                                      alignment: Alignment.topLeft,
-                                      constrainedAxis: Axis.horizontal,
-                                      child: HSel(
-                                        ctrl: _commissionMode,
-                                        onTap: _unsupported,
-                                        index: 1,
-                                        on: hbox(
-                                          h: 32,
-                                          bg: dk(
-                                            context,
-                                            Color(0xFFFFFFFF),
-                                            Color(0xFF18181B),
-                                          ),
-                                          radius: BorderRadius.circular(16),
-                                          shadow: dk(
-                                            context,
-                                            [
-                                              BoxShadow(
-                                                color: Color.fromRGBO(
-                                                  0,
-                                                  0,
-                                                  0,
-                                                  0.08,
-                                                ),
-                                                offset: Offset(0, 1),
-                                                blurRadius: 2,
-                                                spreadRadius: 0,
-                                              ),
-                                            ],
-                                            [
-                                              BoxShadow(
-                                                color: Color(0xFF26262B),
-                                                offset: Offset(0, 0),
-                                                blurRadius: 0,
-                                                spreadRadius: 1,
-                                              ),
-                                            ],
-                                          ),
-                                          child: Align(
-                                            alignment: Alignment.center,
-                                            widthFactor: 1,
-                                            child: Text(
-                                              '固定金额',
-                                              style: hts(
-                                                13,
-                                                dk(
-                                                  context,
-                                                  Color(0xFF18181B),
-                                                  Color(0xFFFAFAFA),
-                                                ),
-                                                w: FontWeight.w500,
-                                                lh: 18,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        off: hbox(
-                                          h: 32,
-                                          radius: BorderRadius.circular(16),
-                                          child: Align(
-                                            alignment: Alignment.center,
-                                            widthFactor: 1,
-                                            child: Text(
-                                              '固定金额',
-                                              style: hts(
-                                                13,
-                                                dk(
-                                                  context,
-                                                  Color(0xFF52525B),
-                                                  Color(0xFFA8A8B3),
-                                                ),
-                                                w: FontWeight.w500,
-                                                lh: 18,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                                main: MainAxisAlignment.start,
-                                cross: CrossAxisAlignment.stretch,
-                                gap: 2,
-                                intrinsic: true,
-                              ),
-                            ),
+                          AppSegmented<int>(
+                            items: [
+                              SegmentItem(value: 0, label: '按实收比例'),
+                              SegmentItem(value: 1, label: '固定金额'),
+                            ],
+                            selected: 0,
+                            onChanged: (_) => _unsupported(),
                           ),
                           hrow(
                             [

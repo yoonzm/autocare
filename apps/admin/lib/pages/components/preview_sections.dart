@@ -459,7 +459,7 @@ List<Widget> _choice(BuildContext context) => [
   Demo(
     title: '分段控件',
     tag: 'AppSegmented',
-    notes: const ['用于「切换整页内容」，选中是白色滑块；不用黑色，也不和选择标签混用。2~4 项，超过 4 项改用选择标签或下拉。'],
+    notes: const ['用于「切换整页内容」，选中是白色滑块；不用黑色，也不和选择标签混用。2~5 项，超过 5 项改用选择标签或下拉。'],
     code: "AppSegmented<int>(items: [...], selected: tab, onChanged: setTab)",
     children: [
       _Stateful<int>(0, (v, set) => AppSegmented<int>(
@@ -470,6 +470,20 @@ List<Widget> _choice(BuildContext context) => [
         ],
         selected: v,
         onChanged: set,
+      )),
+      _Stateful<int>(0, (v, set) => AppSegmented<int>(
+        layout: AppSegmentedLayout.compact,
+        items: const [SegmentItem(value: 0, label: '先生'), SegmentItem(value: 1, label: '女士')],
+        selected: v, onChanged: set,
+      )),
+      _Stateful<int>(0, (v, set) => AppSegmented<int>(
+        items: const [SegmentItem(value: 0, label: '全部', count: 12), SegmentItem(value: 1, label: '待处理', count: 0), SegmentItem(value: 2, label: '停用', enabled: false)],
+        selected: v, onChanged: set,
+      )),
+      AppSegmented<int>(enabled: false, items: const [SegmentItem(value: 0, label: '处理中'), SegmentItem(value: 1, label: '已完成')], selected: 0, onChanged: (_) {}),
+      _Stateful<int>(0, (v, set) => AppSegmented<int>(
+        items: [for (final (i, label) in ['今日', '昨日', '本周', '本月', '自定义'].indexed) SegmentItem(value: i, label: label)],
+        selected: v, onChanged: set,
       )),
     ],
   ),

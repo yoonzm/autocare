@@ -1,3 +1,6 @@
+import 'package:autocare_ui_kit/autocare_ui_kit.dart'
+    show AppSegmented, SegmentItem;
+
 import '../../kit/buttons.dart';
 import '../members/member_picker_sheet.dart' show showMemberPicker;
 
@@ -522,8 +525,11 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
             ),
             SizedBox(
               width: 132,
-              child: Segmented(
-                labels: const ['会员', '散客'],
+              child: AppSegmented<int>(
+                items: [
+                  SegmentItem(value: 0, label: '会员'),
+                  SegmentItem(value: 1, label: '散客'),
+                ],
                 selected: isMember ? 0 : 1,
                 onChanged: (i) => setState(() {
                   isMember = i == 0;

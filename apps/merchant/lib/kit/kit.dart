@@ -801,8 +801,6 @@ class HSel extends StatelessWidget {
   final int index;
   final Widget on, off;
 
-  /// 分段条（设计稿 role=tab）：按设计稿原样显示选中 / 未选中，不套 ChoiceChip 样式。
-  final bool segment;
   final VoidCallback? onTap;
   const HSel({
     super.key,
@@ -810,7 +808,6 @@ class HSel extends StatelessWidget {
     required this.index,
     required this.on,
     required this.off,
-    this.segment = false,
     this.onTap,
   });
   @override

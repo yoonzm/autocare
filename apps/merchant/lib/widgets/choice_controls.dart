@@ -1,8 +1,4 @@
-// 新增会员页的选择类控件：称呼（分段）、会员等级、客户来源。
-//
-// 这些控件原先由设计稿自动转换生成，转换时把「选中 / 未选中」两套样式拼错了
-// （嵌套的按钮、白字叠在浅灰底上、品牌色被深色模式反转等），这里改为手写：
-// 每个控件只维护一个选中下标，样式统一从 [C] 色板与设计稿的固定品牌色取值。
+// 会员等级的业务选择卡；普通分段选择使用 AppSegmented。
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -30,84 +26,6 @@ Widget _selectable({
     child: ExcludeSemantics(child: child),
   ),
 );
-
-/// 称呼：先生 / 女士 分段选择。
-class HSegmented extends StatefulWidget {
-  final List<String> labels;
-  final int initial;
-  final ValueChanged<int>? onChanged;
-  const HSegmented({
-    super.key,
-    required this.labels,
-    this.initial = 0,
-    this.onChanged,
-  });
-  @override
-  State<HSegmented> createState() => _HSegmentedState();
-}
-
-class _HSegmentedState extends State<HSegmented> {
-  late int sel = widget.initial;
-
-  @override
-  Widget build(BuildContext context) {
-    // 浅色：白色滑块；深色：比轨道更亮的滑块，保证选中项一眼可辨
-    final thumb = C.dark ? const Color(0xFF3F3F46) : Colors.white;
-    return Container(
-      padding: const EdgeInsets.all(3),
-      decoration: BoxDecoration(
-        color: C.chip,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (var i = 0; i < widget.labels.length; i++) ...[
-            if (i > 0) const SizedBox(width: 2),
-            _selectable(
-              selected: sel == i,
-              label: widget.labels[i],
-              onTap: () {
-                setState(() => sel = i);
-                widget.onChanged?.call(i);
-              },
-              child: AnimatedContainer(
-                duration: _kAnim,
-                height: 28,
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-                decoration: BoxDecoration(
-                  color: sel == i ? thumb : Colors.transparent,
-                  borderRadius: BorderRadius.circular(14),
-                  boxShadow: sel == i && !C.dark
-                      ? const [
-                          BoxShadow(
-                            color: Color(0x14000000),
-                            blurRadius: 2,
-                            offset: Offset(0, 1),
-                          ),
-                        ]
-                      : null,
-                ),
-                child: Center(
-                  widthFactor: 1,
-                  child: Text(
-                    widget.labels[i],
-                    style: ts(
-                      13,
-                      w: FontWeight.w500,
-                      color: sel == i ? C.ink : C.sub,
-                      h: 18,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
 
 /// 选中环：内圈留一圈卡片底色，外圈为主色（设计稿 0 0 0 2px 白, 0 0 0 4px 主色）。
 List<BoxShadow> _ring(Color gap) => [

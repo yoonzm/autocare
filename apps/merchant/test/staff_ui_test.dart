@@ -51,7 +51,7 @@ void main() {
     await open(t, const StaffResourcesPage(), settle: false);
     // 300ms 延迟内：只有外壳，没有灰块
     expect(find.text('员工与权限'), findsOneWidget);
-    expect(find.text('施工技师'), findsOneWidget);
+    expect(find.textContaining('施工技师', findRichText: true), findsOneWidget);
     expect(find.byType(AppSkeleton), findsNothing);
     await t.pump(const Duration(milliseconds: 400));
     expect(find.byType(ResourceSkeleton), findsOneWidget);
@@ -67,7 +67,13 @@ void main() {
   testWidgets('员工列表的角色页签是分段条，不套单选标签（ChoiceChip）样式', (t) async {
     await open(t, const StaffResourcesPage());
     expect(find.byType(AppChoiceGroup<int>), findsNothing);
-    await t.tap(find.textContaining('施工技师'));
+    final segments = find.byType(AppSegmented<int>);
+    expect(segments, findsOneWidget);
+    expect(
+      t.widget<AppSegmented<int>>(segments).items.map((e) => e.count),
+      everyElement(isNotNull),
+    );
+    await t.tap(find.textContaining('施工技师', findRichText: true));
     await t.pumpAndSettle();
     expect(find.textContaining('真实技师'), findsOneWidget);
   });

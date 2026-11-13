@@ -1,3 +1,6 @@
+import 'package:autocare_ui_kit/autocare_ui_kit.dart'
+    show AppSegmented, SegmentItem;
+
 import '../../kit/buttons.dart';
 import '../../routes.dart' show openRoute;
 import '../../backend/data_snapshot.dart';
@@ -421,112 +424,18 @@ class _CardPackagesLivePageState extends State<CardPackagesLivePage> {
                   cross: CrossAxisAlignment.center,
                   gap: 8,
                 ),
-                hbox(
-                  bg: dk(context, Color(0xFFE9E9EB), Color(0xFF1F1F23)),
-                  radius: BorderRadius.circular(20),
-                  pad: EdgeInsets.fromLTRB(4, 4, 4, 4),
-                  child: hrow(
-                    [
-                      Expanded(
-                        flex: 1,
-                        child: UnconstrainedBox(
-                          alignment: Alignment.topLeft,
-                          constrainedAxis: Axis.horizontal,
-                          child: GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: () => openRoute(context, 'CardTiers'),
-                            child: hbox(
-                              h: 34,
-                              radius: BorderRadius.circular(17),
-                              child: Align(
-                                alignment: Alignment(0, 0),
-                                widthFactor: 1,
-                                child: Text(
-                                  tabLabel('等级储值卡', CatalogCounts.cards),
-                                  style: hts(
-                                    14,
-                                    dk(
-                                      context,
-                                      Color(0xFF52525B),
-                                      Color(0xFFA8A8B3),
-                                    ),
-                                    w: FontWeight.w500,
-                                    lh: 20,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        flex: 1,
-                        child: UnconstrainedBox(
-                          alignment: Alignment.topLeft,
-                          constrainedAxis: Axis.horizontal,
-                          child: GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: () => openRoute(context, 'CardPackages'),
-                            child: hbox(
-                              h: 34,
-                              bg: dk(
-                                context,
-                                Color(0xFFFFFFFF),
-                                Color(0xFF18181B),
-                              ),
-                              radius: BorderRadius.circular(17),
-                              shadow: dk(
-                                context,
-                                [
-                                  BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.06),
-                                    offset: Offset(0, 1),
-                                    blurRadius: 2,
-                                    spreadRadius: 0,
-                                  ),
-                                  BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.04),
-                                    offset: Offset(0, 2),
-                                    blurRadius: 4,
-                                    spreadRadius: 0,
-                                  ),
-                                ],
-                                [
-                                  BoxShadow(
-                                    color: Color(0xFF26262B),
-                                    offset: Offset(0, 0),
-                                    blurRadius: 0,
-                                    spreadRadius: 1,
-                                  ),
-                                ],
-                              ),
-                              child: Align(
-                                alignment: Alignment(0, 0),
-                                widthFactor: 1,
-                                child: Text(
-                                  tabLabel('次卡套餐', _rows?.length),
-                                  style: hts(
-                                    14,
-                                    dk(
-                                      context,
-                                      Color(0xFF18181B),
-                                      Color(0xFFFAFAFA),
-                                    ),
-                                    w: FontWeight.w500,
-                                    lh: 20,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                    main: MainAxisAlignment.start,
-                    cross: CrossAxisAlignment.stretch,
-                    gap: 2,
-                    intrinsic: true,
-                  ),
+                AppSegmented<int>(
+                  items: [
+                    SegmentItem(
+                      value: 0,
+                      label: '等级储值卡',
+                      count: CatalogCounts.cards,
+                    ),
+                    SegmentItem(value: 1, label: '次卡套餐', count: _rows?.length),
+                  ],
+                  selected: 1,
+                  onChanged: (i) =>
+                      openRoute(context, i == 0 ? 'CardTiers' : 'CardPackages'),
                 ),
                 if (_rows == null &&
                     error == null &&

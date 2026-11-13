@@ -1,4 +1,6 @@
 import 'package:autocare_ui_kit/autocare_ui_kit.dart'
+    show AppSegmented, AppSegmentedLayout, SegmentItem;
+import 'package:autocare_ui_kit/autocare_ui_kit.dart'
     show AppChoiceGroup, ChoiceItem;
 
 import '../../kit/buttons.dart';
@@ -11,7 +13,6 @@ import 'member_form_host.dart';
 import 'package:flutter/material.dart';
 
 import '../../kit/kit.dart';
-import '../../widgets/choice_controls.dart';
 import '../../widgets/color_fields.dart';
 import '../../resources/merchant_svgs.dart';
 
@@ -365,13 +366,30 @@ class _MemberAddPageTemplate extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                                HSegmented(
-                                  labels: MemberFormController.honorifics,
-                                  initial: 0,
+                                AppSegmented<int>(
+                                  items: [
+                                    for (
+                                      var i = 0;
+                                      i <
+                                          MemberFormController
+                                              .honorifics
+                                              .length;
+                                      i++
+                                    )
+                                      SegmentItem(
+                                        value: i,
+                                        label:
+                                            MemberFormController.honorifics[i],
+                                      ),
+                                  ],
+                                  selected: MemberFormController.honorifics
+                                      .indexOf(c.text('honorific'))
+                                      .clamp(0, 1),
                                   onChanged: (i) => c.set(
                                     'honorific',
                                     MemberFormController.honorifics[i],
                                   ),
+                                  layout: AppSegmentedLayout.compact,
                                 ),
                               ],
                               main: MainAxisAlignment.start,

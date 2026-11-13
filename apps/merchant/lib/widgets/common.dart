@@ -241,57 +241,6 @@ class SectionTitle extends StatelessWidget {
   );
 }
 
-/// 灰底分段控件
-class Segmented extends StatelessWidget {
-  final List<String> labels;
-  final int selected;
-  final ValueChanged<int> onChanged;
-  const Segmented({
-    super.key,
-    required this.labels,
-    required this.selected,
-    required this.onChanged,
-  });
-  @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.all(4),
-    decoration: BoxDecoration(
-      color: C.segment,
-      borderRadius: BorderRadius.circular(20),
-    ),
-    child: Row(
-      children: [
-        for (var i = 0; i < labels.length; i++)
-          Expanded(
-            child: GestureDetector(
-              onTap: () => onChanged(i),
-              child: Container(
-                height: 32,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: i == selected
-                      ? (C.dark ? C.stroke : Colors.white)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: i == selected ? softShadow : null,
-                ),
-                child: Text(
-                  labels[i],
-                  style: ts(
-                    13,
-                    w: FontWeight.w500,
-                    color: i == selected ? C.ink : C.sub,
-                    h: 18,
-                  ),
-                ),
-              ),
-            ),
-          ),
-      ],
-    ),
-  );
-}
-
 /// 圆环装饰（深色卡片背景）
 /// 卡片背景的同心圆装饰。和设计稿的 SVG 一致：[viewBox] 是 SVG 的画布边长，[radii] 是各圈半径（画布单位），
 /// 描边宽度 1.5（画布单位，随 [size] / [viewBox] 缩放）。[colors] 给每一圈单独指定颜色；[dot] 是画布里的一个实心小圆点。
