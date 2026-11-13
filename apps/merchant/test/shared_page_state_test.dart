@@ -7,7 +7,6 @@ import 'package:autocare_merchant/kit/pickers.dart';
 import 'package:autocare_merchant/pages/staff/staff_live.dart';
 import 'package:autocare_merchant/pages/staff_app/st_auth_template.dart';
 import 'package:autocare_merchant/pages/staff_app/st_identity_template.dart';
-import 'package:autocare_merchant/pages/staff_app/st_msgs_template.dart';
 import 'package:autocare_merchant/pages/staff_app/st_front_home_template.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -17,7 +16,7 @@ import 'appointments_test.dart' show BookingApi;
 import 'members_test.dart' show phone;
 
 class _Api extends BookingApi {
-  Completer<Map<String, dynamic>>? selection, join, readAll;
+  Completer<Map<String, dynamic>>? selection, join;
   Object? signOutError, queueError;
   int signOutCalls = 0;
   @override
@@ -42,10 +41,6 @@ class _Api extends BookingApi {
     String action, [
     Map<String, dynamic> values = const {},
   ]) {
-    if (action == 'staff_messages_read' && readAll != null) {
-      calls.add({'action': action, ...values});
-      return readAll!.future;
-    }
     if (action == 'staff_cash_queue') {
       calls.add({'action': action});
       return queueError != null
@@ -128,32 +123,6 @@ void main() {
     await t.pumpAndSettle();
     expect(calls('identity_context'), 0);
     expect(t.takeException(), isNull);
-  });
-
-  testWidgets('全部已读防重复并显示loading，不同消息页不共享提交键', (t) async {
-    phone(t);
-    api.readAll = Completer();
-    await t.pumpWidget(
-      const MaterialApp(home: StMsgsTemplate(d: {'items': []})),
-    );
-    await t.pumpAndSettle();
-    await t.tap(find.text('全部已读'));
-    await t.pump();
-    expect(find.byType(AppSpinner), findsOneWidget);
-    await t.tap(find.text('全部已读'), warnIfMissed: false);
-    expect(calls('staff_messages_read'), 1);
-    await t.pumpWidget(
-      const MaterialApp(
-        home: StMsgsTemplate(key: ValueKey('second'), d: {'items': []}),
-      ),
-    );
-    await t.pump();
-    await t.tap(find.text('全部已读'));
-    await t.pump();
-    expect(calls('staff_messages_read'), 2);
-    api.readAll!.completeError(const AppError.timeout());
-    await t.pumpAndSettle();
-    expect(find.text('全部已读'), findsOneWidget);
   });
 
   testWidgets('员工数据读取期间收到刷新，失败解锁后仍会重新读取', (t) async {

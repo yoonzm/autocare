@@ -14,12 +14,12 @@
 | 页面 | 动作（`merchant-v1`） |
 | --- | --- |
 | 登录 / 选择身份 / 加入门店 / 登录失败 / 暂无权限 / 套餐到期 | `identity_list` / `identity_select` / `identity_join` / `identity_context` |
-| 技师工作台、前台工作台、我的 | `staff_home`（含未读消息数；我的的「切换身份」只对多身份账号显示） |
+| 技师工作台、前台工作台、我的 | `staff_home`（MVP 不展示消息及未读数；我的的「切换身份」只对多身份账号显示） |
 | 我的任务 / 任务详情 | `staff_task_list` / `staff_task_detail`（只返回派给自己的预约） |
 | 更新进度（弹层） | `staff_task_progress`：已完成节点数 1–3，只能向前，仅施工中的任务 |
 | 完工提交 / 已完工 | `staff_task_finish`：任务进入「已完成」，通知前台与店长收银；返回今日累计预计提成 |
 | 业绩提成 | `staff_perf`：本月提成 / 完成单 / 业绩、近 7 天、明细（来自 `staff_commissions` 快照） |
-| 消息 | `staff_messages` / `staff_messages_read`；新任务、车主到店、提成已更新、权限已调整由数据库触发器写入 |
+| 消息（MVP 暂不实现） | 前端入口与页面已删除；`staff_messages` / `staff_messages_read` 及已有数据库触发器保留，后续需要时再接入 |
 | 今日到店 | `staff_arrivals`（需「今日到店」权限） |
 
 ## 与设计稿的差异（因没有数据来源，不造假）

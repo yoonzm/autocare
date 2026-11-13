@@ -733,12 +733,6 @@
       "legacyDependencies": []
     },
     {
-      "path": "pages/staff_app/st_msgs_template.dart",
-      "domain": "staff_app",
-      "status": "verified",
-      "legacyDependencies": []
-    },
-    {
       "path": "pages/staff_app/st_no_perm_template.dart",
       "domain": "staff_app",
       "status": "verified",
@@ -3091,6 +3085,10 @@
     {
       "path": "pages/catalog/service_picker_sheet.dart",
       "reason": "仅旧注册表引用的样例服务选择模板，无生产调用；开单直接选择真实服务，套餐使用package_service_picker返回真实结果。移除孤立路由。"
+    },
+    {
+      "path": "pages/staff_app/st_msgs_template.dart",
+      "reason": "MVP 不实现老板与店员消息通知；移除技师/前台工作台和我的入口、StMsgs 路由、消息页及专用状态和测试，已实现后端保留。"
     }
   ],
   "cleanupEvidence": {

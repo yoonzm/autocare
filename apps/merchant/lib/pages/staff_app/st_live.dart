@@ -96,9 +96,3 @@ Future<Map<String, dynamic>> stLoadTask(String? id) {
   }
   return merchantApi.staffWork('staff_task_detail', {'id': id});
 }
-
-/// 消息时间：今天显示时刻，其余显示 昨天 / 10.28。
-String stMsgTime(Object? iso) {
-  final label = staffDayLabel(iso);
-  return label == '今天' ? stClock(iso) : label;
-}

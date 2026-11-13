@@ -16,7 +16,6 @@ import 'st_member_template.dart';
 import 'st_done_template.dart';
 import 'st_finish_template.dart';
 import 'st_mine_template.dart';
-import 'st_msgs_template.dart';
 import 'st_no_perm_template.dart';
 import 'st_perf_template.dart';
 import 'st_task_detail_template.dart';
@@ -237,6 +236,5 @@ Widget? stPageFor(
         : StOrderLivePage(memberId: member.memberId),
   'StCashQueue' => const StCashQueueLivePage(),
   'StPerf' => const StPerfLivePage(),
-  'StMsgs' => const StMsgsLivePage(),
   _ => null,
 };

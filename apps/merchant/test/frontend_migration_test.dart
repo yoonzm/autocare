@@ -589,6 +589,7 @@ void main() {
       'DataBackup',
       'NotifySettings',
       'Messages',
+      'StMsgs',
       'Printer',
       'BindH5',
       'BindDone',

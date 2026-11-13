@@ -4,14 +4,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:autocare_merchant/backend/access_flow.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
-import 'package:autocare_merchant/backend/task_flow.dart';
 import 'package:autocare_merchant/pages/staff_app/staff_tabs.dart';
 import 'package:autocare_merchant/routes.dart' show navTracker, openRoute;
 
 import 'appointments_test.dart' show BookingApi;
 import 'members_test.dart' show phone;
 
-/// 员工工作流（任务 / 进度 / 完工 / 业绩 / 消息 / 今日到店）的假后端。
+/// 员工工作流（任务 / 进度 / 完工 / 业绩 / 今日到店）的假后端。
 class WorkApi extends BookingApi {
   Map<String, Map<String, dynamic>> tasks = {
     'w1': task(
@@ -40,35 +39,6 @@ class WorkApi extends BookingApi {
       finished: true,
     ),
   };
-  List<Map<String, dynamic>> messages = [
-    {
-      'id': 'm1',
-      'kind': 'task',
-      'title': '新任务派给你',
-      'body': '沪B5X770 内饰深度清洁',
-      'link': 'StTaskDetail:w1',
-      'created_at': '2026-11-01T06:00:00Z',
-      'read_at': null,
-    },
-    {
-      'id': 'm2',
-      'kind': 'arrival',
-      'title': '车主已到店',
-      'body': '王建国的沪A8K29M 已到店',
-      'link': 'StTaskDetail:a1',
-      'created_at': '2026-11-01T05:00:00Z',
-      'read_at': null,
-    },
-    {
-      'id': 'm3',
-      'kind': 'system',
-      'title': '提成已更新',
-      'body': '订单已结算，+¥100 计入本月提成。',
-      'link': 'StPerf',
-      'created_at': '2026-11-01T04:00:00Z',
-      'read_at': '2026-11-01T04:30:00Z',
-    },
-  ];
   Object? workError;
 
   static Map<String, dynamic> task(
@@ -176,20 +146,6 @@ class WorkApi extends BookingApi {
             },
           ],
         };
-      case 'staff_messages':
-        return {
-          'items': messages,
-          'unread': messages.where((m) => m['read_at'] == null).length,
-        };
-      case 'staff_messages_read':
-        messages = [
-          for (final m in messages)
-            if (values['id'] == null || m['id'] == values['id'])
-              {...m, 'read_at': '2026-11-10T00:00:00Z'}
-            else
-              m,
-        ];
-        return {'unread': messages.where((m) => m['read_at'] == null).length};
     }
     throw UnsupportedError(action);
   }
@@ -368,36 +324,5 @@ void main() {
     expect(text('客户 王建国 · 黑金会员'), findsOneWidget);
     expect(text('客户 赵磊 · 银卡'), findsOneWidget);
     expect(text('沪A8K29M'), findsOneWidget);
-  });
-
-  testWidgets('消息：按类型筛选，点开跳转并标记已读，全部已读', (t) async {
-    await start(t, 'StMsgs');
-    expect(text('新任务派给你'), findsOneWidget);
-    expect(text('车主已到店'), findsOneWidget);
-    expect(text('提成已更新'), findsOneWidget);
-    await t.tap(text('到店').first);
-    await t.pumpAndSettle();
-    expect(text('新任务派给你'), findsNothing);
-    expect(text('车主已到店'), findsOneWidget);
-    await t.tap(text('全部').first);
-    await t.pumpAndSettle();
-    await t.tap(text('新任务派给你'));
-    await t.pumpAndSettle();
-    expect(calls('staff_messages_read').single['id'], 'm1');
-    expect(calls('staff_task_detail').last['id'], 'w1');
-    expect(text('任务详情'), findsOneWidget);
-  });
-
-  testWidgets('消息：全部已读调用服务端，没有消息时显示空态', (t) async {
-    await start(t, 'StMsgs');
-    await t.tap(text('全部已读'));
-    await t.pumpAndSettle();
-    await t.pump(const Duration(seconds: 1));
-    final c = calls('staff_messages_read').single;
-    expect(c.containsKey('id'), isFalse);
-    api.messages = [];
-    TaskFlow.notify();
-    await t.pumpAndSettle();
-    expect(text('暂无消息'), findsOneWidget);
   });
 }
