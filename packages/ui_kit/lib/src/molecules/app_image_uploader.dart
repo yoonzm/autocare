@@ -213,11 +213,11 @@ class AppImageUploader extends StatelessWidget {
                             size: 24,
                             color: t.inkMute,
                           )
-                        else if (uploading && it!.progress == null)
+                        else if (uploading && it.progress == null)
                           AppSpinner(size: 20, color: t.heroInk)
                         else if (uploading)
                           Text(
-                            '${(it!.progress! * 100).round()}%',
+                            '${(it.progress! * 100).round()}%',
                             style: t.body.copyWith(
                               fontFeatures: AppTokens.tabular,
                               color: t.primaryText,
@@ -261,7 +261,7 @@ class AppImageUploader extends StatelessWidget {
                       left: 0,
                       right: 0,
                       bottom: 0,
-                      child: _ProgressBar(it!.progress!),
+                      child: _ProgressBar(it.progress!),
                     ),
                 ],
               ),
