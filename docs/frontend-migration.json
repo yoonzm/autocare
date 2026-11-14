@@ -865,36 +865,6 @@
       "legacyDependencies": []
     },
     {
-      "path": "pages/inventory/stock_check_input_bound_template.dart",
-      "domain": "inventory",
-      "status": "verified",
-      "legacyDependencies": []
-    },
-    {
-      "path": "pages/inventory/stock_check_line_template.dart",
-      "domain": "inventory",
-      "status": "verified",
-      "legacyDependencies": []
-    },
-    {
-      "path": "pages/inventory/stock_check_live_template.dart",
-      "domain": "inventory",
-      "status": "verified",
-      "legacyDependencies": []
-    },
-    {
-      "path": "pages/inventory/stock_check_new_bound_template.dart",
-      "domain": "inventory",
-      "status": "verified",
-      "legacyDependencies": []
-    },
-    {
-      "path": "pages/inventory/stock_check_result_bound_template.dart",
-      "domain": "inventory",
-      "status": "verified",
-      "legacyDependencies": []
-    },
-    {
       "path": "pages/inventory/stock_docs_bound_template.dart",
       "domain": "inventory",
       "status": "verified",
@@ -1717,41 +1687,6 @@
       ]
     },
     "pages/inventory/stock_alert_settings_bound_template.dart": {
-      "tests": "库存、商品、供应商选择、迁移守卫、placeholder 与步进器合计 91 项通过；追加生命周期保护后 inventory_state_test 7 项通过；flutter analyze 无问题",
-      "visualFixture": "保留原布局和原选中/未选中样式，只替换属性、回调及实例控制器；库存已有深浅色真实数据渲染用例通过，未重复逐页截图",
-      "remainingTODO": [
-        "库存 App/微信通知缺少真实渠道，明确阻止开启"
-      ]
-    },
-    "pages/inventory/stock_check_input_bound_template.dart": {
-      "tests": "库存、商品、供应商选择、迁移守卫、placeholder 与步进器合计 91 项通过；追加生命周期保护后 inventory_state_test 7 项通过；flutter analyze 无问题",
-      "visualFixture": "保留原布局和原选中/未选中样式，只替换属性、回调及实例控制器；库存已有深浅色真实数据渲染用例通过，未重复逐页截图",
-      "remainingTODO": [
-        "库存 App/微信通知缺少真实渠道，明确阻止开启"
-      ]
-    },
-    "pages/inventory/stock_check_line_template.dart": {
-      "tests": "库存、商品、供应商选择、迁移守卫、placeholder 与步进器合计 91 项通过；追加生命周期保护后 inventory_state_test 7 项通过；flutter analyze 无问题",
-      "visualFixture": "保留原布局和原选中/未选中样式，只替换属性、回调及实例控制器；库存已有深浅色真实数据渲染用例通过，未重复逐页截图",
-      "remainingTODO": [
-        "库存 App/微信通知缺少真实渠道，明确阻止开启"
-      ]
-    },
-    "pages/inventory/stock_check_live_template.dart": {
-      "tests": "库存、商品、供应商选择、迁移守卫、placeholder 与步进器合计 91 项通过；追加生命周期保护后 inventory_state_test 7 项通过；flutter analyze 无问题",
-      "visualFixture": "保留原布局和原选中/未选中样式，只替换属性、回调及实例控制器；库存已有深浅色真实数据渲染用例通过，未重复逐页截图",
-      "remainingTODO": [
-        "库存 App/微信通知缺少真实渠道，明确阻止开启"
-      ]
-    },
-    "pages/inventory/stock_check_new_bound_template.dart": {
-      "tests": "库存、商品、供应商选择、迁移守卫、placeholder 与步进器合计 91 项通过；追加生命周期保护后 inventory_state_test 7 项通过；flutter analyze 无问题",
-      "visualFixture": "保留原布局和原选中/未选中样式，只替换属性、回调及实例控制器；库存已有深浅色真实数据渲染用例通过，未重复逐页截图",
-      "remainingTODO": [
-        "库存 App/微信通知缺少真实渠道，明确阻止开启"
-      ]
-    },
-    "pages/inventory/stock_check_result_bound_template.dart": {
       "tests": "库存、商品、供应商选择、迁移守卫、placeholder 与步进器合计 91 项通过；追加生命周期保护后 inventory_state_test 7 项通过；flutter analyze 无问题",
       "visualFixture": "保留原布局和原选中/未选中样式，只替换属性、回调及实例控制器；库存已有深浅色真实数据渲染用例通过，未重复逐页截图",
       "remainingTODO": [

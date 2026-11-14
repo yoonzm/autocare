@@ -255,7 +255,7 @@ class _ProductListState extends State<ProductListLivePage> {
                       : filter == 3
                       ? '没有已停用的商品'
                       : '没有商品',
-                  message: all.isEmpty ? '先添加商品，才能入库、出库和盘点' : null,
+                  message: all.isEmpty ? '先添加商品，才能入库和出库' : null,
                   actionLabel: all.isEmpty ? '添加第一个商品' : null,
                   onAction: all.isEmpty
                       ? () => openRoute(context, 'ProductEdit')

@@ -108,7 +108,6 @@ const Map<String, String> sheetParents = {
   'ProductPicker': 'StockIn',
   'ScanProductNotFound': 'ScanProduct',
   'ScanProductResult': 'ScanProduct',
-  'StockCheckInput': 'StockCheck',
   'StockOutShort': 'StockOut',
   'StockVoid': 'StockInDetail',
   'SupplierPicker': 'StockIn',

@@ -147,18 +147,15 @@ void main() {
     expect(find.text('真实镀晶剂'), findsOneWidget);
   });
 
-  testWidgets('库存新页面都已登记：商品编辑、分类、预警、单据、详情、盘点和扫码结果', (t) async {
+  testWidgets('库存新页面都已登记：商品编辑、分类、预警、单据、详情和扫码结果', (t) async {
     for (final n in [
       'CategoryManage',
       'StockAlertSettings',
       'SupplierEdit',
       'StockDocs',
       'StockDocsOut',
-      'StockDocsCheck',
       'StockInDetail',
       'StockOutDetail',
-      'StockCheckNew',
-      'StockCheckResult',
       'ScanProduct',
     ]) {
       expect(pageFor(n), isNotNull, reason: n);
@@ -170,7 +167,6 @@ void main() {
       'SupplierPicker',
       'StockVoid',
       'StockOutShort',
-      'StockCheckInput',
       'ScanProductResult',
       'ScanProductNotFound',
     ]) {
@@ -190,15 +186,12 @@ void main() {
     }
   });
 
-  testWidgets('库存单据三个页签是同一个页面：点出库单 / 盘点单切换，不叠新页', (t) async {
+  testWidgets('库存单据两个页签是同一个页面：点出库单切换，不叠新页', (t) async {
     await openRoute_(t, 'StockDocs');
     expect(find.text('库存单据'), findsWidgets);
     await t.tap(find.text('出库单'));
     await t.pumpAndSettle();
     expect(find.text('已出库'), findsOneWidget);
-    await t.tap(find.text('盘点单'));
-    await t.pumpAndSettle();
-    expect(find.text('已盘点'), findsOneWidget);
     expect(
       navTracker.stack.where((r) => r.settings.name == 'StockDocs').length,
       lessThanOrEqualTo(1),

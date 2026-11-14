@@ -93,7 +93,7 @@ class _InventoryPageState extends State<InventoryPage> {
                     SizedBox(
                       width: 270,
                       child: Text(
-                        '先添加商品，才能入库、出库和盘点。服务里绑定的耗材也从这里选。',
+                        '先添加商品，才能入库和出库。服务里绑定的耗材也从这里选。',
                         textAlign: TextAlign.center,
                         style: ts(14, color: C.sub, h: 21),
                       ),
@@ -182,8 +182,6 @@ class _InventoryPageState extends State<InventoryPage> {
               _action(context, '入库', 'arrowIn', C.greenSoft, C.greenInk),
               const SizedBox(width: 10),
               _action(context, '出库', 'arrowOut', C.amberSoft, C.amberInk),
-              const SizedBox(width: 10),
-              _action(context, '盘点', 'clipboard', C.primarySoft, C.primaryInk),
             ],
           ),
           const SizedBox(height: 16),
@@ -191,7 +189,7 @@ class _InventoryPageState extends State<InventoryPage> {
             children: [
               _entry(context, '全部商品', '${products.length} 项', 'ProductList'),
               const SizedBox(width: 10),
-              _entry(context, '库存单据', '入库 / 出库 / 盘点', 'StockDocs'),
+              _entry(context, '库存单据', '入库 / 出库', 'StockDocs'),
             ],
           ),
           const SizedBox(height: 16),
@@ -428,10 +426,7 @@ class _InventoryPageState extends State<InventoryPage> {
     child: AppCard(
       radius: 20,
       padding: const EdgeInsets.all(12),
-      onTap: () => openRoute(
-        context,
-        {'入库': 'StockIn', '出库': 'StockOut', '盘点': 'StockCheckNew'}[t]!,
-      ),
+      onTap: () => openRoute(context, {'入库': 'StockIn', '出库': 'StockOut'}[t]!),
       child: Row(
         children: [
           Container(

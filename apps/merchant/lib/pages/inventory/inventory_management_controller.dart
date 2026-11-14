@@ -12,7 +12,6 @@ import 'product_edit_live_page.dart';
 import 'inventory_management_row_templates.dart';
 import 'stock_void_bound_template.dart';
 import 'stock_out_short_bound_template.dart';
-import 'stock_check_input_bound_template.dart';
 import 'scan_product_result_bound_template.dart';
 import 'scan_product_not_found_bound_template.dart';
 import 'inventory_controller.dart';
@@ -55,10 +54,9 @@ class InventoryManagementController extends ChangeNotifier {
   late final countId = inventoryId();
   final categoryIds = <String, String>{};
   String lastCode = '', voidReason = '录错数量';
-  String get kind =>
-      count?.mode ?? '${document['kind'] ?? ['in', 'out', 'check'][tab]}';
+  String get kind => count?.mode ?? '${document['kind'] ?? ['in', 'out'][tab]}';
   List<Map<String, dynamic>> get lines =>
-      count?.counted ?? maps(document['payload']?['lines']);
+      count?.lines ?? maps(document['payload']?['lines']);
   List<Map<String, dynamic>> get snapshots =>
       count?.products ?? maps(document['payload']?['snapshots']);
   Map<String, dynamic> product(Map<String, dynamic> l) =>
@@ -68,18 +66,6 @@ class InventoryManagementController extends ChangeNotifier {
       maps(document['movements'])
           .where((m) => m['payload']?['kind'] != 'void')
           .toList();
-  num delta(Map<String, dynamic> l) => count != null
-      ? count!.difference(l)
-      : ((movements
-                        .where((m) => m['product_id'] == l['id'])
-                        .firstOrNull?['after_stock']
-                    as num? ??
-                l['quantity']) -
-            (movements
-                        .where((m) => m['product_id'] == l['id'])
-                        .firstOrNull?['before_stock']
-                    as num? ??
-                product(l)['stock'] as num));
   void apply(Map<String, dynamic> data) {
     if (mode == 'docs') documents = maps(data['items']);
     if (mode == 'document') document = Map<String, dynamic>.from(data['item']);
@@ -103,28 +89,12 @@ class InventoryManagementController extends ChangeNotifier {
   }
 
   String code(Map<String, dynamic> d) =>
-      '${{'in': 'RK', 'out': 'CK', 'check': 'PD'}[d['kind']]}-${'${d['id']}'.split('-').first}';
+      '${{'in': 'RK', 'out': 'CK'}[d['kind']]}-${'${d['id']}'.split('-').first}';
   String state(Map<String, dynamic> d) => switch (d['status']) {
     'draft' => '草稿',
     'void' => '已作废',
-    _ =>
-      d['kind'] == 'in'
-          ? '已入库'
-          : d['kind'] == 'out'
-          ? '已出库'
-          : '已盘点',
+    _ => d['kind'] == 'in' ? '已入库' : '已出库',
   };
-  num amount(bool gain) => count != null
-      ? (count!.quote?['lines'] as Map? ?? {}).entries
-            .where((e) => gain ? (e.value as num) > 0 : (e.value as num) < 0)
-            .fold<num>(0, (n, e) => n + (e.value as num))
-      : movements
-            .where(
-              (m) => gain
-                  ? m['after_stock'] > m['before_stock']
-                  : m['after_stock'] < m['before_stock'],
-            )
-            .fold<num>(0, (n, m) => n + (gain ? 1 : -1) * (m['cost'] as num));
   String categoryName(Map<String, dynamic> row) => '${row['name']}';
   String categoryCount(Map<String, dynamic> row) => '${row['count']} 个商品';
   String documentRowSummary(Map<String, dynamic> row) =>
@@ -137,17 +107,6 @@ class InventoryManagementController extends ChangeNotifier {
       : '先进先出 · ${row['expires_on'] ?? '无保质期'}';
   String itemQuantity(Map<String, dynamic> row) =>
       '× ${qty(row['quantity'] as num? ?? 0)} ${product(row)['unit']}';
-  String itemCount(Map<String, dynamic> row) =>
-      '系统 ${qty(product(row)['stock'] as num? ?? 0)} · 实盘 ${qty(row['quantity'] as num? ?? 0)}';
-  String itemDelta(Map<String, dynamic> row) =>
-      '${delta(row) > 0 ? '+' : ''}${qty(delta(row))} ${product(row)['unit']}';
-
-  Map<String, dynamic> get countProduct => count!.product(activeLine!);
-  String get countProductName => '${countProduct['name']}';
-  String get countUnit => '${countProduct['unit']}';
-  String get countStockLabel => count!.payload['blind'] == true
-      ? '盲盘 · 已录入 ${qty(pendingQuantity ?? 0)} ${countProduct['unit']}'
-      : '系统库存：${qty(countProduct['stock'])} ${countProduct['unit']} · 盈亏 ${qty((pendingQuantity ?? 0) - (countProduct['stock'] as num))}';
   Map<String, dynamic>? get shortageLine => count!.lines
       .where(
         (l) => (l['quantity'] as num) > (count!.product(l)['stock'] as num),
@@ -181,13 +140,9 @@ class InventoryManagementController extends ChangeNotifier {
       scope == 1 && scopeValue != null ? '$scopeValue' : '按分类';
   String get locationScopeLabel =>
       scope == 2 && scopeValue != null ? '$scopeValue' : '按货位';
-  String get countScopeSummary =>
-      '共 ${selectedProducts.length} 项商品，预计盘点 ${(selectedProducts.length / 8).ceil()} 分钟';
-  String get documentCode =>
-      count == null ? code(document) : 'PD-${count!.id.split('-').first}';
-  String get countResultCode => '$documentCode · 盘点结果';
+  String get documentCode => code(document);
   String get documentState =>
-      mode == 'docs' ? ['已入库', '已出库', '已盘点'][tab] : state(document);
+      mode == 'docs' ? ['已入库', '已出库'][tab] : state(document);
   String get documentDate =>
       '${document['posted_at'] ?? document['created_at'] ?? ''}';
   String get documentSupplier => '${document['payload']?['supplier'] ?? ''}';
@@ -204,22 +159,7 @@ class InventoryManagementController extends ChangeNotifier {
   String get documentTotal => money(document['total'] as num? ?? 0);
   String get documentItemsTitle =>
       '${kind == 'in' ? '入库' : '出库'}商品 · ${lines.length} 项';
-  String get countedLabel => '${lines.length} 项已盘';
-  String get gainItemsLabel => '+${lines.where((l) => delta(l) > 0).length} 项';
-  String get lossItemsLabel => '-${lines.where((l) => delta(l) < 0).length} 项';
-  String get gainAmountLabel =>
-      count != null && count!.quote == null ? '—' : money(amount(true));
-  String get lossAmountLabel =>
-      count != null && count!.quote == null ? '—' : money(amount(false));
-  String get netAmountLabel => count != null && count!.quote == null
-      ? '—'
-      : money(amount(true) + amount(false));
-  String get voidTitle =>
-      '作废${kind == 'in'
-          ? '入库'
-          : kind == 'out'
-          ? '出库'
-          : '盘点'}单';
+  String get voidTitle => '作废${kind == 'in' ? '入库' : '出库'}单';
   String get voidEffectLabel =>
       '作废后恢复该单据之前的库存批次，并撤销关联开支 ${money(document['expense']?['amount'] as num? ?? 0)}。';
   String get voidAvailabilityLabel => document['can_void'] == true
@@ -229,30 +169,6 @@ class InventoryManagementController extends ChangeNotifier {
   String get voidButtonLabel => document['status'] == 'void' ? '已作废' : '作废此单';
   String get submitLabel => mode == 'document' ? state(document) : '确认提交';
 
-  Widget countField({required TextStyle? style, required bool quantity}) =>
-      TextFormField(
-        key: ValueKey('${activeLine?['id']}-$quantity'),
-        initialValue: quantity
-            ? (pendingQuantity == null ? '' : qty(pendingQuantity!))
-            : pendingNote,
-        style: style,
-        keyboardType: quantity
-            ? const TextInputType.numberWithOptions(decimal: true)
-            : TextInputType.text,
-        decoration: InputDecoration(
-          border: InputBorder.none,
-          isDense: true,
-          hintText: quantity ? '请输入实盘数量' : '如：有 1 卷未拆封',
-        ),
-        onChanged: (v) {
-          if (quantity) {
-            pendingQuantity = num.tryParse(v);
-          } else {
-            pendingNote = v;
-          }
-          notifyListeners();
-        },
-      );
   Color documentTabBackground(int index) =>
       index == tab ? C.primarySoft : C.chip;
   Color documentStatusBackground(int index) =>
@@ -354,30 +270,6 @@ class InventoryManagementController extends ChangeNotifier {
         inventoryChanged.value++;
         if (context.mounted && !disposed) Navigator.pop(context);
       });
-  Future<void> startCount(BuildContext context) =>
-      _perform(context, () => beginCount(context));
-  Future<void> submitCount(BuildContext context) =>
-      _perform(context, () => count!.save(context, true, fromPreview: true));
-  Future<void> nextCount(BuildContext context, {required bool confirm}) =>
-      _perform(context, () async {
-        if (confirm) {
-          if (pendingQuantity == null || pendingQuantity! < 0) {
-            throw const AppError('请输入有效的实盘数量');
-          }
-          activeLine!['quantity'] = pendingQuantity;
-          activeLine!['note'] = pendingNote;
-          count!.changed();
-        }
-        final index = count!.lines.indexOf(activeLine!) + 1;
-        if (index >= count!.lines.length) {
-          Navigator.pop(context);
-          return;
-        }
-        activeLine = count!.lines[index];
-        pendingQuantity = activeLine!['quantity'] as num?;
-        pendingNote = '${activeLine!['note'] ?? ''}';
-        notifyListeners();
-      });
   void replenishShortage(BuildContext context) {
     final line = shortageLine;
     final nav = Navigator.of(context);
@@ -437,100 +329,6 @@ class InventoryManagementController extends ChangeNotifier {
       );
     }
   });
-
-  List<Map<String, dynamic>> get selectedProducts => products
-      .where(
-        (p) =>
-            scope == 0 ||
-            (scope == 1
-                ? p['category'] == scopeValue
-                : p['location'] == scopeValue),
-      )
-      .toList();
-  Future<void> selectScope(BuildContext context, int i) async {
-    scope = i;
-    scopeValue = null;
-    if (i != 0) {
-      final values = {
-        for (final p in products)
-          '${p[i == 1 ? 'category' : 'location'] ?? ''}',
-      }..remove('');
-      final value = await showModalBottomSheet<String>(
-        context: context,
-        builder: (ctx) => SafeArea(
-          child: ListView(
-            shrinkWrap: true,
-            children: [
-              if (values.isEmpty) const ListTile(title: Text('还没有可选范围')),
-              for (final v in values)
-                ListTile(title: Text(v), onTap: () => Navigator.pop(ctx, v)),
-            ],
-          ),
-        ),
-      );
-      if (disposed) return;
-      if (value == null) {
-        scope = 0;
-      } else {
-        scopeValue = value;
-      }
-    }
-    selectionEpoch++;
-    changed();
-  }
-
-  Future<void> beginCount(BuildContext context) async {
-    final existing = (await merchantApi.invoke({
-      'action': 'inventory_draft',
-      'kind': 'check',
-    }))['item'];
-    if (!context.mounted || disposed) return;
-    if (existing != null) {
-      unawaited(
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => InventoryLivePage(
-              mode: 'check',
-              draft: Map<String, dynamic>.from(existing),
-            ),
-          ),
-        ),
-      );
-      return;
-    }
-    if (selectedProducts.isEmpty) throw const AppError('所选范围没有启用商品');
-    final p = {
-      'lines': <Map<String, dynamic>>[],
-      'product_ids': selectedProducts.map((p) => p['id']).toList(),
-      'blind': blind,
-      'freeze': freeze,
-      'scope': scopeValue ?? '全部商品',
-      'date': DateTime.now().toIso8601String().substring(0, 10),
-    };
-    final r = await request.send({
-      'action': 'inventory_document',
-      'id': countId,
-      'kind': 'check',
-      'revision': 0,
-      'post': false,
-      'payload': p,
-    });
-    dirty = false;
-    if (context.mounted && !disposed) {
-      unawaited(
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) => InventoryLivePage(
-              mode: 'check',
-              draft: Map<String, dynamic>.from(r['item']),
-            ),
-          ),
-        ),
-      );
-    }
-  }
 
   void setAlert(BuildContext context, String field, bool value) {
     if (busy) return;
@@ -615,7 +413,7 @@ class InventoryManagementController extends ChangeNotifier {
     final visible = documents
         .where(
           (d) =>
-              d['kind'] == ['in', 'out', 'check'][tab] &&
+              d['kind'] == ['in', 'out'][tab] &&
               (status == 0 ||
                   d['status'] == ['', 'draft', 'posted', 'void'][status]),
         )
@@ -688,9 +486,7 @@ class InventoryManagementController extends ChangeNotifier {
           padding: const EdgeInsets.symmetric(vertical: 6),
           child: kind == 'in'
               ? StockInDetailLineBoundTemplate(c: this, row: l)
-              : kind == 'out'
-              ? StockOutDetailLineBoundTemplate(c: this, row: l)
-              : StockCheckResultLineBoundTemplate(c: this, row: l),
+              : StockOutDetailLineBoundTemplate(c: this, row: l),
         ),
       if (mode == 'document') ...[
         if ('${document['payload']?['note'] ?? ''}'.isNotEmpty)
@@ -781,35 +577,6 @@ Future<void> showStockShortage(
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => StockOutShortBoundTemplate(c: c),
-    );
-  } finally {
-    c.dispose();
-  }
-}
-
-Future<void> showInventoryCountInput(
-  BuildContext context,
-  InventoryController inventory,
-  Map<String, dynamic> line,
-) async {
-  final c = InventoryManagementController('count-input', count: inventory)
-    ..activeLine = line
-    ..pendingQuantity = (line['quantity'] as num?)
-    ..pendingNote = '${line['note'] ?? ''}';
-  try {
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.viewInsetsOf(context).bottom,
-        ),
-        child: ListenableBuilder(
-          listenable: c,
-          builder: (_, _) => StockCheckInputBoundTemplate(c: c),
-        ),
-      ),
     );
   } finally {
     c.dispose();

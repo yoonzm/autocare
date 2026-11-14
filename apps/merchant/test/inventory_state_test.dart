@@ -8,8 +8,6 @@ import 'package:autocare_merchant/kit/kit.dart' show HSel;
 import 'package:autocare_merchant/kit/single_selection.dart';
 import 'package:autocare_merchant/pages/inventory/inventory_live_page.dart';
 import 'package:autocare_merchant/pages/inventory/inventory_management_page.dart';
-import 'package:autocare_merchant/pages/inventory/stock_check_live_template.dart';
-import 'package:autocare_merchant/pages/inventory/inventory_controller.dart';
 import 'package:autocare_merchant/pages/inventory/inventory_management_controller.dart';
 
 import 'members_test.dart' show MemberFakeApi, phone;
@@ -81,27 +79,6 @@ void main() {
     merchantApi = api = InventoryStateApi();
   });
   tearDown(() => merchantApi = original);
-
-  test('盘点范围和商品字段归控制器实例，不修改调用方列表或另一实例', () {
-    final products = [product('a'), product('b')];
-    final draft = {
-      'id': 'draft',
-      'payload': {
-        'product_ids': ['a'],
-        'lines': [],
-      },
-    };
-    final first = InventoryController('check', products, {}, draft, null);
-    final second = InventoryController('check', products, {}, null, null);
-    expect(first.products, hasLength(1));
-    expect(products, hasLength(2));
-    expect(second.products, hasLength(2));
-    first.products.first['stock'] = 99;
-    expect(products.first['stock'], 3);
-    expect(second.products.first['stock'], 3);
-    first.dispose();
-    second.dispose();
-  });
 
   testWidgets('单选值受调用方控制，实例隔离并能恢复取消后的选择', (t) async {
     final values = ValueNotifier([0, 1]);
@@ -231,46 +208,6 @@ void main() {
     expect(find.text('当前页面'), findsOneWidget);
     expect(find.text('服务端拒绝保存'), findsNothing);
     expect(t.takeException(), isNull);
-  });
-
-  testWidgets('盘点筛选直接绑定当前实例，未盘点和有差异显示对应商品', (t) async {
-    phone(t);
-    final c = InventoryController(
-      'check',
-      [product('a'), product('b')],
-      {},
-      null,
-      null,
-    );
-    c.lines.first['quantity'] = 3;
-    await t.pumpWidget(
-      MaterialApp(
-        home: ListenableBuilder(
-          listenable: c,
-          builder: (_, _) => StockCheckLiveTemplate(c: c),
-        ),
-      ),
-    );
-    await t.pumpAndSettle();
-    expect(find.text('商品a'), findsOneWidget);
-    expect(find.text('商品b'), findsOneWidget);
-    await t.ensureVisible(find.text('未盘点'));
-    await t.tap(find.text('未盘点'));
-    await t.pumpAndSettle();
-    expect(c.filter, 1);
-    expect(find.text('商品a'), findsNothing);
-    expect(find.text('商品b'), findsOneWidget);
-    c.lines.first['quantity'] = 2;
-    c.changed();
-    await t.pumpAndSettle();
-    await t.ensureVisible(find.text('有差异'));
-    await t.tap(find.text('有差异'));
-    await t.pumpAndSettle();
-    expect(c.filter, 2);
-    expect(find.text('商品a'), findsOneWidget);
-    expect(find.text('商品b'), findsNothing);
-    await t.pumpWidget(const SizedBox());
-    c.dispose();
   });
 
   testWidgets('晚到的旧单据响应不会覆盖新单据控制器', (t) async {

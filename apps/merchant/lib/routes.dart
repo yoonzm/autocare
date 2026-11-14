@@ -72,7 +72,6 @@ final Map<String, WidgetBuilder> sheetRoutes = {
     'SupplierPicker',
     'StockVoid',
     'StockOutShort',
-    'StockCheckInput',
     'ScanProductResult',
     'ScanProductNotFound',
   ])
@@ -171,26 +170,19 @@ Widget? pageFor(String name, {Object? arguments}) {
       return const InventoryManagementPage(mode: 'docs');
     case 'StockDocsOut':
       return const InventoryManagementPage(mode: 'docs', initialTab: 1);
-    case 'StockDocsCheck':
-      return const InventoryManagementPage(mode: 'docs', initialTab: 2);
     case 'CategoryManage':
       return const InventoryManagementPage(mode: 'categories');
     case 'StockAlertSettings':
       return const InventoryManagementPage(mode: 'settings');
-    case 'StockCheckNew':
-      return const InventoryManagementPage(mode: 'new');
     case 'ScanProduct':
       return const InventoryManagementPage(mode: 'scan');
     case 'StockInDetail':
     case 'StockOutDetail':
-    case 'StockCheckResult':
       return const InventoryManagementPage(mode: 'document');
     case 'StockIn':
       return const InventoryLivePage(mode: 'in');
     case 'StockOut':
       return const InventoryLivePage(mode: 'out');
-    case 'StockCheck':
-      return const InventoryLivePage(mode: 'check');
     case 'ProductDetail':
       return const InventoryLivePage(mode: 'detail');
     case 'Login':
@@ -333,7 +325,6 @@ const Set<String> _cupertinoSheetPages = {
   'AppointmentAdd',
   'StockIn',
   'StockOut',
-  'StockCheck',
   'ExpenseAdd',
   'BudgetTotal',
   'BudgetEdit',

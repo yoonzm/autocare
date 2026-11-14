@@ -3,8 +3,7 @@ import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
 
 import 'inventory_management_page.dart';
-import 'inventory_management_controller.dart'
-    show showStockShortage, showInventoryCountInput;
+import 'inventory_management_controller.dart' show showStockShortage;
 import 'inventory_pickers.dart';
 import 'product_edit_live_page.dart';
 import 'inventory_record_templates.dart';
@@ -22,7 +21,6 @@ import '../../theme.dart';
 import 'inventory_live_page.dart';
 import 'stock_in_line_template.dart';
 import 'stock_out_line_template.dart';
-import 'stock_check_line_template.dart';
 
 /// Keep the key across ambiguous network failures; editing creates a new intent.
 class InventoryRequest {
@@ -107,7 +105,7 @@ class InventoryController extends ChangeNotifier {
       final request = merchantApi.invoke({
         'action': 'inventory_quote',
         'kind': mode,
-        'payload': {...payload, 'lines': mode == 'check' ? counted : lines},
+        'payload': {...payload, 'lines': lines},
       });
       final result =
           (await Future.wait([
@@ -168,27 +166,8 @@ class InventoryController extends ChangeNotifier {
           }
         : Map<String, dynamic>.from(draft['payload']);
     lines = maps(payload['lines']);
-    if (mode == 'check' && payload['product_ids'] is List) {
-      products.removeWhere(
-        (p) => !(payload['product_ids'] as List).contains(p['id']),
-      );
-    }
-    if (draft != null && mode == 'check') {
-      for (final p in products) {
-        if (!lines.any((l) => l['id'] == p['id'])) {
-          lines.add({'id': p['id'], 'quantity': null, 'version': p['version']});
-        }
-      }
-    }
-    if (draft == null && mode == 'check') {
-      lines = products
-          .map(
-            (p) => {'id': p['id'], 'quantity': null, 'version': p['version']},
-          )
-          .toList();
-    } else if (selected != null &&
+    if (selected != null &&
         mode != 'detail' &&
-        mode != 'check' &&
         !lines.any((l) => l['id'] == selected)) {
       final p = products.where((p) => p['id'] == selected).firstOrNull;
       if (p != null) {
@@ -203,11 +182,6 @@ class InventoryController extends ChangeNotifier {
     scheduleQuote();
   }
   void replaceProducts(List<Map<String, dynamic>> latest) {
-    if (mode == 'check' && payload['product_ids'] is List) {
-      latest.removeWhere(
-        (p) => !(payload['product_ids'] as List).contains(p['id']),
-      );
-    }
     products
       ..clear()
       ..addAll(latest);
@@ -229,11 +203,6 @@ class InventoryController extends ChangeNotifier {
 
   Map<String, dynamic> product(Map<String, dynamic> l) =>
       products.firstWhere((p) => p['id'] == l['id']);
-  List<Map<String, dynamic>> get counted =>
-      lines.where((l) => l['quantity'] != null).toList();
-  num difference(Map<String, dynamic> l) =>
-      (l['quantity'] as num? ?? product(l)['stock'] as num) -
-      (product(l)['stock'] as num);
   String get supplierLabel =>
       '${mode == 'detail' ? detail['supplier'] : payload['supplier']}'.isEmpty
       ? '请输入供应商'
@@ -251,16 +220,6 @@ class InventoryController extends ChangeNotifier {
   String get payableItemsLabel => '应付 · ${lines.length} 项商品';
   String get outSubtotalLabel => quoted('subtotal');
   String get outCostNote => '记录本次出库成本';
-  String get countCode => '盘点单 PD-${id.substring(0, 8)} · 全部商品';
-  String get countedLabel => '${counted.length}';
-  String get countProgressLabel => '/ ${lines.length} 已盘点';
-  String get gainQuantityLabel =>
-      '${counted.where((l) => difference(l) > 0).length} 项 · +${qty(counted.where((l) => difference(l) > 0).fold<num>(0, (n, l) => n + difference(l)))}';
-  String get lossQuantityLabel =>
-      '${counted.where((l) => difference(l) < 0).length} 项 · ${qty(counted.where((l) => difference(l) < 0).fold<num>(0, (n, l) => n + difference(l)))}';
-  String get differenceCostLabel => quoted('subtotal');
-  String get submitCountLabel => '提交盘点（已盘 ${counted.length} 项）';
-  String get countSubmitNote => '提交后生成库存调整单，盘亏成本自动计入损耗开支。';
   String get productName => '${detail['name'] ?? ''}';
   String get skuCategoryLabel =>
       'SKU ${detail['sku'] ?? ''} · ${detail['category'] ?? ''}';
@@ -303,7 +262,7 @@ class InventoryController extends ChangeNotifier {
         'kind': mode,
         'revision': revision,
         'post': post,
-        'payload': {...payload, 'lines': mode == 'check' ? counted : lines},
+        'payload': {...payload, 'lines': lines},
       });
       revision = (result['item'] as Map)['revision'] as int;
       dirty = false;
@@ -337,26 +296,6 @@ class InventoryController extends ChangeNotifier {
           return;
         } catch (_) {
           /* Preserve the draft and show the original failure. */
-        }
-      }
-      if (mode == 'check' && e.toString().contains('库存已变化')) {
-        try {
-          final latest = maps(
-            (await merchantApi.invoke({'action': 'inventory_list'}))['items'],
-          );
-          for (final l in lines) {
-            final p = latest.where((p) => p['id'] == l['id']).firstOrNull;
-            if (p != null && p['version'] != l['version']) {
-              l['version'] = p['version'];
-              l['quantity'] = null;
-            }
-          }
-          products
-            ..clear()
-            ..addAll(latest);
-          scheduleQuote();
-        } catch (_) {
-          /* Keep the draft and original conflict for retry. */
         }
       }
       if (context.mounted && !disposed) AppToast.error(context, e);
@@ -398,16 +337,7 @@ class InventoryController extends ChangeNotifier {
       'Inventory-${identityHashCode(this)}-$action';
   Future<void> submit(BuildContext context) async {
     if (busy) return;
-    if (mode == 'check') {
-      await Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) =>
-              InventoryManagementPage(mode: 'result', countController: this),
-        ),
-      );
-    } else {
-      await runBusy(actionKey('submit'), () => save(context, true));
-    }
+    await runBusy(actionKey('submit'), () => save(context, true));
   }
 
   Future<void> saveDraft(BuildContext context) => busy
@@ -594,21 +524,6 @@ class InventoryController extends ChangeNotifier {
     changed();
   }
 
-  Color checkBackground(Map<String, dynamic> line) => line['quantity'] == null
-      ? C.chip
-      : payload['blind'] == true
-      ? C.greenSoft
-      : difference(line) < 0
-      ? C.redSoft
-      : C.greenSoft;
-  Color checkInk(Map<String, dynamic> line) => line['quantity'] == null
-      ? C.muted
-      : payload['blind'] == true
-      ? C.greenInk
-      : difference(line) < 0
-      ? C.redInk
-      : C.greenInk;
-
   Widget quantityLabel(BuildContext context, Map<String, dynamic> line) =>
       GestureDetector(
         onTap: () async {
@@ -658,25 +573,6 @@ class InventoryController extends ChangeNotifier {
     return '出库后 ${qty((p['stock'] as num) - (l['quantity'] as num? ?? 0))} ${p['unit']}';
   }
 
-  String lineSystemStockLabel(Map<String, dynamic> l) {
-    final p = product(l);
-    return payload['blind'] == true
-        ? '${p['location']} · 盲盘'
-        : '${p['location']} · 系统 ${qty(p['stock'])} ${p['unit']}';
-  }
-
-  String lineDifferenceLabel(Map<String, dynamic> l) {
-    return payload['blind'] == true
-        ? (l['quantity'] == null ? '未盘' : '已盘')
-        : l['quantity'] == null
-        ? '未盘'
-        : difference(l) == 0
-        ? '一致'
-        : '${difference(l) > 0 ? '盘盈' : '盘亏'} ${qty(difference(l))}';
-  }
-
-  Future<void> editCount(BuildContext context, Map<String, dynamic> line) =>
-      showInventoryCountInput(context, this, line);
   Future<void> editLine(
     BuildContext context,
     Map<String, dynamic> l,
@@ -708,97 +604,65 @@ class InventoryController extends ChangeNotifier {
     }
   }
 
-  Widget quantityWidget(BuildContext context, Map<String, dynamic> l) =>
-      mode == 'check'
-      ? TextFormField(
-          key: ValueKey('${l['id']}-${l['version']}'),
-          initialValue: l['quantity'] == null ? '' : qty(l['quantity']),
-          textAlign: TextAlign.center,
-          style: ts(16, w: FontWeight.w600),
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          decoration: const InputDecoration(
-            hintText: '—',
-            border: InputBorder.none,
-            isDense: true,
-          ),
-          onChanged: (v) {
+  Widget quantityWidget(BuildContext context, Map<String, dynamic> l) => Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      IconButton(
+        onPressed: () {
+          l['quantity'] = ((l['quantity'] as num? ?? 0) - 1).clamp(
+            0,
+            999999999,
+          );
+          changed();
+        },
+        icon: const Icon(Icons.remove, size: 14),
+      ),
+      GestureDetector(
+        onTap: () async {
+          final v = await inputDialog(
+            context,
+            '数量',
+            '请输入数量',
+            '${l['quantity'] ?? ''}',
+            numeric: true,
+          );
+          if (v != null) {
             l['quantity'] = num.tryParse(v);
             changed();
-          },
-        )
-      : Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (mode != 'check')
-              IconButton(
-                onPressed: () {
-                  l['quantity'] = ((l['quantity'] as num? ?? 0) - 1).clamp(
-                    0,
-                    999999999,
-                  );
-                  changed();
-                },
-                icon: const Icon(Icons.remove, size: 14),
-              ),
-            GestureDetector(
-              onTap: () async {
-                final v = await inputDialog(
-                  context,
-                  mode == 'check' ? '实盘数量' : '数量',
-                  '请输入数量',
-                  '${l['quantity'] ?? ''}',
-                  numeric: true,
-                );
-                if (v != null) {
-                  l['quantity'] = num.tryParse(v);
-                  changed();
-                }
-              },
-              child: SizedBox(
-                width: 44,
-                height: 44,
-                child: Center(
-                  child: Text(
-                    l['quantity'] == null ? '—' : qty(l['quantity']),
-                    style: ts(15, w: FontWeight.w600),
-                  ),
-                ),
-              ),
+          }
+        },
+        child: SizedBox(
+          width: 44,
+          height: 44,
+          child: Center(
+            child: Text(
+              l['quantity'] == null ? '—' : qty(l['quantity']),
+              style: ts(15, w: FontWeight.w600),
             ),
-            if (mode != 'check')
-              IconButton(
-                onPressed: () {
-                  l['quantity'] = (l['quantity'] as num? ?? 0) + 1;
-                  changed();
-                },
-                icon: const Icon(Icons.add, size: 14),
-              ),
-          ],
-        );
+          ),
+        ),
+      ),
+      IconButton(
+        onPressed: () {
+          l['quantity'] = (l['quantity'] as num? ?? 0) + 1;
+          changed();
+        },
+        icon: const Icon(Icons.add, size: 14),
+      ),
+    ],
+  );
   Widget linesWidget(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
       if (lines.isEmpty) const EmptyView.firstTime(title: '还没有选择商品'),
-      for (final l in lines.where(
-        (l) =>
-            mode != 'check' ||
-            filter == 0 ||
-            (filter == 1
-                ? l['quantity'] == null
-                : l['quantity'] != null && difference(l) != 0),
-      ))
+      for (final l in lines)
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 7),
-          child: switch (mode) {
-            'in' => StockInLineTemplate(c: this, line: l),
-            'out' => StockOutLineTemplate(c: this, line: l),
-            _ => StockCheckLineTemplate(c: this, line: l),
-          },
+          child: mode == 'in'
+              ? StockInLineTemplate(c: this, line: l)
+              : StockOutLineTemplate(c: this, line: l),
         ),
-      if (mode != 'check')
-        (mode == 'in'
-            ? StockInAddTemplate(c: this)
-            : StockOutAddTemplate(c: this)),
+      mode == 'in' ? StockInAddTemplate(c: this) : StockOutAddTemplate(c: this),
     ],
   );
   String batchCode(Map<String, dynamic> r) =>
@@ -847,8 +711,7 @@ class InventoryController extends ChangeNotifier {
     final records = maps(detail['movements'])
         .where(
           (m) =>
-              filter == 0 ||
-              m['payload']['kind'] == ['', 'in', 'out', 'check'][filter],
+              filter == 0 || m['payload']['kind'] == ['', 'in', 'out'][filter],
         )
         .toList();
     return Column(

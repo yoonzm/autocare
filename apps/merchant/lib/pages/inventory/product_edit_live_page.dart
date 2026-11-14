@@ -339,7 +339,7 @@ class _ProductEditState extends State<ProductEditLivePage> {
                       _field(
                         'SKU 编码',
                         _input(sku, '不填则系统自动生成'),
-                        foot: '盘点和扫码用，同一门店内不能重复',
+                        foot: '扫码用，同一门店内不能重复',
                       ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,

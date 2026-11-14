@@ -187,38 +187,6 @@ class StockDocsBoundTemplate extends StatelessWidget {
                           ),
                         ),
                       ),
-                      Expanded(
-                        flex: 1,
-                        child: UnconstrainedBox(
-                          alignment: Alignment.topLeft,
-                          constrainedAxis: Axis.horizontal,
-                          child: GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: c.busy ? null : () => c.selectDocumentTab(2),
-                            child: hbox(
-                              h: 32,
-                              radius: BorderRadius.circular(16),
-                              child: Align(
-                                alignment: Alignment(0, 0),
-                                widthFactor: 1,
-                                child: Text(
-                                  '盘点单',
-                                  style: hts(
-                                    13,
-                                    dk(
-                                      context,
-                                      Color(0xFF52525B),
-                                      Color(0xFFA8A8B3),
-                                    ),
-                                    w: FontWeight.w500,
-                                    lh: 18,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
                     ],
                     main: MainAxisAlignment.start,
                     cross: CrossAxisAlignment.stretch,

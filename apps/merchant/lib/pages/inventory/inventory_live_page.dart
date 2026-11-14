@@ -6,7 +6,6 @@ import '../../kit/kit.dart' show ConfirmDiscard;
 import 'inventory_controller.dart';
 import 'stock_in_live_template.dart';
 import 'stock_out_live_template.dart';
-import 'stock_check_live_template.dart';
 import 'product_detail_live_template.dart';
 import '../../routes.dart';
 
@@ -87,7 +86,6 @@ class _InventoryLiveState extends State<InventoryLivePage> {
         title: switch (widget.mode) {
           'in' => '商品入库',
           'out' => '商品出库',
-          'check' => '库存盘点',
           _ => '商品详情',
         },
         detail: widget.mode == 'detail',
@@ -133,7 +131,6 @@ class _InventoryLiveState extends State<InventoryLivePage> {
             child: switch (widget.mode) {
               'in' => StockInLiveTemplate(c: c!),
               'out' => StockOutLiveTemplate(c: c!),
-              'check' => StockCheckLiveTemplate(c: c!),
               _ => ProductDetailLiveTemplate(c: c!),
             },
           ),

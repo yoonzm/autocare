@@ -12,8 +12,6 @@ import 'stock_alert_settings_bound_template.dart';
 import 'stock_docs_bound_template.dart';
 import 'stock_in_detail_bound_template.dart';
 import 'stock_out_detail_bound_template.dart';
-import 'stock_check_new_bound_template.dart';
-import 'stock_check_result_bound_template.dart';
 import 'scan_product_bound_template.dart';
 
 class InventoryManagementPage extends StatefulWidget {
@@ -86,10 +84,7 @@ class _State extends State<InventoryManagementPage> {
     if (!merchantApi.hasSession) {
       throw const AppError('请先登录', type: AppErrorType.auth);
     }
-    if (widget.mode == 'result' && widget.countController == null) {
-      throw const AppError('请先完成盘点', type: AppErrorType.notFound);
-    }
-    if (widget.mode == 'scan' || widget.mode == 'result') return {};
+    if (widget.mode == 'scan') return {};
     final controller = c;
     final mode = widget.mode;
     if (mode == 'document' && widget.documentId == null) {
@@ -105,13 +100,6 @@ class _State extends State<InventoryManagementPage> {
     });
     if (!mounted || controller.disposed) return result;
     controller.apply(result);
-    if (mode == 'new') {
-      final list = await merchantApi.invoke({'action': 'inventory_list'});
-      if (!mounted || controller.disposed) return result;
-      controller.products = maps(list['items'])
-          .where((p) => p['active'] != false)
-          .toList();
-    }
     return result;
   }
 
@@ -135,15 +123,11 @@ class _State extends State<InventoryManagementPage> {
               'categories' => CategoryManageBoundTemplate(c: c),
               'settings' => StockAlertSettingsBoundTemplate(c: c),
               'docs' => StockDocsBoundTemplate(c: c),
-              'new' => StockCheckNewBoundTemplate(c: c),
-              'result' => StockCheckResultBoundTemplate(c: c),
               'scan' => ScanProductBoundTemplate(c: c),
               _ =>
                 c.kind == 'in'
                     ? StockInDetailBoundTemplate(c: c)
-                    : c.kind == 'out'
-                    ? StockOutDetailBoundTemplate(c: c)
-                    : StockCheckResultBoundTemplate(c: c),
+                    : StockOutDetailBoundTemplate(c: c),
             },
           ),
         ),

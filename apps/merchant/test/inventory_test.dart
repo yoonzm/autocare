@@ -8,7 +8,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:autocare_merchant/pages/inventory/inventory_controller.dart';
 import 'package:autocare_merchant/pages/inventory/stock_in_live_template.dart';
 import 'package:autocare_merchant/pages/inventory/stock_out_live_template.dart';
-import 'package:autocare_merchant/pages/inventory/stock_check_live_template.dart';
 import 'package:autocare_merchant/pages/inventory/product_detail_live_template.dart';
 import 'package:autocare_merchant/theme.dart';
 
@@ -46,7 +45,7 @@ void main() {
       },
     ],
     'movements': [
-      for (final kind in ['in', 'out', 'check'])
+      for (final kind in ['in', 'out'])
         {
           'payload': {
             'kind': kind,
@@ -61,36 +60,8 @@ void main() {
         },
     ],
   };
-  test(
-    'count drafts retain uncounted products and preserve snapshot versions',
-    () {
-      final c = InventoryController(
-        'check',
-        [
-          p,
-          {...p, 'id': 'second'},
-        ],
-        {},
-        {
-          'id': 'draft',
-          'revision': 2,
-          'payload': {
-            'lines': [
-              {'id': p['id'], 'quantity': 0, 'version': 0},
-            ],
-          },
-        },
-        null,
-      );
-      expect(c.lines.length, 2);
-      expect(c.counted.length, 1);
-      expect(c.lines.first['version'], 0);
-      expect(c.lines.last['quantity'], null);
-      c.dispose();
-    },
-  );
   for (final dark in [false, true]) {
-    for (final mode in ['in', 'out', 'check', 'detail']) {
+    for (final mode in ['in', 'out', 'detail']) {
       testWidgets(
         '$mode renders real fields without fixture text (${dark ? 'dark' : 'light'})',
         (tester) async {
@@ -110,7 +81,6 @@ void main() {
           Widget page() => switch (mode) {
             'in' => StockInLiveTemplate(c: c),
             'out' => StockOutLiveTemplate(c: c),
-            'check' => StockCheckLiveTemplate(c: c),
             _ => ProductDetailLiveTemplate(c: c),
           };
           await tester.pumpWidget(
@@ -133,13 +103,6 @@ void main() {
           expect(find.text('TPU 隐形车衣 7.5mil'), findsNothing);
           expect(find.text('蓝盾膜业'), findsNothing);
           expect(find.text('测试库存商品'), findsOneWidget);
-          if (mode == 'check') {
-            expect(c.counted, isEmpty);
-            await tester.enterText(find.byType(TextFormField), '0');
-            await tester.pump();
-            expect(c.counted.length, 1);
-            expect(find.text('提交盘点（已盘 1 项）'), findsOneWidget);
-          }
           const out = String.fromEnvironment('INVENTORY_RENDER');
           if (out.isNotEmpty) {
             await tester.runAsync(() async {
