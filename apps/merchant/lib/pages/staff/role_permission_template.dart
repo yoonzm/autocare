@@ -993,7 +993,7 @@ class _RolePermissionTemplateState extends State<RolePermissionTemplate> {
                                   Expanded(
                                     flex: 1,
                                     child: Text(
-                                      '入库与盘点',
+                                      '入库与出库',
                                       style: hts(
                                         15,
                                         dk(

@@ -83,7 +83,7 @@ void main() {
     await t.pumpAndSettle();
     expect(text('前台收银可以'), findsOneWidget);
     expect(text('开单收银'), findsOneWidget);
-    expect(text('入库与盘点'), findsOneWidget);
+    expect(text('入库与出库'), findsOneWidget);
     expect(text('查看派给我的工单'), findsNothing);
     await t.tap(text('店长 0'));
     await t.pumpAndSettle();

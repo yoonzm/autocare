@@ -605,7 +605,7 @@ const stPermItems = <String, List<(String, String)>>{
     ('order_view_all', '查看全店任务'),
     ('cashier', '开单收银'),
     ('member_recharge_refund', '会员充值'),
-    ('stock_manage', '入库与盘点'),
+    ('stock_manage', '入库与出库'),
     ('order_refund', '订单退款'),
     ('stats_view_store', '查看门店营业统计'),
   ],

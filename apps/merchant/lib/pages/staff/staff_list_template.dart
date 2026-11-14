@@ -1173,7 +1173,7 @@ Widget _permissionGrid(
           ('cashier', '开单收银'),
           ('member_view', '查看会员资料'),
           ('member_recharge_refund', '会员充值与退款'),
-          ('stock_manage', '入库与盘点'),
+          ('stock_manage', '入库与出库'),
           ('stats_view_store', '查看门店营业统计'),
         ];
   Widget cell(String key, String label) {
