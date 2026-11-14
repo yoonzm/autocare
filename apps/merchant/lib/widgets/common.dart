@@ -1,4 +1,4 @@
-import '../kit/buttons.dart';
+import '../kit/async_kit.dart' show AppSpinner;
 import '../kit/kit.dart';
 
 import 'package:flutter/material.dart';
@@ -150,21 +150,49 @@ class RoundBtn extends StatelessWidget {
   final String label;
   final VoidCallback? onTap;
   final bool dot;
-  final AppIconButtonKind kind;
   const RoundBtn(
     this.icon, {
     super.key,
     required this.label,
     this.onTap,
     this.dot = false,
-    this.kind = AppIconButtonKind.surface,
   });
   @override
-  Widget build(BuildContext context) => AppIconButton(
-    svg: AppIcon.svg(icon),
-    semanticLabel: label,
-    kind: kind,
-    onPressed: onTap,
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    label: label,
+    child: GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+          color: C.card,
+          shape: BoxShape.circle,
+          boxShadow: softShadow,
+        ),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            AppIcon(icon, size: 20, color: C.ink),
+            if (dot)
+              Positioned(
+                top: 11,
+                right: 12,
+                child: Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: C.red,
+                    shape: BoxShape.circle,
+                    boxShadow: [BoxShadow(color: C.card, spreadRadius: 2)],
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    ),
   );
 }
 
@@ -231,13 +259,164 @@ class SectionTitle extends StatelessWidget {
         ),
       ),
       if (action != null)
-        AppButton(
-          label: action!,
-          kind: AppButtonKind.text,
-          size: AppButtonSize.medium,
-          onPressed: onAction,
+        GestureDetector(
+          onTap: onAction,
+          child: Text(
+            action!,
+            style: ts(13, w: FontWeight.w500, color: C.primaryInk, h: 18),
+          ),
         ),
     ],
+  );
+}
+
+/// 深色选中的胶囊筛选
+class ChipTabs extends StatelessWidget {
+  final List<String> labels;
+  final int selected;
+  final ValueChanged<int> onChanged;
+  const ChipTabs({
+    super.key,
+    required this.labels,
+    required this.selected,
+    required this.onChanged,
+  });
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    height: 32,
+    child: ListView.separated(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      itemCount: labels.length,
+      separatorBuilder: (_, _) => const SizedBox(width: 8),
+      itemBuilder: (_, i) {
+        final on = i == selected;
+        return GestureDetector(
+          onTap: () => onChanged(i),
+          child: Container(
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            decoration: BoxDecoration(
+              color: on ? C.btn : (C.dark ? C.chip : C.card),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: on || C.dark ? null : softShadow,
+            ),
+            child: Text(
+              labels[i],
+              style: ts(
+                13,
+                w: FontWeight.w500,
+                color: on ? C.btnFg : C.sub,
+                h: 18,
+              ),
+            ),
+          ),
+        );
+      },
+    ),
+  );
+}
+
+/// 灰底分段控件
+class Segmented extends StatelessWidget {
+  final List<String> labels;
+  final int selected;
+  final ValueChanged<int> onChanged;
+  const Segmented({
+    super.key,
+    required this.labels,
+    required this.selected,
+    required this.onChanged,
+  });
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.all(4),
+    decoration: BoxDecoration(
+      color: C.segment,
+      borderRadius: BorderRadius.circular(20),
+    ),
+    child: Row(
+      children: [
+        for (var i = 0; i < labels.length; i++)
+          Expanded(
+            child: GestureDetector(
+              onTap: () => onChanged(i),
+              child: Container(
+                height: 32,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: i == selected
+                      ? (C.dark ? C.stroke : Colors.white)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: i == selected ? softShadow : null,
+                ),
+                child: Text(
+                  labels[i],
+                  style: ts(
+                    13,
+                    w: FontWeight.w500,
+                    color: i == selected ? C.ink : C.sub,
+                    h: 18,
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
+    ),
+  );
+}
+
+class PrimaryButton extends StatelessWidget {
+  final String text;
+  final VoidCallback? onTap;
+  final Color bg, fg;
+  final EdgeInsetsGeometry padding;
+
+  /// 提交中：转圈 + [loadingText]，宽高不变，忽略点击（防连点）。
+  final bool loading;
+  final String? loadingText;
+  const PrimaryButton(
+    this.text, {
+    super.key,
+    this.onTap,
+    this.bg = C.primary,
+    this.fg = Colors.white,
+    this.padding = const EdgeInsets.symmetric(horizontal: 24),
+    this.loading = false,
+    this.loadingText,
+  });
+  @override
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    enabled: !loading && onTap != null,
+    label: loading ? (loadingText ?? text) : text,
+    child: GestureDetector(
+      onTap: loading ? null : onTap,
+      child: Container(
+        height: 50,
+        padding: padding,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: onTap == null ? C.faint : bg,
+          borderRadius: BorderRadius.circular(25),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (loading) ...[
+              AppSpinner(size: 18, color: fg),
+              const SizedBox(width: 8),
+            ],
+            Text(
+              loading ? (loadingText ?? text) : text,
+              style: ts(16, w: FontWeight.w600, color: fg, h: 24),
+            ),
+          ],
+        ),
+      ),
+    ),
   );
 }
 

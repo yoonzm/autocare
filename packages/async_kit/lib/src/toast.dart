@@ -223,34 +223,22 @@ class ToastHostState extends State<ToastHost> with TickerProviderStateMixin {
                             ),
                             if (t.action != null) ...[
                               const SizedBox(width: 12),
-                              Theme.of(context)
-                                      .extension<AsyncButtonTheme>()
-                                      ?.builder(
-                                        context,
-                                        t.action!,
-                                        () {
-                                          _dismiss();
-                                          t.onAction?.call();
-                                        },
-                                        false,
-                                        AsyncButtonKind.text,
-                                      ) ??
-                                  GestureDetector(
-                                    behavior: HitTestBehavior.opaque,
-                                    onTap: () {
-                                      _dismiss();
-                                      t.onAction?.call();
-                                    },
-                                    child: Text(
-                                      t.action!,
-                                      style: const TextStyle(
-                                        color: Color(0xFF6AB4FA),
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                        decoration: TextDecoration.none,
-                                      ),
-                                    ),
+                              GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () {
+                                  _dismiss();
+                                  t.onAction?.call();
+                                },
+                                child: Text(
+                                  t.action!,
+                                  style: const TextStyle(
+                                    color: Color(0xFF6AB4FA),
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    decoration: TextDecoration.none,
                                   ),
+                                ),
+                              ),
                             ],
                           ],
                         ),

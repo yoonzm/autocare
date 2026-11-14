@@ -1,5 +1,3 @@
-import '../../kit/buttons.dart';
-
 import 'package:flutter/material.dart';
 
 import '../../backend/merchant_api.dart';
@@ -89,10 +87,62 @@ class _ChangePhonePageState extends State<ChangePhonePage> {
                   [
                     hrow(
                       [
-                        AppIconButton(
-                          svg: dk(context, Svgs.s0, Svgs.s1),
-                          semanticLabel: "返回",
-                          onPressed: () => Navigator.maybePop(context),
+                        GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          child: hbox(
+                            w: 44,
+                            h: 44,
+                            bg: dk(
+                              context,
+                              Color(0xFFFFFFFF),
+                              Color(0xFF18181B),
+                            ),
+                            radius: BorderRadius.circular(22),
+                            shadow: dk(
+                              context,
+                              [
+                                BoxShadow(
+                                  color: Color.fromRGBO(0, 0, 0, 0.06),
+                                  offset: Offset(0, 0),
+                                  blurRadius: 1,
+                                  spreadRadius: 0,
+                                ),
+                                BoxShadow(
+                                  color: Color.fromRGBO(0, 0, 0, 0.06),
+                                  offset: Offset(0, 1),
+                                  blurRadius: 2,
+                                  spreadRadius: 0,
+                                ),
+                                BoxShadow(
+                                  color: Color.fromRGBO(0, 0, 0, 0.04),
+                                  offset: Offset(0, 2),
+                                  blurRadius: 4,
+                                  spreadRadius: 0,
+                                ),
+                              ],
+                              [
+                                BoxShadow(
+                                  color: Color(0xFF26262B),
+                                  offset: Offset(0, 0),
+                                  blurRadius: 0,
+                                  spreadRadius: 1,
+                                ),
+                              ],
+                            ),
+                            child: hrow(
+                              [
+                                hsvg(
+                                  dk(context, Svgs.s0, Svgs.s1),
+                                  w: 20,
+                                  h: 20,
+                                ),
+                              ],
+                              main: MainAxisAlignment.center,
+                              cross: CrossAxisAlignment.center,
+                              gap: 0,
+                            ),
+                          ),
+                          onTap: () => Navigator.maybePop(context),
                         ),
                         Expanded(
                           flex: 1,
@@ -248,9 +298,65 @@ class _ChangePhonePageState extends State<ChangePhonePage> {
                                     ),
                                     AnimatedBuilder(
                                       animation: _oldSms,
-                                      builder: (context, _) => smsCodeButton(
-                                        _oldSms,
-                                        onPressed: () => _sendCode(
+                                      builder: (context, _) => GestureDetector(
+                                        behavior: HitTestBehavior.opaque,
+                                        child: hbox(
+                                          h: 36,
+                                          bg: dk(
+                                            context,
+                                            Color(0xFFFFFFFF),
+                                            Color(0xFF18181B),
+                                          ),
+                                          radius: BorderRadius.circular(18),
+                                          shadow: dk(
+                                            context,
+                                            [
+                                              BoxShadow(
+                                                color: Color.fromRGBO(
+                                                  0,
+                                                  0,
+                                                  0,
+                                                  0.06,
+                                                ),
+                                                offset: Offset(0, 1),
+                                                blurRadius: 2,
+                                                spreadRadius: 0,
+                                              ),
+                                            ],
+                                            [
+                                              BoxShadow(
+                                                color: Color(0xFF26262B),
+                                                offset: Offset(0, 0),
+                                                blurRadius: 0,
+                                                spreadRadius: 1,
+                                              ),
+                                            ],
+                                          ),
+                                          pad: EdgeInsets.fromLTRB(
+                                            14,
+                                            0,
+                                            14,
+                                            0,
+                                          ),
+                                          child: Align(
+                                            alignment: Alignment.center,
+                                            widthFactor: 1,
+                                            child: smsCodeText(
+                                              _oldSms,
+                                              hts(
+                                                13,
+                                                dk(
+                                                  context,
+                                                  Color(0xFF1E63AE),
+                                                  Color(0xFF6AB4FA),
+                                                ),
+                                                w: FontWeight.w500,
+                                                lh: 18,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        onTap: () => _sendCode(
                                           _oldSms,
                                           phone: storeProfile.localPhone,
                                           purpose: 'change_phone_old',
@@ -443,9 +549,65 @@ class _ChangePhonePageState extends State<ChangePhonePage> {
                                     ),
                                     AnimatedBuilder(
                                       animation: _newSms,
-                                      builder: (context, _) => smsCodeButton(
-                                        _newSms,
-                                        onPressed: () => _sendCode(
+                                      builder: (context, _) => GestureDetector(
+                                        behavior: HitTestBehavior.opaque,
+                                        child: hbox(
+                                          h: 36,
+                                          bg: dk(
+                                            context,
+                                            Color(0xFFFFFFFF),
+                                            Color(0xFF18181B),
+                                          ),
+                                          radius: BorderRadius.circular(18),
+                                          shadow: dk(
+                                            context,
+                                            [
+                                              BoxShadow(
+                                                color: Color.fromRGBO(
+                                                  0,
+                                                  0,
+                                                  0,
+                                                  0.06,
+                                                ),
+                                                offset: Offset(0, 1),
+                                                blurRadius: 2,
+                                                spreadRadius: 0,
+                                              ),
+                                            ],
+                                            [
+                                              BoxShadow(
+                                                color: Color(0xFF26262B),
+                                                offset: Offset(0, 0),
+                                                blurRadius: 0,
+                                                spreadRadius: 1,
+                                              ),
+                                            ],
+                                          ),
+                                          pad: EdgeInsets.fromLTRB(
+                                            14,
+                                            0,
+                                            14,
+                                            0,
+                                          ),
+                                          child: Align(
+                                            alignment: Alignment.center,
+                                            widthFactor: 1,
+                                            child: smsCodeText(
+                                              _newSms,
+                                              hts(
+                                                13,
+                                                dk(
+                                                  context,
+                                                  Color(0xFF1E63AE),
+                                                  Color(0xFF6AB4FA),
+                                                ),
+                                                w: FontWeight.w500,
+                                                lh: 18,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        onTap: () => _sendCode(
                                           _newSms,
                                           phone: _newPhone.text.trim(),
                                           purpose: 'change_phone_new',
@@ -544,13 +706,45 @@ class _ChangePhonePageState extends State<ChangePhonePage> {
                   [
                     Expanded(
                       flex: 1,
-                      child: ActionButton(
-                        actionKey: actionKey,
-                        label: '确认更换',
-                        kind: AppButtonKind.primary,
-                        size: AppButtonSize.large,
-                        expanded: true,
-                        onPressed: onSave,
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: onSave,
+                        child: hbox(
+                          h: 50,
+                          bg: dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                          radius: BorderRadius.circular(25),
+                          child: Align(
+                            alignment: Alignment(0, 0),
+                            widthFactor: 1,
+                            child: hBusy(
+                              actionKey,
+                              Text(
+                                '确认更换',
+                                style: hts(
+                                  15,
+                                  dk(
+                                    context,
+                                    Color(0xFFFFFFFF),
+                                    Color(0xFF18181B),
+                                  ),
+                                  w: FontWeight.w600,
+                                  lh: 22,
+                                ),
+                              ),
+                              style: hts(
+                                15,
+                                dk(
+                                  context,
+                                  Color(0xFFFFFFFF),
+                                  Color(0xFF18181B),
+                                ),
+                                w: FontWeight.w600,
+                                lh: 22,
+                              ),
+                              label: '提交中…',
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ],

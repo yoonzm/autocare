@@ -1,5 +1,3 @@
-import '../../kit/buttons.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -38,6 +36,7 @@ class _RedeemSheetState extends State<_RedeemSheet> {
   String? _service;
   final sms = SmsCodeController();
   final _confirmKey = 'staff-redeem:${UniqueKey()}';
+  int get _cooldown => sms.seconds;
 
   List<Map<String, dynamic>> get _options => [
     for (final p in (widget.info['packages'] as List? ?? const []))
@@ -231,17 +230,66 @@ class _RedeemSheetState extends State<_RedeemSheet> {
                         ),
                       ),
                       const SizedBox(width: 10),
-                      smsCodeButton(sms, onPressed: _send),
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: _cooldown > 0 || sms.sending ? () {} : _send,
+                        child: hbox(
+                          h: 48,
+                          bg: _cooldown > 0
+                              ? dk(
+                                  context,
+                                  const Color(0xFFEEEEF0),
+                                  const Color(0xFF27272A),
+                                )
+                              : const Color(0xFFE1F0FE),
+                          radius: BorderRadius.circular(24),
+                          pad: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Align(
+                            widthFactor: 1,
+                            child: sms.sending
+                                ? const AppSpinner(
+                                    size: 16,
+                                    color: Color(0xFF1E63AE),
+                                  )
+                                : Text(
+                                    _cooldown > 0 ? '$_cooldown 秒后重发' : '发送验证码',
+                                    style: hts(
+                                      14,
+                                      _cooldown > 0
+                                          ? sub
+                                          : const Color(0xFF1E63AE),
+                                      w: FontWeight.w600,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 16),
-                  ActionButton(
-                    actionKey: _confirmKey,
-                    label: '确认核销',
-                    kind: AppButtonKind.primary,
-                    size: AppButtonSize.large,
-                    expanded: true,
-                    onPressed: _confirm,
+                  GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: _confirm,
+                    child: hbox(
+                      h: 50,
+                      bg: const Color(0xFF0485F7),
+                      radius: BorderRadius.circular(25),
+                      child: Align(
+                        widthFactor: 1,
+                        child: hBusy(
+                          _confirmKey,
+                          Text(
+                            '确认核销',
+                            style: hts(
+                              15,
+                              const Color(0xFFFFFFFF),
+                              w: FontWeight.w600,
+                              lh: 22,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),

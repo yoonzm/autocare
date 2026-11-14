@@ -1,5 +1,3 @@
-import '../../kit/buttons.dart';
-
 import 'package:flutter/material.dart';
 
 import '../../routes.dart' show openRoute;
@@ -37,10 +35,52 @@ class StaffInviteTemplate extends StatelessWidget {
               [
                 hrow(
                   [
-                    AppIconButton(
-                      svg: dk(context, Svgs.s26, Svgs.s27),
-                      semanticLabel: "返回",
-                      onPressed: () => Navigator.of(context).maybePop(),
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => Navigator.of(context).maybePop(),
+                      child: hbox(
+                        w: 44,
+                        h: 44,
+                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                        radius: BorderRadius.circular(22),
+                        shadow: dk(
+                          context,
+                          [
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
+                              spreadRadius: 0,
+                            ),
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 1),
+                              blurRadius: 2,
+                              spreadRadius: 0,
+                            ),
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
+                              spreadRadius: 0,
+                            ),
+                          ],
+                          [
+                            BoxShadow(
+                              color: Color(0xFF26262B),
+                              offset: Offset(0, 0),
+                              blurRadius: 0,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                        child: hrow(
+                          [hsvg(dk(context, Svgs.s26, Svgs.s27), w: 20, h: 20)],
+                          main: MainAxisAlignment.center,
+                          cross: CrossAxisAlignment.center,
+                          gap: 0,
+                        ),
+                      ),
                     ),
                   ],
                   main: MainAxisAlignment.start,
@@ -534,14 +574,9 @@ class StaffInviteTemplate extends StatelessWidget {
                             child: UnconstrainedBox(
                               alignment: Alignment.topLeft,
                               constrainedAxis: Axis.horizontal,
-                              child: ActionButton(
-                                actionKey:
-                                    'StaffInvite>copy-${identityHashCode(context)}',
-                                label: '复制邀请说明',
-                                kind: AppButtonKind.secondary,
-                                size: AppButtonSize.medium,
-                                expanded: false,
-                                onPressed: () => runBusy(
+                              child: GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () => runBusy(
                                   'StaffInvite>copy-${identityHashCode(context)}',
                                   () async {
                                     try {
@@ -565,6 +600,43 @@ class StaffInviteTemplate extends StatelessWidget {
                                     }
                                   },
                                 ),
+                                child: hbox(
+                                  h: 44,
+                                  bg: dk(
+                                    context,
+                                    Color(0xFFEEEEF0),
+                                    Color(0xFF27272A),
+                                  ),
+                                  radius: BorderRadius.circular(22),
+                                  child: Align(
+                                    alignment: Alignment(0, 0),
+                                    widthFactor: 1,
+                                    child: hBusy(
+                                      'StaffInvite>copy-${identityHashCode(context)}',
+                                      Text(
+                                        '复制邀请说明',
+                                        style: hts(
+                                          14,
+                                          dk(
+                                            context,
+                                            Color(0xFF18181B),
+                                            Color(0xFFFAFAFA),
+                                          ),
+                                          w: FontWeight.w500,
+                                        ),
+                                      ),
+                                      style: hts(
+                                        14,
+                                        dk(
+                                          context,
+                                          Color(0xFF18181B),
+                                          Color(0xFFFAFAFA),
+                                        ),
+                                        w: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -573,14 +645,9 @@ class StaffInviteTemplate extends StatelessWidget {
                             child: UnconstrainedBox(
                               alignment: Alignment.topLeft,
                               constrainedAxis: Axis.horizontal,
-                              child: ActionButton(
-                                actionKey:
-                                    'StaffInvite>sms-${identityHashCode(context)}',
-                                label: '发送短信',
-                                kind: AppButtonKind.secondary,
-                                size: AppButtonSize.medium,
-                                expanded: false,
-                                onPressed: () => runBusy(
+                              child: GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () => runBusy(
                                   'StaffInvite>sms-${identityHashCode(context)}',
                                   () async {
                                     try {
@@ -601,6 +668,43 @@ class StaffInviteTemplate extends StatelessWidget {
                                       }
                                     }
                                   },
+                                ),
+                                child: hbox(
+                                  h: 44,
+                                  bg: dk(
+                                    context,
+                                    Color(0xFFEEEEF0),
+                                    Color(0xFF27272A),
+                                  ),
+                                  radius: BorderRadius.circular(22),
+                                  child: Align(
+                                    alignment: Alignment(0, 0),
+                                    widthFactor: 1,
+                                    child: hBusy(
+                                      'StaffInvite>sms-${identityHashCode(context)}',
+                                      Text(
+                                        '发送短信',
+                                        style: hts(
+                                          14,
+                                          dk(
+                                            context,
+                                            Color(0xFF18181B),
+                                            Color(0xFFFAFAFA),
+                                          ),
+                                          w: FontWeight.w500,
+                                        ),
+                                      ),
+                                      style: hts(
+                                        14,
+                                        dk(
+                                          context,
+                                          Color(0xFF18181B),
+                                          Color(0xFFFAFAFA),
+                                        ),
+                                        w: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
@@ -668,22 +772,52 @@ class StaffInviteTemplate extends StatelessWidget {
               [
                 Expanded(
                   flex: 10,
-                  child: AppButton(
-                    label: '继续添加',
-                    kind: AppButtonKind.secondary,
-                    size: AppButtonSize.large,
-                    expanded: true,
-                    onPressed: () => openRoute(context, 'StaffAdd'),
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => openRoute(context, 'StaffAdd'),
+                    child: hbox(
+                      h: 50,
+                      bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
+                      radius: BorderRadius.circular(25),
+                      child: Align(
+                        alignment: Alignment(0, 0),
+                        widthFactor: 1,
+                        child: Text(
+                          '继续添加',
+                          style: hts(
+                            15,
+                            dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                            w: FontWeight.w500,
+                            lh: 22,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
                 Expanded(
                   flex: 14,
-                  child: AppButton(
-                    label: '完成',
-                    kind: AppButtonKind.primary,
-                    size: AppButtonSize.large,
-                    expanded: true,
-                    onPressed: () => openRoute(context, 'Staff'),
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => openRoute(context, 'Staff'),
+                    child: hbox(
+                      h: 50,
+                      bg: Color(0xFF0485F7),
+                      radius: BorderRadius.circular(25),
+                      child: Align(
+                        alignment: Alignment(0, 0),
+                        widthFactor: 1,
+                        child: Text(
+                          '完成',
+                          style: hts(
+                            15,
+                            Color(0xFFFFFFFF),
+                            w: FontWeight.w600,
+                            lh: 22,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ],

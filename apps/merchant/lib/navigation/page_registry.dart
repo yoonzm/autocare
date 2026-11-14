@@ -44,6 +44,7 @@ import '../pages/members/member_filter_sheet.dart';
 import '../pages/members/member_more_sheet.dart';
 import '../pages/members/member_picker_sheet.dart';
 import '../pages/members/packages/package_extend_sheet.dart';
+import '../pages/members/packages/package_refund_sheet.dart';
 import '../pages/members/recharge_pick_sheet.dart';
 import '../pages/scan/find_not_found_sheet.dart';
 import '../pages/members/recharge_empty_card_page.dart';
@@ -98,6 +99,7 @@ final Map<String, WidgetBuilder> sheetBuilders = {
   'MemberMore': (_) => const MemberMoreSheet(),
   'MemberPicker': (_) => const MemberPickerSheet(),
   'PackageExtend': (_) => const PackageExtendSheet(),
+  'PackageRefund': (_) => const PackageRefundSheet(),
   'RechargePick': (_) => const RechargePickSheet(),
 };
 
@@ -123,6 +125,7 @@ const Map<String, String> sheetParents = {
   'MemberMore': 'MemberDetail',
   'MemberPicker': '',
   'PackageExtend': 'PackageDetail',
+  'PackageRefund': 'PackageDetail',
   'PackageSvcPick': 'PackageEdit',
   'RechargePick': 'RechargeCard',
   'ScanPlateResult': 'ScanPlate',

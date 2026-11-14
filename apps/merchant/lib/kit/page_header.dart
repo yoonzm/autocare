@@ -1,5 +1,3 @@
-import 'buttons.dart';
-
 import 'package:flutter/material.dart';
 
 import '../resources/merchant_svgs.dart';
@@ -27,12 +25,41 @@ class AppPageHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Row(
     children: [
-      AppIconButton(
-        svg: leading == AppHeaderLeading.back
-            ? dk(context, Svgs.s0, Svgs.s1)
-            : dk(context, Svgs.s26, Svgs.s27),
-        semanticLabel: leading == AppHeaderLeading.back ? '返回' : '关闭',
-        onPressed: () => Navigator.of(context).maybePop(),
+      GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => Navigator.of(context).maybePop(),
+        child: hbox(
+          w: 44,
+          h: 44,
+          bg: dk(context, const Color(0xFFFFFFFF), const Color(0xFF18181B)),
+          radius: BorderRadius.circular(22),
+          shadow: dk(
+            context,
+            const [
+              BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.06), blurRadius: 1),
+              BoxShadow(
+                color: Color.fromRGBO(0, 0, 0, 0.06),
+                offset: Offset(0, 1),
+                blurRadius: 2,
+              ),
+              BoxShadow(
+                color: Color.fromRGBO(0, 0, 0, 0.04),
+                offset: Offset(0, 2),
+                blurRadius: 4,
+              ),
+            ],
+            const [BoxShadow(color: Color(0xFF26262B), spreadRadius: 1)],
+          ),
+          child: Center(
+            child: hsvg(
+              leading == AppHeaderLeading.back
+                  ? dk(context, Svgs.s0, Svgs.s1)
+                  : dk(context, Svgs.s26, Svgs.s27),
+              w: 20,
+              h: 20,
+            ),
+          ),
+        ),
       ),
       const SizedBox(width: 8),
       Expanded(
@@ -66,10 +93,21 @@ class AppHeaderAction extends StatelessWidget {
     this.onTap,
   });
   @override
-  Widget build(BuildContext context) => AppIconButton(
-    svg: dk(context, lightSvg, darkSvg),
-    semanticLabel: label,
-    kind: AppIconButtonKind.primary,
-    onPressed: onTap,
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    label: label,
+    child: GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: hbox(
+        w: 44,
+        h: 44,
+        bg: dk(context, const Color(0xFF18181B), const Color(0xFFFAFAFA)),
+        radius: BorderRadius.circular(22),
+        child: Center(
+          child: hsvg(dk(context, lightSvg, darkSvg), w: 20, h: 20),
+        ),
+      ),
+    ),
   );
 }

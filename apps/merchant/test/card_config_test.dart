@@ -1,10 +1,8 @@
-import 'package:autocare_ui_kit/autocare_ui_kit.dart' show AppSegmented;
-
 import 'dart:async';
 
 import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/backend/store_profile.dart';
-import 'package:autocare_merchant/kit/kit.dart' show HSwitch;
+import 'package:autocare_merchant/kit/kit.dart' show HSel, HSwitch;
 import 'package:autocare_merchant/pages/catalog/card_tiers_live_page.dart';
 import 'package:autocare_merchant/pages/catalog/card_tier_edit_page.dart';
 import 'package:autocare_merchant/widgets/card_face.dart';
@@ -221,12 +219,12 @@ void main() {
         t.widget<CardPreview>(find.byType(CardPreview)).color,
         'champagne',
       );
-      final segments = find.byType(AppSegmented<int>);
-      expect(segments, findsOneWidget);
-      await t.ensureVisible(find.text('1 年'));
-      await t.tap(find.text('1 年'));
+      // 卡面颜色换成了通用色块组，页面里的 HSel 只剩有效期 3 个
+      final chips = find.byType(HSel);
+      expect(chips, findsNWidgets(3));
+      await t.tap(chips.at(1));
       await t.pumpAndSettle();
-      expect(t.widget<AppSegmented<int>>(segments).selected, 1);
+      expect(t.widget<HSel>(chips.at(1)).ctrl.selected, {1});
       await t.ensureVisible(find.byType(HSwitch));
       await t.tap(find.byType(HSwitch));
       await t.pumpAndSettle();

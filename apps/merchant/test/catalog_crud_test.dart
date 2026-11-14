@@ -76,9 +76,11 @@ void main() {
     original = merchantApi;
     fake = CatalogFakeApi();
     merchantApi = fake;
+
   });
   tearDown(() {
     merchantApi = original;
+
   });
 
   testWidgets('服务项目新增、修改、删除通过云函数适配层', (t) async {
@@ -158,7 +160,7 @@ void main() {
     await t.pumpAndSettle();
     await t.enterText(find.byType(TextFormField).at(0), '升级卡');
     for (var i = 0; i < 5; i++) {
-      await t.tap(find.bySemanticsLabel('减少'));
+      await t.tap(find.text('−'));
       await t.pump();
     }
     await t.tap(find.text('保存').first);
@@ -170,7 +172,7 @@ void main() {
     await t.pumpAndSettle();
     await t.enterText(find.byType(TextFormField).at(0), '新卡');
     for (var i = 0; i < 5; i++) {
-      await t.tap(find.bySemanticsLabel('增加'));
+      await t.tap(find.text('+'));
       await t.pump();
     }
     await t.tap(find.text('保存').first);

@@ -94,10 +94,7 @@ void main() {
     final point = t.getCenter(find.text('申请注销'));
     await t.tapAt(point);
     await t.pump();
-    expect(
-      t.getSize(find.byType(CircularProgressIndicator)),
-      const Size(16, 16),
-    );
+    expect(t.getSize(find.byType(AppSpinner)), const Size(18, 18));
     await t.tapAt(point);
     await t.pump();
     expect(api.codes, ['246810']);

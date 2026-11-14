@@ -1,8 +1,3 @@
-import 'package:autocare_ui_kit/autocare_ui_kit.dart'
-    show AppSegmented, SegmentItem;
-
-import '../../kit/buttons.dart';
-
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -248,13 +243,8 @@ class _StatsPageState extends State<StatsPage> {
         ],
       ),
       const SizedBox(height: 16),
-      AppSegmented<int>(
-        items: [
-          SegmentItem(value: 0, label: '今日'),
-          SegmentItem(value: 1, label: '本周'),
-          SegmentItem(value: 2, label: '本月'),
-          SegmentItem(value: 3, label: '自定义'),
-        ],
+      Segmented(
+        labels: const ['今日', '本周', '本月', '自定义'],
         selected: range,
         onChanged: _select,
       ),
@@ -283,15 +273,42 @@ class _StatsPageState extends State<StatsPage> {
     ],
   );
 
-  Widget _pill(String t, String icon, {required VoidCallback onTap}) =>
-      AppButton(
-        label: t,
-        kind: AppButtonKind.secondary,
-        size: AppButtonSize.medium,
-        expanded: false,
-        svg: AppIcon.svg(icon),
-        onPressed: onTap,
-      );
+  Widget _pill(
+    String t,
+    String icon, {
+    bool dark = false,
+    required VoidCallback onTap,
+  }) => GestureDetector(
+    onTap: onTap,
+    child: Container(
+      height: 44,
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      decoration: BoxDecoration(
+        color: dark ? C.heroCard : C.card,
+        borderRadius: BorderRadius.circular(22),
+        boxShadow: softShadow,
+      ),
+      child: Row(
+        children: [
+          AppIcon(
+            icon,
+            size: 18,
+            color: dark ? (C.dark ? C.gold : Colors.white) : C.ink,
+          ),
+          const SizedBox(width: 6),
+          Text(
+            t,
+            style: ts(
+              14,
+              w: FontWeight.w500,
+              color: dark ? Colors.white : C.ink,
+              h: 20,
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
 
   Widget _chartCard(BuildContext context) => AppCard(
     padding: const EdgeInsets.all(18),
@@ -390,13 +407,28 @@ class _StatsPageState extends State<StatsPage> {
         ),
         const SizedBox(height: 14),
         // 订单中心入口（设计稿 Stats：营业额卡片底部“全部订单与收款”）
-        AppButton(
-          label: '全部订单与收款',
-          kind: AppButtonKind.secondary,
-          size: AppButtonSize.medium,
-          expanded: false,
-          svg: AppIcon.svg('chevronRight'),
-          onPressed: () => openRoute(context, 'OrderList'),
+        GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => openRoute(context, 'OrderList'),
+          child: Container(
+            height: 44,
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            decoration: BoxDecoration(
+              color: C.inset,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    '全部订单与收款',
+                    style: ts(14, w: FontWeight.w500, h: 20),
+                  ),
+                ),
+                AppIcon('chevronRight', size: 16, color: C.faint),
+              ],
+            ),
+          ),
         ),
       ],
     ),

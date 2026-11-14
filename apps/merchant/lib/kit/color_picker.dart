@@ -1,5 +1,3 @@
-import 'buttons.dart';
-
 // 通用颜色选择：色块单选（含“自定义”入口）+ 自定义颜色选色器（底部弹层）+ 最近使用。
 //
 // 车身颜色（新增会员）、卡面颜色（编辑卡种）共用：页面只传色块列表、选中项和回调，
@@ -442,10 +440,31 @@ class _ColorPickerSheetState extends State<ColorPickerSheet> {
                       style: hts(17, ink, w: FontWeight.w600, lh: 24),
                     ),
                   ),
-                  AppIconButton(
-                    icon: Icons.close,
-                    semanticLabel: '关闭',
-                    onPressed: () => Navigator.of(context).maybePop(),
+                  Semantics(
+                    button: true,
+                    label: '关闭',
+                    child: GestureDetector(
+                      onTap: () => Navigator.of(context).maybePop(),
+                      child: Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: field,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: AppIcon(
+                            'close',
+                            size: 18,
+                            color: dk(
+                              context,
+                              const Color(0xFF52525B),
+                              const Color(0xFFA8A8B3),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -597,23 +616,27 @@ class _ColorPickerSheetState extends State<ColorPickerSheet> {
               children: [
                 Expanded(
                   flex: 10,
-                  child: AppButton(
-                    expanded: true,
-                    label: '取消',
-                    kind: AppButtonKind.secondary,
-                    size: AppButtonSize.large,
-                    onPressed: () => Navigator.of(context).maybePop(),
+                  child: _SheetButton(
+                    '取消',
+                    bg: dk(
+                      context,
+                      const Color(0xFFEEEEF0),
+                      const Color(0xFF27272A),
+                    ),
+                    fg: ink,
+                    weight: FontWeight.w500,
+                    onTap: () => Navigator.of(context).maybePop(),
                   ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
                   flex: 14,
-                  child: AppButton(
-                    expanded: true,
-                    label: '确定',
-                    kind: AppButtonKind.primary,
-                    size: AppButtonSize.large,
-                    onPressed: () {
+                  child: _SheetButton(
+                    '确定',
+                    bg: const Color(0xFF0485F7),
+                    fg: const Color(0xFFFFFFFF),
+                    weight: FontWeight.w600,
+                    onTap: () {
                       final picked = PickedColor(color, _name.text.trim());
                       unawaited(RecentColors.add(picked.color));
                       Navigator.of(context).pop(picked);
@@ -627,6 +650,37 @@ class _ColorPickerSheetState extends State<ColorPickerSheet> {
       ),
     );
   }
+}
+
+class _SheetButton extends StatelessWidget {
+  final String text;
+  final Color bg, fg;
+  final FontWeight weight;
+  final VoidCallback onTap;
+  const _SheetButton(
+    this.text, {
+    required this.bg,
+    required this.fg,
+    required this.weight,
+    required this.onTap,
+  });
+  @override
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    label: text,
+    child: GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 48,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Text(text, style: hts(15, fg, w: weight, lh: 22)),
+      ),
+    ),
+  );
 }
 
 /// 可拖动取值的色板 / 滑条：底色渐变 + 可选的叠加渐变 + 圆形取色点。

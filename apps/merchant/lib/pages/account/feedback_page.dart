@@ -1,15 +1,3 @@
-import '../../kit/upload_gallery.dart';
-
-import 'package:autocare_ui_kit/autocare_ui_kit.dart'
-    show
-        AppChoiceGroup,
-        ChoiceItem,
-        AppImageUploader,
-        AppUploadItem,
-        AppUploadState;
-
-import '../../kit/buttons.dart';
-
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -43,6 +31,10 @@ class _FeedbackPageState extends State<FeedbackPage> {
   String? _owner;
   bool _initialized = false, _busy = false;
   late final _submitKey = 'feedback-submit-${identityHashCode(this)}';
+  late final _imageKeys = List.generate(
+    3,
+    (i) => 'feedback-image-${identityHashCode(this)}-$i',
+  );
   @override
   void initState() {
     super.initState();
@@ -90,37 +82,21 @@ class _FeedbackPageState extends State<FeedbackPage> {
     if (_busy) return;
     setState(() => _busy = true);
     try {
-      final file =
-          await (widget.pickImage?.call() ??
-              ImagePicker().pickImage(
-                source: ImageSource.gallery,
-                imageQuality: 90,
-              ));
-      if (file == null || !mounted) return;
-      if (await file.length() > 5242880) {
-        throw const AppError('请选择 5MB 以内的 JPEG 或 PNG 图片');
-      }
-      final bytes = await file.readAsBytes();
-      if (!mounted) return;
-      _draft.images[index] = FeedbackImage(bytes);
-    } catch (e) {
-      if (mounted) AppToast.error(context, e);
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
-
-  Future<void> _retryImage(int index) async {
-    if (_busy) return;
-    setState(() => _busy = true);
-    try {
-      await _draft.uploadImage(
-        _draft.images[index]!,
-        _api.invoke,
-        onChanged: () {
-          if (mounted) setState(() {});
-        },
-      );
+      await runBusy(_imageKeys[index], () async {
+        final file =
+            await (widget.pickImage?.call() ??
+                ImagePicker().pickImage(
+                  source: ImageSource.gallery,
+                  imageQuality: 90,
+                ));
+        if (file == null || !mounted) return;
+        if (await file.length() > 5242880) {
+          throw const AppError('请选择 5MB 以内的 JPEG 或 PNG 图片');
+        }
+        final bytes = await file.readAsBytes();
+        if (!mounted) return;
+        _draft.images[index] = FeedbackImage(bytes);
+      });
     } catch (e) {
       if (mounted) AppToast.error(context, e);
     } finally {
@@ -144,12 +120,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
     });
     try {
       await runBusy(_submitKey, () async {
-        await _draft.submit(
-          _api.invoke,
-          onChanged: () {
-            if (mounted) setState(() {});
-          },
-        );
+        await _draft.submit(_api.invoke);
       });
       success = true;
       if (mounted) {
@@ -167,6 +138,57 @@ class _FeedbackPageState extends State<FeedbackPage> {
       await WidgetsBinding.instance.endOfFrame;
       if (mounted) openRoute(context, 'AboutApp');
     }
+  }
+
+  Widget _image(int index, {required double radius, required Widget child}) {
+    final image = _draft.images[index];
+    return GestureDetector(
+      key: ValueKey('feedback-image-$index'),
+      onTap: () => unawaited(_pickImage(index)),
+      behavior: HitTestBehavior.opaque,
+      child: hBusy(
+        _imageKeys[index],
+        Stack(
+          children: [
+            child,
+            if (image != null)
+              Positioned.fill(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(radius),
+                  child: Image.memory(
+                    image.bytes,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) =>
+                        const Center(child: Icon(Icons.broken_image_outlined)),
+                  ),
+                ),
+              ),
+            if (image != null)
+              Positioned(
+                top: 0,
+                right: 0,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => setState(() => _draft.images[index] = null),
+                  child: const SizedBox(
+                    width: 44,
+                    height: 44,
+                    child: Align(
+                      alignment: Alignment.topRight,
+                      child: CircleAvatar(
+                        radius: 11,
+                        backgroundColor: Color(0x99000000),
+                        child: Icon(Icons.close, size: 14, color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+        icon: true,
+      ),
+    );
   }
 
   @override
@@ -196,10 +218,62 @@ class _FeedbackPageState extends State<FeedbackPage> {
                   [
                     hrow(
                       [
-                        AppIconButton(
-                          svg: dk(context, Svgs.s0, Svgs.s1),
-                          semanticLabel: "返回",
-                          onPressed: () => Navigator.of(context).maybePop(),
+                        GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () => Navigator.of(context).maybePop(),
+                          child: hbox(
+                            w: 44,
+                            h: 44,
+                            bg: dk(
+                              context,
+                              Color(0xFFFFFFFF),
+                              Color(0xFF18181B),
+                            ),
+                            radius: BorderRadius.circular(22),
+                            shadow: dk(
+                              context,
+                              [
+                                BoxShadow(
+                                  color: Color.fromRGBO(0, 0, 0, 0.06),
+                                  offset: Offset(0, 0),
+                                  blurRadius: 1,
+                                  spreadRadius: 0,
+                                ),
+                                BoxShadow(
+                                  color: Color.fromRGBO(0, 0, 0, 0.06),
+                                  offset: Offset(0, 1),
+                                  blurRadius: 2,
+                                  spreadRadius: 0,
+                                ),
+                                BoxShadow(
+                                  color: Color.fromRGBO(0, 0, 0, 0.04),
+                                  offset: Offset(0, 2),
+                                  blurRadius: 4,
+                                  spreadRadius: 0,
+                                ),
+                              ],
+                              [
+                                BoxShadow(
+                                  color: Color(0xFF26262B),
+                                  offset: Offset(0, 0),
+                                  blurRadius: 0,
+                                  spreadRadius: 1,
+                                ),
+                              ],
+                            ),
+                            child: hrow(
+                              [
+                                hsvg(
+                                  dk(context, Svgs.s0, Svgs.s1),
+                                  w: 20,
+                                  h: 20,
+                                ),
+                              ],
+                              main: MainAxisAlignment.center,
+                              cross: CrossAxisAlignment.center,
+                              gap: 0,
+                            ),
+                          ),
                         ),
                         Expanded(
                           flex: 1,
@@ -273,18 +347,264 @@ class _FeedbackPageState extends State<FeedbackPage> {
                                 ),
                               ),
                               Builder(
-                                builder: (context) => ListenableBuilder(
-                                  listenable: _type,
-                                  builder: (context, _) => AppChoiceGroup<int>(
-                                    items: [
-                                      ChoiceItem(value: 0, label: '功能建议'),
-                                      ChoiceItem(value: 1, label: '问题报告'),
-                                      ChoiceItem(value: 2, label: '账号与付费'),
-                                      ChoiceItem(value: 3, label: '其他'),
-                                    ],
-                                    selected: _type.selected.firstOrNull,
-                                    onChanged: _selectType,
-                                  ),
+                                builder: (context) => hwrap(
+                                  [
+                                    HSel(
+                                      ctrl: _type,
+                                      index: 0,
+                                      onTap: () => _selectType(0),
+                                      on: hbox(
+                                        h: 34,
+                                        bg: dk(
+                                          context,
+                                          Color(0xFFE1F0FE),
+                                          Color.fromRGBO(4, 133, 247, 0.18),
+                                        ),
+                                        radius: BorderRadius.circular(17),
+                                        border: Border.all(
+                                          color: Color(0xFF0485F7),
+                                          width: 1.5,
+                                        ),
+                                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                        child: Align(
+                                          alignment: Alignment.center,
+                                          widthFactor: 1,
+                                          child: Text(
+                                            '功能建议',
+                                            style: hts(
+                                              13,
+                                              dk(
+                                                context,
+                                                Color(0xFF1E63AE),
+                                                Color(0xFF6AB4FA),
+                                              ),
+                                              w: FontWeight.w500,
+                                              lh: 18,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      off: hbox(
+                                        h: 34,
+                                        bg: dk(
+                                          context,
+                                          Color(0xFFF4F4F5),
+                                          Color(0xFF27272A),
+                                        ),
+                                        radius: BorderRadius.circular(17),
+                                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                        child: Align(
+                                          alignment: Alignment.center,
+                                          widthFactor: 1,
+                                          child: Text(
+                                            '功能建议',
+                                            style: hts(
+                                              13,
+                                              dk(
+                                                context,
+                                                Color(0xFF3F3F46),
+                                                Color(0xFFD4D4D8),
+                                              ),
+                                              w: FontWeight.w500,
+                                              lh: 18,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    HSel(
+                                      ctrl: _type,
+                                      index: 1,
+                                      onTap: () => _selectType(1),
+                                      on: hbox(
+                                        h: 34,
+                                        bg: dk(
+                                          context,
+                                          Color(0xFFE1F0FE),
+                                          Color.fromRGBO(4, 133, 247, 0.18),
+                                        ),
+                                        radius: BorderRadius.circular(17),
+                                        border: Border.all(
+                                          color: Color(0xFF0485F7),
+                                          width: 1.5,
+                                        ),
+                                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                        child: Align(
+                                          alignment: Alignment.center,
+                                          widthFactor: 1,
+                                          child: Text(
+                                            '问题报告',
+                                            style: hts(
+                                              13,
+                                              dk(
+                                                context,
+                                                Color(0xFF1E63AE),
+                                                Color(0xFF6AB4FA),
+                                              ),
+                                              w: FontWeight.w500,
+                                              lh: 18,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      off: hbox(
+                                        h: 34,
+                                        bg: dk(
+                                          context,
+                                          Color(0xFFF4F4F5),
+                                          Color(0xFF27272A),
+                                        ),
+                                        radius: BorderRadius.circular(17),
+                                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                        child: Align(
+                                          alignment: Alignment.center,
+                                          widthFactor: 1,
+                                          child: Text(
+                                            '问题报告',
+                                            style: hts(
+                                              13,
+                                              dk(
+                                                context,
+                                                Color(0xFF3F3F46),
+                                                Color(0xFFD4D4D8),
+                                              ),
+                                              w: FontWeight.w500,
+                                              lh: 18,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    HSel(
+                                      ctrl: _type,
+                                      index: 2,
+                                      onTap: () => _selectType(2),
+                                      on: hbox(
+                                        h: 34,
+                                        bg: dk(
+                                          context,
+                                          Color(0xFFE1F0FE),
+                                          Color.fromRGBO(4, 133, 247, 0.18),
+                                        ),
+                                        radius: BorderRadius.circular(17),
+                                        border: Border.all(
+                                          color: Color(0xFF0485F7),
+                                          width: 1.5,
+                                        ),
+                                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                        child: Align(
+                                          alignment: Alignment.center,
+                                          widthFactor: 1,
+                                          child: Text(
+                                            '账号与付费',
+                                            style: hts(
+                                              13,
+                                              dk(
+                                                context,
+                                                Color(0xFF1E63AE),
+                                                Color(0xFF6AB4FA),
+                                              ),
+                                              w: FontWeight.w500,
+                                              lh: 18,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      off: hbox(
+                                        h: 34,
+                                        bg: dk(
+                                          context,
+                                          Color(0xFFF4F4F5),
+                                          Color(0xFF27272A),
+                                        ),
+                                        radius: BorderRadius.circular(17),
+                                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                        child: Align(
+                                          alignment: Alignment.center,
+                                          widthFactor: 1,
+                                          child: Text(
+                                            '账号与付费',
+                                            style: hts(
+                                              13,
+                                              dk(
+                                                context,
+                                                Color(0xFF3F3F46),
+                                                Color(0xFFD4D4D8),
+                                              ),
+                                              w: FontWeight.w500,
+                                              lh: 18,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    HSel(
+                                      ctrl: _type,
+                                      index: 3,
+                                      onTap: () => _selectType(3),
+                                      on: hbox(
+                                        h: 34,
+                                        bg: dk(
+                                          context,
+                                          Color(0xFFE1F0FE),
+                                          Color.fromRGBO(4, 133, 247, 0.18),
+                                        ),
+                                        radius: BorderRadius.circular(17),
+                                        border: Border.all(
+                                          color: Color(0xFF0485F7),
+                                          width: 1.5,
+                                        ),
+                                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                        child: Align(
+                                          alignment: Alignment.center,
+                                          widthFactor: 1,
+                                          child: Text(
+                                            '其他',
+                                            style: hts(
+                                              13,
+                                              dk(
+                                                context,
+                                                Color(0xFF1E63AE),
+                                                Color(0xFF6AB4FA),
+                                              ),
+                                              w: FontWeight.w500,
+                                              lh: 18,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      off: hbox(
+                                        h: 34,
+                                        bg: dk(
+                                          context,
+                                          Color(0xFFF4F4F5),
+                                          Color(0xFF27272A),
+                                        ),
+                                        radius: BorderRadius.circular(17),
+                                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                        child: Align(
+                                          alignment: Alignment.center,
+                                          widthFactor: 1,
+                                          child: Text(
+                                            '其他',
+                                            style: hts(
+                                              13,
+                                              dk(
+                                                context,
+                                                Color(0xFF3F3F46),
+                                                Color(0xFFD4D4D8),
+                                              ),
+                                              w: FontWeight.w500,
+                                              lh: 18,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                  gap: 8,
+                                  rowGap: 8,
+                                  cross: WrapCrossAlignment.start,
                                 ),
                               ),
                             ],
@@ -336,34 +656,160 @@ class _FeedbackPageState extends State<FeedbackPage> {
                             cross: CrossAxisAlignment.stretch,
                             gap: 8,
                           ),
-                          AppImageUploader.grid(
-                            title: '截图',
-                            helper: '选填，最多 3 张',
-                            max: 3,
-                            enabled: !_busy,
-                            items: [
-                              for (var i = 0; i < 3; i++)
-                                if (_draft.images[i] != null)
-                                  AppUploadItem(
-                                    id: '$i',
-                                    state: _draft.images[i]!.uploading
-                                        ? AppUploadState.uploading
-                                        : _draft.images[i]!.failed
-                                        ? AppUploadState.failed
-                                        : _draft.images[i]!.uploadedId == null
-                                        ? AppUploadState.pending
-                                        : AppUploadState.uploaded,
-                                    image: MemoryImage(_draft.images[i]!.bytes),
+                          hcol(
+                            [
+                              Text.rich(
+                                TextSpan(
+                                  style: hts(
+                                    14,
+                                    dk(
+                                      context,
+                                      Color(0xFF18181B),
+                                      Color(0xFFFAFAFA),
+                                    ),
+                                    w: FontWeight.w600,
+                                    lh: 20,
                                   ),
+                                  children: [
+                                    TextSpan(
+                                      text: '截图 ',
+                                      style: hts(
+                                        14,
+                                        dk(
+                                          context,
+                                          Color(0xFF18181B),
+                                          Color(0xFFFAFAFA),
+                                        ),
+                                        w: FontWeight.w600,
+                                        lh: 20,
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: '· 选填，最多 3 张',
+                                      style: hts(
+                                        14,
+                                        dk(
+                                          context,
+                                          Color(0xFF71717A),
+                                          Color(0xFF9A9AA3),
+                                        ),
+                                        lh: 20,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              hrow(
+                                [
+                                  UnconstrainedBox(
+                                    alignment: Alignment.topLeft,
+                                    constrainedAxis: Axis.horizontal,
+                                    child: _image(
+                                      0,
+                                      radius: 16,
+                                      child: hbox(
+                                        w: 76,
+                                        h: 76,
+                                        bg: Color(0xFFFAFAFA),
+                                        radius: BorderRadius.circular(16),
+                                        dashed: true,
+                                        dashColor: dk(
+                                          context,
+                                          Color(0xFFD4D4D8),
+                                          Color(0xFF3F3F46),
+                                        ),
+                                        dashWidth: 2,
+                                        child: hrow(
+                                          [
+                                            hsvg(
+                                              dk(context, Svgs.s154, Svgs.s155),
+                                              w: 22,
+                                              h: 22,
+                                            ),
+                                          ],
+                                          main: MainAxisAlignment.center,
+                                          cross: CrossAxisAlignment.center,
+                                          gap: 0,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  UnconstrainedBox(
+                                    alignment: Alignment.topLeft,
+                                    constrainedAxis: Axis.horizontal,
+                                    child: _image(
+                                      1,
+                                      radius: 16,
+                                      child: hbox(
+                                        w: 76,
+                                        h: 76,
+                                        bg: Color(0xFFFAFAFA),
+                                        radius: BorderRadius.circular(16),
+                                        dashed: true,
+                                        dashColor: dk(
+                                          context,
+                                          Color(0xFFD4D4D8),
+                                          Color(0xFF3F3F46),
+                                        ),
+                                        dashWidth: 2,
+                                        child: hrow(
+                                          [
+                                            hsvg(
+                                              dk(context, Svgs.s154, Svgs.s155),
+                                              w: 22,
+                                              h: 22,
+                                            ),
+                                          ],
+                                          main: MainAxisAlignment.center,
+                                          cross: CrossAxisAlignment.center,
+                                          gap: 0,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  UnconstrainedBox(
+                                    alignment: Alignment.topLeft,
+                                    constrainedAxis: Axis.horizontal,
+                                    child: _image(
+                                      2,
+                                      radius: 16,
+                                      child: hbox(
+                                        w: 76,
+                                        h: 76,
+                                        bg: Color(0xFFFAFAFA),
+                                        radius: BorderRadius.circular(16),
+                                        dashed: true,
+                                        dashColor: dk(
+                                          context,
+                                          Color(0xFFD4D4D8),
+                                          Color(0xFF3F3F46),
+                                        ),
+                                        dashWidth: 2,
+                                        child: hrow(
+                                          [
+                                            hsvg(
+                                              dk(context, Svgs.s154, Svgs.s155),
+                                              w: 22,
+                                              h: 22,
+                                            ),
+                                          ],
+                                          main: MainAxisAlignment.center,
+                                          cross: CrossAxisAlignment.center,
+                                          gap: 0,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                                main: MainAxisAlignment.start,
+                                cross: CrossAxisAlignment.stretch,
+                                gap: 10,
+                                intrinsic: true,
+                              ),
                             ],
-                            onPick: () =>
-                                _pickImage(_draft.images.indexOf(null)),
-                            onRetry: (item) => _retryImage(int.parse(item.id)),
-                            onRemove: (item) => setState(
-                              () => _draft.images[int.parse(item.id)] = null,
-                            ),
-                            onPreview: (item) =>
-                                previewImage(context, item.image!),
+                            main: MainAxisAlignment.start,
+                            cross: CrossAxisAlignment.stretch,
+                            gap: 8,
                           ),
                           hcol(
                             [
@@ -474,13 +920,45 @@ class _FeedbackPageState extends State<FeedbackPage> {
                   [
                     Expanded(
                       flex: 1,
-                      child: ActionButton(
-                        actionKey: _submitKey,
-                        label: _draft.submitted ? '已提交' : '提交反馈',
-                        kind: AppButtonKind.primary,
-                        size: AppButtonSize.large,
-                        expanded: true,
-                        onPressed: () => unawaited(_submit()),
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => unawaited(_submit()),
+                        child: hbox(
+                          h: 50,
+                          bg: dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                          radius: BorderRadius.circular(25),
+                          child: Align(
+                            alignment: Alignment(0, 0),
+                            widthFactor: 1,
+                            child: hBusy(
+                              _submitKey,
+                              Text(
+                                _draft.submitted ? '已提交' : '提交反馈',
+                                style: hts(
+                                  15,
+                                  dk(
+                                    context,
+                                    Color(0xFFFFFFFF),
+                                    Color(0xFF18181B),
+                                  ),
+                                  w: FontWeight.w600,
+                                  lh: 22,
+                                ),
+                              ),
+                              label: '提交中…',
+                              style: hts(
+                                15,
+                                dk(
+                                  context,
+                                  Color(0xFFFFFFFF),
+                                  Color(0xFF18181B),
+                                ),
+                                w: FontWeight.w600,
+                                lh: 22,
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ],

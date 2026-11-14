@@ -1,10 +1,7 @@
-import 'package:autocare_ui_kit/autocare_ui_kit.dart'
-    show AppChoiceGroup, ChoiceItem;
-
-import '../../kit/buttons.dart';
 import 'member_adjust_controller.dart';
 import '../../backend/merchant_api.dart';
 import '../../kit/async_kit.dart';
+import '../../kit/single_selection.dart';
 import '../../kit/text_input.dart';
 import '../../routes.dart' show openRoute;
 
@@ -93,10 +90,52 @@ class _MemberAdjustPageTemplate extends StatelessWidget {
               [
                 hrow(
                   [
-                    AppIconButton(
-                      svg: dk(context, Svgs.s26, Svgs.s27),
-                      semanticLabel: "返回",
-                      onPressed: () => Navigator.of(context).maybePop(),
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => Navigator.of(context).maybePop(),
+                      child: hbox(
+                        w: 44,
+                        h: 44,
+                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                        radius: BorderRadius.circular(22),
+                        shadow: dk(
+                          context,
+                          [
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
+                              spreadRadius: 0,
+                            ),
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 1),
+                              blurRadius: 2,
+                              spreadRadius: 0,
+                            ),
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
+                              spreadRadius: 0,
+                            ),
+                          ],
+                          [
+                            BoxShadow(
+                              color: Color(0xFF26262B),
+                              offset: Offset(0, 0),
+                              blurRadius: 0,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                        child: hrow(
+                          [hsvg(dk(context, Svgs.s26, Svgs.s27), w: 20, h: 20)],
+                          main: MainAxisAlignment.center,
+                          cross: CrossAxisAlignment.center,
+                          gap: 0,
+                        ),
+                      ),
                     ),
                     Expanded(
                       flex: 1,
@@ -280,15 +319,264 @@ class _MemberAdjustPageTemplate extends StatelessWidget {
                         cross: CrossAxisAlignment.center,
                         gap: 8,
                       ),
-                      AppChoiceGroup<int>(
-                        items: [
-                          ChoiceItem(value: 0, label: c.tierName(0)),
-                          ChoiceItem(value: 1, label: c.tierName(1)),
-                          ChoiceItem(value: 2, label: c.tierName(2)),
-                          ChoiceItem(value: 3, label: c.tierName(3)),
-                        ],
-                        selected: c.tier,
+                      SingleSelection(
+                        index: c.tier,
                         onChanged: (value) => c.chooseTier(context, value),
+                        builder: (context, g1) => hwrap(
+                          [
+                            HSel(
+                              ctrl: g1,
+                              index: 0,
+                              on: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFE1F0FE),
+                                  Color.fromRGBO(4, 133, 247, 0.18),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                border: Border.all(
+                                  color: Color(0xFF0485F7),
+                                  width: 1.5,
+                                ),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    c.tierName(0),
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF1E63AE),
+                                        Color(0xFF6AB4FA),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              off: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFF4F4F5),
+                                  Color(0xFF27272A),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    c.tierName(0),
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF3F3F46),
+                                        Color(0xFFD4D4D8),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            HSel(
+                              ctrl: g1,
+                              index: 1,
+                              on: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFE1F0FE),
+                                  Color.fromRGBO(4, 133, 247, 0.18),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                border: Border.all(
+                                  color: Color(0xFF0485F7),
+                                  width: 1.5,
+                                ),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    c.tierName(1),
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF1E63AE),
+                                        Color(0xFF6AB4FA),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              off: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFF4F4F5),
+                                  Color(0xFF27272A),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    c.tierName(1),
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF3F3F46),
+                                        Color(0xFFD4D4D8),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            HSel(
+                              ctrl: g1,
+                              index: 2,
+                              on: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFE1F0FE),
+                                  Color.fromRGBO(4, 133, 247, 0.18),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                border: Border.all(
+                                  color: Color(0xFF0485F7),
+                                  width: 1.5,
+                                ),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    c.tierName(2),
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF1E63AE),
+                                        Color(0xFF6AB4FA),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              off: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFF4F4F5),
+                                  Color(0xFF27272A),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    c.tierName(2),
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF3F3F46),
+                                        Color(0xFFD4D4D8),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            HSel(
+                              ctrl: g1,
+                              index: 3,
+                              on: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFE1F0FE),
+                                  Color.fromRGBO(4, 133, 247, 0.18),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                border: Border.all(
+                                  color: Color(0xFF0485F7),
+                                  width: 1.5,
+                                ),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    c.tierName(3),
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF1E63AE),
+                                        Color(0xFF6AB4FA),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              off: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFF4F4F5),
+                                  Color(0xFF27272A),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    c.tierName(3),
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF3F3F46),
+                                        Color(0xFFD4D4D8),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                          gap: 8,
+                          rowGap: 8,
+                          cross: WrapCrossAlignment.start,
+                        ),
                       ),
                       Text(
                         '手动降级后，会员仍会在再次达到更高门槛时实时自动升级。',
@@ -388,20 +676,168 @@ class _MemberAdjustPageTemplate extends StatelessWidget {
                         cross: CrossAxisAlignment.baseline,
                         gap: 8,
                       ),
-                      AppChoiceGroup<int>(
-                        items: [
-                          ChoiceItem(value: 0, label: '增加'),
-                          ChoiceItem(value: 1, label: '扣减'),
-                        ],
-                        selected: c.direction,
+                      SingleSelection(
+                        index: c.direction,
                         onChanged: (value) => c.chooseDirection(value),
+                        builder: (context, g2) => hwrap(
+                          [
+                            HSel(
+                              ctrl: g2,
+                              index: 0,
+                              on: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFE1F0FE),
+                                  Color.fromRGBO(4, 133, 247, 0.18),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                border: Border.all(
+                                  color: Color(0xFF0485F7),
+                                  width: 1.5,
+                                ),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    '增加',
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF1E63AE),
+                                        Color(0xFF6AB4FA),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              off: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFF4F4F5),
+                                  Color(0xFF27272A),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    '增加',
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF3F3F46),
+                                        Color(0xFFD4D4D8),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            HSel(
+                              ctrl: g2,
+                              index: 1,
+                              on: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFE1F0FE),
+                                  Color.fromRGBO(4, 133, 247, 0.18),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                border: Border.all(
+                                  color: Color(0xFF0485F7),
+                                  width: 1.5,
+                                ),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    '扣减',
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF1E63AE),
+                                        Color(0xFF6AB4FA),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              off: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFF4F4F5),
+                                  Color(0xFF27272A),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    '扣减',
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF3F3F46),
+                                        Color(0xFFD4D4D8),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                          gap: 8,
+                          rowGap: 8,
+                          cross: WrapCrossAlignment.start,
+                        ),
                       ),
                       hbox(
                         pad: EdgeInsets.fromLTRB(0, 6, 0, 6),
                         child: HNumberStepper.controlled(
                           onDecrease: () => c.changePoints(c.points - 10),
                           onIncrease: () => c.changePoints(c.points + 10),
-
+                          minus: hbox(
+                            w: 40,
+                            h: 40,
+                            bg: dk(
+                              context,
+                              Color(0xFFF4F4F5),
+                              Color(0xFF27272A),
+                            ),
+                            radius: BorderRadius.circular(20),
+                            align: Alignment(0, 0),
+                            child: Text(
+                              '−',
+                              style: hts(
+                                16,
+                                dk(
+                                  context,
+                                  Color(0xFF18181B),
+                                  Color(0xFFFAFAFA),
+                                ),
+                              ),
+                            ),
+                          ),
                           value: Flexible(
                             flex: 56,
                             child: hbox(
@@ -426,7 +862,28 @@ class _MemberAdjustPageTemplate extends StatelessWidget {
                               ),
                             ),
                           ),
-
+                          plus: hbox(
+                            w: 40,
+                            h: 40,
+                            bg: dk(
+                              context,
+                              Color(0xFFF4F4F5),
+                              Color(0xFF27272A),
+                            ),
+                            radius: BorderRadius.circular(20),
+                            child: hrow(
+                              [
+                                hsvg(
+                                  dk(context, Svgs.s214, Svgs.s215),
+                                  w: 18,
+                                  h: 18,
+                                ),
+                              ],
+                              main: MainAxisAlignment.center,
+                              cross: CrossAxisAlignment.center,
+                              gap: 0,
+                            ),
+                          ),
                           main: MainAxisAlignment.center,
                           cross: CrossAxisAlignment.center,
                           gap: 14,
@@ -564,15 +1021,264 @@ class _MemberAdjustPageTemplate extends StatelessWidget {
                               ],
                             ),
                           ),
-                          AppChoiceGroup<int>(
-                            items: [
-                              ChoiceItem(value: 0, label: '活动补发'),
-                              ChoiceItem(value: 1, label: '客诉补偿'),
-                              ChoiceItem(value: 2, label: '录入错误'),
-                              ChoiceItem(value: 3, label: '其他'),
-                            ],
-                            selected: c.reason,
+                          SingleSelection(
+                            index: c.reason,
                             onChanged: (value) => c.chooseReason(value),
+                            builder: (context, g4) => hwrap(
+                              [
+                                HSel(
+                                  ctrl: g4,
+                                  index: 0,
+                                  on: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFE1F0FE),
+                                      Color.fromRGBO(4, 133, 247, 0.18),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    border: Border.all(
+                                      color: Color(0xFF0485F7),
+                                      width: 1.5,
+                                    ),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '活动补发',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF1E63AE),
+                                            Color(0xFF6AB4FA),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  off: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFF4F4F5),
+                                      Color(0xFF27272A),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '活动补发',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF3F3F46),
+                                            Color(0xFFD4D4D8),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                HSel(
+                                  ctrl: g4,
+                                  index: 1,
+                                  on: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFE1F0FE),
+                                      Color.fromRGBO(4, 133, 247, 0.18),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    border: Border.all(
+                                      color: Color(0xFF0485F7),
+                                      width: 1.5,
+                                    ),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '客诉补偿',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF1E63AE),
+                                            Color(0xFF6AB4FA),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  off: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFF4F4F5),
+                                      Color(0xFF27272A),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '客诉补偿',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF3F3F46),
+                                            Color(0xFFD4D4D8),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                HSel(
+                                  ctrl: g4,
+                                  index: 2,
+                                  on: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFE1F0FE),
+                                      Color.fromRGBO(4, 133, 247, 0.18),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    border: Border.all(
+                                      color: Color(0xFF0485F7),
+                                      width: 1.5,
+                                    ),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '录入错误',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF1E63AE),
+                                            Color(0xFF6AB4FA),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  off: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFF4F4F5),
+                                      Color(0xFF27272A),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '录入错误',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF3F3F46),
+                                            Color(0xFFD4D4D8),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                HSel(
+                                  ctrl: g4,
+                                  index: 3,
+                                  on: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFE1F0FE),
+                                      Color.fromRGBO(4, 133, 247, 0.18),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    border: Border.all(
+                                      color: Color(0xFF0485F7),
+                                      width: 1.5,
+                                    ),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '其他',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF1E63AE),
+                                            Color(0xFF6AB4FA),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  off: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFF4F4F5),
+                                      Color(0xFF27272A),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '其他',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF3F3F46),
+                                            Color(0xFFD4D4D8),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                              gap: 8,
+                              rowGap: 8,
+                              cross: WrapCrossAlignment.start,
+                            ),
                           ),
                         ],
                         main: MainAxisAlignment.start,
@@ -700,23 +1406,62 @@ class _MemberAdjustPageTemplate extends StatelessWidget {
               [
                 Expanded(
                   flex: 10,
-                  child: AppButton(
-                    label: '取消',
-                    kind: AppButtonKind.secondary,
-                    size: AppButtonSize.large,
-                    expanded: true,
-                    onPressed: () => Navigator.of(context).maybePop(),
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => Navigator.of(context).maybePop(),
+                    child: hbox(
+                      h: 50,
+                      bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
+                      radius: BorderRadius.circular(25),
+                      child: Align(
+                        alignment: Alignment(0, 0),
+                        widthFactor: 1,
+                        child: Text(
+                          '取消',
+                          style: hts(
+                            15,
+                            dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                            w: FontWeight.w500,
+                            lh: 22,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
                 Expanded(
                   flex: 16,
-                  child: ActionButton(
-                    actionKey: c.actionKey,
-                    label: '确认调整',
-                    kind: AppButtonKind.primary,
-                    size: AppButtonSize.large,
-                    expanded: true,
-                    onPressed: () => c.submit(context),
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => c.submit(context),
+                    child: hbox(
+                      h: 50,
+                      bg: Color(0xFF0485F7),
+                      radius: BorderRadius.circular(25),
+                      child: Align(
+                        alignment: Alignment(0, 0),
+                        widthFactor: 1,
+                        child: hBusy(
+                          c.actionKey,
+                          Text(
+                            '确认调整',
+                            style: hts(
+                              15,
+                              Color(0xFFFFFFFF),
+                              w: FontWeight.w600,
+                              lh: 22,
+                            ),
+                          ),
+                          style: hts(
+                            15,
+                            Color(0xFFFFFFFF),
+                            w: FontWeight.w600,
+                            lh: 22,
+                          ),
+                          label: '提交中…',
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ],

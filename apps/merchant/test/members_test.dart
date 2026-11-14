@@ -1,4 +1,3 @@
-import 'package:autocare_ui_kit/autocare_ui_kit.dart' show AppChoiceGroup;
 import 'package:autocare_merchant/pages/members/wallet_page.dart';
 import 'package:autocare_merchant/pages/members/recharge_page.dart';
 import 'package:autocare_merchant/pages/members/recharge_success_page.dart';
@@ -11,7 +10,7 @@ import 'package:autocare_merchant/backend/member_flow.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/backend/store_profile.dart';
 import 'package:autocare_merchant/kit/async_kit.dart';
-import 'package:autocare_merchant/kit/kit.dart' show HNumberStepper;
+import 'package:autocare_merchant/kit/kit.dart' show HSel, HNumberStepper;
 import 'package:autocare_merchant/pages/members/member_detail_page.dart';
 import 'package:autocare_merchant/pages/orders/order_page.dart';
 import 'package:autocare_merchant/pages/members/members_page.dart';
@@ -327,6 +326,7 @@ class MemberFakeApi extends MerchantApi {
 
   final memberPkgs = <Map<String, dynamic>>[];
   final extended = <Map<String, dynamic>>[];
+  final refunded = <Map<String, dynamic>>[];
   @override
   Future<List<Map<String, dynamic>>> memberPackages(String memberId) async => [
     ...memberPkgs,
@@ -349,6 +349,19 @@ class MemberFakeApi extends MerchantApi {
         .add(Duration(days: days))
         .toIso8601String();
     return {'expires_at': p['expires_at']};
+  }
+
+  @override
+  Future<Map<String, dynamic>> refundPackage({
+    required String id,
+    String? requestId,
+    required String to,
+    required String reason,
+  }) async {
+    refunded.add({'id': id, 'to': to, 'reason': reason});
+    final p = memberPkgs.firstWhere((e) => e['id'] == id);
+    p['refunded_at'] = DateTime.now().toIso8601String();
+    return {'refund': 432, 'balance': 4112};
   }
 
   final sales = <Map<String, dynamic>>[];
@@ -757,19 +770,12 @@ void main() {
             matching: find.text(label),
           )
           .first;
-      Set<int> selection(String label) {
-        final group = t.widget<AppChoiceGroup<int>>(
-          find
-              .ancestor(
-                of: option(label),
-                matching: find.byType(AppChoiceGroup<int>),
-              )
-              .first,
-        );
-        return group.selectedValues ??
-            {if (group.selected != null) group.selected!};
-      }
-
+      Set<int> selection(String label) => t
+          .widget<HSel>(
+            find.ancestor(of: option(label), matching: find.byType(HSel)).first,
+          )
+          .ctrl
+          .selected;
       Future<void> resetFilter() async {
         await t.ensureVisible(find.text('重置'));
         await t.tap(find.text('重置'));
@@ -1178,7 +1184,6 @@ void main() {
       await t.pump();
       expect(find.text('实收 · 到账 ¥1,500'), findsOneWidget); // 自定义不赠送
       expect(find.text('¥5,180.00'), findsOneWidget);
-      await t.ensureVisible(find.text('现金').first);
       await t.tap(find.text('现金').first);
       await t.pump();
       await t.ensureVisible(find.text('确认收款'));
@@ -1639,7 +1644,7 @@ void main() {
     });
   });
 
-  group('次卡详情 / 延期', () {
+  group('次卡详情 / 延期 / 退款', () {
     Map<String, dynamic> myPkg() => {
       'id': 'mp1',
       'name': '精致洗车年卡',
@@ -1742,16 +1747,37 @@ void main() {
       });
     });
 
-    testWidgets('次卡详情移除退款，保留延期与开单抵扣', (t) async {
+    testWidgets('退款：按“实付 − 已用次数 × 单次均价”预览可退金额，提交后回到会员详情', (t) async {
       phone(t);
       await openDetail(t);
       await t.tap(find.text('精致洗车年卡'));
       await t.pumpAndSettle();
-      expect(find.text('退款'), findsNothing);
-      expect(find.text('延期'), findsOneWidget);
-      expect(find.text('开单抵扣'), findsOneWidget);
+      await t.ensureVisible(find.text('退款'));
+      await t.tap(find.text('退款'));
+      await t.pumpAndSettle();
+      expect(find.text('次卡退款'), findsOneWidget);
+      expect(find.text('已用 12 次 × 单次 ¥54'), findsOneWidget);
+      expect(find.text('−¥648.00'), findsOneWidget);
+      expect(find.text('¥432.00'), findsOneWidget);
+      expect(find.text('确认退款 ¥432'), findsOneWidget);
+      await t.tap(find.text('确认退款 ¥432'));
+      await t.pumpAndSettle();
+      expect(find.text('请选择退款原因'), findsOneWidget); // 原因要自己选
+      for (var i = 0; i < 6; i++) {
+        await t.pump(const Duration(seconds: 1));
+      }
+      await t.tap(find.text('退到储值余额'));
+      await t.pump();
+      await t.tap(find.text('搬家 / 换车'));
+      await t.pump();
+      await t.tap(find.text('确认退款 ¥432'));
+      await t.pumpAndSettle();
+      expect(fake.refunded.single, {
+        'id': 'mp1',
+        'to': '储值余额',
+        'reason': '搬家 / 换车',
+      });
     });
-
   });
 
   group('开单收银', () {

@@ -301,7 +301,7 @@ void main() {
     expect(api.calls.last, 'phone:111222:13500001111:333444');
   });
 
-  testWidgets('注销账号：有“获取验证码”按钮；填好验证码并勾选前按钮禁用，确认后才提交', (t) async {
+  testWidgets('注销账号：有“获取验证码”按钮；填好验证码并勾选前按钮置灰，点了说明原因', (t) async {
     await open(t, 'DeleteAccount');
     // 验证码发到当前账号绑定的手机号（页面上的脱敏号码来自门店资料）
     expect(
@@ -320,14 +320,14 @@ void main() {
 
     // 没填验证码：按钮是置灰样式，点一下说明原因，不提交
     await tapText(t, '申请注销');
-    expect(find.text('请输入 6 位短信验证码'), findsNothing);
+    expect(find.text('请输入 6 位短信验证码'), findsOneWidget);
     expect(api.calls.where((c) => c.startsWith('delete')), isEmpty);
     await t.pump(const Duration(seconds: 6));
 
     // 填了验证码但没勾选
     await t.enterText(input('6 位数字'), '111222');
     await tapText(t, '申请注销');
-    expect(find.textContaining('请先勾选'), findsNothing);
+    expect(find.textContaining('请先勾选'), findsOneWidget);
     expect(api.calls.where((c) => c.startsWith('delete')), isEmpty);
     await t.pump(const Duration(seconds: 6));
 

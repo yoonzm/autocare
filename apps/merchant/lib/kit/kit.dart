@@ -1,5 +1,3 @@
-import 'buttons.dart';
-
 import 'dart:async';
 // 既有页面的兼容组件；迁移页面使用显式参数与回调。
 import 'dart:math' as math;
@@ -8,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../widgets/choice_chip_group.dart';
 import 'async_kit.dart';
 export '../widgets/card_face.dart' show CardPreview;
 export 'async_kit.dart' show hBusy;
@@ -248,27 +247,40 @@ Future<bool> hConfirm(
                   Row(
                     children: [
                       Expanded(
-                        child: AppButton(
-                          label: cancel,
-                          kind: AppButtonKind.secondary,
-                          size: AppButtonSize.medium,
-                          expanded: false,
-                          onPressed: busy
+                        child: GestureDetector(
+                          onTap: busy
                               ? null
                               : () => Navigator.of(ctx).pop(false),
+                          child: Container(
+                            height: 46,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: dk(
+                                ctx,
+                                const Color(0xFFEEEEF0),
+                                const Color(0xFF34343A),
+                              ),
+                              borderRadius: BorderRadius.circular(23),
+                            ),
+                            child: Text(
+                              cancel,
+                              style: hts(
+                                15,
+                                dk(
+                                  ctx,
+                                  const Color(0xFF18181B),
+                                  const Color(0xFFFAFAFA),
+                                ),
+                                w: FontWeight.w500,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: AppButton(
-                          loading: busy,
-                          label: ok,
-                          kind: danger
-                              ? AppButtonKind.danger
-                              : AppButtonKind.primary,
-                          size: AppButtonSize.medium,
-                          expanded: false,
-                          onPressed: () async {
+                        child: GestureDetector(
+                          onTap: () async {
                             if (busy) return;
                             if (onConfirm == null) {
                               Navigator.of(ctx).pop(true);
@@ -288,6 +300,29 @@ Future<bool> hConfirm(
                               }
                             }
                           },
+                          child: Container(
+                            height: 46,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: danger
+                                  ? const Color(0xFFFF383C)
+                                  : const Color(0xFF0485F7),
+                              borderRadius: BorderRadius.circular(23),
+                            ),
+                            child: busy
+                                ? const AppSpinner(
+                                    size: 20,
+                                    color: Colors.white,
+                                  )
+                                : Text(
+                                    ok,
+                                    style: hts(
+                                      15,
+                                      Colors.white,
+                                      w: FontWeight.w600,
+                                    ),
+                                  ),
+                          ),
                         ),
                       ),
                     ],
@@ -801,6 +836,8 @@ class HSel extends StatelessWidget {
   final int index;
   final Widget on, off;
 
+  /// 分段条（设计稿 role=tab）：按设计稿原样显示选中 / 未选中，不套 ChoiceChip 样式。
+  final bool segment;
   final VoidCallback? onTap;
   const HSel({
     super.key,
@@ -808,12 +845,74 @@ class HSel extends StatelessWidget {
     required this.index,
     required this.on,
     required this.off,
+    this.segment = false,
     this.onTap,
   });
+  static String? _label(Widget widget) => switch (widget) {
+    Text(:final data, :final textSpan) => data ?? textSpan?.toPlainText(),
+    RichText(:final text) => text.toPlainText(),
+    Container(:final child) => child == null ? null : _label(child),
+    Align(:final child) => child == null ? null : _label(child),
+    Padding(:final child) => child == null ? null : _label(child),
+    SizedBox(:final child) => child == null ? null : _label(child),
+    Flexible(:final child) => _label(child),
+    Row(:final children) => _firstLabel(children),
+    Column(:final children) => _firstLabel(children),
+    Wrap(:final children) => _firstLabel(children),
+    _ => null,
+  };
+  static String? _firstLabel(List<Widget> children) {
+    for (final child in children) {
+      final label = _label(child);
+      if (label != null && label.trim().isNotEmpty) return label;
+    }
+    return null;
+  }
+
+  static double? _visualHeight(Widget widget) => switch (widget) {
+    Container(:final constraints, :final child) =>
+      constraints?.maxHeight.isFinite == true
+          ? constraints!.maxHeight
+          : child == null
+          ? null
+          : _visualHeight(child),
+    Align(:final child) => child == null ? null : _visualHeight(child),
+    Padding(:final child) => child == null ? null : _visualHeight(child),
+    _ => null,
+  };
+
   @override
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: ctrl,
     builder: (_, _) {
+      // 32px 分段条 / 特色选项不是 ChoiceChip，保留原设计；34px 胶囊统一样式。
+      final label = segment || ctrl.multi || _visualHeight(on) != 34
+          ? null
+          : (_label(off) ?? _label(on));
+      if (label != null && label.trim().isNotEmpty) {
+        final selected = ctrl.selected.contains(index);
+        return ChoiceChipGroup<int>(
+          semanticLabel: label,
+          kind: ChipKind.pill,
+          items: [
+            ChoiceChipItem(
+              value: index,
+              label: label,
+              isOriginal: label.endsWith(' 原'),
+            ),
+          ],
+          selected: selected ? index : null,
+          onChanged: (_) {
+            if (!selected) {
+              if (onTap != null) {
+                onTap!();
+              } else {
+                ctrl.tap(index);
+              }
+            }
+          },
+        );
+      }
       return GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: onTap ?? () => ctrl.tap(index),
@@ -855,7 +954,7 @@ class HNumberStepper extends StatelessWidget {
   final ValCtrl? ctrl;
   final VoidCallback? onDecrease, onIncrease;
   final int step;
-  final Widget value;
+  final Widget minus, value, plus;
   final MainAxisAlignment main;
   final CrossAxisAlignment cross;
   final double gap;
@@ -864,7 +963,9 @@ class HNumberStepper extends StatelessWidget {
     super.key,
     required this.ctrl,
     required this.step,
+    required this.minus,
     required this.value,
+    required this.plus,
     this.main = MainAxisAlignment.start,
     this.cross = CrossAxisAlignment.center,
     this.gap = 4,
@@ -877,7 +978,9 @@ class HNumberStepper extends StatelessWidget {
     super.key,
     required this.onDecrease,
     required this.onIncrease,
+    required this.minus,
     required this.value,
+    required this.plus,
     this.main = MainAxisAlignment.start,
     this.cross = CrossAxisAlignment.center,
     this.gap = 4,
@@ -887,18 +990,24 @@ class HNumberStepper extends StatelessWidget {
   @override
   Widget build(BuildContext context) => hrow(
     [
-      AppIconButton(
-        icon: Icons.remove,
-        size: AppIconButtonSize.small,
-        semanticLabel: '减少',
-        onPressed: onDecrease ?? (ctrl == null ? null : () => ctrl!.add(-step)),
+      Semantics(
+        button: true,
+        label: '减少',
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onDecrease ?? () => ctrl!.add(-step),
+          child: minus,
+        ),
       ),
       value,
-      AppIconButton(
-        icon: Icons.add,
-        size: AppIconButtonSize.small,
-        semanticLabel: '增加',
-        onPressed: onIncrease ?? (ctrl == null ? null : () => ctrl!.add(step)),
+      Semantics(
+        button: true,
+        label: '增加',
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onIncrease ?? () => ctrl!.add(step),
+          child: plus,
+        ),
       ),
     ],
     main: main,

@@ -1,5 +1,3 @@
-import '../kit/buttons.dart';
-
 import 'package:flutter/material.dart';
 import 'package:autocare_async_kit/async_kit.dart';
 
@@ -107,9 +105,8 @@ class SkeletonDataPage extends StatelessWidget {
                 child: Material(
                   color: C.card,
                   shape: const CircleBorder(),
-                  child: AppIconButton(
-                    icon: Icons.arrow_back_ios_new,
-                    semanticLabel: '返回',
+                  child: IconButton(
+                    icon: const Icon(Icons.arrow_back_ios_new, size: 18),
                     onPressed: () => Navigator.of(context).maybePop(),
                   ),
                 ),

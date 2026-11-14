@@ -144,11 +144,8 @@ void main() {
     final center = t.getCenter(find.text('确认更换'));
     await t.tapAt(center);
     await t.pump();
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
-    expect(
-      t.getSize(find.byType(CircularProgressIndicator)),
-      const Size(16, 16),
-    );
+    expect(find.byType(AppSpinner), findsOneWidget);
+    expect(t.getSize(find.byType(AppSpinner)), const Size(18, 18));
     await t.tapAt(center);
     await t.pump();
     expect(api.changes, hasLength(1));

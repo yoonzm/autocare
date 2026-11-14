@@ -1,8 +1,5 @@
-import 'package:autocare_ui_kit/autocare_ui_kit.dart'
-    show AppChoiceGroup, ChoiceItem;
-
-import '../../kit/buttons.dart';
 import '../../kit/single_selection.dart';
+import '../../kit/multiple_selection.dart';
 import '../../kit/text_input.dart';
 
 import 'package:flutter/material.dart';
@@ -30,10 +27,52 @@ class StaffAddTemplate extends StatelessWidget {
               [
                 hrow(
                   [
-                    AppIconButton(
-                      svg: dk(context, Svgs.s26, Svgs.s27),
-                      semanticLabel: "返回",
-                      onPressed: () => Navigator.of(context).maybePop(),
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => Navigator.of(context).maybePop(),
+                      child: hbox(
+                        w: 44,
+                        h: 44,
+                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                        radius: BorderRadius.circular(22),
+                        shadow: dk(
+                          context,
+                          [
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
+                              spreadRadius: 0,
+                            ),
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 1),
+                              blurRadius: 2,
+                              spreadRadius: 0,
+                            ),
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
+                              spreadRadius: 0,
+                            ),
+                          ],
+                          [
+                            BoxShadow(
+                              color: Color(0xFF26262B),
+                              offset: Offset(0, 0),
+                              blurRadius: 0,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                        child: hrow(
+                          [hsvg(dk(context, Svgs.s26, Svgs.s27), w: 20, h: 20)],
+                          main: MainAxisAlignment.center,
+                          cross: CrossAxisAlignment.center,
+                          gap: 0,
+                        ),
+                      ),
                     ),
                     Expanded(
                       flex: 1,
@@ -723,12 +762,18 @@ class StaffAddTemplate extends StatelessWidget {
                           gap: 8,
                         ),
                       ),
-                      AppButton(
-                        label: '查看并调整角色权限',
-                        kind: AppButtonKind.text,
-                        size: AppButtonSize.medium,
-                        expanded: false,
-                        onPressed: () => c.deferred(context),
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => c.deferred(context),
+                        child: Text(
+                          '查看并调整角色权限',
+                          style: hts(
+                            13,
+                            dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                            w: FontWeight.w500,
+                            lh: 18,
+                          ),
+                        ),
                       ),
                     ],
                     main: MainAxisAlignment.start,
@@ -782,23 +827,455 @@ class StaffAddTemplate extends StatelessWidget {
                           lh: 22,
                         ),
                       ),
-                      AppChoiceGroup<int>.multiple(
-                        items: [
-                          ChoiceItem(value: 0, label: '洗车'),
-                          ChoiceItem(value: 1, label: '内饰清洁'),
-                          ChoiceItem(value: 2, label: '镀晶'),
-                          ChoiceItem(value: 3, label: '抛光'),
-                          ChoiceItem(value: 4, label: '贴膜'),
-                          ChoiceItem(value: 5, label: '石墨烯镀膜'),
-                          ChoiceItem(value: 6, label: '空调杀菌'),
-                        ],
-                        selectedValues: c.skillIndexes,
+                      MultipleSelection(
+                        selected: c.skillIndexes,
                         onChanged: (values) => c.setDraft(
                           'skills',
                           [
                             for (final i in values)
                               StaffEditorController.skills[i],
                           ].join(' / '),
+                        ),
+                        builder: (context, selection) => hwrap(
+                          [
+                            HSel(
+                              ctrl: selection,
+                              index: 0,
+                              on: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFE1F0FE),
+                                  Color.fromRGBO(4, 133, 247, 0.18),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                border: Border.all(
+                                  color: Color(0xFF0485F7),
+                                  width: 1.5,
+                                ),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    '洗车',
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF1E63AE),
+                                        Color(0xFF6AB4FA),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              off: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFF4F4F5),
+                                  Color(0xFF27272A),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    '洗车',
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF3F3F46),
+                                        Color(0xFFD4D4D8),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            HSel(
+                              ctrl: selection,
+                              index: 1,
+                              on: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFE1F0FE),
+                                  Color.fromRGBO(4, 133, 247, 0.18),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                border: Border.all(
+                                  color: Color(0xFF0485F7),
+                                  width: 1.5,
+                                ),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    '内饰清洁',
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF1E63AE),
+                                        Color(0xFF6AB4FA),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              off: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFF4F4F5),
+                                  Color(0xFF27272A),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    '内饰清洁',
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF3F3F46),
+                                        Color(0xFFD4D4D8),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            HSel(
+                              ctrl: selection,
+                              index: 2,
+                              on: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFE1F0FE),
+                                  Color.fromRGBO(4, 133, 247, 0.18),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                border: Border.all(
+                                  color: Color(0xFF0485F7),
+                                  width: 1.5,
+                                ),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    '镀晶',
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF1E63AE),
+                                        Color(0xFF6AB4FA),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              off: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFF4F4F5),
+                                  Color(0xFF27272A),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    '镀晶',
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF3F3F46),
+                                        Color(0xFFD4D4D8),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            HSel(
+                              ctrl: selection,
+                              index: 3,
+                              on: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFE1F0FE),
+                                  Color.fromRGBO(4, 133, 247, 0.18),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                border: Border.all(
+                                  color: Color(0xFF0485F7),
+                                  width: 1.5,
+                                ),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    '抛光',
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF1E63AE),
+                                        Color(0xFF6AB4FA),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              off: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFF4F4F5),
+                                  Color(0xFF27272A),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    '抛光',
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF3F3F46),
+                                        Color(0xFFD4D4D8),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            HSel(
+                              ctrl: selection,
+                              index: 4,
+                              on: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFE1F0FE),
+                                  Color.fromRGBO(4, 133, 247, 0.18),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                border: Border.all(
+                                  color: Color(0xFF0485F7),
+                                  width: 1.5,
+                                ),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    '贴膜',
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF1E63AE),
+                                        Color(0xFF6AB4FA),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              off: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFF4F4F5),
+                                  Color(0xFF27272A),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    '贴膜',
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF3F3F46),
+                                        Color(0xFFD4D4D8),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            HSel(
+                              ctrl: selection,
+                              index: 5,
+                              on: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFE1F0FE),
+                                  Color.fromRGBO(4, 133, 247, 0.18),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                border: Border.all(
+                                  color: Color(0xFF0485F7),
+                                  width: 1.5,
+                                ),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    '石墨烯镀膜',
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF1E63AE),
+                                        Color(0xFF6AB4FA),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              off: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFF4F4F5),
+                                  Color(0xFF27272A),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    '石墨烯镀膜',
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF3F3F46),
+                                        Color(0xFFD4D4D8),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            HSel(
+                              ctrl: selection,
+                              index: 6,
+                              on: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFE1F0FE),
+                                  Color.fromRGBO(4, 133, 247, 0.18),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                border: Border.all(
+                                  color: Color(0xFF0485F7),
+                                  width: 1.5,
+                                ),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    '空调杀菌',
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF1E63AE),
+                                        Color(0xFF6AB4FA),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              off: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFF4F4F5),
+                                  Color(0xFF27272A),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    '空调杀菌',
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF3F3F46),
+                                        Color(0xFFD4D4D8),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                          gap: 8,
+                          rowGap: 8,
+                          cross: WrapCrossAlignment.start,
                         ),
                       ),
                       Text(
@@ -863,16 +1340,8 @@ class StaffAddTemplate extends StatelessWidget {
                               lh: 18,
                             ),
                           ),
-                          AppChoiceGroup<int>(
-                            items: [
-                              ChoiceItem(value: 0, label: '未指定'),
-                              for (var i = 0; i < c.bays.length; i++)
-                                ChoiceItem(
-                                  value: i + 1,
-                                  label: '${c.bays[i]['name']}',
-                                ),
-                            ],
-                            selected:
+                          SingleSelection(
+                            index:
                                 c.bays.indexWhere(
                                   (r) => r['id'] == c.draft['bay_id'],
                                 ) +
@@ -880,6 +1349,141 @@ class StaffAddTemplate extends StatelessWidget {
                             onChanged: (i) => c.setDraft(
                               'bay_id',
                               i == 0 ? null : c.bays[i - 1]['id'],
+                            ),
+                            builder: (context, selection) => hwrap(
+                              [
+                                HSel(
+                                  ctrl: selection,
+                                  index: 0,
+                                  on: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFE1F0FE),
+                                      Color.fromRGBO(4, 133, 247, 0.18),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    border: Border.all(
+                                      color: Color(0xFF0485F7),
+                                      width: 1.5,
+                                    ),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '未指定',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF1E63AE),
+                                            Color(0xFF6AB4FA),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  off: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFF4F4F5),
+                                      Color(0xFF27272A),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '未指定',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF3F3F46),
+                                            Color(0xFFD4D4D8),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                for (var i = 0; i < c.bays.length; i++)
+                                  HSel(
+                                    ctrl: selection,
+                                    index: i + 1,
+                                    on: hbox(
+                                      h: 34,
+                                      bg: dk(
+                                        context,
+                                        Color(0xFFE1F0FE),
+                                        Color.fromRGBO(4, 133, 247, 0.18),
+                                      ),
+                                      radius: BorderRadius.circular(17),
+                                      border: Border.all(
+                                        color: Color(0xFF0485F7),
+                                        width: 1.5,
+                                      ),
+                                      pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                      child: Align(
+                                        alignment: Alignment.center,
+                                        widthFactor: 1,
+                                        child: Text(
+                                          '${c.bays[i]['name']}',
+                                          style: hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFF1E63AE),
+                                              Color(0xFF6AB4FA),
+                                            ),
+                                            w: FontWeight.w500,
+                                            lh: 18,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    off: hbox(
+                                      h: 34,
+                                      bg: dk(
+                                        context,
+                                        Color(0xFFF4F4F5),
+                                        Color(0xFF27272A),
+                                      ),
+                                      radius: BorderRadius.circular(17),
+                                      pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                      child: Align(
+                                        alignment: Alignment.center,
+                                        widthFactor: 1,
+                                        child: Text(
+                                          '${c.bays[i]['name']}',
+                                          style: hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFF3F3F46),
+                                              Color(0xFFD4D4D8),
+                                            ),
+                                            w: FontWeight.w500,
+                                            lh: 18,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                const SizedBox.shrink(),
+                                const SizedBox.shrink(),
+                                const SizedBox.shrink(),
+                              ],
+                              gap: 8,
+                              rowGap: 8,
+                              cross: WrapCrossAlignment.start,
                             ),
                           ),
                         ],
@@ -1033,25 +1637,64 @@ class StaffAddTemplate extends StatelessWidget {
               [
                 Expanded(
                   flex: 10,
-                  child: AppButton(
-                    label: '取消',
-                    kind: AppButtonKind.secondary,
-                    size: AppButtonSize.large,
-                    expanded: true,
-                    onPressed: () => Navigator.of(context).maybePop(),
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => Navigator.of(context).maybePop(),
+                    child: hbox(
+                      h: 50,
+                      bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
+                      radius: BorderRadius.circular(25),
+                      child: Align(
+                        alignment: Alignment(0, 0),
+                        widthFactor: 1,
+                        child: Text(
+                          '取消',
+                          style: hts(
+                            15,
+                            dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                            w: FontWeight.w500,
+                            lh: 22,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
                 Expanded(
                   flex: 16,
                   child: AsyncAction(
                     onTap: () => c.save(context),
-                    builder: (actionKey, onTap) => ActionButton(
-                      actionKey: actionKey,
-                      label: '保存并邀请',
-                      kind: AppButtonKind.primary,
-                      size: AppButtonSize.large,
-                      expanded: true,
-                      onPressed: onTap,
+                    builder: (actionKey, onTap) => GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: onTap,
+                      child: hbox(
+                        h: 50,
+                        bg: Color(0xFF0485F7),
+                        radius: BorderRadius.circular(25),
+                        child: Align(
+                          alignment: Alignment(0, 0),
+                          widthFactor: 1,
+                          child: hBusy(
+                            actionKey,
+                            Text(
+                              '保存并邀请',
+                              style: hts(
+                                15,
+                                Color(0xFFFFFFFF),
+                                w: FontWeight.w600,
+                                lh: 22,
+                              ),
+                            ),
+                            style: hts(
+                              15,
+                              Color(0xFFFFFFFF),
+                              w: FontWeight.w600,
+                              lh: 22,
+                            ),
+                            label: '提交中…',
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),

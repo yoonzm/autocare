@@ -1,5 +1,3 @@
-import '../../kit/buttons.dart';
-
 import 'package:flutter/material.dart';
 
 import '../../kit/async_kit.dart';
@@ -35,10 +33,62 @@ class StDoneTemplate extends StatelessWidget {
                           UnconstrainedBox(
                             alignment: Alignment.topLeft,
                             constrainedAxis: Axis.horizontal,
-                            child: AppIconButton(
-                              svg: dk(context, Svgs.s0, Svgs.s1),
-                              semanticLabel: "返回",
-                              onPressed: () => Navigator.of(context).maybePop(),
+                            child: GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () => Navigator.of(context).maybePop(),
+                              child: hbox(
+                                w: 44,
+                                h: 44,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFFFFFFF),
+                                  Color(0xFF18181B),
+                                ),
+                                radius: BorderRadius.circular(22),
+                                shadow: dk(
+                                  context,
+                                  [
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.06),
+                                      offset: Offset(0, 0),
+                                      blurRadius: 1,
+                                      spreadRadius: 0,
+                                    ),
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.06),
+                                      offset: Offset(0, 1),
+                                      blurRadius: 2,
+                                      spreadRadius: 0,
+                                    ),
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.04),
+                                      offset: Offset(0, 2),
+                                      blurRadius: 4,
+                                      spreadRadius: 0,
+                                    ),
+                                  ],
+                                  [
+                                    BoxShadow(
+                                      color: Color(0xFF26262B),
+                                      offset: Offset(0, 0),
+                                      blurRadius: 0,
+                                      spreadRadius: 1,
+                                    ),
+                                  ],
+                                ),
+                                child: hrow(
+                                  [
+                                    hsvg(
+                                      dk(context, Svgs.s0, Svgs.s1),
+                                      w: 20,
+                                      h: 20,
+                                    ),
+                                  ],
+                                  main: MainAxisAlignment.center,
+                                  cross: CrossAxisAlignment.center,
+                                  gap: 0,
+                                ),
+                              ),
                             ),
                           ),
                         ],
@@ -673,22 +723,60 @@ class StDoneTemplate extends StatelessWidget {
                   [
                     Expanded(
                       flex: 10,
-                      child: AppButton(
-                        label: '继续接单',
-                        kind: AppButtonKind.secondary,
-                        size: AppButtonSize.large,
-                        expanded: true,
-                        onPressed: () => openRoute(context, 'StTasks'),
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => openRoute(context, 'StTasks'),
+                        child: hbox(
+                          h: 50,
+                          bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
+                          radius: BorderRadius.circular(25),
+                          child: Align(
+                            alignment: Alignment(0, 0),
+                            widthFactor: 1,
+                            child: Text(
+                              '继续接单',
+                              style: hts(
+                                15,
+                                dk(
+                                  context,
+                                  Color(0xFF18181B),
+                                  Color(0xFFFAFAFA),
+                                ),
+                                w: FontWeight.w500,
+                                lh: 22,
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                     Expanded(
                       flex: 14,
-                      child: AppButton(
-                        label: '返回工作台',
-                        kind: AppButtonKind.primary,
-                        size: AppButtonSize.large,
-                        expanded: true,
-                        onPressed: () => Navigator.of(context).maybePop(),
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => Navigator.of(context).maybePop(),
+                        child: hbox(
+                          h: 50,
+                          bg: dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                          radius: BorderRadius.circular(25),
+                          child: Align(
+                            alignment: Alignment(0, 0),
+                            widthFactor: 1,
+                            child: Text(
+                              '返回工作台',
+                              style: hts(
+                                15,
+                                dk(
+                                  context,
+                                  Color(0xFFFFFFFF),
+                                  Color(0xFF18181B),
+                                ),
+                                w: FontWeight.w600,
+                                lh: 22,
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ],

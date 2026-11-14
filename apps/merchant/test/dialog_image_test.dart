@@ -94,7 +94,7 @@ void resultCloseTest() {
 }
 
 void scanTests() {
-  testWidgets('扫码找会员：只保留车牌识别', (t) async {
+  testWidgets('扫码找会员：同一页面内切换 车牌 / 会员码', (t) async {
     t.view.physicalSize = const Size(390 * 3, 900 * 3);
     t.view.devicePixelRatio = 3;
     addTearDown(t.view.reset);
@@ -117,8 +117,12 @@ void scanTests() {
     openRoute(ctx, 'FindScanPlate');
     await t.pumpAndSettle();
     expect(find.text('将车牌对准框内'), findsOneWidget);
-    expect(find.text('会员码'), findsNothing);
-    expect(find.text('行驶证'), findsNothing);
+    await t.tap(find.text('会员码'));
+    await t.pumpAndSettle();
+    expect(find.text('将会员码放入框内'), findsOneWidget);
+    // 测试环境没有摄像头，页面退回到深色背景；切回车牌
+    await t.tap(find.text('车牌'));
+    await t.pumpAndSettle();
     expect(find.text('将车牌对准框内'), findsOneWidget);
   });
 }

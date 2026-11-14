@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:autocare_merchant/backend/merchant_api.dart';
+import 'package:autocare_merchant/kit/async_kit.dart';
 import 'package:autocare_merchant/pages/account/feedback_page.dart';
 import 'package:autocare_merchant/routes.dart';
 import 'package:autocare_merchant/theme.dart';
@@ -144,7 +145,7 @@ void main() {
       await t.tap(submit);
       await t.pump(const Duration(milliseconds: 100));
       expect(api.calls.length, 1);
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(AppSpinner), findsOneWidget);
       expect(t.getSize(submit), size);
       await t.tap(submit, warnIfMissed: false);
       expect(api.calls.length, 1);

@@ -1,5 +1,3 @@
-import 'package:autocare_ui_kit/autocare_ui_kit.dart'
-    show AppSegmented, SegmentItem;
 import 'package:flutter/material.dart';
 
 import '../../kit/async_kit.dart';
@@ -91,20 +89,55 @@ class ResourceSkeleton extends StatelessWidget {
 
   // ───────── 员工列表 ─────────
   List<Widget> _staffList(BuildContext context) {
+    final seg = dk(context, const Color(0xFFE9E9EB), const Color(0xFF1F1F23));
     final muted = dk(context, const Color(0xFF52525B), const Color(0xFFA8A8B3));
     return [
       const SizedBox(height: 16),
       // 角色页签：标签是固定文案，直接显示；人数等数据到了再出现
-      AppSegmented<int>(
-        items: const [
-          SegmentItem(value: 0, label: '全部'),
-          SegmentItem(value: 1, label: '店长'),
-          SegmentItem(value: 2, label: '前台收银'),
-          SegmentItem(value: 3, label: '施工技师'),
-        ],
-        selected: 0,
-        enabled: false,
-        onChanged: (_) {},
+      Container(
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: seg,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          children: [
+            for (final (i, t) in ['全部', '店长', '前台收银', '施工技师'].indexed) ...[
+              if (i > 0) const SizedBox(width: 2),
+              Expanded(
+                child: Container(
+                  height: 34,
+                  alignment: Alignment.center,
+                  decoration: i == 0
+                      ? BoxDecoration(
+                          color: dk(
+                            context,
+                            const Color(0xFFFFFFFF),
+                            const Color(0xFF26262B),
+                          ),
+                          borderRadius: BorderRadius.circular(17),
+                        )
+                      : null,
+                  child: Text(
+                    t,
+                    style: hts(
+                      13,
+                      i == 0
+                          ? dk(
+                              context,
+                              const Color(0xFF18181B),
+                              const Color(0xFFFAFAFA),
+                            )
+                          : muted,
+                      w: FontWeight.w500,
+                      lh: 18,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
       ),
       if (showBlocks) ...[
         const SizedBox(height: 16),

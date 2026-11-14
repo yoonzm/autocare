@@ -1,13 +1,11 @@
-import '../../kit/buttons.dart';
 import 'reschedule_slots.dart';
 
 import 'package:flutter/material.dart';
 
+import '../../kit/async_kit.dart';
 import '../../kit/kit.dart';
 import 'reschedule_controller.dart';
-
-import 'package:autocare_ui_kit/autocare_ui_kit.dart'
-    show AppChoiceGroup, ChoiceItem, ChipKind;
+import '../../widgets/choice_chip_group.dart';
 
 class AppointmentRescheduleTemplate extends StatelessWidget {
   final RescheduleController c;
@@ -49,12 +47,12 @@ class AppointmentRescheduleTemplate extends StatelessWidget {
           ),
         ),
         _sectionTitle(context, '新日期'),
-        AppChoiceGroup<int>(
+        ChoiceChipGroup<int>(
           semanticLabel: '新日期',
           kind: ChipKind.pill,
           items: [
             for (var i = 0; i < 4; i++)
-              ChoiceItem(value: i, label: c.dateLabel(i)),
+              ChoiceChipItem(value: i, label: c.dateLabel(i)),
           ],
           selected: c.rescheduleDay,
           onChanged: (value) {
@@ -142,27 +140,103 @@ class AppointmentRescheduleTemplate extends StatelessWidget {
         hrow(
           [
             Expanded(
-              child: AppButton(
-                label: '取消',
-                kind: AppButtonKind.secondary,
-                size: AppButtonSize.large,
-                expanded: true,
-                onPressed: () => Navigator.of(context).maybePop(),
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => Navigator.of(context).maybePop(),
+                child: hbox(
+                  h: 50,
+                  bg: dk(
+                    context,
+                    const Color(0xFFEEEEF0),
+                    const Color(0xFF27272A),
+                  ),
+                  radius: BorderRadius.circular(25),
+                  align: Alignment.center,
+                  child: Text(
+                    '取消',
+                    style: hts(
+                      15,
+                      dk(
+                        context,
+                        const Color(0xFF18181B),
+                        const Color(0xFFFAFAFA),
+                      ),
+                      w: FontWeight.w500,
+                      lh: 22,
+                    ),
+                  ),
+                ),
               ),
             ),
             Expanded(
               flex: 2,
               child: KeyedSubtree(
                 key: const ValueKey('reschedule-confirm-button'),
-                child: AppButton(
-                  expanded: true,
-                  label: '确认改期',
-                  kind: AppButtonKind.primary,
-                  size: AppButtonSize.large,
-                  loading: c.locked,
-                  onPressed: canReschedule && !c.locked
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: canReschedule && !c.locked
                       ? () => c.save(context)
                       : null,
+                  child: hbox(
+                    h: 50,
+                    bg: canReschedule
+                        ? dk(
+                            context,
+                            const Color(0xFF18181B),
+                            const Color(0xFFFAFAFA),
+                          )
+                        : dk(
+                            context,
+                            const Color(0xFFD4D4D8),
+                            const Color(0xFF3F3F46),
+                          ),
+                    radius: BorderRadius.circular(25),
+                    align: Alignment.center,
+                    child: c.locked
+                        ? hrow(
+                            [
+                              AppSpinner(
+                                size: 18,
+                                color: dk(
+                                  context,
+                                  Colors.white,
+                                  const Color(0xFF18181B),
+                                ),
+                              ),
+                              Text(
+                                '提交中…',
+                                style: hts(
+                                  15,
+                                  dk(
+                                    context,
+                                    Colors.white,
+                                    const Color(0xFF18181B),
+                                  ),
+                                  w: FontWeight.w600,
+                                  lh: 22,
+                                ),
+                              ),
+                            ],
+                            main: MainAxisAlignment.center,
+                            cross: CrossAxisAlignment.center,
+                            gap: 8,
+                          )
+                        : Text(
+                            '确认改期',
+                            style: hts(
+                              15,
+                              canReschedule
+                                  ? dk(
+                                      context,
+                                      Colors.white,
+                                      const Color(0xFF18181B),
+                                    )
+                                  : const Color(0xFF71717A),
+                              w: FontWeight.w600,
+                              lh: 22,
+                            ),
+                          ),
+                  ),
                 ),
               ),
             ),
@@ -176,14 +250,14 @@ class AppointmentRescheduleTemplate extends StatelessWidget {
           bg: dk(context, const Color(0xFFEFEFF1), const Color(0xFF2A2A2E)),
         ),
         _sectionTitle(context, '或者取消预约'),
-        AppChoiceGroup<int>(
+        ChoiceChipGroup<int>(
           semanticLabel: '取消原因',
           kind: ChipKind.pill,
           items: const [
-            ChoiceItem(value: 0, label: '客户有事'),
-            ChoiceItem(value: 1, label: '时间冲突'),
-            ChoiceItem(value: 2, label: '联系不上'),
-            ChoiceItem(value: 3, label: '其他'),
+            ChoiceChipItem(value: 0, label: '客户有事'),
+            ChoiceChipItem(value: 1, label: '时间冲突'),
+            ChoiceChipItem(value: 2, label: '联系不上'),
+            ChoiceChipItem(value: 3, label: '其他'),
           ],
           selected: c.cancelReason,
           onChanged: (value) {
@@ -191,14 +265,34 @@ class AppointmentRescheduleTemplate extends StatelessWidget {
             c.changed();
           },
         ),
-        AppButton(
-          label: '取消这个预约',
-          kind: AppButtonKind.danger,
-          size: AppButtonSize.medium,
-          expanded: false,
-          onPressed: canCancel && !c.locked
-              ? () => c.cancelBooking(context)
-              : null,
+        GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: canCancel && !c.locked ? () => c.cancelBooking(context) : null,
+          child: hbox(
+            h: 46,
+            bg: dk(
+              context,
+              const Color(0xFFFFE1E2),
+              const Color.fromRGBO(255, 56, 60, 0.18),
+            ),
+            radius: BorderRadius.circular(23),
+            align: Alignment.center,
+            child: Text(
+              '取消这个预约',
+              style: hts(
+                15,
+                canCancel
+                    ? dk(
+                        context,
+                        const Color(0xFFA43433),
+                        const Color(0xFFFF7B7E),
+                      )
+                    : const Color(0xFFC4C4C9),
+                w: FontWeight.w600,
+                lh: 22,
+              ),
+            ),
+          ),
         ),
       ], gap: 14),
     );

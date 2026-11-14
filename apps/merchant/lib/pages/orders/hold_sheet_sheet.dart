@@ -1,11 +1,8 @@
-import 'package:autocare_ui_kit/autocare_ui_kit.dart'
-    show AppChoiceGroup, ChoiceItem;
-
-import '../../kit/buttons.dart';
 import 'hold_controller.dart';
 import 'hold_draft.dart';
 import '../../backend/merchant_api.dart';
 import '../../kit/async_kit.dart';
+import '../../kit/single_selection.dart';
 import '../../kit/text_input.dart';
 
 import 'package:flutter/material.dart';
@@ -195,14 +192,166 @@ class _HoldSheetTemplate extends StatelessWidget {
                   ),
                 ),
               ),
-              AppChoiceGroup<int>(
-                items: [
-                  ChoiceItem(value: 0, label: '待施工'),
-                  ChoiceItem(value: 1, label: '施工中'),
-                  ChoiceItem(value: 2, label: '待结算'),
-                ],
-                selected: c.status,
+              SingleSelection(
+                index: c.status,
                 onChanged: c.chooseStatus,
+                builder: (context, g1) => hwrap(
+                  [
+                    HSel(
+                      ctrl: g1,
+                      index: 0,
+                      on: hbox(
+                        h: 34,
+                        bg: dk(
+                          context,
+                          Color(0xFFE1F0FE),
+                          Color.fromRGBO(4, 133, 247, 0.18),
+                        ),
+                        radius: BorderRadius.circular(17),
+                        border: Border.all(
+                          color: Color(0xFF0485F7),
+                          width: 1.5,
+                        ),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '待施工',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                      off: hbox(
+                        h: 34,
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(17),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '待施工',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF3F3F46), Color(0xFFD4D4D8)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    HSel(
+                      ctrl: g1,
+                      index: 1,
+                      on: hbox(
+                        h: 34,
+                        bg: dk(
+                          context,
+                          Color(0xFFE1F0FE),
+                          Color.fromRGBO(4, 133, 247, 0.18),
+                        ),
+                        radius: BorderRadius.circular(17),
+                        border: Border.all(
+                          color: Color(0xFF0485F7),
+                          width: 1.5,
+                        ),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '施工中',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                      off: hbox(
+                        h: 34,
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(17),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '施工中',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF3F3F46), Color(0xFFD4D4D8)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    HSel(
+                      ctrl: g1,
+                      index: 2,
+                      on: hbox(
+                        h: 34,
+                        bg: dk(
+                          context,
+                          Color(0xFFE1F0FE),
+                          Color.fromRGBO(4, 133, 247, 0.18),
+                        ),
+                        radius: BorderRadius.circular(17),
+                        border: Border.all(
+                          color: Color(0xFF0485F7),
+                          width: 1.5,
+                        ),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '待结算',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                      off: hbox(
+                        h: 34,
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(17),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '待结算',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF3F3F46), Color(0xFFD4D4D8)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                  gap: 8,
+                  rowGap: 8,
+                  cross: WrapCrossAlignment.start,
+                ),
               ),
             ],
             main: MainAxisAlignment.start,
@@ -275,15 +424,216 @@ class _HoldSheetTemplate extends StatelessWidget {
                   ),
                 ),
               ),
-              AppChoiceGroup<int>(
-                items: [
-                  ChoiceItem(value: 0, label: '不提醒'),
-                  ChoiceItem(value: 1, label: '30 分钟'),
-                  ChoiceItem(value: 2, label: '1 小时'),
-                  ChoiceItem(value: 3, label: '完工时'),
-                ],
-                selected: c.remind,
+              SingleSelection(
+                index: c.remind,
                 onChanged: c.chooseRemind,
+                builder: (context, g2) => hwrap(
+                  [
+                    HSel(
+                      ctrl: g2,
+                      index: 0,
+                      on: hbox(
+                        h: 34,
+                        bg: dk(
+                          context,
+                          Color(0xFFE1F0FE),
+                          Color.fromRGBO(4, 133, 247, 0.18),
+                        ),
+                        radius: BorderRadius.circular(17),
+                        border: Border.all(
+                          color: Color(0xFF0485F7),
+                          width: 1.5,
+                        ),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '不提醒',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                      off: hbox(
+                        h: 34,
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(17),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '不提醒',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF3F3F46), Color(0xFFD4D4D8)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    HSel(
+                      ctrl: g2,
+                      index: 1,
+                      on: hbox(
+                        h: 34,
+                        bg: dk(
+                          context,
+                          Color(0xFFE1F0FE),
+                          Color.fromRGBO(4, 133, 247, 0.18),
+                        ),
+                        radius: BorderRadius.circular(17),
+                        border: Border.all(
+                          color: Color(0xFF0485F7),
+                          width: 1.5,
+                        ),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '30 分钟',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                      off: hbox(
+                        h: 34,
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(17),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '30 分钟',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF3F3F46), Color(0xFFD4D4D8)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    HSel(
+                      ctrl: g2,
+                      index: 2,
+                      on: hbox(
+                        h: 34,
+                        bg: dk(
+                          context,
+                          Color(0xFFE1F0FE),
+                          Color.fromRGBO(4, 133, 247, 0.18),
+                        ),
+                        radius: BorderRadius.circular(17),
+                        border: Border.all(
+                          color: Color(0xFF0485F7),
+                          width: 1.5,
+                        ),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '1 小时',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                      off: hbox(
+                        h: 34,
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(17),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '1 小时',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF3F3F46), Color(0xFFD4D4D8)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    HSel(
+                      ctrl: g2,
+                      index: 3,
+                      on: hbox(
+                        h: 34,
+                        bg: dk(
+                          context,
+                          Color(0xFFE1F0FE),
+                          Color.fromRGBO(4, 133, 247, 0.18),
+                        ),
+                        radius: BorderRadius.circular(17),
+                        border: Border.all(
+                          color: Color(0xFF0485F7),
+                          width: 1.5,
+                        ),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '完工时',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                      off: hbox(
+                        h: 34,
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(17),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '完工时',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF3F3F46), Color(0xFFD4D4D8)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                  gap: 8,
+                  rowGap: 8,
+                  cross: WrapCrossAlignment.start,
+                ),
               ),
             ],
             main: MainAxisAlignment.start,
@@ -299,12 +649,27 @@ class _HoldSheetTemplate extends StatelessWidget {
                   child: UnconstrainedBox(
                     alignment: Alignment.topLeft,
                     constrainedAxis: Axis.horizontal,
-                    child: AppButton(
-                      label: '取消',
-                      kind: AppButtonKind.secondary,
-                      size: AppButtonSize.large,
-                      expanded: true,
-                      onPressed: () => Navigator.of(context).maybePop(),
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => Navigator.of(context).maybePop(),
+                      child: hbox(
+                        h: 50,
+                        bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(25),
+                        child: Align(
+                          alignment: Alignment(0, 0),
+                          widthFactor: 1,
+                          child: Text(
+                            '取消',
+                            style: hts(
+                              15,
+                              dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                              w: FontWeight.w500,
+                              lh: 22,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -313,13 +678,41 @@ class _HoldSheetTemplate extends StatelessWidget {
                   child: UnconstrainedBox(
                     alignment: Alignment.topLeft,
                     constrainedAxis: Axis.horizontal,
-                    child: ActionButton(
-                      actionKey: c.actionKey,
-                      label: '确认挂单',
-                      kind: AppButtonKind.primary,
-                      size: AppButtonSize.large,
-                      expanded: true,
-                      onPressed: () => c.submit(context),
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => c.submit(context),
+                      child: hbox(
+                        h: 50,
+                        bg: dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                        radius: BorderRadius.circular(25),
+                        child: Align(
+                          alignment: Alignment(0, 0),
+                          widthFactor: 1,
+                          child: hBusy(
+                            c.actionKey,
+                            Text(
+                              '确认挂单',
+                              style: hts(
+                                15,
+                                dk(
+                                  context,
+                                  Color(0xFFFFFFFF),
+                                  Color(0xFF18181B),
+                                ),
+                                w: FontWeight.w600,
+                                lh: 22,
+                              ),
+                            ),
+                            style: hts(
+                              15,
+                              dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                              w: FontWeight.w600,
+                              lh: 22,
+                            ),
+                            label: '提交中…',
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),

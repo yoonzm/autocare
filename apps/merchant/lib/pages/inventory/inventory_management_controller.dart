@@ -1,5 +1,3 @@
-import '../../kit/buttons.dart';
-
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -255,6 +253,8 @@ class InventoryManagementController extends ChangeNotifier {
           notifyListeners();
         },
       );
+  Color documentTabBackground(int index) =>
+      index == tab ? C.primarySoft : C.chip;
   Color documentStatusBackground(int index) =>
       index == status ? C.primarySoft : C.chip;
 
@@ -561,15 +561,13 @@ class InventoryManagementController extends ChangeNotifier {
         builder: (ctx) => AlertDialog(
           title: Text('删除分类「${row['name']}」？'),
           actions: [
-            AppButton(
-              label: '取消',
-              kind: AppButtonKind.secondary,
+            TextButton(
               onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('取消'),
             ),
-            AppButton(
-              label: '删除',
-              kind: AppButtonKind.danger,
+            TextButton(
               onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('删除'),
             ),
           ],
         ),
@@ -700,9 +698,7 @@ class InventoryManagementController extends ChangeNotifier {
         for (final path in List<String>.from(
           document['payload']?['attachments'] ?? [],
         ))
-          AppButton(
-            label: '查看附件',
-            kind: AppButtonKind.primary,
+          TextButton(
             onPressed: () => showDialog<void>(
               context: context,
               builder: (_) => Dialog(
@@ -722,6 +718,7 @@ class InventoryManagementController extends ChangeNotifier {
                 ),
               ),
             ),
+            child: const Text('查看附件'),
           ),
       ],
     ],

@@ -1,8 +1,5 @@
-import 'package:autocare_ui_kit/autocare_ui_kit.dart'
-    show AppChoiceGroup, ChoiceItem;
-
-import '../../kit/buttons.dart';
 import '../../kit/async_kit.dart';
+import '../../kit/single_selection.dart';
 
 // 正式维护源码；保留既有视觉布局。
 import 'package:flutter/material.dart';
@@ -117,15 +114,248 @@ class StockVoidBoundTemplate extends StatelessWidget {
                     lh: 18,
                   ),
                 ),
-                AppChoiceGroup<int>(
-                  items: [
-                    ChoiceItem(value: 0, label: '录错数量'),
-                    ChoiceItem(value: 1, label: '录错商品'),
-                    ChoiceItem(value: 2, label: '供应商退货'),
-                    ChoiceItem(value: 3, label: '其他'),
-                  ],
-                  selected: c.voidReasonIndex,
+                SingleSelection(
+                  index: c.voidReasonIndex,
                   onChanged: c.selectVoidReason,
+                  builder: (context, selection) => hwrap(
+                    [
+                      HSel(
+                        ctrl: selection,
+                        index: 0,
+                        on: hbox(
+                          h: 34,
+                          bg: dk(
+                            context,
+                            Color(0xFFE1F0FE),
+                            Color.fromRGBO(4, 133, 247, 0.18),
+                          ),
+                          radius: BorderRadius.circular(17),
+                          border: Border.all(
+                            color: Color(0xFF0485F7),
+                            width: 1.5,
+                          ),
+                          pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                          child: Align(
+                            alignment: Alignment.center,
+                            widthFactor: 1,
+                            child: Text(
+                              '录错数量',
+                              style: hts(
+                                13,
+                                dk(
+                                  context,
+                                  Color(0xFF1E63AE),
+                                  Color(0xFF6AB4FA),
+                                ),
+                                w: FontWeight.w500,
+                                lh: 18,
+                              ),
+                            ),
+                          ),
+                        ),
+                        off: hbox(
+                          h: 34,
+                          bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                          radius: BorderRadius.circular(17),
+                          pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                          child: Align(
+                            alignment: Alignment.center,
+                            widthFactor: 1,
+                            child: Text(
+                              '录错数量',
+                              style: hts(
+                                13,
+                                dk(
+                                  context,
+                                  Color(0xFF3F3F46),
+                                  Color(0xFFD4D4D8),
+                                ),
+                                w: FontWeight.w500,
+                                lh: 18,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      HSel(
+                        ctrl: selection,
+                        index: 1,
+                        on: hbox(
+                          h: 34,
+                          bg: dk(
+                            context,
+                            Color(0xFFE1F0FE),
+                            Color.fromRGBO(4, 133, 247, 0.18),
+                          ),
+                          radius: BorderRadius.circular(17),
+                          border: Border.all(
+                            color: Color(0xFF0485F7),
+                            width: 1.5,
+                          ),
+                          pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                          child: Align(
+                            alignment: Alignment.center,
+                            widthFactor: 1,
+                            child: Text(
+                              '录错商品',
+                              style: hts(
+                                13,
+                                dk(
+                                  context,
+                                  Color(0xFF1E63AE),
+                                  Color(0xFF6AB4FA),
+                                ),
+                                w: FontWeight.w500,
+                                lh: 18,
+                              ),
+                            ),
+                          ),
+                        ),
+                        off: hbox(
+                          h: 34,
+                          bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                          radius: BorderRadius.circular(17),
+                          pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                          child: Align(
+                            alignment: Alignment.center,
+                            widthFactor: 1,
+                            child: Text(
+                              '录错商品',
+                              style: hts(
+                                13,
+                                dk(
+                                  context,
+                                  Color(0xFF3F3F46),
+                                  Color(0xFFD4D4D8),
+                                ),
+                                w: FontWeight.w500,
+                                lh: 18,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      HSel(
+                        ctrl: selection,
+                        index: 2,
+                        on: hbox(
+                          h: 34,
+                          bg: dk(
+                            context,
+                            Color(0xFFE1F0FE),
+                            Color.fromRGBO(4, 133, 247, 0.18),
+                          ),
+                          radius: BorderRadius.circular(17),
+                          border: Border.all(
+                            color: Color(0xFF0485F7),
+                            width: 1.5,
+                          ),
+                          pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                          child: Align(
+                            alignment: Alignment.center,
+                            widthFactor: 1,
+                            child: Text(
+                              '供应商退货',
+                              style: hts(
+                                13,
+                                dk(
+                                  context,
+                                  Color(0xFF1E63AE),
+                                  Color(0xFF6AB4FA),
+                                ),
+                                w: FontWeight.w500,
+                                lh: 18,
+                              ),
+                            ),
+                          ),
+                        ),
+                        off: hbox(
+                          h: 34,
+                          bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                          radius: BorderRadius.circular(17),
+                          pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                          child: Align(
+                            alignment: Alignment.center,
+                            widthFactor: 1,
+                            child: Text(
+                              '供应商退货',
+                              style: hts(
+                                13,
+                                dk(
+                                  context,
+                                  Color(0xFF3F3F46),
+                                  Color(0xFFD4D4D8),
+                                ),
+                                w: FontWeight.w500,
+                                lh: 18,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      HSel(
+                        ctrl: selection,
+                        index: 3,
+                        on: hbox(
+                          h: 34,
+                          bg: dk(
+                            context,
+                            Color(0xFFE1F0FE),
+                            Color.fromRGBO(4, 133, 247, 0.18),
+                          ),
+                          radius: BorderRadius.circular(17),
+                          border: Border.all(
+                            color: Color(0xFF0485F7),
+                            width: 1.5,
+                          ),
+                          pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                          child: Align(
+                            alignment: Alignment.center,
+                            widthFactor: 1,
+                            child: Text(
+                              '其他',
+                              style: hts(
+                                13,
+                                dk(
+                                  context,
+                                  Color(0xFF1E63AE),
+                                  Color(0xFF6AB4FA),
+                                ),
+                                w: FontWeight.w500,
+                                lh: 18,
+                              ),
+                            ),
+                          ),
+                        ),
+                        off: hbox(
+                          h: 34,
+                          bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                          radius: BorderRadius.circular(17),
+                          pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                          child: Align(
+                            alignment: Alignment.center,
+                            widthFactor: 1,
+                            child: Text(
+                              '其他',
+                              style: hts(
+                                13,
+                                dk(
+                                  context,
+                                  Color(0xFF3F3F46),
+                                  Color(0xFFD4D4D8),
+                                ),
+                                w: FontWeight.w500,
+                                lh: 18,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                    gap: 8,
+                    rowGap: 8,
+                    cross: WrapCrossAlignment.start,
+                  ),
                 ),
               ],
               main: MainAxisAlignment.start,
@@ -141,14 +371,33 @@ class StockVoidBoundTemplate extends StatelessWidget {
                     child: UnconstrainedBox(
                       alignment: Alignment.topLeft,
                       constrainedAxis: Axis.horizontal,
-                      child: AppButton(
-                        label: '再想想',
-                        kind: AppButtonKind.secondary,
-                        size: AppButtonSize.large,
-                        expanded: true,
-                        onPressed: c.busy
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: c.busy
                             ? null
                             : () => Navigator.of(context).maybePop(),
+                        child: hbox(
+                          h: 50,
+                          bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
+                          radius: BorderRadius.circular(25),
+                          child: Align(
+                            alignment: Alignment(0, 0),
+                            widthFactor: 1,
+                            child: Text(
+                              '再想想',
+                              style: hts(
+                                15,
+                                dk(
+                                  context,
+                                  Color(0xFF18181B),
+                                  Color(0xFFFAFAFA),
+                                ),
+                                w: FontWeight.w500,
+                                lh: 22,
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -157,13 +406,33 @@ class StockVoidBoundTemplate extends StatelessWidget {
                     child: UnconstrainedBox(
                       alignment: Alignment.topLeft,
                       constrainedAxis: Axis.horizontal,
-                      child: ActionButton(
-                        actionKey: c.actionKey,
-                        label: c.voidConfirmLabel,
-                        kind: AppButtonKind.danger,
-                        size: AppButtonSize.large,
-                        expanded: true,
-                        onPressed: c.busy ? null : () => c.confirmVoid(context),
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: c.busy ? null : () => c.confirmVoid(context),
+                        child: hbox(
+                          h: 50,
+                          bg: dk(context, Color(0xFFE4E4E7), Color(0xFF3A3A40)),
+                          radius: BorderRadius.circular(25),
+                          child: Align(
+                            alignment: Alignment.center,
+                            widthFactor: 1,
+                            child: c.busyLabel(
+                              Text(
+                                c.voidConfirmLabel,
+                                style: hts(
+                                  15,
+                                  dk(
+                                    context,
+                                    Color(0xFFA1A1AA),
+                                    Color(0xFF80808A),
+                                  ),
+                                  w: FontWeight.w600,
+                                  lh: 22,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),

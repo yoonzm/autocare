@@ -1,4 +1,3 @@
-import '../../kit/buttons.dart';
 import '../../backend/merchant_api.dart';
 import 'inventory_controller.dart';
 import 'inventory_management_page.dart';
@@ -68,12 +67,26 @@ Widget _pillButton(
   String label, {
   required bool primary,
   required VoidCallback? onTap,
-}) => AppButton(
-  label: label,
-  kind: AppButtonKind.primary,
-  size: AppButtonSize.large,
-  expanded: false,
-  onPressed: onTap,
+}) => GestureDetector(
+  behavior: HitTestBehavior.opaque,
+  onTap: onTap,
+  child: Container(
+    height: 50,
+    alignment: Alignment.center,
+    decoration: BoxDecoration(
+      color: primary ? C.primary : C.chip,
+      borderRadius: BorderRadius.circular(25),
+    ),
+    child: Text(
+      label,
+      style: ts(
+        15,
+        w: primary ? FontWeight.w600 : FontWeight.w500,
+        color: primary ? Colors.white : C.ink,
+        h: 22,
+      ),
+    ),
+  ),
 );
 
 Widget _footer(
@@ -102,12 +115,13 @@ Widget _footer(
 
 Widget _link(BuildContext context, String text, VoidCallback onTap) => Align(
   alignment: Alignment.centerLeft,
-  child: AppButton(
-    label: text,
-    kind: AppButtonKind.text,
-    size: AppButtonSize.medium,
-    expanded: false,
-    onPressed: onTap,
+  child: GestureDetector(
+    behavior: HitTestBehavior.opaque,
+    onTap: onTap,
+    child: Text(
+      text,
+      style: ts(14, w: FontWeight.w500, color: C.primaryInk, h: 20),
+    ),
   ),
 );
 
@@ -189,10 +203,8 @@ class _ProductPickerState extends State<_ProductPickerSheet> {
                 ),
               ),
               const SizedBox(width: 8),
-              AppIconButton(
-                svg: dk(context, Svgs.s329, Svgs.s330),
-                semanticLabel: '扫码添加商品',
-                onPressed: () async {
+              GestureDetector(
+                onTap: () async {
                   final p = await Navigator.of(context)
                       .push<Map<String, dynamic>>(
                         MaterialPageRoute(
@@ -211,6 +223,20 @@ class _ProductPickerState extends State<_ProductPickerSheet> {
                     });
                   }
                 },
+                child: hbox(
+                  w: 44,
+                  h: 44,
+                  bg: C.card,
+                  radius: BorderRadius.circular(22),
+                  shadow: _cardShadow(context),
+                  child: Center(
+                    child: hsvg(
+                      dk(context, Svgs.s329, Svgs.s330),
+                      w: 20,
+                      h: 20,
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
@@ -702,13 +728,29 @@ class _SupplierEditState extends State<SupplierEditPage> {
             Container(
               color: C.bg,
               padding: EdgeInsets.fromLTRB(20, 12, 20, bottomInset(context)),
-              child: ActionButton(
-                actionKey: _saveKey,
-                label: '保存',
-                kind: AppButtonKind.primary,
-                size: AppButtonSize.large,
-                expanded: true,
-                onPressed: ready ? () => runBusy(_saveKey, save) : null,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: ready ? () => runBusy(_saveKey, save) : null,
+                child: Container(
+                  height: 50,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: ready ? C.primary : C.stroke,
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  child: hBusy(
+                    _saveKey,
+                    Text(
+                      '保存',
+                      style: ts(
+                        15,
+                        w: FontWeight.w600,
+                        color: ready ? Colors.white : C.faint,
+                        h: 22,
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
           ],

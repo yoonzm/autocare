@@ -1,7 +1,3 @@
-import 'package:autocare_ui_kit/autocare_ui_kit.dart'
-    show AppChoiceGroup, ChoiceItem;
-
-import '../../kit/buttons.dart';
 import 'expense_widgets.dart';
 import '../../kit/single_selection.dart';
 import 'expense_controller.dart';
@@ -312,14 +308,162 @@ class BudgetAdjustLiveTemplate extends StatelessWidget {
                 cross: CrossAxisAlignment.baseline,
                 gap: 6,
               ),
-              AppChoiceGroup<int>(
-                items: [
-                  ChoiceItem(value: 0, label: c.fillExcessText),
-                  ChoiceItem(value: 1, label: '¥5,000'),
-                  ChoiceItem(value: 2, label: '¥8,000'),
-                ],
-                selected: c.adjustmentPreset,
+              SingleSelection(
+                index: c.adjustmentPreset,
                 onChanged: (i) => c.chooseAdjustment(i),
+                builder: (context, selection) => hwrap(
+                  [
+                    HSel(
+                      ctrl: selection,
+                      index: 0,
+                      on: hbox(
+                        h: 34,
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(17),
+                        border: Border.all(
+                          color: Color(0xFF0485F7),
+                          width: 1.5,
+                        ),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            c.fillExcessText,
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                      off: hbox(
+                        h: 34,
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(17),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            c.fillExcessText,
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF3F3F46), Color(0xFFD4D4D8)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    HSel(
+                      ctrl: selection,
+                      index: 1,
+                      on: hbox(
+                        h: 34,
+                        bg: dk(
+                          context,
+                          Color(0xFFE1F0FE),
+                          Color.fromRGBO(4, 133, 247, 0.18),
+                        ),
+                        radius: BorderRadius.circular(17),
+                        border: Border.all(
+                          color: Color(0xFF0485F7),
+                          width: 1.5,
+                        ),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '¥5,000',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                      off: hbox(
+                        h: 34,
+                        bg: dk(
+                          context,
+                          Color(0xFFE1F0FE),
+                          Color.fromRGBO(4, 133, 247, 0.18),
+                        ),
+                        radius: BorderRadius.circular(17),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '¥5,000',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF3F3F46), Color(0xFFD4D4D8)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    HSel(
+                      ctrl: selection,
+                      index: 2,
+                      on: hbox(
+                        h: 34,
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(17),
+                        border: Border.all(
+                          color: Color(0xFF0485F7),
+                          width: 1.5,
+                        ),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '¥8,000',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                      off: hbox(
+                        h: 34,
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(17),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '¥8,000',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF3F3F46), Color(0xFFD4D4D8)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                  gap: 8,
+                  rowGap: 8,
+                  cross: WrapCrossAlignment.start,
+                ),
               ),
             ],
             main: MainAxisAlignment.start,
@@ -340,14 +484,162 @@ class BudgetAdjustLiveTemplate extends StatelessWidget {
                   ),
                 ),
               ),
-              AppChoiceGroup<int>(
-                items: [
-                  ChoiceItem(value: 0, label: c.reserveText),
-                  ChoiceItem(value: 1, label: '其他分类调剂'),
-                  ChoiceItem(value: 2, label: '追加总预算'),
-                ],
-                selected: c.adjustSource,
+              SingleSelection(
+                index: c.adjustSource,
                 onChanged: (i) => c.setAdjustSource(i),
+                builder: (context, selection) => hwrap(
+                  [
+                    HSel(
+                      ctrl: selection,
+                      index: 0,
+                      on: hbox(
+                        h: 34,
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(17),
+                        border: Border.all(
+                          color: Color(0xFF0485F7),
+                          width: 1.5,
+                        ),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            c.reserveText,
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                      off: hbox(
+                        h: 34,
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(17),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            c.reserveText,
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF3F3F46), Color(0xFFD4D4D8)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    HSel(
+                      ctrl: selection,
+                      index: 1,
+                      on: hbox(
+                        h: 34,
+                        bg: dk(
+                          context,
+                          Color(0xFFE1F0FE),
+                          Color.fromRGBO(4, 133, 247, 0.18),
+                        ),
+                        radius: BorderRadius.circular(17),
+                        border: Border.all(
+                          color: Color(0xFF0485F7),
+                          width: 1.5,
+                        ),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '其他分类调剂',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                      off: hbox(
+                        h: 34,
+                        bg: dk(
+                          context,
+                          Color(0xFFE1F0FE),
+                          Color.fromRGBO(4, 133, 247, 0.18),
+                        ),
+                        radius: BorderRadius.circular(17),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '其他分类调剂',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF3F3F46), Color(0xFFD4D4D8)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    HSel(
+                      ctrl: selection,
+                      index: 2,
+                      on: hbox(
+                        h: 34,
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(17),
+                        border: Border.all(
+                          color: Color(0xFF0485F7),
+                          width: 1.5,
+                        ),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '追加总预算',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                      off: hbox(
+                        h: 34,
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(17),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '追加总预算',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF3F3F46), Color(0xFFD4D4D8)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                  gap: 8,
+                  rowGap: 8,
+                  cross: WrapCrossAlignment.start,
+                ),
               ),
             ],
             main: MainAxisAlignment.start,
@@ -432,12 +724,27 @@ class BudgetAdjustLiveTemplate extends StatelessWidget {
                   child: UnconstrainedBox(
                     alignment: Alignment.topLeft,
                     constrainedAxis: Axis.horizontal,
-                    child: AppButton(
-                      label: '取消',
-                      kind: AppButtonKind.secondary,
-                      size: AppButtonSize.large,
-                      expanded: true,
-                      onPressed: () => Navigator.of(context).maybePop(),
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => Navigator.of(context).maybePop(),
+                      child: hbox(
+                        h: 50,
+                        bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(25),
+                        child: Align(
+                          alignment: Alignment(0, 0),
+                          widthFactor: 1,
+                          child: Text(
+                            '取消',
+                            style: hts(
+                              15,
+                              dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                              w: FontWeight.w500,
+                              lh: 22,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -446,13 +753,33 @@ class BudgetAdjustLiveTemplate extends StatelessWidget {
                   child: UnconstrainedBox(
                     alignment: Alignment.topLeft,
                     constrainedAxis: Axis.horizontal,
-                    child: ActionButton(
-                      actionKey: c.saveKey,
-                      label: '确认追加',
-                      kind: AppButtonKind.primary,
-                      size: AppButtonSize.large,
-                      expanded: true,
-                      onPressed: () => c.save(context),
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => c.save(context),
+                      child: hbox(
+                        h: 50,
+                        bg: dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                        radius: BorderRadius.circular(25),
+                        child: Align(
+                          alignment: Alignment(0, 0),
+                          widthFactor: 1,
+                          child: c.busyLabel(
+                            Text(
+                              '确认追加',
+                              style: hts(
+                                15,
+                                dk(
+                                  context,
+                                  Color(0xFFFFFFFF),
+                                  Color(0xFF18181B),
+                                ),
+                                w: FontWeight.w600,
+                                lh: 22,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),

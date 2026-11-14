@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 
 import '../tokens/app_tokens.dart';
 import 'app_tap_target.dart';
-import 'button_icon.dart';
 
 /// 语义类型：primary 主要 / secondary 次要（底栏、取消）/ surface 白底带阴影（筛选，补充约定）/
 /// danger 危险 / soft 浅蓝底蓝字（卡片内的轻量主操作，如「复制」）/ text 文字按钮。黑色不是按钮色。
@@ -23,10 +22,6 @@ class AppButton extends StatefulWidget {
   final AppButtonSize size;
   final bool loading;
   final IconData? icon;
-
-  /// 单色 SVG 源码，与 [icon] 互斥；颜色跟随按钮状态。
-  final String? svg;
-  final String? darkSvg;
   final bool expanded;
   final VoidCallback? onPressed;
   final String? semanticLabel;
@@ -37,13 +32,10 @@ class AppButton extends StatefulWidget {
     this.size = AppButtonSize.medium,
     this.loading = false,
     this.icon,
-    this.svg,
-    this.darkSvg,
     this.expanded = false,
     this.onPressed,
     this.semanticLabel,
-  }) : assert(icon == null || svg == null),
-       assert(darkSvg == null || svg != null);
+  });
 
   const AppButton.danger({
     Key? key,
@@ -154,18 +146,10 @@ class _AppButtonState extends State<AppButton> {
                 ),
               ),
               const SizedBox(width: AppSpacing.s8),
-            ] else if (widget.icon != null || widget.svg != null) ...[
-              buttonIcon(
-                context,
-                icon: widget.icon,
-                svg: widget.svg,
-                darkSvg: widget.darkSvg,
-                size: small ? 14 : 16,
-                color: fg,
-              ),
+            ] else if (widget.icon != null) ...[
+              Icon(widget.icon, size: small ? 14 : 16, color: fg),
               const SizedBox(width: AppSpacing.s6),
-            ] else
-              const SizedBox(width: 12),
+            ],
             Flexible(
               child: Text(
                 widget.label,
@@ -174,12 +158,6 @@ class _AppButtonState extends State<AppButton> {
                 style: style,
               ),
             ),
-            if (!widget.loading)
-              SizedBox(
-                width: widget.icon != null || widget.svg != null
-                    ? (small ? 4 : 2)
-                    : 12,
-              ),
           ],
         );
         return Opacity(

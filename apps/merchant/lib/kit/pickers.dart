@@ -1,4 +1,3 @@
-import 'buttons.dart';
 // 表单选择组件；地区来自后端公共字典。
 import 'async_kit.dart';
 
@@ -95,10 +94,12 @@ Widget _header(BuildContext ctx, String title, {VoidCallback? onOk}) => Padding(
   padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
   child: Row(
     children: [
-      AppButton(
-        label: '取消',
-        kind: AppButtonKind.secondary,
+      TextButton(
         onPressed: () => Navigator.pop(ctx),
+        child: Text(
+          '取消',
+          style: _ts(15, w: FontWeight.w500, c: _muted),
+        ),
       ),
       Expanded(
         child: Text(
@@ -109,10 +110,12 @@ Widget _header(BuildContext ctx, String title, {VoidCallback? onOk}) => Padding(
       ),
       onOk == null
           ? const SizedBox(width: 64)
-          : AppButton(
-              label: '确定',
-              kind: AppButtonKind.primary,
+          : TextButton(
               onPressed: onOk,
+              child: Text(
+                '确定',
+                style: _ts(15, w: FontWeight.w600, c: _primary),
+              ),
             ),
     ],
   ),
@@ -303,12 +306,12 @@ class _LiveMemberPickerState extends State<_LiveMemberPicker> {
                         style: _ts(17, w: FontWeight.w600),
                       ),
                     ),
-                    AppButton(
-                      label: '取消',
-                      kind: AppButtonKind.text,
-                      size: AppButtonSize.medium,
-                      expanded: false,
-                      onPressed: () => Navigator.pop(context),
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: Text(
+                        '取消',
+                        style: _ts(15, w: FontWeight.w500, c: _muted),
+                      ),
                     ),
                   ],
                 ),
@@ -804,18 +807,19 @@ Future<String?> pickAmount(BuildContext context, String title, String current) {
         ),
       ),
       actions: [
-        AppButton(
-          label: '取消',
-          kind: AppButtonKind.secondary,
+        TextButton(
           onPressed: () => Navigator.pop(ctx),
+          child: Text('取消', style: _ts(15, c: _muted)),
         ),
-        AppButton(
-          label: '确定',
-          kind: AppButtonKind.primary,
+        TextButton(
           onPressed: () {
             final v = double.tryParse(text.text) ?? 0;
             Navigator.pop(ctx, '¥${v.toStringAsFixed(2)}');
           },
+          child: Text(
+            '确定',
+            style: _ts(15, w: FontWeight.w600, c: _primary),
+          ),
         ),
       ],
     ),
@@ -1008,10 +1012,12 @@ class _PlateKeyboard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  AppButton(
-                    label: '完成',
-                    kind: AppButtonKind.primary,
+                  TextButton(
                     onPressed: () => Navigator.pop(context),
+                    child: Text(
+                      '完成',
+                      style: _ts(16, w: FontWeight.w600, c: _primary),
+                    ),
                   ),
                 ],
               ),

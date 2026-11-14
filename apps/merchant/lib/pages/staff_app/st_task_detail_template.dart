@@ -1,12 +1,7 @@
-import '../../backend/access_flow.dart';
-import '../../kit/upload_gallery.dart';
-import '../../backend/media_api.dart';
-import '../../backend/merchant_api.dart';
-import '../../kit/buttons.dart';
-
 import 'package:flutter/material.dart';
 
 import '../../backend/task_flow.dart';
+import '../../kit/async_kit.dart';
 import '../staff/staff_live.dart';
 import '../../kit/kit.dart';
 import '../../routes.dart' show openRoute;
@@ -514,10 +509,62 @@ class StTaskDetailTemplate extends StatelessWidget {
                           UnconstrainedBox(
                             alignment: Alignment.topLeft,
                             constrainedAxis: Axis.horizontal,
-                            child: AppIconButton(
-                              svg: dk(context, Svgs.s0, Svgs.s1),
-                              semanticLabel: "返回",
-                              onPressed: () => Navigator.of(context).maybePop(),
+                            child: GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () => Navigator.of(context).maybePop(),
+                              child: hbox(
+                                w: 44,
+                                h: 44,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFFFFFFF),
+                                  Color(0xFF18181B),
+                                ),
+                                radius: BorderRadius.circular(22),
+                                shadow: dk(
+                                  context,
+                                  [
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.06),
+                                      offset: Offset(0, 0),
+                                      blurRadius: 1,
+                                      spreadRadius: 0,
+                                    ),
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.06),
+                                      offset: Offset(0, 1),
+                                      blurRadius: 2,
+                                      spreadRadius: 0,
+                                    ),
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.04),
+                                      offset: Offset(0, 2),
+                                      blurRadius: 4,
+                                      spreadRadius: 0,
+                                    ),
+                                  ],
+                                  [
+                                    BoxShadow(
+                                      color: Color(0xFF26262B),
+                                      offset: Offset(0, 0),
+                                      blurRadius: 0,
+                                      spreadRadius: 1,
+                                    ),
+                                  ],
+                                ),
+                                child: hrow(
+                                  [
+                                    hsvg(
+                                      dk(context, Svgs.s0, Svgs.s1),
+                                      w: 20,
+                                      h: 20,
+                                    ),
+                                  ],
+                                  main: MainAxisAlignment.center,
+                                  cross: CrossAxisAlignment.center,
+                                  gap: 0,
+                                ),
+                              ),
                             ),
                           ),
                         ],
@@ -1077,25 +1124,68 @@ class StTaskDetailTemplate extends StatelessWidget {
                   cross: CrossAxisAlignment.stretch,
                   gap: 8,
                 ),
-                UploadGallery(
-                  key: ValueKey('task-photos-${d['id']}'),
-                  title: '施工照片',
-                  max: 6,
-                  load: MediaApi.task(merchantApi, d['id'].toString()).load,
-                  upload: Access.can('progress_update')
-                      ? MediaApi.task(merchantApi, d['id'].toString()).upload
-                      : null,
-                  remove: Access.can('progress_update')
-                      ? MediaApi.task(merchantApi, d['id'].toString()).remove
-                      : null,
-                  discard: MediaApi.task(
-                    merchantApi,
-                    d['id'].toString(),
-                  ).discard,
-                  refresh: MediaApi.task(
-                    merchantApi,
-                    d['id'].toString(),
-                  ).refresh,
+                hcol(
+                  [
+                    hbox(
+                      pad: EdgeInsets.fromLTRB(4, 0, 0, 0),
+                      child: Text(
+                        '施工照片 · 0 张',
+                        style: hts(
+                          13,
+                          dk(context, Color(0xFF52525B), Color(0xFFA8A8B3)),
+                          w: FontWeight.w500,
+                          lh: 18,
+                        ),
+                      ),
+                    ),
+                    hrow(
+                      [
+                        GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () => AppToast.show(context, 'TODO：施工照片上传待接通'),
+                          child: UnconstrainedBox(
+                            alignment: Alignment.topLeft,
+                            constrainedAxis: Axis.horizontal,
+                            child: hbox(
+                              w: 72,
+                              h: 72,
+                              radius: BorderRadius.circular(14),
+                              border: dk(
+                                context,
+                                Border.all(
+                                  color: Color(0xFFD4D4D8),
+                                  width: 1.5,
+                                ),
+                                Border.all(
+                                  color: Color(0xFF3F3F46),
+                                  width: 1.5,
+                                ),
+                              ),
+                              child: hrow(
+                                [
+                                  hsvg(
+                                    dk(context, Svgs.s109, Svgs.s110),
+                                    w: 22,
+                                    h: 22,
+                                  ),
+                                ],
+                                main: MainAxisAlignment.center,
+                                cross: CrossAxisAlignment.center,
+                                gap: 0,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                      main: MainAxisAlignment.start,
+                      cross: CrossAxisAlignment.stretch,
+                      gap: 10,
+                      intrinsic: true,
+                    ),
+                  ],
+                  main: MainAxisAlignment.start,
+                  cross: CrossAxisAlignment.stretch,
+                  gap: 8,
                 ),
               ],
               main: MainAxisAlignment.start,
@@ -1143,32 +1233,70 @@ class StTaskDetailTemplate extends StatelessWidget {
                         [
                           Expanded(
                             flex: 10,
-                            child: AppButton(
-                              label: '更新进度',
-                              kind: AppButtonKind.secondary,
-                              size: AppButtonSize.large,
-                              expanded: true,
-                              onPressed: () => openRoute(
+                            child: GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () => openRoute(
                                 context,
                                 'StProgress',
                                 arguments: TaskRouteData(
                                   taskId: t['id'] as String,
                                 ),
                               ),
+                              child: hbox(
+                                h: 50,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFEEEEF0),
+                                  Color(0xFF27272A),
+                                ),
+                                radius: BorderRadius.circular(25),
+                                child: Align(
+                                  alignment: Alignment(0, 0),
+                                  widthFactor: 1,
+                                  child: Text(
+                                    '更新进度',
+                                    style: hts(
+                                      15,
+                                      dk(
+                                        context,
+                                        Color(0xFF18181B),
+                                        Color(0xFFFAFAFA),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 22,
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                           Expanded(
                             flex: 14,
-                            child: AppButton(
-                              label: '提交完工',
-                              kind: AppButtonKind.primary,
-                              size: AppButtonSize.large,
-                              expanded: true,
-                              onPressed: () => openRoute(
+                            child: GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () => openRoute(
                                 context,
                                 'StFinish',
                                 arguments: TaskRouteData(
                                   taskId: t['id'] as String,
+                                ),
+                              ),
+                              child: hbox(
+                                h: 50,
+                                bg: Color(0xFF0485F7),
+                                radius: BorderRadius.circular(25),
+                                child: Align(
+                                  alignment: Alignment(0, 0),
+                                  widthFactor: 1,
+                                  child: Text(
+                                    '提交完工',
+                                    style: hts(
+                                      15,
+                                      Color(0xFFFFFFFF),
+                                      w: FontWeight.w600,
+                                      lh: 22,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),

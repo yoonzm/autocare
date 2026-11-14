@@ -4,3 +4,6 @@ class CatalogCounts {
   static int? cards;
   static int? packages;
 }
+
+String tabLabel(String name, int? count) =>
+    count == null ? name : '$name $count';

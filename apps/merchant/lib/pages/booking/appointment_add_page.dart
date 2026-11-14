@@ -1,7 +1,3 @@
-import 'package:autocare_ui_kit/autocare_ui_kit.dart'
-    show AppSegmented, SegmentItem;
-
-import '../../kit/buttons.dart';
 import '../members/member_picker_sheet.dart' show showMemberPicker;
 
 import 'dart:async';
@@ -24,9 +20,7 @@ import '../../kit/keyboard.dart';
 import '../../theme.dart';
 import '../../widgets/app_icon.dart';
 import '../../widgets/common.dart';
-
-import 'package:autocare_ui_kit/autocare_ui_kit.dart'
-    show AppChoiceGroup, ChoiceItem, ChipKind;
+import '../../widgets/choice_chip_group.dart';
 
 class AppointmentAddPage extends StatefulWidget {
   const AppointmentAddPage({super.key});
@@ -486,13 +480,36 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
                         ],
                       ),
                     ),
-                    ActionButton(
-                      actionKey: _actionKey,
-                      label: '确认预约',
-                      kind: AppButtonKind.primary,
-                      size: AppButtonSize.large,
-                      expanded: false,
-                      onPressed: submit,
+                    GestureDetector(
+                      onTap: submit,
+                      child: Container(
+                        height: 50,
+                        padding: const EdgeInsets.symmetric(horizontal: 28),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: C.btn,
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                        child: hBusy(
+                          _actionKey,
+                          Text(
+                            '确认预约',
+                            style: ts(
+                              15,
+                              w: FontWeight.w600,
+                              color: C.btnFg,
+                              h: 22,
+                            ),
+                          ),
+                          style: ts(
+                            15,
+                            w: FontWeight.w600,
+                            color: C.btnFg,
+                            h: 22,
+                          ),
+                          label: '提交中…',
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -525,11 +542,8 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
             ),
             SizedBox(
               width: 132,
-              child: AppSegmented<int>(
-                items: [
-                  SegmentItem(value: 0, label: '会员'),
-                  SegmentItem(value: 1, label: '散客'),
-                ],
+              child: Segmented(
+                labels: const ['会员', '散客'],
                 selected: isMember ? 0 : 1,
                 onChanged: (i) => setState(() {
                   isMember = i == 0;
@@ -713,6 +727,7 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
         else
           Wrap(
             spacing: 8,
+            runSpacing: 8,
             children: [
               for (var i = 0; i < _services.length; i++)
                 _chip(
@@ -740,12 +755,12 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
       children: [
         Text('到店时间', style: ts(15, w: FontWeight.w600, h: 22)),
         const SizedBox(height: 12),
-        AppChoiceGroup<int>(
+        ChoiceChipGroup<int>(
           semanticLabel: '到店日期',
           kind: ChipKind.pill,
           items: [
             for (var i = 0; i < _dates.length; i++)
-              ChoiceItem(value: i, label: _dates[i]),
+              ChoiceChipItem(value: i, label: _dates[i]),
           ],
           selected: dateIdx,
           onChanged: (i) {
@@ -839,16 +854,15 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
                           title: picked.isEmpty ? '请先选择服务项目' : '所选日期没有可预约时段',
                           inline: true,
                         )
-                      : AppChoiceGroup<String>(
+                      : ChoiceChipGroup<String>(
                           semanticLabel: '到店时间',
                           kind: ChipKind.tile,
-                          columns: 3,
                           items: [
                             for (final slot in _slots)
-                              ChoiceItem(
+                              ChoiceChipItem(
                                 value: slot['time'] as String,
                                 label: slot['time'] as String,
-                                enabled: slot['available'] == true,
+                                disabled: slot['available'] != true,
                               ),
                           ],
                           selected: time.isEmpty ? null : time,

@@ -1,4 +1,3 @@
-import '../../kit/buttons.dart';
 import 'packages/package_choices.dart' show PackageChoices;
 
 import 'package:flutter/material.dart';
@@ -64,12 +63,22 @@ class _RechargePickSheetState extends State<RechargePickSheet> {
               lh: 17,
             ),
           ),
-          AppButton(
-            label: '确定',
-            kind: AppButtonKind.primary,
-            size: AppButtonSize.large,
-            expanded: true,
-            onPressed: () => Navigator.of(context).pop(selected),
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => Navigator.of(context).pop(selected),
+            child: hbox(
+              h: 48,
+              bg: Color(0xFF0485F7),
+              radius: BorderRadius.circular(24),
+              child: Align(
+                alignment: Alignment(0, 0),
+                widthFactor: 1,
+                child: Text(
+                  '确定',
+                  style: hts(15, Color(0xFFFFFFFF), w: FontWeight.w600),
+                ),
+              ),
+            ),
           ),
         ],
         main: MainAxisAlignment.start,

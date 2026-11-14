@@ -1,5 +1,3 @@
-import '../../kit/buttons.dart';
-
 import 'package:flutter/material.dart';
 
 import '../../kit/async_kit.dart';
@@ -22,10 +20,22 @@ class AppointmentSettingsSkeleton extends StatelessWidget {
         children: [
           Row(
             children: [
-              AppIconButton(
-                svg: dk(context, Svgs.s0, Svgs.s1),
-                semanticLabel: "返回",
-                onPressed: () => Navigator.of(context).maybePop(),
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => Navigator.of(context).maybePop(),
+                child: hbox(
+                  w: 44,
+                  h: 44,
+                  bg: dk(
+                    context,
+                    const Color(0xFFFFFFFF),
+                    const Color(0xFF18181B),
+                  ),
+                  radius: BorderRadius.circular(22),
+                  child: Center(
+                    child: hsvg(dk(context, Svgs.s0, Svgs.s1), w: 20, h: 20),
+                  ),
+                ),
               ),
               Expanded(
                 child: Text(
@@ -50,8 +60,7 @@ class AppointmentSettingsSkeleton extends StatelessWidget {
             const SizedBox(height: 16),
             _section(context, '在线预约', const [58, 58]),
             const SizedBox(height: 16),
-            // 定休日多选采用 44px 热区，两行比旧 34px 标签增加 20px。
-            _section(context, '可预约时间', const [70, 58, 86, 76, 96]),
+            _section(context, '可预约时间', const [70, 58, 86, 76, 76]),
             const SizedBox(height: 16),
             _section(context, '接待规则', const [76, 76, 76, 76, 76, 98]),
             const SizedBox(height: 16),

@@ -72,26 +72,18 @@ void main() {
     );
   }
 
-  Color? segmentColor(WidgetTester t, String text) {
-    final label = find.text(text, findRichText: true);
-    final box = t.widget<Container>(
-      find.ancestor(of: label, matching: find.byType(Container)).first,
-    );
-    return (box.decoration as BoxDecoration).color;
-  }
-
   testWidgets('称呼：先生 / 女士 互斥单选，选中项有滑块底色', (t) async {
     await openAdd(t);
-    expect(segmentColor(t, '先生'), Colors.white);
-    expect(segmentColor(t, '女士'), Colors.transparent);
+    expect(look(t, '先生').$1, Colors.white);
+    expect(look(t, '女士').$1, Colors.transparent);
     await t.tap(find.text('女士'));
     await t.pumpAndSettle();
-    expect(segmentColor(t, '女士'), Colors.white);
-    expect(segmentColor(t, '先生'), Colors.transparent);
+    expect(look(t, '女士').$1, Colors.white);
+    expect(look(t, '先生').$1, Colors.transparent);
     // 再点一次已选项不会取消选中
     await t.tap(find.text('女士'));
     await t.pumpAndSettle();
-    expect(segmentColor(t, '女士'), Colors.white);
+    expect(look(t, '女士').$1, Colors.white);
   });
 
   testWidgets('客户来源：单选标签完整蓝色选中态且互斥', (t) async {
@@ -125,7 +117,7 @@ void main() {
     await t.tap(find.text('老客推荐'));
     await t.pumpAndSettle();
     final on = sourceLook(t, '老客推荐');
-    expect(on.$1, const Color(0x2E0485F7));
+    expect(on.$1, const Color.fromRGBO(4, 133, 247, 0.18));
     expect(on.$1, isNot(C.card));
     expect(on.$2, const Color(0xFF6AB4FA));
     expect(sourceLook(t, '团购平台').$1, const Color(0xFF27272A));

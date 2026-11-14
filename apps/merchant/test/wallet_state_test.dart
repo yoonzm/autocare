@@ -108,7 +108,7 @@ void main() {
 
   });
 
-  test('三个记账接口把调用者的幂等标识传到请求层', () async {
+  test('四个记账接口把调用者的幂等标识传到请求层', () async {
     final transport = RecordingApi();
     await transport.recharge(
       memberId: 'a',
@@ -128,15 +128,23 @@ void main() {
       reason: '出差',
       requestId: 'extend',
     );
+    await transport.refundPackage(
+      id: 'p',
+      to: '储值余额',
+      reason: '服务问题',
+      requestId: 'refund',
+    );
     expect(transport.requests.map((r) => r.id), [
       'recharge',
       'sale',
       'extend',
+      'refund',
     ]);
     expect(transport.requests.map((r) => r.body['action']), [
       'recharge',
       'sell',
       'extend',
+      'refund',
     ]);
   });
 
@@ -282,9 +290,9 @@ void main() {
     second.chooseReason(0);
     api.fail = true;
     final gate = api.gate = Completer<void>();
-    final a = first.submit(context);
-    await first.submit(context);
-    final b = second.submit(context);
+    final a = first.submit(context, refund: false);
+    await first.submit(context, refund: false);
+    final b = second.submit(context, refund: false);
     expect(api.attempts.map((r) => r['id']), ['p1', 'p2']);
     gate.complete();
     await t.pump(const Duration(milliseconds: 600));
@@ -294,13 +302,13 @@ void main() {
     expect(first.reasonIndex, 1);
     expect(second.daysIndex, 0);
     expect(second.reasonIndex, 0);
-    final retry = first.submit(context);
+    final retry = first.submit(context, refund: false);
     await t.pump(const Duration(milliseconds: 600));
     await t.pumpAndSettle();
     await retry;
     expect(api.attempts[2]['requestId'], api.attempts[0]['requestId']);
     first.chooseDays(context, 2);
-    final edited = first.submit(context);
+    final edited = first.submit(context, refund: false);
     await t.pump(const Duration(milliseconds: 600));
     await t.pumpAndSettle();
     await edited;

@@ -1,5 +1,3 @@
-import '../../kit/buttons.dart';
-
 import 'package:flutter/material.dart';
 
 import '../../backend/merchant_api.dart';
@@ -85,10 +83,62 @@ class _ForgotResetPageState extends State<ForgotResetPage> {
                   [
                     hrow(
                       [
-                        AppIconButton(
-                          svg: dk(context, Svgs.s0, Svgs.s1),
-                          semanticLabel: "返回",
-                          onPressed: () => Navigator.maybePop(context),
+                        GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          child: hbox(
+                            w: 44,
+                            h: 44,
+                            bg: dk(
+                              context,
+                              Color(0xFFFFFFFF),
+                              Color(0xFF18181B),
+                            ),
+                            radius: BorderRadius.circular(22),
+                            shadow: dk(
+                              context,
+                              [
+                                BoxShadow(
+                                  color: Color.fromRGBO(0, 0, 0, 0.06),
+                                  offset: Offset(0, 0),
+                                  blurRadius: 1,
+                                  spreadRadius: 0,
+                                ),
+                                BoxShadow(
+                                  color: Color.fromRGBO(0, 0, 0, 0.06),
+                                  offset: Offset(0, 1),
+                                  blurRadius: 2,
+                                  spreadRadius: 0,
+                                ),
+                                BoxShadow(
+                                  color: Color.fromRGBO(0, 0, 0, 0.04),
+                                  offset: Offset(0, 2),
+                                  blurRadius: 4,
+                                  spreadRadius: 0,
+                                ),
+                              ],
+                              [
+                                BoxShadow(
+                                  color: Color(0xFF26262B),
+                                  offset: Offset(0, 0),
+                                  blurRadius: 0,
+                                  spreadRadius: 1,
+                                ),
+                              ],
+                            ),
+                            child: hrow(
+                              [
+                                hsvg(
+                                  dk(context, Svgs.s0, Svgs.s1),
+                                  w: 20,
+                                  h: 20,
+                                ),
+                              ],
+                              main: MainAxisAlignment.center,
+                              cross: CrossAxisAlignment.center,
+                              gap: 0,
+                            ),
+                          ),
+                          onTap: () => Navigator.maybePop(context),
                         ),
                         Expanded(
                           flex: 1,
@@ -222,6 +272,26 @@ class _ForgotResetPageState extends State<ForgotResetPage> {
                                       visible: _visible[0],
                                       onPressed: () => setState(
                                         () => _visible[0] = !_visible[0],
+                                      ),
+                                      hiddenIcon: NegMargin(
+                                        top: 0,
+                                        left: 0,
+                                        child: hbox(
+                                          w: 32,
+                                          h: 32,
+                                          child: hrow(
+                                            [
+                                              hsvg(
+                                                dk(context, Svgs.s85, Svgs.s86),
+                                                w: 20,
+                                                h: 20,
+                                              ),
+                                            ],
+                                            main: MainAxisAlignment.center,
+                                            cross: CrossAxisAlignment.center,
+                                            gap: 0,
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -361,6 +431,26 @@ class _ForgotResetPageState extends State<ForgotResetPage> {
                                       visible: _visible[1],
                                       onPressed: () => setState(
                                         () => _visible[1] = !_visible[1],
+                                      ),
+                                      hiddenIcon: NegMargin(
+                                        top: 0,
+                                        left: 0,
+                                        child: hbox(
+                                          w: 32,
+                                          h: 32,
+                                          child: hrow(
+                                            [
+                                              hsvg(
+                                                dk(context, Svgs.s85, Svgs.s86),
+                                                w: 20,
+                                                h: 20,
+                                              ),
+                                            ],
+                                            main: MainAxisAlignment.center,
+                                            cross: CrossAxisAlignment.center,
+                                            gap: 0,
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -530,13 +620,37 @@ class _ForgotResetPageState extends State<ForgotResetPage> {
                 pad: EdgeInsets.fromLTRB(20, 12, 20, bottomInset(context)),
                 child: hcol(
                   [
-                    ActionButton(
-                      actionKey: actionKey,
-                      label: '确认重置',
-                      kind: AppButtonKind.primary,
-                      size: AppButtonSize.large,
-                      expanded: true,
-                      onPressed: onSave,
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: onSave,
+                      child: hbox(
+                        h: 50,
+                        bg: Color(0xFF0485F7),
+                        radius: BorderRadius.circular(25),
+                        child: Align(
+                          alignment: Alignment(0, 0),
+                          widthFactor: 1,
+                          child: hBusy(
+                            actionKey,
+                            Text(
+                              '确认重置',
+                              style: hts(
+                                15,
+                                Color(0xFFFFFFFF),
+                                w: FontWeight.w600,
+                                lh: 22,
+                              ),
+                            ),
+                            style: hts(
+                              15,
+                              Color(0xFFFFFFFF),
+                              w: FontWeight.w600,
+                              lh: 22,
+                            ),
+                            label: '提交中…',
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                   main: MainAxisAlignment.start,

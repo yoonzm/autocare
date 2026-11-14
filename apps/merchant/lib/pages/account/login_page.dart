@@ -1,5 +1,3 @@
-import '../../kit/buttons.dart';
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
@@ -431,7 +429,46 @@ class _LoginPageState extends State<LoginPage> {
                     decoration: _dec('6 位数字'),
                   ),
                 ),
-                smsCodeButton(_sms, onPressed: busy ? null : sendCode),
+                GestureDetector(
+                  onTap: sendCode,
+                  child: Container(
+                    height: 36,
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: C.card,
+                      borderRadius: BorderRadius.circular(18),
+                      boxShadow: softShadow,
+                    ),
+                    child: sending
+                        // 设计稿的验证码按钮加载态：转圈 + “发送中…”
+                        ? Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              AppSpinner(size: 16, color: C.muted),
+                              const SizedBox(width: 6),
+                              Text(
+                                '发送中…',
+                                style: ts(
+                                  13,
+                                  w: FontWeight.w500,
+                                  color: C.muted,
+                                  h: 18,
+                                ),
+                              ),
+                            ],
+                          )
+                        : Text(
+                            countdown > 0 ? '$countdown 秒后重发' : '获取验证码',
+                            style: ts(
+                              13,
+                              w: FontWeight.w500,
+                              color: countdown > 0 ? C.muted : C.primaryInk,
+                              h: 18,
+                            ),
+                          ),
+                  ),
+                ),
               ],
             ),
             error: codeErr,
@@ -455,12 +492,24 @@ class _LoginPageState extends State<LoginPage> {
                     decoration: _dec('请输入登录密码'),
                   ),
                 ),
-                AppIconButton(
-                  icon: showPwd
-                      ? Icons.visibility_outlined
-                      : Icons.visibility_off_outlined,
-                  semanticLabel: showPwd ? '隐藏密码' : '显示密码',
-                  onPressed: () => setState(() => showPwd = !showPwd),
+                Semantics(
+                  button: true,
+                  label: showPwd ? '隐藏密码' : '显示密码',
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => setState(() => showPwd = !showPwd),
+                    child: SizedBox(
+                      width: 40,
+                      height: 44,
+                      child: Icon(
+                        showPwd
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                        size: 20,
+                        color: C.muted,
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -471,25 +520,36 @@ class _LoginPageState extends State<LoginPage> {
           const SizedBox(height: 8),
           Align(
             alignment: Alignment.centerRight,
-            child: AppButton(
-              label: '忘记密码？',
-              kind: AppButtonKind.text,
-              size: AppButtonSize.medium,
-              expanded: false,
-              onPressed: busy ? null : () => openRoute(context, 'ForgotVerify'),
+            child: Semantics(
+              button: true,
+              label: '忘记密码',
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: busy ? null : () => openRoute(context, 'ForgotVerify'),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Text(
+                    '忘记密码？',
+                    style: ts(
+                      13,
+                      w: FontWeight.w500,
+                      color: C.primaryInk,
+                      h: 18,
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
         ],
         const SizedBox(height: 16),
         SizedBox(
           width: double.infinity,
-          child: AppButton(
-            expanded: true,
-            label: '登录',
-            onPressed: login,
-            kind: AppButtonKind.primary,
-            size: AppButtonSize.large,
+          child: PrimaryButton(
+            '登录',
+            onTap: login,
             loading: busy,
+            loadingText: '登录中…',
           ),
         ),
         const SizedBox(height: 16),
@@ -553,11 +613,20 @@ class _LoginPageState extends State<LoginPage> {
     child: Column(
       children: [
         const SizedBox(height: 16),
-        AppButton(
-          label: '还没有门店账号？免费开通',
-          kind: AppButtonKind.text,
-          size: AppButtonSize.small,
-          onPressed: () => openRoute(context, 'RegPhone'),
+        GestureDetector(
+          onTap: () => openRoute(context, 'RegPhone'),
+          child: Text.rich(
+            TextSpan(
+              style: ts(12, color: C.muted, h: 16),
+              children: [
+                const TextSpan(text: '还没有门店账号？'),
+                TextSpan(
+                  text: '免费开通',
+                  style: ts(12, w: FontWeight.w500, color: C.primaryInk),
+                ),
+              ],
+            ),
+          ),
         ),
         const SizedBox(height: 32),
       ],

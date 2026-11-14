@@ -1,4 +1,3 @@
-import '../../kit/buttons.dart';
 import 'member_picker_widgets.dart';
 import '../../routes.dart' show openRoute;
 
@@ -72,10 +71,27 @@ class _MemberPickerSheetState extends State<MemberPickerSheet> {
                           ),
                         ),
                       ),
-                      AppIconButton(
-                        svg: dk(context, Svgs.s400, Svgs.s401),
-                        semanticLabel: "返回",
-                        onPressed: () => Navigator.of(context).maybePop(),
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => Navigator.of(context).maybePop(),
+                        child: hbox(
+                          w: 36,
+                          h: 36,
+                          bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                          radius: BorderRadius.circular(18),
+                          child: hrow(
+                            [
+                              hsvg(
+                                dk(context, Svgs.s400, Svgs.s401),
+                                w: 18,
+                                h: 18,
+                              ),
+                            ],
+                            main: MainAxisAlignment.center,
+                            cross: CrossAxisAlignment.center,
+                            gap: 0,
+                          ),
+                        ),
                       ),
                     ],
                     main: MainAxisAlignment.start,
@@ -118,13 +134,38 @@ class _MemberPickerSheetState extends State<MemberPickerSheet> {
             pad: EdgeInsets.fromLTRB(20, 10, 20, 30),
             child: hcol(
               [
-                AppButton(
-                  label: '新增会员',
-                  kind: AppButtonKind.secondary,
-                  size: AppButtonSize.medium,
-                  expanded: false,
-                  svg: dk(context, Svgs.s402, Svgs.s403),
-                  onPressed: () => openRoute(context, 'MemberAdd'),
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => openRoute(context, 'MemberAdd'),
+                  child: hbox(
+                    h: 44,
+                    bg: dk(
+                      context,
+                      Color(0xFFE1F0FE),
+                      Color.fromRGBO(4, 133, 247, 0.18),
+                    ),
+                    radius: BorderRadius.circular(22),
+                    child: hrow(
+                      [
+                        hsvg(dk(context, Svgs.s402, Svgs.s403), w: 16, h: 16),
+                        Flexible(
+                          flex: 56,
+                          child: Text(
+                            '新增会员',
+                            style: hts(
+                              14,
+                              dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                              w: FontWeight.w600,
+                              lh: 20,
+                            ),
+                          ),
+                        ),
+                      ],
+                      main: MainAxisAlignment.center,
+                      cross: CrossAxisAlignment.center,
+                      gap: 6,
+                    ),
+                  ),
                 ),
               ],
               main: MainAxisAlignment.start,

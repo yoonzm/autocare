@@ -1,3 +1,4 @@
+import '../../../backend/member_flow.dart' show money2;
 import '../../../backend/package_calc.dart' show formatMoney;
 import '../member_view.dart';
 
@@ -55,4 +56,19 @@ class OwnedPackageView {
         : _exp!;
     return _d(base.add(Duration(days: extendDays)));
   }
+
+  // 退款（与云函数的算法一致：实付 − 已用次数 × 单次均价）
+  num get unit => total == 0 ? 0 : paid / total;
+  num get usedDeduct => (used * unit * 100).round() / 100;
+  num get refundable {
+    final v = ((paid - used * unit) * 100).round() / 100;
+    return v < 0 ? 0 : v;
+  }
+
+  String get refundSubtitle => '$name · 已用 $used 次，剩余 $remaining 次';
+  String get usedLine => '已用 $used 次 × 单次 ¥${formatMoney(unit.round())}';
+  String get usedDeductText => '−¥${money2(usedDeduct)}';
+  String get paidMoney => '¥${money2(paid)}';
+  String get refundableText => '¥${money2(refundable)}';
+  String get refundConfirm => '确认退款 ¥${formatMoney(refundable)}';
 }

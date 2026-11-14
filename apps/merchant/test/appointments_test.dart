@@ -656,9 +656,9 @@ void main() {
     await t.tap(find.text('客户到店'));
     await t.pump();
     expect(api.bookings.single['status'], 'waiting');
-    expect(find.byType(CircularProgressIndicator), findsWidgets);
-    expect(find.text('客户到店'), findsOneWidget);
-    await t.tap(find.text('客户到店'));
+    expect(find.byType(AppSpinner), findsWidgets);
+    expect(find.text('提交中…'), findsOneWidget);
+    await t.tap(find.text('提交中…'));
     await t.pump();
     expect(api.calls.where((c) => c['action'] == 'arrive').length, 1);
     api.writeError = const AppError('该预约已变化');
@@ -737,9 +737,9 @@ void main() {
     await t.tap(find.text('客户到店 · 开单'));
     await t.pump();
     expect(t.getSize(button), size);
-    expect(find.text('客户到店 · 开单'), findsOneWidget);
-    expect(find.byType(CircularProgressIndicator), findsWidgets);
-    await t.tap(find.text('客户到店 · 开单'));
+    expect(find.text('提交中…'), findsOneWidget);
+    expect(find.byType(AppSpinner), findsWidgets);
+    await t.tap(find.text('提交中…'));
     await t.pump();
     expect(api.calls.where((c) => c['action'] == 'arrive').length, 1);
     api.writeError = const AppError('该预约已变化');
@@ -810,11 +810,11 @@ void main() {
     await t.tap(find.text('保存设置'));
     await t.pump();
     final busyButton = find
-        .ancestor(of: find.text('保存设置'), matching: find.byType(Expanded))
+        .ancestor(of: find.text('提交中…'), matching: find.byType(Expanded))
         .last;
     expect(t.getSize(busyButton), size);
-    expect(find.text('保存设置'), findsOneWidget);
-    expect(find.byType(CircularProgressIndicator), findsWidgets);
+    expect(find.text('提交中…'), findsOneWidget);
+    expect(find.byType(AppSpinner), findsWidgets);
     expect(api.calls.where((c) => c['action'] == 'settings_save').length, 1);
     api.writeError = const AppError('保存失败');
     api.gate!.complete();
@@ -869,7 +869,7 @@ void main() {
     await t.pumpAndSettle();
     await t.tap(find.textContaining('今天 '));
     await t.pumpAndSettle();
-    await t.tap(find.text('17:30'));
+    await t.tap(find.text('17:30 原'));
     await t.pumpAndSettle();
     await t.tap(find.text('确认改期'));
     await t.pumpAndSettle();
@@ -908,9 +908,8 @@ void main() {
     await t.tap(find.textContaining('今天 '));
     await t.pumpAndSettle();
     expect(api.calls.where((c) => c['action'] == 'slots'), hasLength(1));
-    expect(find.text('17:30'), findsOneWidget);
-    expect(find.text('17:30 原'), findsNothing);
-    await t.tap(find.text('17:30'));
+    expect(find.text('17:30 原'), findsOneWidget);
+    await t.tap(find.text('17:30 原'));
     await t.pumpAndSettle();
     expect(find.text('新时间 · 17:30'), findsOneWidget);
     await t.tap(find.textContaining('明天 '));
@@ -944,7 +943,7 @@ void main() {
     await t.pumpAndSettle();
     await t.tap(find.textContaining('今天 '));
     await t.pumpAndSettle();
-    await t.tap(find.text('17:30'));
+    await t.tap(find.text('17:30 原'));
     await t.pumpAndSettle();
     final button = find.byKey(const ValueKey('reschedule-confirm-button'));
     final before = t.getSize(button);
@@ -952,17 +951,14 @@ void main() {
     await t.pump();
     expect(t.getSize(button), before);
     expect(
-      find.descendant(of: button, matching: find.text('确认改期')),
+      find.descendant(of: button, matching: find.text('提交中…')),
       findsOneWidget,
     );
     expect(
-      find.descendant(
-        of: button,
-        matching: find.byType(CircularProgressIndicator),
-      ),
+      find.descendant(of: button, matching: find.byType(AppSpinner)),
       findsOneWidget,
     );
-    expect(find.text('确认改期'), findsOneWidget);
+    expect(find.text('确认改期'), findsNothing);
     expect(find.text('取消'), findsOneWidget);
     await t.tapAt(t.getCenter(button));
     await t.pump();

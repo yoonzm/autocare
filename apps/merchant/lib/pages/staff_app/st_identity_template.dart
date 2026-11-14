@@ -1,4 +1,3 @@
-import '../../kit/buttons.dart';
 import '../../backend/data_snapshot.dart';
 
 import 'package:flutter/material.dart';
@@ -512,11 +511,21 @@ class StIdentityTemplate extends StatelessWidget {
               [
                 Flexible(
                   flex: 126,
-                  child: AppButton(
-                    label: '使用其他手机号登录',
-                    kind: AppButtonKind.text,
-                    size: AppButtonSize.medium,
-                    onPressed: () => AccessFlow.signOut(context),
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => AccessFlow.signOut(context),
+                    child: hbox(
+                      pad: EdgeInsets.fromLTRB(0, 12, 0, 12),
+                      child: Text(
+                        '使用其他手机号登录',
+                        style: hts(
+                          14,
+                          dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                          w: FontWeight.w500,
+                          lh: 22,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ],

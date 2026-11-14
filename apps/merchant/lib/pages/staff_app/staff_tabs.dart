@@ -215,7 +215,7 @@ Widget? stPageFor(
   'StArrivals' => const StArrivalsLivePage(),
   'StMember' => const StMemberLivePage(),
   'StMemberInfo' => StMemberInfoLivePage(memberId: member?.memberId),
-  // 扫车牌找会员沿用商家端真实识别流程，服务端校验「会员查询」权限。
+  // 扫车牌 / 会员码找会员沿用商家端真实识别流程，服务端校验「会员查询」权限。
   'StVerify' => ScanPage(
     ScanKind.findPlate,
     onViewMember: (context, m) => openRoute(
@@ -229,6 +229,7 @@ Widget? stPageFor(
       arguments: StMemberRouteData('${m['id']}'),
     ),
   ),
+  'StVerifyCode' => const ScanPage(ScanKind.findCode),
   'StOrder' =>
     member == null
         ? const StMemberLivePage(forOrder: true)

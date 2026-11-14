@@ -55,7 +55,7 @@ const Map<String, String> _icons = {
   'info': '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/>',
   'download': '<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
   'car2': '<path d="M3 13l2-5a2 2 0 0 1 1.9-1.4h10.2A2 2 0 0 1 19 8l2 5v5a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H6v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M3 13h18"/>',
-  // 扫描页（设计稿 ScanPlate / FindScanPlate）
+  // 扫描页（设计稿 ScanPlate / FindScanCode）
   'gallery': '<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="M4 18l5-5 4 4 3-3 4 4"/>',
   'bolt': '<path d="M13 3L5 13.5h6L10 21l8-10.5h-6z"/>',
   'pencil': '<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>',
@@ -85,16 +85,6 @@ const Map<String, double> _defaultStroke = {
 
 /// 设计稿图标。[name] 对应 `_icons` 中的键；[fill] 用于首页等选中态的实心图标。
 class AppIcon extends StatelessWidget {
-  /// 单色按钮使用同一份图标资源，颜色由 ui_kit 的按钮状态统一应用。
-  static String svg(String name) {
-    final stroke = _defaultStroke[name] ?? 1.8;
-    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" '
-        'fill="${name == 'dotsFill' ? '#000000' : 'none'}" '
-        'stroke="${name == 'dotsFill' ? 'none' : '#000000'}" '
-        'stroke-width="$stroke" stroke-linecap="round" stroke-linejoin="round">'
-        '${_icons[name] ?? ''}</svg>';
-  }
-
   final String name;
   final double size;
   final Color color;

@@ -1,4 +1,3 @@
-import '../../kit/buttons.dart';
 import 'packages/member_package_route_data.dart';
 import 'member_route_data.dart';
 
@@ -172,30 +171,24 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
                 children: [
                   Expanded(
                     flex: 10,
-                    child: AppButton(
-                      expanded: true,
-                      label: '余额充值',
-                      kind: AppButtonKind.secondary,
-                      size: AppButtonSize.large,
-                      onPressed: () {
-                        openRoute(
-                          context,
-                          'Recharge',
-                          arguments: MemberRouteData(member: member.data),
-                        );
-                      },
-                    ),
+                    child: _bottomBtn('余额充值', C.chip, C.ink, () {
+                      openRoute(
+                        context,
+                        'Recharge',
+                        arguments: MemberRouteData(member: member.data),
+                      );
+                    }),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     flex: 14,
-                    child: AppButton(
-                      expanded: true,
-                      label: '为他开单',
-                      kind: AppButtonKind.primary,
-                      size: AppButtonSize.large,
-                      onPressed: () => push(context, OrderPage(member: member)),
-                      svg: AppIcon.svg('receipt'),
+                    child: _bottomBtn(
+                      '为他开单',
+                      C.primary,
+                      Colors.white,
+                      () => push(context, OrderPage(member: member)),
+                      icon: 'receipt',
+                      bold: true,
                     ),
                   ),
                 ],
@@ -206,6 +199,42 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
       ),
     );
   }
+
+  Widget _bottomBtn(
+    String t,
+    Color bg,
+    Color fg,
+    VoidCallback onTap, {
+    String? icon,
+    bool bold = false,
+  }) => GestureDetector(
+    onTap: onTap,
+    child: Container(
+      height: 48,
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (icon != null) ...[
+            AppIcon(icon, size: 18, color: fg),
+            const SizedBox(width: 6),
+          ],
+          Text(
+            t,
+            style: ts(
+              15,
+              w: bold ? FontWeight.w600 : FontWeight.w500,
+              color: fg,
+              h: 22,
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
 
   Widget _hero() {
     Widget stat(String l, String v) => Expanded(
@@ -344,12 +373,12 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
       Expanded(
         child: Text(title, style: ts(15, w: FontWeight.w600, h: 22)),
       ),
-      AppButton(
-        label: action,
-        kind: AppButtonKind.text,
-        size: AppButtonSize.medium,
-        expanded: false,
-        onPressed: onTap,
+      GestureDetector(
+        onTap: onTap,
+        child: Text(
+          action,
+          style: ts(13, w: FontWeight.w500, color: C.primaryInk, h: 18),
+        ),
       ),
     ],
   );

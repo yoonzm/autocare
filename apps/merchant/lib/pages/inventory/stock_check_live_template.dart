@@ -1,7 +1,4 @@
-import 'package:autocare_ui_kit/autocare_ui_kit.dart'
-    show AppSegmented, SegmentItem;
-
-import '../../kit/buttons.dart';
+import '../../kit/single_selection.dart';
 import 'inventory_controller.dart';
 
 import 'package:flutter/material.dart';
@@ -27,12 +24,54 @@ class StockCheckLiveTemplate extends StatelessWidget {
               [
                 hrow(
                   [
-                    AppIconButton(
-                      svg: dk(context, Svgs.s26, Svgs.s27),
-                      semanticLabel: "返回",
-                      onPressed: c.busy
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: c.busy
                           ? null
                           : () => Navigator.of(context).maybePop(),
+                      child: hbox(
+                        w: 44,
+                        h: 44,
+                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                        radius: BorderRadius.circular(22),
+                        shadow: dk(
+                          context,
+                          [
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
+                              spreadRadius: 0,
+                            ),
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 1),
+                              blurRadius: 2,
+                              spreadRadius: 0,
+                            ),
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
+                              spreadRadius: 0,
+                            ),
+                          ],
+                          [
+                            BoxShadow(
+                              color: Color(0xFF26262B),
+                              offset: Offset(0, 0),
+                              blurRadius: 0,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                        child: hrow(
+                          [hsvg(dk(context, Svgs.s26, Svgs.s27), w: 20, h: 20)],
+                          main: MainAxisAlignment.center,
+                          cross: CrossAxisAlignment.center,
+                          gap: 0,
+                        ),
+                      ),
                     ),
                     Expanded(
                       flex: 1,
@@ -47,13 +86,66 @@ class StockCheckLiveTemplate extends StatelessWidget {
                         textAlign: TextAlign.center,
                       ),
                     ),
-                    ActionButton(
-                      actionKey: c.actionKey('draft'),
-                      label: '暂存',
-                      kind: AppButtonKind.surface,
-                      size: AppButtonSize.medium,
-                      expanded: false,
-                      onPressed: c.busy ? null : () => c.saveDraft(context),
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: c.busy ? null : () => c.saveDraft(context),
+                      child: hbox(
+                        h: 44,
+                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                        radius: BorderRadius.circular(22),
+                        shadow: dk(
+                          context,
+                          [
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
+                              spreadRadius: 0,
+                            ),
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 1),
+                              blurRadius: 2,
+                              spreadRadius: 0,
+                            ),
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
+                              spreadRadius: 0,
+                            ),
+                          ],
+                          [
+                            BoxShadow(
+                              color: Color(0xFF26262B),
+                              offset: Offset(0, 0),
+                              blurRadius: 0,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                        pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                        child: Align(
+                          alignment: Alignment(-1, 0),
+                          widthFactor: 1,
+                          child: c.busyLabel(
+                            'draft',
+                            Text(
+                              '暂存',
+                              style: hts(
+                                14,
+                                dk(
+                                  context,
+                                  Color(0xFF18181B),
+                                  Color(0xFFFAFAFA),
+                                ),
+                                w: FontWeight.w500,
+                                lh: 20,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                   main: MainAxisAlignment.start,
@@ -300,14 +392,274 @@ class StockCheckLiveTemplate extends StatelessWidget {
                     ],
                   ),
                 ),
-                AppSegmented<int>(
-                  items: [
-                    SegmentItem(value: 0, label: '全部'),
-                    SegmentItem(value: 1, label: '未盘点'),
-                    SegmentItem(value: 2, label: '有差异'),
-                  ],
-                  selected: c.filter,
-                  onChanged: c.selectFilter,
+                hbox(
+                  bg: dk(context, Color(0xFFE9E9EB), Color(0xFF1F1F23)),
+                  radius: BorderRadius.circular(20),
+                  pad: EdgeInsets.fromLTRB(4, 4, 4, 4),
+                  child: SingleSelection(
+                    index: c.filter,
+                    onChanged: c.selectFilter,
+                    builder: (context, selection) => hrow(
+                      [
+                        Expanded(
+                          flex: 1,
+                          child: UnconstrainedBox(
+                            alignment: Alignment.topLeft,
+                            constrainedAxis: Axis.horizontal,
+                            child: HSel(
+                              ctrl: selection,
+                              index: 0,
+                              segment: true,
+                              on: hbox(
+                                h: 32,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFFFFFFF),
+                                  Color(0xFF18181B),
+                                ),
+                                radius: BorderRadius.circular(16),
+                                shadow: dk(
+                                  context,
+                                  [
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.06),
+                                      offset: Offset(0, 1),
+                                      blurRadius: 2,
+                                      spreadRadius: 0,
+                                    ),
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.04),
+                                      offset: Offset(0, 2),
+                                      blurRadius: 4,
+                                      spreadRadius: 0,
+                                    ),
+                                  ],
+                                  [
+                                    BoxShadow(
+                                      color: Color(0xFF26262B),
+                                      offset: Offset(0, 0),
+                                      blurRadius: 0,
+                                      spreadRadius: 1,
+                                    ),
+                                  ],
+                                ),
+                                child: Align(
+                                  alignment: Alignment(0, 0),
+                                  widthFactor: 1,
+                                  child: Text(
+                                    '全部',
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF18181B),
+                                        Color(0xFFFAFAFA),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              off: hbox(
+                                h: 32,
+                                radius: BorderRadius.circular(16),
+                                child: Align(
+                                  alignment: Alignment(0, 0),
+                                  widthFactor: 1,
+                                  child: Text(
+                                    '全部',
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF52525B),
+                                        Color(0xFFA8A8B3),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: UnconstrainedBox(
+                            alignment: Alignment.topLeft,
+                            constrainedAxis: Axis.horizontal,
+                            child: HSel(
+                              ctrl: selection,
+                              index: 1,
+                              segment: true,
+                              on: hbox(
+                                h: 32,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFFFFFFF),
+                                  Color(0xFF18181B),
+                                ),
+                                radius: BorderRadius.circular(16),
+                                shadow: dk(
+                                  context,
+                                  [
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.06),
+                                      offset: Offset(0, 1),
+                                      blurRadius: 2,
+                                      spreadRadius: 0,
+                                    ),
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.04),
+                                      offset: Offset(0, 2),
+                                      blurRadius: 4,
+                                      spreadRadius: 0,
+                                    ),
+                                  ],
+                                  [
+                                    BoxShadow(
+                                      color: Color(0xFF26262B),
+                                      offset: Offset(0, 0),
+                                      blurRadius: 0,
+                                      spreadRadius: 1,
+                                    ),
+                                  ],
+                                ),
+                                child: Align(
+                                  alignment: Alignment(0, 0),
+                                  widthFactor: 1,
+                                  child: Text(
+                                    '未盘点',
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF18181B),
+                                        Color(0xFFFAFAFA),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              off: hbox(
+                                h: 32,
+                                radius: BorderRadius.circular(16),
+                                child: Align(
+                                  alignment: Alignment(0, 0),
+                                  widthFactor: 1,
+                                  child: Text(
+                                    '未盘点',
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF52525B),
+                                        Color(0xFFA8A8B3),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: UnconstrainedBox(
+                            alignment: Alignment.topLeft,
+                            constrainedAxis: Axis.horizontal,
+                            child: HSel(
+                              ctrl: selection,
+                              index: 2,
+                              segment: true,
+                              on: hbox(
+                                h: 32,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFFFFFFF),
+                                  Color(0xFF18181B),
+                                ),
+                                radius: BorderRadius.circular(16),
+                                shadow: dk(
+                                  context,
+                                  [
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.06),
+                                      offset: Offset(0, 1),
+                                      blurRadius: 2,
+                                      spreadRadius: 0,
+                                    ),
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.04),
+                                      offset: Offset(0, 2),
+                                      blurRadius: 4,
+                                      spreadRadius: 0,
+                                    ),
+                                  ],
+                                  [
+                                    BoxShadow(
+                                      color: Color(0xFF26262B),
+                                      offset: Offset(0, 0),
+                                      blurRadius: 0,
+                                      spreadRadius: 1,
+                                    ),
+                                  ],
+                                ),
+                                child: Align(
+                                  alignment: Alignment(0, 0),
+                                  widthFactor: 1,
+                                  child: Text(
+                                    '有差异',
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF18181B),
+                                        Color(0xFFFAFAFA),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              off: hbox(
+                                h: 32,
+                                radius: BorderRadius.circular(16),
+                                child: Align(
+                                  alignment: Alignment(0, 0),
+                                  widthFactor: 1,
+                                  child: Text(
+                                    '有差异',
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF52525B),
+                                        Color(0xFFA8A8B3),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                      main: MainAxisAlignment.start,
+                      cross: CrossAxisAlignment.stretch,
+                      gap: 2,
+                      intrinsic: true,
+                    ),
+                  ),
                 ),
                 hbox(
                   bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
@@ -417,13 +769,30 @@ class StockCheckLiveTemplate extends StatelessWidget {
               [
                 Expanded(
                   flex: 1,
-                  child: ActionButton(
-                    actionKey: c.actionKey('submit'),
-                    label: c.submitCountLabel,
-                    kind: AppButtonKind.primary,
-                    size: AppButtonSize.large,
-                    expanded: true,
-                    onPressed: c.busy ? null : () => c.submit(context),
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: c.busy ? null : () => c.submit(context),
+                    child: hbox(
+                      h: 50,
+                      bg: Color(0xFF0485F7),
+                      radius: BorderRadius.circular(25),
+                      child: Align(
+                        alignment: Alignment(0, 0),
+                        widthFactor: 1,
+                        child: c.busyLabel(
+                          'submit',
+                          Text(
+                            c.submitCountLabel,
+                            style: hts(
+                              15,
+                              Color(0xFFFFFFFF),
+                              w: FontWeight.w600,
+                              lh: 22,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ],

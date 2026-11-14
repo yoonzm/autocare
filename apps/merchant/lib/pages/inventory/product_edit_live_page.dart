@@ -1,4 +1,3 @@
-import '../../kit/buttons.dart';
 import '../../routes.dart' show openRoute;
 
 import 'package:flutter/material.dart';
@@ -8,10 +7,7 @@ import '../../kit/async_kit.dart';
 import '../../kit/kit.dart';
 import '../../kit/page_header.dart';
 import '../../theme.dart';
-
-import 'package:autocare_ui_kit/autocare_ui_kit.dart'
-    show AppChoiceGroup, ChoiceItem, ChipKind;
-
+import '../../widgets/choice_chip_group.dart';
 import 'inventory_controller.dart';
 import '../../resources/merchant_svgs.dart';
 import 'inventory_pickers.dart';
@@ -256,10 +252,10 @@ class _ProductEditState extends State<ProductEditLivePage> {
     String? selected,
     ValueChanged<String> onChanged,
     String semantic,
-  ) => AppChoiceGroup<String>(
+  ) => ChoiceChipGroup<String>(
     items: [
       for (final v in items)
-        ChoiceItem(
+        ChoiceChipItem(
           value: v,
           label: semantic == '分类'
               ? (_categoryToBackend.entries
@@ -277,6 +273,7 @@ class _ProductEditState extends State<ProductEditLivePage> {
       _touch();
     },
     kind: ChipKind.pill,
+    runSpacing: 8,
     semanticLabel: semantic,
   );
 
@@ -465,15 +462,9 @@ class _ProductEditState extends State<ProductEditLivePage> {
                     ]),
                     if (editing) ...[
                       const SizedBox(height: 16),
-                      ActionButton(
-                        actionKey: 'inventory-product-state',
-                        label: p['active'] == false ? '启用此商品' : '停用此商品',
-                        kind: p['active'] == false
-                            ? AppButtonKind.primary
-                            : AppButtonKind.danger,
-                        size: AppButtonSize.large,
-                        expanded: true,
-                        onPressed: busy
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: busy
                             ? null
                             : () => runBusy(
                                 'inventory-product-state',
@@ -498,6 +489,26 @@ class _ProductEditState extends State<ProductEditLivePage> {
                                   }
                                 },
                               ),
+                        child: Container(
+                          height: 50,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: C.redSoft,
+                            borderRadius: BorderRadius.circular(25),
+                          ),
+                          child: hBusy(
+                            'inventory-product-state',
+                            Text(
+                              p['active'] == false ? '启用此商品' : '停用此商品',
+                              style: ts(
+                                15,
+                                w: FontWeight.w500,
+                                color: C.redInk,
+                                h: 22,
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(2, 10, 2, 0),
@@ -521,24 +532,22 @@ class _ProductEditState extends State<ProductEditLivePage> {
                 children: [
                   if (editing) ...[
                     Expanded(
-                      child: RequestButton(
+                      child: LoadingButton(
                         label: '取消',
+                        style: LoadingButtonStyle.secondary,
                         onPressed: busy
                             ? null
                             : () async => Navigator.of(context).maybePop(),
-                        kind: AppButtonKind.secondary,
-                        size: AppButtonSize.large,
                       ),
                     ),
                     const SizedBox(width: 10),
                   ],
                   Expanded(
                     flex: editing ? 2 : 1,
-                    child: RequestButton(
+                    child: LoadingButton(
                       label: editing ? '保存修改' : '保存',
+                      loadingLabel: '提交中…',
                       onPressed: _save,
-                      kind: AppButtonKind.primary,
-                      size: AppButtonSize.large,
                     ),
                   ),
                 ],

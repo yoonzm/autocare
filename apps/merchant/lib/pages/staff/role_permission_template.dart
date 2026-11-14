@@ -1,8 +1,3 @@
-import 'package:autocare_ui_kit/autocare_ui_kit.dart'
-    show AppSegmented, SegmentItem;
-
-import '../../kit/buttons.dart';
-
 import 'package:flutter/material.dart';
 
 import '../../backend/merchant_api.dart';
@@ -95,10 +90,52 @@ class _RolePermissionTemplateState extends State<RolePermissionTemplate> {
                 [
                   hrow(
                     [
-                      AppIconButton(
-                        svg: dk(context, Svgs.s0, Svgs.s1),
-                        semanticLabel: "返回",
-                        onPressed: () => Navigator.of(context).maybePop(),
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => Navigator.of(context).maybePop(),
+                        child: hbox(
+                          w: 44,
+                          h: 44,
+                          bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                          radius: BorderRadius.circular(22),
+                          shadow: dk(
+                            context,
+                            [
+                              BoxShadow(
+                                color: Color.fromRGBO(0, 0, 0, 0.06),
+                                offset: Offset(0, 0),
+                                blurRadius: 1,
+                                spreadRadius: 0,
+                              ),
+                              BoxShadow(
+                                color: Color.fromRGBO(0, 0, 0, 0.06),
+                                offset: Offset(0, 1),
+                                blurRadius: 2,
+                                spreadRadius: 0,
+                              ),
+                              BoxShadow(
+                                color: Color.fromRGBO(0, 0, 0, 0.04),
+                                offset: Offset(0, 2),
+                                blurRadius: 4,
+                                spreadRadius: 0,
+                              ),
+                            ],
+                            [
+                              BoxShadow(
+                                color: Color(0xFF26262B),
+                                offset: Offset(0, 0),
+                                blurRadius: 0,
+                                spreadRadius: 1,
+                              ),
+                            ],
+                          ),
+                          child: hrow(
+                            [hsvg(dk(context, Svgs.s0, Svgs.s1), w: 20, h: 20)],
+                            main: MainAxisAlignment.center,
+                            cross: CrossAxisAlignment.center,
+                            gap: 0,
+                          ),
+                        ),
                       ),
                       Expanded(
                         flex: 1,
@@ -113,16 +150,40 @@ class _RolePermissionTemplateState extends State<RolePermissionTemplate> {
                           textAlign: TextAlign.center,
                         ),
                       ),
-                      ActionButton(
-                        actionKey:
-                            'RolePermission>Staff-${identityHashCode(context)}',
-                        label: '保存',
-                        kind: AppButtonKind.primary,
-                        size: AppButtonSize.medium,
-                        expanded: false,
-                        onPressed: () => runBusy(
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => runBusy(
                           'RolePermission>Staff-${identityHashCode(context)}',
                           save,
+                        ),
+                        child: hbox(
+                          h: 44,
+                          bg: Color(0xFF0485F7),
+                          radius: BorderRadius.circular(22),
+                          pad: EdgeInsets.fromLTRB(18, 0, 18, 0),
+                          child: Align(
+                            alignment: Alignment(-1, 0),
+                            widthFactor: 1,
+                            child: hBusy(
+                              'RolePermission>Staff-${identityHashCode(context)}',
+                              Text(
+                                '保存',
+                                style: hts(
+                                  14,
+                                  Color(0xFFFFFFFF),
+                                  w: FontWeight.w600,
+                                  lh: 20,
+                                ),
+                              ),
+                              style: hts(
+                                14,
+                                Color(0xFFFFFFFF),
+                                w: FontWeight.w600,
+                                lh: 20,
+                              ),
+                              label: '提交中…',
+                            ),
+                          ),
                         ),
                       ),
                     ],
@@ -130,14 +191,302 @@ class _RolePermissionTemplateState extends State<RolePermissionTemplate> {
                     cross: CrossAxisAlignment.center,
                     gap: 8,
                   ),
-                  AppSegmented<String>(
-                    items: const [
-                      SegmentItem(value: 'manager', label: '店长'),
-                      SegmentItem(value: 'cashier', label: '前台收银'),
-                      SegmentItem(value: 'technician', label: '施工技师'),
-                    ],
-                    selected: role,
-                    onChanged: (v) => setState(() => role = v),
+                  hbox(
+                    bg: dk(context, Color(0xFFE9E9EB), Color(0xFF1F1F23)),
+                    radius: BorderRadius.circular(20),
+                    pad: EdgeInsets.fromLTRB(4, 4, 4, 4),
+                    child: Builder(
+                      builder: (context) => hrow(
+                        [
+                          Expanded(
+                            flex: 1,
+                            child: UnconstrainedBox(
+                              alignment: Alignment.topLeft,
+                              constrainedAxis: Axis.horizontal,
+                              child: GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () => setState(() => role = roles[0]),
+                                child: role == roles[0]
+                                    ? hbox(
+                                        h: 34,
+                                        bg: dk(
+                                          context,
+                                          Color(0xFFFFFFFF),
+                                          Color(0xFF18181B),
+                                        ),
+                                        radius: BorderRadius.circular(17),
+                                        shadow: dk(
+                                          context,
+                                          [
+                                            BoxShadow(
+                                              color: Color.fromRGBO(
+                                                0,
+                                                0,
+                                                0,
+                                                0.06,
+                                              ),
+                                              offset: Offset(0, 1),
+                                              blurRadius: 2,
+                                              spreadRadius: 0,
+                                            ),
+                                            BoxShadow(
+                                              color: Color.fromRGBO(
+                                                0,
+                                                0,
+                                                0,
+                                                0.04,
+                                              ),
+                                              offset: Offset(0, 2),
+                                              blurRadius: 4,
+                                              spreadRadius: 0,
+                                            ),
+                                          ],
+                                          [
+                                            BoxShadow(
+                                              color: Color(0xFF26262B),
+                                              offset: Offset(0, 0),
+                                              blurRadius: 0,
+                                              spreadRadius: 1,
+                                            ),
+                                          ],
+                                        ),
+                                        child: Align(
+                                          alignment: Alignment.center,
+                                          widthFactor: 1,
+                                          child: Text(
+                                            '店长',
+                                            style: hts(
+                                              14,
+                                              dk(
+                                                context,
+                                                Color(0xFF18181B),
+                                                Color(0xFFFAFAFA),
+                                              ),
+                                              w: FontWeight.w500,
+                                              lh: 20,
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                    : hbox(
+                                        h: 34,
+                                        radius: BorderRadius.circular(17),
+                                        child: Align(
+                                          alignment: Alignment.center,
+                                          widthFactor: 1,
+                                          child: Text(
+                                            '店长',
+                                            style: hts(
+                                              14,
+                                              dk(
+                                                context,
+                                                Color(0xFF52525B),
+                                                Color(0xFFA8A8B3),
+                                              ),
+                                              w: FontWeight.w500,
+                                              lh: 20,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: UnconstrainedBox(
+                              alignment: Alignment.topLeft,
+                              constrainedAxis: Axis.horizontal,
+                              child: GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () => setState(() => role = roles[1]),
+                                child: role == roles[1]
+                                    ? hbox(
+                                        h: 34,
+                                        bg: dk(
+                                          context,
+                                          Color(0xFFFFFFFF),
+                                          Color(0xFF18181B),
+                                        ),
+                                        radius: BorderRadius.circular(17),
+                                        shadow: dk(
+                                          context,
+                                          [
+                                            BoxShadow(
+                                              color: Color.fromRGBO(
+                                                0,
+                                                0,
+                                                0,
+                                                0.06,
+                                              ),
+                                              offset: Offset(0, 1),
+                                              blurRadius: 2,
+                                              spreadRadius: 0,
+                                            ),
+                                            BoxShadow(
+                                              color: Color.fromRGBO(
+                                                0,
+                                                0,
+                                                0,
+                                                0.04,
+                                              ),
+                                              offset: Offset(0, 2),
+                                              blurRadius: 4,
+                                              spreadRadius: 0,
+                                            ),
+                                          ],
+                                          [
+                                            BoxShadow(
+                                              color: Color(0xFF26262B),
+                                              offset: Offset(0, 0),
+                                              blurRadius: 0,
+                                              spreadRadius: 1,
+                                            ),
+                                          ],
+                                        ),
+                                        child: Align(
+                                          alignment: Alignment.center,
+                                          widthFactor: 1,
+                                          child: Text(
+                                            '前台收银',
+                                            style: hts(
+                                              14,
+                                              dk(
+                                                context,
+                                                Color(0xFF18181B),
+                                                Color(0xFFFAFAFA),
+                                              ),
+                                              w: FontWeight.w500,
+                                              lh: 20,
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                    : hbox(
+                                        h: 34,
+                                        radius: BorderRadius.circular(17),
+                                        child: Align(
+                                          alignment: Alignment.center,
+                                          widthFactor: 1,
+                                          child: Text(
+                                            '前台收银',
+                                            style: hts(
+                                              14,
+                                              dk(
+                                                context,
+                                                Color(0xFF52525B),
+                                                Color(0xFFA8A8B3),
+                                              ),
+                                              w: FontWeight.w500,
+                                              lh: 20,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: UnconstrainedBox(
+                              alignment: Alignment.topLeft,
+                              constrainedAxis: Axis.horizontal,
+                              child: GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () => setState(() => role = roles[2]),
+                                child: role == roles[2]
+                                    ? hbox(
+                                        h: 34,
+                                        bg: dk(
+                                          context,
+                                          Color(0xFFFFFFFF),
+                                          Color(0xFF18181B),
+                                        ),
+                                        radius: BorderRadius.circular(17),
+                                        shadow: dk(
+                                          context,
+                                          [
+                                            BoxShadow(
+                                              color: Color.fromRGBO(
+                                                0,
+                                                0,
+                                                0,
+                                                0.06,
+                                              ),
+                                              offset: Offset(0, 1),
+                                              blurRadius: 2,
+                                              spreadRadius: 0,
+                                            ),
+                                            BoxShadow(
+                                              color: Color.fromRGBO(
+                                                0,
+                                                0,
+                                                0,
+                                                0.04,
+                                              ),
+                                              offset: Offset(0, 2),
+                                              blurRadius: 4,
+                                              spreadRadius: 0,
+                                            ),
+                                          ],
+                                          [
+                                            BoxShadow(
+                                              color: Color(0xFF26262B),
+                                              offset: Offset(0, 0),
+                                              blurRadius: 0,
+                                              spreadRadius: 1,
+                                            ),
+                                          ],
+                                        ),
+                                        child: Align(
+                                          alignment: Alignment.center,
+                                          widthFactor: 1,
+                                          child: Text(
+                                            '施工技师',
+                                            style: hts(
+                                              14,
+                                              dk(
+                                                context,
+                                                Color(0xFF18181B),
+                                                Color(0xFFFAFAFA),
+                                              ),
+                                              w: FontWeight.w500,
+                                              lh: 20,
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                    : hbox(
+                                        h: 34,
+                                        radius: BorderRadius.circular(17),
+                                        child: Align(
+                                          alignment: Alignment.center,
+                                          widthFactor: 1,
+                                          child: Text(
+                                            '施工技师',
+                                            style: hts(
+                                              14,
+                                              dk(
+                                                context,
+                                                Color(0xFF52525B),
+                                                Color(0xFFA8A8B3),
+                                              ),
+                                              w: FontWeight.w500,
+                                              lh: 20,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                              ),
+                            ),
+                          ),
+                        ],
+                        main: MainAxisAlignment.start,
+                        cross: CrossAxisAlignment.stretch,
+                        gap: 2,
+                        intrinsic: true,
+                      ),
+                    ),
                   ),
                   hbox(
                     bg: dk(

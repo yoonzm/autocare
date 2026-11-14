@@ -1,7 +1,4 @@
-import 'package:autocare_ui_kit/autocare_ui_kit.dart'
-    show AppChoiceGroup, ChoiceItem;
-
-import '../../kit/buttons.dart';
+import '../../kit/single_selection.dart';
 import 'inventory_controller.dart';
 
 import 'package:flutter/material.dart';
@@ -27,12 +24,54 @@ class StockOutLiveTemplate extends StatelessWidget {
               [
                 hrow(
                   [
-                    AppIconButton(
-                      svg: dk(context, Svgs.s26, Svgs.s27),
-                      semanticLabel: "返回",
-                      onPressed: c.busy
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: c.busy
                           ? null
                           : () => Navigator.of(context).maybePop(),
+                      child: hbox(
+                        w: 44,
+                        h: 44,
+                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                        radius: BorderRadius.circular(22),
+                        shadow: dk(
+                          context,
+                          [
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
+                              spreadRadius: 0,
+                            ),
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 1),
+                              blurRadius: 2,
+                              spreadRadius: 0,
+                            ),
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
+                              spreadRadius: 0,
+                            ),
+                          ],
+                          [
+                            BoxShadow(
+                              color: Color(0xFF26262B),
+                              offset: Offset(0, 0),
+                              blurRadius: 0,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                        child: hrow(
+                          [hsvg(dk(context, Svgs.s26, Svgs.s27), w: 20, h: 20)],
+                          main: MainAxisAlignment.center,
+                          cross: CrossAxisAlignment.center,
+                          gap: 0,
+                        ),
+                      ),
                     ),
                     Expanded(
                       flex: 1,
@@ -99,17 +138,206 @@ class StockOutLiveTemplate extends StatelessWidget {
                           lh: 20,
                         ),
                       ),
-                      AppChoiceGroup<String>(
-                        items: [
-                          for (final reason in InventoryController.outReasons)
-                            ChoiceItem(
-                              value: reason,
-                              label: reason,
-                              enabled: !c.busy,
+                      SingleSelection(
+                        index: c.reasonIndex,
+                        onChanged: c.selectReason,
+                        builder: (context, selection) => hwrap(
+                          [
+                            HSel(
+                              ctrl: selection,
+                              index: 0,
+                              on: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFE1F0FE),
+                                  Color.fromRGBO(4, 133, 247, 0.18),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                border: Border.all(
+                                  color: Color(0xFF0485F7),
+                                  width: 1.5,
+                                ),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    '施工领用',
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF1E63AE),
+                                        Color(0xFF6AB4FA),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              off: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFF4F4F5),
+                                  Color(0xFF27272A),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    '施工领用',
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF3F3F46),
+                                        Color(0xFFD4D4D8),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ),
-                        ],
-                        selected: '${c.payload['reason']}',
-                        onChanged: c.setOutReason,
+                            GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: c.busy
+                                  ? null
+                                  : () => c.setOutReason('损耗报废'),
+                              child: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFF4F4F5),
+                                  Color(0xFF27272A),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment(-1, 0),
+                                  widthFactor: 1,
+                                  child: Text(
+                                    '损耗报废',
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF3F3F46),
+                                        Color(0xFFD4D4D8),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: c.busy
+                                  ? null
+                                  : () => c.setOutReason('退回供应商'),
+                              child: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFF4F4F5),
+                                  Color(0xFF27272A),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment(-1, 0),
+                                  widthFactor: 1,
+                                  child: Text(
+                                    '退回供应商',
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF3F3F46),
+                                        Color(0xFFD4D4D8),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            HSel(
+                              ctrl: selection,
+                              index: 1,
+                              on: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFE1F0FE),
+                                  Color.fromRGBO(4, 133, 247, 0.18),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                border: Border.all(
+                                  color: Color(0xFF0485F7),
+                                  width: 1.5,
+                                ),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    '内部使用',
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF1E63AE),
+                                        Color(0xFF6AB4FA),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              off: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFF4F4F5),
+                                  Color(0xFF27272A),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    '内部使用',
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF3F3F46),
+                                        Color(0xFFD4D4D8),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                          gap: 8,
+                          rowGap: 8,
+                          cross: WrapCrossAlignment.start,
+                        ),
                       ),
                     ],
                     main: MainAxisAlignment.start,
@@ -597,25 +825,57 @@ class StockOutLiveTemplate extends StatelessWidget {
               [
                 Expanded(
                   flex: 1,
-                  child: AppButton(
-                    label: '取消',
-                    kind: AppButtonKind.secondary,
-                    size: AppButtonSize.large,
-                    expanded: true,
-                    onPressed: c.busy
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: c.busy
                         ? null
                         : () => Navigator.of(context).maybePop(),
+                    child: hbox(
+                      h: 50,
+                      bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
+                      radius: BorderRadius.circular(25),
+                      child: Align(
+                        alignment: Alignment(0, 0),
+                        widthFactor: 1,
+                        child: Text(
+                          '取消',
+                          style: hts(
+                            15,
+                            dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                            w: FontWeight.w500,
+                            lh: 22,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
                 Expanded(
                   flex: 2,
-                  child: ActionButton(
-                    actionKey: c.actionKey('submit'),
-                    label: '确认出库',
-                    kind: AppButtonKind.primary,
-                    size: AppButtonSize.large,
-                    expanded: true,
-                    onPressed: c.busy ? null : () => c.submit(context),
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: c.busy ? null : () => c.submit(context),
+                    child: hbox(
+                      h: 50,
+                      bg: Color(0xFF0485F7),
+                      radius: BorderRadius.circular(25),
+                      child: Align(
+                        alignment: Alignment(0, 0),
+                        widthFactor: 1,
+                        child: c.busyLabel(
+                          'submit',
+                          Text(
+                            '确认出库',
+                            style: hts(
+                              15,
+                              Color(0xFFFFFFFF),
+                              w: FontWeight.w600,
+                              lh: 22,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ],

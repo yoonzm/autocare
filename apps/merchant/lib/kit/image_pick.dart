@@ -1,4 +1,3 @@
-import 'buttons.dart';
 // 图片选择返回路径，预览与保存由页面显式处理。
 import 'kit.dart';
 
@@ -117,12 +116,20 @@ class _SourceSheet extends StatelessWidget {
             ImageSource.gallery,
           ),
           const SizedBox(height: 10),
-          AppButton(
-            label: '取消',
-            kind: AppButtonKind.secondary,
-            size: AppButtonSize.large,
-            expanded: true,
-            onPressed: () => Navigator.pop(context),
+          GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Container(
+              height: 50,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: C.chip,
+                borderRadius: BorderRadius.circular(25),
+              ),
+              child: Text(
+                '取消',
+                style: ts(15, w: FontWeight.w500, color: C.ink),
+              ),
+            ),
           ),
         ],
       ),
@@ -187,10 +194,21 @@ class ImageSlot extends StatelessWidget {
                   Positioned(
                     top: 6,
                     right: 6,
-                    child: AppIconButton(
-                      icon: Icons.close,
-                      semanticLabel: '移除图片',
-                      onPressed: onClear,
+                    child: GestureDetector(
+                      onTap: onClear,
+                      child: Container(
+                        width: 22,
+                        height: 22,
+                        decoration: const BoxDecoration(
+                          color: Color(0x99000000),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.close,
+                          size: 14,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
                   ),
                 ],

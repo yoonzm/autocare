@@ -1,5 +1,3 @@
-import '../../kit/buttons.dart';
-
 import 'package:flutter/material.dart';
 
 import '../../backend/access_flow.dart';
@@ -500,20 +498,51 @@ class StAuthTemplate extends StatelessWidget {
             pad: EdgeInsets.fromLTRB(20, 12, 20, bottomInset(context)),
             child: hcol(
               [
-                ActionButton(
-                  actionKey: actionKey,
-                  label: '确认加入并进入工作台',
-                  kind: AppButtonKind.primary,
-                  size: AppButtonSize.large,
-                  expanded: true,
-                  onPressed: onJoin,
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: onJoin,
+                  child: hbox(
+                    h: 50,
+                    bg: Color(0xFF0485F7),
+                    radius: BorderRadius.circular(25),
+                    child: Align(
+                      alignment: Alignment(0, 0),
+                      widthFactor: 1,
+                      child: hBusy(
+                        actionKey,
+                        Text(
+                          '确认加入并进入工作台',
+                          style: hts(
+                            15,
+                            Color(0xFFFFFFFF),
+                            w: FontWeight.w600,
+                            lh: 22,
+                          ),
+                        ),
+                        style: hts(
+                          15,
+                          Color(0xFFFFFFFF),
+                          w: FontWeight.w600,
+                          lh: 22,
+                        ),
+                        label: '提交中…',
+                      ),
+                    ),
+                  ),
                 ),
-                AppButton(
-                  label: '不是我，换个账号',
-                  kind: AppButtonKind.text,
-                  size: AppButtonSize.medium,
-                  expanded: false,
-                  onPressed: () => AccessFlow.signOut(context),
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => AccessFlow.signOut(context),
+                  child: Text(
+                    '不是我，换个账号',
+                    style: hts(
+                      13,
+                      dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                      w: FontWeight.w500,
+                      lh: 20,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ],
               main: MainAxisAlignment.start,

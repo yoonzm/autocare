@@ -16,9 +16,9 @@ class PreviewSection {
 
 /// 设计稿「组件库」各画板对应的预览分区。
 final List<PreviewSection> previewSections = [
-  PreviewSection('overview', '总览与分层', '5 层 · 27 个组件', Icons.layers_outlined, _overview),
+  PreviewSection('overview', '总览与分层', '5 层 · 26 个组件', Icons.layers_outlined, _overview),
   PreviewSection('tokens', '令牌', '颜色 · 字号 · 圆角 · 阴影', Icons.palette_outlined, _tokens),
-  PreviewSection('buttons', '按钮', 'AppButton · AppIconButton · AppSmsCodeButton', Icons.smart_button_outlined, _buttons),
+  PreviewSection('buttons', '按钮', 'AppButton · AppIconButton', Icons.smart_button_outlined, _buttons),
   PreviewSection('choice', '选择类', '标签 · 分段 · 开关 · 加减', Icons.toggle_on_outlined, _choice),
   PreviewSection('input', '输入类', '行内输入 · 金额 · 搜索', Icons.edit_note_outlined, _input),
   PreviewSection('display', '展示类', '卡片 · 列表行 · 标签 · 头像', Icons.view_agenda_outlined, _display),
@@ -65,7 +65,6 @@ List<Widget> _overview(BuildContext context) {
   );
   const names = [
     ('AppButton', '按钮'), ('AppIconButton', '圆形图标按钮'), ('AppChoiceChip', '选择标签'),
-    ('AppSmsCodeButton', '短信验证码按钮'),
     ('AppSegmented', '分段控件'), ('AppSwitch', '开关'), ('AppStepper', '数量加减'),
     ('AppCheck / AppRadio', '多选 / 单选'), ('AppAddToggle', '加入 / 已选'), ('AppFormRow 等', '输入框'),
     ('AppSelectField', '选择行'), ('AppSearchBar', '搜索框'), ('AppCard', '卡片'),
@@ -94,8 +93,8 @@ List<Widget> _overview(BuildContext context) {
       ],
     ),
     Demo(
-      title: '组件一览（共 27 个）',
-      tag: '27 个',
+      title: '组件一览（共 26 个）',
+      tag: '26 个',
       notes: const [
         '空 / 加载 / 错误等状态组件在「前端加载与反馈规范」里定义，由 async_kit 实现，组件库只引用。',
       ],
@@ -271,20 +270,6 @@ List<Widget> _tokens(BuildContext context) {
 // ───────────────────────── 按钮 ─────────────────────────
 List<Widget> _buttons(BuildContext context) => [
   Demo(
-    title: '短信验证码',
-    tag: 'AppSmsCodeButton',
-    notes: const ['宽 132、视觉高 36、热区高 44；仅展示状态与回调，发送请求和倒计时由应用持有。'],
-    children: [
-      Wrap(spacing: AppSpacing.s10, runSpacing: AppSpacing.s10, children: [
-        AppSmsCodeButton(onPressed: () {}),
-        AppSmsCodeButton(sending: true, onPressed: () {}),
-        AppSmsCodeButton(seconds: 60, sent: true, onPressed: () {}),
-        AppSmsCodeButton(sent: true, onPressed: () {}),
-        const AppSmsCodeButton(),
-      ]),
-    ],
-  ),
-  Demo(
     title: '按钮',
     tag: 'AppButton',
     notes: const [
@@ -307,7 +292,6 @@ List<Widget> _buttons(BuildContext context) => [
       const GroupLabel('状态'),
       Wrap(spacing: AppSpacing.s10, runSpacing: AppSpacing.s10, children: [
         StateLabel('默认', AppButton(label: '确认收款', onPressed: () {})),
-        StateLabel('SVG 图标', AppButton(label: '新增', svg: _buttonSvg, onPressed: () {})),
         const StateLabel('加载中', AppButton(label: '提交中', loading: true, onPressed: _noop)),
         const StateLabel('禁用', AppButton(label: '确认收款')),
       ]),
@@ -325,8 +309,6 @@ List<Widget> _buttons(BuildContext context) => [
     notes: const [
       '页面头部的返回、关闭、右上角入口用它：白底 + 卡片阴影，44 × 44；「添加」这类入口用 kind: primary（主色实心）。',
       '带文字的入口（如「挂单 4」）是胶囊形，高度同样 44。右上角入口不放保存、提交这类主要操作，主要操作放在底栏。',
-      'loading 时隐藏图标、文字和数量，原位显示 20px 转圈并禁用点击，圆形与胶囊宽高保持不变；主色按钮用白色转圈，其余使用主色。',
-      'icon 接收 IconData；svg 接收现有单色 SVG 源码，darkSvg 可选；二者互斥，图标颜色跟随按钮状态。',
     ],
     code: "AppIconButton(icon: Icons.chevron_left_rounded, semanticLabel: '返回', onPressed: pop)\nAppIconButton.pill(label: '挂单', badge: 4, onPressed: openHold)",
     children: [
@@ -335,18 +317,10 @@ List<Widget> _buttons(BuildContext context) => [
         AppIconButton.pill(label: '挂单', badge: 4, onPressed: () {}),
         AppIconButton(icon: Icons.search_rounded, semanticLabel: '搜索', size: AppIconButtonSize.small, onPressed: () {}),
         AppIconButton(icon: Icons.add_rounded, semanticLabel: '添加', kind: AppIconButtonKind.primary, onPressed: () {}),
-        AppIconButton(svg: _buttonSvg, semanticLabel: 'SVG 添加', onPressed: () {}),
-        const AppIconButton(svg: _buttonSvg, semanticLabel: 'SVG 禁用'),
-        const AppIconButton(icon: Icons.add_rounded, semanticLabel: '加载中', loading: true, onPressed: _noop),
-        const AppIconButton(icon: Icons.add_rounded, semanticLabel: '主色加载中', kind: AppIconButtonKind.primary, loading: true, onPressed: _noop),
-        const AppIconButton(icon: Icons.search_rounded, semanticLabel: '小号加载中', size: AppIconButtonSize.small, loading: true, onPressed: _noop),
-        const AppIconButton.pill(label: '挂单', badge: 4, svg: _buttonSvg, loading: true, onPressed: _noop),
       ]),
     ],
   ),
 ];
-
-const _buttonSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
 
 void _noop() {}
 
@@ -357,7 +331,7 @@ List<Widget> _choice(BuildContext context) => [
     tag: 'AppChoiceChip / AppChoiceGroup',
     notes: const [
       '选中 = 浅蓝底 + 1.5px 内描边蓝 + 蓝字，三者同时出现；未选中也预留同样空间，切换时不抖动。',
-      '单选由 selected 控制，多选由 selectedValues 控制；支持自动换行、横向滚动和指定列数等宽。筛选、分类、客户来源、技师、支付方式复用这一组件。',
+      '选中状态只来自一个受控变量 selected；同组最多一个。筛选、分类、客户来源、技师、支付方式都用这一个组件。',
     ],
     code: "AppChoiceGroup<int>(\n  items: [ChoiceItem(value: 1, label: '洗车'), ...],\n  selected: state.category,\n  onChanged: vm.setCategory,\n  kind: ChipKind.pill,   // tile | avatar | option\n)",
     children: [
@@ -407,32 +381,6 @@ List<Widget> _choice(BuildContext context) => [
     ],
   ),
   Demo(
-    title: '选择组：多选与排列',
-    tag: 'AppChoiceGroup.multiple / layout / columns',
-    notes: const ['多选可再次点击取消；禁用项不可选。横向滚动适合动态分类，三列等宽适合预约时段。'],
-    code: 'AppChoiceGroup.multiple(items: items, selectedValues: values, onChanged: setValues)',
-    children: [
-      const GroupLabel('多选 · 自动换行'),
-      _Stateful<Set<String>>({'洗车'}, (values, set) => AppChoiceGroup<String>.multiple(
-        semanticLabel: '服务技能',
-        items: const [ChoiceItem(value:'洗车',label:'洗车'),ChoiceItem(value:'抛光',label:'抛光'),ChoiceItem(value:'贴膜',label:'贴膜'),ChoiceItem(value:'禁用',label:'已停用',enabled:false)],
-        selectedValues: values, onChanged: set,
-      )),
-      const GroupLabel('单行横向滚动'),
-      _Stateful<int>(0, (value, set) => AppChoiceGroup<int>(
-        layout: AppChoiceLayout.horizontal,
-        items: [for(var i=0;i<8;i++) ChoiceItem(value:i,label:'会员分类 $i')],
-        selected:value,onChanged:set,
-      )),
-      const GroupLabel('预约时段 · 三列等宽'),
-      _Stateful<String>('09:00', (value, set) => AppChoiceGroup<String>(
-        kind:ChipKind.tile,columns:3,
-        items:const [ChoiceItem(value:'09:00',label:'09:00'),ChoiceItem(value:'09:30',label:'09:30',enabled:false),ChoiceItem(value:'10:00',label:'10:00'),ChoiceItem(value:'10:30',label:'10:30')],
-        selected:value,onChanged:set,
-      )),
-    ],
-  ),
-  Demo(
     title: '开关与选择框',
     tag: 'AppSwitch / AppCheck / AppRadio',
     notes: const [
@@ -459,7 +407,7 @@ List<Widget> _choice(BuildContext context) => [
   Demo(
     title: '分段控件',
     tag: 'AppSegmented',
-    notes: const ['用于「切换整页内容」，选中是白色滑块；不用黑色，也不和选择标签混用。2~5 项，超过 5 项改用选择标签或下拉。'],
+    notes: const ['用于「切换整页内容」，选中是白色滑块；不用黑色，也不和选择标签混用。2~4 项，超过 4 项改用选择标签或下拉。'],
     code: "AppSegmented<int>(items: [...], selected: tab, onChanged: setTab)",
     children: [
       _Stateful<int>(0, (v, set) => AppSegmented<int>(
@@ -470,20 +418,6 @@ List<Widget> _choice(BuildContext context) => [
         ],
         selected: v,
         onChanged: set,
-      )),
-      _Stateful<int>(0, (v, set) => AppSegmented<int>(
-        layout: AppSegmentedLayout.compact,
-        items: const [SegmentItem(value: 0, label: '先生'), SegmentItem(value: 1, label: '女士')],
-        selected: v, onChanged: set,
-      )),
-      _Stateful<int>(0, (v, set) => AppSegmented<int>(
-        items: const [SegmentItem(value: 0, label: '全部', count: 12), SegmentItem(value: 1, label: '待处理', count: 0), SegmentItem(value: 2, label: '停用', enabled: false)],
-        selected: v, onChanged: set,
-      )),
-      AppSegmented<int>(enabled: false, items: const [SegmentItem(value: 0, label: '处理中'), SegmentItem(value: 1, label: '已完成')], selected: 0, onChanged: (_) {}),
-      _Stateful<int>(0, (v, set) => AppSegmented<int>(
-        items: [for (final (i, label) in ['今日', '昨日', '本周', '本月', '自定义'].indexed) SegmentItem(value: i, label: label)],
-        selected: v, onChanged: set,
       )),
     ],
   ),

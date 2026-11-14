@@ -1,7 +1,3 @@
-import 'package:autocare_ui_kit/autocare_ui_kit.dart'
-    show AppChoiceGroup, ChoiceItem, AppChoiceLayout;
-
-import '../../kit/buttons.dart';
 import 'member_filter_controller.dart';
 import 'member_filter_sheet.dart';
 import 'member_events.dart';
@@ -134,14 +130,6 @@ class _MembersPageState extends State<MembersPage> {
       if (left > Duration.zero) await Future<void>.delayed(left);
     }
     if (!mounted || version != _loadVersion) return;
-    if (failed == null &&
-        asked.tier != null &&
-        _tierId == asked.tier &&
-        !tiers!.any((tier) => '${tier['id']}' == asked.tier)) {
-      _tierId = null;
-      await _load();
-      return;
-    }
     setState(() {
       _loading = false;
       _loadingMore = false;
@@ -249,21 +237,53 @@ class _MembersPageState extends State<MembersPage> {
                     style: ts(28, w: FontWeight.w600, h: 36, spacing: -0.7),
                   ),
                 ),
-                AppIconButton(
-                  svg: AppIcon.svg('filter'),
-                  semanticLabel: '筛选会员',
-                  onPressed: _openFilters,
+                Semantics(
+                  button: true,
+                  label: '筛选会员',
+                  child: GestureDetector(
+                    onTap: _openFilters,
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: C.card,
+                        shape: BoxShape.circle,
+                        boxShadow: softShadow,
+                      ),
+                      child: Center(
+                        child: AppIcon('filter', size: 20, color: C.ink),
+                      ),
+                    ),
+                  ),
                 ),
                 const SizedBox(width: 12),
-                AppButton(
-                  label: '新增会员',
-                  kind: AppButtonKind.primary,
-                  size: AppButtonSize.medium,
-                  expanded: false,
-                  svg: AppIcon.svg('add'),
-                  onPressed: () {
+                GestureDetector(
+                  onTap: () {
                     openRoute(context, 'MemberAdd');
                   },
+                  child: Container(
+                    height: 40,
+                    padding: const EdgeInsets.fromLTRB(12, 0, 16, 0),
+                    decoration: BoxDecoration(
+                      color: C.btn,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      children: [
+                        AppIcon('add', size: 18, color: C.btnFg),
+                        const SizedBox(width: 6),
+                        Text(
+                          '新增会员',
+                          style: ts(
+                            14,
+                            w: FontWeight.w500,
+                            color: C.btnFg,
+                            h: 20,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -297,10 +317,23 @@ class _MembersPageState extends State<MembersPage> {
                       ),
                     ),
                   ),
-                  AppIconButton(
-                    svg: AppIcon.svg('scan'),
-                    semanticLabel: '扫车牌找会员',
-                    onPressed: () => openRoute(context, 'FindScanPlate'),
+                  Semantics(
+                    button: true,
+                    label: '扫车牌或会员码找会员',
+                    child: GestureDetector(
+                      onTap: () => openRoute(context, 'FindScanPlate'),
+                      child: Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: C.inset,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: AppIcon('scan', size: 18, color: C.ink),
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -312,25 +345,29 @@ class _MembersPageState extends State<MembersPage> {
             child: _summary(),
           ),
           const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: AppChoiceGroup<String?>(
-              semanticLabel: '会员卡种',
-              trailing: _followChip(),
-              layout: AppChoiceLayout.horizontal,
-              items: [
-                ChoiceItem(
-                  value: null,
-                  label: _liveList == null ? '全部' : '全部 $_total',
+          SizedBox(
+            height: 34,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              children: [
+                _liveChip(
+                  _liveList == null ? '全部' : '全部 $_total',
+                  _tierId == null,
+                  () => _pickTier(null),
                 ),
-                for (final tier in _tiers)
-                  ChoiceItem(
-                    value: '${tier['id']}',
-                    label: '${tier['name']} ${_counts['${tier['id']}'] ?? 0}',
+                for (final t in _tiers) ...[
+                  const SizedBox(width: 8),
+                  _liveChip(
+                    '${t['name']} ${_counts['${t['id']}'] ?? 0}',
+                    _tierId == '${t['id']}',
+                    () => _pickTier('${t['id']}'),
                   ),
+                ],
+                // 待回访数量来自 reminders 接口。
+                const SizedBox(width: 8),
+                _followChip(),
               ],
-              selected: _tierId,
-              onChanged: _pickTier,
             ),
           ),
           const SizedBox(height: 16),
@@ -418,11 +455,11 @@ class _MembersPageState extends State<MembersPage> {
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
               child: Center(
-                child: RequestButton(
+                child: LoadingButton(
                   label: '加载更多',
+                  loadingLabel: '加载中…',
+                  style: LoadingButtonStyle.secondary,
                   onPressed: () => _load(more: true),
-                  kind: AppButtonKind.secondary,
-                  size: AppButtonSize.large,
                 ),
               ),
             ),
@@ -438,12 +475,59 @@ class _MembersPageState extends State<MembersPage> {
     return '¥${w >= 100 ? w.round() : w.toStringAsFixed(1)}万';
   }
 
-  Widget _followChip() => AppButton(
-    label: _pendingReminders == null ? '待回访' : '待回访 $_pendingReminders',
-    kind: AppButtonKind.secondary,
-    size: AppButtonSize.small,
-    expanded: false,
-    onPressed: () => openRoute(context, 'MemberFollowUp'),
+  Widget _liveChip(String label, bool on, VoidCallback onTap) =>
+      GestureDetector(
+        onTap: onTap,
+        child: Container(
+          height: 34,
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          decoration: BoxDecoration(
+            color: on ? C.btn : (C.dark ? C.chip : C.card),
+            borderRadius: BorderRadius.circular(17),
+            border: on || C.dark ? null : Border.all(color: C.stroke),
+          ),
+          child: Center(
+            widthFactor: 1,
+            child: Text(
+              label,
+              style: ts(
+                13,
+                w: FontWeight.w500,
+                color: on ? C.btnFg : C.sub,
+                h: 18,
+              ),
+            ),
+          ),
+        ),
+      );
+
+  Widget _followChip() => GestureDetector(
+    onTap: () => openRoute(context, 'MemberFollowUp'),
+    child: Container(
+      height: 34,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: C.redSoft,
+        borderRadius: BorderRadius.circular(17),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 6,
+            height: 6,
+            decoration: const BoxDecoration(
+              color: C.red,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 5),
+          Text(
+            _pendingReminders == null ? '待回访' : '待回访 $_pendingReminders',
+            style: ts(13, w: FontWeight.w500, color: C.redInk, h: 18),
+          ),
+        ],
+      ),
+    ),
   );
 
   Widget _summary() {

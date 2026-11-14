@@ -1,9 +1,4 @@
-import 'package:autocare_ui_kit/autocare_ui_kit.dart'
-    show AppSegmented, SegmentItem;
-import 'package:autocare_ui_kit/autocare_ui_kit.dart'
-    show AppChoiceGroup, ChoiceItem;
-
-import '../../kit/buttons.dart';
+import '../../kit/single_selection.dart';
 import 'packages/package_choices.dart' show PackageChoices;
 import 'wallet_controller.dart';
 import 'wallet_page.dart';
@@ -34,10 +29,52 @@ class RechargeCardPage extends StatelessWidget {
               [
                 hrow(
                   [
-                    AppIconButton(
-                      svg: dk(context, Svgs.s0, Svgs.s1),
-                      semanticLabel: "返回",
-                      onPressed: () => Navigator.of(context).maybePop(),
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => Navigator.of(context).maybePop(),
+                      child: hbox(
+                        w: 44,
+                        h: 44,
+                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                        radius: BorderRadius.circular(22),
+                        shadow: dk(
+                          context,
+                          [
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
+                              spreadRadius: 0,
+                            ),
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 1),
+                              blurRadius: 2,
+                              spreadRadius: 0,
+                            ),
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
+                              spreadRadius: 0,
+                            ),
+                          ],
+                          [
+                            BoxShadow(
+                              color: Color(0xFF26262B),
+                              offset: Offset(0, 0),
+                              blurRadius: 0,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                        child: hrow(
+                          [hsvg(dk(context, Svgs.s0, Svgs.s1), w: 20, h: 20)],
+                          main: MainAxisAlignment.center,
+                          cross: CrossAxisAlignment.center,
+                          gap: 0,
+                        ),
+                      ),
                     ),
                     Expanded(
                       flex: 1,
@@ -58,13 +95,108 @@ class RechargeCardPage extends StatelessWidget {
                   cross: CrossAxisAlignment.center,
                   gap: 8,
                 ),
-                AppSegmented<int>(
-                  items: const [
-                    SegmentItem(value: 0, label: '储值充值'),
-                    SegmentItem(value: 1, label: '购买次卡'),
-                  ],
-                  selected: 1,
-                  onChanged: c.selectTab,
+                hbox(
+                  bg: dk(context, Color(0xFFE9E9EB), Color(0xFF1F1F23)),
+                  radius: BorderRadius.circular(20),
+                  pad: EdgeInsets.fromLTRB(4, 4, 4, 4),
+                  child: hrow(
+                    [
+                      Expanded(
+                        flex: 1,
+                        child: UnconstrainedBox(
+                          alignment: Alignment.topLeft,
+                          constrainedAxis: Axis.horizontal,
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () => c.selectTab(0),
+                            child: hbox(
+                              h: 34,
+                              radius: BorderRadius.circular(17),
+                              child: Align(
+                                alignment: Alignment(0, 0),
+                                widthFactor: 1,
+                                child: Text(
+                                  '储值充值',
+                                  style: hts(
+                                    14,
+                                    dk(
+                                      context,
+                                      Color(0xFF18181B),
+                                      Color(0xFFFAFAFA),
+                                    ),
+                                    w: FontWeight.w500,
+                                    lh: 20,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: UnconstrainedBox(
+                          alignment: Alignment.topLeft,
+                          constrainedAxis: Axis.horizontal,
+                          child: hbox(
+                            h: 34,
+                            bg: dk(
+                              context,
+                              Color(0xFFFFFFFF),
+                              Color(0xFF18181B),
+                            ),
+                            radius: BorderRadius.circular(17),
+                            shadow: dk(
+                              context,
+                              [
+                                BoxShadow(
+                                  color: Color.fromRGBO(0, 0, 0, 0.06),
+                                  offset: Offset(0, 1),
+                                  blurRadius: 2,
+                                  spreadRadius: 0,
+                                ),
+                                BoxShadow(
+                                  color: Color.fromRGBO(0, 0, 0, 0.04),
+                                  offset: Offset(0, 2),
+                                  blurRadius: 4,
+                                  spreadRadius: 0,
+                                ),
+                              ],
+                              [
+                                BoxShadow(
+                                  color: Color(0xFF26262B),
+                                  offset: Offset(0, 0),
+                                  blurRadius: 0,
+                                  spreadRadius: 1,
+                                ),
+                              ],
+                            ),
+                            child: Align(
+                              alignment: Alignment(0, 0),
+                              widthFactor: 1,
+                              child: Text(
+                                '购买次卡',
+                                style: hts(
+                                  14,
+                                  dk(
+                                    context,
+                                    Color(0xFF18181B),
+                                    Color(0xFFFAFAFA),
+                                  ),
+                                  w: FontWeight.w500,
+                                  lh: 20,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                    main: MainAxisAlignment.start,
+                    cross: CrossAxisAlignment.stretch,
+                    gap: 2,
+                    intrinsic: true,
+                  ),
                 ),
                 hcol(
                   [
@@ -144,11 +276,29 @@ class RechargeCardPage extends StatelessWidget {
                               maxLines: 1,
                             ),
                           ),
-                          AppButton(
-                            label: '更换',
-                            kind: AppButtonKind.text,
-                            size: AppButtonSize.medium,
-                            onPressed: () => c.chooseMember(context),
+                          GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () => c.chooseMember(context),
+                            child: hbox(
+                              bg: dk(
+                                context,
+                                Color.fromRGBO(255, 255, 255, 0.14),
+                                Color.fromRGBO(9, 9, 11, 0.92),
+                              ),
+                              radius: BorderRadius.circular(9),
+                              pad: EdgeInsets.fromLTRB(8, 0, 8, 0),
+                              child: Text(
+                                '更换',
+                                style: hts(
+                                  12,
+                                  Color(0xFFFAFAFA),
+                                  w: FontWeight.w500,
+                                  lh: 18,
+                                ),
+                                softWrap: false,
+                                maxLines: 1,
+                              ),
+                            ),
                           ),
                         ],
                         main: MainAxisAlignment.start,
@@ -210,12 +360,13 @@ class RechargeCardPage extends StatelessWidget {
                           ),
                           Align(
                             alignment: Alignment.topCenter,
-                            child: AppButton(
-                              label: c.saleAll,
-                              kind: AppButtonKind.text,
-                              size: AppButtonSize.medium,
-                              expanded: false,
-                              onPressed: () => c.choosePackage(context),
+                            child: GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () => c.choosePackage(context),
+                              child: Text(
+                                c.saleAll,
+                                style: hts(13, Color(0xFF0485F7)),
+                              ),
                             ),
                           ),
                         ],
@@ -270,16 +421,326 @@ class RechargeCardPage extends StatelessWidget {
                               lh: 22,
                             ),
                           ),
-                          AppChoiceGroup<int>(
-                            items: [
-                              ChoiceItem(value: 0, label: '微信'),
-                              ChoiceItem(value: 1, label: '支付宝'),
-                              ChoiceItem(value: 2, label: '现金'),
-                              ChoiceItem(value: 3, label: 'POS 刷卡'),
-                              ChoiceItem(value: 4, label: c.saleBalanceChip),
-                            ],
-                            selected: c.saleMethod,
+                          SingleSelection(
+                            index: c.saleMethod,
                             onChanged: c.selectSaleMethod,
+                            builder: (context, selection) => hwrap(
+                              [
+                                HSel(
+                                  ctrl: selection,
+                                  index: 0,
+                                  on: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFE1F0FE),
+                                      Color.fromRGBO(4, 133, 247, 0.18),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    border: Border.all(
+                                      color: Color(0xFF0485F7),
+                                      width: 1.5,
+                                    ),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '微信',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF1E63AE),
+                                            Color(0xFF6AB4FA),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  off: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFF4F4F5),
+                                      Color(0xFF27272A),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '微信',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF3F3F46),
+                                            Color(0xFFD4D4D8),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                HSel(
+                                  ctrl: selection,
+                                  index: 1,
+                                  on: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFE1F0FE),
+                                      Color.fromRGBO(4, 133, 247, 0.18),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    border: Border.all(
+                                      color: Color(0xFF0485F7),
+                                      width: 1.5,
+                                    ),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '支付宝',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF1E63AE),
+                                            Color(0xFF6AB4FA),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  off: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFF4F4F5),
+                                      Color(0xFF27272A),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '支付宝',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF3F3F46),
+                                            Color(0xFFD4D4D8),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                HSel(
+                                  ctrl: selection,
+                                  index: 2,
+                                  on: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFE1F0FE),
+                                      Color.fromRGBO(4, 133, 247, 0.18),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    border: Border.all(
+                                      color: Color(0xFF0485F7),
+                                      width: 1.5,
+                                    ),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '现金',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF1E63AE),
+                                            Color(0xFF6AB4FA),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  off: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFF4F4F5),
+                                      Color(0xFF27272A),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '现金',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF3F3F46),
+                                            Color(0xFFD4D4D8),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                HSel(
+                                  ctrl: selection,
+                                  index: 3,
+                                  on: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFE1F0FE),
+                                      Color.fromRGBO(4, 133, 247, 0.18),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    border: Border.all(
+                                      color: Color(0xFF0485F7),
+                                      width: 1.5,
+                                    ),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        'POS 刷卡',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF1E63AE),
+                                            Color(0xFF6AB4FA),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  off: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFF4F4F5),
+                                      Color(0xFF27272A),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        'POS 刷卡',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF3F3F46),
+                                            Color(0xFFD4D4D8),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                HSel(
+                                  ctrl: selection,
+                                  index: 4,
+                                  on: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFE1F0FE),
+                                      Color.fromRGBO(4, 133, 247, 0.18),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    border: Border.all(
+                                      color: Color(0xFF0485F7),
+                                      width: 1.5,
+                                    ),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        c.saleBalanceChip,
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF1E63AE),
+                                            Color(0xFF6AB4FA),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  off: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFF4F4F5),
+                                      Color(0xFF27272A),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        c.saleBalanceChip,
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF3F3F46),
+                                            Color(0xFFD4D4D8),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                              gap: 8,
+                              rowGap: 8,
+                              cross: WrapCrossAlignment.start,
+                            ),
                           ),
                           hrow(
                             [
@@ -553,23 +1014,62 @@ class RechargeCardPage extends StatelessWidget {
               [
                 Expanded(
                   flex: 10,
-                  child: AppButton(
-                    label: '取消',
-                    kind: AppButtonKind.secondary,
-                    size: AppButtonSize.large,
-                    expanded: true,
-                    onPressed: () => c.openMember(context),
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => c.openMember(context),
+                    child: hbox(
+                      h: 50,
+                      bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
+                      radius: BorderRadius.circular(25),
+                      child: Align(
+                        alignment: Alignment(0, 0),
+                        widthFactor: 1,
+                        child: Text(
+                          '取消',
+                          style: hts(
+                            15,
+                            dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                            w: FontWeight.w500,
+                            lh: 22,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
                 Expanded(
                   flex: 16,
-                  child: ActionButton(
-                    actionKey: c.actionKey,
-                    label: c.saleConfirm,
-                    kind: AppButtonKind.primary,
-                    size: AppButtonSize.large,
-                    expanded: true,
-                    onPressed: () => c.submit(context, sale: true),
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => c.submit(context, sale: true),
+                    child: hbox(
+                      h: 50,
+                      bg: Color(0xFF0485F7),
+                      radius: BorderRadius.circular(25),
+                      child: Align(
+                        alignment: Alignment(0, 0),
+                        widthFactor: 1,
+                        child: hBusy(
+                          c.actionKey,
+                          Text(
+                            c.saleConfirm,
+                            style: hts(
+                              15,
+                              Color(0xFFFFFFFF),
+                              w: FontWeight.w600,
+                              lh: 22,
+                            ),
+                          ),
+                          style: hts(
+                            15,
+                            Color(0xFFFFFFFF),
+                            w: FontWeight.w600,
+                            lh: 22,
+                          ),
+                          label: '提交中…',
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ],

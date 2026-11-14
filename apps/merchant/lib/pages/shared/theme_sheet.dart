@@ -1,5 +1,3 @@
-import '../../kit/buttons.dart';
-
 import 'package:flutter/material.dart';
 
 import '../../preferences/theme_preferences.dart';
@@ -120,26 +118,42 @@ class _ThemeSheetState extends State<ThemeSheet> {
             children: [
               Expanded(
                 flex: 10,
-                child: AppButton(
-                  label: '取消',
-                  kind: AppButtonKind.secondary,
-                  size: AppButtonSize.large,
-                  expanded: true,
-                  onPressed: () => Navigator.of(context).pop(),
+                child: GestureDetector(
+                  onTap: () => Navigator.of(context).pop(),
+                  child: Container(
+                    height: 50,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: C.chip,
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                    child: Text(
+                      '取消',
+                      style: ts(15, w: FontWeight.w500, color: C.ink, h: 22),
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 flex: 16,
-                child: AppButton(
-                  label: '应用',
-                  kind: AppButtonKind.primary,
-                  size: AppButtonSize.large,
-                  expanded: true,
-                  onPressed: () {
+                child: GestureDetector(
+                  onTap: () {
                     appThemeMode.value = _sel;
                     Navigator.of(context).pop();
                   },
+                  child: Container(
+                    height: 50,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: C.btn,
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                    child: Text(
+                      '应用',
+                      style: ts(15, w: FontWeight.w600, color: C.btnFg, h: 22),
+                    ),
+                  ),
                 ),
               ),
             ],

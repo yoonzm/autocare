@@ -1,8 +1,3 @@
-import 'package:autocare_ui_kit/autocare_ui_kit.dart'
-    show AppSegmented, SegmentItem;
-
-import '../../kit/buttons.dart';
-
 import 'package:flutter/material.dart';
 
 import '../../backend/merchant_api.dart';
@@ -160,10 +155,62 @@ class _CardTierEditPageState extends State<CardTierEditPage> {
                   [
                     hrow(
                       [
-                        AppIconButton(
-                          svg: dk(context, Svgs.s71, Svgs.s72),
-                          semanticLabel: "返回",
-                          onPressed: () => Navigator.maybePop(context),
+                        GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          child: hbox(
+                            w: 44,
+                            h: 44,
+                            bg: dk(
+                              context,
+                              Color(0xFFFFFFFF),
+                              Color(0xFF18181B),
+                            ),
+                            radius: BorderRadius.circular(22),
+                            shadow: dk(
+                              context,
+                              [
+                                BoxShadow(
+                                  color: Color.fromRGBO(0, 0, 0, 0.06),
+                                  offset: Offset(0, 0),
+                                  blurRadius: 1,
+                                  spreadRadius: 0,
+                                ),
+                                BoxShadow(
+                                  color: Color.fromRGBO(0, 0, 0, 0.06),
+                                  offset: Offset(0, 1),
+                                  blurRadius: 2,
+                                  spreadRadius: 0,
+                                ),
+                                BoxShadow(
+                                  color: Color.fromRGBO(0, 0, 0, 0.04),
+                                  offset: Offset(0, 2),
+                                  blurRadius: 4,
+                                  spreadRadius: 0,
+                                ),
+                              ],
+                              [
+                                BoxShadow(
+                                  color: Color(0xFF26262B),
+                                  offset: Offset(0, 0),
+                                  blurRadius: 0,
+                                  spreadRadius: 1,
+                                ),
+                              ],
+                            ),
+                            child: hrow(
+                              [
+                                hsvg(
+                                  dk(context, Svgs.s71, Svgs.s72),
+                                  w: 20,
+                                  h: 20,
+                                ),
+                              ],
+                              main: MainAxisAlignment.center,
+                              cross: CrossAxisAlignment.center,
+                              gap: 0,
+                            ),
+                          ),
+                          onTap: () => Navigator.maybePop(context),
                         ),
                         Expanded(
                           flex: 1,
@@ -178,13 +225,38 @@ class _CardTierEditPageState extends State<CardTierEditPage> {
                             textAlign: TextAlign.center,
                           ),
                         ),
-                        ActionButton(
-                          actionKey: saveKey,
-                          label: '保存',
-                          kind: AppButtonKind.primary,
-                          size: AppButtonSize.medium,
-                          expanded: false,
-                          onPressed: onSave,
+                        GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: onSave,
+                          child: hbox(
+                            h: 44,
+                            bg: Color(0xFF0485F7),
+                            radius: BorderRadius.circular(22),
+                            pad: EdgeInsets.fromLTRB(18, 0, 18, 0),
+                            child: Align(
+                              alignment: Alignment(-1, 0),
+                              widthFactor: 1,
+                              child: hBusy(
+                                saveKey,
+                                Text(
+                                  '保存',
+                                  style: hts(
+                                    14,
+                                    Color(0xFFFFFFFF),
+                                    w: FontWeight.w600,
+                                    lh: 20,
+                                  ),
+                                ),
+                                style: hts(
+                                  14,
+                                  Color(0xFFFFFFFF),
+                                  w: FontWeight.w600,
+                                  lh: 20,
+                                ),
+                                round: true,
+                              ),
+                            ),
+                          ),
                         ),
                       ],
                       main: MainAxisAlignment.start,
@@ -641,7 +713,30 @@ class _CardTierEditPageState extends State<CardTierEditPage> {
                                         return HNumberStepper(
                                           ctrl: c1,
                                           step: 1,
-
+                                          minus: hbox(
+                                            w: 30,
+                                            h: 30,
+                                            bg: dk(
+                                              context,
+                                              Color(0xFFEEEEF0),
+                                              Color(0xFF27272A),
+                                            ),
+                                            radius: BorderRadius.circular(15),
+                                            align: Alignment.center,
+                                            child: Text(
+                                              '−',
+                                              style: hts(
+                                                17,
+                                                dk(
+                                                  context,
+                                                  Color(0xFF18181B),
+                                                  Color(0xFFFAFAFA),
+                                                ),
+                                                w: FontWeight.w500,
+                                                lh: 17,
+                                              ),
+                                            ),
+                                          ),
                                           value: hbox(
                                             w: 52,
                                             align: Alignment.center,
@@ -662,7 +757,26 @@ class _CardTierEditPageState extends State<CardTierEditPage> {
                                               false,
                                             ),
                                           ),
-
+                                          plus: hbox(
+                                            w: 30,
+                                            h: 30,
+                                            bg: dk(
+                                              context,
+                                              Color(0xFF18181B),
+                                              Color(0xFF34343A),
+                                            ),
+                                            radius: BorderRadius.circular(15),
+                                            align: Alignment.center,
+                                            child: Text(
+                                              '+',
+                                              style: hts(
+                                                17,
+                                                Color(0xFFFFFFFF),
+                                                w: FontWeight.w500,
+                                                lh: 17,
+                                              ),
+                                            ),
+                                          ),
                                           main: MainAxisAlignment.start,
                                           cross: CrossAxisAlignment.center,
                                           gap: 4,
@@ -965,16 +1079,269 @@ class _CardTierEditPageState extends State<CardTierEditPage> {
                               lh: 22,
                             ),
                           ),
-                          ListenableBuilder(
-                            listenable: _validity,
-                            builder: (context, _) => AppSegmented<int>(
-                              items: [
-                                SegmentItem(value: 0, label: '永久有效'),
-                                SegmentItem(value: 1, label: '1 年'),
-                                SegmentItem(value: 2, label: '2 年'),
-                              ],
-                              selected: _validity.selected.first,
-                              onChanged: _validity.tap,
+                          hbox(
+                            bg: dk(
+                              context,
+                              Color(0xFFEEEEF0),
+                              Color(0xFF27272A),
+                            ),
+                            radius: BorderRadius.circular(18),
+                            pad: EdgeInsets.fromLTRB(4, 4, 4, 4),
+                            child: Builder(
+                              builder: (context) => hrow(
+                                [
+                                  Expanded(
+                                    flex: 1,
+                                    child: UnconstrainedBox(
+                                      alignment: Alignment.topLeft,
+                                      constrainedAxis: Axis.horizontal,
+                                      child: HSel(
+                                        ctrl: _validity,
+                                        index: 0,
+                                        on: hbox(
+                                          h: 32,
+                                          bg: dk(
+                                            context,
+                                            Color(0xFFFFFFFF),
+                                            Color(0xFF18181B),
+                                          ),
+                                          radius: BorderRadius.circular(16),
+                                          shadow: dk(
+                                            context,
+                                            [
+                                              BoxShadow(
+                                                color: Color.fromRGBO(
+                                                  0,
+                                                  0,
+                                                  0,
+                                                  0.08,
+                                                ),
+                                                offset: Offset(0, 1),
+                                                blurRadius: 2,
+                                                spreadRadius: 0,
+                                              ),
+                                            ],
+                                            [
+                                              BoxShadow(
+                                                color: Color(0xFF26262B),
+                                                offset: Offset(0, 0),
+                                                blurRadius: 0,
+                                                spreadRadius: 1,
+                                              ),
+                                            ],
+                                          ),
+                                          child: Align(
+                                            alignment: Alignment.center,
+                                            widthFactor: 1,
+                                            child: Text(
+                                              '永久有效',
+                                              style: hts(
+                                                13,
+                                                dk(
+                                                  context,
+                                                  Color(0xFF18181B),
+                                                  Color(0xFFFAFAFA),
+                                                ),
+                                                w: FontWeight.w500,
+                                                lh: 18,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        off: hbox(
+                                          h: 32,
+                                          radius: BorderRadius.circular(16),
+                                          child: Align(
+                                            alignment: Alignment.center,
+                                            widthFactor: 1,
+                                            child: Text(
+                                              '永久有效',
+                                              style: hts(
+                                                13,
+                                                dk(
+                                                  context,
+                                                  Color(0xFF52525B),
+                                                  Color(0xFFA8A8B3),
+                                                ),
+                                                w: FontWeight.w500,
+                                                lh: 18,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 1,
+                                    child: UnconstrainedBox(
+                                      alignment: Alignment.topLeft,
+                                      constrainedAxis: Axis.horizontal,
+                                      child: HSel(
+                                        ctrl: _validity,
+                                        index: 1,
+                                        on: hbox(
+                                          h: 32,
+                                          bg: dk(
+                                            context,
+                                            Color(0xFFFFFFFF),
+                                            Color(0xFF18181B),
+                                          ),
+                                          radius: BorderRadius.circular(16),
+                                          shadow: dk(
+                                            context,
+                                            [
+                                              BoxShadow(
+                                                color: Color.fromRGBO(
+                                                  0,
+                                                  0,
+                                                  0,
+                                                  0.08,
+                                                ),
+                                                offset: Offset(0, 1),
+                                                blurRadius: 2,
+                                                spreadRadius: 0,
+                                              ),
+                                            ],
+                                            [
+                                              BoxShadow(
+                                                color: Color(0xFF26262B),
+                                                offset: Offset(0, 0),
+                                                blurRadius: 0,
+                                                spreadRadius: 1,
+                                              ),
+                                            ],
+                                          ),
+                                          child: Align(
+                                            alignment: Alignment.center,
+                                            widthFactor: 1,
+                                            child: Text(
+                                              '1 年',
+                                              style: hts(
+                                                13,
+                                                dk(
+                                                  context,
+                                                  Color(0xFF18181B),
+                                                  Color(0xFFFAFAFA),
+                                                ),
+                                                w: FontWeight.w500,
+                                                lh: 18,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        off: hbox(
+                                          h: 32,
+                                          radius: BorderRadius.circular(16),
+                                          child: Align(
+                                            alignment: Alignment.center,
+                                            widthFactor: 1,
+                                            child: Text(
+                                              '1 年',
+                                              style: hts(
+                                                13,
+                                                dk(
+                                                  context,
+                                                  Color(0xFF52525B),
+                                                  Color(0xFFA8A8B3),
+                                                ),
+                                                w: FontWeight.w500,
+                                                lh: 18,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 1,
+                                    child: UnconstrainedBox(
+                                      alignment: Alignment.topLeft,
+                                      constrainedAxis: Axis.horizontal,
+                                      child: HSel(
+                                        ctrl: _validity,
+                                        index: 2,
+                                        on: hbox(
+                                          h: 32,
+                                          bg: dk(
+                                            context,
+                                            Color(0xFFFFFFFF),
+                                            Color(0xFF18181B),
+                                          ),
+                                          radius: BorderRadius.circular(16),
+                                          shadow: dk(
+                                            context,
+                                            [
+                                              BoxShadow(
+                                                color: Color.fromRGBO(
+                                                  0,
+                                                  0,
+                                                  0,
+                                                  0.08,
+                                                ),
+                                                offset: Offset(0, 1),
+                                                blurRadius: 2,
+                                                spreadRadius: 0,
+                                              ),
+                                            ],
+                                            [
+                                              BoxShadow(
+                                                color: Color(0xFF26262B),
+                                                offset: Offset(0, 0),
+                                                blurRadius: 0,
+                                                spreadRadius: 1,
+                                              ),
+                                            ],
+                                          ),
+                                          child: Align(
+                                            alignment: Alignment.center,
+                                            widthFactor: 1,
+                                            child: Text(
+                                              '2 年',
+                                              style: hts(
+                                                13,
+                                                dk(
+                                                  context,
+                                                  Color(0xFF18181B),
+                                                  Color(0xFFFAFAFA),
+                                                ),
+                                                w: FontWeight.w500,
+                                                lh: 18,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        off: hbox(
+                                          h: 32,
+                                          radius: BorderRadius.circular(16),
+                                          child: Align(
+                                            alignment: Alignment.center,
+                                            widthFactor: 1,
+                                            child: Text(
+                                              '2 年',
+                                              style: hts(
+                                                13,
+                                                dk(
+                                                  context,
+                                                  Color(0xFF52525B),
+                                                  Color(0xFFA8A8B3),
+                                                ),
+                                                w: FontWeight.w500,
+                                                lh: 18,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                                main: MainAxisAlignment.start,
+                                cross: CrossAxisAlignment.stretch,
+                                gap: 2,
+                                intrinsic: true,
+                              ),
                             ),
                           ),
                         ],
@@ -983,12 +1350,26 @@ class _CardTierEditPageState extends State<CardTierEditPage> {
                         gap: 10,
                       ),
                     ),
-                    AppButton(
-                      label: '停用此卡种',
-                      kind: AppButtonKind.danger,
-                      size: AppButtonSize.large,
-                      expanded: true,
-                      onPressed: _disable,
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: _disable,
+                      child: hbox(
+                        h: 48,
+                        radius: BorderRadius.circular(24),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '停用此卡种',
+                            style: hts(
+                              15,
+                              dk(context, Color(0xFFA43433), Color(0xFFFF7B7E)),
+                              w: FontWeight.w500,
+                              lh: 22,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                   main: MainAxisAlignment.start,

@@ -1,7 +1,6 @@
-import '../expenses/voucher_gallery.dart';
-import '../../kit/buttons.dart';
-
 import 'dart:convert';
+
+import 'package:image_picker/image_picker.dart';
 
 import 'inventory_management_page.dart';
 import 'inventory_management_controller.dart'
@@ -731,9 +730,7 @@ class InventoryController extends ChangeNotifier {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (mode != 'check')
-              AppIconButton(
-                icon: Icons.remove,
-                semanticLabel: '减少',
+              IconButton(
                 onPressed: () {
                   l['quantity'] = ((l['quantity'] as num? ?? 0) - 1).clamp(
                     0,
@@ -741,6 +738,7 @@ class InventoryController extends ChangeNotifier {
                   );
                   changed();
                 },
+                icon: const Icon(Icons.remove, size: 14),
               ),
             GestureDetector(
               onTap: () async {
@@ -768,13 +766,12 @@ class InventoryController extends ChangeNotifier {
               ),
             ),
             if (mode != 'check')
-              AppIconButton(
-                icon: Icons.add,
-                semanticLabel: '增加',
+              IconButton(
                 onPressed: () {
                   l['quantity'] = (l['quantity'] as num? ?? 0) + 1;
                   changed();
                 },
+                icon: const Icon(Icons.add, size: 14),
               ),
           ],
         );
@@ -892,15 +889,13 @@ Future<String?> inputDialog(
         decoration: InputDecoration(hintText: hint),
       ),
       actions: [
-        AppButton(
-          label: '取消',
-          kind: AppButtonKind.secondary,
+        TextButton(
           onPressed: () => Navigator.pop(ctx),
+          child: const Text('取消'),
         ),
-        AppButton(
-          label: '确定',
-          kind: AppButtonKind.primary,
+        TextButton(
           onPressed: () => Navigator.pop(ctx, ctrl.text.trim()),
+          child: const Text('确定'),
         ),
       ],
     ),
@@ -951,21 +946,72 @@ class InventoryNoteInput extends StatelessWidget {
 /// image and imply it was attached to a posted document.
 class InventoryAttachment extends StatelessWidget {
   final InventoryController c;
-  const InventoryAttachment({super.key, required this.c});
+  final String imgKey;
+  final double size, radius;
+  final Widget child;
+  const InventoryAttachment({
+    super.key,
+    required this.c,
+    required this.imgKey,
+    required this.size,
+    required this.radius,
+    required this.child,
+  });
   @override
-  Widget build(BuildContext context) => VoucherGallery(
-    title: '送货单 / 发票',
-    helper: '选填',
-    max: 6,
-    paths: List<String>.from(c.payload['attachments'] ?? []),
-    request: (body) =>
-        merchantApi.invoke(body, timeout: const Duration(seconds: 60)),
-    enabled: !c.busy,
-    onBusyChanged: c.setBusy,
-    onChanged: (paths) {
-      if (c.disposed) return;
-      c.payload['attachments'] = paths;
-      c.changed();
-    },
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      for (final path in List<String>.from(c.payload['attachments'] ?? []))
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                path.split('/').last,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: c.busy
+                  ? null
+                  : () {
+                      c.payload['attachments'] = (List<String>.from(
+                        c.payload['attachments'],
+                      )..remove(path));
+                      c.changed();
+                    },
+            ),
+          ],
+        ),
+      GestureDetector(
+        onTap: c.busy
+            ? null
+            : () => runBusy(c.actionKey('upload'), () async {
+                c.setBusy(true);
+                try {
+                  final paths = List<String>.from(
+                    c.payload['attachments'] ?? [],
+                  );
+                  if (paths.length >= 6) throw const AppError('最多上传六张附件');
+                  final file = await ImagePicker().pickImage(
+                    source: ImageSource.gallery,
+                    maxWidth: 1600,
+                    imageQuality: 85,
+                  );
+                  if (file == null) return;
+                  final r = await merchantApi.invoke({
+                    'action': 'expense_upload',
+                    'data': base64Encode(await file.readAsBytes()),
+                  }, timeout: const Duration(seconds: 60));
+                  paths.add(r['item']['path']);
+                  c.payload['attachments'] = paths;
+                  c.changed();
+                } finally {
+                  c.setBusy(false);
+                }
+              }),
+        child: hBusy(c.actionKey('upload'), child, icon: true),
+      ),
+    ],
   );
 }

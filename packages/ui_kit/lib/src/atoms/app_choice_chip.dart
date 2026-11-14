@@ -19,7 +19,6 @@ class AppChoiceChip extends StatelessWidget {
   /// 撑满可用宽度（单选操作弹层里一项一行）；默认按内容收缩。
   final bool expanded;
   final VoidCallback? onTap;
-  final bool mutuallyExclusive;
   const AppChoiceChip({
     super.key,
     required this.label,
@@ -29,7 +28,6 @@ class AppChoiceChip extends StatelessWidget {
     this.avatarName,
     this.expanded = false,
     this.onTap,
-    this.mutuallyExclusive = false,
   });
 
   @override
@@ -51,7 +49,6 @@ class AppChoiceChip extends StatelessWidget {
     return AppTapTarget(
       onTap: onTap,
       selected: selected,
-      mutuallyExclusive: mutuallyExclusive,
       semanticLabel: subtitle == null ? label : '$label，$subtitle',
       minWidth: 0,
       minHeight: kind == ChipKind.option ? 0 : AppSpacing.minTap,
@@ -76,28 +73,16 @@ class AppChoiceChip extends StatelessWidget {
             children: [
               AppAvatar(name: avatarName ?? label, size: 28),
               const SizedBox(width: AppSpacing.s6),
-              Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: t.small.copyWith(color: fg),
-              ),
+              Text(label, style: t.small.copyWith(color: fg)),
             ],
           ),
-          _ => Text(
-            label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: t.small.copyWith(color: fg),
-          ),
+          _ => Text(label, style: t.small.copyWith(color: fg)),
         };
         return Container(
           width: expanded ? double.infinity : null,
           height: kind == ChipKind.option ? null : height,
           padding: EdgeInsets.symmetric(
-            horizontal: kind == ChipKind.avatar
-                ? AppSpacing.s6
-                : AppSpacing.s14,
+            horizontal: kind == ChipKind.avatar ? AppSpacing.s6 : AppSpacing.s14,
             vertical: kind == ChipKind.option ? AppSpacing.s10 : 0,
           ).copyWith(right: kind == ChipKind.avatar ? AppSpacing.s14 : null),
           decoration: BoxDecoration(
@@ -138,152 +123,56 @@ class ChoiceItem<T> {
   });
 }
 
-/// 标签排列：自动换行、单行横向滚动；传 columns 时按指定列数等宽排列。
-enum AppChoiceLayout { wrap, horizontal }
-
-/// 受控选择组。单选使用 selected，多选使用 .multiple 与 selectedValues。
-/// 禁用项不显示为选中；单选再次点击当前项不会触发回调。
+/// 单选互斥的一组选择标签：同组最多一个选中，禁用项跳过。
 class AppChoiceGroup<T> extends StatelessWidget {
   final List<ChoiceItem<T>> items;
   final T? selected;
-  final ValueChanged<T>? onChanged;
-  final Set<T>? selectedValues;
-  final ValueChanged<Set<T>>? onSelectionChanged;
+  final ValueChanged<T> onChanged;
   final ChipKind kind;
+
+  /// 一项一行、撑满宽度；默认是按内容收缩的换行排列。
   final bool expanded;
-  final AppChoiceLayout layout;
-  final int? columns;
-  final String? semanticLabel;
-
-  /// 横向标签末尾的独立操作，不参与选中状态。
-  final Widget? trailing;
-
   const AppChoiceGroup({
     super.key,
     required this.items,
     required this.selected,
-    required ValueChanged<T> this.onChanged,
+    required this.onChanged,
     this.kind = ChipKind.pill,
     this.expanded = false,
-    this.layout = AppChoiceLayout.wrap,
-    this.columns,
-    this.semanticLabel,
-    this.trailing,
-  }) : selectedValues = null,
-       onSelectionChanged = null,
-       assert(columns == null || columns > 0),
-       assert(!expanded || (columns == null && layout == AppChoiceLayout.wrap)),
-       assert(columns == null || layout == AppChoiceLayout.wrap),
-       assert(trailing == null || layout == AppChoiceLayout.horizontal);
-
-  const AppChoiceGroup.multiple({
-    super.key,
-    required this.items,
-    required Set<T> this.selectedValues,
-    required ValueChanged<Set<T>> onChanged,
-    this.kind = ChipKind.pill,
-    this.expanded = false,
-    this.layout = AppChoiceLayout.wrap,
-    this.columns,
-    this.semanticLabel,
-    this.trailing,
-  }) : selected = null,
-       onChanged = null,
-       onSelectionChanged = onChanged,
-       assert(columns == null || columns > 0),
-       assert(!expanded || (columns == null && layout == AppChoiceLayout.wrap)),
-       assert(columns == null || layout == AppChoiceLayout.wrap),
-       assert(trailing == null || layout == AppChoiceLayout.horizontal);
-
-  bool get _multiple => selectedValues != null;
-
-  Widget _chip(ChoiceItem<T> item, {bool fill = false}) {
-    final active =
-        item.enabled &&
-        (_multiple
-            ? selectedValues!.contains(item.value)
-            : item.value == selected);
-    return AppChoiceChip(
-      label: item.label,
-      subtitle: item.subtitle,
-      avatarName: item.avatarName,
-      kind: kind,
-      expanded: fill,
-      selected: active,
-      mutuallyExclusive: !_multiple,
-      onTap: !item.enabled
-          ? null
-          : () {
-              if (_multiple) {
-                final next = Set<T>.of(selectedValues!);
-                if (!next.add(item.value)) next.remove(item.value);
-                onSelectionChanged!(Set<T>.unmodifiable(next));
-              } else if (!active) {
-                onChanged!(item.value);
-              }
-            },
-    );
-  }
+  });
 
   @override
-  Widget build(BuildContext context) {
-    Widget body;
-    if (expanded) {
-      body = Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          for (var i = 0; i < items.length; i++) ...[
-            if (i > 0) const SizedBox(height: AppSpacing.s8),
-            _chip(items[i], fill: true),
-          ],
-        ],
-      );
-    } else if (layout == AppChoiceLayout.horizontal) {
-      body = SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
+  Widget build(BuildContext context) => expanded
+      ? Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             for (var i = 0; i < items.length; i++) ...[
-              if (i > 0) const SizedBox(width: AppSpacing.s8),
-              _chip(items[i]),
-            ],
-            if (trailing != null) ...[
-              if (items.isNotEmpty) const SizedBox(width: AppSpacing.s8),
-              trailing!,
+              if (i > 0) const SizedBox(height: AppSpacing.s8),
+              AppChoiceChip(
+                label: items[i].label,
+                subtitle: items[i].subtitle,
+                avatarName: items[i].avatarName,
+                kind: kind,
+                expanded: true,
+                selected: items[i].value == selected,
+                onTap: items[i].enabled ? () => onChanged(items[i].value) : null,
+              ),
             ],
           ],
+        )
+      : Wrap(
+    spacing: AppSpacing.s8,
+    runSpacing: AppSpacing.s8,
+    children: [
+      for (final item in items)
+        AppChoiceChip(
+          label: item.label,
+          subtitle: item.subtitle,
+          avatarName: item.avatarName,
+          kind: kind,
+          selected: item.value == selected,
+          onTap: item.enabled ? () => onChanged(item.value) : null,
         ),
-      );
-    } else if (columns != null) {
-      body = LayoutBuilder(
-        builder: (context, constraints) {
-          final width =
-              ((constraints.maxWidth - (columns! - 1) * AppSpacing.s8) /
-                      columns!)
-                  .clamp(0.0, double.infinity);
-          return Wrap(
-            spacing: AppSpacing.s8,
-            runSpacing: AppSpacing.s8,
-            children: [
-              for (final item in items)
-                SizedBox(width: width, child: _chip(item, fill: true)),
-            ],
-          );
-        },
-      );
-    } else {
-      body = Wrap(
-        spacing: AppSpacing.s8,
-        runSpacing: AppSpacing.s8,
-        children: [for (final item in items) _chip(item)],
-      );
-    }
-    return Semantics(
-      container: true,
-      explicitChildNodes: true,
-      label: semanticLabel,
-      child: body,
-    );
-  }
+    ],
+  );
 }

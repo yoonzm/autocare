@@ -1,5 +1,3 @@
-import '../../kit/buttons.dart';
-
 import 'package:flutter/material.dart';
 
 import 'staff_route_data.dart';
@@ -177,15 +175,29 @@ class StaffEnableTemplate extends StatelessWidget {
                   child: UnconstrainedBox(
                     alignment: Alignment.topLeft,
                     constrainedAxis: Axis.horizontal,
-                    child: AppButton(
-                      label: '取消',
-                      kind: AppButtonKind.secondary,
-                      size: AppButtonSize.large,
-                      expanded: true,
-                      onPressed: () => openRoute(
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => openRoute(
                         context,
                         'StaffDetailOff',
                         arguments: StaffRouteData(staffId: d['id'] as String?),
+                      ),
+                      child: hbox(
+                        h: 50,
+                        bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(25),
+                        child: Align(
+                          alignment: Alignment(0, 0),
+                          widthFactor: 1,
+                          child: Text(
+                            '取消',
+                            style: hts(
+                              15,
+                              dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                              w: FontWeight.w500,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -195,14 +207,9 @@ class StaffEnableTemplate extends StatelessWidget {
                   child: UnconstrainedBox(
                     alignment: Alignment.topLeft,
                     constrainedAxis: Axis.horizontal,
-                    child: ActionButton(
-                      actionKey:
-                          'StaffEnable>Staff-${identityHashCode(context)}',
-                      label: '确认启用',
-                      kind: AppButtonKind.primary,
-                      size: AppButtonSize.large,
-                      expanded: true,
-                      onPressed: () => runBusy(
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => runBusy(
                         'StaffEnable>Staff-${identityHashCode(context)}',
                         () async {
                           try {
@@ -212,6 +219,32 @@ class StaffEnableTemplate extends StatelessWidget {
                             if (context.mounted) AppToast.error(context, e);
                           }
                         },
+                      ),
+                      child: hbox(
+                        h: 50,
+                        bg: Color(0xFF0485F7),
+                        radius: BorderRadius.circular(25),
+                        child: Align(
+                          alignment: Alignment(0, 0),
+                          widthFactor: 1,
+                          child: hBusy(
+                            'StaffEnable>Staff-${identityHashCode(context)}',
+                            Text(
+                              '确认启用',
+                              style: hts(
+                                15,
+                                Color(0xFFFFFFFF),
+                                w: FontWeight.w600,
+                              ),
+                            ),
+                            style: hts(
+                              15,
+                              Color(0xFFFFFFFF),
+                              w: FontWeight.w600,
+                            ),
+                            label: '提交中…',
+                          ),
+                        ),
                       ),
                     ),
                   ),

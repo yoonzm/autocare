@@ -46,6 +46,3 @@
 ## 验证
 
 SQL：`supabase/tests/staff.sql`、`staff_identity.sql`、`staff_tasks.sql`；规则：`staff_gate.test.ts`；前端：`test/access_test.dart`、`test/staff_work_test.dart`。
-
-
-2026-11-13 范围更新：用户已批准并实现商户 App 本人任务的施工照片上传、读取、预览与移除；历史章节的施工照片 TODO 由本次接入替代。会员小程序施工照片展示仍不在本次范围。接口、权限、上限与迁移说明见 [图片上传迁移](image-upload-migration.md)。

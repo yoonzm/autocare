@@ -1,9 +1,6 @@
-import 'package:autocare_ui_kit/autocare_ui_kit.dart'
-    show AppChoiceGroup, ChoiceItem, AppChoiceLayout;
-
-import '../../kit/buttons.dart';
 import '../../backend/merchant_api.dart';
 import '../../kit/async_kit.dart';
+import '../../kit/single_selection.dart';
 import '../../routes.dart' show openRoute;
 import 'member_reminder_controller.dart';
 import 'reminder_widgets.dart';
@@ -78,10 +75,52 @@ class _MemberFollowUpTemplate extends StatelessWidget {
               [
                 hrow(
                   [
-                    AppIconButton(
-                      svg: dk(context, Svgs.s0, Svgs.s1),
-                      semanticLabel: "返回",
-                      onPressed: () => Navigator.of(context).maybePop(),
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => Navigator.of(context).maybePop(),
+                      child: hbox(
+                        w: 44,
+                        h: 44,
+                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                        radius: BorderRadius.circular(22),
+                        shadow: dk(
+                          context,
+                          [
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
+                              spreadRadius: 0,
+                            ),
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 1),
+                              blurRadius: 2,
+                              spreadRadius: 0,
+                            ),
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
+                              spreadRadius: 0,
+                            ),
+                          ],
+                          [
+                            BoxShadow(
+                              color: Color(0xFF26262B),
+                              offset: Offset(0, 0),
+                              blurRadius: 0,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                        child: hrow(
+                          [hsvg(dk(context, Svgs.s0, Svgs.s1), w: 20, h: 20)],
+                          main: MainAxisAlignment.center,
+                          cross: CrossAxisAlignment.center,
+                          gap: 0,
+                        ),
+                      ),
                     ),
                     Expanded(
                       flex: 1,
@@ -222,18 +261,390 @@ class _MemberFollowUpTemplate extends StatelessWidget {
                   left: 0,
                   child: hbox(
                     clip: true,
-                    child: AppChoiceGroup<int>(
-                      semanticLabel: '回访分类',
-                      layout: AppChoiceLayout.horizontal,
-                      items: [
-                        ChoiceItem(value: 0, label: f.chipAll),
-                        ChoiceItem(value: 1, label: f.chipExpire),
-                        ChoiceItem(value: 2, label: f.chipCare),
-                        ChoiceItem(value: 3, label: f.chipBirthday),
-                        ChoiceItem(value: 4, label: f.chipSleep),
-                      ],
-                      selected: c.tab,
+                    child: SingleSelection(
+                      index: c.tab,
                       onChanged: c.selectTab,
+                      builder: (context, g1) => SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: hrow(
+                          [
+                            UnconstrainedBox(
+                              alignment: Alignment.topLeft,
+                              constrainedAxis: Axis.horizontal,
+                              child: HSel(
+                                ctrl: g1,
+                                index: 0,
+                                segment: true,
+                                on: hbox(
+                                  h: 34,
+                                  bg: dk(
+                                    context,
+                                    Color(0xFF18181B),
+                                    Color(0xFFFAFAFA),
+                                  ),
+                                  radius: BorderRadius.circular(17),
+                                  pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    widthFactor: 1,
+                                    child: Text(
+                                      f.chipAll,
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFFFFFFFF),
+                                          Color(0xFF18181B),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                off: hbox(
+                                  h: 34,
+                                  bg: dk(
+                                    context,
+                                    Color(0xFFFFFFFF),
+                                    Color(0xFF18181B),
+                                  ),
+                                  radius: BorderRadius.circular(17),
+                                  border: dk(
+                                    context,
+                                    Border.all(
+                                      color: Color(0xFFE4E4E7),
+                                      width: 1,
+                                    ),
+                                    Border.all(
+                                      color: Color(0xFF3A3A40),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    widthFactor: 1,
+                                    child: Text(
+                                      f.chipAll,
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF3F3F46),
+                                          Color(0xFFD4D4D8),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            UnconstrainedBox(
+                              alignment: Alignment.topLeft,
+                              constrainedAxis: Axis.horizontal,
+                              child: HSel(
+                                ctrl: g1,
+                                index: 1,
+                                segment: true,
+                                on: hbox(
+                                  h: 34,
+                                  bg: dk(
+                                    context,
+                                    Color(0xFF18181B),
+                                    Color(0xFFFAFAFA),
+                                  ),
+                                  radius: BorderRadius.circular(17),
+                                  pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    widthFactor: 1,
+                                    child: Text(
+                                      f.chipExpire,
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFFFFFFFF),
+                                          Color(0xFF18181B),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                off: hbox(
+                                  h: 34,
+                                  bg: dk(
+                                    context,
+                                    Color(0xFFFFFFFF),
+                                    Color(0xFF18181B),
+                                  ),
+                                  radius: BorderRadius.circular(17),
+                                  border: dk(
+                                    context,
+                                    Border.all(
+                                      color: Color(0xFFE4E4E7),
+                                      width: 1,
+                                    ),
+                                    Border.all(
+                                      color: Color(0xFF3A3A40),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    widthFactor: 1,
+                                    child: Text(
+                                      f.chipExpire,
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF3F3F46),
+                                          Color(0xFFD4D4D8),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            UnconstrainedBox(
+                              alignment: Alignment.topLeft,
+                              constrainedAxis: Axis.horizontal,
+                              child: HSel(
+                                ctrl: g1,
+                                index: 2,
+                                segment: true,
+                                on: hbox(
+                                  h: 34,
+                                  bg: dk(
+                                    context,
+                                    Color(0xFF18181B),
+                                    Color(0xFFFAFAFA),
+                                  ),
+                                  radius: BorderRadius.circular(17),
+                                  pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    widthFactor: 1,
+                                    child: Text(
+                                      f.chipCare,
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFFFFFFFF),
+                                          Color(0xFF18181B),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                off: hbox(
+                                  h: 34,
+                                  bg: dk(
+                                    context,
+                                    Color(0xFFFFFFFF),
+                                    Color(0xFF18181B),
+                                  ),
+                                  radius: BorderRadius.circular(17),
+                                  border: dk(
+                                    context,
+                                    Border.all(
+                                      color: Color(0xFFE4E4E7),
+                                      width: 1,
+                                    ),
+                                    Border.all(
+                                      color: Color(0xFF3A3A40),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    widthFactor: 1,
+                                    child: Text(
+                                      f.chipCare,
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF3F3F46),
+                                          Color(0xFFD4D4D8),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            UnconstrainedBox(
+                              alignment: Alignment.topLeft,
+                              constrainedAxis: Axis.horizontal,
+                              child: HSel(
+                                ctrl: g1,
+                                index: 3,
+                                segment: true,
+                                on: hbox(
+                                  h: 34,
+                                  bg: dk(
+                                    context,
+                                    Color(0xFF18181B),
+                                    Color(0xFFFAFAFA),
+                                  ),
+                                  radius: BorderRadius.circular(17),
+                                  pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    widthFactor: 1,
+                                    child: Text(
+                                      f.chipBirthday,
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFFFFFFFF),
+                                          Color(0xFF18181B),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                off: hbox(
+                                  h: 34,
+                                  bg: dk(
+                                    context,
+                                    Color(0xFFFFFFFF),
+                                    Color(0xFF18181B),
+                                  ),
+                                  radius: BorderRadius.circular(17),
+                                  border: dk(
+                                    context,
+                                    Border.all(
+                                      color: Color(0xFFE4E4E7),
+                                      width: 1,
+                                    ),
+                                    Border.all(
+                                      color: Color(0xFF3A3A40),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    widthFactor: 1,
+                                    child: Text(
+                                      f.chipBirthday,
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF3F3F46),
+                                          Color(0xFFD4D4D8),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            UnconstrainedBox(
+                              alignment: Alignment.topLeft,
+                              constrainedAxis: Axis.horizontal,
+                              child: HSel(
+                                ctrl: g1,
+                                index: 4,
+                                segment: true,
+                                on: hbox(
+                                  h: 34,
+                                  bg: dk(
+                                    context,
+                                    Color(0xFF18181B),
+                                    Color(0xFFFAFAFA),
+                                  ),
+                                  radius: BorderRadius.circular(17),
+                                  pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    widthFactor: 1,
+                                    child: Text(
+                                      f.chipSleep,
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFFFFFFFF),
+                                          Color(0xFF18181B),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                off: hbox(
+                                  h: 34,
+                                  bg: dk(
+                                    context,
+                                    Color(0xFFFFFFFF),
+                                    Color(0xFF18181B),
+                                  ),
+                                  radius: BorderRadius.circular(17),
+                                  border: dk(
+                                    context,
+                                    Border.all(
+                                      color: Color(0xFFE4E4E7),
+                                      width: 1,
+                                    ),
+                                    Border.all(
+                                      color: Color(0xFF3A3A40),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    widthFactor: 1,
+                                    child: Text(
+                                      f.chipSleep,
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF3F3F46),
+                                          Color(0xFFD4D4D8),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                          main: MainAxisAlignment.start,
+                          cross: CrossAxisAlignment.stretch,
+                          gap: 8,
+                          intrinsic: true,
+                        ),
+                      ),
                     ),
                   ),
                 ),

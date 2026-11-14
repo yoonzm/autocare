@@ -1,5 +1,3 @@
-import 'package:autocare_ui_kit/autocare_ui_kit.dart';
-
 import 'dart:convert';
 
 import 'package:autocare_merchant/backend/feedback_draft.dart';
@@ -116,17 +114,31 @@ void main() {
     );
     push(c, FeedbackPage(pickImage: () async => XFile.fromData(bytes)));
     await t.pumpAndSettle();
-    await t.tap(find.bySemanticsLabel('添加截图'));
+    await t.tap(find.byKey(const ValueKey('feedback-image-1')));
     await t.pumpAndSettle();
     expect(find.byType(Image), findsOneWidget);
-    final uploader = t.widget<AppImageUploader>(find.byType(AppImageUploader));
-    expect(uploader.items.single.state, AppUploadState.pending);
-    expect((uploader.items.single.image as MemoryImage).bytes, bytes);
-    expect(api.calls, isEmpty, reason: '选择时不上传，提交反馈时才上传');
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('feedback-image-1')),
+        matching: find.byType(Image),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('feedback-image-0')),
+        matching: find.byType(Image),
+      ),
+      findsNothing,
+    );
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('feedback-image-2')),
+        matching: find.byType(Image),
+      ),
+      findsNothing,
+    );
     await t.enterText(find.byType(TextField).first, '带截图的反馈');
-    FocusManager.instance.primaryFocus?.unfocus();
-    await t.pumpAndSettle();
-    await t.ensureVisible(find.text('提交反馈'));
     await t.tap(find.text('提交反馈'));
     await t.pump(const Duration(seconds: 2));
     await t.pumpAndSettle();

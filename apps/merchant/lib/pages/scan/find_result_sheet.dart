@@ -1,4 +1,3 @@
-import '../../kit/buttons.dart';
 import 'scan_result.dart';
 import '../../kit/async_kit.dart';
 import '../members/member_view.dart';
@@ -463,15 +462,29 @@ class FindResultSheet extends StatelessWidget {
                 child: UnconstrainedBox(
                   alignment: Alignment.topLeft,
                   constrainedAxis: Axis.horizontal,
-                  child: AppButton(
-                    label: '查看会员',
-                    kind: AppButtonKind.secondary,
-                    size: AppButtonSize.large,
-                    expanded: true,
-                    onPressed: () => openRoute(
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => openRoute(
                       context,
                       'MemberDetail',
                       arguments: MemberRouteData(member: result!.member),
+                    ),
+                    child: hbox(
+                      h: 48,
+                      bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
+                      radius: BorderRadius.circular(24),
+                      child: Align(
+                        alignment: Alignment(0, 0),
+                        widthFactor: 1,
+                        child: Text(
+                          '查看会员',
+                          style: hts(
+                            15,
+                            dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                            w: FontWeight.w500,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -481,16 +494,36 @@ class FindResultSheet extends StatelessWidget {
                 child: UnconstrainedBox(
                   alignment: Alignment.topLeft,
                   constrainedAxis: Axis.horizontal,
-                  child: AppButton(
-                    label: '为他开单',
-                    kind: AppButtonKind.primary,
-                    size: AppButtonSize.large,
-                    expanded: true,
-                    svg: Svgs.s160,
-                    onPressed: () => openRoute(
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => openRoute(
                       context,
                       'Order',
                       arguments: OrderRouteData(member: result!.member),
+                    ),
+                    child: hbox(
+                      h: 48,
+                      bg: Color(0xFF0485F7),
+                      radius: BorderRadius.circular(24),
+                      child: hrow(
+                        [
+                          hsvg(Svgs.s160, w: 18, h: 18),
+                          Flexible(
+                            flex: 60,
+                            child: Text(
+                              '为他开单',
+                              style: hts(
+                                15,
+                                Color(0xFFFFFFFF),
+                                w: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                        main: MainAxisAlignment.center,
+                        cross: CrossAxisAlignment.center,
+                        gap: 6,
+                      ),
                     ),
                   ),
                 ),
@@ -503,12 +536,17 @@ class FindResultSheet extends StatelessWidget {
           ),
           Align(
             alignment: Alignment.topCenter,
-            child: AppButton(
-              label: '识别不对？重新扫描',
-              kind: AppButtonKind.text,
-              size: AppButtonSize.medium,
-              expanded: false,
-              onPressed: () => Navigator.of(context).maybePop(),
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => Navigator.of(context).maybePop(),
+              child: Text(
+                '识别不对？重新扫描',
+                style: hts(
+                  13,
+                  dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
+                  lh: 18,
+                ),
+              ),
             ),
           ),
         ],

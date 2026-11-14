@@ -11,6 +11,7 @@ import 'pages/members/recharge_success_page.dart';
 import 'pages/members/packages/package_sold_page.dart';
 import 'pages/members/packages/package_detail_page.dart';
 import 'pages/members/packages/package_extend_sheet.dart';
+import 'pages/members/packages/package_refund_sheet.dart';
 import 'pages/members/packages/member_package_route_data.dart';
 import 'pages/members/member_more_sheet.dart';
 import 'pages/members/member_delete_sheet.dart';
@@ -271,6 +272,10 @@ Widget? pageFor(String name, {Object? arguments}) {
       return const SettingsPage();
     case 'FindScanPlate':
       return const ScanPage(ScanKind.findPlate);
+    case 'FindScanCode':
+      return const ScanPage(ScanKind.findCode);
+    case 'ScanLicense':
+      return const ScanPage(ScanKind.licenseCard);
     case 'ScanPlate':
       return const ScanPage(ScanKind.plateCard);
   }
@@ -351,8 +356,10 @@ const Set<String> _cupertinoSheetPages = {
 /// 全屏流程（相机扫描页）：从底部滑入，左上角是 ✕，全屏显示（设计稿“页面出场方式”第 4 类）。
 const Set<String> _modalPages = {
   'ScanProduct',
+  'ScanLicense',
   'ScanPlate',
   'FindScanPlate',
+  'FindScanCode',
 };
 
 String? _routeName(BuildContext context) =>
@@ -455,6 +462,7 @@ void _openRouteCore(BuildContext context, String name, {Object? arguments}) {
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             child: switch (name) {
               'PackageExtend' => PackageExtendSheet(data: memberPackage),
+              'PackageRefund' => PackageRefundSheet(data: memberPackage),
               'MemberMore' => MemberMoreSheet(member: memberData?.member),
               'MemberDelete' => MemberDeleteSheet(member: memberData?.member),
               'StProgress' => StProgressSheet(taskId: task?.taskId),

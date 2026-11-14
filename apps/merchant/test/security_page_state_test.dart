@@ -72,14 +72,11 @@ void main() {
     );
     await t.tapAt(point);
     await t.pump();
-    expect(
-      t.getSize(find.byType(CircularProgressIndicator)),
-      const Size(16, 16),
-    );
+    expect(t.getSize(find.byType(AppSpinner)), const Size(18, 18));
     final loadingSize = t.getSize(
       find
           .ancestor(
-            of: find.byType(CircularProgressIndicator),
+            of: find.byType(AppSpinner),
             matching: find.byType(Container),
           )
           .first,

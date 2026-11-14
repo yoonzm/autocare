@@ -1,5 +1,3 @@
-import '../../kit/buttons.dart';
-
 // 正式维护源码；保留既有视觉布局。
 import 'package:flutter/material.dart';
 
@@ -25,12 +23,54 @@ class StockInDetailBoundTemplate extends StatelessWidget {
               [
                 hrow(
                   [
-                    AppIconButton(
-                      svg: dk(context, Svgs.s0, Svgs.s1),
-                      semanticLabel: "返回",
-                      onPressed: c.busy
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: c.busy
                           ? null
                           : () => Navigator.of(context).maybePop(),
+                      child: hbox(
+                        w: 44,
+                        h: 44,
+                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                        radius: BorderRadius.circular(22),
+                        shadow: dk(
+                          context,
+                          [
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
+                              spreadRadius: 0,
+                            ),
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 1),
+                              blurRadius: 2,
+                              spreadRadius: 0,
+                            ),
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
+                              spreadRadius: 0,
+                            ),
+                          ],
+                          [
+                            BoxShadow(
+                              color: Color(0xFF26262B),
+                              offset: Offset(0, 0),
+                              blurRadius: 0,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                        child: hrow(
+                          [hsvg(dk(context, Svgs.s0, Svgs.s1), w: 20, h: 20)],
+                          main: MainAxisAlignment.center,
+                          cross: CrossAxisAlignment.center,
+                          gap: 0,
+                        ),
+                      ),
                     ),
                     Expanded(
                       flex: 1,
@@ -421,12 +461,31 @@ class StockInDetailBoundTemplate extends StatelessWidget {
                   child: UnconstrainedBox(
                     alignment: Alignment.topLeft,
                     constrainedAxis: Axis.horizontal,
-                    child: AppButton(
-                      label: c.voidButtonLabel,
-                      kind: AppButtonKind.danger,
-                      size: AppButtonSize.large,
-                      expanded: true,
-                      onPressed: c.busy ? null : () => c.openVoid(context),
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: c.busy ? null : () => c.openVoid(context),
+                      child: hbox(
+                        h: 50,
+                        bg: dk(
+                          context,
+                          Color(0xFFFFE1E2),
+                          Color.fromRGBO(255, 56, 60, 0.18),
+                        ),
+                        radius: BorderRadius.circular(25),
+                        child: Align(
+                          alignment: Alignment(0, 0),
+                          widthFactor: 1,
+                          child: Text(
+                            c.voidButtonLabel,
+                            style: hts(
+                              15,
+                              dk(context, Color(0xFFA43433), Color(0xFFFF7B7E)),
+                              w: FontWeight.w500,
+                              lh: 22,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),

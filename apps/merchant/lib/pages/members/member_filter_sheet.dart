@@ -1,9 +1,7 @@
-import 'package:autocare_ui_kit/autocare_ui_kit.dart'
-    show AppChoiceGroup, ChoiceItem;
-
-import '../../kit/buttons.dart';
 import '../../backend/merchant_api.dart';
 import '../../kit/async_kit.dart';
+import '../../kit/single_selection.dart';
+import '../../kit/multiple_selection.dart';
 import '../../routes.dart' show openRoute;
 import 'member_filter_controller.dart';
 
@@ -121,12 +119,18 @@ class _MemberFilterTemplate extends StatelessWidget {
                   ),
                 ),
               ),
-              AppButton(
-                label: '重置',
-                kind: AppButtonKind.text,
-                size: AppButtonSize.medium,
-                expanded: false,
-                onPressed: () => c.reset(),
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => c.reset(),
+                child: Text(
+                  '重置',
+                  style: hts(
+                    14,
+                    dk(context, Color(0xFF52525B), Color(0xFFA8A8B3)),
+                    w: FontWeight.w500,
+                    lh: 20,
+                  ),
+                ),
               ),
             ],
             main: MainAxisAlignment.start,
@@ -167,15 +171,216 @@ class _MemberFilterTemplate extends StatelessWidget {
                   ),
                 ),
               ),
-              AppChoiceGroup<int>.multiple(
-                items: [
-                  ChoiceItem(value: 0, label: c.tierName(0)),
-                  ChoiceItem(value: 1, label: c.tierName(1)),
-                  ChoiceItem(value: 2, label: c.tierName(2)),
-                  ChoiceItem(value: 3, label: c.tierName(3)),
-                ],
-                selectedValues: c.tierIndices,
+              MultipleSelection(
+                selected: c.tierIndices,
                 onChanged: (values) => c.chooseTiers(context, values),
+                builder: (context, g1) => hwrap(
+                  [
+                    HSel(
+                      ctrl: g1,
+                      index: 0,
+                      on: hbox(
+                        h: 36,
+                        bg: dk(
+                          context,
+                          Color(0xFFE1F0FE),
+                          Color.fromRGBO(4, 133, 247, 0.18),
+                        ),
+                        radius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: Color(0xFF0485F7),
+                          width: 1.5,
+                        ),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            c.tierName(0),
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                      off: hbox(
+                        h: 36,
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(18),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            c.tierName(0),
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF3F3F46), Color(0xFFD4D4D8)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    HSel(
+                      ctrl: g1,
+                      index: 1,
+                      on: hbox(
+                        h: 36,
+                        bg: dk(
+                          context,
+                          Color(0xFFE1F0FE),
+                          Color.fromRGBO(4, 133, 247, 0.18),
+                        ),
+                        radius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: Color(0xFF0485F7),
+                          width: 1.5,
+                        ),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            c.tierName(1),
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                      off: hbox(
+                        h: 36,
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(18),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            c.tierName(1),
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF3F3F46), Color(0xFFD4D4D8)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    HSel(
+                      ctrl: g1,
+                      index: 2,
+                      on: hbox(
+                        h: 36,
+                        bg: dk(
+                          context,
+                          Color(0xFFE1F0FE),
+                          Color.fromRGBO(4, 133, 247, 0.18),
+                        ),
+                        radius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: Color(0xFF0485F7),
+                          width: 1.5,
+                        ),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            c.tierName(2),
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                      off: hbox(
+                        h: 36,
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(18),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            c.tierName(2),
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF3F3F46), Color(0xFFD4D4D8)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    HSel(
+                      ctrl: g1,
+                      index: 3,
+                      on: hbox(
+                        h: 36,
+                        bg: dk(
+                          context,
+                          Color(0xFFE1F0FE),
+                          Color.fromRGBO(4, 133, 247, 0.18),
+                        ),
+                        radius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: Color(0xFF0485F7),
+                          width: 1.5,
+                        ),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            c.tierName(3),
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                      off: hbox(
+                        h: 36,
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(18),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            c.tierName(3),
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF3F3F46), Color(0xFFD4D4D8)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                  gap: 8,
+                  rowGap: 8,
+                  cross: WrapCrossAlignment.start,
+                ),
               ),
             ],
             main: MainAxisAlignment.start,
@@ -196,15 +401,216 @@ class _MemberFilterTemplate extends StatelessWidget {
                   ),
                 ),
               ),
-              AppChoiceGroup<int>(
-                items: [
-                  ChoiceItem(value: 0, label: '不限'),
-                  ChoiceItem(value: 1, label: '¥500 以下'),
-                  ChoiceItem(value: 2, label: '¥500–2,000'),
-                  ChoiceItem(value: 3, label: '¥2,000 以上'),
-                ],
-                selected: c.filters.balance,
+              SingleSelection(
+                index: c.filters.balance,
                 onChanged: c.chooseBalance,
+                builder: (context, g2) => hwrap(
+                  [
+                    HSel(
+                      ctrl: g2,
+                      index: 0,
+                      on: hbox(
+                        h: 36,
+                        bg: dk(
+                          context,
+                          Color(0xFFE1F0FE),
+                          Color.fromRGBO(4, 133, 247, 0.18),
+                        ),
+                        radius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: Color(0xFF0485F7),
+                          width: 1.5,
+                        ),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '不限',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                      off: hbox(
+                        h: 36,
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(18),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '不限',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF3F3F46), Color(0xFFD4D4D8)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    HSel(
+                      ctrl: g2,
+                      index: 1,
+                      on: hbox(
+                        h: 36,
+                        bg: dk(
+                          context,
+                          Color(0xFFE1F0FE),
+                          Color.fromRGBO(4, 133, 247, 0.18),
+                        ),
+                        radius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: Color(0xFF0485F7),
+                          width: 1.5,
+                        ),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '¥500 以下',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                      off: hbox(
+                        h: 36,
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(18),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '¥500 以下',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF3F3F46), Color(0xFFD4D4D8)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    HSel(
+                      ctrl: g2,
+                      index: 2,
+                      on: hbox(
+                        h: 36,
+                        bg: dk(
+                          context,
+                          Color(0xFFE1F0FE),
+                          Color.fromRGBO(4, 133, 247, 0.18),
+                        ),
+                        radius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: Color(0xFF0485F7),
+                          width: 1.5,
+                        ),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '¥500–2,000',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                      off: hbox(
+                        h: 36,
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(18),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '¥500–2,000',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF3F3F46), Color(0xFFD4D4D8)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    HSel(
+                      ctrl: g2,
+                      index: 3,
+                      on: hbox(
+                        h: 36,
+                        bg: dk(
+                          context,
+                          Color(0xFFE1F0FE),
+                          Color.fromRGBO(4, 133, 247, 0.18),
+                        ),
+                        radius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: Color(0xFF0485F7),
+                          width: 1.5,
+                        ),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '¥2,000 以上',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                      off: hbox(
+                        h: 36,
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(18),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '¥2,000 以上',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF3F3F46), Color(0xFFD4D4D8)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                  gap: 8,
+                  rowGap: 8,
+                  cross: WrapCrossAlignment.start,
+                ),
               ),
             ],
             main: MainAxisAlignment.start,
@@ -225,15 +631,216 @@ class _MemberFilterTemplate extends StatelessWidget {
                   ),
                 ),
               ),
-              AppChoiceGroup<int>(
-                items: [
-                  ChoiceItem(value: 0, label: '7 天内'),
-                  ChoiceItem(value: 1, label: '30 天内'),
-                  ChoiceItem(value: 2, label: '超过 60 天'),
-                  ChoiceItem(value: 3, label: '超过 90 天'),
-                ],
-                selected: c.filters.visit,
+              SingleSelection(
+                index: c.filters.visit,
                 onChanged: c.chooseVisit,
+                builder: (context, g3) => hwrap(
+                  [
+                    HSel(
+                      ctrl: g3,
+                      index: 0,
+                      on: hbox(
+                        h: 36,
+                        bg: dk(
+                          context,
+                          Color(0xFFE1F0FE),
+                          Color.fromRGBO(4, 133, 247, 0.18),
+                        ),
+                        radius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: Color(0xFF0485F7),
+                          width: 1.5,
+                        ),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '7 天内',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                      off: hbox(
+                        h: 36,
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(18),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '7 天内',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF3F3F46), Color(0xFFD4D4D8)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    HSel(
+                      ctrl: g3,
+                      index: 1,
+                      on: hbox(
+                        h: 36,
+                        bg: dk(
+                          context,
+                          Color(0xFFE1F0FE),
+                          Color.fromRGBO(4, 133, 247, 0.18),
+                        ),
+                        radius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: Color(0xFF0485F7),
+                          width: 1.5,
+                        ),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '30 天内',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                      off: hbox(
+                        h: 36,
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(18),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '30 天内',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF3F3F46), Color(0xFFD4D4D8)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    HSel(
+                      ctrl: g3,
+                      index: 2,
+                      on: hbox(
+                        h: 36,
+                        bg: dk(
+                          context,
+                          Color(0xFFE1F0FE),
+                          Color.fromRGBO(4, 133, 247, 0.18),
+                        ),
+                        radius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: Color(0xFF0485F7),
+                          width: 1.5,
+                        ),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '超过 60 天',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                      off: hbox(
+                        h: 36,
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(18),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '超过 60 天',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF3F3F46), Color(0xFFD4D4D8)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    HSel(
+                      ctrl: g3,
+                      index: 3,
+                      on: hbox(
+                        h: 36,
+                        bg: dk(
+                          context,
+                          Color(0xFFE1F0FE),
+                          Color.fromRGBO(4, 133, 247, 0.18),
+                        ),
+                        radius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: Color(0xFF0485F7),
+                          width: 1.5,
+                        ),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '超过 90 天',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                      off: hbox(
+                        h: 36,
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(18),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '超过 90 天',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF3F3F46), Color(0xFFD4D4D8)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                  gap: 8,
+                  rowGap: 8,
+                  cross: WrapCrossAlignment.start,
+                ),
               ),
             ],
             main: MainAxisAlignment.start,
@@ -254,14 +861,166 @@ class _MemberFilterTemplate extends StatelessWidget {
                   ),
                 ),
               ),
-              AppChoiceGroup<int>(
-                items: [
-                  ChoiceItem(value: 0, label: '7 天内到期'),
-                  ChoiceItem(value: 1, label: '剩余 ≤ 2 次'),
-                  ChoiceItem(value: 2, label: '已用完'),
-                ],
-                selected: -1,
+              SingleSelection(
+                index: -1,
                 onChanged: (value) => c.unsupported(context, value),
+                builder: (context, g4) => hwrap(
+                  [
+                    HSel(
+                      ctrl: g4,
+                      index: 0,
+                      on: hbox(
+                        h: 36,
+                        bg: dk(
+                          context,
+                          Color(0xFFE1F0FE),
+                          Color.fromRGBO(4, 133, 247, 0.18),
+                        ),
+                        radius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: Color(0xFF0485F7),
+                          width: 1.5,
+                        ),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '7 天内到期',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                      off: hbox(
+                        h: 36,
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(18),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '7 天内到期',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF3F3F46), Color(0xFFD4D4D8)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    HSel(
+                      ctrl: g4,
+                      index: 1,
+                      on: hbox(
+                        h: 36,
+                        bg: dk(
+                          context,
+                          Color(0xFFE1F0FE),
+                          Color.fromRGBO(4, 133, 247, 0.18),
+                        ),
+                        radius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: Color(0xFF0485F7),
+                          width: 1.5,
+                        ),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '剩余 ≤ 2 次',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                      off: hbox(
+                        h: 36,
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(18),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '剩余 ≤ 2 次',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF3F3F46), Color(0xFFD4D4D8)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    HSel(
+                      ctrl: g4,
+                      index: 2,
+                      on: hbox(
+                        h: 36,
+                        bg: dk(
+                          context,
+                          Color(0xFFE1F0FE),
+                          Color.fromRGBO(4, 133, 247, 0.18),
+                        ),
+                        radius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: Color(0xFF0485F7),
+                          width: 1.5,
+                        ),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '已用完',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                      off: hbox(
+                        h: 36,
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(18),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '已用完',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF3F3F46), Color(0xFFD4D4D8)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                  gap: 8,
+                  rowGap: 8,
+                  cross: WrapCrossAlignment.start,
+                ),
               ),
             ],
             main: MainAxisAlignment.start,
@@ -282,15 +1041,216 @@ class _MemberFilterTemplate extends StatelessWidget {
                   ),
                 ),
               ),
-              AppChoiceGroup<int>(
-                items: [
-                  ChoiceItem(value: 0, label: '新能源车主'),
-                  ChoiceItem(value: 1, label: '做过镀晶'),
-                  ChoiceItem(value: 2, label: '车衣质保中'),
-                  ChoiceItem(value: 3, label: '多辆车'),
-                ],
-                selected: -1,
+              SingleSelection(
+                index: -1,
                 onChanged: (value) => c.unsupported(context, value),
+                builder: (context, g5) => hwrap(
+                  [
+                    HSel(
+                      ctrl: g5,
+                      index: 0,
+                      on: hbox(
+                        h: 36,
+                        bg: dk(
+                          context,
+                          Color(0xFFE1F0FE),
+                          Color.fromRGBO(4, 133, 247, 0.18),
+                        ),
+                        radius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: Color(0xFF0485F7),
+                          width: 1.5,
+                        ),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '新能源车主',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                      off: hbox(
+                        h: 36,
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(18),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '新能源车主',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF3F3F46), Color(0xFFD4D4D8)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    HSel(
+                      ctrl: g5,
+                      index: 1,
+                      on: hbox(
+                        h: 36,
+                        bg: dk(
+                          context,
+                          Color(0xFFE1F0FE),
+                          Color.fromRGBO(4, 133, 247, 0.18),
+                        ),
+                        radius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: Color(0xFF0485F7),
+                          width: 1.5,
+                        ),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '做过镀晶',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                      off: hbox(
+                        h: 36,
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(18),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '做过镀晶',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF3F3F46), Color(0xFFD4D4D8)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    HSel(
+                      ctrl: g5,
+                      index: 2,
+                      on: hbox(
+                        h: 36,
+                        bg: dk(
+                          context,
+                          Color(0xFFE1F0FE),
+                          Color.fromRGBO(4, 133, 247, 0.18),
+                        ),
+                        radius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: Color(0xFF0485F7),
+                          width: 1.5,
+                        ),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '车衣质保中',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                      off: hbox(
+                        h: 36,
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(18),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '车衣质保中',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF3F3F46), Color(0xFFD4D4D8)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    HSel(
+                      ctrl: g5,
+                      index: 3,
+                      on: hbox(
+                        h: 36,
+                        bg: dk(
+                          context,
+                          Color(0xFFE1F0FE),
+                          Color.fromRGBO(4, 133, 247, 0.18),
+                        ),
+                        radius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: Color(0xFF0485F7),
+                          width: 1.5,
+                        ),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '多辆车',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                      off: hbox(
+                        h: 36,
+                        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(18),
+                        pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                        child: Align(
+                          alignment: Alignment.center,
+                          widthFactor: 1,
+                          child: Text(
+                            '多辆车',
+                            style: hts(
+                              13,
+                              dk(context, Color(0xFF3F3F46), Color(0xFFD4D4D8)),
+                              w: FontWeight.w500,
+                              lh: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                  gap: 8,
+                  rowGap: 8,
+                  cross: WrapCrossAlignment.start,
+                ),
               ),
             ],
             main: MainAxisAlignment.start,
@@ -325,12 +1285,27 @@ class _MemberFilterTemplate extends StatelessWidget {
                   child: UnconstrainedBox(
                     alignment: Alignment.topLeft,
                     constrainedAxis: Axis.horizontal,
-                    child: AppButton(
-                      label: '取消',
-                      kind: AppButtonKind.secondary,
-                      size: AppButtonSize.large,
-                      expanded: true,
-                      onPressed: () => Navigator.of(context).pop(),
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => Navigator.of(context).pop(),
+                      child: hbox(
+                        h: 50,
+                        bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
+                        radius: BorderRadius.circular(25),
+                        child: Align(
+                          alignment: Alignment(0, 0),
+                          widthFactor: 1,
+                          child: Text(
+                            '取消',
+                            style: hts(
+                              15,
+                              dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                              w: FontWeight.w500,
+                              lh: 22,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -339,12 +1314,27 @@ class _MemberFilterTemplate extends StatelessWidget {
                   child: UnconstrainedBox(
                     alignment: Alignment.topLeft,
                     constrainedAxis: Axis.horizontal,
-                    child: AppButton(
-                      label: c.matched == null ? '查看会员' : '查看 ${c.matched} 位会员',
-                      kind: AppButtonKind.secondary,
-                      size: AppButtonSize.large,
-                      expanded: true,
-                      onPressed: () => Navigator.of(context).pop(c.filters),
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => Navigator.of(context).pop(c.filters),
+                      child: hbox(
+                        h: 50,
+                        bg: Color(0xFF0485F7),
+                        radius: BorderRadius.circular(25),
+                        child: Align(
+                          alignment: Alignment(0, 0),
+                          widthFactor: 1,
+                          child: Text(
+                            c.matched == null ? '查看会员' : '查看 ${c.matched} 位会员',
+                            style: hts(
+                              15,
+                              Color(0xFFFFFFFF),
+                              w: FontWeight.w600,
+                              lh: 22,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),

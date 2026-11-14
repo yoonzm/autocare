@@ -136,8 +136,6 @@ class MerchantApi {
     'staff_get',
     'staff_records',
     'staff_home',
-    'staff_task_photo_list',
-    'store_media_list',
     'identity_list',
     'identity_context',
     'home_stats',
@@ -694,6 +692,22 @@ class MerchantApi {
       'kind': 'member_packages',
       'id': id,
       'days': days,
+      'reason': reason,
+    }, requestId: requestId);
+    return Map<String, dynamic>.from(data['item'] as Map);
+  }
+
+  Future<Map<String, dynamic>> refundPackage({
+    required String id,
+    String? requestId,
+    required String to,
+    required String reason,
+  }) async {
+    final data = await invoke({
+      'action': 'refund',
+      'kind': 'member_packages',
+      'id': id,
+      'to': to,
       'reason': reason,
     }, requestId: requestId);
     return Map<String, dynamic>.from(data['item'] as Map);

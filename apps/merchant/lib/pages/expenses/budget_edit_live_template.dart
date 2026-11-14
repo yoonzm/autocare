@@ -1,8 +1,5 @@
-import 'package:autocare_ui_kit/autocare_ui_kit.dart'
-    show AppChoiceGroup, ChoiceItem;
-
-import '../../kit/buttons.dart';
 import 'expense_widgets.dart';
+import '../../kit/single_selection.dart';
 import 'expense_controller.dart';
 
 import 'package:flutter/material.dart';
@@ -28,10 +25,52 @@ class BudgetEditLiveTemplate extends StatelessWidget {
               [
                 hrow(
                   [
-                    AppIconButton(
-                      svg: dk(context, Svgs.s26, Svgs.s27),
-                      semanticLabel: "返回",
-                      onPressed: () => Navigator.of(context).maybePop(),
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => Navigator.of(context).maybePop(),
+                      child: hbox(
+                        w: 44,
+                        h: 44,
+                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                        radius: BorderRadius.circular(22),
+                        shadow: dk(
+                          context,
+                          [
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
+                              spreadRadius: 0,
+                            ),
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 1),
+                              blurRadius: 2,
+                              spreadRadius: 0,
+                            ),
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
+                              spreadRadius: 0,
+                            ),
+                          ],
+                          [
+                            BoxShadow(
+                              color: Color(0xFF26262B),
+                              offset: Offset(0, 0),
+                              blurRadius: 0,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                        child: hrow(
+                          [hsvg(dk(context, Svgs.s26, Svgs.s27), w: 20, h: 20)],
+                          main: MainAxisAlignment.center,
+                          cross: CrossAxisAlignment.center,
+                          gap: 0,
+                        ),
+                      ),
                     ),
                     Expanded(
                       flex: 1,
@@ -346,15 +385,264 @@ class BudgetEditLiveTemplate extends StatelessWidget {
                         cross: CrossAxisAlignment.baseline,
                         gap: 6,
                       ),
-                      AppChoiceGroup<int>(
-                        items: [
-                          ChoiceItem(value: 0, label: c.previousCategoryText),
-                          ChoiceItem(value: 1, label: c.categoryTenPercentText),
-                          ChoiceItem(value: 2, label: c.categoryShareText),
-                          ChoiceItem(value: 3, label: c.categoryRestoreText),
-                        ],
-                        selected: c.categorySuggestion,
+                      SingleSelection(
+                        index: c.categorySuggestion,
                         onChanged: (i) => c.chooseCategorySuggestion(i),
+                        builder: (context, selection) => hwrap(
+                          [
+                            HSel(
+                              ctrl: selection,
+                              index: 0,
+                              on: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFF4F4F5),
+                                  Color(0xFF27272A),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                border: Border.all(
+                                  color: Color(0xFF0485F7),
+                                  width: 1.5,
+                                ),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    c.previousCategoryText,
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF1E63AE),
+                                        Color(0xFF6AB4FA),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              off: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFF4F4F5),
+                                  Color(0xFF27272A),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    c.previousCategoryText,
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF3F3F46),
+                                        Color(0xFFD4D4D8),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            HSel(
+                              ctrl: selection,
+                              index: 1,
+                              on: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFF4F4F5),
+                                  Color(0xFF27272A),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                border: Border.all(
+                                  color: Color(0xFF0485F7),
+                                  width: 1.5,
+                                ),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    c.categoryTenPercentText,
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF1E63AE),
+                                        Color(0xFF6AB4FA),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              off: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFF4F4F5),
+                                  Color(0xFF27272A),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    c.categoryTenPercentText,
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF3F3F46),
+                                        Color(0xFFD4D4D8),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            HSel(
+                              ctrl: selection,
+                              index: 2,
+                              on: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFE1F0FE),
+                                  Color.fromRGBO(4, 133, 247, 0.18),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                border: Border.all(
+                                  color: Color(0xFF0485F7),
+                                  width: 1.5,
+                                ),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    c.categoryShareText,
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF1E63AE),
+                                        Color(0xFF6AB4FA),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              off: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFE1F0FE),
+                                  Color.fromRGBO(4, 133, 247, 0.18),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    c.categoryShareText,
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF3F3F46),
+                                        Color(0xFFD4D4D8),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            HSel(
+                              ctrl: selection,
+                              index: 3,
+                              on: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFF4F4F5),
+                                  Color(0xFF27272A),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                border: Border.all(
+                                  color: Color(0xFF0485F7),
+                                  width: 1.5,
+                                ),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    c.categoryRestoreText,
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF1E63AE),
+                                        Color(0xFF6AB4FA),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              off: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFF4F4F5),
+                                  Color(0xFF27272A),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text(
+                                    c.categoryRestoreText,
+                                    style: hts(
+                                      13,
+                                      dk(
+                                        context,
+                                        Color(0xFF3F3F46),
+                                        Color(0xFFD4D4D8),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                          gap: 8,
+                          rowGap: 8,
+                          cross: WrapCrossAlignment.start,
+                        ),
                       ),
                       Text(
                         c.savedTotalText,
@@ -430,14 +718,8 @@ class BudgetEditLiveTemplate extends StatelessWidget {
                               lh: 20,
                             ),
                           ),
-                          AppChoiceGroup<int>(
-                            items: [
-                              ChoiceItem(value: 0, label: '70%'),
-                              ChoiceItem(value: 1, label: '80%'),
-                              ChoiceItem(value: 2, label: '90%'),
-                              ChoiceItem(value: 3, label: '100%'),
-                            ],
-                            selected: [
+                          SingleSelection(
+                            index: [
                               70,
                               80,
                               90,
@@ -445,6 +727,261 @@ class BudgetEditLiveTemplate extends StatelessWidget {
                             ].indexOf(c.cat['threshold']),
                             onChanged: (i) =>
                                 c.setCategoryThreshold([70, 80, 90, 100][i]),
+                            builder: (context, selection) => hwrap(
+                              [
+                                HSel(
+                                  ctrl: selection,
+                                  index: 0,
+                                  on: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFF4F4F5),
+                                      Color(0xFF27272A),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    border: Border.all(
+                                      color: Color(0xFF0485F7),
+                                      width: 1.5,
+                                    ),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '70%',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF1E63AE),
+                                            Color(0xFF6AB4FA),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  off: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFF4F4F5),
+                                      Color(0xFF27272A),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '70%',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF3F3F46),
+                                            Color(0xFFD4D4D8),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                HSel(
+                                  ctrl: selection,
+                                  index: 1,
+                                  on: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFE1F0FE),
+                                      Color.fromRGBO(4, 133, 247, 0.18),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    border: Border.all(
+                                      color: Color(0xFF0485F7),
+                                      width: 1.5,
+                                    ),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '80%',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF1E63AE),
+                                            Color(0xFF6AB4FA),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  off: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFE1F0FE),
+                                      Color.fromRGBO(4, 133, 247, 0.18),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '80%',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF3F3F46),
+                                            Color(0xFFD4D4D8),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                HSel(
+                                  ctrl: selection,
+                                  index: 2,
+                                  on: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFF4F4F5),
+                                      Color(0xFF27272A),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    border: Border.all(
+                                      color: Color(0xFF0485F7),
+                                      width: 1.5,
+                                    ),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '90%',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF1E63AE),
+                                            Color(0xFF6AB4FA),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  off: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFF4F4F5),
+                                      Color(0xFF27272A),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '90%',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF3F3F46),
+                                            Color(0xFFD4D4D8),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                HSel(
+                                  ctrl: selection,
+                                  index: 3,
+                                  on: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFF4F4F5),
+                                      Color(0xFF27272A),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    border: Border.all(
+                                      color: Color(0xFF0485F7),
+                                      width: 1.5,
+                                    ),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '100%',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF1E63AE),
+                                            Color(0xFF6AB4FA),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  off: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFF4F4F5),
+                                      Color(0xFF27272A),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '100%',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF3F3F46),
+                                            Color(0xFFD4D4D8),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                              gap: 8,
+                              rowGap: 8,
+                              cross: WrapCrossAlignment.start,
+                            ),
                           ),
                           hbox(
                             h: 1,
@@ -463,19 +1000,207 @@ class BudgetEditLiveTemplate extends StatelessWidget {
                               lh: 20,
                             ),
                           ),
-                          AppChoiceGroup<int>(
-                            items: [
-                              ChoiceItem(value: 0, label: '仅提醒'),
-                              ChoiceItem(value: 1, label: '需店长确认才能记账'),
-                              ChoiceItem(value: 2, label: '禁止超支'),
-                            ],
-                            selected: [
+                          SingleSelection(
+                            index: [
                               'warn',
                               'owner',
                               'block',
                             ].indexOf(c.cat['policy']),
                             onChanged: (i) => c.setCategoryPolicy(
                               ['warn', 'owner', 'block'][i],
+                            ),
+                            builder: (context, selection) => hwrap(
+                              [
+                                HSel(
+                                  ctrl: selection,
+                                  index: 0,
+                                  on: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFF4F4F5),
+                                      Color(0xFF27272A),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    border: Border.all(
+                                      color: Color(0xFF0485F7),
+                                      width: 1.5,
+                                    ),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '仅提醒',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF1E63AE),
+                                            Color(0xFF6AB4FA),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  off: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFF4F4F5),
+                                      Color(0xFF27272A),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '仅提醒',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF3F3F46),
+                                            Color(0xFFD4D4D8),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                HSel(
+                                  ctrl: selection,
+                                  index: 1,
+                                  on: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFE1F0FE),
+                                      Color.fromRGBO(4, 133, 247, 0.18),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    border: Border.all(
+                                      color: Color(0xFF0485F7),
+                                      width: 1.5,
+                                    ),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '需店长确认才能记账',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF1E63AE),
+                                            Color(0xFF6AB4FA),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  off: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFE1F0FE),
+                                      Color.fromRGBO(4, 133, 247, 0.18),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '需店长确认才能记账',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF3F3F46),
+                                            Color(0xFFD4D4D8),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                HSel(
+                                  ctrl: selection,
+                                  index: 2,
+                                  on: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFF4F4F5),
+                                      Color(0xFF27272A),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    border: Border.all(
+                                      color: Color(0xFF0485F7),
+                                      width: 1.5,
+                                    ),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '禁止超支',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF1E63AE),
+                                            Color(0xFF6AB4FA),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  off: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFF4F4F5),
+                                      Color(0xFF27272A),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '禁止超支',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF3F3F46),
+                                            Color(0xFFD4D4D8),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                              gap: 8,
+                              rowGap: 8,
+                              cross: WrapCrossAlignment.start,
                             ),
                           ),
                         ],
@@ -871,24 +1596,60 @@ class BudgetEditLiveTemplate extends StatelessWidget {
               [
                 Expanded(
                   flex: 10,
-                  child: ActionButton(
-                    actionKey: c.saveKey,
-                    label: '删除',
-                    kind: AppButtonKind.danger,
-                    size: AppButtonSize.large,
-                    expanded: true,
-                    onPressed: () => c.save(context, remove: true),
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => c.save(context, remove: true),
+                    child: hbox(
+                      h: 50,
+                      bg: dk(
+                        context,
+                        Color(0xFFFFE1E2),
+                        Color.fromRGBO(255, 56, 60, 0.18),
+                      ),
+                      radius: BorderRadius.circular(25),
+                      child: Align(
+                        alignment: Alignment(0, 0),
+                        widthFactor: 1,
+                        child: c.busyLabel(
+                          Text(
+                            '删除',
+                            style: hts(
+                              15,
+                              dk(context, Color(0xFFA43433), Color(0xFFFF7B7E)),
+                              w: FontWeight.w500,
+                              lh: 22,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
                 Expanded(
                   flex: 16,
-                  child: ActionButton(
-                    actionKey: c.saveKey,
-                    label: '保存',
-                    kind: AppButtonKind.primary,
-                    size: AppButtonSize.large,
-                    expanded: true,
-                    onPressed: () => c.save(context),
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => c.save(context),
+                    child: hbox(
+                      h: 50,
+                      bg: Color(0xFF0485F7),
+                      radius: BorderRadius.circular(25),
+                      child: Align(
+                        alignment: Alignment(0, 0),
+                        widthFactor: 1,
+                        child: c.busyLabel(
+                          Text(
+                            '保存',
+                            style: hts(
+                              15,
+                              Color(0xFFFFFFFF),
+                              w: FontWeight.w600,
+                              lh: 22,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ],

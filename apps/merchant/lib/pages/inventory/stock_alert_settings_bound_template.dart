@@ -1,7 +1,3 @@
-import 'package:autocare_ui_kit/autocare_ui_kit.dart'
-    show AppChoiceGroup, ChoiceItem;
-
-import '../../kit/buttons.dart';
 import '../../kit/single_selection.dart';
 
 // 库存预警配置：显式状态和事件，沿用现有布局。
@@ -32,12 +28,54 @@ class StockAlertSettingsBoundTemplate extends StatelessWidget {
                 [
                   hrow(
                     [
-                      AppIconButton(
-                        svg: dk(context, Svgs.s0, Svgs.s1),
-                        semanticLabel: "返回",
-                        onPressed: c.busy
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: c.busy
                             ? null
                             : () => Navigator.of(context).maybePop(),
+                        child: hbox(
+                          w: 44,
+                          h: 44,
+                          bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                          radius: BorderRadius.circular(22),
+                          shadow: dk(
+                            context,
+                            [
+                              BoxShadow(
+                                color: Color.fromRGBO(0, 0, 0, 0.06),
+                                offset: Offset(0, 0),
+                                blurRadius: 1,
+                                spreadRadius: 0,
+                              ),
+                              BoxShadow(
+                                color: Color.fromRGBO(0, 0, 0, 0.06),
+                                offset: Offset(0, 1),
+                                blurRadius: 2,
+                                spreadRadius: 0,
+                              ),
+                              BoxShadow(
+                                color: Color.fromRGBO(0, 0, 0, 0.04),
+                                offset: Offset(0, 2),
+                                blurRadius: 4,
+                                spreadRadius: 0,
+                              ),
+                            ],
+                            [
+                              BoxShadow(
+                                color: Color(0xFF26262B),
+                                offset: Offset(0, 0),
+                                blurRadius: 0,
+                                spreadRadius: 1,
+                              ),
+                            ],
+                          ),
+                          child: hrow(
+                            [hsvg(dk(context, Svgs.s0, Svgs.s1), w: 20, h: 20)],
+                            main: MainAxisAlignment.center,
+                            cross: CrossAxisAlignment.center,
+                            gap: 0,
+                          ),
+                        ),
                       ),
                       Expanded(
                         flex: 1,
@@ -305,18 +343,260 @@ class StockAlertSettingsBoundTemplate extends StatelessWidget {
                                 lh: 18,
                               ),
                             ),
-                            ListenableBuilder(
-                              listenable: selection,
-                              builder: (context, _) => AppChoiceGroup<int>(
-                                items: [
-                                  ChoiceItem(value: 0, label: '7 天'),
-                                  ChoiceItem(value: 1, label: '15 天'),
-                                  ChoiceItem(value: 2, label: '30 天'),
-                                  ChoiceItem(value: 3, label: '60 天'),
-                                ],
-                                selected: selection.selected.firstOrNull,
-                                onChanged: selection.tap,
-                              ),
+                            hwrap(
+                              [
+                                HSel(
+                                  ctrl: selection,
+                                  index: 0,
+                                  on: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFE1F0FE),
+                                      Color.fromRGBO(4, 133, 247, 0.18),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    border: Border.all(
+                                      color: Color(0xFF0485F7),
+                                      width: 1.5,
+                                    ),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '7 天',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF1E63AE),
+                                            Color(0xFF6AB4FA),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  off: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFF4F4F5),
+                                      Color(0xFF27272A),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '7 天',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF3F3F46),
+                                            Color(0xFFD4D4D8),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                HSel(
+                                  ctrl: selection,
+                                  index: 1,
+                                  on: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFE1F0FE),
+                                      Color.fromRGBO(4, 133, 247, 0.18),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    border: Border.all(
+                                      color: Color(0xFF0485F7),
+                                      width: 1.5,
+                                    ),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '15 天',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF1E63AE),
+                                            Color(0xFF6AB4FA),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  off: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFF4F4F5),
+                                      Color(0xFF27272A),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '15 天',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF3F3F46),
+                                            Color(0xFFD4D4D8),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                HSel(
+                                  ctrl: selection,
+                                  index: 2,
+                                  on: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFE1F0FE),
+                                      Color.fromRGBO(4, 133, 247, 0.18),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    border: Border.all(
+                                      color: Color(0xFF0485F7),
+                                      width: 1.5,
+                                    ),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '30 天',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF1E63AE),
+                                            Color(0xFF6AB4FA),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  off: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFF4F4F5),
+                                      Color(0xFF27272A),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '30 天',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF3F3F46),
+                                            Color(0xFFD4D4D8),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                HSel(
+                                  ctrl: selection,
+                                  index: 3,
+                                  on: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFE1F0FE),
+                                      Color.fromRGBO(4, 133, 247, 0.18),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    border: Border.all(
+                                      color: Color(0xFF0485F7),
+                                      width: 1.5,
+                                    ),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '60 天',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF1E63AE),
+                                            Color(0xFF6AB4FA),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  off: hbox(
+                                    h: 34,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFF4F4F5),
+                                      Color(0xFF27272A),
+                                    ),
+                                    radius: BorderRadius.circular(17),
+                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '60 天',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF3F3F46),
+                                            Color(0xFFD4D4D8),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                              gap: 8,
+                              rowGap: 8,
+                              cross: WrapCrossAlignment.start,
                             ),
                           ],
                           main: MainAxisAlignment.start,
@@ -621,13 +901,29 @@ class StockAlertSettingsBoundTemplate extends StatelessWidget {
                   child: UnconstrainedBox(
                     alignment: Alignment.topLeft,
                     constrainedAxis: Axis.horizontal,
-                    child: ActionButton(
-                      actionKey: c.actionKey,
-                      label: '保存',
-                      kind: AppButtonKind.primary,
-                      size: AppButtonSize.large,
-                      expanded: true,
-                      onPressed: c.busy ? null : () => c.saveSettings(context),
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: c.busy ? null : () => c.saveSettings(context),
+                      child: hbox(
+                        h: 50,
+                        bg: Color(0xFF0485F7),
+                        radius: BorderRadius.circular(25),
+                        child: Align(
+                          alignment: Alignment(0, 0),
+                          widthFactor: 1,
+                          child: c.busyLabel(
+                            Text(
+                              '保存',
+                              style: hts(
+                                15,
+                                Color(0xFFFFFFFF),
+                                w: FontWeight.w600,
+                                lh: 22,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),

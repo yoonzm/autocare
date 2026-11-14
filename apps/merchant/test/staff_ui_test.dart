@@ -8,7 +8,7 @@ import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/kit/async_kit.dart';
 import 'package:autocare_merchant/pages/staff/staff_skeletons.dart';
 import 'package:autocare_merchant/routes.dart' show navTracker;
-import 'package:autocare_ui_kit/autocare_ui_kit.dart';
+import 'package:autocare_merchant/widgets/choice_chip_group.dart';
 
 import 'appointments_test.dart' show BookingApi;
 import 'members_test.dart' show phone;
@@ -51,7 +51,7 @@ void main() {
     await open(t, const StaffResourcesPage(), settle: false);
     // 300ms 延迟内：只有外壳，没有灰块
     expect(find.text('员工与权限'), findsOneWidget);
-    expect(find.textContaining('施工技师', findRichText: true), findsOneWidget);
+    expect(find.text('施工技师'), findsOneWidget);
     expect(find.byType(AppSkeleton), findsNothing);
     await t.pump(const Duration(milliseconds: 400));
     expect(find.byType(ResourceSkeleton), findsOneWidget);
@@ -66,14 +66,8 @@ void main() {
 
   testWidgets('员工列表的角色页签是分段条，不套单选标签（ChoiceChip）样式', (t) async {
     await open(t, const StaffResourcesPage());
-    expect(find.byType(AppChoiceGroup<int>), findsNothing);
-    final segments = find.byType(AppSegmented<int>);
-    expect(segments, findsOneWidget);
-    expect(
-      t.widget<AppSegmented<int>>(segments).items.map((e) => e.count),
-      everyElement(isNotNull),
-    );
-    await t.tap(find.textContaining('施工技师', findRichText: true));
+    expect(find.byType(ChoiceChipGroup<int>), findsNothing);
+    await t.tap(find.textContaining('施工技师'));
     await t.pumpAndSettle();
     expect(find.textContaining('真实技师'), findsOneWidget);
   });
@@ -100,25 +94,20 @@ void main() {
     final size = t.getSize(button);
     await t.tap(find.text('保存并邀请'));
     await t.pump();
-    expect(find.text('保存并邀请'), findsOneWidget);
+    expect(find.text('提交中…'), findsOneWidget);
     expect(t.getSize(button), size);
-    final spinner = t.widget<CircularProgressIndicator>(
-      find.byType(CircularProgressIndicator),
-    );
-    expect(spinner.valueColor!.value, Colors.white);
-    expect(
-      t.getSize(find.byType(CircularProgressIndicator)),
-      const Size(16, 16),
-    );
+    final spinner = t.widget<AppSpinner>(find.byType(AppSpinner));
+    expect(spinner.color, Colors.white);
+    expect(spinner.size, 18);
     // 提交期间由 AbsorbPointer 拦截，重复点击预期不会命中按钮。
-    await t.tap(find.text('保存并邀请'), warnIfMissed: false);
+    await t.tap(find.text('提交中…'), warnIfMissed: false);
     await t.pump();
     expect(api.calls.where((c) => c['action'] == 'staff_save').length, 1);
     await t.pump(const Duration(milliseconds: 500));
     api.gate!.complete();
     await t.pumpAndSettle();
-    expect(find.byType(CircularProgressIndicator), findsNothing);
-    expect(find.text('保存并邀请'), findsOneWidget);
+    expect(find.byType(AppSpinner), findsNothing);
+    expect(find.text('提交中…'), findsNothing);
     expect(find.text('保存并邀请'), findsOneWidget);
     expect(t.getSize(button), size);
     expect(find.text('保存失败，请重试'), findsWidgets);

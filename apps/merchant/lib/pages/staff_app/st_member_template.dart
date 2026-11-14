@@ -1,5 +1,3 @@
-import '../../kit/buttons.dart';
-
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -520,10 +518,35 @@ class _StMemberTemplateState extends State<StMemberTemplate> {
                               hint: '手机号后 4 位 / 车牌 / 姓名',
                             ),
                           ),
-                          AppIconButton(
-                            icon: Icons.qr_code_scanner,
-                            semanticLabel: '扫码找会员',
-                            onPressed: () => openRoute(context, 'StVerify'),
+                          GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () => openRoute(context, 'StVerify'),
+                            child: NegMargin(
+                              top: 0,
+                              left: 0,
+                              child: hbox(
+                                w: 32,
+                                h: 32,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFF4F4F5),
+                                  Color(0xFF27272A),
+                                ),
+                                radius: BorderRadius.circular(16),
+                                child: hrow(
+                                  [
+                                    hsvg(
+                                      dk(context, Svgs.s49, Svgs.s50),
+                                      w: 18,
+                                      h: 18,
+                                    ),
+                                  ],
+                                  main: MainAxisAlignment.center,
+                                  cross: CrossAxisAlignment.center,
+                                  gap: 0,
+                                ),
+                              ),
+                            ),
                           ),
                         ],
                         main: MainAxisAlignment.start,

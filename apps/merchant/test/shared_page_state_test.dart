@@ -101,7 +101,7 @@ void main() {
     await t.pumpAndSettle();
     await t.tap(find.text('确认加入并进入工作台'));
     await t.pump();
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    expect(find.byType(AppSpinner), findsOneWidget);
     await t.pumpWidget(
       const MaterialApp(home: StAuthLivePage(key: ValueKey('other'))),
     );

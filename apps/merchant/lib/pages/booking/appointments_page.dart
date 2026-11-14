@@ -1,8 +1,3 @@
-import 'package:autocare_ui_kit/autocare_ui_kit.dart'
-    show AppSegmented, SegmentItem;
-
-import '../../kit/buttons.dart';
-
 import 'package:flutter/material.dart';
 
 import '../../backend/appointment_flow.dart';
@@ -246,11 +241,8 @@ class _AppointmentsPageState extends State<AppointmentsPage>
                         ),
                       ),
                       const SizedBox(height: 16),
-                      AppSegmented<int>(
-                        items: [
-                          SegmentItem(value: 0, label: '列表'),
-                          SegmentItem(value: 1, label: '工位时间表'),
-                        ],
+                      Segmented(
+                        labels: const ['列表', '工位时间表'],
                         selected: view,
                         onChanged: (i) => setState(() => view = i),
                       ),
@@ -358,13 +350,27 @@ class _AppointmentsPageState extends State<AppointmentsPage>
         color: C.card.withValues(alpha: 0.94),
         border: Border(top: BorderSide(color: C.stroke)),
       ),
-      child: AppButton(
-        label: '新建预约',
-        kind: AppButtonKind.primary,
-        size: AppButtonSize.large,
-        expanded: false,
-        svg: AppIcon.svg('add'),
-        onPressed: () => push(context, const AppointmentAddPage()),
+      child: GestureDetector(
+        onTap: () => push(context, const AppointmentAddPage()),
+        child: Container(
+          height: 50,
+          decoration: BoxDecoration(
+            color: C.btn,
+            borderRadius: BorderRadius.circular(25),
+          ),
+          alignment: Alignment.center,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AppIcon('add', color: C.btnFg, size: 20),
+              const SizedBox(width: 6),
+              Text(
+                '新建预约',
+                style: ts(15, w: FontWeight.w600, color: C.btnFg, h: 22),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -542,29 +548,46 @@ class _AppointmentsPageState extends State<AppointmentsPage>
   Widget _card(BuildContext context, Appointment a) {
     final st = _statusStyle(a.status);
     final done = a.status == ApptStatus.done;
-    Widget btn(
-      String t,
-      AppButtonKind kind,
-      VoidCallback onTap, {
-      bool loading = false,
-    }) => Expanded(
-      child: AppButton(
-        label: t,
-        kind: kind,
-        size: AppButtonSize.small,
-        loading: loading,
-        expanded: false,
-        onPressed: _busyId == a.id ? null : onTap,
+    Widget btn(String t, Color bg, Color fg, VoidCallback onTap) => Expanded(
+      child: GestureDetector(
+        onTap: _busyId == a.id ? null : onTap,
+        child: Container(
+          height: 40,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: t == '客户到店'
+              ? hBusy(
+                  '$_arriveKey:${a.id}',
+                  Text(
+                    t,
+                    style: ts(14, w: FontWeight.w600, color: fg, h: 20),
+                  ),
+                  style: ts(14, w: FontWeight.w600, color: fg, h: 20),
+                  label: '提交中…',
+                )
+              : Text(
+                  t,
+                  style: ts(14, w: FontWeight.w600, color: fg, h: 20),
+                ),
+        ),
       ),
     );
-    final call = AppIconButton(
-      svg: AppIcon.svg('phone'),
-      semanticLabel: '联系客户',
-      onPressed: () => _contact(a),
+    final call = GestureDetector(
+      onTap: () => _contact(a),
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(color: C.greenSoft, shape: BoxShape.circle),
+        child: Center(child: AppIcon('phone', size: 18, color: C.greenInk)),
+      ),
     );
     final reschedule = btn(
       '改期',
-      AppButtonKind.secondary,
+      C.chip,
+      C.ink,
       () => showAppointmentReschedule(context, a),
     );
     return AppCard(
@@ -663,24 +686,20 @@ class _AppointmentsPageState extends State<AppointmentsPage>
                   if (a.status == ApptStatus.arrived) ...[
                     btn(
                       '去开单',
-                      AppButtonKind.primary,
+                      C.btn,
+                      C.btnFg,
                       () => openAppointmentOrder(context, a),
                     ),
                     const SizedBox(width: 8),
                     reschedule,
                   ] else if (a.status == ApptStatus.late) ...[
-                    btn('联系客户', AppButtonKind.primary, () => _contact(a)),
+                    btn('联系客户', C.primary, Colors.white, () => _contact(a)),
                     const SizedBox(width: 8),
                     reschedule,
                     const SizedBox(width: 8),
                     call,
                   ] else ...[
-                    btn(
-                      '客户到店',
-                      AppButtonKind.primary,
-                      () => _arrive(a),
-                      loading: _busyId == a.id,
-                    ),
+                    btn('客户到店', C.btn, C.btnFg, () => _arrive(a)),
                     const SizedBox(width: 8),
                     reschedule,
                     const SizedBox(width: 8),

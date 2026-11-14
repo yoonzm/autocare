@@ -1,7 +1,4 @@
-import 'package:autocare_ui_kit/autocare_ui_kit.dart'
-    show AppSegmented, SegmentItem;
-
-import '../../kit/buttons.dart';
+import '../../kit/single_selection.dart';
 
 import 'package:flutter/material.dart';
 
@@ -31,10 +28,52 @@ class StaffListTemplate extends StatelessWidget {
               [
                 hrow(
                   [
-                    AppIconButton(
-                      svg: dk(context, Svgs.s0, Svgs.s1),
-                      semanticLabel: "返回",
-                      onPressed: () => Navigator.of(context).maybePop(),
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => Navigator.of(context).maybePop(),
+                      child: hbox(
+                        w: 44,
+                        h: 44,
+                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                        radius: BorderRadius.circular(22),
+                        shadow: dk(
+                          context,
+                          [
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
+                              spreadRadius: 0,
+                            ),
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 1),
+                              blurRadius: 2,
+                              spreadRadius: 0,
+                            ),
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
+                              spreadRadius: 0,
+                            ),
+                          ],
+                          [
+                            BoxShadow(
+                              color: Color(0xFF26262B),
+                              offset: Offset(0, 0),
+                              blurRadius: 0,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                        child: hrow(
+                          [hsvg(dk(context, Svgs.s0, Svgs.s1), w: 20, h: 20)],
+                          main: MainAxisAlignment.center,
+                          cross: CrossAxisAlignment.center,
+                          gap: 0,
+                        ),
+                      ),
                     ),
                     Expanded(
                       flex: 1,
@@ -49,26 +88,619 @@ class StaffListTemplate extends StatelessWidget {
                         textAlign: TextAlign.center,
                       ),
                     ),
-                    AppIconButton(
-                      svg: Svgs.s81,
-                      semanticLabel: '新增员工',
-                      kind: AppIconButtonKind.primary,
-                      onPressed: () => c.editResource(context, null),
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => c.editResource(context, null),
+                      child: hbox(
+                        w: 44,
+                        h: 44,
+                        bg: Color(0xFF0485F7),
+                        radius: BorderRadius.circular(22),
+                        child: hrow(
+                          [hsvg(Svgs.s81, w: 20, h: 20)],
+                          main: MainAxisAlignment.center,
+                          cross: CrossAxisAlignment.center,
+                          gap: 0,
+                        ),
+                      ),
                     ),
                   ],
                   main: MainAxisAlignment.start,
                   cross: CrossAxisAlignment.center,
                   gap: 8,
                 ),
-                AppSegmented<int>(
-                  items: [
-                    SegmentItem(value: 0, label: '全部', count: c.count(0)),
-                    SegmentItem(value: 1, label: '店长', count: c.count(1)),
-                    SegmentItem(value: 2, label: '前台收银', count: c.count(2)),
-                    SegmentItem(value: 3, label: '施工技师', count: c.count(3)),
-                  ],
-                  selected: c.filter,
-                  onChanged: c.setFilter,
+                hbox(
+                  bg: dk(context, Color(0xFFE9E9EB), Color(0xFF1F1F23)),
+                  radius: BorderRadius.circular(20),
+                  pad: EdgeInsets.fromLTRB(4, 4, 4, 4),
+                  child: SingleSelection(
+                    index: c.filter,
+                    onChanged: c.setFilter,
+                    builder: (context, selection) => hrow(
+                      [
+                        Expanded(
+                          flex: 1,
+                          child: UnconstrainedBox(
+                            alignment: Alignment.topLeft,
+                            constrainedAxis: Axis.horizontal,
+                            child: HSel(
+                              ctrl: selection,
+                              index: 0,
+                              segment: true,
+                              on: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFFFFFFF),
+                                  Color(0xFF18181B),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                shadow: dk(
+                                  context,
+                                  [
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.06),
+                                      offset: Offset(0, 1),
+                                      blurRadius: 2,
+                                      spreadRadius: 0,
+                                    ),
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.04),
+                                      offset: Offset(0, 2),
+                                      blurRadius: 4,
+                                      spreadRadius: 0,
+                                    ),
+                                  ],
+                                  [
+                                    BoxShadow(
+                                      color: Color(0xFF26262B),
+                                      offset: Offset(0, 0),
+                                      blurRadius: 0,
+                                      spreadRadius: 1,
+                                    ),
+                                  ],
+                                ),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text.rich(
+                                    TextSpan(
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF18181B),
+                                          Color(0xFFFAFAFA),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
+                                      ),
+                                      children: [
+                                        TextSpan(
+                                          text: '全部 ',
+                                          style: hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFF18181B),
+                                              Color(0xFFFAFAFA),
+                                            ),
+                                            w: FontWeight.w500,
+                                            lh: 18,
+                                          ),
+                                        ),
+                                        TextSpan(
+                                          text: '${c.count(0)}',
+                                          style: hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFFA1A1AA),
+                                              Color(0xFF80808A),
+                                            ),
+                                            lh: 18,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    softWrap: false,
+                                    maxLines: 1,
+                                  ),
+                                ),
+                              ),
+                              off: hbox(
+                                h: 34,
+                                radius: BorderRadius.circular(17),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text.rich(
+                                    TextSpan(
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF52525B),
+                                          Color(0xFFA8A8B3),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
+                                      ),
+                                      children: [
+                                        TextSpan(
+                                          text: '全部 ',
+                                          style: hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFF52525B),
+                                              Color(0xFFA8A8B3),
+                                            ),
+                                            w: FontWeight.w500,
+                                            lh: 18,
+                                          ),
+                                        ),
+                                        TextSpan(
+                                          text: '${c.count(0)}',
+                                          style: hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFFA1A1AA),
+                                              Color(0xFF80808A),
+                                            ),
+                                            lh: 18,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    softWrap: false,
+                                    maxLines: 1,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: UnconstrainedBox(
+                            alignment: Alignment.topLeft,
+                            constrainedAxis: Axis.horizontal,
+                            child: HSel(
+                              ctrl: selection,
+                              index: 1,
+                              segment: true,
+                              on: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFFFFFFF),
+                                  Color(0xFF18181B),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                shadow: dk(
+                                  context,
+                                  [
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.06),
+                                      offset: Offset(0, 1),
+                                      blurRadius: 2,
+                                      spreadRadius: 0,
+                                    ),
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.04),
+                                      offset: Offset(0, 2),
+                                      blurRadius: 4,
+                                      spreadRadius: 0,
+                                    ),
+                                  ],
+                                  [
+                                    BoxShadow(
+                                      color: Color(0xFF26262B),
+                                      offset: Offset(0, 0),
+                                      blurRadius: 0,
+                                      spreadRadius: 1,
+                                    ),
+                                  ],
+                                ),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text.rich(
+                                    TextSpan(
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF18181B),
+                                          Color(0xFFFAFAFA),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
+                                      ),
+                                      children: [
+                                        TextSpan(
+                                          text: '店长 ',
+                                          style: hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFF18181B),
+                                              Color(0xFFFAFAFA),
+                                            ),
+                                            w: FontWeight.w500,
+                                            lh: 18,
+                                          ),
+                                        ),
+                                        TextSpan(
+                                          text: '${c.count(1)}',
+                                          style: hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFFA1A1AA),
+                                              Color(0xFF80808A),
+                                            ),
+                                            lh: 18,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    softWrap: false,
+                                    maxLines: 1,
+                                  ),
+                                ),
+                              ),
+                              off: hbox(
+                                h: 34,
+                                radius: BorderRadius.circular(17),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text.rich(
+                                    TextSpan(
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF52525B),
+                                          Color(0xFFA8A8B3),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
+                                      ),
+                                      children: [
+                                        TextSpan(
+                                          text: '店长 ',
+                                          style: hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFF52525B),
+                                              Color(0xFFA8A8B3),
+                                            ),
+                                            w: FontWeight.w500,
+                                            lh: 18,
+                                          ),
+                                        ),
+                                        TextSpan(
+                                          text: '${c.count(1)}',
+                                          style: hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFFA1A1AA),
+                                              Color(0xFF80808A),
+                                            ),
+                                            lh: 18,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    softWrap: false,
+                                    maxLines: 1,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: UnconstrainedBox(
+                            alignment: Alignment.topLeft,
+                            constrainedAxis: Axis.horizontal,
+                            child: HSel(
+                              ctrl: selection,
+                              index: 2,
+                              segment: true,
+                              on: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFFFFFFF),
+                                  Color(0xFF18181B),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                shadow: dk(
+                                  context,
+                                  [
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.06),
+                                      offset: Offset(0, 1),
+                                      blurRadius: 2,
+                                      spreadRadius: 0,
+                                    ),
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.04),
+                                      offset: Offset(0, 2),
+                                      blurRadius: 4,
+                                      spreadRadius: 0,
+                                    ),
+                                  ],
+                                  [
+                                    BoxShadow(
+                                      color: Color(0xFF26262B),
+                                      offset: Offset(0, 0),
+                                      blurRadius: 0,
+                                      spreadRadius: 1,
+                                    ),
+                                  ],
+                                ),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text.rich(
+                                    TextSpan(
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF18181B),
+                                          Color(0xFFFAFAFA),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
+                                      ),
+                                      children: [
+                                        TextSpan(
+                                          text: '前台收银 ',
+                                          style: hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFF18181B),
+                                              Color(0xFFFAFAFA),
+                                            ),
+                                            w: FontWeight.w500,
+                                            lh: 18,
+                                          ),
+                                        ),
+                                        TextSpan(
+                                          text: '${c.count(2)}',
+                                          style: hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFFA1A1AA),
+                                              Color(0xFF80808A),
+                                            ),
+                                            lh: 18,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    softWrap: false,
+                                    maxLines: 1,
+                                  ),
+                                ),
+                              ),
+                              off: hbox(
+                                h: 34,
+                                radius: BorderRadius.circular(17),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text.rich(
+                                    TextSpan(
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF52525B),
+                                          Color(0xFFA8A8B3),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
+                                      ),
+                                      children: [
+                                        TextSpan(
+                                          text: '前台收银 ',
+                                          style: hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFF52525B),
+                                              Color(0xFFA8A8B3),
+                                            ),
+                                            w: FontWeight.w500,
+                                            lh: 18,
+                                          ),
+                                        ),
+                                        TextSpan(
+                                          text: '${c.count(2)}',
+                                          style: hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFFA1A1AA),
+                                              Color(0xFF80808A),
+                                            ),
+                                            lh: 18,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    softWrap: false,
+                                    maxLines: 1,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: UnconstrainedBox(
+                            alignment: Alignment.topLeft,
+                            constrainedAxis: Axis.horizontal,
+                            child: HSel(
+                              ctrl: selection,
+                              index: 3,
+                              segment: true,
+                              on: hbox(
+                                h: 34,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFFFFFFF),
+                                  Color(0xFF18181B),
+                                ),
+                                radius: BorderRadius.circular(17),
+                                shadow: dk(
+                                  context,
+                                  [
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.06),
+                                      offset: Offset(0, 1),
+                                      blurRadius: 2,
+                                      spreadRadius: 0,
+                                    ),
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.04),
+                                      offset: Offset(0, 2),
+                                      blurRadius: 4,
+                                      spreadRadius: 0,
+                                    ),
+                                  ],
+                                  [
+                                    BoxShadow(
+                                      color: Color(0xFF26262B),
+                                      offset: Offset(0, 0),
+                                      blurRadius: 0,
+                                      spreadRadius: 1,
+                                    ),
+                                  ],
+                                ),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text.rich(
+                                    TextSpan(
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF18181B),
+                                          Color(0xFFFAFAFA),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
+                                      ),
+                                      children: [
+                                        TextSpan(
+                                          text: '施工技师 ',
+                                          style: hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFF18181B),
+                                              Color(0xFFFAFAFA),
+                                            ),
+                                            w: FontWeight.w500,
+                                            lh: 18,
+                                          ),
+                                        ),
+                                        TextSpan(
+                                          text: '${c.count(3)}',
+                                          style: hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFF71717A),
+                                              Color(0xFF9A9AA3),
+                                            ),
+                                            lh: 18,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    softWrap: false,
+                                    maxLines: 1,
+                                  ),
+                                ),
+                              ),
+                              off: hbox(
+                                h: 34,
+                                radius: BorderRadius.circular(17),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  widthFactor: 1,
+                                  child: Text.rich(
+                                    TextSpan(
+                                      style: hts(
+                                        13,
+                                        dk(
+                                          context,
+                                          Color(0xFF52525B),
+                                          Color(0xFFA8A8B3),
+                                        ),
+                                        w: FontWeight.w500,
+                                        lh: 18,
+                                      ),
+                                      children: [
+                                        TextSpan(
+                                          text: '施工技师 ',
+                                          style: hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFF52525B),
+                                              Color(0xFFA8A8B3),
+                                            ),
+                                            w: FontWeight.w500,
+                                            lh: 18,
+                                          ),
+                                        ),
+                                        TextSpan(
+                                          text: '${c.count(3)}',
+                                          style: hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFF71717A),
+                                              Color(0xFF9A9AA3),
+                                            ),
+                                            lh: 18,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    softWrap: false,
+                                    maxLines: 1,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                      main: MainAxisAlignment.start,
+                      cross: CrossAxisAlignment.stretch,
+                      gap: 2,
+                      intrinsic: true,
+                    ),
+                  ),
                 ),
                 c.visibleStaff.isEmpty
                     ? _emptyRoleCard(context, c)
@@ -269,18 +901,28 @@ class StaffListTemplate extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            AppButton(
-                              label: '编辑权限',
-                              kind: AppButtonKind.text,
-                              size: AppButtonSize.medium,
-                              expanded: false,
-                              onPressed: () {
+                            GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () {
                                 openRoute(
                                   context,
                                   'RolePermission',
                                   arguments: StaffRouteData(role: c.roleKey),
                                 );
                               },
+                              child: Text(
+                                '编辑权限',
+                                style: hts(
+                                  13,
+                                  dk(
+                                    context,
+                                    Color(0xFF1E63AE),
+                                    Color(0xFF6AB4FA),
+                                  ),
+                                  w: FontWeight.w500,
+                                  lh: 18,
+                                ),
+                              ),
                             ),
                           ],
                           main: MainAxisAlignment.start,
@@ -671,12 +1313,23 @@ Widget _emptyRoleCard(BuildContext context, StaffEditorController c) {
             gap: 2,
           ),
         ),
-        AppButton(
-          label: all ? '添加员工' : '添加$role',
-          kind: AppButtonKind.secondary,
-          size: AppButtonSize.medium,
-          expanded: false,
-          onPressed: () => c.addStaff(context),
+        GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => c.addStaff(context),
+          child: hbox(
+            h: 44,
+            pad: EdgeInsets.fromLTRB(4, 0, 4, 0),
+            align: Alignment.center,
+            child: Text(
+              all ? '添加员工' : '添加$role',
+              style: hts(
+                13,
+                dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                w: FontWeight.w600,
+                lh: 18,
+              ),
+            ),
+          ),
         ),
       ],
       main: MainAxisAlignment.start,

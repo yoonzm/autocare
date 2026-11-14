@@ -8,7 +8,6 @@ dependencies:
     path: ../async_kit
   flutter:
     sdk: flutter
-  flutter_svg: ^2.3.2
 dev_dependencies:
   flutter_test:
     sdk: flutter

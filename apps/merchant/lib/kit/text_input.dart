@@ -1,8 +1,7 @@
-import 'buttons.dart';
-
 import 'package:flutter/material.dart';
 
 import 'keyboard.dart';
+import '../theme.dart' show C;
 
 /// 普通受控输入框，只负责输入与视觉，不推断路由、字段或业务草稿。
 class AppTextInput extends StatelessWidget {
@@ -71,15 +70,33 @@ class AppTextInput extends StatelessWidget {
 class PasswordVisibilityButton extends StatelessWidget {
   final bool visible;
   final VoidCallback onPressed;
+  final Widget hiddenIcon;
   const PasswordVisibilityButton({
     super.key,
     required this.visible,
     required this.onPressed,
+    required this.hiddenIcon,
   });
   @override
-  Widget build(BuildContext context) => AppIconButton(
-    icon: visible ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-    semanticLabel: visible ? '隐藏密码' : '显示密码',
-    onPressed: onPressed,
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    label: visible ? '隐藏密码' : '显示密码',
+    child: GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onPressed,
+      child: visible
+          ? SizedBox(
+              width: 32,
+              height: 32,
+              child: Center(
+                child: Icon(
+                  Icons.visibility_outlined,
+                  size: 20,
+                  color: C.muted,
+                ),
+              ),
+            )
+          : hiddenIcon,
+    ),
   );
 }

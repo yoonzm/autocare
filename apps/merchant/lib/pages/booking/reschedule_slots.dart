@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 import '../../backend/appointment_flow.dart';
 import '../../backend/merchant_api.dart';
 import '../../kit/async_kit.dart';
-
-import 'package:autocare_ui_kit/autocare_ui_kit.dart'
-    show AppChoiceGroup, ChoiceItem, ChipKind;
-
+import '../../widgets/choice_chip_group.dart';
 import 'reschedule_controller.dart';
 
 class BookingRescheduleSlots extends StatelessWidget {
@@ -14,7 +11,7 @@ class BookingRescheduleSlots extends StatelessWidget {
   const BookingRescheduleSlots({super.key, required this.c});
   @override
   Widget build(BuildContext context) => SizedBox(
-    height: 96,
+    height: 88,
     child: AsyncView<Map<String, dynamic>>(
       key: ValueKey(c.rescheduleDay),
       load: () => merchantApi.appointment('slots', {
@@ -28,21 +25,24 @@ class BookingRescheduleSlots extends StatelessWidget {
       inlineError: true,
       pullToRefresh: false,
       skeletonPadding: EdgeInsets.zero,
-      skeleton: const AppSkeleton(height: 96, radius: 12),
+      skeleton: const AppSkeleton(height: 88, radius: 12),
       empty: (_) => const SizedBox.shrink(),
       builder: (_, data) => SingleChildScrollView(
         child: (data['slots'] as List).isEmpty
             ? const EmptyView(title: '该日期没有可预约时段', inline: true)
-            : AppChoiceGroup<String>(
+            : ChoiceChipGroup<String>(
                 semanticLabel: '新时间',
                 kind: ChipKind.tile,
-                columns: 3,
                 items: [
                   for (final slot in data['slots'] as List)
-                    ChoiceItem(
+                    ChoiceChipItem(
                       value: slot['time'] as String,
                       label: slot['time'] as String,
-                      enabled: slot['available'] == true,
+                      disabled: slot['available'] != true,
+                      isOriginal:
+                          bookingDay(c.booking.start) ==
+                              bookingDay(c.date(c.rescheduleDay!)) &&
+                          slot['time'] == c.booking.time,
                     ),
                 ],
                 selected: c.selectedTime.isEmpty ? null : c.selectedTime,

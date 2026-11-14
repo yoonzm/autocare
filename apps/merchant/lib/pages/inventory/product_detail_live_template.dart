@@ -1,7 +1,4 @@
-import 'package:autocare_ui_kit/autocare_ui_kit.dart'
-    show AppSegmented, SegmentItem;
-
-import '../../kit/buttons.dart';
+import '../../kit/single_selection.dart';
 import 'inventory_controller.dart';
 
 import 'package:flutter/material.dart';
@@ -27,12 +24,54 @@ class ProductDetailLiveTemplate extends StatelessWidget {
               [
                 hrow(
                   [
-                    AppIconButton(
-                      svg: dk(context, Svgs.s0, Svgs.s1),
-                      semanticLabel: "返回",
-                      onPressed: c.busy
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: c.busy
                           ? null
                           : () => Navigator.of(context).maybePop(),
+                      child: hbox(
+                        w: 44,
+                        h: 44,
+                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                        radius: BorderRadius.circular(22),
+                        shadow: dk(
+                          context,
+                          [
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
+                              spreadRadius: 0,
+                            ),
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 1),
+                              blurRadius: 2,
+                              spreadRadius: 0,
+                            ),
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
+                              spreadRadius: 0,
+                            ),
+                          ],
+                          [
+                            BoxShadow(
+                              color: Color(0xFF26262B),
+                              offset: Offset(0, 0),
+                              blurRadius: 0,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                        child: hrow(
+                          [hsvg(dk(context, Svgs.s0, Svgs.s1), w: 20, h: 20)],
+                          main: MainAxisAlignment.center,
+                          cross: CrossAxisAlignment.center,
+                          gap: 0,
+                        ),
+                      ),
                     ),
                     Expanded(
                       flex: 1,
@@ -47,19 +86,115 @@ class ProductDetailLiveTemplate extends StatelessWidget {
                         textAlign: TextAlign.center,
                       ),
                     ),
-                    AppIconButton(
-                      svg: dk(context, Svgs.s313, Svgs.s314),
-                      semanticLabel: '盘点',
-                      onPressed: c.busy
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: c.busy
                           ? null
                           : () => c.openMovement(context, 'check'),
+                      child: hbox(
+                        w: 44,
+                        h: 44,
+                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                        radius: BorderRadius.circular(22),
+                        shadow: dk(
+                          context,
+                          [
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
+                              spreadRadius: 0,
+                            ),
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 1),
+                              blurRadius: 2,
+                              spreadRadius: 0,
+                            ),
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
+                              spreadRadius: 0,
+                            ),
+                          ],
+                          [
+                            BoxShadow(
+                              color: Color(0xFF26262B),
+                              offset: Offset(0, 0),
+                              blurRadius: 0,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                        child: hrow(
+                          [
+                            hsvg(
+                              dk(context, Svgs.s313, Svgs.s314),
+                              w: 20,
+                              h: 20,
+                            ),
+                          ],
+                          main: MainAxisAlignment.center,
+                          cross: CrossAxisAlignment.center,
+                          gap: 0,
+                        ),
+                      ),
                     ),
-                    AppIconButton(
-                      svg: dk(context, Svgs.s460, Svgs.s461),
-                      semanticLabel: '编辑商品',
-                      onPressed: c.busy
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: c.busy
                           ? null
                           : () => editProduct(context, c.detail),
+                      child: hbox(
+                        w: 44,
+                        h: 44,
+                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                        radius: BorderRadius.circular(22),
+                        shadow: dk(
+                          context,
+                          [
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
+                              spreadRadius: 0,
+                            ),
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 1),
+                              blurRadius: 2,
+                              spreadRadius: 0,
+                            ),
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
+                              spreadRadius: 0,
+                            ),
+                          ],
+                          [
+                            BoxShadow(
+                              color: Color(0xFF26262B),
+                              offset: Offset(0, 0),
+                              blurRadius: 0,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                        child: hrow(
+                          [
+                            hsvg(
+                              dk(context, Svgs.s460, Svgs.s461),
+                              w: 20,
+                              h: 20,
+                            ),
+                          ],
+                          main: MainAxisAlignment.center,
+                          cross: CrossAxisAlignment.center,
+                          gap: 0,
+                        ),
+                      ),
                     ),
                   ],
                   main: MainAxisAlignment.start,
@@ -803,15 +938,358 @@ class ProductDetailLiveTemplate extends StatelessWidget {
                         ),
                       ),
                     ),
-                    AppSegmented<int>(
-                      items: [
-                        SegmentItem(value: 0, label: '全部'),
-                        SegmentItem(value: 1, label: '入库'),
-                        SegmentItem(value: 2, label: '出库'),
-                        SegmentItem(value: 3, label: '盘点'),
-                      ],
-                      selected: c.filter,
-                      onChanged: c.selectFilter,
+                    hbox(
+                      bg: dk(context, Color(0xFFE9E9EB), Color(0xFF1F1F23)),
+                      radius: BorderRadius.circular(20),
+                      pad: EdgeInsets.fromLTRB(4, 4, 4, 4),
+                      child: SingleSelection(
+                        index: c.filter,
+                        onChanged: c.selectFilter,
+                        builder: (context, g2) => hrow(
+                          [
+                            Expanded(
+                              flex: 1,
+                              child: UnconstrainedBox(
+                                alignment: Alignment.topLeft,
+                                constrainedAxis: Axis.horizontal,
+                                child: HSel(
+                                  ctrl: g2,
+                                  index: 0,
+                                  segment: true,
+                                  on: hbox(
+                                    h: 32,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFFFFFFF),
+                                      Color(0xFF18181B),
+                                    ),
+                                    radius: BorderRadius.circular(16),
+                                    shadow: dk(
+                                      context,
+                                      [
+                                        BoxShadow(
+                                          color: Color.fromRGBO(0, 0, 0, 0.06),
+                                          offset: Offset(0, 1),
+                                          blurRadius: 2,
+                                          spreadRadius: 0,
+                                        ),
+                                        BoxShadow(
+                                          color: Color.fromRGBO(0, 0, 0, 0.04),
+                                          offset: Offset(0, 2),
+                                          blurRadius: 4,
+                                          spreadRadius: 0,
+                                        ),
+                                      ],
+                                      [
+                                        BoxShadow(
+                                          color: Color(0xFF26262B),
+                                          offset: Offset(0, 0),
+                                          blurRadius: 0,
+                                          spreadRadius: 1,
+                                        ),
+                                      ],
+                                    ),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '全部',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF18181B),
+                                            Color(0xFFFAFAFA),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  off: hbox(
+                                    h: 32,
+                                    radius: BorderRadius.circular(16),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '全部',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF52525B),
+                                            Color(0xFFA8A8B3),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: UnconstrainedBox(
+                                alignment: Alignment.topLeft,
+                                constrainedAxis: Axis.horizontal,
+                                child: HSel(
+                                  ctrl: g2,
+                                  index: 1,
+                                  segment: true,
+                                  on: hbox(
+                                    h: 32,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFFFFFFF),
+                                      Color(0xFF18181B),
+                                    ),
+                                    radius: BorderRadius.circular(16),
+                                    shadow: dk(
+                                      context,
+                                      [
+                                        BoxShadow(
+                                          color: Color.fromRGBO(0, 0, 0, 0.06),
+                                          offset: Offset(0, 1),
+                                          blurRadius: 2,
+                                          spreadRadius: 0,
+                                        ),
+                                        BoxShadow(
+                                          color: Color.fromRGBO(0, 0, 0, 0.04),
+                                          offset: Offset(0, 2),
+                                          blurRadius: 4,
+                                          spreadRadius: 0,
+                                        ),
+                                      ],
+                                      [
+                                        BoxShadow(
+                                          color: Color(0xFF26262B),
+                                          offset: Offset(0, 0),
+                                          blurRadius: 0,
+                                          spreadRadius: 1,
+                                        ),
+                                      ],
+                                    ),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '入库',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF18181B),
+                                            Color(0xFFFAFAFA),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  off: hbox(
+                                    h: 32,
+                                    radius: BorderRadius.circular(16),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '入库',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF52525B),
+                                            Color(0xFFA8A8B3),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: UnconstrainedBox(
+                                alignment: Alignment.topLeft,
+                                constrainedAxis: Axis.horizontal,
+                                child: HSel(
+                                  ctrl: g2,
+                                  index: 2,
+                                  segment: true,
+                                  on: hbox(
+                                    h: 32,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFFFFFFF),
+                                      Color(0xFF18181B),
+                                    ),
+                                    radius: BorderRadius.circular(16),
+                                    shadow: dk(
+                                      context,
+                                      [
+                                        BoxShadow(
+                                          color: Color.fromRGBO(0, 0, 0, 0.06),
+                                          offset: Offset(0, 1),
+                                          blurRadius: 2,
+                                          spreadRadius: 0,
+                                        ),
+                                        BoxShadow(
+                                          color: Color.fromRGBO(0, 0, 0, 0.04),
+                                          offset: Offset(0, 2),
+                                          blurRadius: 4,
+                                          spreadRadius: 0,
+                                        ),
+                                      ],
+                                      [
+                                        BoxShadow(
+                                          color: Color(0xFF26262B),
+                                          offset: Offset(0, 0),
+                                          blurRadius: 0,
+                                          spreadRadius: 1,
+                                        ),
+                                      ],
+                                    ),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '出库',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF18181B),
+                                            Color(0xFFFAFAFA),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  off: hbox(
+                                    h: 32,
+                                    radius: BorderRadius.circular(16),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '出库',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF52525B),
+                                            Color(0xFFA8A8B3),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: UnconstrainedBox(
+                                alignment: Alignment.topLeft,
+                                constrainedAxis: Axis.horizontal,
+                                child: HSel(
+                                  ctrl: g2,
+                                  index: 3,
+                                  segment: true,
+                                  on: hbox(
+                                    h: 32,
+                                    bg: dk(
+                                      context,
+                                      Color(0xFFFFFFFF),
+                                      Color(0xFF18181B),
+                                    ),
+                                    radius: BorderRadius.circular(16),
+                                    shadow: dk(
+                                      context,
+                                      [
+                                        BoxShadow(
+                                          color: Color.fromRGBO(0, 0, 0, 0.06),
+                                          offset: Offset(0, 1),
+                                          blurRadius: 2,
+                                          spreadRadius: 0,
+                                        ),
+                                        BoxShadow(
+                                          color: Color.fromRGBO(0, 0, 0, 0.04),
+                                          offset: Offset(0, 2),
+                                          blurRadius: 4,
+                                          spreadRadius: 0,
+                                        ),
+                                      ],
+                                      [
+                                        BoxShadow(
+                                          color: Color(0xFF26262B),
+                                          offset: Offset(0, 0),
+                                          blurRadius: 0,
+                                          spreadRadius: 1,
+                                        ),
+                                      ],
+                                    ),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '盘点',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF18181B),
+                                            Color(0xFFFAFAFA),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  off: hbox(
+                                    h: 32,
+                                    radius: BorderRadius.circular(16),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1,
+                                      child: Text(
+                                        '盘点',
+                                        style: hts(
+                                          13,
+                                          dk(
+                                            context,
+                                            Color(0xFF52525B),
+                                            Color(0xFFA8A8B3),
+                                          ),
+                                          w: FontWeight.w500,
+                                          lh: 18,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                          main: MainAxisAlignment.start,
+                          cross: CrossAxisAlignment.stretch,
+                          gap: 2,
+                          intrinsic: true,
+                        ),
+                      ),
                     ),
                     hbox(
                       bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
@@ -898,27 +1376,59 @@ class ProductDetailLiveTemplate extends StatelessWidget {
               [
                 Expanded(
                   flex: 10,
-                  child: AppButton(
-                    label: '出库',
-                    kind: AppButtonKind.secondary,
-                    size: AppButtonSize.large,
-                    expanded: true,
-                    onPressed: c.busy
-                        ? null
-                        : () => c.openMovement(context, 'out'),
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: c.busy ? null : () => c.openMovement(context, 'out'),
+                    child: hbox(
+                      h: 50,
+                      bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
+                      radius: BorderRadius.circular(25),
+                      child: Align(
+                        alignment: Alignment(0, 0),
+                        widthFactor: 1,
+                        child: Text(
+                          '出库',
+                          style: hts(
+                            15,
+                            dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                            w: FontWeight.w500,
+                            lh: 22,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
                 Expanded(
                   flex: 14,
-                  child: AppButton(
-                    label: '入库补货',
-                    kind: AppButtonKind.primary,
-                    size: AppButtonSize.large,
-                    expanded: true,
-                    svg: Svgs.s14,
-                    onPressed: c.busy
-                        ? null
-                        : () => c.openMovement(context, 'in'),
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: c.busy ? null : () => c.openMovement(context, 'in'),
+                    child: hbox(
+                      h: 50,
+                      bg: Color(0xFF0485F7),
+                      radius: BorderRadius.circular(25),
+                      child: hrow(
+                        [
+                          hsvg(Svgs.s14, w: 18, h: 18),
+                          Flexible(
+                            flex: 60,
+                            child: Text(
+                              '入库补货',
+                              style: hts(
+                                15,
+                                Color(0xFFFFFFFF),
+                                w: FontWeight.w600,
+                                lh: 22,
+                              ),
+                            ),
+                          ),
+                        ],
+                        main: MainAxisAlignment.center,
+                        cross: CrossAxisAlignment.center,
+                        gap: 6,
+                      ),
+                    ),
                   ),
                 ),
               ],

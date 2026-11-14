@@ -1,5 +1,3 @@
-import '../../kit/buttons.dart';
-
 // 正式维护源码；保留既有视觉布局。
 import 'package:flutter/material.dart';
 
@@ -31,12 +29,21 @@ class ScanProductBoundTemplate extends StatelessWidget {
           right: 20,
           child: hrow(
             [
-              AppIconButton(
-                svg: Svgs.s27,
-                semanticLabel: "返回",
-                onPressed: c.busy
-                    ? null
-                    : () => Navigator.of(context).maybePop(),
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: c.busy ? null : () => Navigator.of(context).maybePop(),
+                child: hbox(
+                  w: 44,
+                  h: 44,
+                  bg: Color(0xFF27272A),
+                  radius: BorderRadius.circular(22),
+                  child: hrow(
+                    [hsvg(Svgs.s27, w: 20, h: 20)],
+                    main: MainAxisAlignment.center,
+                    cross: CrossAxisAlignment.center,
+                    gap: 0,
+                  ),
+                ),
               ),
               Expanded(
                 flex: 1,
@@ -117,13 +124,24 @@ class ScanProductBoundTemplate extends StatelessWidget {
           right: 20,
           bottom: 40,
           height: 50,
-          child: ActionButton(
-            actionKey: c.actionKey,
-            label: '手动输入编码',
-            kind: AppButtonKind.primary,
-            size: AppButtonSize.large,
-            expanded: false,
-            onPressed: c.busy ? null : () => c.enterBarcode(context),
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: c.busy ? null : () => c.enterBarcode(context),
+            child: hbox(
+              h: 50,
+              bg: Color(0xFF27272A),
+              radius: BorderRadius.circular(25),
+              child: Align(
+                alignment: Alignment(0, 0),
+                widthFactor: 1,
+                child: c.busyLabel(
+                  Text(
+                    '手动输入编码',
+                    style: hts(15, Color(0xFFFAFAFA), w: FontWeight.w500),
+                  ),
+                ),
+              ),
+            ),
           ),
         ),
       ],

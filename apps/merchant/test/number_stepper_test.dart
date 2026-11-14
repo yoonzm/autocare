@@ -13,21 +13,22 @@ void main() {
             child: HNumberStepper(
               ctrl: ctrl,
               step: 10,
-
+              minus: const SizedBox(width: 40, height: 40, child: Text('−')),
               value: hCount(ctrl, const TextStyle(fontSize: 16)),
+              plus: const SizedBox(width: 40, height: 40, child: Text('+')),
             ),
           ),
         ),
       ),
     );
     expect(find.text('10'), findsOneWidget);
-    await t.tap(find.bySemanticsLabel('减少'));
+    await t.tap(find.text('−'));
     await t.pump();
     expect(ctrl.v, 0);
-    await t.tap(find.bySemanticsLabel('减少'));
+    await t.tap(find.text('−'));
     await t.pump();
     expect(ctrl.v, 0);
-    await t.tap(find.bySemanticsLabel('增加'));
+    await t.tap(find.text('+'));
     await t.pump();
     expect(ctrl.v, 10);
     expect(find.text('10'), findsOneWidget);
@@ -43,15 +44,16 @@ void main() {
             child: HNumberStepper(
               ctrl: ctrl,
               step: 1,
-
+              minus: const SizedBox(width: 30, height: 30, child: Text('−')),
               value: hCount(ctrl, const TextStyle(), 1, ' 折'),
+              plus: const SizedBox(width: 30, height: 30, child: Text('+')),
             ),
           ),
         ),
       ),
     );
     expect(find.text('7.5 折'), findsOneWidget);
-    await t.tap(find.bySemanticsLabel('增加'));
+    await t.tap(find.text('+'));
     await t.pump();
     expect(find.text('7.6 折'), findsOneWidget);
   });

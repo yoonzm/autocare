@@ -138,7 +138,7 @@ void main() {
       expect(find.text('失败 3', findRichText: true), findsOneWidget);
     });
 
-    test('只支持 2~5 项', () {
+    test('只支持 2~4 项', () {
       expect(
         () => AppSegmented<int>(items: const [SegmentItem(value: 0, label: 'a')], selected: 0, onChanged: (_) {}),
         throwsAssertionError,
@@ -294,42 +294,6 @@ void main() {
       await pump(t, slot(const AppUploadItem(id: 'a', state: AppUploadState.failed)));
       await t.tap(find.text('重试'));
       expect(retries, 1);
-    });
-
-    testWidgets('未知进度不显示百分比，只读禁用写操作', (t) async {
-      var removed = 0;
-      await pump(
-        t,
-        SizedBox(
-          width: 350,
-          child: AppImageUploader.grid(
-            title: '照片',
-            items: const [
-              AppUploadItem(id: 'a', state: AppUploadState.uploading),
-            ],
-          ),
-        ),
-      );
-      expect(find.text('0%'), findsNothing);
-      expect(find.byType(AppSpinner), findsOneWidget);
-      await pump(
-        t,
-        SizedBox(
-          width: 350,
-          child: AppImageUploader.grid(
-            title: '照片',
-            readOnly: true,
-            onRemove: (_) => removed++,
-            onPick: () {},
-            items: const [
-              AppUploadItem(id: 'a', state: AppUploadState.pending),
-            ],
-          ),
-        ),
-      );
-      expect(find.bySemanticsLabel('添加照片'), findsNothing);
-      expect(find.bySemanticsLabel('第 1 张，删除'), findsNothing);
-      expect(removed, 0);
     });
 
     test('通用规则常量', () {

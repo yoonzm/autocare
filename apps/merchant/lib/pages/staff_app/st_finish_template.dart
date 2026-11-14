@@ -1,5 +1,3 @@
-import '../../kit/buttons.dart';
-
 import 'package:flutter/material.dart';
 
 import '../../backend/access_flow.dart';
@@ -42,11 +40,62 @@ class StFinishTemplate extends StatelessWidget {
                             UnconstrainedBox(
                               alignment: Alignment.topLeft,
                               constrainedAxis: Axis.horizontal,
-                              child: AppIconButton(
-                                svg: dk(context, Svgs.s0, Svgs.s1),
-                                semanticLabel: "返回",
-                                onPressed: () =>
-                                    Navigator.of(context).maybePop(),
+                              child: GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () => Navigator.of(context).maybePop(),
+                                child: hbox(
+                                  w: 44,
+                                  h: 44,
+                                  bg: dk(
+                                    context,
+                                    Color(0xFFFFFFFF),
+                                    Color(0xFF18181B),
+                                  ),
+                                  radius: BorderRadius.circular(22),
+                                  shadow: dk(
+                                    context,
+                                    [
+                                      BoxShadow(
+                                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                                        offset: Offset(0, 0),
+                                        blurRadius: 1,
+                                        spreadRadius: 0,
+                                      ),
+                                      BoxShadow(
+                                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                                        offset: Offset(0, 1),
+                                        blurRadius: 2,
+                                        spreadRadius: 0,
+                                      ),
+                                      BoxShadow(
+                                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                                        offset: Offset(0, 2),
+                                        blurRadius: 4,
+                                        spreadRadius: 0,
+                                      ),
+                                    ],
+                                    [
+                                      BoxShadow(
+                                        color: Color(0xFF26262B),
+                                        offset: Offset(0, 0),
+                                        blurRadius: 0,
+                                        spreadRadius: 1,
+                                      ),
+                                    ],
+                                  ),
+                                  child: hrow(
+                                    [
+                                      hsvg(
+                                        dk(context, Svgs.s0, Svgs.s1),
+                                        w: 20,
+                                        h: 20,
+                                      ),
+                                    ],
+                                    main: MainAxisAlignment.center,
+                                    cross: CrossAxisAlignment.center,
+                                    gap: 0,
+                                  ),
+                                ),
                               ),
                             ),
                           ],
@@ -524,28 +573,46 @@ class StFinishTemplate extends StatelessWidget {
                     [
                       Expanded(
                         flex: 10,
-                        child: AppButton(
-                          label: '再检查',
-                          kind: AppButtonKind.secondary,
-                          size: AppButtonSize.large,
-                          expanded: true,
-                          onPressed: () => openRoute(
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () => openRoute(
                             context,
                             'StTaskDetail',
                             arguments: TaskRouteData(taskId: t['id'] as String),
+                          ),
+                          child: hbox(
+                            h: 50,
+                            bg: dk(
+                              context,
+                              Color(0xFFEEEEF0),
+                              Color(0xFF27272A),
+                            ),
+                            radius: BorderRadius.circular(25),
+                            child: Align(
+                              alignment: Alignment(0, 0),
+                              widthFactor: 1,
+                              child: Text(
+                                '再检查',
+                                style: hts(
+                                  15,
+                                  dk(
+                                    context,
+                                    Color(0xFF18181B),
+                                    Color(0xFFFAFAFA),
+                                  ),
+                                  w: FontWeight.w500,
+                                  lh: 22,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
                       Expanded(
                         flex: 14,
-                        child: ActionButton(
-                          actionKey:
-                              'StFinish>StDone-${identityHashCode(context)}',
-                          label: '确认完工',
-                          kind: AppButtonKind.primary,
-                          size: AppButtonSize.large,
-                          expanded: true,
-                          onPressed: () => runBusy(
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () => runBusy(
                             'StFinish>StDone-${identityHashCode(context)}',
                             () async {
                               try {
@@ -570,6 +637,34 @@ class StFinishTemplate extends StatelessWidget {
                                 }
                               }
                             },
+                          ),
+                          child: hbox(
+                            h: 50,
+                            bg: Color(0xFF0485F7),
+                            radius: BorderRadius.circular(25),
+                            child: Align(
+                              alignment: Alignment(0, 0),
+                              widthFactor: 1,
+                              child: hBusy(
+                                'StFinish>StDone-${identityHashCode(context)}',
+                                Text(
+                                  '确认完工',
+                                  style: hts(
+                                    15,
+                                    Color(0xFFFFFFFF),
+                                    w: FontWeight.w600,
+                                    lh: 22,
+                                  ),
+                                ),
+                                style: hts(
+                                  15,
+                                  Color(0xFFFFFFFF),
+                                  w: FontWeight.w600,
+                                  lh: 22,
+                                ),
+                                label: '提交中…',
+                              ),
+                            ),
                           ),
                         ),
                       ),

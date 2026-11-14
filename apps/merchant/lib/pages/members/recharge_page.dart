@@ -1,7 +1,3 @@
-import 'package:autocare_ui_kit/autocare_ui_kit.dart'
-    show AppSegmented, SegmentItem;
-
-import '../../kit/buttons.dart';
 import '../../kit/text_input.dart';
 import '../../kit/single_selection.dart';
 import 'wallet_controller.dart';
@@ -33,10 +29,52 @@ class RechargePage extends StatelessWidget {
               [
                 hrow(
                   [
-                    AppIconButton(
-                      svg: dk(context, Svgs.s0, Svgs.s1),
-                      semanticLabel: "返回",
-                      onPressed: () => Navigator.of(context).maybePop(),
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => Navigator.of(context).maybePop(),
+                      child: hbox(
+                        w: 44,
+                        h: 44,
+                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                        radius: BorderRadius.circular(22),
+                        shadow: dk(
+                          context,
+                          [
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
+                              spreadRadius: 0,
+                            ),
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 1),
+                              blurRadius: 2,
+                              spreadRadius: 0,
+                            ),
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
+                              spreadRadius: 0,
+                            ),
+                          ],
+                          [
+                            BoxShadow(
+                              color: Color(0xFF26262B),
+                              offset: Offset(0, 0),
+                              blurRadius: 0,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                        child: hrow(
+                          [hsvg(dk(context, Svgs.s0, Svgs.s1), w: 20, h: 20)],
+                          main: MainAxisAlignment.center,
+                          cross: CrossAxisAlignment.center,
+                          gap: 0,
+                        ),
+                      ),
                     ),
                     Expanded(
                       flex: 1,
@@ -57,13 +95,108 @@ class RechargePage extends StatelessWidget {
                   cross: CrossAxisAlignment.center,
                   gap: 8,
                 ),
-                AppSegmented<int>(
-                  items: const [
-                    SegmentItem(value: 0, label: '储值充值'),
-                    SegmentItem(value: 1, label: '购买次卡'),
-                  ],
-                  selected: 0,
-                  onChanged: c.selectTab,
+                hbox(
+                  bg: dk(context, Color(0xFFE9E9EB), Color(0xFF1F1F23)),
+                  radius: BorderRadius.circular(20),
+                  pad: EdgeInsets.fromLTRB(4, 4, 4, 4),
+                  child: hrow(
+                    [
+                      Expanded(
+                        flex: 1,
+                        child: UnconstrainedBox(
+                          alignment: Alignment.topLeft,
+                          constrainedAxis: Axis.horizontal,
+                          child: hbox(
+                            h: 34,
+                            bg: dk(
+                              context,
+                              Color(0xFFFFFFFF),
+                              Color(0xFF18181B),
+                            ),
+                            radius: BorderRadius.circular(17),
+                            shadow: dk(
+                              context,
+                              [
+                                BoxShadow(
+                                  color: Color.fromRGBO(0, 0, 0, 0.06),
+                                  offset: Offset(0, 1),
+                                  blurRadius: 2,
+                                  spreadRadius: 0,
+                                ),
+                                BoxShadow(
+                                  color: Color.fromRGBO(0, 0, 0, 0.04),
+                                  offset: Offset(0, 2),
+                                  blurRadius: 4,
+                                  spreadRadius: 0,
+                                ),
+                              ],
+                              [
+                                BoxShadow(
+                                  color: Color(0xFF26262B),
+                                  offset: Offset(0, 0),
+                                  blurRadius: 0,
+                                  spreadRadius: 1,
+                                ),
+                              ],
+                            ),
+                            child: Align(
+                              alignment: Alignment(0, 0),
+                              widthFactor: 1,
+                              child: Text(
+                                '储值充值',
+                                style: hts(
+                                  14,
+                                  dk(
+                                    context,
+                                    Color(0xFF18181B),
+                                    Color(0xFFFAFAFA),
+                                  ),
+                                  w: FontWeight.w500,
+                                  lh: 20,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: UnconstrainedBox(
+                          alignment: Alignment.topLeft,
+                          constrainedAxis: Axis.horizontal,
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () => c.selectTab(1),
+                            child: hbox(
+                              h: 34,
+                              radius: BorderRadius.circular(17),
+                              child: Align(
+                                alignment: Alignment(0, 0),
+                                widthFactor: 1,
+                                child: Text(
+                                  '购买次卡',
+                                  style: hts(
+                                    14,
+                                    dk(
+                                      context,
+                                      Color(0xFF18181B),
+                                      Color(0xFFFAFAFA),
+                                    ),
+                                    w: FontWeight.w500,
+                                    lh: 20,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                    main: MainAxisAlignment.start,
+                    cross: CrossAxisAlignment.stretch,
+                    gap: 2,
+                    intrinsic: true,
+                  ),
                 ),
                 hcol(
                   [
@@ -157,11 +290,27 @@ class RechargePage extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                                AppButton(
-                                  label: '更换',
-                                  kind: AppButtonKind.text,
-                                  size: AppButtonSize.medium,
-                                  onPressed: () => c.chooseMember(context),
+                                GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: () => c.chooseMember(context),
+                                  child: hbox(
+                                    bg: dk(
+                                      context,
+                                      Color.fromRGBO(255, 255, 255, 0.14),
+                                      Color.fromRGBO(9, 9, 11, 0.92),
+                                    ),
+                                    radius: BorderRadius.circular(10),
+                                    pad: EdgeInsets.fromLTRB(8, 0, 8, 0),
+                                    child: Text(
+                                      '更换',
+                                      style: hts(
+                                        12,
+                                        Color(0xFFFAFAFA),
+                                        w: FontWeight.w500,
+                                        lh: 20,
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ],
                               main: MainAxisAlignment.start,
@@ -1415,13 +1564,38 @@ class RechargePage extends StatelessWidget {
                     gap: 2,
                   ),
                 ),
-                ActionButton(
-                  actionKey: c.actionKey,
-                  label: '确认收款',
-                  kind: AppButtonKind.primary,
-                  size: AppButtonSize.large,
-                  expanded: false,
-                  onPressed: () => c.submit(context, sale: false),
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => c.submit(context, sale: false),
+                  child: hbox(
+                    h: 50,
+                    bg: Color(0xFF0485F7),
+                    radius: BorderRadius.circular(25),
+                    pad: EdgeInsets.fromLTRB(28, 0, 28, 0),
+                    child: Align(
+                      alignment: Alignment(0, 0),
+                      widthFactor: 1,
+                      child: hBusy(
+                        c.actionKey,
+                        Text(
+                          '确认收款',
+                          style: hts(
+                            16,
+                            Color(0xFFFFFFFF),
+                            w: FontWeight.w600,
+                            lh: 24,
+                          ),
+                        ),
+                        style: hts(
+                          16,
+                          Color(0xFFFFFFFF),
+                          w: FontWeight.w600,
+                          lh: 24,
+                        ),
+                        label: '提交中…',
+                      ),
+                    ),
+                  ),
                 ),
               ],
               main: MainAxisAlignment.start,

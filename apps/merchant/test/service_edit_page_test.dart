@@ -85,26 +85,15 @@ void main() {
     await t.pumpAndSettle();
     await enter(t, '精洗', '88');
     api.pending = Completer<void>();
-    final before = t.getSize(
-      find
-          .ancestor(of: find.text('保存'), matching: find.byType(Container))
-          .first,
-    );
     final saveCenter = t.getCenter(find.text('保存'));
     await t.tapAt(saveCenter);
     await t.pump();
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
-    expect(
-      t.getSize(find.byType(CircularProgressIndicator)),
-      const Size(16, 16),
-    );
+    expect(find.byType(AppSpinner), findsOneWidget);
+    expect(t.getSize(find.byType(AppSpinner)), const Size(20, 20));
     final pill = find
-        .ancestor(
-          of: find.byType(CircularProgressIndicator),
-          matching: find.byType(Container),
-        )
+        .ancestor(of: find.byType(AppSpinner), matching: find.byType(Container))
         .first;
-    expect(t.getSize(pill), before);
+    expect(t.getSize(pill), const Size(44, 44));
     await t.tapAt(saveCenter);
     await t.pump();
     expect(api.writes, hasLength(1));
