@@ -12,7 +12,7 @@ class AppointmentSettingsSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => HPage(
     bg: dk(context, const Color(0xFFF4F4F5), const Color(0xFF09090B)),
-    height: 1671,
+    height: 1445,
     flow: hbox(
       pad: EdgeInsets.fromLTRB(20, topInset(context), 20, 120),
       child: Column(
@@ -62,7 +62,7 @@ class AppointmentSettingsSkeleton extends StatelessWidget {
             const SizedBox(height: 16),
             _section(context, '可预约时间', const [70, 58, 86, 76, 76]),
             const SizedBox(height: 16),
-            _section(context, '接待规则', const [76, 76, 76, 76, 76, 98]),
+            _section(context, '接待规则', const [84, 84, 87]),
             const SizedBox(height: 16),
             _section(context, '预约通知', const [54, 54, 54]),
           ],

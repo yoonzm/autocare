@@ -11,8 +11,8 @@ import '../../kit/kit.dart';
 import '../../resources/merchant_svgs.dart';
 import 'staff_live.dart';
 
-// TODO: 邀请二维码需要 App 下载地址（STAFF_INVITE_BASE_URL）和二维码生成；在此之前不展示示意二维码，
-// 复制的是登录说明文字（员工按手机号匹配自动激活，不依赖邀请链接）。短信邀请仍需助通邀请模板，后端明确返回 501。
+// 不提供邀请二维码：员工按手机号匹配自动激活，只需下载 App、用该手机号验证码登录。
+// 复制的是登录说明文字。短信邀请仍需助通邀请模板，后端明确返回 501。
 class StaffInviteTemplate extends StatelessWidget {
   final Map<String, dynamic> d;
   const StaffInviteTemplate({super.key, required this.d});
@@ -419,23 +419,6 @@ class StaffInviteTemplate extends StatelessWidget {
                           w: FontWeight.w600,
                           lh: 22,
                         ),
-                      ),
-                      hrow(
-                        [
-                          hbox(
-                            bg: Color(0xFFFFFFFF),
-                            radius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: Color(0xFFE4E4E7),
-                              width: 1,
-                            ),
-                            pad: EdgeInsets.fromLTRB(12, 12, 12, 12),
-                          ),
-                        ],
-                        main: MainAxisAlignment.center,
-                        cross: CrossAxisAlignment.stretch,
-                        gap: 0,
-                        intrinsic: true,
                       ),
                       hcol(
                         [

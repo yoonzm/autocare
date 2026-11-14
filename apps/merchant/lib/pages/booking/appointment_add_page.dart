@@ -56,7 +56,7 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
   bool _awaitPicker = false;
   bool _dirty = false;
   int _revision = 0;
-  bool notify = false, remind = false, deposit = false;
+  bool notify = false, remind = false;
   String get tech => '${_tech?['name'] ?? '暂不指定'}';
   String get _bayLabel => '${_bay?['name'] ?? '暂不指定'}';
   int get minutes => picked.fold(
@@ -415,7 +415,7 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    _sectionLabel('通知与定金'),
+                    _sectionLabel('通知'),
                     AppCard(
                       radius: 24,
                       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -436,14 +436,6 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
                             '按"通知与消息"设置发送',
                             remind,
                             (v) => AppToast.show(context, 'TODO：预约提醒服务尚未接通'),
-                          ),
-                          const Divider1(indent: 16),
-                          _switch(
-                            '收取预约定金',
-                            '客户爽约将不予退还 · ¥50',
-                            deposit,
-                            (v) =>
-                                AppToast.show(context, 'TODO：定金支付尚未接通，未收取定金'),
                           ),
                         ],
                       ),

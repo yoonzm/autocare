@@ -70,7 +70,7 @@ class BookingSettingsController extends ChangeNotifier {
   }
 
   void deferred(BuildContext context) {
-    // TODO: online booking policy, notifications and deposits need their own backend contracts.
+    // TODO: online booking policy and notifications need their own backend contracts.
     AppToast.show(context, 'TODO：此功能尚未接通，当前未执行该操作');
   }
 
