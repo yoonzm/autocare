@@ -9,10 +9,6 @@ import 'package:autocare_merchant/pages/expenses/expense_controller.dart';
 import 'package:autocare_merchant/pages/expenses/expenses_live_template.dart';
 import 'package:autocare_merchant/pages/expenses/expense_add_live_template.dart';
 import 'package:autocare_merchant/pages/expenses/expense_detail_live_template.dart';
-import 'package:autocare_merchant/pages/expenses/expense_budget_live_template.dart';
-import 'package:autocare_merchant/pages/expenses/budget_total_live_template.dart';
-import 'package:autocare_merchant/pages/expenses/budget_edit_live_template.dart';
-import 'package:autocare_merchant/pages/expenses/budget_adjust_live_template.dart';
 import 'package:autocare_merchant/theme.dart';
 import 'package:autocare_merchant/kit/async_kit.dart';
 
@@ -44,33 +40,9 @@ void main() {
     'history': [
       {'month': '2026-10-01', 'category': '水电', 'amount': 100},
     ],
-    'budget': {
-      'month': '2026-11-01',
-      'total': 500,
-      'categories': {
-        '水电': {
-          'amount': 200,
-          'threshold': 80,
-          'policy': 'warn',
-          'repeat': false,
-          'rollover': false,
-        },
-      },
-      'revision': 0,
-      'carry': false,
-      'remind': true,
-    },
   };
   for (final dark in [false, true]) {
-    for (final mode in [
-      'list',
-      'add',
-      'detail',
-      'budget',
-      'total',
-      'category',
-      'adjust',
-    ]) {
+    for (final mode in ['list', 'add', 'detail']) {
       testWidgets(
         'expense $mode ${dark ? 'dark' : 'light'} real data and layout',
         (tester) async {
@@ -84,17 +56,12 @@ void main() {
             '2026-11-01',
             board(),
             entry: mode == 'add' || mode == 'detail' ? entry : null,
-            category: '水电',
           );
           final key = GlobalKey();
           Widget page() => switch (mode) {
             'list' => ExpensesLiveTemplate(c: c),
             'add' => ExpenseAddLiveTemplate(c: c),
-            'detail' => ExpenseDetailLiveTemplate(c: c),
-            'budget' => ExpenseBudgetLiveTemplate(c: c),
-            'total' => BudgetTotalLiveTemplate(c: c),
-            'category' => BudgetEditLiveTemplate(c: c),
-            _ => SingleChildScrollView(child: BudgetAdjustLiveTemplate(c: c)),
+            _ => ExpenseDetailLiveTemplate(c: c),
           };
           await tester.pumpWidget(
             MaterialApp(

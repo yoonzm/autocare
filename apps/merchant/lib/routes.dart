@@ -88,7 +88,6 @@ final Map<String, WidgetBuilder> sheetRoutes = {
   'DisableStaff': (_) => const DisableStaffSheet(),
   'StaffEnable': (_) => const StaffEnableSheet(),
   'StaffTransfer': (_) => const StaffTransferSheet(),
-  'BudgetAdjust': (_) => ErrorView(error: const AppError('请先选择预算分类')),
   // TODO: 字符串路由没有预约 ID；改期必须从真实预约卡片或详情进入。
   'AppointmentReschedule': (context) => ErrorView(
     error: const AppError('请先选择预约', type: AppErrorType.notFound),
@@ -160,12 +159,6 @@ Widget? pageFor(String name, {Object? arguments}) {
       return const ExpenseLivePage(mode: 'add');
     case 'ExpenseDetail':
       return const ExpenseLivePage(mode: 'detail');
-    case 'ExpenseBudget':
-      return const ExpenseLivePage(mode: 'budget');
-    case 'BudgetTotal':
-      return const ExpenseLivePage(mode: 'total');
-    case 'BudgetEdit':
-      return ErrorView(error: const AppError('请先选择预算分类'));
     case 'StockDocs':
       return const InventoryManagementPage(mode: 'docs');
     case 'StockDocsOut':
@@ -326,8 +319,6 @@ const Set<String> _cupertinoSheetPages = {
   'StockIn',
   'StockOut',
   'ExpenseAdd',
-  'BudgetTotal',
-  'BudgetEdit',
   'StoreEdit',
   'ServiceEdit',
   'CardTierEdit',

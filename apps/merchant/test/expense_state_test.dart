@@ -3,10 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
-import 'package:autocare_merchant/kit/async_kit.dart';
 import 'package:autocare_merchant/pages/expenses/expense_controller.dart';
 import 'package:autocare_merchant/pages/expenses/expense_live_page.dart';
-import 'package:autocare_merchant/pages/expenses/expense_widgets.dart';
 import 'package:autocare_merchant/pages/expenses/expenses_live_template.dart';
 
 import 'members_test.dart' show MemberFakeApi, phone;
@@ -24,26 +22,10 @@ Map<String, dynamic> entry([String id = 'e1']) => {
   'repeat': false,
   'attachments': ['voucher-a'],
 };
-Map<String, dynamic> board([num total = 500]) => {
+Map<String, dynamic> board([num revenue = 1000]) => {
   'items': [entry()],
   'history': [],
-  'revenue': 1000,
-  'budget': {
-    'month': '2026-11-01',
-    'total': total,
-    'revision': 0,
-    'carry': false,
-    'remind': true,
-    'categories': {
-      '水电': {
-        'amount': 200,
-        'threshold': 80,
-        'policy': 'warn',
-        'rollover': false,
-        'repeat': false,
-      },
-    },
-  },
+  'revenue': revenue,
 };
 
 class ExpenseApi extends MemberFakeApi {
@@ -108,7 +90,7 @@ void main() {
     merchantApi = original;
   });
 
-  test('编辑实例深拷贝输入；失败保留金额、凭证和预算，重试沿用请求标识', () async {
+  test('编辑实例深拷贝输入；失败保留金额、凭证，重试沿用请求标识', () async {
     final source = board(), row = entry();
     final a = ExpenseController('add', '2026-11-01', source, entry: row);
     final b = ExpenseController('add', '2026-11-01', source, entry: row);
@@ -129,27 +111,6 @@ void main() {
     expect(a.uploadKey, isNot(b.uploadKey));
     a.dispose();
     b.dispose();
-  });
-
-  test('预算分类删除失败不改草稿，修改输入后创建新请求标识', () async {
-    final source = board();
-    final c = ExpenseController(
-      'category',
-      '2026-11-01',
-      source,
-      category: '水电',
-    );
-    c.setCategoryAmount('水电', '250');
-    expect((source['budget']['categories']['水电'] as Map)['amount'], 200);
-    api.fail = const AppError('不能删除');
-    await expectLater(c.persist(remove: true), throwsA(isA<AppError>()));
-    expect(c.categories['水电']['amount'], 250);
-    final oldId = api.writes.single['requestId'];
-    api.fail = null;
-    c.setCategoryAmount('水电', '300');
-    await c.persist();
-    expect(api.writes.last['requestId'], isNot(oldId));
-    c.dispose();
   });
 
   test('提交期间冻结请求体、防重复，释放实例后真实写入仍交付结果但不通知页面', () async {
@@ -222,99 +183,6 @@ void main() {
     c.dispose();
   });
 
-  testWidgets('销毁表单后晚到的预算建议不能改写或通知实例', (t) async {
-    final c = ExpenseController('total', '2026-11-01', board());
-    api.suggestion = Completer<Map<String, dynamic>>();
-    await t.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: Builder(
-            builder: (context) => TextButton(
-              onPressed: () => c.suggest(context, 'actual'),
-              child: const Text('建议'),
-            ),
-          ),
-        ),
-      ),
-    );
-    await t.tap(find.text('建议'));
-    await t.pump();
-    c.dispose();
-    api.suggestion!.complete({
-      'item': {
-        'categories': {
-          '其他': {'amount': 999},
-        },
-      },
-    });
-    await t.pump(const Duration(seconds: 1));
-    await t.pumpAndSettle();
-    expect(c.categories.containsKey('其他'), isFalse);
-  });
-
-  testWidgets('预算开关失败回滚；成功采用服务端版本后可以继续修改另一开关', (t) async {
-    final c = ExpenseController('budget', '2026-11-01', board());
-    await t.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: Builder(
-            builder: (context) => Column(
-              children: [
-                TextButton(
-                  onPressed: () => c.setBudgetFlag(context, 'remind', false),
-                  child: const Text('提醒'),
-                ),
-                TextButton(
-                  onPressed: () => c.setBudgetFlag(context, 'carry', true),
-                  child: const Text('结转'),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-    api.fail = const AppError('写入失败');
-    await t.tap(find.text('提醒'));
-    await t.pumpAndSettle();
-    expect(c.budget['remind'], true);
-    api.fail = null;
-    await t.tap(find.text('提醒'));
-    await t.pumpAndSettle();
-    expect(c.budget['remind'], false);
-    expect(c.budget['revision'], 1);
-    expect(api.writes[0]['requestId'], api.writes[1]['requestId']);
-    await t.tap(find.text('结转'));
-    await t.pumpAndSettle();
-    expect(c.budget['carry'], true);
-    expect(c.budget['revision'], 2);
-    expect(api.writes.last['body']['revision'], 1);
-    expect(api.writes.last['requestId'], isNot(api.writes[1]['requestId']));
-    c.dispose();
-  });
-
-  testWidgets('没有营收分配接口时明确阻止，不请求实际分配冒充营收分配', (t) async {
-    final c = ExpenseController('total', '2026-11-01', board());
-    await t.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: Builder(
-            builder: (context) => TextButton(
-              onPressed: () => c.chooseAllocation(context, 3),
-              child: const Text('按营收比例'),
-            ),
-          ),
-        ),
-      ),
-    );
-    await t.tap(find.text('按营收比例'));
-    await t.pumpAndSettle();
-    expect(find.text('按营收比例分配暂未接通'), findsWidgets);
-    expect(api.calls, isEmpty);
-    expect(c.allocationMode, 0);
-    c.dispose();
-  });
-
   testWidgets('详情页切换目标后只接收对应记录，旧响应不覆盖新记录', (t) async {
     phone(t);
     api.deferEntries = true;
@@ -361,50 +229,8 @@ void main() {
     expect(api.calls.last['body']['month'], '2026-12-01');
     api.boards[2].complete({'item': board(999)});
     await t.pumpAndSettle();
-    expect(c.total, 999);
+    expect(c.revenue, 999);
     expect(c.month, '2026-12-01');
     expect(api.boards.length, 3);
-  });
-
-  testWidgets('无分类的预算入口明确阻止，不读取或写入默认示例分类', (t) async {
-    phone(t);
-    await t.pumpWidget(
-      const MaterialApp(home: ExpenseLivePage(mode: 'category')),
-    );
-    await t.pumpAndSettle();
-    expect(
-      t.widget<ErrorView>(find.byType(ErrorView)).error.message,
-      '请先选择预算分类',
-    );
-    expect(api.calls, isEmpty);
-  });
-
-  testWidgets('受控金额输入保留小数中间态，外部预算建议更新后才同步替换', (t) async {
-    phone(t);
-    final c = ExpenseController('total', '2026-11-01', board());
-    await t.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: ListenableBuilder(
-            listenable: c,
-            builder: (_, _) => ExpenseInput(
-              value: '${c.total}',
-              onChanged: c.setTotal,
-              style: const TextStyle(fontSize: 16),
-              hint: '请输入总预算',
-              keyboard: TextInputType.number,
-            ),
-          ),
-        ),
-      ),
-    );
-    await t.enterText(find.byType(TextField), '20.');
-    await t.pump();
-    expect(t.widget<TextField>(find.byType(TextField)).controller!.text, '20.');
-    c.setTotal('50');
-    await t.pump();
-    expect(t.widget<TextField>(find.byType(TextField)).controller!.text, '50');
-    await t.pumpWidget(const SizedBox());
-    c.dispose();
   });
 }

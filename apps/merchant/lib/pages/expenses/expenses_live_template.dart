@@ -84,60 +84,7 @@ class ExpensesLiveTemplate extends StatelessWidget {
                         textAlign: TextAlign.center,
                       ),
                     ),
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => c.open(context, 'budget'),
-                      child: hbox(
-                        h: 44,
-                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                        radius: BorderRadius.circular(22),
-                        shadow: dk(
-                          context,
-                          [
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 1),
-                              blurRadius: 2,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
-                              spreadRadius: 0,
-                            ),
-                          ],
-                          [
-                            BoxShadow(
-                              color: Color(0xFF26262B),
-                              offset: Offset(0, 0),
-                              blurRadius: 0,
-                              spreadRadius: 1,
-                            ),
-                          ],
-                        ),
-                        pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                        child: Align(
-                          alignment: Alignment(-1, 0),
-                          widthFactor: 1,
-                          child: Text(
-                            '预算',
-                            style: hts(
-                              14,
-                              dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                              w: FontWeight.w500,
-                              lh: 20,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                    const SizedBox(width: 44),
                   ],
                   main: MainAxisAlignment.start,
                   cross: CrossAxisAlignment.center,
@@ -503,23 +450,6 @@ class ExpensesLiveTemplate extends StatelessWidget {
                                 ),
                                 w: FontWeight.w600,
                                 lh: 22,
-                              ),
-                            ),
-                          ),
-                          GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: () => c.open(context, 'budget'),
-                            child: Text(
-                              c.budgetUsageText,
-                              style: hts(
-                                13,
-                                dk(
-                                  context,
-                                  Color(0xFF1E63AE),
-                                  Color(0xFF6AB4FA),
-                                ),
-                                w: FontWeight.w500,
-                                lh: 18,
                               ),
                             ),
                           ),
@@ -1253,32 +1183,7 @@ class ExpensesLiveTemplate extends StatelessWidget {
             child: hrow(
               [
                 Expanded(
-                  flex: 10,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => c.open(context, 'budget'),
-                    child: hbox(
-                      h: 50,
-                      bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
-                      radius: BorderRadius.circular(25),
-                      child: Align(
-                        alignment: Alignment(0, 0),
-                        widthFactor: 1,
-                        child: Text(
-                          '月度预算',
-                          style: hts(
-                            15,
-                            dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                            w: FontWeight.w500,
-                            lh: 22,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  flex: 15,
+                  flex: 1,
                   child: GestureDetector(
                     behavior: HitTestBehavior.opaque,
                     onTap: () => c.open(context, 'add'),

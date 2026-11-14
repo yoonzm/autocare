@@ -114,7 +114,6 @@ const Map<String, String> sheetParents = {
   'OrderFilter': 'OrderList',
   'FindNotFound': 'FindScanPlate',
   'AppointmentReschedule': 'AppointmentDetail',
-  'BudgetAdjust': 'ExpenseBudget',
   'ClearCache': 'AboutApp',
   'DisableStaff': 'StaffDetail',
   'FindResult': 'FindScanPlate',

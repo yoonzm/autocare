@@ -14,8 +14,6 @@ import 'expense_widgets.dart';
 export 'expense_view.dart';
 import 'expense_live_page.dart';
 import 'expense_entry_template.dart';
-import 'expense_category_template.dart';
-import 'expense_allocation_template.dart';
 
 const expenseCategories = [
   '房租',
@@ -66,14 +64,10 @@ class ExpenseController extends ChangeNotifier {
   bool get locked =>
       busy || isBusy(saveKey) || isBusy(suggestKey) || isBusy(uploadKey);
   final String mode;
-  String month, category;
+  String month;
   final Map<String, dynamic> board;
-  Map<String, dynamic> draft, budget;
-  int filter = 0, allocationMode = 0, adjustSource = 0;
-  int categorySuggestion = 0, summaryMetric = 0, adjustmentPreset = 0;
-  String sourceCategory = '其他';
-  num adjustment = 0;
-  String reason = '';
+  Map<String, dynamic> draft;
+  int filter = 0, summaryMetric = 0;
   bool busy = false, dirty = false, disposed = false;
   VoidCallback? reload;
   ExpenseController(
@@ -81,7 +75,6 @@ class ExpenseController extends ChangeNotifier {
     this.month,
     Map<String, dynamic> board, {
     Map<String, dynamic>? entry,
-    String? category,
     Future<Map<String, dynamic>> Function(
       Map<String, dynamic>, {
       String? requestId,
@@ -92,7 +85,6 @@ class ExpenseController extends ChangeNotifier {
            ((body, {requestId}) =>
                merchantApi.invoke(body, requestId: requestId)),
        board = expenseCopy(board),
-       category = category ?? '材料采购',
        draft = entry == null
            ? {
                'id': expenseId(),
@@ -107,26 +99,7 @@ class ExpenseController extends ChangeNotifier {
                'repeat': false,
                'attachments': <String>[],
              }
-           : expenseCopy(entry),
-       budget = Map<String, dynamic>.from(
-         jsonDecode(
-           jsonEncode(
-             board['budget'] ??
-                 {
-                   'month': month,
-                   'total': 0,
-                   'categories': {},
-                   'carry': false,
-                   'remind': true,
-                   'revision': 0,
-                 },
-           ),
-         ),
-       ) {
-    if (mode == 'category') {
-      categories.putIfAbsent(this.category, categoryDefault);
-    }
-  }
+           : expenseCopy(entry);
   @override
   void dispose() {
     disposed = true;
@@ -160,10 +133,6 @@ class ExpenseController extends ChangeNotifier {
   }
 
   List<Map<String, dynamic>> get entries => expenseMaps(board['items']);
-  Map<String, dynamic> get categories =>
-      budget['categories'] as Map<String, dynamic>;
-  Map<String, dynamic> get cat =>
-      Map<String, dynamic>.from(categories[category] ?? categoryDefault());
   num spent([String? key]) => entries
       .where((e) => key == null || e['category'] == key)
       .fold<num>(0, (n, e) => n + (e['amount'] as num));
@@ -181,14 +150,6 @@ class ExpenseController extends ChangeNotifier {
   Border? categoryBorder(String key) => draft['category'] == key
       ? Border.all(color: C.primary, width: 1.5)
       : null;
-  double get categoryProgress => (cat['amount'] as num) == 0
-      ? 0
-      : (spent(category) / (cat['amount'] as num)).clamp(0, 1).toDouble();
-  Color get categoryColor =>
-      spent(category) > (cat['amount'] as num) ? C.red : C.primary;
-  num get total => budget['total'] as num? ?? 0;
-  num get allocated =>
-      categories.values.fold<num>(0, (n, e) => n + (e['amount'] as num));
   num previousSpent([String? key]) {
     final prev = expenseMonth(
       DateTime.parse(month).copyWith(month: DateTime.parse(month).month - 1),
@@ -202,8 +163,6 @@ class ExpenseController extends ChangeNotifier {
 
   String get monthLabel =>
       '${DateTime.parse(month).year}年 ${DateTime.parse(month).month}月';
-  double get progress =>
-      total == 0 ? 0 : (spent() / total).clamp(0, 1).toDouble();
   void shiftMonth(int d) {
     month = expenseMonth(
       DateTime(DateTime.parse(month).year, DateTime.parse(month).month + d),
@@ -211,110 +170,28 @@ class ExpenseController extends ChangeNotifier {
     reload?.call();
   }
 
-  void open(
-    BuildContext context,
-    String mode, {
-    String? id,
-    String? category,
-    String? preset,
-  }) {
-    final page = ExpenseLivePage(
-      mode: mode,
-      month: month,
-      id: id,
-      category: category,
-      preset: preset,
+  void open(BuildContext context, String mode, {String? id}) {
+    final page = ExpenseLivePage(mode: mode, month: month, id: id);
+    // 记一笔的左上角是 ✕：整页 sheet；其余（详情）保持原来的推入
+    Navigator.of(context).push(
+      mode == 'add'
+          ? appSheetRoute<void>(page: page)
+          : MaterialPageRoute(builder: (_) => page),
     );
-    if (mode == 'adjust') {
-      showModalBottomSheet<void>(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        builder: (ctx) => Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(ctx).viewInsets.bottom,
-          ),
-          child: page,
-        ),
-      );
-    } else {
-      // 记一笔 / 编辑预算 / 总预算的左上角是 ✕：整页 sheet；其余（详情、分类）保持原来的推入
-      Navigator.of(context).push(
-        const {'add', 'budget', 'total'}.contains(mode)
-            ? appSheetRoute<void>(page: page)
-            : MaterialPageRoute(builder: (_) => page),
-      );
-    }
   }
 
   void openDetail(BuildContext context, Map<String, dynamic> e) =>
       open(context, 'detail', id: e['id']);
-  void editCategory(BuildContext context, String key) =>
-      open(context, 'category', category: key);
-  Future<void> selectCategory(BuildContext context) async {
-    final k = await pickFromList(context, '选择分类', expenseCategories, category);
-    if (k != null && context.mounted) editCategory(context, k);
-  }
-
-  Future<void> suggest(BuildContext context, String method) async {
-    if (busy || disposed) return;
-    await runBusy(suggestKey, () async {
-      setBusy(true);
-      try {
-        final r = await request({
-          'action': 'expense_suggest',
-          'month': month,
-          'method': method,
-          'total': total,
-        });
-        if (disposed) return;
-        budget['categories'] = expenseCopy(
-          Map<String, dynamic>.from(r['item']['categories']),
-        );
-        changed();
-      } catch (e) {
-        if (context.mounted && !disposed) AppToast.error(context, e);
-      } finally {
-        setBusy(false);
-      }
-    });
-  }
 
   /// Returns the actual service result. A failure leaves every input unchanged.
   Future<Map<String, dynamic>?> persist({bool remove = false}) async {
     if (busy || disposed || _committed) return null;
     setBusy(true);
     try {
-      Map<String, dynamic> body;
-      if (mode == 'add' || mode == 'detail') {
-        body = {...draft, 'action': remove ? 'expense_delete' : 'expense_save'};
-      } else if (mode == 'adjust') {
-        body = {
-          'action': 'expense_budget_adjust',
-          'month': month,
-          'revision': budget['revision'],
-          'category': category,
-          'amount': adjustment,
-          'source': adjustSource == 0
-              ? 'remaining'
-              : adjustSource == 2
-              ? 'total'
-              : sourceCategory,
-          'reason': reason,
-        };
-      } else {
-        final proposed = expenseCopy(budget);
-        if (remove) (proposed['categories'] as Map).remove(category);
-        // Preview allocation is input only; the backend validates the full budget.
-        if (mode == 'category') {
-          final allocated = (proposed['categories'] as Map).values.fold<num>(
-            0,
-            (sum, row) => sum + (row['amount'] as num),
-          );
-          proposed['total'] = math.max(total, allocated);
-        }
-        body = {...proposed, 'month': month, 'action': 'expense_budget_save'};
-      }
+      final body = {
+        ...draft,
+        'action': remove ? 'expense_delete' : 'expense_save',
+      };
       final result = await request(body, write: true);
       _committed = true;
       dirty = false;
@@ -330,9 +207,7 @@ class ExpenseController extends ChangeNotifier {
     if (remove) {
       final confirmed = await hConfirm(
         context,
-        mode == 'detail'
-            ? (draft['repeat'] == true ? '确认删除这笔开支并停止后续每月重复？' : '确认删除这笔开支？')
-            : '确认删除分类预算？',
+        draft['repeat'] == true ? '确认删除这笔开支并停止后续每月重复？' : '确认删除这笔开支？',
         onConfirm: () async {
           await persist(remove: true);
         },
@@ -384,145 +259,14 @@ class ExpenseController extends ChangeNotifier {
     changed();
   }
 
-  void setTotal(String value) {
-    if (busy) return;
-    budget['total'] = num.tryParse(value.replaceAll(',', '')) ?? 0;
-    changed();
-  }
-
-  void setCategoryAmount(String key, String value) {
-    if (busy) return;
-    categories.putIfAbsent(key, categoryDefault);
-    categories[key]['amount'] = num.tryParse(value.replaceAll(',', '')) ?? 0;
-    changed();
-  }
-
-  void setAdjustment(String value) {
-    if (busy) return;
-    adjustment = num.tryParse(value.replaceAll(',', '')) ?? 0;
-    changed();
-  }
-
-  void setReason(String value) {
-    if (busy) return;
-    reason = value;
-    changed();
-  }
-
   void setFilter(int value) {
     filter = value;
     if (!disposed) notifyListeners();
   }
 
-  void setBudgetCarry(bool value) {
-    if (busy) return;
-    budget['carry'] = value;
-    changed();
-  }
-
   void setSummaryMetric(int value) {
     summaryMetric = value;
     if (!disposed) notifyListeners();
-  }
-
-  void setAdjustSource(int value) {
-    if (busy) return;
-    adjustSource = value;
-    changed();
-  }
-
-  void setCategoryThreshold(int value) {
-    if (busy) return;
-    categories[category]['threshold'] = value;
-    changed();
-  }
-
-  void setCategoryPolicy(String value) {
-    if (busy) return;
-    categories[category]['policy'] = value;
-    changed();
-  }
-
-  void setCategoryFlag(String key, bool value) {
-    if (busy) return;
-    categories[category][key] = value;
-    changed();
-  }
-
-  void chooseAdjustment(int index) {
-    if (busy) return;
-    adjustmentPreset = index;
-    adjustment = index == 0
-        ? math.max(0, spent(category) - (cat['amount'] as num))
-        : index == 1
-        ? 5000
-        : 8000;
-    changed();
-  }
-
-  void chooseCategorySuggestion(int index) {
-    if (busy) return;
-    categorySuggestion = index;
-    final original =
-        board['budget']?['categories']?[category]?['amount'] as num? ?? 0;
-    final amount = index == 0
-        ? previousSpent(category)
-        : index == 1
-        ? original * 1.1
-        : index == 2
-        ? (previousSpent() == 0
-              ? 0
-              : total * previousSpent(category) / previousSpent())
-        : original;
-    categories[category]['amount'] = (amount * 100).round() / 100;
-    changed();
-  }
-
-  void chooseAllocation(BuildContext context, int index) {
-    if (busy) return;
-    if (index == 3) {
-      explainRevenueAllocation(context);
-      notifyListeners();
-      return;
-    }
-    allocationMode = index;
-    changed();
-    if (index > 0) suggest(context, index == 1 ? 'previous' : 'actual');
-  }
-
-  void explainRevenueAllocation(BuildContext context) {
-    // TODO: expense_suggest only supports previous-budget/previous-actual weights.
-    // Revenue forecasts and a defined revenue allocation API are not available.
-    AppToast.show(context, '按营收比例分配暂未接通');
-  }
-
-  void explainPush(BuildContext context) {
-    // TODO: notification provider and expense_notification_subscribe are not connected.
-    AppToast.show(context, '手机推送尚未接通');
-  }
-
-  Future<void> chooseAdjustmentCategory(BuildContext context) async {
-    if (categories.isEmpty) {
-      AppToast.show(context, '请先设置分类预算');
-      return;
-    }
-    final key = await pickFromList(
-      context,
-      '追加预算分类',
-      categories.keys.toList(),
-      category,
-    );
-    if (key != null && context.mounted && !disposed) {
-      open(context, 'adjust', category: key);
-    }
-  }
-
-  void copyPrevious(BuildContext context) {
-    if (board['previous_budget'] == null) {
-      AppToast.show(context, '上月未设置预算');
-      return;
-    }
-    open(context, 'total', preset: 'previous');
   }
 
   void setEntryRepeat(BuildContext context, bool value) {
@@ -535,37 +279,6 @@ class ExpenseController extends ChangeNotifier {
     changed();
   }
 
-  Future<void> setBudgetFlag(
-    BuildContext context,
-    String key,
-    bool value,
-  ) async {
-    if (busy || disposed) return;
-    final before = budget[key];
-    budget[key] = value;
-    changed();
-    await runBusy(saveKey, () async {
-      try {
-        final result = await persist();
-        if (!disposed && result?['item'] is Map) {
-          budget = expenseCopy(Map<String, dynamic>.from(result!['item']));
-        }
-      } catch (e) {
-        if (disposed) return;
-        budget[key] = before;
-        changed();
-        if (context.mounted) AppToast.error(context, e);
-      }
-    });
-  }
-
-  String get sourceAvailableText => expenseMoney(
-    math.max(
-      0,
-      (categories[sourceCategory]?['amount'] as num? ?? 0) -
-          spent(sourceCategory),
-    ),
-  );
   String entryStatus(Map<String, dynamic> record) =>
       record['source_document'] != null
       ? '来自库存'
@@ -609,18 +322,6 @@ class ExpenseController extends ChangeNotifier {
     );
     if (value == null || disposed || !context.mounted) return;
     draft['payee'] = value;
-    changed();
-  }
-
-  Future<void> pickBudgetSource(BuildContext context) async {
-    final value = await pickFromList(
-      context,
-      '调出分类',
-      categories.keys.where((k) => k != category).toList(),
-      sourceCategory,
-    );
-    if (value == null || disposed || !context.mounted) return;
-    sourceCategory = value;
     changed();
   }
 
@@ -668,9 +369,6 @@ class ExpenseController extends ChangeNotifier {
     );
   }
 
-  double rowProgress(Map<String, dynamic> r) => r['amount'] == 0
-      ? 0
-      : (spent(r['category']) / (r['amount'] as num)).clamp(0, 1).toDouble();
   Widget entriesWidget(BuildContext context) {
     final rows = entries
         .where(
@@ -715,80 +413,6 @@ class ExpenseController extends ChangeNotifier {
       ],
     );
   }
-
-  Widget budgetRows(BuildContext context) => Column(
-    children: [
-      if (categories.isEmpty) const EmptyView.firstTime(title: '尚未设置分类预算'),
-      for (final k in categories.keys)
-        ExpenseCategoryTemplate(
-          c: this,
-          record: {...categories[k], 'category': k},
-        ),
-    ],
-  );
-  Widget historyChart(BuildContext context) {
-    final h = expenseMaps(board['history'])
-        .where((r) => r['category'] == category)
-        .toList();
-    final maxValue = h.fold<num>(1, (n, r) => math.max(n, r['amount'] as num));
-    return SizedBox(
-      height: 124,
-      width: 314,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          for (var i = 6; i >= 1; i--)
-            Expanded(
-              child: Builder(
-                builder: (_) {
-                  final m = expenseMonth(
-                    DateTime(
-                      DateTime.parse(month).year,
-                      DateTime.parse(month).month - i,
-                    ),
-                  );
-                  final value = h
-                      .where((r) => r['month'] == m)
-                      .fold<num>(0, (n, r) => n + (r['amount'] as num));
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Container(
-                        width: 24,
-                        height: 90 * value / maxValue,
-                        color: C.primary,
-                      ),
-                      Text(
-                        '${DateTime.parse(m).month}月',
-                        style: ts(10, color: C.muted),
-                      ),
-                    ],
-                  );
-                },
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  String allocationText(String key) =>
-      '占总预算 ${total == 0 ? 0 : ((categories[key]?['amount'] as num? ?? 0) / total * 100).round()}%';
-
-  Widget allocationRows(BuildContext context) => Column(
-    children: [
-      for (final key in <String>{
-        '房租',
-        '人工',
-        '材料采购',
-        '水电',
-        '营销推广',
-        '其他',
-        ...categories.keys,
-      })
-        ExpenseAllocationTemplate(c: this, categoryKey: key),
-    ],
-  );
 
   Widget vouchers(BuildContext context) => Wrap(
     spacing: 10,
