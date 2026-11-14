@@ -27,3 +27,9 @@
 - 源码 `apps/member-mini`，用微信开发者工具上传体验版 / 提审，版本与其他端独立。`.github/workflows/member-mini.yml` 在 `apps/member-mini/**` 变更时运行 Node 测试与样式生成检查，不自动上传（上传需要小程序密钥，不放进 Actions）。
 - 后端：迁移 `202611100003_member_portal.sql` 与独立的 `member-v1` 云函数随 `supabase-prod.yml` 自动部署；微信凭证 `/opt/supabase/.env.wechat` 由管理员配置（样例 `supabase/deploy/wechat.env.example`），更新后的 `production.py` 需管理员重新安装到服务器入口。详见 `docs/member-mini-integration.md`。
 - 临时测试：`.github/workflows/member-mini-publish.yml`（手动）可把会员端上传到 my-baas-helper 日志监控小程序（`wxdba60af414abc8db`）的开发版本或生成预览二维码，需要环境密钥 `MEMBER_MINI_UPLOAD_KEY`；不是正式发布，开发版本不得提交审核。
+
+## 用户协议与隐私政策（H5）
+
+- 页面由 `merchant-v1` 的公开 GET 路由提供：`/functions/v1/merchant-v1/legal/terms` 与 `/legal/privacy`，正文在 `supabase/functions/merchant-v1/legal_content.ts`，随 `supabase-prod.yml` 部署，改文案不必发新版 App。详见 `docs/legal-pages.md`。
+- 服务器 `.env.support`（已注入函数容器）可增加 `LEGAL_OPERATOR_NAME`（运营主体全称，写入协议开头）；客服电话沿用 `MERCHANT_SUPPORT_PHONE`。两者缺省时页面不写占位文字，只指引到 App 内的客服入口。
+- 上线前请法务审核正文，并在应用商店资料里填写这两个页面的网址。

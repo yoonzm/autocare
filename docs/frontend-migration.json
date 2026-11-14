@@ -1193,6 +1193,12 @@
       "domain": "expenses",
       "status": "verified",
       "legacyDependencies": []
+    },
+    {
+      "path": "pages/account/legal_web_page.dart",
+      "domain": "account",
+      "status": "verified",
+      "legacyDependencies": []
     }
   ],
   "sharedCleanup": {
@@ -2220,6 +2226,10 @@
     "pages/expenses/expense_widgets.dart": {
       "batch": "expenseBatch",
       "state": "字段/选择/开关/目标由具体页面显式提供，状态与请求标识归实例。最终支出/状态/迁移守卫40项及共享包9项通过；新增表单和分类预算4组浅深色同状态截图与迁移前字节一致。"
+    },
+    "pages/account/legal_web_page.dart": {
+      "tests": "legal_web_page_test 3 项（terms/privacy 地址、加载失败重试）及 security_page_state 协议页返回通过；正文由后端 H5 提供，见 docs/legal-pages.md",
+      "remainingTODO": []
     }
   },
   "verification": {
