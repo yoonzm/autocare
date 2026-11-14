@@ -7,13 +7,43 @@ import '../../kit/async_kit.dart';
 
 class MemberFilters {
   final Set<String> tierIds;
-  final int balance, visit;
+  final int balance, visit, packageStatus, vehicleProject;
   MemberFilters({
     Set<String> tierIds = const {},
     this.balance = 0,
     this.visit = -1,
+    this.packageStatus = -1,
+    this.vehicleProject = -1,
   }) : tierIds = Set.unmodifiable(tierIds);
-  bool get active => tierIds.isNotEmpty || balance != 0 || visit != -1;
+  bool get active =>
+      tierIds.isNotEmpty ||
+      balance != 0 ||
+      visit != -1 ||
+      packageStatus != -1 ||
+      vehicleProject != -1;
+  MemberFilters copyWith({
+    Set<String>? tierIds,
+    int? balance,
+    int? visit,
+    int? packageStatus,
+    int? vehicleProject,
+  }) => MemberFilters(
+    tierIds: tierIds ?? this.tierIds,
+    balance: balance ?? this.balance,
+    visit: visit ?? this.visit,
+    packageStatus: packageStatus ?? this.packageStatus,
+    vehicleProject: vehicleProject ?? this.vehicleProject,
+  );
+
+  /// 与后端 `package_status` 对应：7 天内到期 / 剩余 ≤ 2 次 / 已用完。
+  String? get packageStatusKey => packageStatus >= 0 && packageStatus < 3
+      ? const ['expiring', 'low', 'used_up'][packageStatus]
+      : null;
+
+  /// 与后端 `vehicle_project` 对应：新能源车主 / 做过镀晶 / 车衣质保中 / 多辆车。
+  String? get vehicleProjectKey => vehicleProject >= 0 && vehicleProject < 4
+      ? const ['ev', 'coating', 'wrap_warranty', 'multi'][vehicleProject]
+      : null;
   num? get min => const <num?>[null, null, 500, 2000][balance];
   num? get max => const <num?>[null, 500, 2000, null][balance];
   int? get within => visit == 0
@@ -62,32 +92,32 @@ class MemberFilterController extends ChangeNotifier {
     if (values.any((i) => i < 0 || i >= tiers.length)) {
       AppToast.show(context, '本店没有这个卡种');
     }
-    filters = MemberFilters(
+    filters = filters.copyWith(
       tierIds: {
         for (final i in values)
           if (i >= 0 && i < tiers.length) '${tiers[i]['id']}',
       },
-      balance: filters.balance,
-      visit: filters.visit,
     );
     _changed();
   }
 
   void chooseBalance(int value) {
-    filters = MemberFilters(
-      tierIds: filters.tierIds,
-      balance: value,
-      visit: filters.visit,
-    );
+    filters = filters.copyWith(balance: value);
     _changed();
   }
 
   void chooseVisit(int value) {
-    filters = MemberFilters(
-      tierIds: filters.tierIds,
-      balance: filters.balance,
-      visit: value,
-    );
+    filters = filters.copyWith(visit: value);
+    _changed();
+  }
+
+  void choosePackageStatus(int value) {
+    filters = filters.copyWith(packageStatus: value);
+    _changed();
+  }
+
+  void chooseVehicleProject(int value) {
+    filters = filters.copyWith(vehicleProject: value);
     _changed();
   }
 
@@ -118,6 +148,8 @@ class MemberFilterController extends ChangeNotifier {
           balanceMax: snapshot.max,
           visitedWithinDays: snapshot.within,
           visitedOverDays: snapshot.over,
+          packageStatus: snapshot.packageStatusKey,
+          vehicleProject: snapshot.vehicleProjectKey,
           limit: 1,
         );
         if (!disposed && version == _version) {
@@ -131,12 +163,6 @@ class MemberFilterController extends ChangeNotifier {
         }
       }
     });
-  }
-
-  void unsupported(BuildContext context, int _) {
-    // TODO: members list 尚无次卡状态/车辆项目筛选参数，不能假装应用条件。
-    AppToast.show(context, '次卡状态、车辆与项目筛选暂未接通');
-    notifyListeners();
   }
 
   @override

@@ -862,8 +862,8 @@ class _MemberFilterTemplate extends StatelessWidget {
                 ),
               ),
               SingleSelection(
-                index: -1,
-                onChanged: (value) => c.unsupported(context, value),
+                index: c.filters.packageStatus,
+                onChanged: c.choosePackageStatus,
                 builder: (context, g4) => hwrap(
                   [
                     HSel(
@@ -1042,8 +1042,8 @@ class _MemberFilterTemplate extends StatelessWidget {
                 ),
               ),
               SingleSelection(
-                index: -1,
-                onChanged: (value) => c.unsupported(context, value),
+                index: c.filters.vehicleProject,
+                onChanged: c.chooseVehicleProject,
                 builder: (context, g5) => hwrap(
                   [
                     HSel(

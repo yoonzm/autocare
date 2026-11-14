@@ -1,3 +1,4 @@
+import { parseMemberExtraFilters } from './member_filter_rules.ts';
 import { admin, fail, json, uuid } from './shared.ts';
 import { recognizeAndFindMember } from './plate_lookup.ts';
 import { RecognitionError, recognitionConfig } from './plate_recognition.ts';
@@ -35,7 +36,10 @@ export async function handleMembers(input: Input, storeId: string): Promise<Resp
   if (input.action === 'list') {
     const limit = Math.min(Math.max(Number(input.limit) || 50, 1), MAX_LIST);
     const offset = Math.max(Number(input.offset) || 0, 0);
-    let query = admin.from('members').select(MEMBER_SELECT, { count: 'exact' })
+    const extra = parseMemberExtraFilters(input);
+    if (typeof extra === 'string') return fail(extra);
+    // 次卡状态 / 车辆与项目筛选走带布尔列的视图，其余情况仍查 members
+    let query = admin.from(extra.length ? 'members_filterable' : 'members').select(MEMBER_SELECT, { count: 'exact' })
       .eq('store_id', storeId).is('deleted_at', null)
       // sort = recent：最近有充值 / 消费 / 购买变动的在前（“选择会员”里的最近使用）
       .order(input.sort === 'recent' ? 'updated_at' : 'created_at', { ascending: false })
@@ -54,6 +58,7 @@ export async function handleMembers(input: Input, storeId: string): Promise<Resp
     if ((min != null && !Number.isFinite(min)) || (max != null && !Number.isFinite(max))) return fail('余额范围无效');
     if (min != null) query = query.gte('balance', min);
     if (max != null) query = query.lt('balance', max);
+    for (const column of extra) query = query.eq(column, true);
     // 最近到店：N 天内 / 超过 N 天（没到过店的算超过）
     const within = input.visited_within_days == null ? null : Number(input.visited_within_days);
     const over = input.visited_over_days == null ? null : Number(input.visited_over_days);

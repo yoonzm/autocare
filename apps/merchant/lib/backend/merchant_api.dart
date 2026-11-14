@@ -613,6 +613,8 @@ class MerchantApi {
     num? balanceMax,
     int? visitedWithinDays,
     int? visitedOverDays,
+    String? packageStatus,
+    String? vehicleProject,
     int offset = 0,
     int limit = 50,
     bool recent = false,
@@ -629,6 +631,8 @@ class MerchantApi {
       'balance_max': ?balanceMax,
       'visited_within_days': ?visitedWithinDays,
       'visited_over_days': ?visitedOverDays,
+      'package_status': ?packageStatus,
+      'vehicle_project': ?vehicleProject,
       'offset': offset,
       'limit': limit,
     });

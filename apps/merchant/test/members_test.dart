@@ -397,6 +397,8 @@ class MemberFakeApi extends MerchantApi {
     num? balanceMax,
     int? visitedWithinDays,
     int? visitedOverDays,
+    String? packageStatus,
+    String? vehicleProject,
     int offset = 0,
     int limit = 50,
     bool recent = false,
@@ -408,6 +410,8 @@ class MemberFakeApi extends MerchantApi {
       'max': balanceMax,
       'within': visitedWithinDays,
       'over': visitedOverDays,
+      'package': packageStatus,
+      'vehicle': vehicleProject,
     });
     if (listDelay > Duration.zero) await Future<void>.delayed(listDelay);
     if (listError != null) throw listError!;
@@ -697,7 +701,7 @@ void main() {
       expect(find.text('王建国'), findsOneWidget);
     });
 
-    testWidgets('筛选面板：按卡种 / 储值余额 / 最近到店筛选，次卡状态和车辆项目只提示', (t) async {
+    testWidgets('筛选面板：按卡种 / 储值余额 / 最近到店 / 次卡状态 / 车辆与项目筛选', (t) async {
       phone(t);
       fake.tiers
         ..clear()
@@ -722,11 +726,12 @@ void main() {
       await t.tap(find.text('30 天内').first);
       await t.pump();
       await t.pump(const Duration(milliseconds: 400));
-      // 次卡状态 / 车辆项目依赖其他模块：点了只提示，不产生筛选
       await t.ensureVisible(find.text('已用完').first);
       await t.tap(find.text('已用完').first);
       await t.pump();
-      expect(find.textContaining('次卡状态、车辆与项目筛选暂未接通'), findsOneWidget);
+      await t.ensureVisible(find.text('做过镀晶').first);
+      await t.tap(find.text('做过镀晶').first);
+      await t.pump();
       for (var i = 0; i < 5; i++) {
         await t.pump(const Duration(seconds: 1));
       }
@@ -737,6 +742,8 @@ void main() {
       expect(fake.filterCalls.last['min'], 500);
       expect(fake.filterCalls.last['max'], 2000);
       expect(fake.filterCalls.last['within'], 30);
+      expect(fake.filterCalls.last['package'], 'used_up');
+      expect(fake.filterCalls.last['vehicle'], 'coating');
       expect(navTracker.has('sheet:MemberFilter'), isFalse);
     });
     testWidgets('筛选重置同步选中状态，取消保留原条件，查看应用清空后的条件', (t) async {
@@ -787,6 +794,10 @@ void main() {
         expect(selection('金卡'), isEmpty);
         expect(selection('¥500–2,000'), {0});
         expect(selection('30 天内'), {-1});
+        expect(selection('已用完'), {-1});
+        expect(selection('多辆车'), {-1});
+        expect(fake.filterCalls.last['package'], isNull);
+        expect(fake.filterCalls.last['vehicle'], isNull);
         expect(fake.filterCalls.last['ids'], isEmpty);
         expect(fake.filterCalls.last['min'], isNull);
         expect(fake.filterCalls.last['max'], isNull);
@@ -803,8 +814,16 @@ void main() {
       await t.pump();
       await t.tap(find.text('30 天内').first);
       await t.pumpAndSettle();
+      await t.ensureVisible(find.text('已用完').first);
+      await t.tap(find.text('已用完').first);
+      await t.pump();
+      await t.ensureVisible(find.text('多辆车').first);
+      await t.tap(find.text('多辆车').first);
+      await t.pumpAndSettle();
       await applyFilter();
       expect(fake.filterCalls.last['ids'], ['t-gold']);
+      expect(fake.filterCalls.last['package'], 'used_up');
+      expect(fake.filterCalls.last['vehicle'], 'multi');
       await openFilter();
       await resetFilter();
       await t.ensureVisible(find.text('取消'));
@@ -815,6 +834,8 @@ void main() {
       expect(selection('金卡'), {2});
       expect(selection('¥500–2,000'), {2});
       expect(selection('30 天内'), {1});
+      expect(selection('已用完'), {2});
+      expect(selection('多辆车'), {3});
       await resetFilter();
       await applyFilter();
       // 应用重置后，服务端请求条件全部清空。

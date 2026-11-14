@@ -106,6 +106,8 @@ class OperationsApi extends MemberFakeApi {
     num? balanceMax,
     int? visitedWithinDays,
     int? visitedOverDays,
+    String? packageStatus,
+    String? vehicleProject,
     int offset = 0,
     int limit = 50,
     bool recent = false,
@@ -140,7 +142,6 @@ void main() {
   });
   tearDown(() {
     merchantApi = original;
-
   });
 
   test('调整与回访客户端将幂等标识传给实际请求层', () async {
@@ -165,7 +166,6 @@ void main() {
   });
 
   test('调整表单独立持有会员和选择，同实例防重，预览扣减不低于零', () async {
-
     final a = MemberAdjustController(row(id: 'a')),
         b = MemberAdjustController(row(id: 'b'));
     a.chooseReason(0);
@@ -296,7 +296,6 @@ void main() {
   });
 
   testWidgets('缺少会员参数的调整和回访页面不使用旧全局会员', (t) async {
-
     for (final page in [const MemberAdjustPage(), const MemberVisitPage()]) {
       await t.pumpWidget(MaterialApp(home: page));
       await t.pumpAndSettle();

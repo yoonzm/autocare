@@ -110,6 +110,8 @@ class _MembersPageState extends State<MembersPage> {
           balanceMax: filterArgs.max,
           visitedWithinDays: filterArgs.within,
           visitedOverDays: filterArgs.over,
+          packageStatus: filterArgs.packageStatusKey,
+          vehicleProject: filterArgs.vehicleProjectKey,
           offset: offset,
         ),
         merchantApi.list('cards'),
