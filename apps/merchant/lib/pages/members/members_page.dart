@@ -319,7 +319,7 @@ class _MembersPageState extends State<MembersPage> {
                   ),
                   Semantics(
                     button: true,
-                    label: '扫车牌或会员码找会员',
+                    label: '扫车牌找会员',
                     child: GestureDetector(
                       onTap: () => openRoute(context, 'FindScanPlate'),
                       child: Container(

@@ -272,10 +272,6 @@ Widget? pageFor(String name, {Object? arguments}) {
       return const SettingsPage();
     case 'FindScanPlate':
       return const ScanPage(ScanKind.findPlate);
-    case 'FindScanCode':
-      return const ScanPage(ScanKind.findCode);
-    case 'ScanLicense':
-      return const ScanPage(ScanKind.licenseCard);
     case 'ScanPlate':
       return const ScanPage(ScanKind.plateCard);
   }
@@ -354,13 +350,7 @@ const Set<String> _cupertinoSheetPages = {
 };
 
 /// 全屏流程（相机扫描页）：从底部滑入，左上角是 ✕，全屏显示（设计稿“页面出场方式”第 4 类）。
-const Set<String> _modalPages = {
-  'ScanProduct',
-  'ScanLicense',
-  'ScanPlate',
-  'FindScanPlate',
-  'FindScanCode',
-};
+const Set<String> _modalPages = {'ScanProduct', 'ScanPlate', 'FindScanPlate'};
 
 String? _routeName(BuildContext context) =>
     ModalRoute.of(context)?.settings.name;

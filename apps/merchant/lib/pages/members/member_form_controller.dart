@@ -104,8 +104,7 @@ class MemberFormController extends ChangeNotifier {
   Future<void> scanVehicle(BuildContext context) async {
     final result = await Navigator.of(context).push<Map<String, dynamic>>(
       MaterialPageRoute(
-        builder: (_) =>
-            const ScanPage(ScanKind.licenseCard, returnVehicle: true),
+        builder: (_) => const ScanPage(ScanKind.plateCard, returnVehicle: true),
       ),
     );
     if (result != null && !disposed) applyVehicle(result);

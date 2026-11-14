@@ -20,14 +20,14 @@ import '../../routes.dart';
 import '../../theme.dart';
 import '../../widgets/app_icon.dart';
 
-/// 扫描页的四种形态：扫码找会员（车牌 / 会员码）、扫描建档（行驶证 / 车牌）。
-enum ScanKind { findPlate, findCode, licenseCard, plateCard }
+/// 车牌扫描：找会员或车辆建档。
+enum ScanKind { findPlate, plateCard }
 
 /// 相机状态：启动中 / 可用 / 无权限 / 不可用（模拟器、无摄像头等）。
 enum _Cam { starting, ready, denied, unavailable }
 
-// 版面与设计稿一致：头部 44 + 间距 16 + 分段控件 42；底部快门行 78。
-const double _kTop = 44 + 16 + 42;
+// 仅保留车牌扫描：头部 44；底部快门行 78。
+const double _kTop = 44;
 const double _kBottom = 78;
 
 class ScanPage extends StatefulWidget {
@@ -48,8 +48,7 @@ class ScanPage extends StatefulWidget {
 
 class _ScanPageState extends State<ScanPage>
     with WidgetsBindingObserver, SingleTickerProviderStateMixin {
-  /// 同一个页面里的两个 Tab：车牌 / 会员码（扫码找会员），行驶证 / 车牌（扫描建档）。
-  late ScanKind kind = widget.initial;
+  ScanKind get kind => widget.initial;
 
   CameraController? _ctrl;
   _Cam _cam = _Cam.starting;
@@ -69,31 +68,13 @@ class _ScanPageState extends State<ScanPage>
     duration: const Duration(milliseconds: 1100),
   );
 
-  bool get _find => kind == ScanKind.findPlate || kind == ScanKind.findCode;
-  bool get _first => kind == ScanKind.findPlate || kind == ScanKind.licenseCard;
-  bool get _plate => kind == ScanKind.findPlate || kind == ScanKind.plateCard;
-  void _switch(int i) => setState(() {
-    _albumPhoto = null;
-    kind = _find
-        ? (i == 0 ? ScanKind.findPlate : ScanKind.findCode)
-        : (i == 0 ? ScanKind.licenseCard : ScanKind.plateCard);
-  });
-
+  bool get _find => kind == ScanKind.findPlate;
   String get _title => _find ? '扫码找会员' : '扫描建档';
-  List<(String, String)> get _tabs => _find
-      ? const [('车牌', 'car2'), ('会员码', 'qr')]
-      : const [('行驶证', 'idCard'), ('车牌', 'car2')];
   (String, String) get _hint => switch (kind) {
     ScanKind.findPlate => ('将车牌对准框内', '自动匹配该车牌对应的会员'),
-    ScanKind.findCode => ('将会员码放入框内', '扫描会员小程序「会员码」，或会员卡二维码'),
-    ScanKind.licenseCard => ('将行驶证主页放入框内', '自动识别 车牌 · 车型 · 车架号'),
     ScanKind.plateCard => ('将车牌对准框内', '支持蓝牌、绿牌（新能源）、黄牌'),
   };
-  Size get _frame => switch (kind) {
-    ScanKind.findPlate || ScanKind.plateCard => const Size(300, 118),
-    ScanKind.findCode => const Size(236, 236),
-    ScanKind.licenseCard => const Size(322, 206),
-  };
+  Size get _frame => const Size(300, 118);
 
   // ───────── 相机生命周期 ─────────
   @override
@@ -278,11 +259,6 @@ class _ScanPageState extends State<ScanPage>
   }
 
   bool _canRecognize() {
-    if (!_plate) {
-      // TODO: 行驶证 OCR / 会员码解析须有各自真实接口，不以示例结果冒充成功。
-      hToast(context, kind == ScanKind.licenseCard ? '行驶证识别暂未接通' : '会员码识别暂未接通');
-      return false;
-    }
     if (!merchantApi.hasSession) {
       hToast(context, '请先登录');
       openRoute(context, 'Login');
@@ -306,7 +282,7 @@ class _ScanPageState extends State<ScanPage>
         : 'FindResult';
     String? failure;
     Map<String, dynamic>? response;
-    if (_plate && merchantApi.hasSession) {
+    if (merchantApi.hasSession) {
       try {
         final res = await merchantApi.recognizePlate(imagePath);
         if (!mounted) return;
@@ -423,17 +399,11 @@ class _ScanPageState extends State<ScanPage>
               ],
             ),
           ),
-          // 头部 / 分段控件 / 底部操作
+          // 头部 / 底部操作
           Padding(
             padding: pad,
             child: Column(
-              children: [
-                _header(context),
-                const SizedBox(height: 16),
-                _tabBar(context),
-                const Spacer(),
-                _controls(context),
-              ],
+              children: [_header(context), const Spacer(), _controls(context)],
             ),
           ),
         ],
@@ -711,60 +681,6 @@ class _ScanPageState extends State<ScanPage>
           Text(label, style: ts(12, color: const Color(0xD9FFFFFF), h: 16)),
         ],
       ),
-    ),
-  );
-
-  Widget _tabBar(BuildContext context) => Container(
-    width: 224,
-    padding: const EdgeInsets.all(3),
-    decoration: BoxDecoration(
-      color: const Color(0x24FFFFFF),
-      borderRadius: BorderRadius.circular(21),
-    ),
-    child: Row(
-      children: [
-        for (var i = 0; i < 2; i++) ...[
-          if (i > 0) const SizedBox(width: 2),
-          Expanded(
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: _locked ? null : () => _switch(i),
-              child: Container(
-                height: 36,
-                decoration: BoxDecoration(
-                  color: (i == 0) == _first ? Colors.white : Colors.transparent,
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    AppIcon(
-                      _tabs[i].$2,
-                      size: 16,
-                      color: (i == 0) == _first
-                          ? const Color(0xFF18181B)
-                          : const Color(0xBFFFFFFF),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      _tabs[i].$1,
-                      style: ts(
-                        14,
-                        w: (i == 0) == _first
-                            ? FontWeight.w600
-                            : FontWeight.w500,
-                        color: (i == 0) == _first
-                            ? const Color(0xFF18181B)
-                            : const Color(0xBFFFFFFF),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ],
     ),
   );
 }

@@ -135,9 +135,9 @@ void main() {
     // 取景框里不再放示意车牌 / 二维码
     expect(find.text('沪A·8K29M'), findsNothing);
     expect(find.text('将车牌对准框内'), findsOneWidget);
-    await t.tap(find.text('会员码'));
-    await t.pumpAndSettle();
-    // 切换 Tab 不重启相机
+    // 只支持车牌：没有 车牌 / 会员码 / 行驶证 切换栏，相机也不会被重启
+    expect(find.text('会员码'), findsNothing);
+    expect(find.text('行驶证'), findsNothing);
     expect(find.byKey(const Key('live-preview')), findsOneWidget);
     expect((CameraPlatform.instance as _FakeCamera).disposed, 0);
   });
@@ -145,7 +145,7 @@ void main() {
   testWidgets('闪光灯：点击开启常亮（torch），再点关闭', (t) async {
     final cam = _FakeCamera();
     CameraPlatform.instance = cam;
-    await open(t, 'ScanLicense');
+    await open(t, 'ScanPlate');
     expect(cam.flashModes, [FlashMode.off]);
     await t.tap(bolt);
     await t.pumpAndSettle();
@@ -206,13 +206,9 @@ void main() {
       original = merchantApi;
       api = _ScanApi();
       merchantApi = api;
-
-
     });
     tearDown(() {
       merchantApi = original;
-
-
     });
 
     Future<void> shoot(WidgetTester t, [String route = 'FindScanPlate']) async {
@@ -255,7 +251,13 @@ void main() {
       expect(find.text('洗车年卡 8 次'), findsOneWidget);
       expect(find.text('10.31 · 精致洗车'), findsOneWidget);
       expect(find.text('宝马 5系 · 黑色'), findsOneWidget);
-      expect(t.widget<FindResultSheet>(find.byType(FindResultSheet)).result!.member!['name'],'陈明华');
+      expect(
+        t
+            .widget<FindResultSheet>(find.byType(FindResultSheet))
+            .result!
+            .member!['name'],
+        '陈明华',
+      );
 
       Navigator.of(t.element(find.text('陈明华'))).pop();
       await t.pump(const Duration(milliseconds: 600));
@@ -464,10 +466,8 @@ void main() {
       await t.enterText(find.byType(TextFormField).at(1), '已填客户');
       t.widget<HVehicleColor>(find.byType(HVehicleColor)).onChanged('红色');
       await t.pump();
-      await t.ensureVisible(find.text('扫描行驶证 / 车牌快速建档'));
-      await t.tap(find.text('扫描行驶证 / 车牌快速建档'));
-      await t.pumpAndSettle();
-      await t.tap(find.text('车牌'));
+      await t.ensureVisible(find.text('扫描车牌快速建档'));
+      await t.tap(find.text('扫描车牌快速建档'));
       await t.pumpAndSettle();
       await t.tap(find.bySemanticsLabel('拍摄识别'));
       await t.pump(const Duration(milliseconds: 100));
@@ -520,10 +520,8 @@ void main() {
       await open(t, 'MemberAdd');
       t.widget<HVehicleColor>(find.byType(HVehicleColor)).onChanged('红色');
       await t.pump();
-      await t.ensureVisible(find.text('扫描行驶证 / 车牌快速建档'));
-      await t.tap(find.text('扫描行驶证 / 车牌快速建档'));
-      await t.pumpAndSettle();
-      await t.tap(find.text('车牌'));
+      await t.ensureVisible(find.text('扫描车牌快速建档'));
+      await t.tap(find.text('扫描车牌快速建档'));
       await t.pumpAndSettle();
       await t.tap(find.bySemanticsLabel('拍摄识别'));
       await t.pump(const Duration(milliseconds: 100));
