@@ -5,6 +5,7 @@ import 'package:autocare_merchant/backend/store_profile.dart';
 import 'package:autocare_merchant/kit/async_kit.dart';
 import 'package:autocare_merchant/pages/account/security_page.dart';
 import 'package:autocare_merchant/pages/account/terms_page.dart';
+import 'package:autocare_merchant/pages/account/legal_web_page.dart';
 import 'package:autocare_merchant/pages/account/privacy_page.dart';
 import 'package:autocare_merchant/pages/account/login_page.dart';
 import 'package:flutter/material.dart';
@@ -102,6 +103,11 @@ void main() {
     expect(find.text('账号入口', skipOffstage: false), findsNothing);
   });
   testWidgets('协议页使用显式返回回调，不需要路由名识别页面', (t) async {
+    legalWebViewBuilder = (url, headers, onLoaded, onError) {
+      Future.microtask(onLoaded);
+      return const SizedBox();
+    };
+    addTearDown(() => legalWebViewBuilder = legalNativeWebViewBuilder);
     final c = await host(t);
     for (final page in [const TermsPage(), const PrivacyPage()]) {
       push(c, page);

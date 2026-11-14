@@ -74,8 +74,8 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>NSCameraUsageDescription</key>
-	<string>用于扫描车牌、会员码与行驶证，以及拍摄凭证、证照与门店照片</string>
+	<string>用于扫描车牌，以及拍摄开支凭证、施工照片、门店照片和反馈截图</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>用于从相册选择凭证、证照与门店照片</string>
+	<string>用于从相册选择车牌、开支凭证、施工照片、门店照片和反馈截图</string>
 </dict>
 </plist>

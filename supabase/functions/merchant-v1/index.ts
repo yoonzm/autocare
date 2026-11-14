@@ -1,4 +1,5 @@
 import { handleMedia } from './media.ts';
+import { legalResponse, matchLegalPath } from './legal.ts';
 import { handleStores } from './stores.ts';
 import { handleRegions } from './regions.ts';
 import { handleSupport } from './support.ts';
@@ -26,6 +27,11 @@ import { isCatalogKind } from './types.ts';
 
 Deno.serve(async (request: Request): Promise<Response> => {
   if (request.method === 'OPTIONS') return new Response(null, { headers: cors });
+  // 用户协议 / 隐私政策 H5：公开只读，App 内用网页加载，改文案只需重新部署后端。
+  if (request.method === 'GET') {
+    const page = matchLegalPath(new URL(request.url).pathname);
+    if (page) return legalResponse(page, (name) => Deno.env.get(name));
+  }
   if (request.method !== 'POST') return fail('Method not allowed', 405);
   let input: unknown;
   try {

@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:autocare_merchant/navigation/page_registry.dart';
+import 'package:autocare_merchant/pages/account/legal_web_page.dart';
 
 /// 保留的注册页面都能构建并布局；忽略测试字体导致的文字溢出。
 void main() {
+  // 协议页在真机上是 WebView；测试里用空占位并立即完成加载。
+  legalWebViewBuilder = (url, headers, onLoaded, onError) {
+    Future.microtask(onLoaded);
+    return const SizedBox();
+  };
   sheetTests();
   for (final e in pageBuilders.entries) {
     testWidgets('registered page ${e.key}', (tester) async {

@@ -5,6 +5,7 @@ import 'fixtures/preview_member.dart';
 
 import 'package:autocare_merchant/pages/booking/appointment_add_page.dart';
 import 'package:autocare_merchant/navigation/page_registry.dart';
+import 'package:autocare_merchant/pages/account/legal_web_page.dart';
 import 'package:autocare_merchant/pages/account/login_page.dart';
 import 'package:autocare_merchant/pages/members/member_detail_page.dart';
 import 'package:autocare_merchant/pages/orders/order_page.dart';
@@ -13,6 +14,10 @@ import 'package:autocare_merchant/pages/orders/order_page.dart';
 /// 这里把每个页面里的输入框找出来检查 hintText；已有默认值的输入框也要有，
 /// 因为用户清空后看到的就是 placeholder。
 void main() {
+  legalWebViewBuilder = (url, headers, onLoaded, onError) {
+    Future.microtask(onLoaded);
+    return const SizedBox();
+  };
   Future<List<String>> missing(
     WidgetTester t,
     Widget page, {
