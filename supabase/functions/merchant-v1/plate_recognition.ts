@@ -70,6 +70,16 @@ export function parseRecognition(content: string) {
     !/^[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼][A-HJ-NP-Z][A-HJ-NP-Z0-9]{5,6}$/
       .test(plate)
   ) {
+    // 只记录模型返回的车牌文本（不含图片、不含用户信息），用于排查“明明有车牌却识别失败”。
+    console.warn(
+      "plate_rejected",
+      JSON.stringify({
+        raw: typeof result.plateNumber === "string"
+          ? result.plateNumber.slice(0, 20)
+          : null,
+        normalized: plate.slice(0, 20),
+      }),
+    );
     throw new RecognitionError("未识别到有效车牌，请重新拍摄清晰照片", 422);
   }
   return {
