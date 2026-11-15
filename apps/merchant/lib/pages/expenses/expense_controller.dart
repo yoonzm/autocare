@@ -339,50 +339,6 @@ class ExpenseController extends ChangeNotifier {
     changed();
   }
 
-  Future<void> showSource(BuildContext context) async {
-    await showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('来源单据'),
-        content: draft['source_document'] == null
-            ? const Text('手工记账')
-            : SizedBox(
-                width: 320,
-                height: 300,
-                child: AsyncView<Map<String, dynamic>>(
-                  load: () =>
-                      request({'action': 'expense_source', 'id': draft['id']}),
-                  isEmpty: (r) => r['item'] == null,
-                  skeleton: const SkeletonList(count: 3),
-                  empty: (_) => const EmptyView.firstTime(title: '来源单据不存在'),
-                  builder: (_, r) {
-                    final d = r['item'] as Map;
-                    final p = d['payload'] as Map;
-                    return ListView(
-                      children: [
-                        Text('库存单 ${d['id']}'),
-                        const SizedBox(height: 12),
-                        Text('状态：${d['status'] == 'posted' ? '已提交' : '草稿'}'),
-                        Text('日期：${p['date'] ?? ''}'),
-                        Text('供应商：${p['supplier'] ?? ''}'),
-                        Text('金额：${expenseMoney(d['total'] as num? ?? 0)}'),
-                        Text('明细：${(p['lines'] as List).length} 项'),
-                        Text('备注：${p['note'] ?? ''}'),
-                      ],
-                    );
-                  },
-                ),
-              ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('关闭'),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget entriesWidget(BuildContext context) {
     final rows = entries
         .where(
