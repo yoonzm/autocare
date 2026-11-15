@@ -400,42 +400,54 @@ class ExpenseDetailLiveTemplate extends StatelessWidget {
                         bg: dk(context, Color(0xFFEFEFF1), Color(0xFF2A2A2E)),
                         margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
                       ),
-                      hbox(
-                        minH: 54,
-                        pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                        child: hrow(
-                          [
-                            Expanded(
-                              flex: 1,
-                              child: Text(
-                                '来源',
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: c.hasSourceDocument
+                            ? () => c.openSource(context)
+                            : null,
+                        child: hbox(
+                          minH: 54,
+                          pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                          child: hrow(
+                            [
+                              Expanded(
+                                flex: 1,
+                                child: Text(
+                                  '来源',
+                                  style: hts(
+                                    14,
+                                    dk(
+                                      context,
+                                      Color(0xFF52525B),
+                                      Color(0xFFA8A8B3),
+                                    ),
+                                    lh: 20,
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                c.sourceDocumentText,
                                 style: hts(
-                                  14,
+                                  15,
                                   dk(
                                     context,
-                                    Color(0xFF52525B),
-                                    Color(0xFFA8A8B3),
+                                    Color(0xFF18181B),
+                                    Color(0xFFFAFAFA),
                                   ),
-                                  lh: 20,
+                                  lh: 22,
                                 ),
                               ),
-                            ),
-                            Text(
-                              c.sourceDocumentText,
-                              style: hts(
-                                15,
-                                dk(
-                                  context,
-                                  Color(0xFF18181B),
-                                  Color(0xFFFAFAFA),
+                              if (c.hasSourceDocument)
+                                hsvg(
+                                  dk(context, Svgs.s3, Svgs.s4),
+                                  w: 16,
+                                  h: 16,
                                 ),
-                                lh: 22,
-                              ),
-                            ),
-                          ],
-                          main: MainAxisAlignment.start,
-                          cross: CrossAxisAlignment.center,
-                          gap: 12,
+                            ],
+                            main: MainAxisAlignment.start,
+                            cross: CrossAxisAlignment.center,
+                            gap: 12,
+                          ),
                         ),
                       ),
                       hbox(

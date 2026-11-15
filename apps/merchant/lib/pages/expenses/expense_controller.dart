@@ -12,6 +12,7 @@ import '../../kit/kit.dart';
 import '../../kit/async_kit.dart';
 import '../../theme.dart';
 import '../../backend/data_snapshot.dart';
+import '../inventory/inventory_management_page.dart';
 import 'expense_widgets.dart';
 export 'expense_view.dart';
 import 'expense_live_page.dart';
@@ -337,6 +338,21 @@ class ExpenseController extends ChangeNotifier {
     if (value == null || disposed || !context.mounted) return;
     draft['payee'] = value;
     changed();
+  }
+
+  bool get hasSourceDocument => draft['source_document'] != null;
+
+  /// 来源是库存单时，进入库存单详情；手工记账没有可跳转的单据。
+  void openSource(BuildContext context) {
+    final id = draft['source_document'];
+    if (id == null) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) =>
+            InventoryManagementPage(mode: 'document', documentId: '$id'),
+      ),
+    );
   }
 
   Widget entriesWidget(BuildContext context) {

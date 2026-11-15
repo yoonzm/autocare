@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/pages/expenses/expense_controller.dart';
+import 'package:autocare_merchant/pages/inventory/inventory_management_page.dart';
 import 'package:autocare_merchant/pages/expenses/expense_live_page.dart';
 import 'package:autocare_merchant/pages/expenses/expenses_live_template.dart';
 
@@ -252,5 +253,42 @@ void main() {
     expect(c.month, ExpenseController.currentMonth);
     expect(c.canNext, false);
     expect(reloads, 2);
+  });
+
+  testWidgets('开支来源是库存单时进入库存单详情，手工记账不跳转', (t) async {
+    phone(t);
+    final manual = ExpenseController('detail', '2026-11-01', {
+      'items': [],
+    }, entry: entry());
+    final stock = ExpenseController(
+      'detail',
+      '2026-11-01',
+      {'items': []},
+      entry: {...entry(), 'source_document': 'doc-1'},
+    );
+    expect(manual.hasSourceDocument, false);
+    expect(stock.hasSourceDocument, true);
+    late BuildContext ctx;
+    await t.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) {
+            ctx = context;
+            return const SizedBox();
+          },
+        ),
+      ),
+    );
+    manual.openSource(ctx);
+    await t.pump();
+    expect(find.byType(InventoryManagementPage), findsNothing);
+    stock.openSource(ctx);
+    await t.pump();
+    await t.pump(const Duration(milliseconds: 500));
+    final page = t.widget<InventoryManagementPage>(
+      find.byType(InventoryManagementPage),
+    );
+    expect(page.mode, 'document');
+    expect(page.documentId, 'doc-1');
   });
 }
