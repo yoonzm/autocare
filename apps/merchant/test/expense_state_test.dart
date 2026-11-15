@@ -213,7 +213,7 @@ void main() {
     api.deferBoards = true;
     await t.pumpWidget(
       const MaterialApp(
-        home: ExpenseLivePage(mode: 'list', month: '2026-11-01'),
+        home: ExpenseLivePage(mode: 'list', month: '2020-11-01'),
       ),
     );
     api.boards[0].complete({'item': board()});
@@ -226,11 +226,31 @@ void main() {
     c.shiftMonth(1);
     api.boards[1].complete({'item': board(111)});
     await t.pump();
-    expect(api.calls.last['body']['month'], '2026-12-01');
+    expect(api.calls.last['body']['month'], '2020-12-01');
     api.boards[2].complete({'item': board(999)});
     await t.pumpAndSettle();
     expect(c.revenue, 999);
-    expect(c.month, '2026-12-01');
+    expect(c.month, '2020-12-01');
     expect(api.boards.length, 3);
+  });
+
+  test('月份切换：本月不能再往后翻，往前翻后可以回到本月', () {
+    var reloads = 0;
+    final c = ExpenseController('list', ExpenseController.currentMonth, {
+      'items': [],
+      'revenue': 0,
+      'history': [],
+    })..reload = () => reloads++;
+    expect(c.canNext, false);
+    c.shiftMonth(1);
+    expect(c.month, ExpenseController.currentMonth);
+    expect(reloads, 0);
+    c.shiftMonth(-1);
+    expect(c.canNext, true);
+    expect(reloads, 1);
+    c.shiftMonth(1);
+    expect(c.month, ExpenseController.currentMonth);
+    expect(c.canNext, false);
+    expect(reloads, 2);
   });
 }

@@ -169,10 +169,54 @@ class ExpensesLiveTemplate extends StatelessWidget {
                       child: hbox(
                         w: 36,
                         h: 36,
-                        bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
+                        bg: c.canNext
+                            ? dk(context, Color(0xFFFFFFFF), Color(0xFF18181B))
+                            : dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
                         radius: BorderRadius.circular(18),
+                        shadow: c.canNext
+                            ? dk(
+                                context,
+                                [
+                                  BoxShadow(
+                                    color: Color.fromRGBO(0, 0, 0, 0.06),
+                                    offset: Offset(0, 1),
+                                    blurRadius: 2,
+                                    spreadRadius: 0,
+                                  ),
+                                  BoxShadow(
+                                    color: Color.fromRGBO(0, 0, 0, 0.04),
+                                    offset: Offset(0, 2),
+                                    blurRadius: 4,
+                                    spreadRadius: 0,
+                                  ),
+                                ],
+                                [
+                                  BoxShadow(
+                                    color: Color(0xFF26262B),
+                                    offset: Offset(0, 0),
+                                    blurRadius: 0,
+                                    spreadRadius: 1,
+                                  ),
+                                ],
+                              )
+                            : null,
                         child: hrow(
-                          [hsvg(dk(context, Svgs.s3, Svgs.s4), w: 16, h: 16)],
+                          [
+                            c.canNext
+                                ? Transform.flip(
+                                    flipX: true,
+                                    child: hsvg(
+                                      dk(context, Svgs.s127, Svgs.s128),
+                                      w: 16,
+                                      h: 16,
+                                    ),
+                                  )
+                                : hsvg(
+                                    dk(context, Svgs.s3, Svgs.s4),
+                                    w: 16,
+                                    h: 16,
+                                  ),
+                          ],
                           main: MainAxisAlignment.center,
                           cross: CrossAxisAlignment.center,
                           gap: 0,

@@ -170,7 +170,14 @@ class ExpenseController extends ChangeNotifier {
 
   String get monthLabel =>
       '${DateTime.parse(month).year}年 ${DateTime.parse(month).month}月';
+
+  /// 当前月份（东八区）；不能翻到还没发生的月份。
+  static String get currentMonth =>
+      expenseMonth(DateTime.now().toUtc().add(const Duration(hours: 8)));
+  bool get canNext => month.compareTo(currentMonth) < 0;
+
   void shiftMonth(int d) {
+    if (d > 0 && !canNext) return;
     month = expenseMonth(
       DateTime(DateTime.parse(month).year, DateTime.parse(month).month + d),
     );
