@@ -831,12 +831,11 @@ void main() {
     expect(find.byType(AppSkeleton), findsNothing);
     await t.pump(const Duration(milliseconds: 500));
     expect(find.byType(AppointmentSettingsSkeleton), findsOneWidget);
-    expect(find.text('在线预约'), findsOneWidget);
     expect(find.text('可预约时间'), findsOneWidget);
     expect(find.text('接待规则'), findsOneWidget);
     expect(find.byType(AppSkeleton), findsWidgets);
     final sectionTops = {
-      for (final title in ['在线预约', '可预约时间', '接待规则', '预约通知'])
+      for (final title in ['可预约时间', '接待规则', '预约通知'])
         title: t.getTopLeft(find.text(title)).dy,
     };
     await t.tap(find.text('保存设置'));
