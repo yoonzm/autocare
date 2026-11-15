@@ -121,6 +121,33 @@ void main() {
     expect(c.draft['attachments'], isEmpty);
     c.dispose();
   });
+  testWidgets('开支列表底部筛选：四个标签都能切换并记住当前项', (tester) async {
+    tester.view.physicalSize = const Size(390, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    C.dark = false;
+    final c = ExpenseController('list', '2026-11-01', board());
+    await tester.pumpWidget(
+      MaterialApp(
+        home: AnimatedBuilder(
+          animation: c,
+          builder: (_, _) => ExpensesLiveTemplate(c: c),
+        ),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 400));
+    for (final (label, index) in [
+      ('固定开支', 1),
+      ('变动开支', 2),
+      ('待付款 1', 3),
+      ('全部', 0),
+    ]) {
+      await tester.tap(find.text(label).first);
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(c.filter, index, reason: label);
+    }
+  });
   testWidgets('failed write preserves form, category and identity for retry', (
     tester,
   ) async {

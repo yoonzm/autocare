@@ -941,6 +941,11 @@ class ExpensesLiveTemplate extends StatelessWidget {
                               index: 1,
                               on: hbox(
                                 h: 32,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFFFFFFF),
+                                  Color(0xFF18181B),
+                                ),
                                 radius: BorderRadius.circular(16),
                                 shadow: dk(context, [
                                   BoxShadow(
@@ -1008,6 +1013,11 @@ class ExpensesLiveTemplate extends StatelessWidget {
                               index: 2,
                               on: hbox(
                                 h: 32,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFFFFFFF),
+                                  Color(0xFF18181B),
+                                ),
                                 radius: BorderRadius.circular(16),
                                 shadow: dk(context, [
                                   BoxShadow(
@@ -1075,6 +1085,11 @@ class ExpensesLiveTemplate extends StatelessWidget {
                               index: 3,
                               on: hbox(
                                 h: 32,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFFFFFFF),
+                                  Color(0xFF18181B),
+                                ),
                                 radius: BorderRadius.circular(16),
                                 shadow: dk(context, [
                                   BoxShadow(

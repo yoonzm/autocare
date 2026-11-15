@@ -502,60 +502,6 @@ class BayEditorTemplate extends StatelessWidget {
                       hbox(
                         minH: 54,
                         pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                        child: hrow(
-                          [
-                            Expanded(
-                              flex: 1,
-                              child: hcol(
-                                [
-                                  Text(
-                                    '开放在线预约',
-                                    style: hts(
-                                      14,
-                                      dk(
-                                        context,
-                                        Color(0xFF18181B),
-                                        Color(0xFFFAFAFA),
-                                      ),
-                                      lh: 20,
-                                    ),
-                                  ),
-                                  Text(
-                                    '关闭后仅店内可安排',
-                                    style: hts(
-                                      12,
-                                      dk(
-                                        context,
-                                        Color(0xFF71717A),
-                                        Color(0xFF9A9AA3),
-                                      ),
-                                      lh: 16,
-                                    ),
-                                  ),
-                                ],
-                                main: MainAxisAlignment.start,
-                                cross: CrossAxisAlignment.stretch,
-                                gap: 1,
-                              ),
-                            ),
-                            HSwitchValue(
-                              value: false,
-                              onChanged: (_) => c.deferred(context),
-                            ),
-                          ],
-                          main: MainAxisAlignment.start,
-                          cross: CrossAxisAlignment.center,
-                          gap: 12,
-                        ),
-                      ),
-                      hbox(
-                        h: 1,
-                        bg: dk(context, Color(0xFFEFEFF1), Color(0xFF2A2A2E)),
-                        margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
-                      ),
-                      hbox(
-                        minH: 54,
-                        pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
                         child: GestureDetector(
                           onTap: () => c.pickLinked(context),
                           child: hrow(
