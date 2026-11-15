@@ -69,7 +69,7 @@ class _ScanPageState extends State<ScanPage>
   );
 
   bool get _find => kind == ScanKind.findPlate;
-  String get _title => _find ? '扫码找会员' : '扫描建档';
+  String get _title => _find ? '扫车牌找会员' : '扫描建档';
   (String, String) get _hint => switch (kind) {
     ScanKind.findPlate => ('将车牌对准框内', '自动匹配该车牌对应的会员'),
     ScanKind.plateCard => ('将车牌对准框内', '支持蓝牌、绿牌（新能源）、黄牌'),

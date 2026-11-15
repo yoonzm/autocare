@@ -1,6 +1,6 @@
 # 车牌识别
 
-商户端“扫码找会员 → 车牌”和“扫描建档 → 车牌”共用真实识别链路。参照 `my-baas/common-cloudcode/ocr/ai.js` 的百炼视觉识别实现，使用 AutoCare 自己的 Supabase 登录态、门店和会员资料。
+商户端“扫车牌找会员 → 车牌”和“扫描建档 → 车牌”共用真实识别链路。参照 `my-baas/common-cloudcode/ocr/ai.js` 的百炼视觉识别实现，使用 AutoCare 自己的 Supabase 登录态、门店和会员资料。
 
 ## 界面与业务边界
 

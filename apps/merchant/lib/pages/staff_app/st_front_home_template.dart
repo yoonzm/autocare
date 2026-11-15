@@ -460,7 +460,7 @@ class StFrontHomeTemplate extends StatelessWidget {
                                   ),
                                 ),
                                 Text(
-                                  '扫码找会员',
+                                  '扫车牌找会员',
                                   style: hts(
                                     13,
                                     dk(

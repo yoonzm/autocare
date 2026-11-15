@@ -111,7 +111,7 @@ class _BottomBar extends StatelessWidget {
               child: GestureDetector(
                 onTap: onOrder,
                 child: Semantics(
-                  label: '扫码找会员',
+                  label: '扫车牌找会员',
                   button: true,
                   child: Container(
                     width: 56,

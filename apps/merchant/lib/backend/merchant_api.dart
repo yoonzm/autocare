@@ -728,7 +728,7 @@ class MerchantApi {
     return List<Map<String, dynamic>>.from(data['items'] as List);
   }
 
-  // ───────── 扫码找会员（车牌识别） ─────────
+  // ───────── 扫车牌找会员（车牌识别） ─────────
   /// 图片只发给后端，识别与本店会员匹配均由云函数完成；不自动重试付费识别。
   Future<Map<String, dynamic>> recognizePlate(String imagePath) async =>
       invoke({

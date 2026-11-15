@@ -94,7 +94,7 @@ void resultCloseTest() {
 }
 
 void scanTests() {
-  testWidgets('扫码找会员：只扫车牌，没有会员码 / 行驶证模式', (t) async {
+  testWidgets('扫车牌找会员：只扫车牌，没有会员码 / 行驶证模式', (t) async {
     t.view.physicalSize = const Size(390 * 3, 900 * 3);
     t.view.devicePixelRatio = 3;
     addTearDown(t.view.reset);
