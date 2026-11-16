@@ -1,5 +1,6 @@
 import { admin, fail, json, storeFor, url, uuid } from "./shared.ts";
 import { publicStorageUrl } from "./storage_url.ts";
+import { signVouchers } from "./expense_vouchers.ts";
 import { day, decimal } from "./inventory_rules.ts";
 import type { Input } from "./types.ts";
 
@@ -114,6 +115,23 @@ export async function handleExpenses(
     });
     if (error) return fail("读取开支失败", 500);
     if (action === "get" && !data.item) return fail("开支不存在", 404);
+    if (action === "get") {
+      try {
+        data.item.attachment_urls = await signVouchers(
+          (paths, ttl) =>
+            admin.storage.from("expense-vouchers").createSignedUrls(
+              paths,
+              ttl,
+            ),
+          data.item.attachments,
+          store,
+          url,
+          Deno.env.get("SUPABASE_PUBLIC_URL") || url,
+        );
+      } catch {
+        return fail("读取凭证失败", 500);
+      }
+    }
     if (action !== "suggest") return json(data);
     const board = data.item;
     const last = new Date(`${month}T00:00:00Z`);
@@ -149,6 +167,7 @@ export async function handleExpenses(
   }
   let data: Input = { ...input };
   delete data.action;
+  delete data.attachment_urls; // 只读派生字段，不能写回记录
   if (action === "save") {
     const error = expenseError(data);
     if (error) return fail(error);

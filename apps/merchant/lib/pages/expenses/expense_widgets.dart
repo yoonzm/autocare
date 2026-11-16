@@ -82,6 +82,7 @@ class ExpenseAttachment extends StatelessWidget {
   Widget build(BuildContext context) => VoucherGallery(
     helper: '发票、收据、转账截图',
     paths: List<String>.from(c.draft['attachments'] ?? []),
+    urls: Map<String, String>.from(c.draft['attachment_urls'] ?? {}),
     request: c.request,
     enabled: !c.busy,
     onBusyChanged: c.setBusy,

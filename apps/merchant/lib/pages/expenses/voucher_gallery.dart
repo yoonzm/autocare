@@ -1,11 +1,15 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../kit/upload_gallery.dart';
 
 class VoucherGallery extends StatelessWidget {
   final List<String> paths;
+
+  /// 路径 → 签名链接，由后端读取记录时一并返回；没有链接的路径不显示。
+  final Map<String, String> urls;
   final ValueChanged<List<String>>? onChanged;
   final ValueChanged<bool>? onBusyChanged;
   final int max;
@@ -17,6 +21,7 @@ class VoucherGallery extends StatelessWidget {
     super.key,
     required this.paths,
     required this.request,
+    this.urls = const {},
     this.onChanged,
     this.onBusyChanged,
     this.max = 5,
@@ -24,10 +29,10 @@ class VoucherGallery extends StatelessWidget {
     this.helper,
     this.enabled = true,
   });
-  Future<UploadRecord> _read(String path) async {
-    final r = await request({'action': 'expense_voucher', 'path': path});
-    return UploadRecord(path, NetworkImage(r['item']['signedUrl'] as String));
-  }
+  UploadRecord _record(String path) => UploadRecord(
+    path,
+    CachedNetworkImageProvider(urls[path]!, cacheKey: path),
+  );
 
   @override
   Widget build(BuildContext context) => UploadGallery(
@@ -35,8 +40,10 @@ class VoucherGallery extends StatelessWidget {
     helper: helper,
     max: max,
     enabled: enabled,
-    load: () => Future.wait(paths.map(_read)),
-    refresh: (r) => _read(r.id),
+    load: () async => [
+      for (final p in paths)
+        if (urls.containsKey(p)) _record(p),
+    ],
     onBusyChanged: onBusyChanged,
     upload: onChanged == null
         ? null

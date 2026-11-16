@@ -14,6 +14,8 @@ bool _picking = false;
 Future<XFile?> pickSingleImage(
   BuildContext context, {
   ImageSource? source,
+  double maxWidth = 1600,
+  int imageQuality = 85,
 }) async {
   if (_picking) return null;
   _picking = true;
@@ -30,8 +32,8 @@ Future<XFile?> pickSingleImage(
     try {
       f = await ImagePicker().pickImage(
         source: src,
-        maxWidth: 1600,
-        imageQuality: 85,
+        maxWidth: maxWidth,
+        imageQuality: imageQuality,
       );
     } catch (_) {
       if (context.mounted) {

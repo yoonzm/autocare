@@ -1,6 +1,8 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:photo_view/photo_view.dart';
+import 'package:photo_view/photo_view_gallery.dart';
 import 'package:autocare_ui_kit/autocare_ui_kit.dart';
 
 import 'async_kit.dart';
@@ -13,6 +15,11 @@ class UploadRecord {
   const UploadRecord(this.id, this.image);
 }
 
+/// 网格里只解码小图，省内存、滚动更顺。
+ImageProvider? _thumb(ImageProvider? image) => image == null
+    ? null
+    : ResizeImage(image, width: 300, allowUpscaling: false);
+
 class _Entry {
   final String requestId;
   final Uint8List? bytes;
@@ -22,40 +29,126 @@ class _Entry {
   AppUploadItem get item => AppUploadItem(
     id: requestId,
     state: state,
-    image: bytes == null ? record?.image : MemoryImage(bytes!),
+    image: _thumb(bytes == null ? record?.image : MemoryImage(bytes!)),
+  );
+}
+
+/// 全屏预览：双指缩放、双击放大、左右滑动切换；[images] 为空时不打开。
+Future<void> previewImages(
+  BuildContext context,
+  List<ImageProvider> images, {
+  int index = 0,
+}) {
+  if (images.isEmpty) return Future.value();
+  return Navigator.of(context, rootNavigator: true).push<void>(
+    PageRouteBuilder<void>(
+      opaque: false,
+      barrierColor: Colors.black,
+      pageBuilder: (_, _, _) => ImageViewerPage(images: images, index: index),
+      transitionsBuilder: (_, anim, _, child) =>
+          FadeTransition(opacity: anim, child: child),
+    ),
   );
 }
 
 Future<void> previewImage(BuildContext context, ImageProvider image) =>
-    showDialog<void>(
-      context: context,
-      builder: (ctx) => Dialog(
-        child: Stack(
-          children: [
-            SizedBox(
-              height: 420,
-              width: double.infinity,
-              child: InteractiveViewer(
-                child: Image(
-                  image: image,
-                  errorBuilder: (_, _, _) =>
-                      const Center(child: Text('图片加载失败，请关闭后重试')),
+    previewImages(context, [image]);
+
+class ImageViewerPage extends StatefulWidget {
+  final List<ImageProvider> images;
+  final int index;
+  const ImageViewerPage({super.key, required this.images, this.index = 0});
+  @override
+  State<ImageViewerPage> createState() => _ImageViewerPageState();
+}
+
+class _ImageViewerPageState extends State<ImageViewerPage> {
+  late final PageController _page = PageController(initialPage: widget.index);
+  late int _current = widget.index;
+  @override
+  void dispose() {
+    _page.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final top = MediaQuery.paddingOf(context).top;
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        children: [
+          PhotoViewGallery.builder(
+            pageController: _page,
+            itemCount: widget.images.length,
+            backgroundDecoration: const BoxDecoration(color: Colors.black),
+            onPageChanged: (i) => setState(() => _current = i),
+            builder: (_, i) => PhotoViewGalleryPageOptions(
+              imageProvider: widget.images[i],
+              minScale: PhotoViewComputedScale.contained,
+              maxScale: PhotoViewComputedScale.contained * 4,
+              heroAttributes: null,
+              errorBuilder: (_, _, _) => const Center(
+                child: Text(
+                  '图片加载失败，请关闭后重试',
+                  style: TextStyle(color: Colors.white70),
                 ),
               ),
             ),
-            Positioned(
-              right: 0,
-              top: 0,
-              child: AppIconButton(
-                icon: Icons.close,
-                semanticLabel: '关闭预览',
-                onPressed: () => Navigator.pop(ctx),
+            loadingBuilder: (_, event) => const Center(
+              child: SizedBox(
+                width: 28,
+                height: 28,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  color: Colors.white70,
+                ),
               ),
             ),
-          ],
-        ),
+          ),
+          Positioned(
+            left: 12,
+            top: top + 8,
+            child: Semantics(
+              button: true,
+              label: '关闭预览',
+              child: GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: const BoxDecoration(
+                    color: Colors.black54,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.close, color: Colors.white, size: 22),
+                ),
+              ),
+            ),
+          ),
+          if (widget.images.length > 1)
+            Positioned(
+              top: top + 16,
+              left: 0,
+              right: 0,
+              child: IgnorePointer(
+                child: Center(
+                  child: Text(
+                    '${_current + 1}/${widget.images.length}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
+  }
+}
 
 /// UI适配层只管理上传展示；权限、存储路径与保存协议由调用者提供。
 class UploadGallery extends StatefulWidget {
@@ -119,7 +212,11 @@ class _UploadGalleryState extends State<UploadGallery> {
       if (widget.pickBytes != null) {
         bytes = await widget.pickBytes!();
       } else {
-        final file = await pickSingleImage(context);
+        final file = await pickSingleImage(
+          context,
+          maxWidth: 1280,
+          imageQuality: 80,
+        );
         bytes = await file?.readAsBytes();
       }
       if (bytes == null || !mounted) return;
@@ -192,14 +289,20 @@ class _UploadGalleryState extends State<UploadGallery> {
 
   Future<void> _preview(AppUploadItem item) async {
     try {
-      final entry = _entry(item);
-      final image = entry.bytes != null
-          ? MemoryImage(entry.bytes!)
-          : (widget.refresh == null
-                    ? entry.record!
-                    : await widget.refresh!(entry.record!))
-                .image;
-      if (mounted) await previewImage(context, image);
+      final tapped = _entry(item);
+      final shown = _entries
+          .where((e) => e.bytes != null || e.record != null)
+          .toList();
+      final images = await Future.wait(
+        shown.map((e) async {
+          if (e.bytes != null) return MemoryImage(e.bytes!) as ImageProvider;
+          if (widget.refresh == null) return e.record!.image;
+          return (await widget.refresh!(e.record!)).image;
+        }),
+      );
+      if (mounted) {
+        await previewImages(context, images, index: shown.indexOf(tapped));
+      }
     } catch (e) {
       if (mounted) AppToast.error(context, e);
     }

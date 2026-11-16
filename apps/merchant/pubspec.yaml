@@ -27,6 +27,8 @@ dependencies:
   supabase_flutter: ^2.18.3
   url_launcher: ^6.3.3
   webview_flutter: ^4.14.1
+  cached_network_image: ^4.0.7
+  photo_view: ^0.15.0
 
 dev_dependencies:
   flutter_test:

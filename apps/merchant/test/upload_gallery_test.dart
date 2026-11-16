@@ -138,4 +138,48 @@ void main() {
     expect(grid(t).onRemove, isNull);
     expect(find.bySemanticsLabel('添加照片'), findsNothing);
   });
+  testWidgets('全屏预览：多张显示页码，左右滑动切换，可关闭', (t) async {
+    await t.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (c) => TextButton(
+            onPressed: () => previewImages(c, [
+              MemoryImage(bytes),
+              MemoryImage(bytes),
+              MemoryImage(bytes),
+            ], index: 1),
+            child: const Text('open'),
+          ),
+        ),
+      ),
+    );
+    await t.tap(find.text('open'));
+    await t.pump();
+    await t.pump(const Duration(milliseconds: 600));
+    expect(find.text('2/3'), findsOneWidget);
+    await t.drag(find.byType(ImageViewerPage), const Offset(-500, 0));
+    await t.pump(const Duration(milliseconds: 600));
+    expect(find.text('3/3'), findsOneWidget);
+    await t.tap(find.bySemanticsLabel('关闭预览'));
+    await t.pump();
+    await t.pump(const Duration(milliseconds: 600));
+    expect(find.byType(ImageViewerPage), findsNothing);
+  });
+  testWidgets('单张预览不显示页码', (t) async {
+    await t.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (c) => TextButton(
+            onPressed: () => previewImage(c, MemoryImage(bytes)),
+            child: const Text('open'),
+          ),
+        ),
+      ),
+    );
+    await t.tap(find.text('open'));
+    await t.pump();
+    await t.pump(const Duration(milliseconds: 600));
+    expect(find.text('1/1'), findsNothing);
+    expect(find.byType(ImageViewerPage), findsOneWidget);
+  });
 }

@@ -468,6 +468,7 @@ class ExpenseController extends ChangeNotifier {
   Widget vouchers(BuildContext context) => VoucherGallery(
     title: '凭证',
     paths: List<String>.from(draft['attachments'] ?? []),
+    urls: Map<String, String>.from(draft['attachment_urls'] ?? {}),
     request: request,
   );
 }
