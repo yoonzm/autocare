@@ -1,4 +1,5 @@
-import { admin, fail, json, storeFor, uuid } from "./shared.ts";
+import { admin, fail, json, storeFor, url, uuid } from "./shared.ts";
+import { signVouchers } from "./expense_vouchers.ts";
 import type { Input } from "./types.ts";
 import { decimal, documentError } from "./inventory_rules.ts";
 
@@ -85,6 +86,21 @@ export async function handleInventory(
       ).in("id", ids);
       if (products.error) return fail("读取单据商品失败", 500);
       data.item.payload.snapshots = products.data;
+    }
+    // 送货单 / 发票：返回 路径 → 签名链接，客户端直接显示缩略图和大图预览。
+    if (!error && input.action === "inventory_document_get" && data.item) {
+      try {
+        data.item.attachment_urls = await signVouchers(
+          (paths, ttl) =>
+            admin.storage.from("expense-vouchers").createSignedUrls(paths, ttl),
+          data.item.payload.attachments,
+          store,
+          url,
+          Deno.env.get("SUPABASE_PUBLIC_URL") || url,
+        );
+      } catch {
+        return fail("读取凭证失败", 500);
+      }
     }
     return error ? rpcError(error) : json(data);
   }

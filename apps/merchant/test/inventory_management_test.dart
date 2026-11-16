@@ -10,6 +10,7 @@ import 'package:autocare_merchant/pages/inventory/inventory_management_page.dart
 import 'members_test.dart' show MemberFakeApi, phone;
 
 class _Api extends MemberFakeApi {
+  bool withVouchers = false;
   final calls = <Map<String, dynamic>>[];
   @override
   Future<Map<String, dynamic>> invoke(
@@ -71,7 +72,13 @@ class _Api extends MemberFakeApi {
             'lines': [
               {'id': 'p', 'quantity': 2.5, 'cost': 10},
             ],
+            if (withVouchers) 'attachments': ['s/a.png', 's/b.png'],
           },
+          if (withVouchers)
+            'attachment_urls': {
+              's/a.png': 'https://example.invalid/a.png',
+              's/b.png': 'https://example.invalid/b.png',
+            },
           'movements': [],
         },
       };
@@ -161,5 +168,23 @@ void main() {
           .single['payload']['expiry_days'],
       60,
     );
+  });
+
+  testWidgets('入库单详情：有凭证时显示「送货单 / 发票」缩略图，没有「查看附件」文字链接；没有凭证不显示', (t) async {
+    api.withVouchers = true;
+    await open(t, 'document', id: '12345678-aaaa-bbbb-cccc-111111111111');
+    expect(
+      find.byWidgetPredicate(
+        (w) => w is RichText && w.text.toPlainText().contains('送货单 / 发票 · 2 张'),
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('查看附件'), findsNothing);
+  });
+
+  testWidgets('入库单详情：没有凭证时整块卡片不显示', (t) async {
+    await open(t, 'document', id: '12345678-aaaa-bbbb-cccc-111111111111');
+    expect(find.textContaining('送货单'), findsNothing);
+    expect(find.text('查看附件'), findsNothing);
   });
 }

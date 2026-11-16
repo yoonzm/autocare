@@ -345,6 +345,7 @@ class StockInDetailBoundTemplate extends StatelessWidget {
                     gap: 12,
                   ),
                 ),
+                c.voucherCard(),
               ],
               main: MainAxisAlignment.start,
               cross: CrossAxisAlignment.stretch,

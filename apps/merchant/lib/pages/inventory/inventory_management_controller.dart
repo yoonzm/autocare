@@ -15,6 +15,7 @@ import 'stock_out_short_bound_template.dart';
 import 'scan_product_result_bound_template.dart';
 import 'scan_product_not_found_bound_template.dart';
 import 'inventory_controller.dart';
+import 'inventory_voucher_card.dart';
 
 class InventoryManagementController extends ChangeNotifier {
   final String mode;
@@ -168,7 +169,6 @@ class InventoryManagementController extends ChangeNotifier {
   String get voidConfirmLabel => document['can_void'] == true ? '确认作废' : '无法作废';
   String get voidButtonLabel => document['status'] == 'void' ? '已作废' : '作废此单';
   String get submitLabel => mode == 'document' ? state(document) : '确认提交';
-
 
   Widget busyLabel(Widget child) =>
       hBusy(actionKey, child, style: child is Text ? child.style : null);
@@ -475,6 +475,12 @@ class InventoryManagementController extends ChangeNotifier {
         child: InventoryDocumentRowTemplate(c: this, row: d),
       );
 
+  /// 入库单详情的「送货单 / 发票」卡片；没有凭证时不显示。
+  Widget voucherCard() => InventoryVoucherCard(
+    paths: List<String>.from(document['payload']?['attachments'] ?? const []),
+    urls: Map<String, String>.from(document['attachment_urls'] ?? const {}),
+  );
+
   Widget detailLines(BuildContext context) => Column(
     children: [
       for (final l in lines)
@@ -487,31 +493,6 @@ class InventoryManagementController extends ChangeNotifier {
       if (mode == 'document') ...[
         if ('${document['payload']?['note'] ?? ''}'.isNotEmpty)
           Text('${document['payload']['note']}'),
-        for (final path in List<String>.from(
-          document['payload']?['attachments'] ?? [],
-        ))
-          TextButton(
-            onPressed: () => showDialog<void>(
-              context: context,
-              builder: (_) => Dialog(
-                child: SizedBox(
-                  height: 400,
-                  child: AsyncView<Map<String, dynamic>>(
-                    load: () => merchantApi.invoke({
-                      'action': 'expense_voucher',
-                      'path': path,
-                    }),
-                    isEmpty: (_) => false,
-                    skeleton: const SkeletonList(count: 2),
-                    empty: (_) => const SizedBox.shrink(),
-                    builder: (_, data) =>
-                        Image.network(data['item']['signedUrl']),
-                  ),
-                ),
-              ),
-            ),
-            child: const Text('查看附件'),
-          ),
       ],
     ],
   );

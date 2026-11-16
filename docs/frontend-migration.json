@@ -559,6 +559,12 @@
       "legacyDependencies": []
     },
     {
+      "path": "pages/inventory/inventory_voucher_card.dart",
+      "domain": "inventory",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
       "path": "pages/inventory/product_detail_live_template.dart",
       "domain": "inventory",
       "status": "verified",
@@ -1638,6 +1644,11 @@
       "remainingTODO": [
         "库存 App/微信通知缺少真实渠道，明确阻止开启"
       ]
+    },
+    "pages/inventory/inventory_voucher_card.dart": {
+      "tests": "入库单详情凭证卡片与大图预览：新增 stock_voucher_test；flutter analyze 无问题",
+      "visualFixture": "按设计稿 StockInDetail / StockInVoucher 实现（用户批准参照设计稿）；真机未逐页截图",
+      "remainingTODO": []
     },
     "pages/inventory/product_detail_live_template.dart": {
       "tests": "库存、商品、供应商选择、迁移守卫、placeholder 与步进器合计 91 项通过；追加生命周期保护后 inventory_state_test 7 项通过；flutter analyze 无问题",

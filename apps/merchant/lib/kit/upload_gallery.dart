@@ -38,13 +38,15 @@ Future<void> previewImages(
   BuildContext context,
   List<ImageProvider> images, {
   int index = 0,
+  bool guided = false,
 }) {
   if (images.isEmpty) return Future.value();
   return Navigator.of(context, rootNavigator: true).push<void>(
     PageRouteBuilder<void>(
       opaque: false,
       barrierColor: Colors.black,
-      pageBuilder: (_, _, _) => ImageViewerPage(images: images, index: index),
+      pageBuilder: (_, _, _) =>
+          ImageViewerPage(images: images, index: index, guided: guided),
       transitionsBuilder: (_, anim, _, child) =>
           FadeTransition(opacity: anim, child: child),
     ),
@@ -57,7 +59,15 @@ Future<void> previewImage(BuildContext context, ImageProvider image) =>
 class ImageViewerPage extends StatefulWidget {
   final List<ImageProvider> images;
   final int index;
-  const ImageViewerPage({super.key, required this.images, this.index = 0});
+
+  /// 凭证预览（设计稿 StockInVoucher）：深灰底、顶部「1 / 2」和关闭键，底部操作提示与翻页小点。
+  final bool guided;
+  const ImageViewerPage({
+    super.key,
+    required this.images,
+    this.index = 0,
+    this.guided = false,
+  });
   @override
   State<ImageViewerPage> createState() => _ImageViewerPageState();
 }
@@ -74,14 +84,16 @@ class _ImageViewerPageState extends State<ImageViewerPage> {
   @override
   Widget build(BuildContext context) {
     final top = MediaQuery.paddingOf(context).top;
+    final bottom = MediaQuery.paddingOf(context).bottom;
+    final bg = widget.guided ? const Color(0xFF18181B) : Colors.black;
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: bg,
       body: Stack(
         children: [
           PhotoViewGallery.builder(
             pageController: _page,
             itemCount: widget.images.length,
-            backgroundDecoration: const BoxDecoration(color: Colors.black),
+            backgroundDecoration: BoxDecoration(color: bg),
             onPageChanged: (i) => setState(() => _current = i),
             builder: (_, i) => PhotoViewGalleryPageOptions(
               imageProvider: widget.images[i],
@@ -107,26 +119,86 @@ class _ImageViewerPageState extends State<ImageViewerPage> {
             ),
           ),
           Positioned(
-            left: 12,
-            top: top + 8,
+            left: widget.guided ? 20 : 12,
+            top: widget.guided ? top : top + 8,
             child: Semantics(
               button: true,
               label: '关闭预览',
               child: GestureDetector(
                 onTap: () => Navigator.pop(context),
                 child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: const BoxDecoration(
-                    color: Colors.black54,
+                  width: widget.guided ? 44 : 40,
+                  height: widget.guided ? 44 : 40,
+                  decoration: BoxDecoration(
+                    color: widget.guided
+                        ? const Color(0xFF27272A)
+                        : Colors.black54,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.close, color: Colors.white, size: 22),
+                  child: Icon(
+                    Icons.close,
+                    color: Colors.white,
+                    size: widget.guided ? 20 : 22,
+                  ),
                 ),
               ),
             ),
           ),
-          if (widget.images.length > 1)
+          if (widget.guided) ...[
+            Positioned(
+              top: top + 10,
+              left: 0,
+              right: 0,
+              child: IgnorePointer(
+                child: Center(
+                  child: Text(
+                    '${_current + 1} / ${widget.images.length}',
+                    style: const TextStyle(
+                      color: Color(0xFFFAFAFA),
+                      fontSize: 17,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: bottom + 24,
+              child: IgnorePointer(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      '双指缩放，左右滑动切换',
+                      style: TextStyle(color: Color(0xFFA1A1AA), fontSize: 12),
+                    ),
+                    if (widget.images.length > 1) ...[
+                      const SizedBox(height: 14),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          for (var i = 0; i < widget.images.length; i++)
+                            Container(
+                              width: i == _current ? 18 : 6,
+                              height: 6,
+                              margin: EdgeInsets.only(left: i == 0 ? 0 : 6),
+                              decoration: BoxDecoration(
+                                color: i == _current
+                                    ? const Color(0xFFFAFAFA)
+                                    : const Color(0xFF52525B),
+                                borderRadius: BorderRadius.circular(3),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ] else if (widget.images.length > 1)
             Positioned(
               top: top + 16,
               left: 0,
