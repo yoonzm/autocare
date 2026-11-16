@@ -630,55 +630,42 @@ class ProductDetailLiveTemplate extends StatelessWidget {
                             ),
                             margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
                           ),
-                          Builder(
-                            builder: (context) => GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              onTap: c.busy
-                                  ? null
-                                  : () => c.pick(context, 'supplier', '供应商'),
-                              child: hbox(
-                                minH: 54,
-                                pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                                child: hrow(
-                                  [
-                                    Expanded(
-                                      flex: 1,
-                                      child: Text(
-                                        '供应商',
-                                        style: hts(
-                                          14,
-                                          dk(
-                                            context,
-                                            Color(0xFF52525B),
-                                            Color(0xFFA8A8B3),
-                                          ),
-                                          lh: 20,
-                                        ),
+                          hbox(
+                            minH: 54,
+                            pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                            child: hrow(
+                              [
+                                Expanded(
+                                  flex: 1,
+                                  child: Text(
+                                    '供应商',
+                                    style: hts(
+                                      14,
+                                      dk(
+                                        context,
+                                        Color(0xFF52525B),
+                                        Color(0xFFA8A8B3),
                                       ),
+                                      lh: 20,
                                     ),
-                                    Text(
-                                      c.supplierLabel,
-                                      style: hts(
-                                        15,
-                                        dk(
-                                          context,
-                                          Color(0xFF18181B),
-                                          Color(0xFFFAFAFA),
-                                        ),
-                                        lh: 22,
-                                      ),
-                                    ),
-                                    hsvg(
-                                      dk(context, Svgs.s3, Svgs.s4),
-                                      w: 16,
-                                      h: 16,
-                                    ),
-                                  ],
-                                  main: MainAxisAlignment.start,
-                                  cross: CrossAxisAlignment.center,
-                                  gap: 12,
+                                  ),
                                 ),
-                              ),
+                                Text(
+                                  c.supplierLabel,
+                                  style: hts(
+                                    15,
+                                    dk(
+                                      context,
+                                      Color(0xFF18181B),
+                                      Color(0xFFFAFAFA),
+                                    ),
+                                    lh: 22,
+                                  ),
+                                ),
+                              ],
+                              main: MainAxisAlignment.start,
+                              cross: CrossAxisAlignment.center,
+                              gap: 12,
                             ),
                           ),
                           hbox(
