@@ -2,8 +2,7 @@ import 'member_view.dart';
 
 // Data-bound copy of the designed MemberRecordsPage (消费记录). Keep its layout in
 // sync with the design; the hero numbers and the list are real, the rows are the
-// ledger of the member (充值 / 积分调整 / 卡种调整 / 自动升级).
-// TODO: “消费”“次卡”流水依赖订单和次卡售卖，接入后会出现在这里；目前这两个页签是空的。
+// ledger of the member (充值 / 消费 / 消费退款 / 次卡 / 积分调整 / 卡种调整 / 自动升级).
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -16,7 +15,10 @@ import '../../backend/package_calc.dart' show formatMoney;
 import '../../kit/async_kit.dart';
 import '../../kit/kit.dart';
 import '../../kit/page_header.dart';
-import 'package:autocare_ui_kit/autocare_ui_kit.dart' show AppSegmented, SegmentItem;
+
+import 'package:autocare_ui_kit/autocare_ui_kit.dart'
+    show AppSegmented, SegmentItem;
+
 import '../../resources/merchant_svgs.dart';
 
 class MemberRecordsLivePage extends StatefulWidget {
@@ -379,16 +381,6 @@ class _MemberRecordsLivePageState extends State<MemberRecordsLivePage> {
   Future<void> _load({bool more = false}) async {
     final id = _memberId;
     if (id == null || _loading || _loadingMore) return;
-    // 消费 / 次卡流水还没有数据来源，不请求
-    if (_tab == 1 || _tab == 3) {
-      setState(() {
-        _items.clear();
-        _total = 0;
-        _loaded = true;
-        _error = null;
-      });
-      return;
-    }
     final seq = ++_request;
     final tab = _tab;
     final hadLoaded = _loaded;
@@ -413,7 +405,12 @@ class _MemberRecordsLivePageState extends State<MemberRecordsLivePage> {
     try {
       page = await merchantApi.ledger(
         id,
-        filter: tab == 2 ? 'recharge' : 'all',
+        filter: const [
+          'all',
+          'consume',
+          'recharge',
+          'package',
+        ][tab.clamp(0, 3)],
         offset: more ? _items.length : 0,
       );
     } catch (e) {
@@ -453,6 +450,27 @@ class _MemberRecordsLivePageState extends State<MemberRecordsLivePage> {
 
   static String _two(int n) => n.toString().padLeft(2, '0');
 
+  /// 流水对应的订单（可以点进详情）；不是订单的流水返回 null。
+  OrderDetailRef? _orderRef(Map<String, dynamic> e) {
+    String? id(Object? v) {
+      final s = '${v ?? ''}';
+      return s.isEmpty || s == 'null' ? null : s;
+    }
+
+    return switch ('${e['kind']}') {
+      'recharge' => OrderDetailRef(kind: 'recharge', id: '${e['id']}'),
+      'consume' || 'order_refund' =>
+        id(e['order_id']) == null
+            ? null
+            : OrderDetailRef(kind: 'consume', id: id(e['order_id'])!),
+      'package_buy' || 'package_refund' =>
+        id(e['ref_id']) == null
+            ? null
+            : OrderDetailRef(kind: 'package', id: id(e['ref_id'])!),
+      _ => null,
+    };
+  }
+
   /// 一条流水在列表里的文字：标题 / 副标题 / 金额。
   ({String title, String sub, String amount, bool positive}) _describe(
     Map<String, dynamic> e,
@@ -484,6 +502,69 @@ class _MemberRecordsLivePageState extends State<MemberRecordsLivePage> {
         sub: [when, if (operator.isNotEmpty) '经办 $operator'].join(' · '),
         amount: '${d >= 0 ? '+' : '-'}${formatMoney(d.abs())} 分',
         positive: d >= 0,
+      );
+    }
+    final amount = num.tryParse('${e['amount']}') ?? 0;
+    final pay = '${e['pay_method'] ?? ''}';
+    final title = '${e['title'] ?? ''}';
+    final note = '${e['note'] ?? ''}';
+    String subOf(List<String> parts) => [
+      when,
+      ...parts.where((p) => p.isNotEmpty),
+      if (operator.isNotEmpty) '经办 $operator',
+    ].join(' · ');
+    switch (kind) {
+      case 'consume':
+        return (
+          title: title.isEmpty ? '消费' : title,
+          sub: subOf([pay]),
+          amount: '-¥${formatMoney(amount)}',
+          positive: false,
+        );
+      case 'order_refund':
+        final reason = '${e['reason'] ?? ''}';
+        return (
+          title: reason.isEmpty ? '消费退款' : '消费退款 · $reason',
+          sub: subOf([pay]),
+          amount: '+¥${formatMoney(amount)}',
+          positive: true,
+        );
+      case 'package_buy':
+        return (
+          title: '购买次卡 · $title',
+          sub: subOf([pay]),
+          amount: '-¥${formatMoney(amount)}',
+          positive: false,
+        );
+      case 'package_use':
+        return (
+          title: '次卡核销 · $title',
+          sub: subOf([note]),
+          amount: '次卡抵扣',
+          positive: false,
+        );
+      case 'package_extend':
+        return (
+          title: '次卡延期 · $title',
+          sub: subOf([note]),
+          amount: '',
+          positive: false,
+        );
+      case 'package_refund':
+        return (
+          title: '次卡退款 · $title',
+          sub: subOf([pay]),
+          amount: amount > 0 ? '+¥${formatMoney(amount)}' : '',
+          positive: true,
+        );
+    }
+    if (kind != 'upgrade' && kind != 'adjust_card') {
+      // 以后新增的流水类型：按流水自带的标题显示，不再当成卡种调整。
+      return (
+        title: title.isEmpty ? '其他变动' : title,
+        sub: subOf([note]),
+        amount: '',
+        positive: false,
       );
     }
     final upgrade = kind == 'upgrade';
@@ -552,13 +633,22 @@ class _MemberRecordsLivePageState extends State<MemberRecordsLivePage> {
     String label,
     List<Map<String, dynamic>> entries,
   ) {
-    num recharged = 0;
+    num recharged = 0, spent = 0;
     for (final e in entries) {
-      if (e['kind'] == 'recharge') {
-        recharged += num.tryParse('${e['amount']}') ?? 0;
+      final amount = num.tryParse('${e['amount']}') ?? 0;
+      switch ('${e['kind']}') {
+        case 'recharge':
+          recharged += amount;
+        case 'consume' || 'package_buy':
+          spent += amount;
+        case 'order_refund' || 'package_refund':
+          spent -= amount;
       }
     }
-    final summary = recharged > 0 ? '充值 ¥${formatMoney(recharged)}' : '';
+    final summary = [
+      if (recharged > 0) '充值 ¥${formatMoney(recharged)}',
+      if (spent > 0) '消费 ¥${formatMoney(spent)}',
+    ].join(' · ');
     final rows = <Widget>[];
     for (var i = 0; i < entries.length; i++) {
       final d = _describe(entries[i]);
@@ -572,25 +662,18 @@ class _MemberRecordsLivePageState extends State<MemberRecordsLivePage> {
         );
       }
       final entry = entries[i];
-      // 储值充值行可以点进订单详情（充值订单）；积分 / 卡种调整不是订单
+      // 充值、消费（含退款）、次卡购买 / 退款可以点进订单详情；其余（积分 / 卡种调整、
+      // 次卡核销 / 延期）不是订单。
       final row = _row(context, d.title, d.sub, d.amount, d.positive);
+      final ref = _orderRef(entry);
       rows.add(
-        entry['kind'] == 'recharge'
-            ? GestureDetector(
+        ref == null
+            ? row
+            : GestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onTap: () {
-                  openRoute(
-                    context,
-                    'OrderDetail',
-                    arguments: OrderDetailRef(
-                      kind: 'recharge',
-                      id: '${entry['id']}',
-                    ),
-                  );
-                },
+                onTap: () => openRoute(context, 'OrderDetail', arguments: ref),
                 child: row,
-              )
-            : row,
+              ),
       );
     }
     return hcol(

@@ -509,9 +509,20 @@ class MemberFakeApi extends MerchantApi {
     int limit = 30,
   }) async {
     ledgerCalls.add(filter);
+    // 与云函数一致：recharge / consume（含消费退款）/ package 三个筛选，其余返回全部。
+    const kinds = {
+      'recharge': ['recharge'],
+      'consume': ['consume', 'order_refund'],
+      'package': [
+        'package_buy',
+        'package_use',
+        'package_extend',
+        'package_refund',
+      ],
+    };
     final items = [
       for (final e in ledgerItems)
-        if (filter == 'all' || e['kind'] == filter) e,
+        if (kinds[filter] == null || kinds[filter]!.contains(e['kind'])) e,
     ];
     return (
       items: items.skip(offset).take(limit).toList(),
@@ -1311,7 +1322,7 @@ void main() {
       expect(find.textContaining('微信 · 经办 陈明（店长）'), findsOneWidget);
     });
 
-    testWidgets('充值页签只请求充值流水；消费 / 次卡页签暂无数据来源，显示空状态', (t) async {
+    testWidgets('页签按类型筛选：充值 / 消费（含退款）/ 次卡各请求对应流水，没有数据时显示空状态', (t) async {
       phone(t);
       fake.ledgerItems.add({
         'kind': 'recharge',
@@ -1327,11 +1338,64 @@ void main() {
       expect(fake.ledgerCalls.last, 'recharge');
       await t.tap(find.text('消费').first);
       await t.pumpAndSettle();
+      expect(fake.ledgerCalls.last, 'consume');
       expect(find.text('暂无记录'), findsOneWidget);
       expect(find.text('开单消费后会显示在这里'), findsOneWidget);
       await t.tap(find.text('次卡').first);
       await t.pumpAndSettle();
+      expect(fake.ledgerCalls.last, 'package');
       expect(find.text('次卡购买和使用后会显示在这里'), findsOneWidget);
+    });
+
+    testWidgets('消费、退款、次卡流水按各自类型显示，不再当成“调整卡种”', (t) async {
+      phone(t);
+      final now = DateTime.now().toUtc().toIso8601String();
+      fake.ledgerItems.addAll([
+        {
+          'kind': 'consume',
+          'amount': 37.24,
+          'pay_method': '储值',
+          'title': '快速洗车',
+          'operator': '小白菜（老板）',
+          'order_id': 'o1',
+          'created_at': now,
+        },
+        {
+          'kind': 'order_refund',
+          'amount': 37.24,
+          'pay_method': '储值余额',
+          'reason': '会员不再需要',
+          'operator': '小白菜（老板）',
+          'order_id': 'o1',
+          'created_at': now,
+        },
+        {
+          'kind': 'package_buy',
+          'amount': 500,
+          'pay_method': '微信',
+          'title': '洗车 10 次卡',
+          'operator': '',
+          'ref_id': 'p1',
+          'created_at': now,
+        },
+        {
+          'kind': 'package_use',
+          'note': '次卡核销 · 剩 9 次',
+          'title': '洗车',
+          'operator': '小白菜（老板）',
+          'created_at': now,
+        },
+        {'kind': 'some_future_kind', 'title': '未来的流水', 'created_at': now},
+      ]);
+      await openRecords(t);
+      expect(find.text('快速洗车'), findsOneWidget);
+      expect(find.text('-¥37.24'), findsOneWidget);
+      expect(find.text('消费退款 · 会员不再需要'), findsOneWidget);
+      expect(find.text('+¥37.24'), findsOneWidget);
+      expect(find.text('购买次卡 · 洗车 10 次卡'), findsOneWidget);
+      expect(find.text('次卡核销 · 洗车'), findsOneWidget);
+      expect(find.text('未来的流水'), findsOneWidget);
+      expect(find.textContaining('调整卡种'), findsNothing);
     });
 
     testWidgets('没有任何流水：显示空状态', (t) async {

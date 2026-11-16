@@ -186,7 +186,14 @@ export async function handleMembers(input: Input, storeId: string): Promise<Resp
     let query = admin.from('member_ledger').select('*', { count: 'exact' })
       .eq('store_id', storeId).eq('member_id', input.id)
       .order('created_at', { ascending: false }).range(offset, offset + limit - 1);
-    if (input.filter === 'recharge') query = query.eq('kind', 'recharge');
+    // 页签筛选：充值 / 消费（含消费退款）/ 次卡（购买、核销、延期、退款）；其余返回全部流水。
+    const kinds: Record<string, string[]> = {
+      recharge: ['recharge'],
+      consume: ['consume', 'order_refund'],
+      package: ['package_buy', 'package_use', 'package_extend', 'package_refund'],
+    };
+    const wanted = typeof input.filter === 'string' ? kinds[input.filter] : undefined;
+    if (wanted) query = query.in('kind', wanted);
     const { data, error, count } = await query;
     return error ? fail('读取失败', 500) : json({ items: data ?? [], total: count ?? 0 });
   }
