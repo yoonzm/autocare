@@ -886,7 +886,12 @@ class ExpensesLiveTemplate extends StatelessWidget {
                     const SegmentItem(value: 0, label: '全部'),
                     const SegmentItem(value: 1, label: '固定开支'),
                     const SegmentItem(value: 2, label: '变动开支'),
-                    SegmentItem(value: 3, label: c.unpaidText),
+                    SegmentItem(
+                      value: 3,
+                      label: '待付款',
+                      badge: c.unpaidCount,
+                      badgeTone: Tone.warn,
+                    ),
                   ],
                 ),
                 c.entriesWidget(context),
