@@ -1,4 +1,3 @@
-import '../../kit/single_selection.dart';
 import 'member_view.dart';
 
 // Data-bound copy of the designed MemberRecordsPage (消费记录). Keep its layout in
@@ -17,6 +16,7 @@ import '../../backend/package_calc.dart' show formatMoney;
 import '../../kit/async_kit.dart';
 import '../../kit/kit.dart';
 import '../../kit/page_header.dart';
+import 'package:autocare_ui_kit/autocare_ui_kit.dart' show AppSegmented, SegmentItem;
 import '../../resources/merchant_svgs.dart';
 
 class MemberRecordsLivePage extends StatefulWidget {
@@ -29,6 +29,7 @@ class MemberRecordsLivePage extends StatefulWidget {
 class _MemberRecordsLivePageState extends State<MemberRecordsLivePage> {
   @override
   Widget build(BuildContext context) {
+    if (_tab < 0) _syncTab(0); // 首次进入或换会员后读取「全部」流水
     if (widget.member?['id'] == null) {
       return Scaffold(
         body: ErrorView(
@@ -78,557 +79,246 @@ class _MemberRecordsLivePageState extends State<MemberRecordsLivePage> {
         [
           hbox(
             pad: EdgeInsets.fromLTRB(20, 8, 20, 32),
-            child: SingleSelection(
-              index: _tab < 0 ? 0 : _tab,
-              onChanged: _syncTab,
-              builder: (context, selection) => ListenableBuilder(
-                listenable: selection,
-                builder: (context, _) => hcol(
-                  [
-                    hcol([
-                      hrow(
-                        [
-                          Expanded(
-                            flex: 1,
-                            child: hbox(
-                              bg: dk(
-                                context,
-                                Color(0xFFFFFFFF),
-                                Color(0xFF18181B),
+            child: hcol(
+              [
+                hcol([
+                  hrow(
+                    [
+                      Expanded(
+                        flex: 1,
+                        child: hbox(
+                          bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                          radius: BorderRadius.circular(18),
+                          shadow: dk(
+                            context,
+                            [
+                              BoxShadow(
+                                color: Color.fromRGBO(0, 0, 0, 0.06),
+                                offset: Offset(0, 0),
+                                blurRadius: 1,
+                                spreadRadius: 0,
                               ),
-                              radius: BorderRadius.circular(18),
-                              shadow: dk(
-                                context,
-                                [
-                                  BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.06),
-                                    offset: Offset(0, 0),
-                                    blurRadius: 1,
-                                    spreadRadius: 0,
-                                  ),
-                                  BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.06),
-                                    offset: Offset(0, 1),
-                                    blurRadius: 2,
-                                    spreadRadius: 0,
-                                  ),
-                                  BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.04),
-                                    offset: Offset(0, 2),
-                                    blurRadius: 4,
-                                    spreadRadius: 0,
-                                  ),
-                                ],
-                                [
-                                  BoxShadow(
-                                    color: Color(0xFF26262B),
-                                    offset: Offset(0, 0),
-                                    blurRadius: 0,
-                                    spreadRadius: 1,
-                                  ),
-                                ],
+                              BoxShadow(
+                                color: Color.fromRGBO(0, 0, 0, 0.06),
+                                offset: Offset(0, 1),
+                                blurRadius: 2,
+                                spreadRadius: 0,
                               ),
-                              pad: EdgeInsets.fromLTRB(14, 12, 14, 12),
-                              child: hcol(
-                                [
-                                  Text(
-                                    '累计消费',
-                                    style: hts(
-                                      12,
-                                      dk(
-                                        context,
-                                        Color(0xFF71717A),
-                                        Color(0xFF9A9AA3),
-                                      ),
-                                      lh: 16,
-                                    ),
-                                  ),
-                                  Text(
-                                    m.totalSpentText,
-                                    style: hts(
-                                      17,
-                                      dk(
-                                        context,
-                                        Color(0xFF18181B),
-                                        Color(0xFFFAFAFA),
-                                      ),
-                                      w: FontWeight.w600,
-                                      lh: 24,
-                                    ),
-                                  ),
-                                ],
-                                main: MainAxisAlignment.start,
-                                cross: CrossAxisAlignment.stretch,
-                                gap: 4,
+                              BoxShadow(
+                                color: Color.fromRGBO(0, 0, 0, 0.04),
+                                offset: Offset(0, 2),
+                                blurRadius: 4,
+                                spreadRadius: 0,
                               ),
-                            ),
+                            ],
+                            [
+                              BoxShadow(
+                                color: Color(0xFF26262B),
+                                offset: Offset(0, 0),
+                                blurRadius: 0,
+                                spreadRadius: 1,
+                              ),
+                            ],
                           ),
-                          Expanded(
-                            flex: 1,
-                            child: hbox(
-                              bg: dk(
-                                context,
-                                Color(0xFFFFFFFF),
-                                Color(0xFF18181B),
-                              ),
-                              radius: BorderRadius.circular(18),
-                              shadow: dk(
-                                context,
-                                [
-                                  BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.06),
-                                    offset: Offset(0, 0),
-                                    blurRadius: 1,
-                                    spreadRadius: 0,
-                                  ),
-                                  BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.06),
-                                    offset: Offset(0, 1),
-                                    blurRadius: 2,
-                                    spreadRadius: 0,
-                                  ),
-                                  BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.04),
-                                    offset: Offset(0, 2),
-                                    blurRadius: 4,
-                                    spreadRadius: 0,
-                                  ),
-                                ],
-                                [
-                                  BoxShadow(
-                                    color: Color(0xFF26262B),
-                                    offset: Offset(0, 0),
-                                    blurRadius: 0,
-                                    spreadRadius: 1,
-                                  ),
-                                ],
-                              ),
-                              pad: EdgeInsets.fromLTRB(14, 12, 14, 12),
-                              child: hcol(
-                                [
-                                  Text(
-                                    '累计充值',
-                                    style: hts(
-                                      12,
-                                      dk(
-                                        context,
-                                        Color(0xFF71717A),
-                                        Color(0xFF9A9AA3),
-                                      ),
-                                      lh: 16,
-                                    ),
-                                  ),
-                                  Text(
-                                    m.totalRechargedText,
-                                    style: hts(
-                                      17,
-                                      dk(
-                                        context,
-                                        Color(0xFF18181B),
-                                        Color(0xFFFAFAFA),
-                                      ),
-                                      w: FontWeight.w600,
-                                      lh: 24,
-                                    ),
-                                  ),
-                                ],
-                                main: MainAxisAlignment.start,
-                                cross: CrossAxisAlignment.stretch,
-                                gap: 4,
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            flex: 1,
-                            child: hbox(
-                              bg: dk(
-                                context,
-                                Color(0xFFFFFFFF),
-                                Color(0xFF18181B),
-                              ),
-                              radius: BorderRadius.circular(18),
-                              shadow: dk(
-                                context,
-                                [
-                                  BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.06),
-                                    offset: Offset(0, 0),
-                                    blurRadius: 1,
-                                    spreadRadius: 0,
-                                  ),
-                                  BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.06),
-                                    offset: Offset(0, 1),
-                                    blurRadius: 2,
-                                    spreadRadius: 0,
-                                  ),
-                                  BoxShadow(
-                                    color: Color.fromRGBO(0, 0, 0, 0.04),
-                                    offset: Offset(0, 2),
-                                    blurRadius: 4,
-                                    spreadRadius: 0,
-                                  ),
-                                ],
-                                [
-                                  BoxShadow(
-                                    color: Color(0xFF26262B),
-                                    offset: Offset(0, 0),
-                                    blurRadius: 0,
-                                    spreadRadius: 1,
-                                  ),
-                                ],
-                              ),
-                              pad: EdgeInsets.fromLTRB(14, 12, 14, 12),
-                              child: hcol(
-                                [
-                                  Text(
-                                    '到店',
-                                    style: hts(
-                                      12,
-                                      dk(
-                                        context,
-                                        Color(0xFF71717A),
-                                        Color(0xFF9A9AA3),
-                                      ),
-                                      lh: 16,
-                                    ),
-                                  ),
-                                  Text(
-                                    m.visitText,
-                                    style: hts(
-                                      17,
-                                      dk(
-                                        context,
-                                        Color(0xFF18181B),
-                                        Color(0xFFFAFAFA),
-                                      ),
-                                      w: FontWeight.w600,
-                                      lh: 24,
-                                    ),
-                                  ),
-                                ],
-                                main: MainAxisAlignment.start,
-                                cross: CrossAxisAlignment.stretch,
-                                gap: 4,
-                              ),
-                            ),
-                          ),
-                        ],
-                        cross: CrossAxisAlignment.stretch,
-                        gap: 8,
-                        intrinsic: true,
-                        min: false,
-                      ),
-                    ], gap: 8),
-                    hbox(
-                      bg: dk(context, Color(0xFFE9E9EB), Color(0xFF1F1F23)),
-                      radius: BorderRadius.circular(20),
-                      pad: EdgeInsets.fromLTRB(4, 4, 4, 4),
-                      child: hrow(
-                        [
-                          Expanded(
-                            flex: 1,
-                            child: UnconstrainedBox(
-                              alignment: Alignment.topLeft,
-                              constrainedAxis: Axis.horizontal,
-                              child: HSel(
-                                ctrl: selection,
-                                index: 0,
-                                on: hbox(
-                                  h: 32,
-                                  bg: dk(
+                          pad: EdgeInsets.fromLTRB(14, 12, 14, 12),
+                          child: hcol(
+                            [
+                              Text(
+                                '累计消费',
+                                style: hts(
+                                  12,
+                                  dk(
                                     context,
-                                    Color(0xFFFFFFFF),
+                                    Color(0xFF71717A),
+                                    Color(0xFF9A9AA3),
+                                  ),
+                                  lh: 16,
+                                ),
+                              ),
+                              Text(
+                                m.totalSpentText,
+                                style: hts(
+                                  17,
+                                  dk(
+                                    context,
                                     Color(0xFF18181B),
+                                    Color(0xFFFAFAFA),
                                   ),
-                                  radius: BorderRadius.circular(16),
-                                  shadow: dk(
-                                    context,
-                                    [
-                                      BoxShadow(
-                                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                                        offset: Offset(0, 1),
-                                        blurRadius: 2,
-                                        spreadRadius: 0,
-                                      ),
-                                      BoxShadow(
-                                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                                        offset: Offset(0, 2),
-                                        blurRadius: 4,
-                                        spreadRadius: 0,
-                                      ),
-                                    ],
-                                    [
-                                      BoxShadow(
-                                        color: Color(0xFF26262B),
-                                        offset: Offset(0, 0),
-                                        blurRadius: 0,
-                                        spreadRadius: 1,
-                                      ),
-                                    ],
-                                  ),
-                                  child: Align(
-                                    alignment: Alignment.center,
-                                    widthFactor: 1,
-                                    child: Text(
-                                      '全部',
-                                      style: hts(
-                                        13,
-                                        dk(
-                                          context,
-                                          Color(0xFF18181B),
-                                          Color(0xFFFAFAFA),
-                                        ),
-                                        w: FontWeight.w500,
-                                        lh: 18,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                off: hbox(
-                                  h: 32,
-                                  bg: dk(
-                                    context,
-                                    Color(0xFFFFFFFF),
-                                    Color(0xFF18181B),
-                                  ),
-                                  radius: BorderRadius.circular(16),
-                                  child: Align(
-                                    alignment: Alignment.center,
-                                    widthFactor: 1,
-                                    child: Text(
-                                      '全部',
-                                      style: hts(
-                                        13,
-                                        dk(
-                                          context,
-                                          Color(0xFF52525B),
-                                          Color(0xFFA8A8B3),
-                                        ),
-                                        w: FontWeight.w500,
-                                        lh: 18,
-                                      ),
-                                    ),
-                                  ),
+                                  w: FontWeight.w600,
+                                  lh: 24,
                                 ),
                               ),
-                            ),
+                            ],
+                            main: MainAxisAlignment.start,
+                            cross: CrossAxisAlignment.stretch,
+                            gap: 4,
                           ),
-                          Expanded(
-                            flex: 1,
-                            child: UnconstrainedBox(
-                              alignment: Alignment.topLeft,
-                              constrainedAxis: Axis.horizontal,
-                              child: HSel(
-                                ctrl: selection,
-                                index: 1,
-                                on: hbox(
-                                  h: 32,
-                                  radius: BorderRadius.circular(16),
-                                  shadow: dk(context, [
-                                    BoxShadow(
-                                      color: Color.fromRGBO(0, 0, 0, 0.06),
-                                      offset: Offset(0, 1),
-                                      blurRadius: 2,
-                                      spreadRadius: 0,
-                                    ),
-                                    BoxShadow(
-                                      color: Color.fromRGBO(0, 0, 0, 0.04),
-                                      offset: Offset(0, 2),
-                                      blurRadius: 4,
-                                      spreadRadius: 0,
-                                    ),
-                                  ], null),
-                                  child: Align(
-                                    alignment: Alignment.center,
-                                    widthFactor: 1,
-                                    child: Text(
-                                      '消费',
-                                      style: hts(
-                                        13,
-                                        dk(
-                                          context,
-                                          Color(0xFF18181B),
-                                          Color(0xFFFAFAFA),
-                                        ),
-                                        w: FontWeight.w500,
-                                        lh: 18,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                off: hbox(
-                                  h: 32,
-                                  radius: BorderRadius.circular(16),
-                                  child: Align(
-                                    alignment: Alignment.center,
-                                    widthFactor: 1,
-                                    child: Text(
-                                      '消费',
-                                      style: hts(
-                                        13,
-                                        dk(
-                                          context,
-                                          Color(0xFF52525B),
-                                          Color(0xFFA8A8B3),
-                                        ),
-                                        w: FontWeight.w500,
-                                        lh: 18,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            flex: 1,
-                            child: UnconstrainedBox(
-                              alignment: Alignment.topLeft,
-                              constrainedAxis: Axis.horizontal,
-                              child: HSel(
-                                ctrl: selection,
-                                index: 2,
-                                on: hbox(
-                                  h: 32,
-                                  radius: BorderRadius.circular(16),
-                                  shadow: dk(context, [
-                                    BoxShadow(
-                                      color: Color.fromRGBO(0, 0, 0, 0.06),
-                                      offset: Offset(0, 1),
-                                      blurRadius: 2,
-                                      spreadRadius: 0,
-                                    ),
-                                    BoxShadow(
-                                      color: Color.fromRGBO(0, 0, 0, 0.04),
-                                      offset: Offset(0, 2),
-                                      blurRadius: 4,
-                                      spreadRadius: 0,
-                                    ),
-                                  ], null),
-                                  child: Align(
-                                    alignment: Alignment.center,
-                                    widthFactor: 1,
-                                    child: Text(
-                                      '充值',
-                                      style: hts(
-                                        13,
-                                        dk(
-                                          context,
-                                          Color(0xFF18181B),
-                                          Color(0xFFFAFAFA),
-                                        ),
-                                        w: FontWeight.w500,
-                                        lh: 18,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                off: hbox(
-                                  h: 32,
-                                  radius: BorderRadius.circular(16),
-                                  child: Align(
-                                    alignment: Alignment.center,
-                                    widthFactor: 1,
-                                    child: Text(
-                                      '充值',
-                                      style: hts(
-                                        13,
-                                        dk(
-                                          context,
-                                          Color(0xFF52525B),
-                                          Color(0xFFA8A8B3),
-                                        ),
-                                        w: FontWeight.w500,
-                                        lh: 18,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            flex: 1,
-                            child: UnconstrainedBox(
-                              alignment: Alignment.topLeft,
-                              constrainedAxis: Axis.horizontal,
-                              child: HSel(
-                                ctrl: selection,
-                                index: 3,
-                                on: hbox(
-                                  h: 32,
-                                  radius: BorderRadius.circular(16),
-                                  shadow: dk(context, [
-                                    BoxShadow(
-                                      color: Color.fromRGBO(0, 0, 0, 0.06),
-                                      offset: Offset(0, 1),
-                                      blurRadius: 2,
-                                      spreadRadius: 0,
-                                    ),
-                                    BoxShadow(
-                                      color: Color.fromRGBO(0, 0, 0, 0.04),
-                                      offset: Offset(0, 2),
-                                      blurRadius: 4,
-                                      spreadRadius: 0,
-                                    ),
-                                  ], null),
-                                  child: Align(
-                                    alignment: Alignment.center,
-                                    widthFactor: 1,
-                                    child: Text(
-                                      '次卡',
-                                      style: hts(
-                                        13,
-                                        dk(
-                                          context,
-                                          Color(0xFF18181B),
-                                          Color(0xFFFAFAFA),
-                                        ),
-                                        w: FontWeight.w500,
-                                        lh: 18,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                off: hbox(
-                                  h: 32,
-                                  radius: BorderRadius.circular(16),
-                                  child: Align(
-                                    alignment: Alignment.center,
-                                    widthFactor: 1,
-                                    child: Text(
-                                      '次卡',
-                                      style: hts(
-                                        13,
-                                        dk(
-                                          context,
-                                          Color(0xFF52525B),
-                                          Color(0xFFA8A8B3),
-                                        ),
-                                        w: FontWeight.w500,
-                                        lh: 18,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                        main: MainAxisAlignment.start,
-                        cross: CrossAxisAlignment.stretch,
-                        gap: 2,
-                        intrinsic: true,
+                        ),
                       ),
-                    ),
-                    ..._ledger(context, selection),
+                      Expanded(
+                        flex: 1,
+                        child: hbox(
+                          bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                          radius: BorderRadius.circular(18),
+                          shadow: dk(
+                            context,
+                            [
+                              BoxShadow(
+                                color: Color.fromRGBO(0, 0, 0, 0.06),
+                                offset: Offset(0, 0),
+                                blurRadius: 1,
+                                spreadRadius: 0,
+                              ),
+                              BoxShadow(
+                                color: Color.fromRGBO(0, 0, 0, 0.06),
+                                offset: Offset(0, 1),
+                                blurRadius: 2,
+                                spreadRadius: 0,
+                              ),
+                              BoxShadow(
+                                color: Color.fromRGBO(0, 0, 0, 0.04),
+                                offset: Offset(0, 2),
+                                blurRadius: 4,
+                                spreadRadius: 0,
+                              ),
+                            ],
+                            [
+                              BoxShadow(
+                                color: Color(0xFF26262B),
+                                offset: Offset(0, 0),
+                                blurRadius: 0,
+                                spreadRadius: 1,
+                              ),
+                            ],
+                          ),
+                          pad: EdgeInsets.fromLTRB(14, 12, 14, 12),
+                          child: hcol(
+                            [
+                              Text(
+                                '累计充值',
+                                style: hts(
+                                  12,
+                                  dk(
+                                    context,
+                                    Color(0xFF71717A),
+                                    Color(0xFF9A9AA3),
+                                  ),
+                                  lh: 16,
+                                ),
+                              ),
+                              Text(
+                                m.totalRechargedText,
+                                style: hts(
+                                  17,
+                                  dk(
+                                    context,
+                                    Color(0xFF18181B),
+                                    Color(0xFFFAFAFA),
+                                  ),
+                                  w: FontWeight.w600,
+                                  lh: 24,
+                                ),
+                              ),
+                            ],
+                            main: MainAxisAlignment.start,
+                            cross: CrossAxisAlignment.stretch,
+                            gap: 4,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: hbox(
+                          bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                          radius: BorderRadius.circular(18),
+                          shadow: dk(
+                            context,
+                            [
+                              BoxShadow(
+                                color: Color.fromRGBO(0, 0, 0, 0.06),
+                                offset: Offset(0, 0),
+                                blurRadius: 1,
+                                spreadRadius: 0,
+                              ),
+                              BoxShadow(
+                                color: Color.fromRGBO(0, 0, 0, 0.06),
+                                offset: Offset(0, 1),
+                                blurRadius: 2,
+                                spreadRadius: 0,
+                              ),
+                              BoxShadow(
+                                color: Color.fromRGBO(0, 0, 0, 0.04),
+                                offset: Offset(0, 2),
+                                blurRadius: 4,
+                                spreadRadius: 0,
+                              ),
+                            ],
+                            [
+                              BoxShadow(
+                                color: Color(0xFF26262B),
+                                offset: Offset(0, 0),
+                                blurRadius: 0,
+                                spreadRadius: 1,
+                              ),
+                            ],
+                          ),
+                          pad: EdgeInsets.fromLTRB(14, 12, 14, 12),
+                          child: hcol(
+                            [
+                              Text(
+                                '到店',
+                                style: hts(
+                                  12,
+                                  dk(
+                                    context,
+                                    Color(0xFF71717A),
+                                    Color(0xFF9A9AA3),
+                                  ),
+                                  lh: 16,
+                                ),
+                              ),
+                              Text(
+                                m.visitText,
+                                style: hts(
+                                  17,
+                                  dk(
+                                    context,
+                                    Color(0xFF18181B),
+                                    Color(0xFFFAFAFA),
+                                  ),
+                                  w: FontWeight.w600,
+                                  lh: 24,
+                                ),
+                              ),
+                            ],
+                            main: MainAxisAlignment.start,
+                            cross: CrossAxisAlignment.stretch,
+                            gap: 4,
+                          ),
+                        ),
+                      ),
+                    ],
+                    cross: CrossAxisAlignment.stretch,
+                    gap: 8,
+                    intrinsic: true,
+                    min: false,
+                  ),
+                ], gap: 8),
+                AppSegmented<int>(
+                  items: const [
+                    SegmentItem(value: 0, label: '全部'),
+                    SegmentItem(value: 1, label: '消费'),
+                    SegmentItem(value: 2, label: '充值'),
+                    SegmentItem(value: 3, label: '次卡'),
                   ],
-                  main: MainAxisAlignment.start,
-                  cross: CrossAxisAlignment.stretch,
-                  gap: 16,
+                  selected: _tab < 0 ? 0 : _tab,
+                  onChanged: (v) => setState(() => _syncTab(v)),
                 ),
-              ),
+                ..._ledger(context),
+              ],
+              main: MainAxisAlignment.start,
+              cross: CrossAxisAlignment.stretch,
+              gap: 16,
             ),
           ),
         ],
@@ -805,8 +495,7 @@ class _MemberRecordsLivePageState extends State<MemberRecordsLivePage> {
     );
   }
 
-  List<Widget> _ledger(BuildContext context, SelCtrl tabs) {
-    _syncTab(tabs.selected.isEmpty ? 0 : tabs.selected.first);
+  List<Widget> _ledger(BuildContext context) {
     if (_error != null && _items.isEmpty) {
       return [
         SizedBox(
