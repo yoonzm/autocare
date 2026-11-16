@@ -9,6 +9,9 @@ class ExpenseInput extends StatefulWidget {
   final String value, hint;
   final ValueChanged<String> onChanged;
   final TextStyle style;
+
+  /// 占位文字样式；不传时沿用输入样式（备注框）。金额框用它避免占位文字和输入同样粗大。
+  final TextStyle? hintStyle;
   final TextInputType? keyboard;
   final int? maxLines;
   final TextAlign align;
@@ -18,6 +21,7 @@ class ExpenseInput extends StatefulWidget {
     required this.onChanged,
     required this.style,
     required this.hint,
+    this.hintStyle,
     this.keyboard,
     this.maxLines = 1,
     this.align = TextAlign.start,
@@ -57,6 +61,7 @@ class _ExpenseInputState extends State<ExpenseInput> {
     maxLines: widget.maxLines,
     decoration: InputDecoration(
       hintText: widget.hint,
+      hintStyle: widget.hintStyle,
       border: InputBorder.none,
       isDense: true,
       contentPadding: EdgeInsets.zero,

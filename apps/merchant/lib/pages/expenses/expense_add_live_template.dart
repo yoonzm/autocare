@@ -161,7 +161,19 @@ class ExpenseAddLiveTemplate extends StatelessWidget {
                                   ls: -1.2,
                                   tab: true,
                                 ),
-                                hint: '请输入金额',
+                                hint: '0.00',
+                                hintStyle: hts(
+                                  40,
+                                  dk(
+                                    context,
+                                    Color(0xFFA1A1AA),
+                                    Color(0xFF6B6B76),
+                                  ),
+                                  w: FontWeight.w400,
+                                  lh: 48,
+                                  ls: -1.2,
+                                  tab: true,
+                                ),
                                 keyboard: const TextInputType.numberWithOptions(
                                   decimal: true,
                                 ),

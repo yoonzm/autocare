@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/pages/expenses/expense_controller.dart';
+import 'package:autocare_merchant/pages/expenses/expense_widgets.dart';
 import 'package:autocare_merchant/pages/inventory/inventory_management_page.dart';
 import 'package:autocare_merchant/pages/expenses/expense_live_page.dart';
 import 'package:autocare_merchant/pages/expenses/expenses_live_template.dart';
@@ -320,5 +321,30 @@ void main() {
     await t.pumpAndSettle();
     await future;
     expect(c.draft['occurred_on'], matches(RegExp(r'^\d{4}-\d{2}-\d{2}$')));
+  });
+
+  testWidgets('占位文字样式独立于输入样式：金额框占位为浅灰常规粗细', (t) async {
+    await t.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: ExpenseInput(
+            value: '',
+            hint: '0.00',
+            onChanged: (_) {},
+            style: const TextStyle(fontSize: 40, fontWeight: FontWeight.w600),
+            hintStyle: const TextStyle(
+              fontSize: 40,
+              fontWeight: FontWeight.w400,
+              color: Color(0xFFA1A1AA),
+            ),
+          ),
+        ),
+      ),
+    );
+    final field = t.widget<TextField>(find.byType(TextField));
+    expect(field.decoration!.hintText, '0.00');
+    expect(field.decoration!.hintStyle!.fontWeight, FontWeight.w400);
+    expect(field.decoration!.hintStyle!.color, const Color(0xFFA1A1AA));
+    expect(field.style!.fontWeight, FontWeight.w600);
   });
 }
