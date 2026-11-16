@@ -3,6 +3,8 @@ import 'voucher_gallery.dart';
 import 'package:flutter/material.dart';
 
 import 'expense_controller.dart';
+import '../../kit/kit.dart';
+import '../../resources/merchant_svgs.dart';
 
 /// Only renders the supplied value and forwards input; no screen/field/index lookup.
 class ExpenseInput extends StatefulWidget {
@@ -89,4 +91,19 @@ class ExpenseAttachment extends StatelessWidget {
       c.changed();
     },
   );
+}
+
+/// 分类图标：与「记一笔」分类宫格同一套；未收录的分类（如「损耗」）沿用「其他」。
+String expenseCategorySvg(BuildContext context, String? category) {
+  final (light, dark) = switch (category) {
+    '房租' => (Svgs.s109, Svgs.s110),
+    '水电' => (Svgs.s111, Svgs.s112),
+    '人工' => (Svgs.s113, Svgs.s114),
+    '材料采购' => (Svgs.s115, Svgs.s116),
+    '设备维修' => (Svgs.s117, Svgs.s118),
+    '营销推广' => (Svgs.s119, Svgs.s120),
+    '税费' => (Svgs.s121, Svgs.s122),
+    _ => (Svgs.s123, Svgs.s124),
+  };
+  return dk(context, light, dark);
 }

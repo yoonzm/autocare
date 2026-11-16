@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../kit/kit.dart';
 import 'expense_controller.dart';
-import '../../resources/merchant_svgs.dart';
+import 'expense_widgets.dart';
 
 class ExpenseEntryTemplate extends StatelessWidget {
   final ExpenseController c;
@@ -31,7 +31,13 @@ class ExpenseEntryTemplate extends StatelessWidget {
             ),
             radius: BorderRadius.circular(13),
             child: hrow(
-              [hsvg(dk(context, Svgs.s146, Svgs.s147), w: 20, h: 20)],
+              [
+                hsvg(
+                  expenseCategorySvg(context, '${record['category']}'),
+                  w: 20,
+                  h: 20,
+                ),
+              ],
               main: MainAxisAlignment.center,
               cross: CrossAxisAlignment.center,
               gap: 0,
@@ -98,15 +104,45 @@ class ExpenseEntryTemplate extends StatelessWidget {
               ),
             ),
           ),
-          Text(
-            '−${expenseMoney(record['amount'])}',
-            style: hts(
-              15,
-              dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-              w: FontWeight.w600,
-              lh: 22,
-              tab: true,
-            ),
+          hcol(
+            [
+              Text(
+                '−${expenseMoney(record['amount'])}',
+                style: hts(
+                  15,
+                  dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                  w: FontWeight.w600,
+                  lh: 22,
+                  tab: true,
+                ),
+              ),
+              if (record['status'] == 'unpaid')
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => c.markPaid(context, record),
+                  child: hbox(
+                    bg: dk(
+                      context,
+                      Color(0xFFE1F0FE),
+                      Color.fromRGBO(4, 133, 247, 0.18),
+                    ),
+                    radius: BorderRadius.circular(11),
+                    pad: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                    child: Text(
+                      c.paying.contains('${record['id']}') ? '处理中…' : '确认付款',
+                      style: hts(
+                        12,
+                        dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                        w: FontWeight.w600,
+                        lh: 22,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+            main: MainAxisAlignment.start,
+            cross: CrossAxisAlignment.end,
+            gap: 4,
           ),
         ],
         main: MainAxisAlignment.start,

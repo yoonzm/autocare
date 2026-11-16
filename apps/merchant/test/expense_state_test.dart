@@ -9,6 +9,7 @@ import 'package:autocare_merchant/pages/expenses/expense_widgets.dart';
 import 'package:autocare_merchant/pages/inventory/inventory_management_page.dart';
 import 'package:autocare_merchant/pages/expenses/expense_live_page.dart';
 import 'package:autocare_merchant/pages/expenses/expenses_live_template.dart';
+import 'package:autocare_merchant/pages/expenses/expense_detail_live_template.dart';
 
 import 'members_test.dart' show MemberFakeApi, phone;
 
@@ -36,6 +37,7 @@ class ExpenseApi extends MemberFakeApi {
   Object? fail;
   Completer<Map<String, dynamic>>? write, suggestion;
   bool deferBoards = false, deferEntries = false;
+  Map<String, dynamic>? getOverride;
   final boards = <Completer<Map<String, dynamic>>>[],
       entries = <Completer<Map<String, dynamic>>>[];
   @override
@@ -52,7 +54,9 @@ class ExpenseApi extends MemberFakeApi {
         boards.add(c);
         return c.future;
       case 'expense_get':
-        if (!deferEntries) return {'item': entry('${body['id']}')};
+        if (!deferEntries) {
+          return {'item': getOverride ?? entry('${body['id']}')};
+        }
         final c = Completer<Map<String, dynamic>>();
         entries.add(c);
         return c.future;
@@ -346,5 +350,120 @@ void main() {
     expect(field.decoration!.hintStyle!.fontWeight, FontWeight.w400);
     expect(field.decoration!.hintStyle!.color, const Color(0xFFA1A1AA));
     expect(field.style!.fontWeight, FontWeight.w600);
+  });
+
+  testWidgets('分类图标跟随分类：各分类不同，未收录分类沿用「其他」', (t) async {
+    late BuildContext ctx;
+    await t.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (c) {
+            ctx = c;
+            return const SizedBox();
+          },
+        ),
+      ),
+    );
+    final icons = {
+      for (final k in ['房租', '水电', '人工', '材料采购', '设备维修', '营销推广', '税费', '其他'])
+        k: expenseCategorySvg(ctx, k),
+    };
+    expect(icons.values.toSet().length, icons.length);
+    expect(expenseCategorySvg(ctx, '损耗'), icons['其他']);
+    expect(expenseCategorySvg(ctx, null), icons['其他']);
+  });
+
+  testWidgets('待付款记录才有「确认付款」；点击后取完整记录，只把状态改为已付款再保存', (t) async {
+    phone(t);
+    api.getOverride = {...entry('u1'), 'status': 'unpaid', 'repeat': true};
+    final c = ExpenseController('list', '2026-11-01', {
+      'items': [
+        {...entry('u1'), 'status': 'unpaid'},
+        entry('p1'),
+      ],
+      'history': [],
+      'revenue': 1000,
+    });
+    var changed = 0;
+    void on() => changed++;
+    expenseChanged.addListener(on);
+    await t.pumpWidget(
+      MaterialApp(
+        home: Scaffold(body: ExpensesLiveTemplate(c: c)),
+      ),
+    );
+    await t.pump();
+    expect(find.text('确认付款'), findsOneWidget);
+    await t.tap(find.text('确认付款'));
+    await t.pump();
+    await t.pump(const Duration(milliseconds: 50));
+    final body = api.writes.single['body'] as Map;
+    expect(body['status'], 'paid');
+    expect(body['repeat'], true);
+    expect(body['amount'], 42);
+    expect(body['attachments'], ['voucher-a']);
+    expect(api.writes.single['requestId'], isNotNull);
+    expect(changed, 1);
+    expect(c.paying, isEmpty);
+    expect(c.busy, isFalse);
+    expenseChanged.removeListener(on);
+    c.dispose();
+    await t.pumpAndSettle(const Duration(seconds: 5));
+  });
+
+  testWidgets('确认付款失败：不通知刷新，状态与按钮保持可重试', (t) async {
+    phone(t);
+    api.getOverride = {...entry('u1'), 'status': 'unpaid'};
+    api.fail = const AppError.timeout();
+    final c = ExpenseController('list', '2026-11-01', {
+      'items': [
+        {...entry('u1'), 'status': 'unpaid'},
+      ],
+      'history': [],
+      'revenue': 1000,
+    });
+    var changed = 0;
+    void on() => changed++;
+    expenseChanged.addListener(on);
+    await t.pumpWidget(
+      MaterialApp(
+        home: Scaffold(body: ExpensesLiveTemplate(c: c)),
+      ),
+    );
+    await t.pump();
+    await t.tap(find.text('确认付款'));
+    await t.pump();
+    await t.pump(const Duration(milliseconds: 50));
+    expect(changed, 0);
+    expect(c.paying, isEmpty);
+    expect(c.busy, isFalse);
+    expect(find.text('确认付款'), findsOneWidget);
+    expenseChanged.removeListener(on);
+    c.dispose();
+    await t.pumpAndSettle(const Duration(seconds: 5));
+  });
+
+  testWidgets('详情页：仅待付款显示「确认付款」，付款后按钮消失', (t) async {
+    phone(t);
+    for (final status in ['unpaid', 'paid']) {
+      final c = ExpenseController(
+        'detail',
+        '2026-11-01',
+        board(),
+        entry: {...entry(), 'status': status},
+      );
+      await t.pumpWidget(
+        MaterialApp(
+          home: Scaffold(body: ExpenseDetailLiveTemplate(c: c)),
+        ),
+      );
+      await t.pump();
+      expect(
+        find.text('确认付款'),
+        status == 'unpaid' ? findsOneWidget : findsNothing,
+      );
+      expect(find.text('编辑'), findsOneWidget);
+      c.dispose();
+    }
   });
 }

@@ -3,6 +3,8 @@ import 'expense_controller.dart';
 import 'package:flutter/material.dart';
 
 import '../../kit/kit.dart';
+import '../../theme.dart';
+import 'expense_widgets.dart';
 import '../../resources/merchant_svgs.dart';
 
 class ExpenseDetailLiveTemplate extends StatelessWidget {
@@ -136,7 +138,10 @@ class ExpenseDetailLiveTemplate extends StatelessWidget {
                         child: hrow(
                           [
                             hsvg(
-                              dk(context, Svgs.s140, Svgs.s141),
+                              expenseCategorySvg(
+                                context,
+                                '${c.draft['category']}',
+                              ),
                               w: 26,
                               h: 26,
                             ),
@@ -592,7 +597,7 @@ class ExpenseDetailLiveTemplate extends StatelessWidget {
             child: hrow(
               [
                 Expanded(
-                  flex: 10,
+                  flex: 8,
                   child: GestureDetector(
                     behavior: HitTestBehavior.opaque,
                     onTap: () => c.save(context, remove: true),
@@ -622,8 +627,36 @@ class ExpenseDetailLiveTemplate extends StatelessWidget {
                     ),
                   ),
                 ),
+                if (c.draft['status'] == 'unpaid')
+                  Expanded(
+                    flex: 14,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => c.markPaid(context, c.draft),
+                      child: hbox(
+                        h: 50,
+                        bg: C.primary,
+                        radius: BorderRadius.circular(25),
+                        child: Align(
+                          alignment: Alignment(0, 0),
+                          widthFactor: 1,
+                          child: Text(
+                            c.paying.contains('${c.draft['id']}')
+                                ? '处理中…'
+                                : '确认付款',
+                            style: hts(
+                              15,
+                              Color(0xFFFFFFFF),
+                              w: FontWeight.w600,
+                              lh: 22,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 Expanded(
-                  flex: 15,
+                  flex: 12,
                   child: GestureDetector(
                     behavior: HitTestBehavior.opaque,
                     onTap: () => c.open(context, 'add', id: c.draft['id']),

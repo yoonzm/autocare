@@ -218,6 +218,49 @@ class ExpenseController extends ChangeNotifier {
     }
   }
 
+  /// 正在确认付款的记录 id（列表/详情据此显示「处理中…」）。
+  final paying = <String>{};
+
+  /// 待付款 → 已付款。列表里的记录没有 `repeat` 等保存必需字段，所以先按 id 取完整记录，
+  /// 只改付款状态再保存；失败时原样保留，页面不变。
+  Future<void> markPaid(
+    BuildContext context,
+    Map<String, dynamic> record,
+  ) async {
+    final id = '${record['id']}';
+    if (busy ||
+        disposed ||
+        paying.contains(id) ||
+        record['status'] != 'unpaid') {
+      return;
+    }
+    paying.add(id);
+    setBusy(true);
+    var ok = false;
+    try {
+      final got = await request({
+        'action': 'expense_get',
+        'month': month,
+        'id': id,
+      });
+      final item = expenseCopy(Map<String, dynamic>.from(got['item'] as Map));
+      if (item['status'] == 'unpaid') {
+        item['status'] = 'paid';
+        await request({...item, 'action': 'expense_save'}, write: true);
+      }
+      ok = true;
+      expenseChanged.value++;
+    } catch (e) {
+      if (context.mounted && !disposed) AppToast.error(context, e);
+    } finally {
+      paying.remove(id);
+      setBusy(false);
+    }
+    if (ok && context.mounted && !disposed) {
+      AppToast.show(context, '已确认付款', kind: ToastKind.success);
+    }
+  }
+
   Future<void> save(BuildContext context, {bool remove = false}) async {
     if (busy || disposed || _committed || isBusy(saveKey)) return;
     if (remove) {
