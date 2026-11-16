@@ -12,8 +12,8 @@ extension ExpenseFormatting on ExpenseController {
   String get marginText => revenue == 0
       ? '—'
       : '${((revenue - spent()) * 100 / revenue).toStringAsFixed(1)}%';
-  String get unpaidText =>
-      '待付款 ${entries.where((e) => e['status'] == 'unpaid').length}';
+  int get unpaidCount => entries.where((e) => e['status'] == 'unpaid').length;
+  String get unpaidText => '待付款 $unpaidCount';
   String get rentText => expenseMoney(spent('房租'));
   String get laborText => expenseMoney(spent('人工'));
   String get materialsText => expenseMoney(spent('材料采购'));
