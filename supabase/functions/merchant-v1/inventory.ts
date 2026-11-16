@@ -1,5 +1,6 @@
 import { admin, fail, json, storeFor, url, uuid } from "./shared.ts";
 import { signVouchers } from "./expense_vouchers.ts";
+import { operatorOf } from "./members.ts";
 import type { Input } from "./types.ts";
 import { decimal, documentError } from "./inventory_rules.ts";
 
@@ -228,6 +229,8 @@ export async function handleInventory(
       payload.attachments != null &&
       (!Array.isArray(payload.attachments) || payload.attachments.length > 6)
     ) return fail("最多上传六张附件");
+    // 经办人由服务端按当前登录身份写入，不信任客户端传来的值（单据详情显示「经办 陈明」）。
+    payload.operator = await operatorOf(store);
     const { data, error } = await admin.rpc("inventory_document_save", {
       p_store: store,
       p_id: input.id,

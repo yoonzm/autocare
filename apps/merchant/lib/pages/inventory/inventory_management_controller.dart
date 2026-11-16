@@ -145,15 +145,17 @@ class InventoryManagementController extends ChangeNotifier {
   String get documentState =>
       mode == 'docs' ? ['已入库', '已出库'][tab] : state(document);
 
-  /// 顶部卡片最下面一行：「今天 10:36」，出库单带上技师（「今天 09:12 · 技师 周强」）。
-  // TODO document_operator: 设计稿入库单还有「· 经办 陈明」，库存单据目前没有记录经办人，
-  // 预期后端在提交单据时保存操作人（inventory_document_save 增加 operator）。
+  /// 顶部卡片最下面一行：入库「今天 10:36 · 经办 陈明」，出库「今天 09:12 · 技师 周强」。
+  /// 经办人由服务端在保存单据时写入（payload.operator）；历史单据没有记录就不显示。
   String get documentDate {
     final time = documentTime(
       '${document['posted_at'] ?? document['created_at'] ?? ''}',
     );
-    final tech = '${document['payload']?['technician'] ?? ''}'.trim();
-    return kind == 'out' && tech.isNotEmpty ? '$time · 技师 $tech' : time;
+    final payload = document['payload'];
+    final tech = '${payload?['technician'] ?? ''}'.trim();
+    final operator = '${payload?['operator'] ?? ''}'.trim();
+    if (kind == 'out' && tech.isNotEmpty) return '$time · 技师 $tech';
+    return kind == 'in' && operator.isNotEmpty ? '$time · 经办 $operator' : time;
   }
 
   String get documentSupplier => '${document['payload']?['supplier'] ?? ''}';
@@ -161,8 +163,13 @@ class InventoryManagementController extends ChangeNotifier {
   String get documentReason => '${document['payload']?['reason'] ?? ''}';
   String get documentWorkorder =>
       '${document['payload']?['workorder'] ?? '未关联'}';
-  String get documentOperator =>
-      '${document['payload']?['technician'] ?? '店主'}';
+
+  /// 单据信息里的「经办」：服务端记录的操作人；历史单据没有记录显示「—」。
+  String get documentOperator {
+    final v = '${document['payload']?['operator'] ?? ''}'.trim();
+    return v.isEmpty ? '—' : v;
+  }
+
   String get documentExpense =>
       document['expense'] != null && document['expense']['deleted'] != true
       ? '是 · ${money(document['expense']['amount'])}'

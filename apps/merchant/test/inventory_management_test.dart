@@ -13,6 +13,7 @@ import 'members_test.dart' show MemberFakeApi, phone;
 
 class _Api extends MemberFakeApi {
   bool withVouchers = false;
+  bool withOperator = false;
   final calls = <Map<String, dynamic>>[];
   @override
   Future<Map<String, dynamic>> invoke(
@@ -75,6 +76,7 @@ class _Api extends MemberFakeApi {
               {'id': 'p', 'quantity': 2.5, 'cost': 10},
             ],
             if (withVouchers) 'attachments': ['s/a.png', 's/b.png'],
+            if (withOperator) 'operator': '陈明（店长）',
           },
           if (withVouchers)
             'attachment_urls': {
@@ -219,6 +221,17 @@ void main() {
             w is Text &&
             RegExp(r'^(\d{4}\.)?\d{2}\.\d{2} \d{2}:\d{2}$')
                 .hasMatch(w.data ?? ''),
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('入库单详情顶部：时间后面是「经办 xxx」（服务端记录的操作人），历史单据不显示', (t) async {
+    api.withOperator = true;
+    await open(t, 'document', id: '12345678-aaaa-bbbb-cccc-111111111111');
+    expect(
+      find.byWidgetPredicate(
+        (w) => w is Text && RegExp(r' · 经办 陈明（店长）$').hasMatch(w.data ?? ''),
       ),
       findsOneWidget,
     );
