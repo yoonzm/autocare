@@ -144,8 +144,18 @@ class InventoryManagementController extends ChangeNotifier {
   String get documentCode => code(document);
   String get documentState =>
       mode == 'docs' ? ['已入库', '已出库'][tab] : state(document);
-  String get documentDate =>
-      '${document['posted_at'] ?? document['created_at'] ?? ''}';
+
+  /// 顶部卡片最下面一行：「今天 10:36」，出库单带上技师（「今天 09:12 · 技师 周强」）。
+  // TODO document_operator: 设计稿入库单还有「· 经办 陈明」，库存单据目前没有记录经办人，
+  // 预期后端在提交单据时保存操作人（inventory_document_save 增加 operator）。
+  String get documentDate {
+    final time = documentTime(
+      '${document['posted_at'] ?? document['created_at'] ?? ''}',
+    );
+    final tech = '${document['payload']?['technician'] ?? ''}'.trim();
+    return kind == 'out' && tech.isNotEmpty ? '$time · 技师 $tech' : time;
+  }
+
   String get documentSupplier => '${document['payload']?['supplier'] ?? ''}';
   String get documentPayment => '${document['payload']?['payment'] ?? ''}';
   String get documentReason => '${document['payload']?['reason'] ?? ''}';

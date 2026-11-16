@@ -4,6 +4,8 @@ import 'dart:ui' as ui;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:autocare_merchant/pages/inventory/inventory_controller.dart'
+    show documentTime;
 import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/pages/inventory/inventory_management_page.dart';
 
@@ -186,5 +188,39 @@ void main() {
     await open(t, 'document', id: '12345678-aaaa-bbbb-cccc-111111111111');
     expect(find.textContaining('送货单'), findsNothing);
     expect(find.text('查看附件'), findsNothing);
+  });
+
+  test('单据时间：北京时间，今天 / 昨天 / 今年 / 跨年', () {
+    // 现在 = 北京时间 2026-11-16 21:00
+    final now = DateTime.utc(2026, 11, 16, 13, 0);
+    expect(documentTime('2026-11-16T02:36:00+00:00', now: now), '今天 10:36');
+    expect(
+      documentTime('2026-11-16T12:54:33.558918+00:00', now: now),
+      '今天 20:54',
+    );
+    expect(
+      documentTime('2026-11-15T16:30:00Z', now: now),
+      '今天 00:30',
+    ); // 北京 11-16 00:30
+    expect(documentTime('2026-11-15T09:05:00Z', now: now), '昨天 17:05');
+    expect(documentTime('2026-10-31T02:36:00Z', now: now), '10.31 10:36');
+    expect(documentTime('2025-10-31T02:36:00Z', now: now), '2025.10.31 10:36');
+    expect(documentTime('不是时间', now: now), '不是时间');
+  });
+
+  testWidgets('入库单详情顶部显示格式化的时间，不是原始时间串', (t) async {
+    await open(t, 'document', id: '12345678-aaaa-bbbb-cccc-111111111111');
+    expect(find.textContaining('T00:00'), findsNothing);
+    expect(find.textContaining('+00:00'), findsNothing);
+    expect(find.text('2026-11-08'), findsNothing);
+    expect(
+      find.byWidgetPredicate(
+        (w) =>
+            w is Text &&
+            RegExp(r'^(\d{4}\.)?\d{2}\.\d{2} \d{2}:\d{2}$')
+                .hasMatch(w.data ?? ''),
+      ),
+      findsOneWidget,
+    );
   });
 }

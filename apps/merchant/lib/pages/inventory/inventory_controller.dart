@@ -58,6 +58,24 @@ String dateLabel(String iso) {
   return d.year == now.year ? md : '${d.year}.$md';
 }
 
+/// 单据时间（设计稿「今天 10:36」）：按北京时间显示；今天「今天 10:36」、昨天「昨天 10:36」、
+/// 今年其他日期「10.31 10:36」、跨年「2025.10.31 10:36」。无法解析时原样返回。
+String documentTime(String iso, {DateTime? now}) {
+  final at = DateTime.tryParse(iso);
+  if (at == null) return iso;
+  DateTime bj(DateTime d) => d.toUtc().add(const Duration(hours: 8));
+  final d = bj(at), n = bj(now ?? DateTime.now());
+  String two(int v) => v.toString().padLeft(2, '0');
+  final hm = '${two(d.hour)}:${two(d.minute)}';
+  final day = DateTime.utc(d.year, d.month, d.day);
+  final today = DateTime.utc(n.year, n.month, n.day);
+  final diff = today.difference(day).inDays;
+  if (diff == 0) return '今天 $hm';
+  if (diff == 1) return '昨天 $hm';
+  final md = '${two(d.month)}.${two(d.day)}';
+  return d.year == n.year ? '$md $hm' : '${d.year}.$md $hm';
+}
+
 String money(num n) => '¥${n.toStringAsFixed(2)}';
 List<Map<String, dynamic>> maps(dynamic v) =>
     (v as List? ?? []).map((e) => Map<String, dynamic>.from(e as Map)).toList();
