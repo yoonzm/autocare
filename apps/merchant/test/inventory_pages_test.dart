@@ -11,6 +11,7 @@ import 'members_test.dart' show MemberFakeApi, app, phone;
 class _InvApi extends MemberFakeApi {
   Object? failList;
   bool allSafe = false;
+  final values = <String, num>{};
   @override
   Future<Map<String, dynamic>> invoke(
     Map<String, dynamic> body, {
@@ -32,7 +33,7 @@ class _InvApi extends MemberFakeApi {
               'safe': 5,
               'low': true,
               'cost': 68,
-              'stock_value': 100,
+              'stock_value': values['p1'] ?? 100,
               'location': 'B-01',
               'sku': 'DJ-1',
               'expiring': false,
@@ -45,7 +46,7 @@ class _InvApi extends MemberFakeApi {
             'stock': 9,
             'safe': 3,
             'cost': 12.5,
-            'stock_value': 100,
+            'stock_value': values['p2'] ?? 100,
             'location': '',
             'sku': '',
             'expiring': true,
@@ -58,7 +59,7 @@ class _InvApi extends MemberFakeApi {
             'stock': 20,
             'safe': 3,
             'cost': 30,
-            'stock_value': 100,
+            'stock_value': values['p3'] ?? 100,
             'location': 'C-01',
             'sku': '',
             'expiring': false,
@@ -245,5 +246,27 @@ void main() {
     await t.tap(find.text('出库单'));
     await t.pumpAndSettle();
     expect(selected('全部'), isTrue, reason: '切换单据类型后状态回到全部');
+  });
+
+  testWidgets('库存价值构成：占比相加正好是 100%，价值为 0 的分类 0%，很小的分类至少 1%', (t) async {
+    phone(t);
+    api.values.addAll({'p1': 1, 'p2': 1, 'p3': 1});
+    await t.pumpWidget(app(InventoryPage(key: UniqueKey())));
+    await t.pumpAndSettle();
+    // 三个分类里镀晶 1 份、洗护 2 份 → 33% + 67%
+    expect(find.text('镀晶 33%'), findsOneWidget);
+    expect(find.text('洗护 67%'), findsOneWidget);
+
+    api.values.addAll({'p1': 0, 'p2': 1, 'p3': 0});
+    await t.pumpWidget(app(InventoryPage(key: UniqueKey())));
+    await t.pumpAndSettle();
+    expect(find.text('镀晶 0%'), findsOneWidget);
+    expect(find.text('洗护 100%'), findsOneWidget);
+
+    api.values.addAll({'p1': 1, 'p2': 10000, 'p3': 0});
+    await t.pumpWidget(app(InventoryPage(key: UniqueKey())));
+    await t.pumpAndSettle();
+    expect(find.text('镀晶 1%'), findsOneWidget); // 0.01% 也至少显示 1%
+    expect(find.text('洗护 99%'), findsOneWidget);
   });
 }

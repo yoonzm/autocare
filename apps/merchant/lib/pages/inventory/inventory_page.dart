@@ -305,39 +305,63 @@ class _InventoryPageState extends State<InventoryPage> {
     );
   }
 
-  Widget _overview() {
-    int share(String category) {
-      final total = products.fold<double>(
-        0,
-        (v, p) => v + (p.data['stock_value'] as num).toDouble(),
-      );
-      return total == 0
-          ? 0
-          : (100 *
-                    products
-                        .where((p) => p.category == category)
-                        .fold<double>(
-                          0,
-                          (v, p) =>
-                              v + (p.data['stock_value'] as num).toDouble(),
-                        ) /
-                    total)
-                .round();
-    }
-
-    final segs = [
-      for (final entry in {for (final p in products) p.category}.indexed)
-        (
-          entry.$2,
-          share(entry.$2),
-          [
-            C.ink,
-            C.primary,
-            const Color(0xFF7CC4FB),
-            const Color(0xFFD4D4D8),
-          ][entry.$1 % 4],
-        ),
+  /// 库存价值构成：按分类汇总库存价值（批次数量 × 成本），占比用「最大余数法」取整，
+  /// 保证各项相加正好是 100%；价值为 0 的分类占比 0，价值很小但不为 0 的至少显示 1%。
+  List<(String, int, Color)> _shares() {
+    const palette = [
+      Color(0xFF18181B),
+      C.primary,
+      Color(0xFF7CC4FB),
+      Color(0xFFD4D4D8),
     ];
+    final cats = <String>[];
+    final values = <String, double>{};
+    for (final p in products) {
+      if (!values.containsKey(p.category)) cats.add(p.category);
+      values[p.category] =
+          (values[p.category] ?? 0) +
+          (p.data['stock_value'] as num? ?? 0).toDouble();
+    }
+    final total = values.values.fold<double>(0, (a, b) => a + b);
+    final percent = <String, int>{for (final c in cats) c: 0};
+    if (total > 0) {
+      final exact = {for (final c in cats) c: values[c]! * 100 / total};
+      for (final c in cats) {
+        percent[c] = exact[c]!.floor();
+      }
+      var left = 100 - percent.values.fold<int>(0, (a, b) => a + b);
+      final order = [...cats]
+        ..sort(
+          (x, y) => (exact[y]! - exact[y]!.floor()).compareTo(
+            exact[x]! - exact[x]!.floor(),
+          ),
+        );
+      for (final c in order) {
+        if (left <= 0) break;
+        if (exact[c]! > 0) {
+          percent[c] = percent[c]! + 1;
+          left--;
+        }
+      }
+      // 价值很小但不为 0 的分类至少显示 1%（从占比最大的分类里扣）。
+      for (final c in cats) {
+        if (values[c]! > 0 && percent[c] == 0) {
+          final big = cats.reduce((x, y) => percent[x]! >= percent[y]! ? x : y);
+          if (percent[big]! > 1) {
+            percent[big] = percent[big]! - 1;
+            percent[c] = 1;
+          }
+        }
+      }
+    }
+    return [
+      for (final e in cats.indexed)
+        (e.$2, percent[e.$2]!, palette[e.$1 % palette.length]),
+    ];
+  }
+
+  Widget _overview() {
+    final segs = _shares();
     return AppCard(
       padding: const EdgeInsets.all(18),
       child: Column(
@@ -379,21 +403,28 @@ class _InventoryPageState extends State<InventoryPage> {
           const SizedBox(height: 14),
           SizedBox(
             height: 10,
-            child: Row(
-              children: [
-                for (var i = 0; i < segs.length; i++)
-                  Expanded(
-                    flex: segs[i].$2 == 0 ? 1 : segs[i].$2,
-                    child: Container(
-                      margin: EdgeInsets.only(left: i == 0 ? 0 : 3),
-                      decoration: BoxDecoration(
-                        color: segs[i].$2 == 0 ? C.chip : segs[i].$3,
-                        borderRadius: BorderRadius.circular(5),
-                      ),
+            child: segs.every((e) => e.$2 == 0)
+                ? Container(
+                    decoration: BoxDecoration(
+                      color: C.chip,
+                      borderRadius: BorderRadius.circular(5),
                     ),
+                  )
+                : Row(
+                    children: [
+                      for (final e in segs.where((e) => e.$2 > 0).indexed)
+                        Expanded(
+                          flex: e.$2.$2,
+                          child: Container(
+                            margin: EdgeInsets.only(left: e.$1 == 0 ? 0 : 3),
+                            decoration: BoxDecoration(
+                              color: e.$2.$3,
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
-              ],
-            ),
           ),
           const SizedBox(height: 14),
           Wrap(
