@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../backend/member_flow.dart' show plateText;
+import '../members/member_route_data.dart';
 import 'order_list_controller.dart';
 import 'order_detail_ref.dart';
 import '../../backend/data_snapshot.dart';
@@ -925,7 +926,11 @@ class _DetailBody extends StatelessWidget {
               const SizedBox(height: 16),
               GestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onTap: () => openRoute(context, 'MemberDetail'),
+                onTap: () => openRoute(
+                  context,
+                  'MemberDetail',
+                  arguments: MemberRouteData(member: member),
+                ),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,

@@ -409,6 +409,21 @@ void main() {
     expect(find.text('补打小票'), findsNothing);
   });
 
+  testWidgets('订单详情点会员卡片：带着会员进入会员详情，不会提示内容不存在', (t) async {
+    merchantApi = _RechargeDetail(api);
+    await open(
+      t,
+      const OrderDetailLivePage(
+        order: OrderDetailRef(kind: 'recharge', id: 'r1'),
+      ),
+    );
+    await t.tap(find.text('余额 ¥3,420'));
+    await t.pumpAndSettle();
+    expect(find.text('请先选择会员'), findsNothing);
+    expect(find.text('内容不存在或已删除'), findsNothing);
+    expect(navTracker.stack.last.settings.name, 'MemberDetail');
+  });
+
   test('金额与日期文字：千分位、整数不带小数、负数、日期分组标题', () {
     expect(OrderListController.money(1422), '¥1,422');
     expect(OrderListController.money(68.5), '¥68.50');
