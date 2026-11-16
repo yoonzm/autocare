@@ -147,6 +147,26 @@ class _InventoryPageState extends State<InventoryPage> {
               ),
               const SizedBox(width: 8),
               GestureDetector(
+                onTap: () => openRoute(context, 'StockOut'),
+                child: Container(
+                  height: 44,
+                  padding: const EdgeInsets.fromLTRB(12, 0, 16, 0),
+                  decoration: BoxDecoration(
+                    color: C.card,
+                    borderRadius: BorderRadius.circular(22),
+                    boxShadow: softShadow,
+                  ),
+                  child: Row(
+                    children: [
+                      AppIcon('arrowOut', size: 18, color: C.ink),
+                      const SizedBox(width: 6),
+                      Text('出库', style: ts(14, w: FontWeight.w500, h: 20)),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              GestureDetector(
                 onTap: () => openRoute(context, 'StockIn'),
                 child: Container(
                   height: 44,
@@ -176,22 +196,6 @@ class _InventoryPageState extends State<InventoryPage> {
           ),
           const SizedBox(height: 16),
           _overview(),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              _action(context, '入库', 'arrowIn', C.greenSoft, C.greenInk),
-              const SizedBox(width: 10),
-              _action(context, '出库', 'arrowOut', C.amberSoft, C.amberInk),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              _entry(context, '全部商品', '${products.length} 项', 'ProductList'),
-              const SizedBox(width: 10),
-              _entry(context, '库存单据', '入库 / 出库', 'StockDocs'),
-            ],
-          ),
           const SizedBox(height: 16),
           Segmented(
             labels: _cats,
@@ -264,6 +268,35 @@ class _InventoryPageState extends State<InventoryPage> {
                   _row(context, list[i]),
                   if (i < list.length - 1) const Divider1(indent: 72),
                 ],
+                if (list.isNotEmpty)
+                  Container(
+                    height: 1,
+                    margin: const EdgeInsets.symmetric(horizontal: 16),
+                    color: C.line,
+                  ),
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => openRoute(context, 'ProductList'),
+                  child: SizedBox(
+                    height: 48,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          '查看全部商品 · ${products.length} 项',
+                          style: ts(
+                            14,
+                            w: FontWeight.w500,
+                            color: C.primaryInk,
+                            h: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        AppIcon('chevronRight', size: 16, color: C.primaryInk),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -389,64 +422,45 @@ class _InventoryPageState extends State<InventoryPage> {
                 ),
             ],
           ),
+          const SizedBox(height: 14),
+          // 库存单据入口：放在总览卡片底部（设计稿 InventoryV1）。
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => openRoute(context, 'StockDocs'),
+            child: Container(
+              padding: const EdgeInsets.only(top: 14),
+              decoration: BoxDecoration(
+                border: Border(top: BorderSide(color: C.line)),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 28,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      color: C.chip,
+                      borderRadius: BorderRadius.circular(9),
+                    ),
+                    child: AppIcon('document', size: 16, color: C.sub),
+                  ),
+                  const SizedBox(width: 8),
+                  Text('库存单据', style: ts(14, w: FontWeight.w500, h: 20)),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      '入库 / 出库记录',
+                      style: ts(12, color: C.muted, h: 16),
+                    ),
+                  ),
+                  AppIcon('chevronRight', size: 16, color: C.faint),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
-
-  /// 全部商品 / 库存单据入口（设计稿 Inventory：两张并排的白色卡片，右侧箭头）。
-  Widget _entry(BuildContext context, String title, String sub, String route) =>
-      Expanded(
-        child: AppCard(
-          radius: 20,
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          onTap: () => openRoute(context, route),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title, style: ts(14, w: FontWeight.w500, h: 20)),
-                    Text(sub, style: ts(12, color: C.muted, h: 16)),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              AppIcon('chevronRight', size: 16, color: C.faint),
-            ],
-          ),
-        ),
-      );
-
-  Widget _action(
-    BuildContext context,
-    String t,
-    String i,
-    Color bg,
-    Color fg,
-  ) => Expanded(
-    child: AppCard(
-      radius: 20,
-      padding: const EdgeInsets.all(12),
-      onTap: () => openRoute(context, {'入库': 'StockIn', '出库': 'StockOut'}[t]!),
-      child: Row(
-        children: [
-          Container(
-            width: 34,
-            height: 34,
-            decoration: BoxDecoration(
-              color: bg,
-              borderRadius: BorderRadius.circular(11),
-            ),
-            child: AppIcon(i, size: 18, color: fg),
-          ),
-          const SizedBox(width: 10),
-          Text(t, style: ts(14, w: FontWeight.w500, h: 20)),
-        ],
-      ),
-    ),
-  );
 
   Widget _row(BuildContext context, InventoryProduct p) {
     final low = p.data['low'] == true;

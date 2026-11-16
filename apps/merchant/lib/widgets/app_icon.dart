@@ -37,6 +37,8 @@ const Map<String, String> _icons = {
   'chevronDown': '<path d="M6 9l6 6 6-6"/>',
   'bell': '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/>',
   'trendUp': '<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>',
+  'document':
+      '<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/>',
   'receipt':
       '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>',
   'card': '<rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10h18M16 14.5h2"/>',

@@ -212,6 +212,14 @@ void main() {
     await t.pumpAndSettle();
     expect(find.text('1 项低于安全库存'), findsOneWidget);
     expect(find.text('去补货'), findsOneWidget);
+    // 一期（无盘点）设计：头部是扫码、出库、入库；库存单据在总览卡片底部；全部商品是列表末尾的链接。
+    expect(find.text('出库'), findsOneWidget);
+    expect(find.text('入库'), findsOneWidget);
+    expect(find.text('库存单据'), findsOneWidget);
+    expect(find.text('入库 / 出库记录'), findsOneWidget);
+    expect(find.textContaining('查看全部商品 · 3 项'), findsOneWidget);
+    expect(find.text('全部商品'), findsNothing, reason: '不再有单独的全部商品卡片');
+    expect(find.text('入库 / 出库'), findsNothing, reason: '不再有并排的入口卡片');
   });
 
   testWidgets('库存首页：没有低于安全库存的商品时不显示预警卡片', (t) async {
