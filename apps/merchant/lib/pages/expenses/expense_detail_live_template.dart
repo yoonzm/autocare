@@ -489,6 +489,27 @@ class ExpenseDetailLiveTemplate extends StatelessWidget {
                     gap: 14,
                   ),
                 ),
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => c.save(context, remove: true),
+                  child: hbox(
+                    h: 44,
+                    child: Align(
+                      alignment: Alignment(0, 0),
+                      child: c.busyLabel(
+                        Text(
+                          '删除这笔开支',
+                          style: hts(
+                            14,
+                            dk(context, Color(0xFFD92D31), Color(0xFFFF7B7E)),
+                            w: FontWeight.w500,
+                            lh: 20,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ],
               main: MainAxisAlignment.start,
               cross: CrossAxisAlignment.stretch,
@@ -530,40 +551,9 @@ class ExpenseDetailLiveTemplate extends StatelessWidget {
             pad: EdgeInsets.fromLTRB(20, 12, 20, bottomInset(context)),
             child: hrow(
               [
-                Expanded(
-                  flex: 8,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => c.save(context, remove: true),
-                    child: hbox(
-                      h: 50,
-                      bg: dk(
-                        context,
-                        Color(0xFFFFE1E2),
-                        Color.fromRGBO(255, 56, 60, 0.18),
-                      ),
-                      radius: BorderRadius.circular(25),
-                      child: Align(
-                        alignment: Alignment(0, 0),
-                        widthFactor: 1,
-                        child: c.busyLabel(
-                          Text(
-                            '删除',
-                            style: hts(
-                              15,
-                              dk(context, Color(0xFFA43433), Color(0xFFFF7B7E)),
-                              w: FontWeight.w500,
-                              lh: 22,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
                 if (c.draft['status'] == 'unpaid')
                   Expanded(
-                    flex: 14,
+                    flex: 3,
                     child: GestureDetector(
                       behavior: HitTestBehavior.opaque,
                       onTap: () => c.markPaid(context, c.draft),
@@ -590,28 +580,41 @@ class ExpenseDetailLiveTemplate extends StatelessWidget {
                     ),
                   ),
                 Expanded(
-                  flex: 12,
+                  flex: c.draft['status'] == 'unpaid' ? 2 : 1,
                   child: GestureDetector(
                     behavior: HitTestBehavior.opaque,
                     onTap: () => c.open(context, 'add', id: c.draft['id']),
                     child: hbox(
                       h: 50,
-                      bg: dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                      bg: c.draft['status'] == 'unpaid'
+                          ? dk(context, Color(0xFFEEEEF0), Color(0xFF27272A))
+                          : dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
                       radius: BorderRadius.circular(25),
                       child: hrow(
                         [
-                          hsvg(dk(context, Svgs.s144, Svgs.s145), w: 18, h: 18),
+                          if (c.draft['status'] != 'unpaid')
+                            hsvg(
+                              dk(context, Svgs.s144, Svgs.s145),
+                              w: 18,
+                              h: 18,
+                            ),
                           Flexible(
                             flex: 30,
                             child: Text(
                               '编辑',
                               style: hts(
                                 15,
-                                dk(
-                                  context,
-                                  Color(0xFFFFFFFF),
-                                  Color(0xFF18181B),
-                                ),
+                                c.draft['status'] == 'unpaid'
+                                    ? dk(
+                                        context,
+                                        Color(0xFF18181B),
+                                        Color(0xFFFAFAFA),
+                                      )
+                                    : dk(
+                                        context,
+                                        Color(0xFFFFFFFF),
+                                        Color(0xFF18181B),
+                                      ),
                                 w: FontWeight.w600,
                                 lh: 22,
                               ),

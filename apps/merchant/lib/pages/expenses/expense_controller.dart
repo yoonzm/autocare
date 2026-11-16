@@ -221,8 +221,8 @@ class ExpenseController extends ChangeNotifier {
   /// 正在确认付款的记录 id（列表/详情据此显示「处理中…」）。
   final paying = <String>{};
 
-  /// 待付款 → 已付款。列表里的记录没有 `repeat` 等保存必需字段，所以先按 id 取完整记录，
-  /// 只改付款状态再保存；失败时原样保留，页面不变。
+  /// 待付款 → 已付款。先弹确认，避免误点；确认后列表项没有 `repeat` 等保存必需字段，
+  /// 所以按 id 取完整记录，只改付款状态再保存。失败时弹层保持打开并提示原因，页面不变。
   Future<void> markPaid(
     BuildContext context,
     Map<String, dynamic> record,
@@ -234,29 +234,40 @@ class ExpenseController extends ChangeNotifier {
         record['status'] != 'unpaid') {
       return;
     }
-    paying.add(id);
-    setBusy(true);
-    var ok = false;
-    try {
-      final got = await request({
-        'action': 'expense_get',
-        'month': month,
-        'id': id,
-      });
-      final item = expenseCopy(Map<String, dynamic>.from(got['item'] as Map));
-      if (item['status'] == 'unpaid') {
-        item['status'] = 'paid';
-        await request({...item, 'action': 'expense_save'}, write: true);
-      }
-      ok = true;
-      expenseChanged.value++;
-    } catch (e) {
-      if (context.mounted && !disposed) AppToast.error(context, e);
-    } finally {
-      paying.remove(id);
-      setBusy(false);
-    }
-    if (ok && context.mounted && !disposed) {
+    final payee = '${record['payee'] ?? ''}'.trim();
+    final confirmed = await hConfirm(
+      context,
+      '确认已付款？',
+      message:
+          '${payee.isEmpty ? record['category'] : payee} · ${expenseMoney(record['amount'] as num)}\n确认后这笔开支会标记为已付款',
+      ok: '确认付款',
+      danger: false,
+      onConfirm: () async {
+        paying.add(id);
+        setBusy(true);
+        try {
+          final got = await request({
+            'action': 'expense_get',
+            'month': month,
+            'id': id,
+          });
+          final item = expenseCopy(
+            Map<String, dynamic>.from(got['item'] as Map),
+          );
+          if (item['status'] == 'unpaid') {
+            item['status'] = 'paid';
+            await request({...item, 'action': 'expense_save'}, write: true);
+          }
+        } finally {
+          paying.remove(id);
+          setBusy(false);
+        }
+      },
+    );
+    if (!confirmed) return;
+    // 必须在 busy 解除之后再通知：页面在 busy 时会把刷新挂起，且没有别的信号唤醒它。
+    expenseChanged.value++;
+    if (context.mounted && !disposed) {
       AppToast.show(context, '已确认付款', kind: ToastKind.success);
     }
   }

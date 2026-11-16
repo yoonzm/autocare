@@ -38,6 +38,7 @@ class ExpenseApi extends MemberFakeApi {
   Completer<Map<String, dynamic>>? write, suggestion;
   bool deferBoards = false, deferEntries = false;
   Map<String, dynamic>? getOverride;
+  bool unpaidBoard = false;
   final boards = <Completer<Map<String, dynamic>>>[],
       entries = <Completer<Map<String, dynamic>>>[];
   @override
@@ -49,7 +50,18 @@ class ExpenseApi extends MemberFakeApi {
     calls.add({'body': body, 'requestId': requestId});
     switch (body['action']) {
       case 'expense_board':
-        if (!deferBoards) return {'item': board()};
+        if (!deferBoards) {
+          return {
+            'item': unpaidBoard
+                ? {
+                    ...board(),
+                    'items': [
+                      {...entry('u1'), 'status': 'unpaid'},
+                    ],
+                  }
+                : board(),
+          };
+        }
         final c = Completer<Map<String, dynamic>>();
         boards.add(c);
         return c.future;
@@ -395,8 +407,12 @@ void main() {
     await t.pump();
     expect(find.text('确认付款'), findsOneWidget);
     await t.tap(find.text('确认付款'));
+    await t.pump(const Duration(milliseconds: 400));
+    expect(api.writes, isEmpty, reason: '点列表上的按钮只弹确认，不直接付款');
+    expect(find.text('确认已付款？'), findsOneWidget);
+    await t.tap(find.text('确认付款').last);
     await t.pump();
-    await t.pump(const Duration(milliseconds: 50));
+    await t.pumpAndSettle(const Duration(seconds: 1));
     final body = api.writes.single['body'] as Map;
     expect(body['status'], 'paid');
     expect(body['repeat'], true);
@@ -432,12 +448,16 @@ void main() {
     );
     await t.pump();
     await t.tap(find.text('确认付款'));
+    await t.pump(const Duration(milliseconds: 400));
+    await t.tap(find.text('确认付款').last);
     await t.pump();
-    await t.pump(const Duration(milliseconds: 50));
+    await t.pump(const Duration(seconds: 2));
     expect(changed, 0);
     expect(c.paying, isEmpty);
     expect(c.busy, isFalse);
-    expect(find.text('确认付款'), findsOneWidget);
+    expect(find.text('确认已付款？'), findsOneWidget, reason: '失败时弹层保持打开可重试');
+    await t.tap(find.text('取消'));
+    await t.pumpAndSettle(const Duration(seconds: 1));
     expenseChanged.removeListener(on);
     c.dispose();
     await t.pumpAndSettle(const Duration(seconds: 5));
@@ -463,6 +483,8 @@ void main() {
         status == 'unpaid' ? findsOneWidget : findsNothing,
       );
       expect(find.text('编辑'), findsOneWidget);
+      expect(find.text('删除这笔开支'), findsOneWidget, reason: '删除放在内容底部，不占底部按钮栏');
+      expect(find.text('删除'), findsNothing);
       c.dispose();
     }
   });
@@ -490,5 +512,33 @@ void main() {
     expect(t.getTopLeft(find.text('开支管理')), title);
     expect(t.getTopLeft(find.text(c.monthLabel)).dy, lessThan(month.dy));
     c.dispose();
+  });
+
+  testWidgets('确认付款：点取消不请求；确认成功后列表立即重新读取', (t) async {
+    phone(t);
+    api.getOverride = {...entry('u1'), 'status': 'unpaid'};
+    api.unpaidBoard = true;
+    await t.pumpWidget(
+      MaterialApp(
+        home: ExpenseLivePage(mode: 'list', month: '2026-11-01'),
+      ),
+    );
+    await t.pumpAndSettle(const Duration(seconds: 1));
+    int boards() =>
+        api.calls.where((x) => x['body']['action'] == 'expense_board').length;
+    final before = boards();
+    await t.tap(find.text('确认付款'));
+    await t.pump(const Duration(milliseconds: 400));
+    await t.tap(find.text('取消'));
+    await t.pump(const Duration(milliseconds: 400));
+    expect(api.writes, isEmpty);
+    expect(boards(), before);
+    await t.tap(find.text('确认付款'));
+    await t.pump(const Duration(milliseconds: 400));
+    await t.tap(find.text('确认付款').last);
+    await t.pump(const Duration(milliseconds: 400));
+    await t.pumpAndSettle(const Duration(seconds: 1));
+    expect(api.writes.single['body']['status'], 'paid');
+    expect(boards(), greaterThan(before), reason: '确认成功后列表要重新读取');
   });
 }
