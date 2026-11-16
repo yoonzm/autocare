@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
+import 'package:autocare_merchant/pages/inventory/inventory_page.dart';
 import 'package:autocare_merchant/routes.dart';
 
 import 'members_test.dart' show MemberFakeApi, app, phone;
 
 class _InvApi extends MemberFakeApi {
   Object? failList;
+  bool allSafe = false;
   @override
   Future<Map<String, dynamic>> invoke(
     Map<String, dynamic> body, {
@@ -18,19 +20,21 @@ class _InvApi extends MemberFakeApi {
       if (failList != null) throw failList!;
       return {
         'items': [
-          {
-            'id': 'p1',
-            'name': '真实镀晶剂',
-            'category': '镀晶',
-            'unit': '瓶',
-            'stock': 2,
-            'safe': 5,
-            'low': true,
-            'cost': 68,
-            'location': 'B-01',
-            'sku': 'DJ-1',
-            'expiring': false,
-          },
+          if (!allSafe)
+            {
+              'id': 'p1',
+              'name': '真实镀晶剂',
+              'category': '镀晶',
+              'unit': '瓶',
+              'stock': 2,
+              'safe': 5,
+              'low': true,
+              'cost': 68,
+              'stock_value': 100,
+              'location': 'B-01',
+              'sku': 'DJ-1',
+              'expiring': false,
+            },
           {
             'id': 'p2',
             'name': '真实玻璃水',
@@ -39,6 +43,7 @@ class _InvApi extends MemberFakeApi {
             'stock': 9,
             'safe': 3,
             'cost': 12.5,
+            'stock_value': 100,
             'location': '',
             'sku': '',
             'expiring': true,
@@ -51,6 +56,7 @@ class _InvApi extends MemberFakeApi {
             'stock': 20,
             'safe': 3,
             'cost': 30,
+            'stock_value': 100,
             'location': 'C-01',
             'sku': '',
             'expiring': false,
@@ -196,5 +202,22 @@ void main() {
       navTracker.stack.where((r) => r.settings.name == 'StockDocs').length,
       lessThanOrEqualTo(1),
     );
+  });
+
+  testWidgets('库存首页：有低于安全库存的商品才显示预警卡片', (t) async {
+    phone(t);
+    await t.pumpWidget(app(const InventoryPage()));
+    await t.pumpAndSettle();
+    expect(find.text('1 项低于安全库存'), findsOneWidget);
+    expect(find.text('去补货'), findsOneWidget);
+  });
+
+  testWidgets('库存首页：没有低于安全库存的商品时不显示预警卡片', (t) async {
+    api.allSafe = true;
+    phone(t);
+    await t.pumpWidget(app(const InventoryPage()));
+    await t.pumpAndSettle();
+    expect(find.textContaining('项低于安全库存'), findsNothing);
+    expect(find.text('去补货'), findsNothing);
   });
 }

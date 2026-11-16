@@ -199,56 +199,59 @@ class _InventoryPageState extends State<InventoryPage> {
             onChanged: (i) => setState(() => cat = i),
           ),
           const SizedBox(height: 16),
-          AppCard(
-            radius: 18,
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            child: Row(
-              children: [
-                Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: C.amberSoft,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: AppIcon('warn', size: 18, color: C.amberInk),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '${products.where((p) => p.data['low'] == true).length} 项低于安全库存',
-                        style: ts(14, w: FontWeight.w500, h: 20),
-                      ),
-                      Text(
-                        '另有 ${products.where((p) => p.expiring).length} 项将在 30 天内过期',
-                        style: ts(12, color: C.muted, h: 16),
-                      ),
-                    ],
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () => openRoute(context, 'ProductList'),
-                  child: Container(
+          // 没有低于安全库存的商品时不显示预警卡片。
+          if (products.any((p) => p.data['low'] == true)) ...[
+            AppCard(
+              radius: 18,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              child: Row(
+                children: [
+                  Container(
+                    width: 32,
                     height: 32,
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: C.chip,
-                      borderRadius: BorderRadius.circular(16),
+                      color: C.amberSoft,
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Text(
-                      '去补货',
-                      style: ts(13, w: FontWeight.w500, h: 18),
+                    child: AppIcon('warn', size: 18, color: C.amberInk),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${products.where((p) => p.data['low'] == true).length} 项低于安全库存',
+                          style: ts(14, w: FontWeight.w500, h: 20),
+                        ),
+                        Text(
+                          '另有 ${products.where((p) => p.expiring).length} 项将在 30 天内过期',
+                          style: ts(12, color: C.muted, h: 16),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              ],
+                  GestureDetector(
+                    onTap: () => openRoute(context, 'ProductList'),
+                    child: Container(
+                      height: 32,
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: C.chip,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Text(
+                        '去补货',
+                        style: ts(13, w: FontWeight.w500, h: 18),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
+            const SizedBox(height: 16),
+          ],
           if (list.isEmpty)
             EmptyView.firstTime(
               title: products.isEmpty ? '还没有库存商品' : '当前分类还没有商品',
