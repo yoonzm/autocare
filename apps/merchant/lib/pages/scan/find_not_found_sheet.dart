@@ -99,7 +99,7 @@ class FindNotFoundSheet extends StatelessWidget {
                         ),
                       ],
                       main: MainAxisAlignment.start,
-                      cross: CrossAxisAlignment.stretch,
+                      cross: CrossAxisAlignment.start,
                       gap: 0,
                     ),
                   ],
