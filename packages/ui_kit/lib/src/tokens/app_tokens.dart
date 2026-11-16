@@ -56,6 +56,9 @@ class AppTokens extends ThemeExtension<AppTokens> {
   // 文字
   final Color ink;
   final Color inkSub;
+
+  /// 页面灰底上的选择标签未选中文字（`#3F3F46`），比 [inkSub] 略深。
+  final Color inkChip;
   final Color inkMute;
   final Color inkFaint;
   final Color onPrimary;
@@ -107,6 +110,7 @@ class AppTokens extends ThemeExtension<AppTokens> {
     required this.requiredStar,
     required this.ink,
     required this.inkSub,
+    required this.inkChip,
     required this.inkMute,
     required this.inkFaint,
     required this.onPrimary,
@@ -155,6 +159,7 @@ class AppTokens extends ThemeExtension<AppTokens> {
     requiredStar: Color(0xFFA43433),
     ink: Color(0xFF18181B),
     inkSub: Color(0xFF52525B),
+    inkChip: Color(0xFF3F3F46),
     inkMute: Color(0xFF71717A),
     inkFaint: Color(0xFFA1A1AA),
     onPrimary: Color(0xFFFFFFFF),
@@ -203,6 +208,7 @@ class AppTokens extends ThemeExtension<AppTokens> {
     requiredStar: Color(0xFFFF7B7E),
     ink: Color(0xFFFAFAFA),
     inkSub: Color(0xFFA8A8B3),
+    inkChip: Color(0xFFD4D4D8),
     inkMute: Color(0xFF9A9AA3),
     inkFaint: Color(0xFF80808A),
     onPrimary: Color(0xFFFFFFFF),
@@ -254,9 +260,33 @@ class AppTokens extends ThemeExtension<AppTokens> {
   List<BoxShadow> get cardShadow => darkMode
       ? const [BoxShadow(color: Color(0xFF26262B), spreadRadius: 1)]
       : const [
-          BoxShadow(color: Color(0x0A000000), blurRadius: 4, offset: Offset(0, 2)),
-          BoxShadow(color: Color(0x0F000000), blurRadius: 2, offset: Offset(0, 1)),
+          BoxShadow(
+            color: Color(0x0A000000),
+            blurRadius: 4,
+            offset: Offset(0, 2),
+          ),
+          BoxShadow(
+            color: Color(0x0F000000),
+            blurRadius: 2,
+            offset: Offset(0, 1),
+          ),
           BoxShadow(color: Color(0x0F000000), blurRadius: 1),
+        ];
+
+  /// 分段控件选中块的阴影：浅色两层（设计稿），深色同卡片的 1px 细描边。
+  List<BoxShadow> get segmentShadow => darkMode
+      ? cardShadow
+      : const [
+          BoxShadow(
+            color: Color(0x0A000000),
+            blurRadius: 4,
+            offset: Offset(0, 2),
+          ),
+          BoxShadow(
+            color: Color(0x0F000000),
+            blurRadius: 2,
+            offset: Offset(0, 1),
+          ),
         ];
 
   // ───────── 字号：size/lineHeight · weight ─────────

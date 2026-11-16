@@ -7,6 +7,10 @@ import 'app_tap_target.dart';
 /// 形态：pill 胶囊（高 34）· tile 方块（高 38）· avatar 带头像（高 36）· option 方块选项（标题 + 副标题）。
 enum ChipKind { pill, tile, avatar, option }
 
+/// 标签所在的底：onCard 放在白色卡片里（未选中浅灰底，默认）· onPage 直接放在灰色页面上
+/// （未选中白底，否则和页面同色看不见）。选中样式两种底一致。
+enum ChipSurface { onCard, onPage }
+
 /// 选择标签。「选中」只有一种表达：浅蓝底 + 1.5px 内描边蓝 + 蓝字，三者同时出现；
 /// 未选中也预留同样的描边空间，切换时不抖动。选中状态只来自受控变量 [selected]。
 class AppChoiceChip extends StatelessWidget {
@@ -18,6 +22,7 @@ class AppChoiceChip extends StatelessWidget {
 
   /// 撑满可用宽度（单选操作弹层里一项一行）；默认按内容收缩。
   final bool expanded;
+  final ChipSurface surface;
   final VoidCallback? onTap;
   const AppChoiceChip({
     super.key,
@@ -27,6 +32,7 @@ class AppChoiceChip extends StatelessWidget {
     this.subtitle,
     this.avatarName,
     this.expanded = false,
+    this.surface = ChipSurface.onCard,
     this.onTap,
   });
 
@@ -34,6 +40,7 @@ class AppChoiceChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppTokens.of(context);
     final disabled = onTap == null;
+    final onPage = surface == ChipSurface.onPage;
     final (height, radius) = switch (kind) {
       ChipKind.pill => (34.0, 17.0),
       ChipKind.tile => (38.0, AppRadius.tile),
@@ -44,14 +51,22 @@ class AppChoiceChip extends StatelessWidget {
         ? t.inkFaint
         : selected
         ? t.primaryText
+        : onPage
+        ? t.inkChip
         : t.ink;
-    final bg = selected ? t.primarySoft : t.inset;
+    final bg = selected
+        ? t.primarySoft
+        : onPage
+        ? t.surface
+        : t.inset;
     return AppTapTarget(
       onTap: onTap,
       selected: selected,
       semanticLabel: subtitle == null ? label : '$label，$subtitle',
       minWidth: 0,
       minHeight: kind == ChipKind.option ? 0 : AppSpacing.minTap,
+      // 标签按设计高度（34 / 36 / 38）排版，44 的点击区只外扩、不撑大一行的高度。
+      hitSlopOnly: kind != ChipKind.option,
       builder: (context, pressed) {
         final body = switch (kind) {
           ChipKind.option => Column(
@@ -82,7 +97,9 @@ class AppChoiceChip extends StatelessWidget {
           width: expanded ? double.infinity : null,
           height: kind == ChipKind.option ? null : height,
           padding: EdgeInsets.symmetric(
-            horizontal: kind == ChipKind.avatar ? AppSpacing.s6 : AppSpacing.s14,
+            horizontal: kind == ChipKind.avatar
+                ? AppSpacing.s6
+                : AppSpacing.s14,
             vertical: kind == ChipKind.option ? AppSpacing.s10 : 0,
           ).copyWith(right: kind == ChipKind.avatar ? AppSpacing.s14 : null),
           decoration: BoxDecoration(
@@ -132,6 +149,9 @@ class AppChoiceGroup<T> extends StatelessWidget {
 
   /// 一项一行、撑满宽度；默认是按内容收缩的换行排列。
   final bool expanded;
+
+  /// 标签所在的底，见 [ChipSurface]。
+  final ChipSurface surface;
   const AppChoiceGroup({
     super.key,
     required this.items,
@@ -139,6 +159,7 @@ class AppChoiceGroup<T> extends StatelessWidget {
     required this.onChanged,
     this.kind = ChipKind.pill,
     this.expanded = false,
+    this.surface = ChipSurface.onCard,
   });
 
   @override
@@ -153,26 +174,30 @@ class AppChoiceGroup<T> extends StatelessWidget {
                 subtitle: items[i].subtitle,
                 avatarName: items[i].avatarName,
                 kind: kind,
+                surface: surface,
                 expanded: true,
                 selected: items[i].value == selected,
-                onTap: items[i].enabled ? () => onChanged(items[i].value) : null,
+                onTap: items[i].enabled
+                    ? () => onChanged(items[i].value)
+                    : null,
               ),
             ],
           ],
         )
       : Wrap(
-    spacing: AppSpacing.s8,
-    runSpacing: AppSpacing.s8,
-    children: [
-      for (final item in items)
-        AppChoiceChip(
-          label: item.label,
-          subtitle: item.subtitle,
-          avatarName: item.avatarName,
-          kind: kind,
-          selected: item.value == selected,
-          onTap: item.enabled ? () => onChanged(item.value) : null,
-        ),
-    ],
-  );
+          spacing: AppSpacing.s8,
+          runSpacing: AppSpacing.s8,
+          children: [
+            for (final item in items)
+              AppChoiceChip(
+                label: item.label,
+                subtitle: item.subtitle,
+                avatarName: item.avatarName,
+                kind: kind,
+                surface: surface,
+                selected: item.value == selected,
+                onTap: item.enabled ? () => onChanged(item.value) : null,
+              ),
+          ],
+        );
 }

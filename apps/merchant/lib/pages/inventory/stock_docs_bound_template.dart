@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:autocare_ui_kit/autocare_ui_kit.dart'
-    show AppChoiceGroup, AppSegmented, ChoiceItem, SegmentItem;
+    show AppChoiceGroup, AppSegmented, ChipSurface, ChoiceItem, SegmentItem;
 
 import '../../kit/kit.dart';
 import '../../kit/page_header.dart';
@@ -34,6 +34,7 @@ class StockDocsBoundTemplate extends StatelessWidget {
                   ],
                 ),
                 AppChoiceGroup<int>(
+                  surface: ChipSurface.onPage,
                   selected: c.status,
                   onChanged: c.selectDocumentStatus,
                   items: [

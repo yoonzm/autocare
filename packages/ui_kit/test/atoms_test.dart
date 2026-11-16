@@ -200,6 +200,47 @@ void main() {
       }
     });
 
+    testWidgets('标签放在灰色页面上（onPage）：未选中是白底，不会和页面同色；放在卡片里（onCard）仍是浅灰底', (t) async {
+      const tokens = AppTokens.light;
+      await pump(
+        t,
+        Row(
+          children: [
+            AppChoiceChip(label: '页面', selected: false, surface: ChipSurface.onPage, onTap: () {}),
+            AppChoiceChip(label: '卡片', selected: false, onTap: () {}),
+            AppChoiceChip(label: '选中', selected: true, surface: ChipSurface.onPage, onTap: () {}),
+          ],
+        ),
+      );
+      expect(backgroundBehind(t, '页面'), tokens.surface);
+      expect(backgroundBehind(t, '页面'), isNot(tokens.bg), reason: '未选中标签不能和页面底同色');
+      expect(t.widget<Text>(find.text('页面')).style!.color, tokens.inkChip);
+      expect(backgroundBehind(t, '卡片'), tokens.inset);
+      expect(backgroundBehind(t, '选中'), tokens.primarySoft, reason: '选中样式两种底一致');
+    });
+
+    testWidgets('标签按 34 高排版，点击区仍外扩到 44（上下各 5）', (t) async {
+      var taps = 0;
+      await pump(
+        t,
+        Padding(
+          padding: const EdgeInsets.all(12), // 给热区留出父级范围
+          child: AppChoiceChip(label: '草稿', selected: false, onTap: () => taps++),
+        ),
+      );
+      final box = t.getRect(find.ancestor(of: find.text('草稿'), matching: find.byType(Container)).first);
+      expect(box.height, 34, reason: '布局高度不被点击区撑大');
+      await t.tapAt(Offset(box.center.dx, box.top - 4));
+      await t.pump();
+      expect(taps, 1, reason: '34 高标签上方 4px 仍可点');
+      await t.tapAt(Offset(box.center.dx, box.bottom + 4));
+      await t.pump();
+      expect(taps, 2, reason: '下方 4px 仍可点');
+      await t.tapAt(Offset(box.center.dx, box.top - 8));
+      await t.pump();
+      expect(taps, 2, reason: '超出 44 热区不响应');
+    });
+
     testWidgets('选择标签组：单选互斥，禁用项跳过', (t) async {
       String? selected = 'a';
       await pump(

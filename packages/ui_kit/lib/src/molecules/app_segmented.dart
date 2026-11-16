@@ -45,7 +45,8 @@ class AppSegmented<T> extends StatelessWidget {
       ),
       child: Row(
         children: [
-          for (final item in items)
+          for (final (i, item) in items.indexed) ...[
+            if (i > 0) const SizedBox(width: 2),
             Expanded(
               child: AppTapTarget(
                 selected: item.value == selected,
@@ -62,7 +63,7 @@ class AppSegmented<T> extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: active ? t.segmentActive : Colors.transparent,
                       borderRadius: BorderRadius.circular(16),
-                      boxShadow: active ? t.cardShadow : null,
+                      boxShadow: active ? t.segmentShadow : null,
                     ),
                     child: Text.rich(
                       TextSpan(
@@ -71,18 +72,19 @@ class AppSegmented<T> extends StatelessWidget {
                           if (item.badge > 0)
                             TextSpan(
                               text: ' ${item.badge}',
-                              style: TextStyle(color: toneColors(t, item.badgeTone).fg),
+                              style: TextStyle(
+                                color: toneColors(t, item.badgeTone).fg,
+                              ),
                             ),
                         ],
                       ),
-                      style: t.small.copyWith(
-                        color: active ? t.ink : t.inkSub,
-                      ),
+                      style: t.small.copyWith(color: active ? t.ink : t.inkSub),
                     ),
                   );
                 },
               ),
             ),
+          ],
         ],
       ),
     );

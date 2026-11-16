@@ -332,6 +332,7 @@ List<Widget> _choice(BuildContext context) => [
     notes: const [
       '选中 = 浅蓝底 + 1.5px 内描边蓝 + 蓝字，三者同时出现；未选中也预留同样空间，切换时不抖动。',
       '选中状态只来自一个受控变量 selected；同组最多一个。筛选、分类、客户来源、技师、支付方式都用这一个组件。',
+      '按设计高度排版（34 / 36 / 38），44 的点击区只外扩、不撑大一行；放在白卡片里用默认底（浅灰），直接放在灰色页面上用 surface: ChipSurface.onPage（白底）。',
     ],
     code: "AppChoiceGroup<int>(\n  items: [ChoiceItem(value: 1, label: '洗车'), ...],\n  selected: state.category,\n  onChanged: vm.setCategory,\n  kind: ChipKind.pill,   // tile | avatar | option\n)",
     children: [
@@ -346,6 +347,22 @@ List<Widget> _choice(BuildContext context) => [
         selected: v,
         onChanged: set,
       )),
+      const GroupLabel('页面灰底上的标签 · surface: ChipSurface.onPage（未选中白底）'),
+      Container(
+        padding: const EdgeInsets.all(12),
+        color: AppTokens.of(context).bg,
+        child: _Stateful<String>('草稿', (v, set) => AppChoiceGroup<String>(
+          surface: ChipSurface.onPage,
+          items: const [
+            ChoiceItem(value: '全部', label: '全部'),
+            ChoiceItem(value: '草稿', label: '草稿'),
+            ChoiceItem(value: '已入库', label: '已入库'),
+            ChoiceItem(value: '已作废', label: '已作废'),
+          ],
+          selected: v,
+          onChanged: set,
+        )),
+      ),
       const GroupLabel('方块 tile · 高 38'),
       _Stateful<String>('17:30', (v, set) => AppChoiceGroup<String>(
         kind: ChipKind.tile,

@@ -45,5 +45,5 @@ import 'package:autocare_ui_kit/autocare_ui_kit.dart';
 - `apps/admin/lib/ui.dart` 只保留后台自己的页面骨架（`AdPage`）和业务展示（`KV`、`ToneTile`、`pickOption`），并 `export` 本包；按钮、卡片、状态标签、列表行、输入框、开关、分段控件、弹层、对话框等一律用本包组件。
 - 提交类按钮只传 `loading`：页面自己维护加载状态，组件负责转圈、降透明度和防重复点击；对话框和弹层的异步确认用 `showAppDialog(onConfirm:)`，处理期间确认按钮 loading、取消不响应，失败时保持打开并提示。
 - 后台主题注册了 `AppTokens` 扩展，`test/theme_tokens_test.dart` 保证后台令牌 `C` 与 `AppTokens` 取值一致。
-- 迁移中补进本包的语义：`AppTextField`；`Tone.violet / gold / okOnDark / dark`；`SegmentItem.badgeTone`；`AppHeroCard.custom` 与渐变样式；`AppChoiceGroup(expanded)`；`AppIconButton(kind: primary)`；`AppSearchBar(keyboard)`；`showAppDialog(onConfirm / onError)`；`showAppBottomSheet(subtitle)`。
+- 迁移中补进本包的语义：`AppTextField`；`Tone.violet / gold / okOnDark / dark`；`SegmentItem.badgeTone`；`AppHeroCard.custom` 与渐变样式；`AppChoiceGroup(expanded)`；`ChipSurface.onCard / onPage`（标签所在的底，直接放在灰色页面上用 onPage）；标签点击区只外扩、不撑高一行（`AppTapTarget.hitSlopOnly`）；分段选项间距 2、选中块两层阴影（`segmentShadow`）；`AppIconButton(kind: primary)`；`AppSearchBar(keyboard)`；`showAppDialog(onConfirm / onError)`；`showAppBottomSheet(subtitle)`。
 - 后台端没有迁移的：底部 4 项标签栏（设计稿没有中间扫码按钮，`AppBottomNav` 固定为 4 项加扫码）、商家渐变图标块 `ToneTile`、各页面里的头像渐变与深色卡上的白字等页面级样式。

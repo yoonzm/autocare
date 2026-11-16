@@ -138,6 +138,24 @@ void main() {
       expect(find.text('失败 3', findRichText: true), findsOneWidget);
     });
 
+    testWidgets('选项之间有 2 的间距，选中块阴影是两层', (t) async {
+      await pump(
+        t,
+        AppSegmented<int>(
+          items: const [SegmentItem(value: 0, label: '入库单'), SegmentItem(value: 1, label: '出库单')],
+          selected: 0,
+          onChanged: (_) {},
+        ),
+      );
+      final first = t.getRect(find.ancestor(of: find.text('入库单'), matching: find.byType(Container)).first);
+      final second = t.getRect(find.ancestor(of: find.text('出库单'), matching: find.byType(Container)).first);
+      expect(second.left - first.right, 2);
+      final selected = t.widget<Container>(find.ancestor(of: find.text('入库单'), matching: find.byType(Container)).first);
+      final shadows = (selected.decoration as BoxDecoration).boxShadow!;
+      expect(shadows, hasLength(2));
+      expect(shadows, AppTokens.light.segmentShadow);
+    });
+
     test('只支持 2~4 项', () {
       expect(
         () => AppSegmented<int>(items: const [SegmentItem(value: 0, label: 'a')], selected: 0, onChanged: (_) {}),

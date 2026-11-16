@@ -1,5 +1,5 @@
 import 'package:autocare_ui_kit/autocare_ui_kit.dart'
-    show AppChoiceChip, AppSegmented;
+    show AppChoiceChip, AppSegmented, ChipSurface;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
@@ -239,6 +239,11 @@ void main() {
         .widget<AppChoiceChip>(find.widgetWithText(AppChoiceChip, label))
         .selected;
     expect(selected('全部'), isTrue);
+    // 标签在灰色页面上：未选中是白底，不和页面同色
+    final draft = t.widget<AppChoiceChip>(
+      find.widgetWithText(AppChoiceChip, '草稿'),
+    );
+    expect(draft.surface, ChipSurface.onPage);
     await t.tap(find.text('草稿'));
     await t.pumpAndSettle();
     expect(selected('草稿'), isTrue);
