@@ -169,10 +169,6 @@ class InventoryManagementController extends ChangeNotifier {
   String get voidButtonLabel => document['status'] == 'void' ? '已作废' : '作废此单';
   String get submitLabel => mode == 'document' ? state(document) : '确认提交';
 
-  Color documentTabBackground(int index) =>
-      index == tab ? C.primarySoft : C.chip;
-  Color documentStatusBackground(int index) =>
-      index == status ? C.primarySoft : C.chip;
 
   Widget busyLabel(Widget child) =>
       hBusy(actionKey, child, style: child is Text ? child.style : null);

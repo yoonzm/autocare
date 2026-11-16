@@ -1,3 +1,5 @@
+import 'package:autocare_ui_kit/autocare_ui_kit.dart'
+    show AppChoiceChip, AppSegmented;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
@@ -219,5 +221,21 @@ void main() {
     await t.pumpAndSettle();
     expect(find.textContaining('项低于安全库存'), findsNothing);
     expect(find.text('去补货'), findsNothing);
+  });
+
+  testWidgets('库存单据：分段与状态标签用组件库，点击后选中项切换', (t) async {
+    await openRoute_(t, 'StockDocs');
+    expect(find.byType(AppSegmented<int>), findsOneWidget);
+    bool selected(String label) => t
+        .widget<AppChoiceChip>(find.widgetWithText(AppChoiceChip, label))
+        .selected;
+    expect(selected('全部'), isTrue);
+    await t.tap(find.text('草稿'));
+    await t.pumpAndSettle();
+    expect(selected('草稿'), isTrue);
+    expect(selected('全部'), isFalse);
+    await t.tap(find.text('出库单'));
+    await t.pumpAndSettle();
+    expect(selected('全部'), isTrue, reason: '切换单据类型后状态回到全部');
   });
 }
