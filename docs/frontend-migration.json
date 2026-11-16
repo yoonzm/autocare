@@ -1199,6 +1199,12 @@
       "domain": "account",
       "status": "verified",
       "legacyDependencies": []
+    },
+    {
+      "path": "pages/expenses/payee_sheet.dart",
+      "domain": "expenses",
+      "status": "verified",
+      "legacyDependencies": []
     }
   ],
   "sharedCleanup": {
@@ -2229,6 +2235,10 @@
     },
     "pages/account/legal_web_page.dart": {
       "tests": "legal_web_page_test 3 项（terms/privacy 地址、加载失败重试）及 security_page_state 协议页返回通过；正文由后端 H5 提供，见 docs/legal-pages.md",
+      "remainingTODO": []
+    },
+    "pages/expenses/payee_sheet.dart": {
+      "tests": "payee_sheet_test 5 项（最近使用与勾选、清除、新增与同名匹配、20 字限制、加载失败重试）；expense_state_test 覆盖日期滚轮",
       "remainingTODO": []
     }
   },

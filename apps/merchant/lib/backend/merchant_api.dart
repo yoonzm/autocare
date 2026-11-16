@@ -115,6 +115,7 @@ class MerchantApi {
     'regions',
     'expense_board',
     'expense_source',
+    'expense_payees',
     'expense_get',
     'expense_suggest',
     'expense_voucher',

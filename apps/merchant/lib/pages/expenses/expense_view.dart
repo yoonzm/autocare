@@ -26,7 +26,8 @@ extension ExpenseFormatting on ExpenseController {
   String get paymentStatusText => draft['status'] == 'paid' ? '已付款' : '挂账待付';
   String get entryDateText => '${draft['occurred_on']}';
   String get entryAccountText => '${draft['account']}';
-  String get entryPayeeText => '${draft['payee']}';
+  String get entryPayeeText =>
+      '${draft['payee']}'.isEmpty ? '未填写' : '${draft['payee']}';
   String get entryOperatorText => '${draft['operator'] ?? '—'}';
   String get sourceDocumentText => draft['source_document'] == null
       ? '手工记账'

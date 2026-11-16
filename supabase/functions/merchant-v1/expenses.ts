@@ -8,6 +8,7 @@ import {
   expenseCategories,
   expenseError,
 } from "./expense_rules.ts";
+import { PAYEE_MAX_LENGTH, recentPayees } from "./expense_payees.ts";
 const messages: Record<string, string> = {
   expense_not_found: "开支记录不存在",
   expense_changed: "记录已变化，请重新打开",
@@ -31,6 +32,17 @@ export async function handleExpenses(
     input.month ??
       new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 7) + "-01",
   );
+  if (action === "payees") {
+    const query = String(input.query ?? "").trim();
+    if (query.length > PAYEE_MAX_LENGTH) return fail("查询参数无效");
+    const rows = await admin.from("expense_entries").select(
+      "payee,category,amount,occurred_on",
+    ).eq("store_id", store).eq("deleted", false).neq("payee", "")
+      .order("occurred_on", { ascending: false })
+      .order("created_at", { ascending: false }).limit(500);
+    if (rows.error) return fail("读取收款方失败", 500);
+    return json({ items: recentPayees(rows.data ?? [], query) });
+  }
   if (action === "source") {
     if (!uuid(input.id)) return fail("记录无效");
     const entry = await admin.from("expense_entries").select("source_document")
@@ -79,10 +91,16 @@ export async function handleExpenses(
     const { data, error } = await admin.storage.from("expense-vouchers")
       .createSignedUrl(input.path, 300);
     if (error) return fail("读取凭证失败", 500);
-    return json({ item: {
-      ...data,
-      signedUrl: publicStorageUrl(data.signedUrl, url, Deno.env.get('SUPABASE_PUBLIC_URL') || url),
-    } });
+    return json({
+      item: {
+        ...data,
+        signedUrl: publicStorageUrl(
+          data.signedUrl,
+          url,
+          Deno.env.get("SUPABASE_PUBLIC_URL") || url,
+        ),
+      },
+    });
   }
   if (action === "board" || action === "get" || action === "suggest") {
     if (

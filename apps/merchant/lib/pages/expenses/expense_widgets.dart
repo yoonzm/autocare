@@ -68,38 +68,6 @@ class _ExpenseInputState extends State<ExpenseInput> {
   );
 }
 
-Future<String?> expenseInput(
-  BuildContext context,
-  String title,
-  String hint,
-  String value,
-) async {
-  final ctrl = TextEditingController(text: value);
-  final result = await showDialog<String>(
-    context: context,
-    builder: (ctx) => AlertDialog(
-      title: Text(title),
-      content: TextField(
-        controller: ctrl,
-        decoration: InputDecoration(hintText: hint),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(ctx),
-          child: const Text('取消'),
-        ),
-        TextButton(
-          onPressed: () => Navigator.pop(ctx, ctrl.text.trim()),
-          child: const Text('确定'),
-        ),
-      ],
-    ),
-  );
-  await Future<void>.delayed(const Duration(milliseconds: 300));
-  ctrl.dispose();
-  return result;
-}
-
 class ExpenseAttachment extends StatelessWidget {
   final ExpenseController c;
   const ExpenseAttachment({super.key, required this.c});

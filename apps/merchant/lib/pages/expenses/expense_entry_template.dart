@@ -84,7 +84,7 @@ class ExpenseEntryTemplate extends StatelessWidget {
                     gap: 6,
                   ),
                   Text(
-                    '${record['payee']} · ${record['account']}',
+                    '${'${record['payee']}'.isEmpty ? '未填写' : record['payee']} · ${record['account']}',
                     style: hts(
                       12,
                       dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),

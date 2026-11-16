@@ -849,7 +849,7 @@ class ExpenseAddLiveTemplate extends StatelessWidget {
                               ),
                               Text(
                                 '${c.draft['payee']}'.isEmpty
-                                    ? '请输入收款方'
+                                    ? '选填'
                                     : '${c.draft['payee']}',
                                 style: hts(
                                   15,

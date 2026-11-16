@@ -12,8 +12,9 @@ import '../../kit/kit.dart';
 import '../../kit/async_kit.dart';
 import '../../theme.dart';
 import '../../backend/data_snapshot.dart';
+import '../../kit/pickers.dart' as pickers;
 import '../inventory/inventory_management_page.dart';
-import 'expense_widgets.dart';
+import 'payee_sheet.dart';
 export 'expense_view.dart';
 import 'expense_live_page.dart';
 import 'expense_entry_template.dart';
@@ -303,15 +304,18 @@ class ExpenseController extends ChangeNotifier {
       ? '自动'
       : '已付款';
 
+  /// 日期用滚轮选择（年 / 月 / 日）。草稿里存 yyyy-MM-dd。
   Future<void> pickDate(BuildContext context) async {
-    final value = await showDatePicker(
-      context: context,
-      initialDate: DateTime.parse(draft['occurred_on']),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
+    final current = '${draft['occurred_on']}'.replaceAll('-', '.');
+    final value = await pickers.pickDate(
+      context,
+      '选择日期',
+      birthday: false,
+      current: current,
+      fullFormat: true,
     );
     if (value == null || disposed || !context.mounted) return;
-    draft['occurred_on'] = value.toIso8601String().substring(0, 10);
+    draft['occurred_on'] = value.replaceAll('.', '-');
     changed();
   }
 
@@ -328,12 +332,19 @@ class ExpenseController extends ChangeNotifier {
     changed();
   }
 
+  Future<List<PayeeOption>> loadPayees(String query) async {
+    final data = await _request({'action': 'expense_payees', 'query': query});
+    return [
+      for (final item in (data['items'] as List? ?? const []))
+        PayeeOption.fromJson(Map<String, dynamic>.from(item as Map)),
+    ];
+  }
+
   Future<void> pickPayee(BuildContext context) async {
-    final value = await expenseInput(
+    final value = await showPayeeSheet(
       context,
-      '收款方',
-      '请输入收款方',
-      '${draft['payee']}',
+      load: loadPayees,
+      current: '${draft['payee']}',
     );
     if (value == null || disposed || !context.mounted) return;
     draft['payee'] = value;

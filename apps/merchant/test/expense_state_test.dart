@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
@@ -290,5 +291,34 @@ void main() {
     );
     expect(page.mode, 'document');
     expect(page.documentId, 'doc-1');
+  });
+
+  testWidgets('开支日期用滚轮选择，确认后仍以 yyyy-MM-dd 保存，旧日期不会让滚轮报错', (t) async {
+    phone(t);
+    final c = ExpenseController(
+      'detail',
+      '2026-11-01',
+      {'items': []},
+      entry: {...entry(), 'occurred_on': '2020-03-05'},
+    );
+    late BuildContext ctx;
+    await t.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) {
+            ctx = context;
+            return const SizedBox();
+          },
+        ),
+      ),
+    );
+    final future = c.pickDate(ctx);
+    await t.pumpAndSettle();
+    expect(find.text('选择日期'), findsOneWidget);
+    expect(find.byType(CupertinoDatePicker), findsOneWidget);
+    await t.tap(find.text('确定'));
+    await t.pumpAndSettle();
+    await future;
+    expect(c.draft['occurred_on'], matches(RegExp(r'^\d{4}-\d{2}-\d{2}$')));
   });
 }

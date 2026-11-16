@@ -457,6 +457,9 @@ Future<String?> pickDate(
       int.parse(m.group(3)!),
     );
   }
+  // 编辑一年前的旧记录时，当前日期可能落在可选范围之外，滚轮要求初始值必须在范围内。
+  if (picked.isBefore(min)) picked = min;
+  if (picked.isAfter(max)) picked = max;
   const weeks = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
   String caption(DateTime d) {
     final base =
