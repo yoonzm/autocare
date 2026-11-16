@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../../kit/kit.dart';
 import '../../resources/merchant_svgs.dart';
+import '../../kit/page_header.dart';
 
 class StockInLiveTemplate extends StatelessWidget {
   const StockInLiveTemplate({super.key, required this.c});
@@ -14,142 +15,74 @@ class StockInLiveTemplate extends StatelessWidget {
   Widget build(BuildContext context) {
     return HPage(
       bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
+      header: AppPageHeader(
+        title: '商品入库',
+        leading: AppHeaderLeading.close,
+        leadingEnabled: !(c.busy),
+        trailing: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: c.busy ? null : () => c.saveDraft(context),
+          child: hbox(
+            h: 44,
+            bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+            radius: BorderRadius.circular(22),
+            shadow: dk(
+              context,
+              [
+                BoxShadow(
+                  color: Color.fromRGBO(0, 0, 0, 0.06),
+                  offset: Offset(0, 0),
+                  blurRadius: 1,
+                  spreadRadius: 0,
+                ),
+                BoxShadow(
+                  color: Color.fromRGBO(0, 0, 0, 0.06),
+                  offset: Offset(0, 1),
+                  blurRadius: 2,
+                  spreadRadius: 0,
+                ),
+                BoxShadow(
+                  color: Color.fromRGBO(0, 0, 0, 0.04),
+                  offset: Offset(0, 2),
+                  blurRadius: 4,
+                  spreadRadius: 0,
+                ),
+              ],
+              [
+                BoxShadow(
+                  color: Color(0xFF26262B),
+                  offset: Offset(0, 0),
+                  blurRadius: 0,
+                  spreadRadius: 1,
+                ),
+              ],
+            ),
+            pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
+            child: Align(
+              alignment: Alignment(-1, 0),
+              widthFactor: 1,
+              child: c.busyLabel(
+                'draft',
+                Text(
+                  '草稿',
+                  style: hts(
+                    14,
+                    dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                    w: FontWeight.w500,
+                    lh: 20,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
       flow: hcol(
         [
           hbox(
-            pad: EdgeInsets.fromLTRB(20, topInset(context), 20, 120),
+            pad: EdgeInsets.fromLTRB(20, 8, 20, 120),
             child: hcol(
               [
-                hrow(
-                  [
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: c.busy
-                          ? null
-                          : () => Navigator.of(context).maybePop(),
-                      child: hbox(
-                        w: 44,
-                        h: 44,
-                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                        radius: BorderRadius.circular(22),
-                        shadow: dk(
-                          context,
-                          [
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 1),
-                              blurRadius: 2,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
-                              spreadRadius: 0,
-                            ),
-                          ],
-                          [
-                            BoxShadow(
-                              color: Color(0xFF26262B),
-                              offset: Offset(0, 0),
-                              blurRadius: 0,
-                              spreadRadius: 1,
-                            ),
-                          ],
-                        ),
-                        child: hrow(
-                          [hsvg(dk(context, Svgs.s26, Svgs.s27), w: 20, h: 20)],
-                          main: MainAxisAlignment.center,
-                          cross: CrossAxisAlignment.center,
-                          gap: 0,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: Text(
-                        '商品入库',
-                        style: hts(
-                          17,
-                          dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                          w: FontWeight.w600,
-                          lh: 24,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: c.busy ? null : () => c.saveDraft(context),
-                      child: hbox(
-                        h: 44,
-                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                        radius: BorderRadius.circular(22),
-                        shadow: dk(
-                          context,
-                          [
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 1),
-                              blurRadius: 2,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
-                              spreadRadius: 0,
-                            ),
-                          ],
-                          [
-                            BoxShadow(
-                              color: Color(0xFF26262B),
-                              offset: Offset(0, 0),
-                              blurRadius: 0,
-                              spreadRadius: 1,
-                            ),
-                          ],
-                        ),
-                        pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                        child: Align(
-                          alignment: Alignment(-1, 0),
-                          widthFactor: 1,
-                          child: c.busyLabel(
-                            'draft',
-                            Text(
-                              '草稿',
-                              style: hts(
-                                14,
-                                dk(
-                                  context,
-                                  Color(0xFF18181B),
-                                  Color(0xFFFAFAFA),
-                                ),
-                                w: FontWeight.w500,
-                                lh: 20,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                  main: MainAxisAlignment.start,
-                  cross: CrossAxisAlignment.center,
-                  gap: 8,
-                ),
                 hcol(
                   [
                     hbox(

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../kit/async_kit.dart';
 import '../../kit/kit.dart';
-import '../../resources/merchant_svgs.dart';
+import '../../kit/page_header.dart';
 
 /// 仅预约设置首次读取时使用；固定页头和底栏在 300ms 延迟期间也保持可见。
 class AppointmentSettingsSkeleton extends StatelessWidget {
@@ -12,51 +12,13 @@ class AppointmentSettingsSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => HPage(
     bg: dk(context, const Color(0xFFF4F4F5), const Color(0xFF09090B)),
+    header: const AppPageHeader(title: '预约设置'),
     flow: hbox(
-      pad: EdgeInsets.fromLTRB(20, topInset(context), 20, 120),
+      pad: const EdgeInsets.fromLTRB(20, 8, 20, 120),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () => Navigator.of(context).maybePop(),
-                child: hbox(
-                  w: 44,
-                  h: 44,
-                  bg: dk(
-                    context,
-                    const Color(0xFFFFFFFF),
-                    const Color(0xFF18181B),
-                  ),
-                  radius: BorderRadius.circular(22),
-                  child: Center(
-                    child: hsvg(dk(context, Svgs.s0, Svgs.s1), w: 20, h: 20),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Text(
-                  '预约设置',
-                  textAlign: TextAlign.center,
-                  style: hts(
-                    17,
-                    dk(
-                      context,
-                      const Color(0xFF18181B),
-                      const Color(0xFFFAFAFA),
-                    ),
-                    w: FontWeight.w600,
-                    lh: 24,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 44, height: 44),
-            ],
-          ),
           if (showBlocks) ...[
-            const SizedBox(height: 16),
             _section(context, '可预约时间', const [70, 58, 86, 76, 76]),
             const SizedBox(height: 16),
             _section(context, '接待规则', const [84, 84, 87]),

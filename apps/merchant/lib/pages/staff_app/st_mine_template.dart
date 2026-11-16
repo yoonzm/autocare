@@ -9,6 +9,7 @@ import '../../preferences/theme_preferences.dart';
 import '../../routes.dart' show openRoute;
 import '../../resources/staff_svgs.dart';
 import 'st_live.dart';
+import '../../kit/page_header.dart';
 
 class StMineTemplate extends StatelessWidget {
   final Map<String, dynamic> d;
@@ -24,34 +25,17 @@ class StMineTemplate extends StatelessWidget {
     final joined = StaffFlow.dotDate(d['joined_on'], monthOnly: true);
     return HPage(
       bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
+      header: AppPageHeader(
+        title: '我的',
+        leading: AppHeaderLeading.none,
+        trailing: hbox(w: 87),
+      ),
       flow: hcol(
         [
           hbox(
-            pad: EdgeInsets.fromLTRB(20, topInset(context), 20, 110),
+            pad: EdgeInsets.fromLTRB(20, 8, 20, 110),
             child: hcol(
               [
-                hrow(
-                  [
-                    hbox(w: 87),
-                    Expanded(
-                      flex: 1,
-                      child: Text(
-                        '我的',
-                        style: hts(
-                          17,
-                          dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                          w: FontWeight.w600,
-                          lh: 24,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    hbox(w: 87),
-                  ],
-                  main: MainAxisAlignment.start,
-                  cross: CrossAxisAlignment.center,
-                  gap: 0,
-                ),
                 hbox(
                   grad: LinearGradient(
                     begin: Alignment(-0.5, -0.866),

@@ -688,40 +688,42 @@ class _SupplierEditState extends State<SupplierEditPage> {
         body: Column(
           children: [
             Expanded(
-              child: SingleChildScrollView(
-                keyboardDismissBehavior:
-                    ScrollViewKeyboardDismissBehavior.onDrag,
-                padding: EdgeInsets.fromLTRB(20, topInset(context), 20, 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const AppPageHeader(title: '新增供应商'),
-                    const SizedBox(height: 14),
-                    hbox(
-                      bg: C.card,
-                      radius: BorderRadius.circular(24),
-                      shadow: _cardShadow(context),
-                      pad: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          _field('供应商名称', '如：蓝盾膜业', name, required: true),
-                          const SizedBox(height: 14),
-                          _field('联系人', '选填', contact),
-                          const SizedBox(height: 14),
-                          _field(
-                            '联系电话',
-                            '选填',
-                            phone,
-                            keyboard: TextInputType.phone,
-                            foot: '仅用于店内联系，不会通知对方',
-                          ),
-                          const SizedBox(height: 14),
-                          _field('备注', '如结算周期、送货说明', note),
-                        ],
+              child: HHeaderFrame(
+                bg: C.bg,
+                header: const AppPageHeader(title: '新增供应商'),
+                body: SingleChildScrollView(
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
+                  padding: const EdgeInsets.fromLTRB(20, 6, 20, 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      hbox(
+                        bg: C.card,
+                        radius: BorderRadius.circular(24),
+                        shadow: _cardShadow(context),
+                        pad: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            _field('供应商名称', '如：蓝盾膜业', name, required: true),
+                            const SizedBox(height: 14),
+                            _field('联系人', '选填', contact),
+                            const SizedBox(height: 14),
+                            _field(
+                              '联系电话',
+                              '选填',
+                              phone,
+                              keyboard: TextInputType.phone,
+                              foot: '仅用于店内联系，不会通知对方',
+                            ),
+                            const SizedBox(height: 14),
+                            _field('备注', '如结算周期、送货说明', note),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

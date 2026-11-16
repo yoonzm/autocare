@@ -320,205 +320,212 @@ class _ProductEditState extends State<ProductEditLivePage> {
         body: Column(
           children: [
             Expanded(
-              child: SingleChildScrollView(
-                keyboardDismissBehavior:
-                    ScrollViewKeyboardDismissBehavior.onDrag,
-                padding: EdgeInsets.fromLTRB(20, topInset(context), 20, 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    AppPageHeader(title: editing ? '编辑商品' : '新增商品'),
-                    const SizedBox(height: 14),
-                    _card('基本信息', [
-                      _field(
-                        '商品名称',
-                        _input(name, '如：隐形车衣 TPU'),
-                        required: true,
-                      ),
-                      _field('规格型号', _input(spec, '如：1.52m × 15m / 卷')),
-                      _field(
-                        'SKU 编码',
-                        _input(sku, '不填则系统自动生成'),
-                        foot: '扫码用，同一门店内不能重复',
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          _label('分类', required: true),
-                          const SizedBox(height: 8),
-                          _chips(categories, category, (v) {
-                            setState(() => category = v);
-                          }, '分类'),
-                        ],
-                      ),
-                    ]),
-                    const SizedBox(height: 16),
-                    _card('单位与库存', [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          _label('计量单位', required: true),
-                          const SizedBox(height: 8),
-                          _chips(
-                            units,
-                            unit,
-                            (v) => setState(() => unit = v),
-                            '计量单位',
-                          ),
-                        ],
-                      ),
-                      if (editing)
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+              child: HHeaderFrame(
+                bg: C.bg,
+                header: AppPageHeader(title: editing ? '编辑商品' : '新增商品'),
+                body: SingleChildScrollView(
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
+                  padding: const EdgeInsets.fromLTRB(20, 6, 20, 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _card('基本信息', [
+                        _field(
+                          '商品名称',
+                          _input(name, '如：隐形车衣 TPU'),
+                          required: true,
+                        ),
+                        _field('规格型号', _input(spec, '如：1.52m × 15m / 卷')),
+                        _field(
+                          'SKU 编码',
+                          _input(sku, '不填则系统自动生成'),
+                          foot: '扫码用，同一门店内不能重复',
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Expanded(
-                              child: _field(
-                                '安全库存',
-                                _input(
-                                  safe,
-                                  '0',
-                                  suffix: unitLabel,
-                                  keyboard:
-                                      const TextInputType.numberWithOptions(
-                                        decimal: true,
-                                      ),
-                                ),
-                                required: true,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: _field('货位', _input(location, '如 A-02')),
+                            _label('分类', required: true),
+                            const SizedBox(height: 8),
+                            _chips(categories, category, (v) {
+                              setState(() => category = v);
+                            }, '分类'),
+                          ],
+                        ),
+                      ]),
+                      const SizedBox(height: 16),
+                      _card('单位与库存', [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            _label('计量单位', required: true),
+                            const SizedBox(height: 8),
+                            _chips(
+                              units,
+                              unit,
+                              (v) => setState(() => unit = v),
+                              '计量单位',
                             ),
                           ],
                         ),
-                      Text(
-                        '库存低于安全库存时，会出现在「低库存」预警里',
-                        style: ts(12, color: C.muted, h: 16),
-                      ),
-                    ]),
-                    const SizedBox(height: 16),
-                    _card('成本与供应商', [
-                      _field(
-                        '参考成本价',
-                        _input(
-                          cost,
-                          '0.00',
-                          suffix: '元 / $unitLabel',
-                          keyboard: const TextInputType.numberWithOptions(
-                            decimal: true,
-                          ),
-                          readOnly: editing,
-                          onTapReadOnly: () =>
-                              AppToast.show(context, '成本由每次入库的批次决定，这里不能直接修改'),
-                        ),
-                        required: true,
-                        foot: '仅作入库时的默认值，实际成本以每次入库的批次为准',
-                      ),
-                      _field(
-                        '默认供应商',
-                        _box(
-                          onTap: busy ? null : _pickSupplier,
-                          child: Row(
+                        if (editing)
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Expanded(
-                                child: Text(
-                                  supplier.isEmpty ? '选择供应商' : supplier,
-                                  style: ts(
-                                    15,
-                                    h: 22,
-                                    color: supplier.isEmpty ? C.muted : C.ink,
+                                child: _field(
+                                  '安全库存',
+                                  _input(
+                                    safe,
+                                    '0',
+                                    suffix: unitLabel,
+                                    keyboard:
+                                        const TextInputType.numberWithOptions(
+                                          decimal: true,
+                                        ),
                                   ),
+                                  required: true,
                                 ),
                               ),
-                              hsvg(dk(context, Svgs.s3, Svgs.s4), w: 16, h: 16),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: _field('货位', _input(location, '如 A-02')),
+                              ),
                             ],
                           ),
+                        Text(
+                          '库存低于安全库存时，会出现在「低库存」预警里',
+                          style: ts(12, color: C.muted, h: 16),
                         ),
-                      ),
-                    ]),
-                    const SizedBox(height: 16),
-                    _card('保质期', [
-                      _switchRow(
-                        '需要管理保质期',
-                        '开启后入库时必须填写生产日期或到期日',
-                        shelfLife,
-                        () {
-                          setState(() => shelfLife = !shelfLife);
-                          _touch();
-                        },
-                      ),
-                      if (editing && shelfLife)
-                        _field(
-                          '临期提醒',
-                          _input(
-                            expiryDays,
-                            '30',
-                            suffix: '天前',
-                            keyboard: TextInputType.number,
-                          ),
-                          foot: '到期前多少天开始在首页和库存里提醒',
-                        ),
-                    ]),
-                    if (editing) ...[
+                      ]),
                       const SizedBox(height: 16),
-                      GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: busy
-                            ? null
-                            : () => runBusy(
-                                'inventory-product-state',
-                                () async {
-                                  setState(() => busy = true);
-                                  try {
-                                    await request.send({
-                                      'action': p['active'] == false
-                                          ? 'inventory_enable'
-                                          : 'inventory_disable',
-                                      'payload': {
-                                        'id': productId,
-                                        'metadata_revision':
-                                            p['metadata_revision'] ?? 0,
-                                      },
-                                    });
-                                    inventoryChanged.value++;
-                                    dirty = false;
-                                    if (context.mounted) Navigator.pop(context);
-                                  } finally {
-                                    if (mounted) setState(() => busy = false);
-                                  }
-                                },
-                              ),
-                        child: Container(
-                          height: 50,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: C.redSoft,
-                            borderRadius: BorderRadius.circular(25),
+                      _card('成本与供应商', [
+                        _field(
+                          '参考成本价',
+                          _input(
+                            cost,
+                            '0.00',
+                            suffix: '元 / $unitLabel',
+                            keyboard: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
+                            readOnly: editing,
+                            onTapReadOnly: () =>
+                                AppToast.show(context, '成本由每次入库的批次决定，这里不能直接修改'),
                           ),
-                          child: hBusy(
-                            'inventory-product-state',
-                            Text(
-                              p['active'] == false ? '启用此商品' : '停用此商品',
-                              style: ts(
-                                15,
-                                w: FontWeight.w500,
-                                color: C.redInk,
-                                h: 22,
+                          required: true,
+                          foot: '仅作入库时的默认值，实际成本以每次入库的批次为准',
+                        ),
+                        _field(
+                          '默认供应商',
+                          _box(
+                            onTap: busy ? null : _pickSupplier,
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    supplier.isEmpty ? '选择供应商' : supplier,
+                                    style: ts(
+                                      15,
+                                      h: 22,
+                                      color: supplier.isEmpty ? C.muted : C.ink,
+                                    ),
+                                  ),
+                                ),
+                                hsvg(
+                                  dk(context, Svgs.s3, Svgs.s4),
+                                  w: 16,
+                                  h: 16,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ]),
+                      const SizedBox(height: 16),
+                      _card('保质期', [
+                        _switchRow(
+                          '需要管理保质期',
+                          '开启后入库时必须填写生产日期或到期日',
+                          shelfLife,
+                          () {
+                            setState(() => shelfLife = !shelfLife);
+                            _touch();
+                          },
+                        ),
+                        if (editing && shelfLife)
+                          _field(
+                            '临期提醒',
+                            _input(
+                              expiryDays,
+                              '30',
+                              suffix: '天前',
+                              keyboard: TextInputType.number,
+                            ),
+                            foot: '到期前多少天开始在首页和库存里提醒',
+                          ),
+                      ]),
+                      if (editing) ...[
+                        const SizedBox(height: 16),
+                        GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: busy
+                              ? null
+                              : () => runBusy(
+                                  'inventory-product-state',
+                                  () async {
+                                    setState(() => busy = true);
+                                    try {
+                                      await request.send({
+                                        'action': p['active'] == false
+                                            ? 'inventory_enable'
+                                            : 'inventory_disable',
+                                        'payload': {
+                                          'id': productId,
+                                          'metadata_revision':
+                                              p['metadata_revision'] ?? 0,
+                                        },
+                                      });
+                                      inventoryChanged.value++;
+                                      dirty = false;
+                                      if (context.mounted)
+                                        Navigator.pop(context);
+                                    } finally {
+                                      if (mounted) setState(() => busy = false);
+                                    }
+                                  },
+                                ),
+                          child: Container(
+                            height: 50,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: C.redSoft,
+                              borderRadius: BorderRadius.circular(25),
+                            ),
+                            child: hBusy(
+                              'inventory-product-state',
+                              Text(
+                                p['active'] == false ? '启用此商品' : '停用此商品',
+                                style: ts(
+                                  15,
+                                  w: FontWeight.w500,
+                                  color: C.redInk,
+                                  h: 22,
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(2, 10, 2, 0),
-                        child: Text(
-                          '停用后不能再入库出库，历史记录保留；库存不为 0 时不能停用',
-                          style: ts(12, color: C.muted, h: 16),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(2, 10, 2, 0),
+                          child: Text(
+                            '停用后不能再入库出库，历史记录保留；库存不为 0 时不能停用',
+                            style: ts(12, color: C.muted, h: 16),
+                          ),
                         ),
-                      ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
             ),

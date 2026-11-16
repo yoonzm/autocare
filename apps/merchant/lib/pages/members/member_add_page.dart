@@ -10,6 +10,7 @@ import '../../kit/kit.dart';
 import '../../widgets/choice_controls.dart';
 import '../../widgets/color_fields.dart';
 import '../../resources/merchant_svgs.dart';
+import '../../kit/page_header.dart';
 
 class MemberAddPage extends StatelessWidget {
   final Map<String, dynamic>? member, vehicle;
@@ -32,111 +33,39 @@ class _MemberAddPageTemplate extends StatelessWidget {
   Widget build(BuildContext context) {
     return HPage(
       bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
+      header: AppPageHeader(
+        title: '新增会员',
+        leading: AppHeaderLeading.close,
+        trailing: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => c.submit(context),
+          child: hbox(
+            h: 44,
+            bg: Color(0xFF0485F7),
+            radius: BorderRadius.circular(22),
+            pad: EdgeInsets.fromLTRB(18, 0, 18, 0),
+            child: Align(
+              alignment: Alignment(-1, 0),
+              widthFactor: 1,
+              child: hBusy(
+                c.actionKey,
+                Text(
+                  '保存',
+                  style: hts(14, Color(0xFFFFFFFF), w: FontWeight.w600, lh: 20),
+                ),
+                style: hts(14, Color(0xFFFFFFFF), w: FontWeight.w600),
+                round: true,
+              ),
+            ),
+          ),
+        ),
+      ),
       flow: hcol(
         [
           hbox(
-            pad: EdgeInsets.fromLTRB(20, topInset(context), 20, 32),
+            pad: EdgeInsets.fromLTRB(20, 8, 20, 32),
             child: hcol(
               [
-                hrow(
-                  [
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => Navigator.of(context).maybePop(),
-                      child: hbox(
-                        w: 44,
-                        h: 44,
-                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                        radius: BorderRadius.circular(22),
-                        shadow: dk(
-                          context,
-                          [
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 1),
-                              blurRadius: 2,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
-                              spreadRadius: 0,
-                            ),
-                          ],
-                          [
-                            BoxShadow(
-                              color: Color(0xFF26262B),
-                              offset: Offset(0, 0),
-                              blurRadius: 0,
-                              spreadRadius: 1,
-                            ),
-                          ],
-                        ),
-                        child: hrow(
-                          [hsvg(dk(context, Svgs.s71, Svgs.s72), w: 20, h: 20)],
-                          main: MainAxisAlignment.center,
-                          cross: CrossAxisAlignment.center,
-                          gap: 0,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: Text(
-                        '新增会员',
-                        style: hts(
-                          17,
-                          dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                          w: FontWeight.w600,
-                          lh: 24,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => c.submit(context),
-                      child: hbox(
-                        h: 44,
-                        bg: Color(0xFF0485F7),
-                        radius: BorderRadius.circular(22),
-                        pad: EdgeInsets.fromLTRB(18, 0, 18, 0),
-                        child: Align(
-                          alignment: Alignment(-1, 0),
-                          widthFactor: 1,
-                          child: hBusy(
-                            c.actionKey,
-                            Text(
-                              '保存',
-                              style: hts(
-                                14,
-                                Color(0xFFFFFFFF),
-                                w: FontWeight.w600,
-                                lh: 20,
-                              ),
-                            ),
-                            style: hts(
-                              14,
-                              Color(0xFFFFFFFF),
-                              w: FontWeight.w600,
-                            ),
-                            round: true,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                  main: MainAxisAlignment.start,
-                  cross: CrossAxisAlignment.center,
-                  gap: 8,
-                ),
                 GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () => c.scanVehicle(context),

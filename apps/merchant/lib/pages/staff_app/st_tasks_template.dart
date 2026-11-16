@@ -6,6 +6,7 @@ import '../../backend/merchant_api.dart';
 import '../../kit/kit.dart';
 import '../../resources/staff_svgs.dart';
 import 'st_live.dart';
+import '../../kit/page_header.dart';
 
 class StTasksTemplate extends StatefulWidget {
   final Map<String, dynamic> d;
@@ -406,34 +407,17 @@ class _StTasksTemplateState extends State<StTasksTemplate> {
     );
     return HPage(
       bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
+      header: AppPageHeader(
+        title: '我的任务',
+        leading: AppHeaderLeading.none,
+        trailing: hbox(w: 87),
+      ),
       flow: hcol(
         [
           hbox(
-            pad: EdgeInsets.fromLTRB(20, topInset(context), 20, 110),
+            pad: EdgeInsets.fromLTRB(20, 8, 20, 110),
             child: hcol(
               [
-                hrow(
-                  [
-                    hbox(w: 87),
-                    Expanded(
-                      flex: 1,
-                      child: Text(
-                        '我的任务',
-                        style: hts(
-                          17,
-                          dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                          w: FontWeight.w600,
-                          lh: 24,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    hbox(w: 87),
-                  ],
-                  main: MainAxisAlignment.start,
-                  cross: CrossAxisAlignment.center,
-                  gap: 0,
-                ),
                 hbox(
                   bg: dk(context, Color(0xFFE9E9EB), Color(0xFF1F1F23)),
                   radius: BorderRadius.circular(20),

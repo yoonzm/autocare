@@ -4,6 +4,7 @@ import '../../backend/merchant_api.dart';
 import '../../kit/kit.dart';
 import '../../resources/staff_svgs.dart';
 import 'st_live.dart';
+import '../../kit/page_header.dart';
 
 class StArrivalsTemplate extends StatelessWidget {
   final Map<String, dynamic> d;
@@ -19,105 +20,13 @@ class StArrivalsTemplate extends StatelessWidget {
     final waiting = items.length - arrived;
     return HPage(
       bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
+      header: AppPageHeader(title: '今日到店', trailing: hbox(w: 87)),
       flow: hcol(
         [
           hbox(
-            pad: EdgeInsets.fromLTRB(20, topInset(context), 20, 40),
+            pad: EdgeInsets.fromLTRB(20, 8, 20, 40),
             child: hcol(
               [
-                hrow(
-                  [
-                    hbox(
-                      w: 87,
-                      child: hrow(
-                        [
-                          UnconstrainedBox(
-                            alignment: Alignment.topLeft,
-                            constrainedAxis: Axis.horizontal,
-                            child: GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              onTap: () => Navigator.of(context).maybePop(),
-                              child: hbox(
-                                w: 44,
-                                h: 44,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFFFFFFF),
-                                  Color(0xFF18181B),
-                                ),
-                                radius: BorderRadius.circular(22),
-                                shadow: dk(
-                                  context,
-                                  [
-                                    BoxShadow(
-                                      color: Color.fromRGBO(0, 0, 0, 0.06),
-                                      offset: Offset(0, 0),
-                                      blurRadius: 1,
-                                      spreadRadius: 0,
-                                    ),
-                                    BoxShadow(
-                                      color: Color.fromRGBO(0, 0, 0, 0.06),
-                                      offset: Offset(0, 1),
-                                      blurRadius: 2,
-                                      spreadRadius: 0,
-                                    ),
-                                    BoxShadow(
-                                      color: Color.fromRGBO(0, 0, 0, 0.04),
-                                      offset: Offset(0, 2),
-                                      blurRadius: 4,
-                                      spreadRadius: 0,
-                                    ),
-                                  ],
-                                  [
-                                    BoxShadow(
-                                      color: Color(0xFF26262B),
-                                      offset: Offset(0, 0),
-                                      blurRadius: 0,
-                                      spreadRadius: 1,
-                                    ),
-                                  ],
-                                ),
-                                child: hrow(
-                                  [
-                                    hsvg(
-                                      dk(context, Svgs.s0, Svgs.s1),
-                                      w: 20,
-                                      h: 20,
-                                    ),
-                                  ],
-                                  main: MainAxisAlignment.center,
-                                  cross: CrossAxisAlignment.center,
-                                  gap: 0,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                        main: MainAxisAlignment.start,
-                        cross: CrossAxisAlignment.stretch,
-                        gap: 0,
-                        intrinsic: true,
-                      ),
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: Text(
-                        '今日到店',
-                        style: hts(
-                          17,
-                          dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                          w: FontWeight.w600,
-                          lh: 24,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    hbox(w: 87),
-                  ],
-                  main: MainAxisAlignment.start,
-                  cross: CrossAxisAlignment.center,
-                  gap: 0,
-                ),
                 hbox(
                   grad: LinearGradient(
                     begin: Alignment(-0.5, -0.866),

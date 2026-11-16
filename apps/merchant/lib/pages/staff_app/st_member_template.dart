@@ -10,6 +10,7 @@ import 'st_live.dart';
 import 'st_member_route_data.dart';
 import '../../kit/text_input.dart';
 import '../../kit/async_kit.dart';
+import '../../kit/page_header.dart';
 
 /// 员工端会员查询：只返回脱敏后的服务相关信息（服务端校验「会员查询」权限）。
 class StMemberTemplate extends StatefulWidget {
@@ -432,34 +433,17 @@ class _StMemberTemplateState extends State<StMemberTemplate> {
   Widget build(BuildContext context) {
     return HPage(
       bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
+      header: AppPageHeader(
+        title: '会员查询',
+        leading: AppHeaderLeading.none,
+        trailing: hbox(w: 87),
+      ),
       flow: hcol(
         [
           hbox(
-            pad: EdgeInsets.fromLTRB(20, topInset(context), 20, 110),
+            pad: EdgeInsets.fromLTRB(20, 8, 20, 110),
             child: hcol(
               [
-                hrow(
-                  [
-                    hbox(w: 87),
-                    Expanded(
-                      flex: 1,
-                      child: Text(
-                        '会员查询',
-                        style: hts(
-                          17,
-                          dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                          w: FontWeight.w600,
-                          lh: 24,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    hbox(w: 87),
-                  ],
-                  main: MainAxisAlignment.start,
-                  cross: CrossAxisAlignment.center,
-                  gap: 0,
-                ),
                 hbox(
                   bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
                   radius: BorderRadius.circular(24),

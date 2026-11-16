@@ -5,6 +5,7 @@ import '../../kit/async_kit.dart';
 import '../../backend/registration_data.dart';
 import '../../routes.dart' show openRoute;
 import '../../resources/merchant_svgs.dart';
+import '../../kit/page_header.dart';
 
 class RegDonePage extends StatelessWidget {
   final RegistrationReceipt? receipt;
@@ -24,34 +25,13 @@ class RegDonePage extends StatelessWidget {
       canPop: false,
       child: HPage(
         bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
+        header: AppPageHeader(title: '欢迎使用', leading: AppHeaderLeading.none),
         flow: hcol(
           [
             hbox(
-              pad: EdgeInsets.fromLTRB(20, topInset(context), 20, 120),
+              pad: EdgeInsets.fromLTRB(20, 8, 20, 120),
               child: hcol(
                 [
-                  hrow(
-                    [
-                      hbox(w: 44),
-                      Expanded(
-                        flex: 1,
-                        child: Text(
-                          '欢迎使用',
-                          style: hts(
-                            17,
-                            dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                            w: FontWeight.w600,
-                            lh: 24,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                      hbox(w: 44),
-                    ],
-                    main: MainAxisAlignment.start,
-                    cross: CrossAxisAlignment.center,
-                    gap: 8,
-                  ),
                   hbox(
                     bg: dk(context, Color(0xFF18181B), Color(0xFF1F1F23)),
                     radius: BorderRadius.circular(28),

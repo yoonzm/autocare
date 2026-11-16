@@ -7,6 +7,7 @@ import '../../kit/kit.dart';
 import '../../kit/async_kit.dart';
 import 'booking_settings_controller.dart';
 import '../../resources/merchant_svgs.dart';
+import '../../kit/page_header.dart';
 
 class BayEditorTemplate extends StatelessWidget {
   final BookingSettingsController c;
@@ -16,107 +17,40 @@ class BayEditorTemplate extends StatelessWidget {
   Widget build(BuildContext context) {
     return HPage(
       bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
+      header: AppPageHeader(
+        title: '编辑工位',
+        trailing: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => c.save(context),
+          child: hbox(
+            h: 44,
+            bg: Color(0xFF0485F7),
+            radius: BorderRadius.circular(22),
+            pad: EdgeInsets.fromLTRB(18, 0, 18, 0),
+            child: Align(
+              alignment: Alignment(-1, 0),
+              widthFactor: 1,
+              child: c.saving
+                  ? const AppSpinner(size: 18, color: Color(0xFF0485F7))
+                  : Text(
+                      '保存',
+                      style: hts(
+                        14,
+                        Color(0xFFFFFFFF),
+                        w: FontWeight.w600,
+                        lh: 20,
+                      ),
+                    ),
+            ),
+          ),
+        ),
+      ),
       flow: hcol(
         [
           hbox(
-            pad: EdgeInsets.fromLTRB(20, topInset(context), 20, 120),
+            pad: EdgeInsets.fromLTRB(20, 8, 20, 120),
             child: hcol(
               [
-                hrow(
-                  [
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => Navigator.of(context).maybePop(),
-                      child: hbox(
-                        w: 44,
-                        h: 44,
-                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                        radius: BorderRadius.circular(22),
-                        shadow: dk(
-                          context,
-                          [
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 0),
-                              blurRadius: 1,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.06),
-                              offset: Offset(0, 1),
-                              blurRadius: 2,
-                              spreadRadius: 0,
-                            ),
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.04),
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
-                              spreadRadius: 0,
-                            ),
-                          ],
-                          [
-                            BoxShadow(
-                              color: Color(0xFF26262B),
-                              offset: Offset(0, 0),
-                              blurRadius: 0,
-                              spreadRadius: 1,
-                            ),
-                          ],
-                        ),
-                        child: hrow(
-                          [hsvg(dk(context, Svgs.s0, Svgs.s1), w: 20, h: 20)],
-                          main: MainAxisAlignment.center,
-                          cross: CrossAxisAlignment.center,
-                          gap: 0,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: Text(
-                        '编辑工位',
-                        style: hts(
-                          17,
-                          dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                          w: FontWeight.w600,
-                          lh: 24,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => c.save(context),
-                      child: hbox(
-                        h: 44,
-                        bg: Color(0xFF0485F7),
-                        radius: BorderRadius.circular(22),
-                        pad: EdgeInsets.fromLTRB(18, 0, 18, 0),
-                        child: Align(
-                          alignment: Alignment(-1, 0),
-                          widthFactor: 1,
-                          child: c.saving
-                              ? const AppSpinner(
-                                  size: 18,
-                                  color: Color(0xFF0485F7),
-                                )
-                              : Text(
-                                  '保存',
-                                  style: hts(
-                                    14,
-                                    Color(0xFFFFFFFF),
-                                    w: FontWeight.w600,
-                                    lh: 20,
-                                  ),
-                                ),
-                        ),
-                      ),
-                    ),
-                  ],
-                  main: MainAxisAlignment.start,
-                  cross: CrossAxisAlignment.center,
-                  gap: 8,
-                ),
                 hbox(
                   bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
                   radius: BorderRadius.circular(24),

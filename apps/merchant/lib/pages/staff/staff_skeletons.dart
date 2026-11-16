@@ -23,12 +23,12 @@ class ResourceSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => HPage(
     bg: dk(context, const Color(0xFFF4F4F5), const Color(0xFF09090B)),
+    header: _header(context),
     flow: hbox(
-      pad: EdgeInsets.fromLTRB(20, topInset(context), 20, 0),
+      pad: const EdgeInsets.fromLTRB(20, 8, 20, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _header(context),
           if (kind == ResourceSkeletonKind.staffList) ..._staffList(context),
           if (kind != ResourceSkeletonKind.staffList && showBlocks)
             ..._form(context),
@@ -90,7 +90,6 @@ class ResourceSkeleton extends StatelessWidget {
     final seg = dk(context, const Color(0xFFE9E9EB), const Color(0xFF1F1F23));
     final muted = dk(context, const Color(0xFF52525B), const Color(0xFFA8A8B3));
     return [
-      const SizedBox(height: 16),
       // 角色页签：标签是固定文案，直接显示；人数等数据到了再出现
       Container(
         padding: const EdgeInsets.all(4),

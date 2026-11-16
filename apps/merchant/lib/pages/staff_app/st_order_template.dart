@@ -11,6 +11,7 @@ import 'st_member_template.dart';
 import 'st_member_route_data.dart';
 import 'st_order_controller.dart';
 import '../../kit/text_input.dart';
+import '../../kit/page_header.dart';
 
 /// 技师快速开单：选服务提交到前台收银。价格、折扣、次卡抵扣全部由服务端估算，提交的只是项目和数量。
 class StOrderTemplate extends StatefulWidget {
@@ -261,105 +262,13 @@ class _StOrderTemplateState extends State<StOrderTemplate> {
       actionKey: _actionKey,
       child: HPage(
         bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
+        header: AppPageHeader(title: '快速开单', trailing: hbox(w: 87)),
         flow: hcol(
           [
             hbox(
-              pad: EdgeInsets.fromLTRB(20, topInset(context), 20, 130),
+              pad: EdgeInsets.fromLTRB(20, 8, 20, 130),
               child: hcol(
                 [
-                  hrow(
-                    [
-                      hbox(
-                        w: 87,
-                        child: hrow(
-                          [
-                            UnconstrainedBox(
-                              alignment: Alignment.topLeft,
-                              constrainedAxis: Axis.horizontal,
-                              child: GestureDetector(
-                                behavior: HitTestBehavior.opaque,
-                                onTap: () => Navigator.of(context).maybePop(),
-                                child: hbox(
-                                  w: 44,
-                                  h: 44,
-                                  bg: dk(
-                                    context,
-                                    Color(0xFFFFFFFF),
-                                    Color(0xFF18181B),
-                                  ),
-                                  radius: BorderRadius.circular(22),
-                                  shadow: dk(
-                                    context,
-                                    [
-                                      BoxShadow(
-                                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                                        offset: Offset(0, 0),
-                                        blurRadius: 1,
-                                        spreadRadius: 0,
-                                      ),
-                                      BoxShadow(
-                                        color: Color.fromRGBO(0, 0, 0, 0.06),
-                                        offset: Offset(0, 1),
-                                        blurRadius: 2,
-                                        spreadRadius: 0,
-                                      ),
-                                      BoxShadow(
-                                        color: Color.fromRGBO(0, 0, 0, 0.04),
-                                        offset: Offset(0, 2),
-                                        blurRadius: 4,
-                                        spreadRadius: 0,
-                                      ),
-                                    ],
-                                    [
-                                      BoxShadow(
-                                        color: Color(0xFF26262B),
-                                        offset: Offset(0, 0),
-                                        blurRadius: 0,
-                                        spreadRadius: 1,
-                                      ),
-                                    ],
-                                  ),
-                                  child: hrow(
-                                    [
-                                      hsvg(
-                                        dk(context, Svgs.s0, Svgs.s1),
-                                        w: 20,
-                                        h: 20,
-                                      ),
-                                    ],
-                                    main: MainAxisAlignment.center,
-                                    cross: CrossAxisAlignment.center,
-                                    gap: 0,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                          main: MainAxisAlignment.start,
-                          cross: CrossAxisAlignment.stretch,
-                          gap: 0,
-                          intrinsic: true,
-                        ),
-                      ),
-                      Expanded(
-                        flex: 1,
-                        child: Text(
-                          '快速开单',
-                          style: hts(
-                            17,
-                            dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                            w: FontWeight.w600,
-                            lh: 24,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                      hbox(w: 87),
-                    ],
-                    main: MainAxisAlignment.start,
-                    cross: CrossAxisAlignment.center,
-                    gap: 0,
-                  ),
                   hbox(
                     bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
                     radius: BorderRadius.circular(24),
