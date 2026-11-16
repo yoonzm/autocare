@@ -269,4 +269,18 @@ void main() {
     expect(find.text('镀晶 1%'), findsOneWidget); // 0.01% 也至少显示 1%
     expect(find.text('洗护 99%'), findsOneWidget);
   });
+
+  testWidgets('库存总览是深色渐变卡：总值（千分位）、SKU 小标签、价值构成、库存单据入口', (t) async {
+    phone(t);
+    api.values.addAll({'p1': 1200, 'p2': 300, 'p3': 0});
+    await t.pumpWidget(app(InventoryPage(key: UniqueKey())));
+    await t.pumpAndSettle();
+    expect(find.text('库存总值（元）'), findsOneWidget);
+    expect(find.text('1,500'), findsOneWidget);
+    expect(find.text('3 个 SKU'), findsOneWidget);
+    expect(find.text('镀晶 80%'), findsOneWidget);
+    expect(find.text('洗护 20%'), findsOneWidget);
+    expect(find.text('库存单据'), findsOneWidget);
+    expect(find.text('入库 / 出库记录'), findsOneWidget);
+  });
 }

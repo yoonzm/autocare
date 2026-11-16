@@ -4,6 +4,7 @@ import 'inventory_live_page.dart';
 import 'package:flutter/material.dart';
 
 import '../../backend/merchant_api.dart';
+import '../../backend/package_calc.dart' show formatMoney;
 import '../../kit/async_kit.dart';
 import '../../kit/page_header.dart';
 import '../../theme.dart';
@@ -309,10 +310,10 @@ class _InventoryPageState extends State<InventoryPage> {
   /// 保证各项相加正好是 100%；价值为 0 的分类占比 0，价值很小但不为 0 的至少显示 1%。
   List<(String, int, Color)> _shares() {
     const palette = [
-      Color(0xFF18181B),
+      Color(0xFFF5D78E),
       C.primary,
       Color(0xFF7CC4FB),
-      Color(0xFFD4D4D8),
+      Color(0xFF52525B),
     ];
     final cats = <String>[];
     final values = <String, double>{};
@@ -362,130 +363,195 @@ class _InventoryPageState extends State<InventoryPage> {
 
   Widget _overview() {
     final segs = _shares();
-    return AppCard(
-      padding: const EdgeInsets.all(18),
-      child: Column(
+    final total = products.fold<double>(
+      0,
+      (v, p) => v + (p.data['stock_value'] as num? ?? 0).toDouble(),
+    );
+    const gold = Color(0xFFF5D78E);
+    Widget legend(String text, Color dot) => Row(
+      children: [
+        Container(
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(color: dot, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 6),
+        Flexible(
+          child: Text(
+            text,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: ts(12, color: const Color(0xFFD4D4D8), h: 16),
+          ),
+        ),
+      ],
+    );
+    // 深色渐变总览卡（设计稿 InventoryV1）：库存总值、SKU 数、价值构成、库存单据入口。
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(28),
+        gradient: const LinearGradient(
+          begin: Alignment(-0.5, -0.866),
+          end: Alignment(0.5, 0.866),
+          colors: [Color(0xFF26262C), Color(0xFF18181B), Color(0xFF2B2418)],
+          stops: [0, 0.55, 1],
+        ),
+      ),
+      child: Stack(
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          const Positioned.fill(child: CustomPaint(painter: _RingsPainter())),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text('库存总值（元）', style: ts(12, color: C.muted, h: 16)),
-                    const SizedBox(height: 2),
-                    Text(
-                      products
-                          .fold<double>(
-                            0,
-                            (v, p) =>
-                                v + (p.data['stock_value'] as num).toDouble(),
-                          )
-                          .toStringAsFixed(2),
-                      style: ts(
-                        28,
-                        w: FontWeight.w600,
-                        h: 34,
-                        spacing: -0.8,
-                        tabular: true,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '库存总值（元）',
+                            style: ts(
+                              12,
+                              color: const Color(0xFFA1A1AA),
+                              h: 16,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            formatMoney(total),
+                            style: ts(
+                              36,
+                              w: FontWeight.w600,
+                              h: 42,
+                              spacing: -1.08,
+                              tabular: true,
+                              color: const Color(0xFFFAFAFA),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 9),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF2E2A1E),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        '${products.length} 个 SKU',
+                        style: ts(11, w: FontWeight.w600, color: gold, h: 20),
                       ),
                     ),
                   ],
                 ),
-              ),
-              Text(
-                '${products.length} 个 SKU',
-                style: ts(12, color: C.muted, h: 16),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          SizedBox(
-            height: 10,
-            child: segs.every((e) => e.$2 == 0)
-                ? Container(
-                    decoration: BoxDecoration(
-                      color: C.chip,
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                  )
-                : Row(
+                const SizedBox(height: 16),
+                SizedBox(
+                  height: 10,
+                  child: segs.every((e) => e.$2 == 0)
+                      ? Container(
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF34343A),
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                        )
+                      : Row(
+                          children: [
+                            for (final e in segs.where((e) => e.$2 > 0).indexed)
+                              Expanded(
+                                flex: e.$2.$2,
+                                child: Container(
+                                  margin: EdgeInsets.only(
+                                    left: e.$1 == 0 ? 0 : 3,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: e.$2.$3,
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                ),
+                const SizedBox(height: 16),
+                for (var i = 0; i < segs.length; i += 2) ...[
+                  if (i > 0) const SizedBox(height: 6),
+                  Row(
                     children: [
-                      for (final e in segs.where((e) => e.$2 > 0).indexed)
+                      Expanded(
+                        child: legend(
+                          '${segs[i].$1} ${segs[i].$2}%',
+                          segs[i].$3,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: i + 1 < segs.length
+                            ? legend(
+                                '${segs[i + 1].$1} ${segs[i + 1].$2}%',
+                                segs[i + 1].$3,
+                              )
+                            : const SizedBox.shrink(),
+                      ),
+                    ],
+                  ),
+                ],
+                const SizedBox(height: 16),
+                // 库存单据入口：放在总览卡片底部。
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => openRoute(context, 'StockDocs'),
+                  child: Container(
+                    padding: const EdgeInsets.only(top: 14),
+                    decoration: const BoxDecoration(
+                      border: Border(top: BorderSide(color: Color(0xFF34343A))),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 28,
+                          height: 28,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF27272A),
+                            borderRadius: BorderRadius.circular(9),
+                          ),
+                          child: AppIcon('document', size: 16, color: gold),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          '库存单据',
+                          style: ts(
+                            14,
+                            w: FontWeight.w500,
+                            color: const Color(0xFFFAFAFA),
+                            h: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
                         Expanded(
-                          flex: e.$2.$2,
-                          child: Container(
-                            margin: EdgeInsets.only(left: e.$1 == 0 ? 0 : 3),
-                            decoration: BoxDecoration(
-                              color: e.$2.$3,
-                              borderRadius: BorderRadius.circular(5),
+                          child: Text(
+                            '入库 / 出库记录',
+                            style: ts(
+                              12,
+                              color: const Color(0xFFA1A1AA),
+                              h: 16,
                             ),
                           ),
                         ),
-                    ],
-                  ),
-          ),
-          const SizedBox(height: 14),
-          Wrap(
-            runSpacing: 6,
-            children: [
-              for (final s in segs)
-                SizedBox(
-                  width: 140,
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 8,
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color: s.$3,
-                          shape: BoxShape.circle,
+                        AppIcon(
+                          'chevronRight',
+                          size: 16,
+                          color: const Color(0xFFA1A1AA),
                         ),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        '${s.$1} ${s.$2}%',
-                        style: ts(12, color: C.sub, h: 16),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          // 库存单据入口：放在总览卡片底部（设计稿 InventoryV1）。
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () => openRoute(context, 'StockDocs'),
-            child: Container(
-              padding: const EdgeInsets.only(top: 14),
-              decoration: BoxDecoration(
-                border: Border(top: BorderSide(color: C.line)),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 28,
-                    height: 28,
-                    decoration: BoxDecoration(
-                      color: C.chip,
-                      borderRadius: BorderRadius.circular(9),
-                    ),
-                    child: AppIcon('document', size: 16, color: C.sub),
-                  ),
-                  const SizedBox(width: 8),
-                  Text('库存单据', style: ts(14, w: FontWeight.w500, h: 20)),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      '入库 / 出库记录',
-                      style: ts(12, color: C.muted, h: 16),
-                    ),
-                  ),
-                  AppIcon('chevronRight', size: 16, color: C.faint),
-                ],
-              ),
+              ],
             ),
           ),
         ],
@@ -592,4 +658,23 @@ class InventoryProduct {
       ? (stock > 0 ? 1 : 0)
       : (stock / (safe * 2)).clamp(0, 1).toDouble();
   bool get expiring => data['expiring'] == true;
+}
+
+/// 总览卡片右上角的三圈同心圆（设计稿：240 的圆环偏出卡片，半径 60 / 90 / 118）。
+class _RingsPainter extends CustomPainter {
+  const _RingsPainter();
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFF2E2E34)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+    final center = Offset(size.width - 30, 30);
+    for (final r in const [60.0, 90.0, 118.0]) {
+      canvas.drawCircle(center, r, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_RingsPainter old) => false;
 }
