@@ -25,7 +25,7 @@ export interface VehicleValues {
 const UUID = /^[0-9a-f]{8}-[0-9a-f-]{27,36}$/i;
 const text = (v: unknown) => (typeof v === 'string' ? v.trim() : '');
 // 省份简称 + 发牌机关字母 + 5 位（燃油）或 6 位（新能源）字母数字
-const PLATE = /^[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼][A-Z][A-Z0-9]{5,6}$/;
+export const PLATE = /^[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼][A-Z][A-Z0-9]{5,6}$/;
 const VIN = /^[A-HJ-NPR-Z0-9]{17}$/;
 
 /** Plate as typed: spaces and the dot are dropped, letters upper-cased. */

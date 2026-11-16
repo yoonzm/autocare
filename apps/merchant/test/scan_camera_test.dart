@@ -291,8 +291,7 @@ void main() {
       await t.tap(find.text('散客结账'));
       await t.pumpAndSettle();
       expect(find.text('开单收银'), findsOneWidget);
-      expect(find.text('不记会员'), findsOneWidget);
-      expect(find.text('无会员折扣与次卡抵扣'), findsOneWidget);
+      expect(find.text('不记会员，无折扣和次卡抵扣'), findsOneWidget);
 
       expect(find.text('苏K5F218'), findsOneWidget);
       sem.dispose();

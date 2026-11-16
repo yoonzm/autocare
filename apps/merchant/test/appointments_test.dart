@@ -641,13 +641,37 @@ void main() {
     api.rows.add(row());
 
     await open(t, const AppointmentAddPage());
-    await t.tap(find.text('请选择会员'));
+    await t.tap(find.text('选择会员'));
     await t.pumpAndSettle();
     expect(find.byType(MemberPickerSheet), findsOneWidget);
     await t.tap(find.text('王建国').last);
     await t.pumpAndSettle();
     expect(find.byType(MemberPickerSheet), findsNothing);
     expect(find.text('王建国'), findsWidgets);
+  });
+  testWidgets('新建预约客户卡片：未选会员时蓝色入口 + 置灰按钮；选了会员显示信息、更换；散客页签是三个输入', (t) async {
+    api.rows.add(row());
+    await open(t, const AppointmentAddPage());
+    expect(find.text('客户'), findsOneWidget);
+    expect(find.text('选择会员'), findsOneWidget);
+    expect(find.text('车牌 / 手机号 / 姓名'), findsOneWidget);
+    expect(find.text('请先选择客户'), findsOneWidget);
+    expect(find.text('确认预约'), findsNothing);
+    await t.tap(find.text('选择会员'));
+    await t.pumpAndSettle();
+    await t.tap(find.text('王建国').last);
+    await t.pumpAndSettle();
+    expect(find.text('选择会员'), findsNothing);
+    expect(find.text('更换'), findsOneWidget);
+    expect(find.textContaining('余额'), findsWidgets);
+    expect(find.text('确认预约'), findsOneWidget);
+    expect(find.text('请先选择客户'), findsNothing);
+    await t.tap(find.text('散客'));
+    await t.pumpAndSettle();
+    expect(find.text('客户称呼，如 张先生'), findsOneWidget); // 占位文字
+    expect(find.text('用于到店提醒'), findsOneWidget);
+    expect(find.text('散客预约不会生成会员，也不享受会员折扣和次卡抵扣。'), findsOneWidget);
+    expect(find.text('确认预约'), findsOneWidget);
   });
   testWidgets('到店按钮等待后端响应，不提前修改状态，失败保留预约', (t) async {
     api.bookings.add(bookingRow());
@@ -668,7 +692,7 @@ void main() {
     expect(find.text('真实客户'), findsOneWidget);
     await t.pump(const Duration(seconds: 9));
   });
-  testWidgets('散客新建预约只发送服务 ID、时间和备注，提交失败保留输入', (t) async {
+  testWidgets('散客新建预约：姓名手机号必填，只发送服务 ID、时间、备注和散客联系方式，提交失败保留输入', (t) async {
     api.writeError = const AppError('时段已约满');
     await open(t, const AppointmentAddPage());
     await t.tap(find.text('散客'));
@@ -681,14 +705,30 @@ void main() {
     final note = find.byType(TextField).last;
     await t.ensureVisible(note);
     await t.enterText(note, '车身检查');
+    // 姓名、手机号必填：没填时提示，不提交
+    await t.tap(find.text('确认预约'));
+    await t.pumpAndSettle();
+    expect(api.calls.where((c) => c['action'] == 'save'), isEmpty);
+    expect(find.text('请填写客户姓名'), findsOneWidget);
+    await t.pump(const Duration(seconds: 4));
+    await t.drag(find.byType(ListView).first, const Offset(0, 3000));
+    await t.pumpAndSettle();
+    await t.enterText(find.byType(TextField).at(0), '张先生');
+    await t.enterText(find.byType(TextField).at(1), '139 0000 1111');
+    await t.enterText(find.byType(TextField).at(2), '沪A8K29M');
     await t.tap(find.text('确认预约'));
     await t.pumpAndSettle();
     final call = api.calls.lastWhere((c) => c['action'] == 'save');
     expect(call['service_ids'], ['s1']);
     expect(call['member_id'], isNull);
+    expect(call['guest_name'], '张先生');
+    expect(call['guest_phone'], '139 0000 1111');
+    expect(call['guest_plate'], '沪A8K29M');
     expect(call['note'], '车身检查');
     expect(call.containsKey('estimate'), isFalse);
     expect(call.containsKey('duration_minutes'), isFalse);
+    await t.drag(find.byType(ListView).first, const Offset(0, -3000));
+    await t.pumpAndSettle();
     expect(find.text('车身检查'), findsOneWidget);
     expect(api.bookings, isEmpty);
     await t.tap(find.text('确认预约'));
@@ -699,6 +739,8 @@ void main() {
     expect(attempts, hasLength(2));
     expect(attempts.first['requestId'], isNotNull);
     expect(attempts.first['requestId'], attempts.last['requestId']);
+    await t.drag(find.byType(ListView).first, const Offset(0, -3000));
+    await t.pumpAndSettle();
     expect(find.text('车身检查'), findsOneWidget);
     await t.pump(const Duration(seconds: 9));
   });

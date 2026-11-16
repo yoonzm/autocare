@@ -1,4 +1,5 @@
 import '../members/member_picker_sheet.dart' show showMemberPicker;
+import '../../widgets/customer_card.dart';
 
 import 'dart:async';
 
@@ -52,6 +53,10 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
   AppError? _optionsError;
   List<Map<String, dynamic>> _slots = [];
   final _note = TextEditingController();
+  // 散客预约：姓名、手机号必填，车牌选填。
+  final _guestName = TextEditingController();
+  final _guestPhone = TextEditingController();
+  final _guestPlate = TextEditingController();
   bool _busy = false;
   bool _awaitPicker = false;
   bool _dirty = false;
@@ -76,6 +81,9 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
           ? '明天'
           : '周${'一二三四五六日'[_today.add(Duration(days: i)).weekday - 1]}'} ${_today.add(Duration(days: i)).month.toString().padLeft(2, '0')}.${_today.add(Duration(days: i)).day.toString().padLeft(2, '0')}',
   ];
+
+  /// 会员页签还没选会员：底部按钮置灰（散客页签不受影响）。
+  bool get _noCustomer => isMember && customer.id == null;
   Member customer = const Member('请选择会员', '', '', '未选择', '—', '', {});
 
   Future<void> _loadOptions() async {
@@ -193,6 +201,17 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
       AppToast.show(context, '请选择会员或切换散客');
       return;
     }
+    if (!isMember) {
+      if (_guestName.text.trim().isEmpty) {
+        AppToast.show(context, '请填写客户姓名');
+        return;
+      }
+      if (!RegExp(r'^1[3-9]\d{9}$')
+          .hasMatch(_guestPhone.text.replaceAll(RegExp(r'[\s-]'), ''))) {
+        AppToast.show(context, '请输入正确的手机号');
+        return;
+      }
+    }
     if (picked.isEmpty) {
       AppToast.show(context, '请至少选择一个服务项目');
       return;
@@ -211,6 +230,11 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
         await _write.send({
           'action': 'appointment_save',
           'member_id': isMember ? customer.id : null,
+          if (!isMember) ...{
+            'guest_name': _guestName.text.trim(),
+            'guest_phone': _guestPhone.text,
+            'guest_plate': _guestPlate.text,
+          },
           'service_ids': [for (final i in picked) _services[i]['id']],
           'starts_at': '${bookingDay(_date)}T$time:00+08:00',
           'bay_id': _bay?['id'],
@@ -288,12 +312,20 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
     _note.addListener(() {
       if (mounted) setState(() => _dirty = true);
     });
+    for (final c in [_guestName, _guestPhone, _guestPlate]) {
+      c.addListener(() {
+        if (mounted) setState(() => _dirty = true);
+      });
+    }
   }
 
   @override
   void dispose() {
     _optionsTimer?.cancel();
     _note.dispose();
+    _guestName.dispose();
+    _guestPhone.dispose();
+    _guestPlate.dispose();
     super.dispose();
   }
 
@@ -467,42 +499,77 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
                           const SizedBox(height: 2),
                           Text(
                             '预计 ¥${total.toStringAsFixed(2)}',
-                            style: ts(20, w: FontWeight.w600, h: 26),
+                            style: ts(
+                              20,
+                              w: FontWeight.w600,
+                              h: 26,
+                              color: _noCustomer ? C.faint : null,
+                            ),
                           ),
                         ],
                       ),
                     ),
-                    GestureDetector(
-                      onTap: submit,
-                      child: Container(
-                        height: 50,
-                        padding: const EdgeInsets.symmetric(horizontal: 28),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: C.btn,
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                        child: hBusy(
-                          _actionKey,
-                          Text(
-                            '确认预约',
+                    if (_noCustomer)
+                      // 还没选会员：置灰，不可点（设计稿 AppointmentAddEmpty）。
+                      Semantics(
+                        button: true,
+                        enabled: false,
+                        label: '请先选择客户',
+                        child: Container(
+                          height: 50,
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: dk(
+                              context,
+                              const Color(0xFFE4E4E7),
+                              const Color(0xFF27272A),
+                            ),
+                            borderRadius: BorderRadius.circular(25),
+                          ),
+                          child: Text(
+                            '请先选择客户',
                             style: ts(
                               15,
                               w: FontWeight.w600,
-                              color: C.btnFg,
+                              color: const Color(0xFFA1A1AA),
                               h: 22,
                             ),
                           ),
-                          style: ts(
-                            15,
-                            w: FontWeight.w600,
-                            color: C.btnFg,
-                            h: 22,
+                        ),
+                      )
+                    else
+                      GestureDetector(
+                        onTap: submit,
+                        child: Container(
+                          height: 50,
+                          padding: const EdgeInsets.symmetric(horizontal: 28),
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: C.primary,
+                            borderRadius: BorderRadius.circular(25),
                           ),
-                          label: '提交中…',
+                          child: hBusy(
+                            _actionKey,
+                            Text(
+                              '确认预约',
+                              style: ts(
+                                15,
+                                w: FontWeight.w600,
+                                color: Colors.white,
+                                h: 22,
+                              ),
+                            ),
+                            style: ts(
+                              15,
+                              w: FontWeight.w600,
+                              color: Colors.white,
+                              h: 22,
+                            ),
+                            label: '提交中…',
+                          ),
                         ),
                       ),
-                    ),
                   ],
                 ),
               ),
@@ -521,154 +588,53 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
     ),
   );
 
-  Widget _customerCard() => AppCard(
-    radius: 24,
-    padding: const EdgeInsets.all(16),
-    child: Column(
+  /// 客户卡片（设计稿 AppointmentAdd / AppointmentAddEmpty / AppointmentAddWalkIn）。
+  Widget _customerCard() => CustomerCard(
+    walkIn: !isMember,
+    onWalkInChanged: (walk) => setState(() {
+      isMember = !walk;
+      _dirty = true;
+    }),
+    hasMember: customer.id != null,
+    member: customer,
+    subtitle: [
+      if (customer.phone.length == 11)
+        '${customer.phone.substring(0, 3)} **** ${customer.phone.substring(7)}',
+      '余额 ${customer.amountNote == '余额' ? customer.amount : '¥0'}',
+    ].join(' · '),
+    onPick: _pickCustomer,
+    walkInBody: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: Text('客户', style: ts(15, w: FontWeight.w600, h: 22)),
-            ),
-            SizedBox(
-              width: 132,
-              child: Segmented(
-                labels: const ['会员', '散客'],
-                selected: isMember ? 0 : 1,
-                onChanged: (i) => setState(() {
-                  isMember = i == 0;
-                  _dirty = true;
-                }),
-              ),
-            ),
-          ],
+        CustomerField(
+          label: '姓名',
+          required: true,
+          controller: _guestName,
+          hint: '客户称呼，如 张先生',
+          maxLength: 20,
         ),
         const SizedBox(height: 12),
-        if (isMember)
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: _pickCustomer,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-              decoration: BoxDecoration(
-                color: C.inset,
-                borderRadius: BorderRadius.circular(18),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    alignment: Alignment.center,
-                    decoration: const BoxDecoration(
-                      color: C.gold,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Text(
-                      customer.name.substring(0, 1),
-                      style: ts(16, w: FontWeight.w600, color: C.onGold),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              customer.name,
-                              style: ts(15, w: FontWeight.w600, h: 22),
-                            ),
-                            const SizedBox(width: 6),
-                            _levelTag(customer.level),
-                          ],
-                        ),
-                        const SizedBox(height: 3),
-                        Text(
-                          customer.phone.length == 11
-                              ? '${customer.phone.substring(0, 3)} **** ${customer.phone.substring(7)}'
-                              : '请选择预约会员',
-                          style: ts(12, color: C.muted, h: 16),
-                        ),
-                      ],
-                    ),
-                  ),
-                  AppIcon('chevronRight', size: 16, color: C.faint),
-                ],
-              ),
-            ),
-          )
-        else
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-            decoration: BoxDecoration(
-              color: C.inset,
-              borderRadius: BorderRadius.circular(18),
-            ),
-            child: Text(
-              '散客预约：到店后登记车牌与联系方式',
-              style: ts(13, color: C.muted, h: 18),
-            ),
-          ),
-        const SizedBox(height: 12),
-        Container(
-          constraints: const BoxConstraints(minHeight: 40),
-          child: Row(
-            children: [
-              Text('车辆', style: ts(14, color: C.sub, h: 20)),
-              const Spacer(),
-              if (isMember) ...[
-                _plateSmall(customer.plate),
-                const SizedBox(width: 12),
-                Text(
-                  '${((customer.data?['vehicles'] as List?)?.firstOrNull as Map?)?['brand_model'] ?? '—'}',
-                  style: ts(14, h: 20),
-                ),
-              ] else
-                Text('到店填写', style: ts(14, color: C.muted, h: 20)),
-            ],
-          ),
+        CustomerField(
+          label: '手机号',
+          required: true,
+          controller: _guestPhone,
+          hint: '用于到店提醒',
+          keyboardType: TextInputType.phone,
+          maxLength: 13,
         ),
+        const SizedBox(height: 12),
+        CustomerField(
+          label: '车牌号',
+          controller: _guestPlate,
+          hint: '选填',
+          capitalization: TextCapitalization.characters,
+          maxLength: 12,
+        ),
+        const SizedBox(height: 12),
+        Text('散客预约不会生成会员，也不享受会员折扣和次卡抵扣。', style: ts(12, color: C.muted, h: 17)),
       ],
     ),
   );
-
-  Widget _plateSmall(String t) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-    decoration: BoxDecoration(
-      color: const Color(0xFF0B5FD6),
-      borderRadius: BorderRadius.circular(4),
-      border: Border.all(color: const Color(0xFF5B9BF0), width: 1.5),
-    ),
-    child: Text(
-      t,
-      style: ts(11, w: FontWeight.w600, color: Colors.white, h: 16),
-    ),
-  );
-
-  Widget _levelTag(String level) {
-    final black = level == '黑金';
-    final gold = level == '金卡';
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      decoration: BoxDecoration(
-        color: black ? C.pill : (gold ? C.gold : C.chip),
-        borderRadius: BorderRadius.circular(9),
-      ),
-      child: Text(
-        level,
-        style: ts(
-          11,
-          w: FontWeight.w600,
-          color: black ? C.gold : (gold ? C.onGold : C.sub),
-          h: 18,
-        ),
-      ),
-    );
-  }
 
   Widget _servicesCard() => AppCard(
     radius: 24,

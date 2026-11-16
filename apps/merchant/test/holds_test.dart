@@ -382,7 +382,7 @@ void main() {
       fixtureMember = null;
       await t.pumpWidget(appNamed('Order', const OrderPage()));
       await t.pumpAndSettle();
-      await t.tap(find.text('散客开单'));
+      await t.tap(find.text('散客'));
       await t.pumpAndSettle();
       await t.enterText(find.byType(TextField).first, '苏K5F218');
       await t.tap(find.text('精致洗车'));
@@ -421,7 +421,7 @@ void main() {
       await t.tap(find.text('取单结算'));
       await t.pumpAndSettle();
       expect(find.text('开单收银'), findsOneWidget);
-      expect(find.text('不记会员'), findsOneWidget);
+      expect(find.text('不记会员，无折扣和次卡抵扣'), findsOneWidget);
       expect(find.text('¥68.00'), findsWidgets); // 原价，没有折扣
       await t.tap(find.text('现金'));
       await t.pump();

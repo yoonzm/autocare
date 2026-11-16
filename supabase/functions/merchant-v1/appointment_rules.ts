@@ -1,4 +1,5 @@
 import type { Input } from './types.ts';
+import { normalizePlate, PLATE } from './member_rules.ts';
 const id = (v: unknown) => typeof v === 'string' && /^[0-9a-f]{8}-[0-9a-f-]{27,36}$/i.test(v);
 export const validDay = (v: unknown): v is string =>
   typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) &&
@@ -20,6 +21,17 @@ export function parseBooking(i: Input): Input | string {
       !i.service_ids.every(id))
   ) return '请选择服务项目';
   if (i.note != null && (typeof i.note !== 'string' || i.note.length > 200)) return '备注最多 200 字';
+  // 散客预约（新建、没有会员）：姓名和手机号必填（到店提醒），车牌选填；会员预约不接受这些字段。
+  let guest = { guest_name: '', guest_phone: '', guest_plate: '' };
+  if (i.id == null && i.member_id == null) {
+    const name = String(i.guest_name ?? '').trim();
+    const phone = String(i.guest_phone ?? '').replace(/[\s-]/g, '');
+    const plate = normalizePlate(i.guest_plate);
+    if (name.length < 1 || name.length > 20) return '请填写客户姓名（1–20 个字）';
+    if (!/^1[3-9]\d{9}$/.test(phone)) return '请输入正确的手机号';
+    if (plate !== '' && !PLATE.test(plate)) return '请输入正确的车牌号';
+    guest = { guest_name: name, guest_phone: phone, guest_plate: plate };
+  }
   return {
     id: i.id ?? null,
     member_id: i.member_id ?? null,
@@ -28,6 +40,7 @@ export function parseBooking(i: Input): Input | string {
     starts_at: i.starts_at,
     service_ids: i.service_ids ?? [],
     note: i.note ?? '',
+    ...guest,
   };
 }
 export function parseBookingSettings(i: Input): Input | string {

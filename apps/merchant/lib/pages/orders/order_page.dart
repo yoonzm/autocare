@@ -24,6 +24,7 @@ import '../../theme.dart';
 import '../../routes.dart';
 import '../../widgets/app_icon.dart';
 import '../../widgets/common.dart';
+import '../../widgets/customer_card.dart';
 
 class OrderPage extends StatefulWidget {
   final Member? member;
@@ -52,6 +53,9 @@ class _OrderPageState extends State<OrderPage> {
 
   /// 会员名下可用次卡：服务 ID -> (次卡 ID, 剩余次数)。
   Map<String, (String, int)> _cover = {};
+
+  /// 会员名下次卡摘要，如「洗车次卡剩 8 次」（显示在客户卡片上）。
+  String _packageNote = '';
   final _payment = OrderCheckout();
   bool _choosingPayment = false, _submitting = false;
   bool get _busy => _payment.busy || _submitting;
@@ -141,6 +145,7 @@ class _OrderPageState extends State<OrderPage> {
       _quantities.clear();
       _preferredPackages.clear();
       _cover = {};
+      _packageNote = '';
       _coverError = null;
       _loadingCover = false;
       picked.clear();
@@ -219,6 +224,7 @@ class _OrderPageState extends State<OrderPage> {
         techs.clear();
         customer = m == null ? _noMember : memberFromRow(m);
         _cover = {};
+        _packageNote = '';
         pay = 0;
         if (walkIn) _walkPlateCtl.text = '${row['vehicle_plate'] ?? ''}';
         picked
@@ -395,6 +401,7 @@ class _OrderPageState extends State<OrderPage> {
     final version = ++_coverVersion;
     if (id == null || _walkIn) {
       _cover = {};
+      _packageNote = '';
       _coverError = null;
       _loadingCover = false;
       return;
@@ -406,10 +413,21 @@ class _OrderPageState extends State<OrderPage> {
     try {
       final rows = await merchantApi.memberPackages(id);
       final map = <String, (String, int)>{};
+      var packages = 0, remaining = 0;
+      String? onlyName;
       for (final p in rows) {
         if (p['refunded_at'] != null) continue;
         final exp = DateTime.tryParse('${p['expires_at'] ?? ''}');
         if (exp != null && exp.isBefore(DateTime.now())) continue;
+        var left = 0;
+        for (final it in (p['items'] as List? ?? const [])) {
+          left += ((it['total'] as num) - (it['used'] as num)).toInt();
+        }
+        if (left > 0) {
+          packages++;
+          remaining += left;
+          onlyName = '${p['name'] ?? ''}';
+        }
         for (final it in (p['items'] as List? ?? const [])) {
           final left = ((it['total'] as num) - (it['used'] as num)).toInt();
           final sid = '${it['service_id']}';
@@ -423,7 +441,14 @@ class _OrderPageState extends State<OrderPage> {
           version == _coverVersion &&
           customer.id == id &&
           !_walkIn) {
-        setState(() => _cover = map);
+        setState(() {
+          _cover = map;
+          _packageNote = packages == 0
+              ? ''
+              : packages == 1 && onlyName!.isNotEmpty
+              ? '$onlyName剩 $remaining 次'
+              : '次卡剩 $remaining 次';
+        });
       }
     } catch (e) {
       if (mounted && version == _coverVersion && customer.id == id) {
@@ -819,6 +844,7 @@ class _OrderPageState extends State<OrderPage> {
         customer = memberFromRow(row);
         picked.clear();
         _cover = {};
+        _packageNote = '';
         pay = 0;
         _holdId = null;
       });
@@ -840,6 +866,7 @@ class _OrderPageState extends State<OrderPage> {
     customer = _noMember;
     picked.clear();
     _cover = {};
+    _packageNote = '';
     pay = 0;
     _holdId = null;
   });
@@ -856,122 +883,40 @@ class _OrderPageState extends State<OrderPage> {
     customer = _noMember;
     picked.clear();
     _cover = {};
+    _packageNote = '';
     pay = 0;
     _holdId = null;
   });
 
-  Widget _customer(BuildContext context) {
-    if (_noCustomer) return _chooseCustomer();
-    if (_walkIn) return _walkInCard();
-    return _memberCard(context);
-  }
-
-  /// 未选客户：选择会员 / 散客开单。
-  Widget _chooseCustomer() => AppCard(
-    padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('选择客户', style: ts(15, w: FontWeight.w600, h: 22)),
-        const SizedBox(height: 12),
-        GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: _pickCustomer,
-          child: Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: C.primarySoft,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: AppIcon('search', size: 18, color: C.primaryInk),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '选择会员',
-                        style: ts(
-                          14,
-                          w: FontWeight.w600,
-                          color: C.primaryInk,
-                          h: 20,
-                        ),
-                      ),
-                      Text(
-                        '车牌 / 手机号',
-                        style: ts(12, color: C.primaryInk, h: 16),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 12),
-        GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: _startWalkIn,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            decoration: BoxDecoration(
-              color: C.inset,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: AppIcon('person', size: 18, color: C.sub),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('散客开单', style: ts(14, w: FontWeight.w600, h: 20)),
-                      Text(
-                        '不记会员，无折扣和次卡抵扣',
-                        style: ts(12, color: C.muted, h: 16),
-                      ),
-                    ],
-                  ),
-                ),
-                AppIcon('chevronRight', size: 18, color: C.faint),
-              ],
-            ),
-          ),
-        ),
-      ],
-    ),
+  /// 客户卡片（设计稿 Order / OrderEmpty / OrderWalkIn）：会员 / 散客切换，会员页签没选时是蓝色的
+  /// 「选择会员」入口，选了之后显示会员信息和「更换」；散客页签有车牌号输入。
+  Widget _customer(BuildContext context) => CustomerCard(
+    walkIn: _walkIn,
+    onWalkInChanged: (walk) {
+      if (walk == _walkIn || _busy) return;
+      walk ? _startWalkIn() : _clearCustomer();
+    },
+    hasMember: customer.id != null,
+    member: customer,
+    subtitle: [
+      '余额 $_balanceText',
+      if (_packageNote.isNotEmpty) _packageNote,
+    ].join(' · '),
+    onPick: _pickCustomer,
+    walkInBody: _walkInBody(context),
   );
 
   /// 散客：不记会员，车牌号选填。
-  Widget _walkInCard() => AppCard(
-    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-    child: Column(
-      children: [
-        Row(
+  Widget _walkInBody(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: C.inset,
+          borderRadius: BorderRadius.circular(18),
+        ),
+        child: Row(
           children: [
             Container(
               width: 44,
@@ -991,94 +936,23 @@ class _OrderPageState extends State<OrderPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Text('散客', style: ts(15, w: FontWeight.w500, h: 22)),
-                      const SizedBox(width: 6),
-                      Pill('不记会员', bg: C.inset, fg: C.sub, size: 11),
-                    ],
-                  ),
+                  Text('散客', style: ts(15, w: FontWeight.w600, h: 22)),
                   const SizedBox(height: 2),
-                  Text('无会员折扣与次卡抵扣', style: ts(12, color: C.muted, h: 16)),
+                  Text('不记会员，无折扣和次卡抵扣', style: ts(12, color: C.muted, h: 16)),
                 ],
-              ),
-            ),
-            GestureDetector(
-              onTap: _clearCustomer,
-              child: Text(
-                '更换',
-                style: ts(13, w: FontWeight.w500, color: C.primaryInk, h: 18),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 12),
-        Container(
-          constraints: const BoxConstraints(minHeight: 44),
-          padding: const EdgeInsets.symmetric(horizontal: 14),
-          decoration: BoxDecoration(
-            color: C.inset,
-            borderRadius: BorderRadius.circular(14),
-          ),
-          child: Row(
-            children: [
-              Text('车牌号', style: ts(13, color: C.sub)),
-              const SizedBox(width: 10),
-              Expanded(
-                child: TextField(
-                  controller: _walkPlateCtl,
-                  onTapOutside: onTapOutsideDismiss,
-                  textCapitalization: TextCapitalization.characters,
-                  style: ts(14, h: 20),
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    isCollapsed: true,
-                    hintText: '选填，便于施工与取车',
-                    hintStyle: ts(14, color: C.muted),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    ),
-  );
-
-  Widget _memberCard(BuildContext context) => AppCard(
-    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-    child: Row(
-      children: [
-        Avatar(customer.name.substring(0, 1)),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Wrap(
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 6,
-                runSpacing: 4,
-                children: [
-                  Text(customer.name, style: ts(15, w: FontWeight.w500, h: 22)),
-                  LevelBadge(customer.level),
-                  PlateTag(customer.plate),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text('余额 $_balanceText', style: ts(12, color: C.muted, h: 16)),
-            ],
-          ),
-        ),
-        GestureDetector(
-          onTap: _pickCustomer,
-          child: Text(
-            '更换',
-            style: ts(13, w: FontWeight.w500, color: C.primaryInk, h: 18),
-          ),
-        ),
-      ],
-    ),
+      ),
+      const SizedBox(height: 12),
+      CustomerField(
+        label: '车牌号',
+        controller: _walkPlateCtl,
+        hint: '选填，便于施工与取车',
+        capitalization: TextCapitalization.characters,
+      ),
+    ],
   );
 
   Widget _servicesCard() => AppCard(

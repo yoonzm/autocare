@@ -7,8 +7,8 @@ declare u uuid:=gen_random_uuid(); u2 uuid:=gen_random_uuid(); shop uuid; other_
   past_id uuid; caught boolean;
 begin
   insert into auth.users(id) values(u),(u2);
-  insert into public.stores(owner_id,name) values(u,'预约测试') returning id into shop;
-  insert into public.stores(owner_id,name) values(u2,'其他门店') returning id into other_shop;
+  insert into public.stores(owner_id,name,phone) values(u,'预约测试','13900000011') returning id into shop;
+  insert into public.stores(owner_id,name,phone) values(u2,'其他门店','13900000012') returning id into other_shop;
   insert into public.card_types(store_id,name,discount) values(shop,'普通会员',1) returning id into tier;
   insert into public.service_items(store_id,name,category,price,duration_minutes) values(shop,'洗车','洗车',68,30) returning id into svc;
   insert into public.service_items(store_id,name,category,price,duration_minutes) values(other_shop,'外店项目','洗车',999,30) returning id into foreign_svc;
@@ -31,6 +31,11 @@ begin
   b:=public.save_appointment(shop,jsonb_build_object('service_ids',jsonb_build_array(svc),'starts_at',future_at,
     'bay_id',bay2,'technician_id',tech2),'booking-two');
   assert not public.appointment_slot_available(shop,future_at,30); -- 全店容量限制。
+  -- 散客预约：姓名、手机号、车牌随预约保存；没有传时仍是「散客」。
+  reply:=public.save_appointment(shop,jsonb_build_object('service_ids',jsonb_build_array(svc),
+    'starts_at',future_at+interval '3 hours','guest_name','张先生','guest_phone','13900001111','guest_plate','沪A8K29M'),'booking-guest');
+  assert (select customer_name||'|'||phone||'|'||vehicle_plate from public.appointments where id=(reply->>'id')::uuid)='张先生|13900001111|沪A8K29M';
+  assert (select customer_name||'|'||phone||'|'||vehicle_plate from public.appointments where id=(b->>'id')::uuid)='散客||';
   assert public.appointment_detail(other_shop,(a->>'id')::uuid) is null;
   caught:=false;
   begin perform public.save_appointment(shop,jsonb_build_object('service_ids',jsonb_build_array(foreign_svc),'starts_at',future_at),'foreign-service');

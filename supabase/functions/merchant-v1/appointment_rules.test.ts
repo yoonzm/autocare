@@ -4,7 +4,12 @@ const assert = (ok: boolean) => {
   if (!ok) throw new Error('assertion failed');
 };
 Deno.test('booking input: explicit timezone, member/resource IDs, services and note limits', () => {
-  const base = { starts_at: '2026-11-05T10:00:00+08:00', service_ids: [id] };
+  const base = {
+    starts_at: '2026-11-05T10:00:00+08:00',
+    service_ids: [id],
+    guest_name: '张先生',
+    guest_phone: '13900001111',
+  };
   assert(typeof parseBooking(base) === 'object');
   for (
     const input of [
@@ -23,6 +28,29 @@ Deno.test('booking input: explicit timezone, member/resource IDs, services and n
     unknown
   >;
   assert(!('estimate' in result) && !('duration_minutes' in result) && !('store_id' in result));
+});
+Deno.test('walk-in booking needs a name and a valid phone; plate is optional and normalised', () => {
+  const base = { starts_at: '2026-11-05T10:00:00+08:00', service_ids: [id] };
+  for (
+    const input of [
+      base,
+      { ...base, guest_name: '   ', guest_phone: '13900001111' },
+      { ...base, guest_name: 'a'.repeat(21), guest_phone: '13900001111' },
+      { ...base, guest_name: '张先生', guest_phone: '12345' },
+      { ...base, guest_name: '张先生', guest_phone: '13900001111', guest_plate: 'XYZ' },
+    ]
+  ) assert(typeof parseBooking(input) === 'string');
+  const ok = parseBooking({
+    ...base,
+    guest_name: ' 张先生 ',
+    guest_phone: '139 0000-1111',
+    guest_plate: '沪a·8k29m',
+  }) as Record<string, unknown>;
+  assert(ok.guest_name === '张先生' && ok.guest_phone === '13900001111' && ok.guest_plate === '沪A8K29M');
+  // 会员预约和改约不需要这些字段
+  const member = parseBooking({ ...base, member_id: id }) as Record<string, unknown>;
+  assert(member.guest_name === '' && member.guest_phone === '');
+  assert(typeof parseBooking({ ...base, id }) === 'object');
 });
 Deno.test('calendar validates actual dates and leap days', () => {
   assert(validDay('2028-02-29'));

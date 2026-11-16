@@ -18,7 +18,6 @@ void main() {
     fake = MemberFakeApi();
     merchantApi = fake;
 
-
     HoldStore.reset();
     navTracker.stack.clear();
     fake.services.addAll([
@@ -41,7 +40,6 @@ void main() {
   tearDown(() {
     merchantApi = original;
 
-
     HoldStore.reset();
     navTracker.stack.clear();
   });
@@ -61,11 +59,12 @@ void main() {
 
   testWidgets('未选客户：选择会员 / 散客开单；服务项目置灰，没有施工安排和结算，收款按钮不可用', (t) async {
     await openOrder(t);
-    expect(find.text('选择客户'), findsOneWidget);
+    // 设计稿 OrderEmpty：标题「客户」+ 会员 / 散客切换，下面是蓝色的「选择会员」入口。
+    expect(find.text('客户'), findsOneWidget);
+    expect(find.text('会员'), findsOneWidget);
+    expect(find.text('散客'), findsOneWidget);
     expect(find.text('选择会员'), findsOneWidget);
-    expect(find.text('车牌 / 手机号'), findsOneWidget);
-    expect(find.text('散客开单'), findsOneWidget);
-    expect(find.text('不记会员，无折扣和次卡抵扣'), findsOneWidget);
+    expect(find.text('车牌 / 手机号 / 姓名'), findsOneWidget);
     expect(find.text('施工安排'), findsNothing);
     expect(find.text('结算'), findsNothing);
     expect(find.text('请先选择客户'), findsOneWidget);
@@ -81,11 +80,10 @@ void main() {
 
   testWidgets('散客：车牌号选填，没有折扣和次卡，只有三种收款方式；只提交选择，不记会员', (t) async {
     await openOrder(t);
-    await t.tap(find.text('散客开单'));
+    await t.tap(find.text('散客'));
     await t.pumpAndSettle();
-    expect(find.text('散客'), findsOneWidget);
-    expect(find.text('不记会员'), findsOneWidget);
-    expect(find.text('无会员折扣与次卡抵扣'), findsOneWidget);
+    expect(find.text('散客'), findsNWidgets(2)); // 切换项 + 客户卡片
+    expect(find.text('不记会员，无折扣和次卡抵扣'), findsOneWidget);
     expect(find.text('选填，便于施工与取车'), findsOneWidget); // placeholder
     expect(find.text('会员余额'), findsNothing);
     expect(find.text('组合支付'), findsNothing);
@@ -122,21 +120,24 @@ void main() {
     expect(find.text('收款成功'), findsOneWidget);
   });
 
-  testWidgets('散客点“更换”回到选择客户，已选项目清空', (t) async {
+  testWidgets('散客页签切回会员：回到选择会员，已选项目清空', (t) async {
     await openOrder(t);
-    await t.tap(find.text('散客开单'));
+    await t.tap(find.text('散客'));
     await t.pumpAndSettle();
     await t.tap(find.text('精致洗车'));
     await t.pump();
-    await t.tap(find.text('更换'));
+    await t.tap(find.text('会员'));
     await t.pumpAndSettle();
-    expect(find.text('选择客户'), findsOneWidget);
+    expect(find.text('选择会员'), findsOneWidget);
     expect(find.text('请先选择客户'), findsOneWidget);
   });
 
   testWidgets('选择会员：打开选择会员弹层，选中后进入会员状态（折扣、次卡、余额收款）', (t) async {
     final r = row(tier: 't-gold', tierName: '金卡');
     (r['card'] as Map)['discount'] = 0.95;
+    r['vehicles'] = [
+      {'plate': '沪A8K29M', 'brand_model': '奔驰 E300', 'color': '黑'},
+    ];
     fake.rows.add(r);
     await openOrder(t);
     await t.tap(find.text('选择会员'));
@@ -145,8 +146,12 @@ void main() {
     await t.tap(find.text('王建国').last);
     await t.pumpAndSettle();
     expect(navTracker.has('sheet:MemberPicker'), isFalse);
-    expect(find.text('选择客户'), findsNothing);
+    expect(find.text('选择会员'), findsNothing);
     expect(find.text('王建国'), findsWidgets);
+    expect(find.text('更换'), findsOneWidget);
+    expect(find.text('车辆'), findsOneWidget); // 有车辆时下面是车辆一行
+    expect(find.text('奔驰 E300 · 黑'), findsOneWidget);
+    expect(find.textContaining('余额 '), findsWidgets);
     expect(find.text('会员余额'), findsOneWidget);
     expect(find.text('确认收款'), findsOneWidget);
     // 关闭弹层没选人：不会被后面的会员变动影响
@@ -193,7 +198,7 @@ void main() {
 
   testWidgets('后台刷新服务项目后，开单页已选的项目按 ID 保留，不会选错', (t) async {
     await openOrder(t);
-    await t.tap(find.text('散客开单')); // 未选客户时服务项目是置灰的
+    await t.tap(find.text('散客')); // 未选客户时服务项目是置灰的
     await t.pumpAndSettle();
     await t.tap(find.text('内饰深度清洁'));
     await t.pump();
