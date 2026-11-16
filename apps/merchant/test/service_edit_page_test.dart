@@ -183,4 +183,26 @@ void main() {
     expect(api.deleted, ['service-7', 'service-7']);
     expect(find.byType(ServiceEditPage), findsNothing);
   });
+
+  testWidgets('一期没有会员端小程序：编辑项目页不显示「支持线上预约」，保留上架销售', (t) async {
+    final context = await host(t);
+    unawaited(
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => const ServiceEditPage(
+            initial: {'id': 'service-1', 'name': '精洗', 'price': 68},
+          ),
+        ),
+      ),
+    );
+    await t.pumpAndSettle();
+    await t.scrollUntilVisible(
+      find.text('上架销售'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('上架销售'), findsOneWidget);
+    expect(find.text('支持线上预约'), findsNothing);
+    expect(find.text('客户可在小程序预约此项目'), findsNothing);
+  });
 }

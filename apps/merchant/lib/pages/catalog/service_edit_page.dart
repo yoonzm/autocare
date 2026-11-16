@@ -1395,65 +1395,7 @@ class _ServiceEditPageState extends State<ServiceEditPage> {
                               gap: 12,
                             ),
                           ),
-                          hbox(
-                            h: 1,
-                            bg: dk(
-                              context,
-                              Color(0xFFEFEFF1),
-                              Color(0xFF2A2A2E),
-                            ),
-                            margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
-                          ),
-                          hbox(
-                            minH: 56,
-                            pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                            child: hrow(
-                              [
-                                Expanded(
-                                  flex: 1,
-                                  child: hcol(
-                                    [
-                                      Text(
-                                        '支持线上预约',
-                                        style: hts(
-                                          15,
-                                          dk(
-                                            context,
-                                            Color(0xFF18181B),
-                                            Color(0xFFFAFAFA),
-                                          ),
-                                          lh: 22,
-                                        ),
-                                      ),
-                                      Text(
-                                        '客户可在小程序预约此项目',
-                                        style: hts(
-                                          12,
-                                          dk(
-                                            context,
-                                            Color(0xFF71717A),
-                                            Color(0xFF9A9AA3),
-                                          ),
-                                          lh: 16,
-                                        ),
-                                      ),
-                                    ],
-                                    main: MainAxisAlignment.start,
-                                    cross: CrossAxisAlignment.stretch,
-                                    gap: 0,
-                                  ),
-                                ),
-                                HSwitch(
-                                  initial: false,
-                                  value: false,
-                                  onChanged: (_) => _unsupported(),
-                                ),
-                              ],
-                              main: MainAxisAlignment.start,
-                              cross: CrossAxisAlignment.center,
-                              gap: 12,
-                            ),
-                          ),
+                          // 一期不做会员端小程序，去掉「支持线上预约」开关（docs/mvp-v1.md）。
                         ],
                         main: MainAxisAlignment.start,
                         cross: CrossAxisAlignment.stretch,
