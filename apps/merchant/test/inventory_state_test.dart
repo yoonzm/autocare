@@ -9,6 +9,8 @@ import 'package:autocare_merchant/kit/single_selection.dart';
 import 'package:autocare_merchant/pages/inventory/inventory_live_page.dart';
 import 'package:autocare_merchant/pages/inventory/inventory_management_page.dart';
 import 'package:autocare_merchant/pages/inventory/inventory_management_controller.dart';
+import 'package:autocare_merchant/pages/inventory/inventory_controller.dart'
+    show InventoryController;
 
 import 'members_test.dart' show MemberFakeApi, phone;
 
@@ -230,5 +232,20 @@ void main() {
     await t.pumpAndSettle();
     expect(find.text('供应商new'), findsOneWidget);
     expect(find.text('供应商old'), findsNothing);
+  });
+
+  testWidgets('入库单：付款方式、同步开支等不影响金额的字段变化不清空报价，运费变化才重新报价', (t) async {
+    phone(t);
+    final c = InventoryController('in', [], {}, null, null)
+      ..quote = {'total': 10, 'subtotal': 10};
+    addTearDown(c.dispose);
+    c.payload['sync_expense'] = true;
+    c.changed(requote: false);
+    expect(c.quote, isNotNull, reason: '同步开支不应让金额转圈');
+    c.selectPayment(1);
+    expect(c.quote, isNotNull, reason: '付款方式不应让金额转圈');
+    c.changed();
+    expect(c.quote, isNull, reason: '商品或运费变化要重新报价');
+    await t.pump(const Duration(seconds: 2));
   });
 }

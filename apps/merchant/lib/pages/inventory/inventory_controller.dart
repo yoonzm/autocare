@@ -188,9 +188,11 @@ class InventoryController extends ChangeNotifier {
     scheduleQuote();
   }
 
-  void changed() {
+  /// [requote]：报价只取决于商品行和运费，其余字段（付款方式、日期、供应商、同步开支、附件等）
+  /// 变化时传 false，不清空金额、不重新请求报价。
+  void changed({bool requote = true}) {
     dirty = true;
-    scheduleQuote();
+    if (requote) scheduleQuote();
     if (!disposed) notifyListeners();
   }
 
@@ -324,7 +326,7 @@ class InventoryController extends ChangeNotifier {
   void selectPayment(int index) {
     if (busy) return;
     payload['payment'] = payments[index];
-    changed();
+    changed(requote: false);
   }
 
   void selectReason(int index) => setOutReason(outReasons[index]);
@@ -348,7 +350,7 @@ class InventoryController extends ChangeNotifier {
   void setOutReason(String reason) {
     if (busy) return;
     payload['reason'] = reason;
-    changed();
+    changed(requote: false);
   }
 
   void openMovement(BuildContext context, String movement) {
@@ -403,7 +405,7 @@ class InventoryController extends ChangeNotifier {
           payload[key == 'technician' ? 'technician_id' : 'order_id'] =
               value['id'];
           payload[key == 'technician' ? 'technician' : 'workorder'] = label;
-          changed();
+          changed(requote: false);
         }
       } catch (e) {
         if (context.mounted && !disposed) AppToast.error(context, e);
@@ -427,7 +429,7 @@ class InventoryController extends ChangeNotifier {
       );
       if (d != null) {
         payload['date'] = d.toIso8601String().substring(0, 10);
-        changed();
+        changed(requote: false);
       }
       return;
     }
@@ -443,7 +445,7 @@ class InventoryController extends ChangeNotifier {
       );
       if (name != null) {
         payload['supplier'] = name;
-        changed();
+        changed(requote: false);
       }
       return;
     }
@@ -459,7 +461,7 @@ class InventoryController extends ChangeNotifier {
       final value = key == 'freight' ? num.tryParse(v) : v;
       if (value == null) return;
       payload[field] = value;
-      changed();
+      changed(requote: key == 'freight');
     }
   }
 
@@ -468,7 +470,7 @@ class InventoryController extends ChangeNotifier {
     onChanged: (_) {
       // Posting books the linked expense in the same database transaction.
       payload['sync_expense'] = payload['sync_expense'] != true;
-      changed();
+      changed(requote: false);
     },
   );
   Future<void> scan(BuildContext context) async {
@@ -823,7 +825,7 @@ class InventoryAttachment extends StatelessWidget {
     onChanged: (paths) {
       if (c.disposed) return;
       c.payload['attachments'] = paths;
-      c.changed();
+      c.changed(requote: false);
     },
   );
 }
