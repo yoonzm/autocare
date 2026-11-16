@@ -488,8 +488,9 @@ class _ProductEditState extends State<ProductEditLivePage> {
                                       });
                                       inventoryChanged.value++;
                                       dirty = false;
-                                      if (context.mounted)
+                                      if (context.mounted) {
                                         Navigator.pop(context);
+                                      }
                                     } finally {
                                       if (mounted) setState(() => busy = false);
                                     }
