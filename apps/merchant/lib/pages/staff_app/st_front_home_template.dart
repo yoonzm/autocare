@@ -43,8 +43,6 @@ class StFrontHomeTemplate extends StatelessWidget {
     // _queueBlock：待收银 · 技师提交（有队列时显示）
     return HPage(
       bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
-      height: 968,
-      fixedHeight: false,
       flow: hcol(
         [
           hbox(

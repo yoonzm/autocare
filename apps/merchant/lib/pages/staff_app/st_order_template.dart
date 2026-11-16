@@ -261,8 +261,6 @@ class _StOrderTemplateState extends State<StOrderTemplate> {
       actionKey: _actionKey,
       child: HPage(
         bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
-        height: 844,
-        fixedHeight: false,
         flow: hcol(
           [
             hbox(

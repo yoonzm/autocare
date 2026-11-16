@@ -25,8 +25,6 @@ class StaffInviteTemplate extends StatelessWidget {
     final masked = StaffFlow.maskedPhone(d['phone']);
     return HPage(
       bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
-      height: 1008,
-      fixedHeight: false,
       flow: hcol(
         [
           hbox(

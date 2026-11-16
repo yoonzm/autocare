@@ -122,8 +122,6 @@ class _StoreInfoView extends StatelessWidget {
     ].where((v) => v != null && '$v'.trim().isNotEmpty).join(' ');
     return HPage(
       bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
-      height: 800,
-      fixedHeight: false,
       flow: hcol(
         [
           hbox(

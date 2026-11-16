@@ -12,7 +12,6 @@ class AppointmentSettingsSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => HPage(
     bg: dk(context, const Color(0xFFF4F4F5), const Color(0xFF09090B)),
-    height: 1286,
     flow: hbox(
       pad: EdgeInsets.fromLTRB(20, topInset(context), 20, 120),
       child: Column(

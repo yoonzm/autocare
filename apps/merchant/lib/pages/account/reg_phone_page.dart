@@ -91,8 +91,6 @@ class _RegPhonePageState extends State<RegPhonePage> {
         actionKey: actionKey,
         child: HPage(
           bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
-          height: 844,
-          fixedHeight: false,
           flow: hcol(
             [
               hbox(

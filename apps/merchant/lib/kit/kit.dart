@@ -20,19 +20,17 @@ export 'image_pick.dart';
 /// 页面骨架：可滚动的正常流内容 + 固定在屏幕上的浮层（底部栏、弹层等）。
 class HPage extends StatelessWidget {
   final Color bg;
-  final double height;
-  final bool fixedHeight;
   final Widget flow;
   final List<Widget> overlays;
   const HPage({
     super.key,
     required this.bg,
-    required this.height,
     required this.flow,
-    this.fixedHeight = false,
     this.overlays = const [],
   });
 
+  /// 页面高度由内容决定：内容不足一屏时铺满屏幕、不可滚动，超出一屏才滚动。
+  /// 不再使用设计稿里的固定页面高度，否则小内容页面也会出现多余的滚动区域。
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,22 +38,19 @@ class HPage extends StatelessWidget {
       resizeToAvoidBottomInset: true,
       body: LayoutBuilder(
         builder: (context, c) {
-          final h = math.max(height, c.maxHeight);
           return Stack(
             children: [
               Positioned.fill(
                 child: SingleChildScrollView(
                   keyboardDismissBehavior:
                       ScrollViewKeyboardDismissBehavior.onDrag,
-                  child: fixedHeight
-                      ? SizedBox(height: h, width: double.infinity, child: flow)
-                      : ConstrainedBox(
-                          constraints: BoxConstraints(
-                            minHeight: h,
-                            minWidth: double.infinity,
-                          ),
-                          child: flow,
-                        ),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: c.maxHeight,
+                      minWidth: double.infinity,
+                    ),
+                    child: flow,
+                  ),
                 ),
               ),
               ...overlays,

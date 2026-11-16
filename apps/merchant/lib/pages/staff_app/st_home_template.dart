@@ -34,8 +34,6 @@ class StHomeTemplate extends StatelessWidget {
         '${t['plate'] ?? ''}'.isEmpty ? '未登记车牌' : '${t['plate']}';
     return HPage(
       bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
-      height: 968,
-      fixedHeight: false,
       flow: hcol(
         [
           hbox(

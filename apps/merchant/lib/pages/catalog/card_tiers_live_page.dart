@@ -202,8 +202,6 @@ class _CardTiersLivePageState extends State<CardTiersLivePage> {
     return HPage(
       bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
       // 高度跟随内容：内容不够一屏时不滚动（设计稿的固定高度只是示例）
-      height: 0,
-      fixedHeight: false,
       flow: hcol(
         [
           hbox(

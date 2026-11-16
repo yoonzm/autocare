@@ -145,8 +145,6 @@ class _CardTierEditPageState extends State<CardTierEditPage> {
         actionKey: saveKey,
         child: HPage(
           bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
-          height: 1170,
-          fixedHeight: false,
           flow: hcol(
             [
               hbox(

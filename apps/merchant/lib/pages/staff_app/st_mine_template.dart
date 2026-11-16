@@ -24,8 +24,6 @@ class StMineTemplate extends StatelessWidget {
     final joined = StaffFlow.dotDate(d['joined_on'], monthOnly: true);
     return HPage(
       bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
-      height: 1100,
-      fixedHeight: false,
       flow: hcol(
         [
           hbox(

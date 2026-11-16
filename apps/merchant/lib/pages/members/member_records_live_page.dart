@@ -38,8 +38,6 @@ class _MemberRecordsLivePageState extends State<MemberRecordsLivePage> {
     final m = MemberView(widget.member!);
     return HPage(
       bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
-      height: 960,
-      fixedHeight: false,
       flow: hcol(
         [
           hbox(
