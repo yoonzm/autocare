@@ -1,4 +1,6 @@
 import '../expenses/voucher_gallery.dart';
+import 'expiry_sheet.dart';
+import '../../widgets/common.dart' show Divider1;
 
 import 'dart:convert';
 
@@ -339,6 +341,16 @@ class InventoryController extends ChangeNotifier {
       'Inventory-${identityHashCode(this)}-$action';
   Future<void> submit(BuildContext context) async {
     if (busy) return;
+    if (mode == 'in') {
+      // 启用保质期管理的商品必须填到期日（服务端同样校验）。
+      final missing = lines
+          .where((l) => lineShelf(l) && lineExpiry(l) == null)
+          .firstOrNull;
+      if (missing != null) {
+        AppToast.show(context, '请填写「${lineName(missing)}」的到期日');
+        return;
+      }
+    }
     await runBusy(actionKey('submit'), () => save(context, true));
   }
 
@@ -421,14 +433,17 @@ class InventoryController extends ChangeNotifier {
       return;
     }
     if (key == 'date') {
-      final d = await showDatePicker(
-        context: context,
-        initialDate: DateTime.tryParse('${payload['date']}') ?? DateTime.now(),
-        firstDate: DateTime(2000),
-        lastDate: DateTime.now(),
+      // 滚轮选择：只能选今天及之前（最近一年内）；返回 YYYY.MM.DD。
+      final picked = await pickDate(
+        context,
+        '入库日期',
+        birthday: false,
+        current: '${payload['date'] ?? ''}'.replaceAll('-', '.'),
+        pastOnly: true,
+        fullFormat: true,
       );
-      if (d != null) {
-        payload['date'] = d.toIso8601String().substring(0, 10);
+      if (picked != null) {
+        payload['date'] = picked.replaceAll('.', '-');
         changed(requote: false);
       }
       return;
@@ -526,26 +541,29 @@ class InventoryController extends ChangeNotifier {
     changed();
   }
 
-  Widget quantityLabel(BuildContext context, Map<String, dynamic> line) =>
-      GestureDetector(
-        onTap: () async {
-          final v = await inputDialog(
-            context,
-            '数量',
-            '请输入数量',
-            '${line['quantity'] ?? ''}',
-            numeric: true,
-          );
-          if (v != null) {
-            line['quantity'] = num.tryParse(v);
-            changed();
-          }
-        },
-        child: Text(
-          qty(line['quantity'] as num? ?? 0),
-          style: ts(15, w: FontWeight.w600),
-        ),
+  Widget quantityLabel(
+    BuildContext context,
+    Map<String, dynamic> line, {
+    double size = 15,
+  }) => GestureDetector(
+    onTap: () async {
+      final v = await inputDialog(
+        context,
+        '数量',
+        '请输入数量',
+        '${line['quantity'] ?? ''}',
+        numeric: true,
       );
+      if (v != null) {
+        line['quantity'] = num.tryParse(v);
+        changed();
+      }
+    },
+    child: Text(
+      qty(line['quantity'] as num? ?? 0),
+      style: ts(size, w: FontWeight.w600),
+    ),
+  );
 
   String lineName(Map<String, dynamic> l) {
     final p = product(l);
@@ -563,7 +581,16 @@ class InventoryController extends ChangeNotifier {
   }
 
   String lineBatchLabel(Map<String, dynamic> l) {
-    return '批次 自动生成 · ${l['expires_on'] ?? '无保质期'}';
+    return '自动生成 · ${l['expires_on'] ?? '无保质期'}';
+  }
+
+  /// 商品是否启用了保质期管理（入库必须填写到期日）。
+  bool lineShelf(Map<String, dynamic> l) => product(l)['shelf_life'] == true;
+
+  /// 到期日显示为 YYYY.MM.DD；还没填返回 null。
+  String? lineExpiry(Map<String, dynamic> l) {
+    final v = '${l['expires_on'] ?? ''}';
+    return v.isEmpty ? null : v.replaceAll('-', '.');
   }
 
   String lineTotalLabel(Map<String, dynamic> l) {
@@ -593,15 +620,17 @@ class InventoryController extends ChangeNotifier {
         changed();
       }
     } else {
-      final v = await inputDialog(
+      // 到期日只有启用保质期管理的商品才需要填写；日期弹层按入库日期推算。
+      final picked = await pickExpiryDate(
         context,
-        '有效期',
-        'YYYY-MM-DD，留空表示无保质期',
-        '${l[field] ?? ''}',
+        productName: lineName(l),
+        received:
+            DateTime.tryParse('${payload['date'] ?? ''}') ?? DateTime.now(),
+        current: '${l[field] ?? ''}',
       );
-      if (v != null) {
-        l[field] = v;
-        changed();
+      if (picked != null) {
+        l[field] = picked;
+        changed(requote: false);
       }
     }
   }
@@ -657,13 +686,15 @@ class InventoryController extends ChangeNotifier {
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
       if (lines.isEmpty) const EmptyView.firstTime(title: '还没有选择商品'),
-      for (final l in lines)
+      for (final l in lines) ...[
+        if (mode == 'in' && l != lines.first) const Divider1(),
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 7),
+          padding: EdgeInsets.symmetric(vertical: mode == 'in' ? 12 : 7),
           child: mode == 'in'
               ? StockInLineTemplate(c: this, line: l)
               : StockOutLineTemplate(c: this, line: l),
         ),
+      ],
       mode == 'in' ? StockInAddTemplate(c: this) : StockOutAddTemplate(c: this),
     ],
   );

@@ -463,6 +463,12 @@
       "legacyDependencies": []
     },
     {
+      "path": "pages/inventory/expiry_sheet.dart",
+      "domain": "inventory",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
       "path": "pages/inventory/inventory_live_page.dart",
       "domain": "inventory",
       "status": "verified",
@@ -1582,6 +1588,13 @@
       "visualFixture": "保留原布局和原选中/未选中样式，只替换属性、回调及实例控制器；库存已有深浅色真实数据渲染用例通过，未重复逐页截图",
       "remainingTODO": [
         "库存 App/微信通知缺少真实渠道，明确阻止开启"
+      ]
+    },
+    "pages/inventory/expiry_sheet.dart": {
+      "tests": "入库单到期日弹层：新增 expiry_sheet_test；flutter analyze 无问题",
+      "visualFixture": "按设计稿 StockInExpiry 新增弹层（用户批准参照设计稿实现）；真机未逐页截图",
+      "remainingTODO": [
+        "TODO shelf_months：商品缺少保质期月数字段，快捷按钮固定 +12/+24/+36 个月，不标注保质期"
       ]
     },
     "pages/inventory/inventory_live_page.dart": {
