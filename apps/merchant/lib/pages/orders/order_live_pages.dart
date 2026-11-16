@@ -102,85 +102,88 @@ class _OrderListState extends State<OrderListLivePage> {
         empty && !orders.filtered && !orders.searching && orders.typeIndex == 0;
     return Scaffold(
       backgroundColor: C.bg,
-      body: RefreshIndicator(
-        onRefresh: () => orders.load(),
-        edgeOffset: topInset(context),
-        child: ListView(
-          controller: _scroll,
-          physics: const AlwaysScrollableScrollPhysics(),
-          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          padding: EdgeInsets.fromLTRB(20, topInset(context), 20, 32),
-          children: [
-            const AppPageHeader(title: '订单'),
-            const SizedBox(height: 16),
-            Segmented(
-              labels: OrderListController.rangeLabels,
-              selected: orders.rangeIndex,
-              onChanged: _pickRange,
-            ),
-            if (failed) ...[
-              const SizedBox(height: 16),
-              ErrorView(
-                error: orders.error!,
-                onRetry: () => orders.load(withOptions: true),
+      body: HHeaderFrame(
+        bg: C.bg,
+        header: const AppPageHeader(title: '订单'),
+        body: RefreshIndicator(
+          onRefresh: () => orders.load(),
+          child: ListView(
+            controller: _scroll,
+            physics: const AlwaysScrollableScrollPhysics(),
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            padding: EdgeInsets.fromLTRB(20, 8, 20, 32),
+            children: [
+              Segmented(
+                labels: OrderListController.rangeLabels,
+                selected: orders.rangeIndex,
+                onChanged: _pickRange,
               ),
-            ] else ...[
-              const SizedBox(height: 16),
-              _SummaryCard(orders: orders, loading: firstLoad),
-              if (!plainEmpty && !firstLoad) ...[
+              if (failed) ...[
                 const SizedBox(height: 16),
-                _SearchRow(
-                  controller: _search,
-                  orders: orders,
-                  onFilter: _filter,
-                ),
-                const SizedBox(height: 16),
-                _TypeChips(orders: orders),
-              ],
-              const SizedBox(height: 16),
-              if (firstLoad)
-                const _ListSkeleton()
-              else if (plainEmpty)
-                _EmptyDay(
-                  rangeLabel:
-                      OrderListController.rangeLabels[orders.rangeIndex],
-                )
-              else if (empty)
-                EmptyView.filtered(
-                  onAction: () {
-                    _search.clear();
-                    orders.query = '';
-                    orders.typeIndex = 0;
-                    orders.setFilter(method: 0, status: 0, operatorName: '');
-                  },
-                )
-              else
-                ..._days(),
-              if (items != null && orders.error != null)
                 ErrorView(
                   error: orders.error!,
                   onRetry: () => orders.load(withOptions: true),
                 ),
-              if (orders.loadingMore)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                  child: Center(child: AppSpinner(size: 20, color: C.primary)),
-                )
-              else if (items != null &&
-                  items.isNotEmpty &&
-                  !orders.hasMore &&
-                  items.length > 8)
-                Padding(
-                  padding: const EdgeInsets.only(top: 16),
-                  child: Center(
-                    child: Text(
-                      '— 没有更多了 —',
-                      style: ts(12, color: C.faint, h: 16),
+              ] else ...[
+                const SizedBox(height: 16),
+                _SummaryCard(orders: orders, loading: firstLoad),
+                if (!plainEmpty && !firstLoad) ...[
+                  const SizedBox(height: 16),
+                  _SearchRow(
+                    controller: _search,
+                    orders: orders,
+                    onFilter: _filter,
+                  ),
+                  const SizedBox(height: 16),
+                  _TypeChips(orders: orders),
+                ],
+                const SizedBox(height: 16),
+                if (firstLoad)
+                  const _ListSkeleton()
+                else if (plainEmpty)
+                  _EmptyDay(
+                    rangeLabel:
+                        OrderListController.rangeLabels[orders.rangeIndex],
+                  )
+                else if (empty)
+                  EmptyView.filtered(
+                    onAction: () {
+                      _search.clear();
+                      orders.query = '';
+                      orders.typeIndex = 0;
+                      orders.setFilter(method: 0, status: 0, operatorName: '');
+                    },
+                  )
+                else
+                  ..._days(),
+                if (items != null && orders.error != null)
+                  ErrorView(
+                    error: orders.error!,
+                    onRetry: () => orders.load(withOptions: true),
+                  ),
+                if (orders.loadingMore)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Center(
+                      child: AppSpinner(size: 20, color: C.primary),
+                    ),
+                  )
+                else if (items != null &&
+                    items.isNotEmpty &&
+                    !orders.hasMore &&
+                    items.length > 8)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16),
+                    child: Center(
+                      child: Text(
+                        '— 没有更多了 —',
+                        style: ts(12, color: C.faint, h: 16),
+                      ),
                     ),
                   ),
-                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -711,23 +714,30 @@ class _OrderDetailState extends State<OrderDetailLivePage> {
     final r = widget.order;
     return Scaffold(
       backgroundColor: C.bg,
-      body: r == null
-          ? ErrorView(
-              error: const AppError('请从订单列表选择订单', type: AppErrorType.notFound),
-              onNext: () => Navigator.of(context).maybePop(),
-            )
-          : AsyncView<Map<String, dynamic>>(
-              key: _key,
-              load: r.load,
-              isEmpty: (_) => false,
-              skeletonPadding: EdgeInsets.zero,
-              skeletonScrollable: true,
-              waiting: _Shell(),
-              skeleton: _Shell(loading: true),
-              empty: (_) => const SizedBox.shrink(),
-              builder: (context, d) =>
-                  _DetailBody(data: d, onRefund: () => _refund(context, d)),
-            ),
+      body: HHeaderFrame(
+        bg: C.bg,
+        header: const AppPageHeader(title: '订单详情'),
+        body: r == null
+            ? ErrorView(
+                error: const AppError(
+                  '请从订单列表选择订单',
+                  type: AppErrorType.notFound,
+                ),
+                onNext: () => Navigator.of(context).maybePop(),
+              )
+            : AsyncView<Map<String, dynamic>>(
+                key: _key,
+                load: r.load,
+                isEmpty: (_) => false,
+                skeletonPadding: EdgeInsets.zero,
+                skeletonScrollable: true,
+                waiting: _Shell(),
+                skeleton: _Shell(loading: true),
+                empty: (_) => const SizedBox.shrink(),
+                builder: (context, d) =>
+                    _DetailBody(data: d, onRefund: () => _refund(context, d)),
+              ),
+      ),
     );
   }
 
@@ -753,11 +763,9 @@ class _Shell extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ListView(
     physics: const NeverScrollableScrollPhysics(),
-    padding: EdgeInsets.fromLTRB(20, topInset(context), 20, 130),
+    padding: const EdgeInsets.fromLTRB(20, 8, 20, 130),
     children: [
-      const AppPageHeader(title: '订单详情'),
       if (loading) ...[
-        const SizedBox(height: 16),
         const AppSkeleton(height: 130, radius: 28),
         const SizedBox(height: 16),
         const AppSkeleton(height: 72, radius: 24),
@@ -838,10 +846,8 @@ class _DetailBody extends StatelessWidget {
     return Stack(
       children: [
         ListView(
-          padding: EdgeInsets.fromLTRB(20, topInset(context), 20, 130),
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 130),
           children: [
-            const AppPageHeader(title: '订单详情'),
-            const SizedBox(height: 16),
             // 深色概览卡
             Container(
               clipBehavior: Clip.antiAlias,

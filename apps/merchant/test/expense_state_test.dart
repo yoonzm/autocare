@@ -466,4 +466,29 @@ void main() {
       c.dispose();
     }
   });
+
+  testWidgets('开支列表：滚动后标题栏固定不动，下面的内容随之滚走', (t) async {
+    phone(t);
+    final c = ExpenseController('list', '2026-11-01', {
+      'items': [for (var i = 0; i < 30; i++) entry('r$i')],
+      'history': [],
+      'revenue': 1000,
+    });
+    await t.pumpWidget(
+      MaterialApp(
+        home: Scaffold(body: ExpensesLiveTemplate(c: c)),
+      ),
+    );
+    await t.pump();
+    final title = t.getTopLeft(find.text('开支管理'));
+    final month = t.getTopLeft(find.text(c.monthLabel));
+    await t.drag(
+      find.byType(SingleChildScrollView).first,
+      const Offset(0, -400),
+    );
+    await t.pump();
+    expect(t.getTopLeft(find.text('开支管理')), title);
+    expect(t.getTopLeft(find.text(c.monthLabel)).dy, lessThan(month.dy));
+    c.dispose();
+  });
 }

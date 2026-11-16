@@ -94,17 +94,40 @@ class _ProductListState extends State<ProductListLivePage> {
   @override
   Widget build(BuildContext context) => Scaffold(
     backgroundColor: C.bg,
-    body: AsyncView<List<InventoryProduct>>(
-      key: _key,
-      load: _load,
-      isEmpty: (_) => false,
-      skeletonPadding: EdgeInsets.zero,
-      skeletonScrollable: true,
-      waiting: const _Shell(),
-      skeleton: const _Shell(loading: true),
-      empty: (_) => const SizedBox.shrink(),
-      onNext: () => openRoute(context, 'Login'),
-      builder: (context, all) => _content(context, all),
+    body: HHeaderFrame(
+      bg: C.bg,
+      header: AppPageHeader(
+        title: '全部商品',
+        trailing: Semantics(
+          button: true,
+          label: '新增商品',
+          child: GestureDetector(
+            onTap: () => openRoute(context, 'ProductEdit'),
+            child: Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: C.card,
+                shape: BoxShape.circle,
+                boxShadow: softShadow,
+              ),
+              child: Center(child: AppIcon('add', size: 20, color: C.ink)),
+            ),
+          ),
+        ),
+      ),
+      body: AsyncView<List<InventoryProduct>>(
+        key: _key,
+        load: _load,
+        isEmpty: (_) => false,
+        skeletonPadding: EdgeInsets.zero,
+        skeletonScrollable: true,
+        waiting: const _Shell(),
+        skeleton: const _Shell(loading: true),
+        empty: (_) => const SizedBox.shrink(),
+        onNext: () => openRoute(context, 'Login'),
+        builder: (context, all) => _content(context, all),
+      ),
     ),
   );
 
@@ -112,29 +135,8 @@ class _ProductListState extends State<ProductListLivePage> {
     final list = _visible(all);
     return ListView(
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-      padding: EdgeInsets.fromLTRB(20, topInset(context), 20, 130),
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 130),
       children: [
-        AppPageHeader(
-          title: '全部商品',
-          trailing: Semantics(
-            button: true,
-            label: '新增商品',
-            child: GestureDetector(
-              onTap: () => openRoute(context, 'ProductEdit'),
-              child: Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: C.card,
-                  shape: BoxShape.circle,
-                  boxShadow: softShadow,
-                ),
-                child: Center(child: AppIcon('add', size: 20, color: C.ink)),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
         Row(
           children: [
             Expanded(
@@ -401,11 +403,9 @@ class _Shell extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ListView(
     physics: const NeverScrollableScrollPhysics(),
-    padding: EdgeInsets.fromLTRB(20, topInset(context), 20, 130),
+    padding: const EdgeInsets.fromLTRB(20, 8, 20, 130),
     children: [
-      const AppPageHeader(title: '全部商品'),
       if (loading) ...[
-        const SizedBox(height: 16),
         const AppSkeleton(height: 44, radius: 22),
         const SizedBox(height: 16),
         const AppSkeleton(height: 34, radius: 17),

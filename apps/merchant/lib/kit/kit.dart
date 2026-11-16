@@ -18,48 +18,126 @@ export 'pickers.dart';
 export 'image_pick.dart';
 
 /// 页面骨架：可滚动的正常流内容 + 固定在屏幕上的浮层（底部栏、弹层等）。
-class HPage extends StatelessWidget {
+class HPage extends StatefulWidget {
   final Color bg;
   final Widget flow;
   final List<Widget> overlays;
+
+  /// 固定在顶部、不随内容滚动的头部（通常是 [AppPageHeader]）。
+  /// 头部自带状态栏留白和左右 20 的边距；内容滚到头部下方时出现一条淡分隔线。
+  final Widget? header;
   const HPage({
     super.key,
     required this.bg,
     required this.flow,
     this.overlays = const [],
+    this.header,
   });
 
+  @override
+  State<HPage> createState() => _HPageState();
+}
+
+class _HPageState extends State<HPage> {
   /// 页面高度由内容决定：内容不足一屏时铺满屏幕、不可滚动，超出一屏才滚动。
   /// 不再使用设计稿里的固定页面高度，否则小内容页面也会出现多余的滚动区域。
   @override
   Widget build(BuildContext context) {
+    final header = widget.header;
     return Scaffold(
-      backgroundColor: bg,
+      backgroundColor: widget.bg,
       resizeToAvoidBottomInset: true,
       body: LayoutBuilder(
         builder: (context, c) {
+          Widget scroller(BoxConstraints body) => SingleChildScrollView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: body.maxHeight,
+                minWidth: double.infinity,
+              ),
+              child: widget.flow,
+            ),
+          );
           return Stack(
             children: [
               Positioned.fill(
-                child: SingleChildScrollView(
-                  keyboardDismissBehavior:
-                      ScrollViewKeyboardDismissBehavior.onDrag,
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minHeight: c.maxHeight,
-                      minWidth: double.infinity,
-                    ),
-                    child: flow,
-                  ),
-                ),
+                child: header == null
+                    ? scroller(c)
+                    : HHeaderFrame(
+                        bg: widget.bg,
+                        header: header,
+                        body: LayoutBuilder(
+                          builder: (context, body) => scroller(body),
+                        ),
+                      ),
               ),
-              ...overlays,
+              ...widget.overlays,
             ],
           );
         },
       ),
     );
   }
+}
+
+/// 固定头部 + 下方可滚动内容。头部带状态栏留白和左右 20 边距；
+/// 内容滚到头部下方时出现一条淡分隔线。[body] 里的第一个纵向滚动视图决定分隔线。
+/// 列表页（`ListView`）直接用它，不必改成 [HPage]。
+class HHeaderFrame extends StatefulWidget {
+  final Color bg;
+  final Widget header, body;
+  const HHeaderFrame({
+    super.key,
+    required this.bg,
+    required this.header,
+    required this.body,
+  });
+  @override
+  State<HHeaderFrame> createState() => _HHeaderFrameState();
+}
+
+class _HHeaderFrameState extends State<HHeaderFrame> {
+  bool _scrolled = false;
+
+  bool _onScroll(ScrollNotification n) {
+    if (n.depth != 0 || n.metrics.axis != Axis.vertical) return false;
+    final scrolled = n.metrics.pixels > 0.5;
+    if (scrolled != _scrolled) setState(() => _scrolled = scrolled);
+    return false;
+  }
+
+  @override
+  Widget build(BuildContext context) => Column(
+    children: [
+      DecoratedBox(
+        decoration: BoxDecoration(
+          color: widget.bg,
+          border: Border(
+            bottom: BorderSide(
+              color: _scrolled
+                  ? dk(
+                      context,
+                      const Color(0xFFE4E4E7),
+                      const Color(0xFF26262B),
+                    )
+                  : Colors.transparent,
+            ),
+          ),
+        ),
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(20, topInset(context), 20, 8),
+          child: widget.header,
+        ),
+      ),
+      Expanded(
+        child: NotificationListener<ScrollNotification>(
+          onNotification: _onScroll,
+          child: widget.body,
+        ),
+      ),
+    ],
+  );
 }
 
 /// 固定在屏幕底部的浮层，超出屏幕高度时内部可滚动。

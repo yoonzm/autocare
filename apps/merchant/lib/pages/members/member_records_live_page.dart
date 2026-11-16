@@ -16,6 +16,7 @@ import '../../backend/merchant_api.dart';
 import '../../backend/package_calc.dart' show formatMoney;
 import '../../kit/async_kit.dart';
 import '../../kit/kit.dart';
+import '../../kit/page_header.dart';
 import '../../resources/merchant_svgs.dart';
 
 class MemberRecordsLivePage extends StatefulWidget {
@@ -38,10 +39,45 @@ class _MemberRecordsLivePageState extends State<MemberRecordsLivePage> {
     final m = MemberView(widget.member!);
     return HPage(
       bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
+      header: AppPageHeader(
+        center: hcol(
+          [
+            Text(
+              '消费记录',
+              textAlign: TextAlign.center,
+              style: hts(
+                17,
+                dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                w: FontWeight.w600,
+                lh: 24,
+              ),
+            ),
+            Text(
+              '${m.name} · ${m.levelMember}',
+              textAlign: TextAlign.center,
+              style: hts(
+                12,
+                dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
+                lh: 16,
+              ),
+            ),
+          ],
+          main: MainAxisAlignment.start,
+          cross: CrossAxisAlignment.stretch,
+          gap: 0,
+        ),
+        // TODO: 流水日期筛选缺少 ledger 的日期范围参数；不得返回无效筛选成功。
+        trailing: AppHeaderCircle(
+          lightSvg: Svgs.s230,
+          darkSvg: Svgs.s231,
+          label: '日期筛选',
+          onTap: () => AppToast.show(context, '日期筛选尚未接通：缺少流水日期范围接口'),
+        ),
+      ),
       flow: hcol(
         [
           hbox(
-            pad: EdgeInsets.fromLTRB(20, topInset(context), 20, 32),
+            pad: EdgeInsets.fromLTRB(20, 8, 20, 32),
             child: SingleSelection(
               index: _tab < 0 ? 0 : _tab,
               onChanged: _syncTab,
@@ -49,166 +85,6 @@ class _MemberRecordsLivePageState extends State<MemberRecordsLivePage> {
                 listenable: selection,
                 builder: (context, _) => hcol(
                   [
-                    hrow(
-                      [
-                        GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () => Navigator.of(context).maybePop(),
-                          child: hbox(
-                            w: 44,
-                            h: 44,
-                            bg: dk(
-                              context,
-                              Color(0xFFFFFFFF),
-                              Color(0xFF18181B),
-                            ),
-                            radius: BorderRadius.circular(22),
-                            shadow: dk(
-                              context,
-                              [
-                                BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.06),
-                                  offset: Offset(0, 0),
-                                  blurRadius: 1,
-                                  spreadRadius: 0,
-                                ),
-                                BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.06),
-                                  offset: Offset(0, 1),
-                                  blurRadius: 2,
-                                  spreadRadius: 0,
-                                ),
-                                BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.04),
-                                  offset: Offset(0, 2),
-                                  blurRadius: 4,
-                                  spreadRadius: 0,
-                                ),
-                              ],
-                              [
-                                BoxShadow(
-                                  color: Color(0xFF26262B),
-                                  offset: Offset(0, 0),
-                                  blurRadius: 0,
-                                  spreadRadius: 1,
-                                ),
-                              ],
-                            ),
-                            child: hrow(
-                              [
-                                hsvg(
-                                  dk(context, Svgs.s0, Svgs.s1),
-                                  w: 20,
-                                  h: 20,
-                                ),
-                              ],
-                              main: MainAxisAlignment.center,
-                              cross: CrossAxisAlignment.center,
-                              gap: 0,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 1,
-                          child: hcol(
-                            [
-                              Text(
-                                '消费记录',
-                                style: hts(
-                                  17,
-                                  dk(
-                                    context,
-                                    Color(0xFF18181B),
-                                    Color(0xFFFAFAFA),
-                                  ),
-                                  w: FontWeight.w600,
-                                  lh: 24,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                              Text(
-                                '${m.name} · ${m.levelMember}',
-                                style: hts(
-                                  12,
-                                  dk(
-                                    context,
-                                    Color(0xFF71717A),
-                                    Color(0xFF9A9AA3),
-                                  ),
-                                  lh: 16,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ],
-                            main: MainAxisAlignment.start,
-                            cross: CrossAxisAlignment.stretch,
-                            gap: 0,
-                          ),
-                        ),
-                        GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          // TODO: 流水日期筛选缺少 ledger 的日期范围参数；不得返回无效筛选成功。
-                          onTap: () =>
-                              AppToast.show(context, '日期筛选尚未接通：缺少流水日期范围接口'),
-                          child: hbox(
-                            w: 44,
-                            h: 44,
-                            bg: dk(
-                              context,
-                              Color(0xFFFFFFFF),
-                              Color(0xFF18181B),
-                            ),
-                            radius: BorderRadius.circular(22),
-                            shadow: dk(
-                              context,
-                              [
-                                BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.06),
-                                  offset: Offset(0, 0),
-                                  blurRadius: 1,
-                                  spreadRadius: 0,
-                                ),
-                                BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.06),
-                                  offset: Offset(0, 1),
-                                  blurRadius: 2,
-                                  spreadRadius: 0,
-                                ),
-                                BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.04),
-                                  offset: Offset(0, 2),
-                                  blurRadius: 4,
-                                  spreadRadius: 0,
-                                ),
-                              ],
-                              [
-                                BoxShadow(
-                                  color: Color(0xFF26262B),
-                                  offset: Offset(0, 0),
-                                  blurRadius: 0,
-                                  spreadRadius: 1,
-                                ),
-                              ],
-                            ),
-                            child: hrow(
-                              [
-                                hsvg(
-                                  dk(context, Svgs.s230, Svgs.s231),
-                                  w: 20,
-                                  h: 20,
-                                ),
-                              ],
-                              main: MainAxisAlignment.center,
-                              cross: CrossAxisAlignment.center,
-                              gap: 0,
-                            ),
-                          ),
-                        ),
-                      ],
-                      main: MainAxisAlignment.start,
-                      cross: CrossAxisAlignment.center,
-                      gap: 8,
-                    ),
                     hcol([
                       hrow(
                         [
