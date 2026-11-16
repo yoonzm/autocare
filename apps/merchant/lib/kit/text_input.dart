@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'keyboard.dart';
 import '../theme.dart' show C;
@@ -17,6 +18,7 @@ class AppTextInput extends StatelessWidget {
   final TextAlign align;
   final TextInputType? keyboard;
   final Color hintColor;
+  final List<TextInputFormatter>? inputFormatters;
 
   const AppTextInput({
     super.key,
@@ -32,6 +34,7 @@ class AppTextInput extends StatelessWidget {
     this.align = TextAlign.start,
     this.keyboard,
     this.hintColor = const Color(0xFF71717A),
+    this.inputFormatters,
   }) : assert(controller == null || initialValue == null);
 
   @override
@@ -48,6 +51,7 @@ class AppTextInput extends StatelessWidget {
     style: style,
     textAlign: align,
     keyboardType: keyboard,
+    inputFormatters: inputFormatters,
     obscureText: obscure,
     maxLines: obscure ? 1 : maxLines,
     minLines: 1,
@@ -99,4 +103,48 @@ class PasswordVisibilityButton extends StatelessWidget {
           : hiddenIcon,
     ),
   );
+}
+
+/// 金额输入：只保留数字和一个小数点（最多 2 位小数），整数部分按千分位加逗号，如 `1,580.5`。
+class MoneyInputFormatter extends TextInputFormatter {
+  const MoneyInputFormatter();
+
+  /// 把数值格式化成输入框里的文字（无多余的 .0）。
+  static String format(num v) => _group(
+    v == v.roundToDouble()
+        ? v.toInt().toString()
+        : v.toStringAsFixed(2).replaceFirst(RegExp(r'0+$'), ''),
+  );
+
+  static String _group(String raw) {
+    final parts = raw.split('.');
+    final digits = parts.first;
+    final out = StringBuffer();
+    for (var i = 0; i < digits.length; i++) {
+      if (i > 0 && (digits.length - i) % 3 == 0) out.write(',');
+      out.write(digits[i]);
+    }
+    return parts.length > 1 ? '$out.${parts[1]}' : '$out';
+  }
+
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue old,
+    TextEditingValue value,
+  ) {
+    var raw = value.text.replaceAll(',', '').replaceAll(RegExp(r'[^0-9.]'), '');
+    final dot = raw.indexOf('.');
+    if (dot >= 0) {
+      final decimals = raw.substring(dot + 1).replaceAll('.', '');
+      raw =
+          '${raw.substring(0, dot)}.${decimals.length > 2 ? decimals.substring(0, 2) : decimals}';
+    }
+    if (raw.startsWith('.')) raw = '0$raw';
+    final intPart = raw.split('.').first.replaceFirst(RegExp(r'^0+(?=\d)'), '');
+    final text = _group(dot >= 0 ? '$intPart.${raw.split('.').last}' : intPart);
+    return TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: text.length),
+    );
+  }
 }

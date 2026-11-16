@@ -1,4 +1,5 @@
 import { admin, fail, json, nameOf, uuid } from './shared.ts';
+import { consumableError, parseConsumables } from './service_rules.ts';
 import { parseServiceCommission } from './staff_rules.ts';
 import type { Input, ServiceItemRow } from './types.ts';
 
@@ -6,7 +7,20 @@ export async function handleServices(input: Input, storeId: string): Promise<Res
   if (input.action === 'list') {
     const { data, error } = await admin.from('service_items').select('*')
       .eq('store_id', storeId).order('created_at', { ascending: false });
-    return error ? fail('读取失败', 500) : json({ items: data as ServiceItemRow[] });
+    if (error) return fail('读取失败', 500);
+    // 每个服务绑定的耗材（库存商品 + 用量），带上当前库存和安全库存，页面据此显示「偏低」。
+    const bound = await admin.from('service_consumables')
+      .select('service_id, product_id, quantity, inventory_products(name, unit, stock, safe, active, allow_decimal)')
+      .eq('store_id', storeId);
+    if (bound.error) return fail('读取失败', 500);
+    const byService = new Map<string, unknown[]>();
+    for (const row of (bound.data ?? []) as Array<Record<string, unknown>>) {
+      const list = byService.get(String(row.service_id)) ?? [];
+      list.push({ product_id: row.product_id, quantity: Number(row.quantity), ...(row.inventory_products as object) });
+      byService.set(String(row.service_id), list);
+    }
+    const items = (data as ServiceItemRow[]).map((s) => ({ ...s, consumables: byService.get(s.id) ?? [] }));
+    return json({ items });
   }
   if (input.action === 'save') {
     const name = nameOf(input.name);
@@ -18,17 +32,33 @@ export async function handleServices(input: Input, storeId: string): Promise<Res
     if (input.id != null && !uuid(input.id)) return fail('记录 ID 无效');
     const commission = parseServiceCommission(input);
     if (typeof commission === 'string') return fail(commission);
+    if (input.active != null && typeof input.active !== 'boolean') return fail('上架状态无效');
+    const consumables = parseConsumables(input.consumables);
+    if (typeof consumables === 'string') return fail(consumables);
     const values = {
       name, price, category: nameOf(input.category) || '其他',
       description: nameOf(input.description),
       ...(duration == null ? {} : { duration_minutes: duration }),
       ...commission,
+      ...(typeof input.active === 'boolean' ? { active: input.active } : {}),
     };
     const query = input.id == null
       ? admin.from('service_items').insert({ ...values, store_id: storeId })
       : admin.from('service_items').update(values).eq('id', input.id).eq('store_id', storeId);
     const { data, error } = await query.select('*').single();
-    return error ? fail('保存失败', 400) : json({ item: data as ServiceItemRow });
+    if (error) return fail('保存失败', 400);
+    const item = data as ServiceItemRow;
+    if (consumables !== undefined) {
+      const saved = await admin.rpc('save_service_consumables', {
+        p_store: storeId, p_service: item.id, p_items: consumables,
+      });
+      if (saved.error) {
+        // 新建的服务耗材保存失败时撤销，避免重试产生重复服务。
+        if (input.id == null) await admin.from('service_items').delete().eq('id', item.id).eq('store_id', storeId);
+        return fail(consumableError(saved.error.message), 400);
+      }
+    }
+    return json({ item });
   }
   if (input.action === 'delete') {
     if (!uuid(input.id)) return fail('记录 ID 无效');
