@@ -2,6 +2,11 @@ name: Merchant Build
 
 on:
   workflow_dispatch:
+    inputs:
+      build_android:
+        description: "同时构建 Android APK（MVP 阶段只上线 iOS，默认不构建）"
+        type: boolean
+        default: false
   push:
     branches: ["**"]
     paths:
@@ -226,12 +231,13 @@ jobs:
           fi
           rm -rf "$HOME/.appstoreconnect/private_keys"
 
+  # MVP 阶段只上线 iOS：Android 不随推送构建，需要时在 Actions 里手动运行并勾选 build_android。
   android:
     needs: [changes, validate]
     if: >-
-      needs.changes.outputs.merchant == 'true' &&
-      (github.ref == 'refs/heads/main' ||
-       github.ref == 'refs/heads/feat/merchant-supabase-v1')
+      github.event_name == 'workflow_dispatch' &&
+      inputs.build_android == true &&
+      needs.changes.outputs.merchant == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:

@@ -4,7 +4,7 @@
 - 商户端使用 `.github/workflows/merchant-internal.yml` 执行 Flutter 检查和内测打包；后台端仍由独立工作流处理。后端由 `.github/workflows/supabase-prod.yml` 独立检查和部署，触发条件见下述正式后端流程，不触发商户端打包。
 - iOS 标识为 `com.yoonzm.autocare.merchant`。先在 Apple Developer / App Store Connect 创建对应 App ID、App 和 App Store 描述文件；再在新 GitHub 仓库配置 `BUILD_CERTIFICATE_BASE64`、`P12_PASSWORD`、`BUILD_PROVISION_PROFILE_BASE64`、`ASC_KEY_ID`、`ASC_ISSUER_ID`、`ASC_PRIVATE_KEY`。不要复制 LanScope 的描述文件。配置完成后在仓库 Variables 中设置 `ENABLE_MERCHANT_TESTFLIGHT=true`，此前 iOS 发布任务会跳过。
 - 商户端检查在任意分支推送 `apps/merchant/` 变更后运行；仅 `main` 与当前 `feat/merchant-supabase-v1` 分支同时执行内测打包。V1 验证结束后应移除特性分支上传条件。TestFlight 上传仍受 `ENABLE_MERCHANT_TESTFLIGHT` 和 `merchant-testflight` 环境签名配置约束。
-- Android 当前 APK 使用 Flutter 默认调试签名，不可用于正式商店发布。正式发布需专用 keystore、上传渠道及审批流程。
+- **MVP 阶段只上线 iOS，不上线 Android。** Android 构建不再随推送运行，需要时在 Actions 里手动运行 `Merchant Build` 并勾选 `build_android`。Android 当前 APK 使用 Flutter 默认调试签名，不可用于正式商店发布；将来上 Android 时需专用 keystore、上传渠道及审批流程。
 - 新增端时增加各自 CI / 发布工作流，保持版本号与发布状态独立；共享包变化需触发所有依赖它的端。
 
 ## 私有化正式后端

@@ -211,11 +211,12 @@ MVP 阶段商户 App 前端去掉开支管理的「预算」和库存管理的�
 - 依据：[协议页面说明](legal-pages.md)、[协议正文](../supabase/functions/merchant-v1/legal_content.ts)、[App 网页加载](../apps/merchant/lib/pages/account/legal_web_page.dart)。Apple 要求 App 内及商店元数据提供可访问的隐私政策链接，见 [App Review Guidelines 5.1.1](https://developer.apple.com/app-store/review/guidelines/#data-collection-and-storage)。
 - 完成标准：只为这两条公开只读协议路径配置合适的网关访问，不放开业务接口；在无登录、无自定义请求头的浏览器中均返回正常 HTML。填写真实运营主体、可用联系方式，核对实际数据处理与政策正文；按目标商店完成资料审核。不能把公开客户端密钥当成审核人员打开协议的前提。
 
-**P0-05 · Android 正式签名未落地，iOS 交付条件需核验【Android 已确认；iOS 待验收】**
+**P0-05 · iOS 交付条件需核验【iOS 待验收；Android 已决定 MVP 不上线】**
 
 - 现状：Android `release` 仍使用 `signingConfigs.getByName("debug")`，CI 仅构建并保存内测 APK。iOS 工作流受 `ENABLE_MERCHANT_TESTFLIGHT` 与签名 Secrets 控制；本次未读取 GitHub Variables / Secrets 状态或 Apple 后台，不能认定它当前一定关闭或已完成。
 - 依据：[Android 构建配置](../apps/merchant/android/app/build.gradle.kts)、[商户端构建工作流](../.github/workflows/merchant-internal.yml)、[发布约定](release.md)。
-- 完成标准：Android 配置长期维护的发布证书及安全保管方式，生成目标渠道要求的产物，验证包名、版本号、签名与覆盖升级；iOS 核验 App ID、描述文件、证书及实际 TestFlight 安装。提交哪个平台，就先完成哪个平台的签名、审核资料与安装验收；不以调试签名 APK 代替正式交付物。
+- 范围决定（2026-11-16）：MVP 阶段只上线 iOS；Android 的发布证书、商店审核资料和真机验收均不在本期范围，CI 里的 Android 构建改为手动触发。
+- 完成标准：iOS 核验 App ID、描述文件、证书及实际 TestFlight 安装，完成签名、审核资料与安装验收。将来上 Android 时，再配置长期维护的发布证书及安全保管方式，不以调试签名 APK 代替正式交付物。
 
 ### P1：核心业务与稳定性缺口
 
@@ -259,7 +260,7 @@ MVP 阶段商户 App 前端去掉开支管理的「预算」和库存管理的�
 | 账号与真实渠道 | 注册 → 默认资料初始化 → 限时免费；短信 / 密码登录、忘记密码、换号、退出所有设备、注销及同号重新注册隔离。各短信用途真实接收；不重新启用订阅。 |
 | 核心经营 | 服务 / 卡种 / 次卡 → 会员 / 车辆 → 预约 / 直接开单 / 挂单 → 派工 → 照片 / 跨日施工 / 完工 → 前台收银；线下充值 / 售卡、短信核销、库存出入库、开支与统计均可核对。 |
 | 金额与异常 | 现金、储值、次卡、允许的组合支付；可支持的全额退款及提成冲正；双设备并发、重复提交、响应丢失、弱网 / 断网、令牌过期。验证一次业务只生效一次，未知结果可以核对。 |
-| 真实设备 | Android / iOS 的安装、覆盖升级、冷启动、前后台切换、相机 / 相册拒绝与恢复、图片上传 / 预览、扫码失败转手输、H5 协议、浅深色、键盘和常用屏幕尺寸。沿用现有视觉基线。 |
+| 真实设备 | iOS（MVP 不含 Android）的安装、覆盖升级、冷启动、前后台切换、相机 / 相册拒绝与恢复、图片上传 / 预览、扫码失败转手输、H5 协议、浅深色、键盘和常用屏幕尺寸。沿用现有视觉基线。 |
 | 生产交付 | 对应平台正式签名；协议无密钥可访问；运营主体及商店资料准确；审核人员能通过获准的真实账号完成检查；备份 / 恢复、错误定位及故障联系可用。审核访问要求参考 [Apple 提交前检查](https://developer.apple.com/app-store/review/guidelines/#before-you-submit)，不恢复未登录 mock 预览。 |
 
 建议推进顺序：先修 **P0-01～03** 并补后端回归；同步处理 **P0-04～05** 的协议与发行条件；再解决 **P1-01～07** 的核心业务一致性，完成其余 P1 验收与范围清理；最后按本节矩阵进入 3～5 家真实门店内测。P2 可在不影响上述结果的前提下后排。
