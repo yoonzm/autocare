@@ -18,7 +18,20 @@ class StDoneTemplate extends StatelessWidget {
     return HPage(
       bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
       header: AppPageHeader(
-        title: '已完工',
+        // 右侧是 87 宽的按钮，左侧返回钮只有 44：标题区整体偏左 21.5，左侧补 43 让标题仍居中。
+        center: Padding(
+          padding: const EdgeInsets.only(left: 43),
+          child: Text(
+            '已完工',
+            textAlign: TextAlign.center,
+            style: hts(
+              17,
+              dk(context, const Color(0xFF18181B), const Color(0xFFFAFAFA)),
+              w: FontWeight.w600,
+              lh: 24,
+            ),
+          ),
+        ),
         trailing: hbox(
           w: 87,
           h: 32,

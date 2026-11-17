@@ -497,7 +497,7 @@ class StTaskDetailTemplate extends StatelessWidget {
 
     return HPage(
       bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
-      header: AppPageHeader(title: '任务详情', trailing: hbox(w: 87)),
+      header: AppPageHeader(title: '任务详情'),
       flow: hcol(
         [
           hbox(

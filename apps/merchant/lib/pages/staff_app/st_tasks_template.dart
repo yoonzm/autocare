@@ -407,11 +407,7 @@ class _StTasksTemplateState extends State<StTasksTemplate> {
     );
     return HPage(
       bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
-      header: AppPageHeader(
-        title: '我的任务',
-        leading: AppHeaderLeading.none,
-        trailing: hbox(w: 87),
-      ),
+      header: AppPageHeader(title: '我的任务', leading: AppHeaderLeading.none),
       flow: hcol(
         [
           hbox(

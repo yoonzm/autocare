@@ -381,7 +381,7 @@ class _StCashQueueTemplateState extends State<StCashQueueTemplate> {
   Widget build(BuildContext context) {
     return HPage(
       bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
-      header: AppPageHeader(title: '待收银', trailing: hbox(w: 87)),
+      header: AppPageHeader(title: '待收银'),
       flow: hcol(
         [
           hbox(
