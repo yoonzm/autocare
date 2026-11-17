@@ -1,7 +1,5 @@
-import 'package:autocare_ui_kit/autocare_ui_kit.dart'
-    show AppChoiceGroup, ChoiceItem;
-
 import 'inventory_controller.dart';
+import 'stock_out_variants.dart';
 
 import 'package:flutter/material.dart';
 
@@ -15,6 +13,10 @@ class StockOutLiveTemplate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 损耗报废 / 退回供应商各有一套版式（设计稿 StockOutScrap / StockOutReturn）。
+    if (c.payload['reason'] == '损耗报废' || c.payload['reason'] == '退回供应商') {
+      return StockOutVariantPage(c: c);
+    }
     return HPage(
       bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
       header: AppPageHeader(
@@ -74,15 +76,7 @@ class StockOutLiveTemplate extends StatelessWidget {
                           lh: 20,
                         ),
                       ),
-                      AppChoiceGroup<String>(
-                        selected:
-                            '${c.payload['reason'] ?? InventoryController.outReasons.first}',
-                        onChanged: c.setOutReason,
-                        items: [
-                          for (final r in InventoryController.outReasons)
-                            ChoiceItem(value: r, label: r, enabled: !c.busy),
-                        ],
-                      ),
+                      OutReasonChips(c: c),
                     ],
                     main: MainAxisAlignment.start,
                     cross: CrossAxisAlignment.stretch,

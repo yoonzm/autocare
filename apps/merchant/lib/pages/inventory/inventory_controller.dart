@@ -353,6 +353,14 @@ class InventoryController extends ChangeNotifier {
     bool fromPreview = false,
   }) async {
     if (busy || _saving) return;
+    if (mode == 'out') {
+      // 切换过出库类型时，清掉与当前类型无关的字段。
+      if (payload['reason'] != '损耗报废') payload.remove('scrap_reason');
+      if (payload['reason'] != '退回供应商') {
+        payload.remove('refund_amount');
+        payload.remove('supplier');
+      }
+    }
     _saving = true;
     busy = true;
     notifyListeners();
@@ -421,6 +429,7 @@ class InventoryController extends ChangeNotifier {
   );
   static const payments = ['现金', '微信', '对公转账', '挂账'];
   static const outReasons = ['施工领用', '损耗报废', '退回供应商', '内部使用'];
+  static const scrapReasons = ['过期', '破损', '受潮变质', '其他'];
   int get paymentIndex => payments.indexOf('${payload['payment']}').clamp(0, 3);
   void selectPayment(int index) {
     if (busy) return;
@@ -437,6 +446,13 @@ class InventoryController extends ChangeNotifier {
       'Inventory-${identityHashCode(this)}-$action';
   Future<void> submit(BuildContext context) async {
     if (busy) return;
+    if (mode == 'out') {
+      final issue = outIssue();
+      if (issue != null) {
+        AppToast.show(context, issue);
+        return;
+      }
+    }
     if (mode == 'in') {
       final issue = inboundLineIssue();
       if (issue != null) {
@@ -560,7 +576,29 @@ class InventoryController extends ChangeNotifier {
   void setOutReason(String reason) {
     if (busy) return;
     payload['reason'] = reason;
+    // 损耗报废默认「破损」（设计稿）；其他类型不带报废原因。
+    if (reason == '损耗报废') {
+      payload['scrap_reason'] ??= '破损';
+    }
     changed(requote: false);
+  }
+
+  void setScrapReason(String reason) {
+    if (busy) return;
+    payload['scrap_reason'] = reason;
+    changed(requote: false);
+  }
+
+  /// 出库单的类型相关校验：退回供应商要选供应商，损耗报废要有报废原因。
+  String? outIssue() {
+    final reason = payload['reason'];
+    if (reason == '退回供应商' && '${payload['supplier'] ?? ''}'.trim().isEmpty) {
+      return '请选择供应商';
+    }
+    if (reason == '损耗报废' && '${payload['scrap_reason'] ?? ''}'.isEmpty) {
+      return '请选择报废原因';
+    }
+    return null;
   }
 
   void openMovement(BuildContext context, String movement) {
@@ -605,7 +643,7 @@ class InventoryController extends ChangeNotifier {
       }
       return;
     }
-    if (key == 'supplier' && mode == 'in') {
+    if (key == 'supplier' && (mode == 'in' || mode == 'out')) {
       final options = await merchantApi.invoke({'action': 'inventory_options'});
       if (!context.mounted || disposed) return;
       final name = await showSupplierPicker(

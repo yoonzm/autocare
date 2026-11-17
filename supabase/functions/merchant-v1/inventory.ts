@@ -185,7 +185,7 @@ export async function handleInventory(
       typeof input.payload !== "object" || Array.isArray(input.payload)
     ) return fail("单据参数无效");
     const payload = input.payload as Record<string, unknown>;
-    const validation = documentError(String(input.kind), payload);
+    const validation = documentError(String(input.kind), payload, true);
     if (validation) return fail(validation);
     if ((payload.lines as unknown[]).length > 200) {
       return fail("单据最多 200 项商品");
@@ -241,6 +241,20 @@ export async function handleInventory(
     const payload = input.payload as Record<string, unknown>;
     const validation = documentError(String(input.kind), payload, input.post === false);
     if (validation) return fail(validation);
+    if (
+      input.kind === "out" && input.post === true &&
+      payload.reason === "退回供应商"
+    ) {
+      // 退回供应商：供应商必须是本店已有的供应商。
+      const { data: found, error: supplierError } = await admin.from(
+        "inventory_suppliers",
+      ).select("id").eq("store_id", store).eq(
+        "name",
+        String(payload.supplier).trim(),
+      ).limit(1);
+      if (supplierError) return fail("读取供应商失败", 500);
+      if (!found?.length) return fail("供应商不存在，请重新选择");
+    }
     if (
       !Array.isArray(payload.lines) || payload.lines.length > 200 ||
       !payload.lines.every((l) =>

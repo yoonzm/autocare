@@ -43,3 +43,25 @@ Deno.test("inventory drafts may leave the unit cost empty, freight is capped and
   );
   equal(documentError("in", { freight_to_cost: true, lines: [{ quantity: 1, cost: 1 }] }), null);
 });
+Deno.test("outbound scrap reason and supplier return rules", () => {
+  const line = [{ quantity: 1 }];
+  equal(documentError("out", { reason: "损耗报废", lines: line }) !== null, true);
+  equal(documentError("out", { reason: "损耗报废", lines: line }, true), null);
+  equal(
+    documentError("out", { reason: "损耗报废", scrap_reason: "破损", lines: line }),
+    null,
+  );
+  equal(
+    documentError("out", { reason: "损耗报废", scrap_reason: "乱写", lines: line }, true) !== null,
+    true,
+  );
+  equal(documentError("out", { reason: "退回供应商", lines: line }) !== null, true);
+  equal(
+    documentError("out", { reason: "退回供应商", supplier: "蓝盾膜业", refund_amount: 1280, lines: line }),
+    null,
+  );
+  equal(
+    documentError("out", { reason: "退回供应商", supplier: "蓝盾膜业", refund_amount: -1, lines: line }) !== null,
+    true,
+  );
+});

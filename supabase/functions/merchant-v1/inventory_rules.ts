@@ -25,6 +25,23 @@ export function documentError(
   ) return "运费是否计入成本须为开关值";
   if (payload.date != null && !day(payload.date)) return "单据日期无效";
   if (
+    payload.scrap_reason != null &&
+    !["过期", "破损", "受潮变质", "其他"].includes(String(payload.scrap_reason))
+  ) return "报废原因无效";
+  if (payload.refund_amount != null && !decimal(payload.refund_amount, 2)) {
+    return "应退金额须为非负金额，最多两位小数";
+  }
+  // 出库类型相关的必填项：草稿可以先空着，提交时必须有。
+  if (kind === "out" && !draft) {
+    if (payload.reason === "损耗报废" && payload.scrap_reason == null) {
+      return "请选择报废原因";
+    }
+    if (
+      payload.reason === "退回供应商" &&
+      (typeof payload.supplier !== "string" || !payload.supplier.trim())
+    ) return "请选择供应商";
+  }
+  if (
     payload.payment != null &&
     !["现金", "微信", "对公转账", "挂账"].includes(String(payload.payment))
   ) return "付款方式无效";
