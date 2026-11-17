@@ -1,5 +1,3 @@
-import '../../routes.dart' show openRoute;
-
 import 'package:flutter/material.dart';
 
 import '../../backend/merchant_api.dart';
@@ -56,10 +54,64 @@ class _ProductEditState extends State<ProductEditLivePage> {
   late final productId = p['id'] ?? inventoryId();
   final request = InventoryRequest();
   List<String> categories = [];
-  Future<Map<String, dynamic>> _options() async {
-    final result = await merchantApi.invoke({'action': 'inventory_options'});
-    categories = maps(result['categories']).map((c) => '${c['name']}').toList();
-    return result;
+  // 表单页直接显示页面壳层和可填写的内容；只有分类选项依赖接口，只在该区域占位。
+  bool _optionsLoading = true;
+  Object? _optionsError;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadOptions();
+  }
+
+  Future<void> _loadOptions() async {
+    setState(() {
+      _optionsLoading = true;
+      _optionsError = null;
+    });
+    try {
+      final result = await merchantApi.invoke({'action': 'inventory_options'});
+      categories = maps(result['categories'])
+          .map((c) => '${c['name']}')
+          .toList();
+      if (mounted) setState(() => _optionsLoading = false);
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _optionsLoading = false;
+          _optionsError = e;
+        });
+      }
+    }
+  }
+
+  Widget _categoryOptions() {
+    if (_optionsLoading) {
+      return Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: [
+          for (final w in [56.0, 84.0, 64.0, 56.0])
+            AppSkeleton(width: w, height: 40, radius: 20),
+        ],
+      );
+    }
+    if (_optionsError != null) {
+      return Row(
+        children: [
+          Expanded(
+            child: Text('分类加载失败', style: ts(13, color: C.muted, h: 18)),
+          ),
+          GestureDetector(
+            onTap: _loadOptions,
+            child: Text('重试', style: ts(13, color: C.primary, h: 18)),
+          ),
+        ],
+      );
+    }
+    return _chips(categories, category, (v) {
+      setState(() => category = v);
+    }, '分类');
   }
 
   late String? category = p['category'] as String?;
@@ -294,16 +346,7 @@ class _ProductEditState extends State<ProductEditLivePage> {
       );
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    body: AsyncView<Map<String, dynamic>>(
-      load: _options,
-      isEmpty: (_) => false,
-      skeleton: const SkeletonList(count: 3),
-      empty: (_) => const SizedBox.shrink(),
-      onNext: () => openRoute(context, 'Login'),
-      builder: (_, data) => _form(context),
-    ),
-  );
+  Widget build(BuildContext context) => _form(context);
 
   Widget _form(BuildContext context) {
     final units = [
@@ -347,9 +390,7 @@ class _ProductEditState extends State<ProductEditLivePage> {
                           children: [
                             _label('分类', required: true),
                             const SizedBox(height: 8),
-                            _chips(categories, category, (v) {
-                              setState(() => category = v);
-                            }, '分类'),
+                            _categoryOptions(),
                           ],
                         ),
                       ]),

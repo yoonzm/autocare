@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/pages/inventory/product_edit_live_page.dart';
 import 'package:autocare_merchant/routes.dart';
+import 'package:autocare_merchant/kit/async_kit.dart' show SkeletonList;
 
 import 'members_test.dart' show MemberFakeApi, phone;
 
@@ -34,7 +37,36 @@ class _Api extends MemberFakeApi {
   }
 }
 
+class _SlowApi extends _Api {
+  final gate = Completer<void>();
+  @override
+  Future<Map<String, dynamic>> invoke(
+    Map<String, dynamic> body, {
+    Duration? timeout,
+    String? requestId,
+  }) async {
+    if (body['action'] == 'inventory_options') await gate.future;
+    return super.invoke(body, timeout: timeout, requestId: requestId);
+  }
+}
+
 void main() {
+  testWidgets('新增商品是表单页：分类选项加载时先显示页面壳层和表单，只有分类区占位，不出整页骨架', (t) async {
+    final api = _SlowApi();
+    merchantApi = api;
+    phone(t);
+    await t.pumpWidget(const MaterialApp(home: ProductEditLivePage()));
+    await t.pump(const Duration(milliseconds: 400));
+    expect(find.text('新增商品'), findsOneWidget);
+    expect(find.text('如：隐形车衣 TPU'), findsOneWidget);
+    expect(find.text('保存'), findsOneWidget);
+    expect(find.byType(SkeletonList), findsNothing);
+    expect(find.text('清洁用品'), findsNothing);
+    api.gate.complete();
+    await t.pumpAndSettle();
+    expect(find.text('清洁用品'), findsOneWidget);
+  });
+
   testWidgets('新增商品：路由是设计稿整页，必填项不全不发请求，保存按设计稿分类映射到后端分类', (t) async {
     final api = _Api();
     merchantApi = api;
