@@ -48,6 +48,34 @@ begin
   r:=public.service_consumables_deduct(shop,appt,'x');
   assert r->>'document_id' is null and jsonb_array_length(r->'deducted')=0;
 
+
+  -- 直接开单：收银成功后按「行数量 × 单次用量」扣减
+  perform public.save_service_consumables(shop,svc,jsonb_build_array(jsonb_build_object('product_id',pa,'quantity',2),jsonb_build_object('product_id',pb,'quantity',1)));
+  perform public.inventory_document_save(shop,gen_random_uuid(),'in',jsonb_build_object('supplier','供应商','lines',
+    jsonb_build_array(jsonb_build_object('id',pb,'quantity',5,'cost',5))),0,true);
+  r:=public.checkout_walkin(shop,jsonb_build_array(jsonb_build_object('service_id',svc,'qty',2)),'微信','','','小李','co-1');
+  assert (select stock from public.inventory_products where id=pa)=4,'开单 2 件扣镀晶液 4 瓶';
+  assert (select stock from public.inventory_products where id=pb)=3,'擦车巾扣 2 条';
+  assert (select consumables->>'document_id' from public.orders where id=(r->>'order_id')::uuid) is not null,'订单记录扣减结果';
+  assert (select payload->>'operator' from public.inventory_documents where id=((select consumables->>'document_id' from public.orders where id=(r->>'order_id')::uuid))::uuid)='小李（收银自动扣减）';
+  -- 重复请求（幂等重放）不再扣
+  r:=public.checkout_walkin(shop,jsonb_build_array(jsonb_build_object('service_id',svc,'qty',2)),'微信','','','小李','co-1');
+  assert (r->>'repeated')::boolean and (select stock from public.inventory_products where id=pa)=4,'重放不重复扣';
+  -- 库存不足不拦收银：需要 10 瓶只有 4 瓶
+  r:=public.checkout_walkin(shop,jsonb_build_array(jsonb_build_object('service_id',svc,'qty',5)),'微信','','','小李','co-2');
+  assert r->>'order_id' is not null,'缺料仍能收银';
+  assert (select stock from public.inventory_products where id=pa)=0,'镀晶液扣到 0';
+  assert (select jsonb_array_length(consumables->'short') from public.orders where id=(r->>'order_id')::uuid)>=1,'缺料记录在订单上';
+  -- 预约完工已扣过：转订单不再扣
+  perform public.inventory_document_save(shop,gen_random_uuid(),'in',jsonb_build_object('supplier','供应商','lines',
+    jsonb_build_array(jsonb_build_object('id',pa,'quantity',10,'cost',100))),0,true);
+  update public.appointment_work set consumables=jsonb_build_object('document_id',gen_random_uuid()) where appointment_id=appt;
+  r:=public.checkout_appointment(shop,appt,jsonb_build_array(jsonb_build_object('service_id',svc,'qty',1)),'微信',0,null,'','小李','co-3');
+  assert (select stock from public.inventory_products where id=pa)=10,'完工扣过，结算不重复扣';
+  assert (select consumables->>'skipped' from public.orders where id=(r->>'order_id')::uuid)='appointment_finished';
+  assert current_setting('autocare.consumables_done',true)='off','跳过开关已复位';
+  assert not has_function_privilege('authenticated','public.service_consumables_deduct_order(uuid,uuid,text)','execute');
+
   -- 员工完工函数已接入自动扣减
   assert pg_get_functiondef('public.staff_task_finish(uuid,uuid,uuid)'::regprocedure) like '%service_consumables_deduct%';
   -- 权限：只有 service_role
