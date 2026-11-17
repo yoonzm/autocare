@@ -17,6 +17,41 @@
 - 初次部署或更新 `supabase/deploy/production.py` 时，需要管理员通过现有 SSH 将该文件安装到上述 root 所有的入口，再发布。此文件是服务器受信任的执行程序，不由上传包替换。手动部署和 Actions 使用同一个包格式、同一个入口。
 - 短信一期使用助通，凭据和按用途配置的模板放服务器 `.env.sms`，由 Compose 注入；所有环境均使用真实短信，移除短信 mock 配置，详见 `sms.md`。车牌识别使用服务器 `.env.recognition` 中的百炼配置，由 Compose 独立注入；随机 mock 已移除，详见 `plate-recognition.md`。更新服务器部署入口后再部署新增迁移和函数，渠道配置缺失时明确返回未启用错误。健康检查只用无效号码探测真实短信入口，不会发送付费短信。私有化发布仅安装结构和函数。
 
+### 备份设施初始化与维护
+
+备份设施的维护源码位于 `supabase/deploy/backup/`，包含 `supabase-backup`、`supabase-backup.service`、`supabase-backup.timer` 和安装脚本 `install.sh`。前三个文件于 2026-11-17 从生产服务器核对收录，保留原有备份范围与清理规则。后续从仓库修改、验证并安装，避免只在服务器上修改而丢失版本记录；凭据和备份数据不进入仓库。
+
+新生产环境先完成 Supabase Docker Compose 初始化，具备 `/opt/supabase/docker-compose.yml`、`/opt/supabase/.env`、本地 Storage 目录 `/opt/supabase/volumes/storage` 和 Docker 卷 `supabase_db-config`。备份脚本使用 `supabase/postgres:17.6.1.136` 容器打包配置卷；目录、卷名、镜像或 Storage 后端发生变化时，应同步调整并验证仓库中的脚本。此安装步骤只配置备份设施，不负责初始化 Supabase、SSH 部署入口或渠道密钥。
+
+将仓库放到目标服务器后，在仓库根目录执行（首次安装和更新使用同一命令）：
+
+```bash
+sudo bash supabase/deploy/backup/install.sh
+```
+
+安装器将脚本安装到 `/usr/local/sbin/supabase-backup`，属主 `root:root`、权限 `700`；创建权限 `700` 的 `/var/backups/supabase`，安装两个 systemd 单元并启用定时器。每天 03:30 按**服务器本地时区**执行，当前生产环境为 `Asia/Shanghai`；`Persistent=true` 会在重新启用时补跑错过的任务。安装不等于已经完成首份备份，需继续验收：
+
+```bash
+sudo systemctl start supabase-backup.service
+sudo systemctl status supabase-backup.service --no-pager
+sudo systemctl list-timers supabase-backup.timer --no-pager
+sudo ls -lh /var/backups/supabase
+```
+
+检查新生成目录的 `COMPLETE` 标记，并在 root 会话中进入该目录执行 `sha256sum -c SHA256SUMS`。备份内容如下：
+
+| 文件 | 内容 |
+| --- | --- |
+| `postgres.dump` | `postgres` 数据库的自定义格式逻辑备份，含数据、结构、数据库函数、RLS 等 |
+| `globals.sql` | PostgreSQL 角色等全局对象 |
+| `config.tar.gz` | `/opt/supabase` 中的配置与代码，排除数据库原始数据目录、Storage 目录及指定日志 |
+| `storage.tar.gz` | 本地 Storage 的实际文件，包括公开桶和私有桶中的图片 |
+| `db-config.tar.gz` | `supabase_db-config` 配置卷 |
+
+部署前备份与每日定时备份共用这个脚本。清理在备份成功后执行，按每个文件的 `-mtime +7` 判断，即修改时间满 8 个整天后可被清理；不限制份数或总容量，也没有自动异地上传。数据库导出与文件打包顺序执行，不是数据库与 Storage 的同一时刻快照。现有脚本遇到备份锁占用会返回 `0`，所以不能只凭退出成功判断已产生新备份，仍需核对本次目录和 `COMPLETE`。
+
+备份设施与 `production.py` 一样由管理员安装，普通后端发布包不会更新它们。修改这些文件后需重新运行安装器；CI 会检查 Bash 语法，但不执行真实备份或安装服务。恢复数据应先在隔离恢复库验证；发布失败时仍仅尝试恢复云函数代码，不自动回灌数据库备份。
+
 ## 商户端后端配置
 
 - App 默认地址和客户端公开密钥指向私有化正式环境。自动打包沿用默认值，不需要额外配置。

@@ -32,7 +32,10 @@ jobs:
           deno task check
           deno test
       - name: Test deployment validation
-        run: python3 -m unittest discover -s supabase/deploy -p 'test_*.py'
+        run: |
+          bash -n supabase/deploy/backup/supabase-backup
+          bash -n supabase/deploy/backup/install.sh
+          python3 -m unittest discover -s supabase/deploy -p 'test_*.py'
       - name: Check and test admin backend
         working-directory: supabase/functions/admin-v1
         run: |

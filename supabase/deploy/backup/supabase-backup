@@ -1,0 +1,19 @@
+#!/bin/bash
+set -euo pipefail
+umask 077
+exec 9>/run/lock/supabase-backup.lock
+flock -n 9 || exit 0
+cd /opt/supabase
+stamp=$(date +%Y%m%d-%H%M%S)
+target=/var/backups/supabase/$stamp
+mkdir -m 700 "$target"
+docker compose exec -T db pg_dump -U postgres -d postgres -Fc > "$target/postgres.dump"
+docker compose exec -T db pg_dumpall -U postgres --globals-only > "$target/globals.sql"
+tar --exclude='./volumes/db/data' --exclude='./volumes/storage' --exclude='./image-pull.log' --exclude='./.key-generation.log' --exclude='./.auth-key-generation.log' -czf "$target/config.tar.gz" .
+tar -czf "$target/storage.tar.gz" -C /opt/supabase/volumes storage
+docker run --rm -v supabase_db-config:/source:ro -v "$target":/backup --entrypoint /bin/sh supabase/postgres:17.6.1.136 -c 'tar -czf /backup/db-config.tar.gz -C /source .'
+sha256sum "$target/"* > "$target/SHA256SUMS"
+touch "$target/COMPLETE"
+# Delete only expired completed backup files, then remove their empty directories.
+find /var/backups/supabase -mindepth 2 -maxdepth 2 -type f -mtime +7 -delete
+find /var/backups/supabase -mindepth 1 -maxdepth 1 -type d -empty -delete

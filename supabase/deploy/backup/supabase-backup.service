@@ -1,0 +1,7 @@
+[Unit]
+Description=Supabase local database and file backup
+Requires=docker.service
+After=docker.service
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/supabase-backup
