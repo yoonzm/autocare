@@ -19,6 +19,7 @@ class _InvApi extends MemberFakeApi {
     String? requestId,
   }) async {
     if (body['action'] == 'inventory_documents') return {'items': []};
+    if (body['action'] == 'inventory_draft') return {'item': null};
     if (body['action'] == 'inventory_list') {
       if (failList != null) throw failList!;
       return {
@@ -85,14 +86,18 @@ void main() {
     navTracker.stack.clear();
   });
 
-  Future<void> openRoute_(WidgetTester t, String route) async {
+  Future<void> openRoute_(
+    WidgetTester t,
+    String route, {
+    Object? arguments,
+  }) async {
     phone(t);
     await t.pumpWidget(
       app(
         Builder(
           builder: (context) => Scaffold(
             body: ElevatedButton(
-              onPressed: () => openRoute(context, route),
+              onPressed: () => openRoute(context, route, arguments: arguments),
               child: const Text('open'),
             ),
           ),
@@ -104,7 +109,7 @@ void main() {
   }
 
   testWidgets('全部商品：读真实库存，四个筛选带数量，低库存 / 临期来自库存数据，设计稿示例商品不会出现', (t) async {
-    await openRoute_(t, 'ProductList');
+    await openRoute_(t, 'ProductList', arguments: 1);
     expect(find.text('全部商品'), findsOneWidget);
     expect(find.text('低库存 1'), findsOneWidget);
     expect(find.text('全部 3'), findsOneWidget);
@@ -126,6 +131,21 @@ void main() {
     expect(find.text('共 1 项 30 天内到期，先到期的排前面'), findsOneWidget);
     expect(find.text('真实玻璃水'), findsOneWidget);
     expect(find.text('真实车蜡'), findsNothing);
+  });
+
+  testWidgets('全部商品：默认是「全部」；只有低库存筛选才有「一键补货」，点击带着低库存商品打开入库页', (t) async {
+    await openRoute_(t, 'ProductList');
+    expect(find.text('共 3 项商品'), findsOneWidget);
+    expect(find.textContaining('一键补货'), findsNothing);
+    await t.tap(find.text('低库存 1'));
+    await t.pumpAndSettle();
+    expect(find.text('一键补货 · 将 1 项加入入库单'), findsOneWidget);
+    await t.tap(find.text('一键补货 · 将 1 项加入入库单'));
+    await t.pumpAndSettle();
+    expect(find.text('商品入库'), findsWidgets);
+    expect(find.text('真实镀晶剂'), findsWidgets);
+    // 安全库存 5 − 当前库存 2 = 补 3
+    expect(find.text('3'), findsWidgets);
   });
 
   testWidgets('全部商品：搜索按名称 / SKU；已停用暂无数据时说明；搜索框有占位文字', (t) async {

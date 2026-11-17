@@ -4,6 +4,7 @@ import '../../backend/merchant_api.dart';
 import '../../kit/async_kit.dart';
 import '../../kit/kit.dart';
 import '../../kit/page_header.dart';
+import '../../kit/sheet_route.dart';
 import '../../routes.dart';
 import '../../theme.dart';
 import '../../widgets/app_icon.dart';
@@ -16,8 +17,8 @@ import 'inventory_page.dart' show InventoryProduct;
 class ProductListLivePage extends StatefulWidget {
   final int initialFilter;
 
-  /// 0 全部 / 1 低库存 / 2 临期 / 3 已停用；设计稿里从库存页进入时默认是低库存。
-  const ProductListLivePage({super.key, this.initialFilter = 1});
+  /// 0 全部 / 1 低库存 / 2 临期 / 3 已停用。「查看全部商品」进来是全部，「去补货」进来是低库存。
+  const ProductListLivePage({super.key, this.initialFilter = 0});
   @override
   State<ProductListLivePage> createState() => _ProductListState();
 }
@@ -90,6 +91,43 @@ class _ProductListState extends State<ProductListLivePage> {
     2 => '共 ${list.length} 项 30 天内到期，先到期的排前面',
     _ => '共 ${list.length} 项已停用',
   };
+
+  /// 一键补货：把当前列表里的低库存商品按「安全库存 − 当前库存」建成一张入库单草稿并打开入库页。
+  /// 只是预填，不会直接入库；用户确认后才过账。
+  Future<void> _replenish(List<InventoryProduct> list) async {
+    final lines = <Map<String, dynamic>>[];
+    for (final p in list) {
+      final decimal = p.data['allow_decimal'] != false;
+      var need = (p.safe - p.stock).toDouble();
+      if (!decimal) need = need.ceilToDouble();
+      need = (need * 1000).round() / 1000;
+      if (need <= 0) need = 1;
+      lines.add({
+        'id': p.data['id'],
+        'quantity': need,
+        'cost': p.data['cost'],
+        'version': p.data['version'],
+      });
+    }
+    await Navigator.of(context).push<void>(
+      appSheetRoute<void>(
+        settings: const RouteSettings(name: 'StockIn'),
+        page: InventoryLivePage(
+          mode: 'in',
+          draft: {
+            'payload': {
+              'supplier': '',
+              'date': DateTime.now().toIso8601String().substring(0, 10),
+              'freight': 0,
+              'payment': '现金',
+              'note': '',
+              'lines': lines,
+            },
+          },
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -285,6 +323,25 @@ class _ProductListState extends State<ProductListLivePage> {
               ],
             ),
           ),
+        if (filter == 1 && list.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => _replenish(list),
+            child: Container(
+              height: 48,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: C.chip,
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Text(
+                '一键补货 · 将 ${list.length} 项加入入库单',
+                style: ts(14, w: FontWeight.w500, h: 20),
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }

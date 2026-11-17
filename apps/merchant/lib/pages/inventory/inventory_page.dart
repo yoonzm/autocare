@@ -237,7 +237,8 @@ class _InventoryPageState extends State<InventoryPage> {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () => openRoute(context, 'ProductList'),
+                    onTap: () =>
+                        openRoute(context, 'ProductList', arguments: 1),
                     child: Container(
                       height: 32,
                       padding: const EdgeInsets.symmetric(horizontal: 12),

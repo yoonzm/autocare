@@ -138,7 +138,9 @@ Widget? pageFor(String name, {Object? arguments}) {
     case 'PackageDetail':
       return PackageDetailPage(data: memberPackage);
     case 'ProductList':
-      return const ProductListLivePage();
+      return ProductListLivePage(
+        initialFilter: arguments is int ? arguments : 0,
+      );
     case 'SupplierEdit':
       return const SupplierEditPage();
     case 'ProductEditExist':
@@ -367,7 +369,8 @@ bool _sameRoute(Route<dynamic> route, String name, Object? arguments) =>
             arguments is! OrderRouteData &&
             arguments is! OrderReceipt &&
             arguments is! OrderDetailRef &&
-            arguments is! StMemberRouteData) ||
+            arguments is! StMemberRouteData &&
+            arguments is! int) ||
         route.settings.arguments == arguments);
 
 void _openRouteCore(BuildContext context, String name, {Object? arguments}) {
