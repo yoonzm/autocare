@@ -22,7 +22,7 @@ import '../../kit/kit.dart';
 import '../../theme.dart';
 import 'inventory_live_page.dart';
 import 'stock_in_line_template.dart';
-import 'stock_in_price_sheet.dart';
+import 'stock_in_price_sheet.dart' show moneyGrouped, showStockInPriceSheet;
 import 'stock_out_line_template.dart';
 
 /// Keep the key across ambiguous network failures; editing creates a new intent.
@@ -272,24 +272,40 @@ class InventoryController extends ChangeNotifier {
   String get unitLabel => _unit;
   String get safeStockLabel =>
       '安全库存 ${qty(detail['safe'] as num? ?? 0)} $_unit';
-  String get stockStatusLabel =>
-      (detail['stock'] as num? ?? 0) < (detail['safe'] as num? ?? 0)
-      ? '低于安全库存'
-      : '库存充足';
+
+  /// 库存状态：low 低于安全库存 / ok 库存充足 / unset 没设置安全库存（安全库存为 0）。
+  String get stockState {
+    final safe = detail['safe'] as num? ?? 0;
+    if (safe <= 0) return 'unset';
+    return (detail['stock'] as num? ?? 0) < safe ? 'low' : 'ok';
+  }
+
+  String get stockStatusLabel => switch (stockState) {
+    'low' => '低于安全库存',
+    'ok' => '库存充足',
+    _ => '未设置安全库存',
+  };
   String get monthUsedLabel => '${qty(_monthUsed)} $_unit';
   String get availableDaysLabel => _monthUsed == 0
       ? '—'
       : '约 ${((detail['stock'] as num? ?? 0) * DateTime.now().day / _monthUsed).floor()} 天';
-  String get replenishLabel =>
-      '${qty(((detail['safe'] as num? ?? 0) * 2 - (detail['stock'] as num? ?? 0)).clamp(0, 999999999))} $_unit';
-  String get specificationLabel => '${detail['specification'] ?? ''}';
-  String get unitCostLabel => '${money(detail['cost'] as num? ?? 0)} / $_unit';
-  String get stockCostLabel => money(
+
+  /// 建议补货：补到安全库存的 2 倍；没设置安全库存时不给建议。
+  String get replenishLabel => stockState == 'unset'
+      ? '—'
+      : '${qty(((detail['safe'] as num? ?? 0) * 2 - (detail['stock'] as num? ?? 0)).clamp(0, 999999999))} $_unit';
+  String get specificationLabel => '${detail['specification'] ?? ''}'.isEmpty
+      ? '—'
+      : '${detail['specification']}';
+  String get unitCostLabel =>
+      '${moneyGrouped(detail['cost'] as num? ?? 0)} / $_unit';
+  String get stockCostLabel => moneyGrouped(
     maps(
       detail['batches'],
     ).fold<num>(0, (n, b) => n + (b['quantity'] as num) * (b['cost'] as num)),
   );
-  String get locationLabel => '${detail['location'] ?? ''}';
+  String get locationLabel =>
+      '${detail['location'] ?? ''}'.isEmpty ? '—' : '${detail['location']}';
 
   Future<void> save(
     BuildContext context,
@@ -351,9 +367,10 @@ class InventoryController extends ChangeNotifier {
     }
   }
 
+  /// 进度条长度 = 库存 ÷ 安全库存（设计稿：2/5 画 40%），超过 100% 按满格；没设置安全库存画满格灰条。
   double get stockRatio => (detail['safe'] as num? ?? 0) == 0
       ? 1
-      : ((detail['stock'] as num) / (detail['safe'] as num) / 2)
+      : ((detail['stock'] as num) / (detail['safe'] as num))
             .clamp(0, 1)
             .toDouble();
   Widget busyLabel(String kind, Widget child) => hBusy(

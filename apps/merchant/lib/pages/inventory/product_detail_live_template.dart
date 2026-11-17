@@ -119,6 +119,8 @@ class ProductDetailLiveTemplate extends StatelessWidget {
                                   ),
                                   Text(
                                     c.skuCategoryLabel,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                     style: hts(
                                       12,
                                       dk(
@@ -166,7 +168,9 @@ class ProductDetailLiveTemplate extends StatelessWidget {
                                           c.stockLabel,
                                           style: hts(
                                             38,
-                                            Color(0xFFFF8A8C),
+                                            c.stockState == 'low'
+                                                ? Color(0xFFFF8A8C)
+                                                : Color(0xFFFAFAFA),
                                             w: FontWeight.w600,
                                             lh: 44,
                                           ),
@@ -198,22 +202,46 @@ class ProductDetailLiveTemplate extends StatelessWidget {
                               ),
                             ),
                             hbox(
-                              bg: dk(
-                                context,
-                                Color(0xFFFFE1E2),
-                                Color.fromRGBO(255, 56, 60, 0.18),
-                              ),
+                              bg: switch (c.stockState) {
+                                'low' => dk(
+                                  context,
+                                  Color(0xFFFFE1E2),
+                                  Color.fromRGBO(255, 56, 60, 0.18),
+                                ),
+                                'ok' => dk(
+                                  context,
+                                  Color(0xFFDDF6E7),
+                                  Color.fromRGBO(52, 199, 89, 0.18),
+                                ),
+                                _ => dk(
+                                  context,
+                                  Color(0xFFE4E4E7),
+                                  Color.fromRGBO(255, 255, 255, 0.12),
+                                ),
+                              },
                               radius: BorderRadius.circular(9),
                               pad: EdgeInsets.fromLTRB(8, 0, 8, 0),
                               child: Text(
                                 c.stockStatusLabel,
                                 style: hts(
                                   11,
-                                  dk(
-                                    context,
-                                    Color(0xFFA43433),
-                                    Color(0xFFFF7B7E),
-                                  ),
+                                  switch (c.stockState) {
+                                    'low' => dk(
+                                      context,
+                                      Color(0xFFA43433),
+                                      Color(0xFFFF7B7E),
+                                    ),
+                                    'ok' => dk(
+                                      context,
+                                      Color(0xFF2B7745),
+                                      Color(0xFF6EE08F),
+                                    ),
+                                    _ => dk(
+                                      context,
+                                      Color(0xFF52525B),
+                                      Color(0xFFA1A1AA),
+                                    ),
+                                  },
                                   w: FontWeight.w600,
                                   lh: 18,
                                 ),
@@ -239,7 +267,11 @@ class ProductDetailLiveTemplate extends StatelessWidget {
                                         c.stockRatio,
                                         hbox(
                                           h: 8,
-                                          bg: Color(0xFFFF383C),
+                                          bg: switch (c.stockState) {
+                                            'low' => Color(0xFFFF383C),
+                                            'ok' => Color(0xFF34C759),
+                                            _ => Color(0xFF52525B),
+                                          },
                                           radius: BorderRadius.circular(4),
                                         ),
                                       ),
@@ -251,20 +283,19 @@ class ProductDetailLiveTemplate extends StatelessWidget {
                                   min: false,
                                 ),
                                 [
-                                  Positioned(
-                                    top: -3,
-                                    width: 2,
-                                    height: 14,
-                                    child: NegMargin(
-                                      top: 0,
-                                      left: -2,
+                                  // 安全线在进度条最右端（设计稿：left:100% 再左移 2）；没设置安全库存时不画。
+                                  if (c.stockState != 'unset')
+                                    Positioned(
+                                      top: -3,
+                                      right: 0,
+                                      width: 2,
+                                      height: 14,
                                       child: hbox(
                                         w: 2,
                                         h: 14,
                                         bg: Color(0xFFFAFAFA),
                                       ),
                                     ),
-                                  ),
                                 ],
                               ),
                             ),
