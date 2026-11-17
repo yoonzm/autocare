@@ -1,4 +1,5 @@
 import { admin, fail, failCode, resolveSession } from './shared.ts';
+import { orderScopeFor, type OrderScope } from './order_scope.ts';
 import { decide, type Role } from './staff_gate.ts';
 import type { Input } from './types.ts';
 
@@ -28,4 +29,22 @@ export async function technicianScope(request: Request): Promise<string | null |
   if (state instanceof Response || state.role !== 'technician' || !state.staffId) return null;
   const { data } = await admin.from('store_staff').select('resource_id').eq('id', state.staffId).maybeSingle();
   return data?.resource_id ?? 'none';
+}
+
+/** 订单中心的数据范围：按已认证会话的员工身份推出，不接受客户端传入。老板返回全部。 */
+export async function orderScopeOf(request: Request): Promise<OrderScope> {
+  const token = request.headers.get('Authorization')?.replace(/^Bearer\s+/i, '');
+  if (!token) return { kind: 'none' };
+  const { data: auth } = await admin.auth.getUser(token);
+  if (!auth?.user) return { kind: 'none' };
+  const state = await resolveSession(auth.user.id, token, false);
+  if (state instanceof Response) return { kind: 'none' };
+  if (state.role === 'owner') return { kind: 'all' };
+  const { data: caps } = await admin.rpc('staff_caps', { p_store: state.store, p_role: state.role });
+  let resource: string | null = null;
+  if (state.staffId) {
+    const { data } = await admin.from('store_staff').select('resource_id').eq('id', state.staffId).maybeSingle();
+    resource = data?.resource_id ?? null;
+  }
+  return orderScopeFor(state.role, caps as Record<string, boolean> | null, resource);
 }

@@ -188,7 +188,11 @@ MVP 阶段商户 App 前端去掉开支管理的「预算」和库存管理的�
 
 ### P0：上线前必须关闭
 
-**P0-01 · “只看本人订单”没有落实到订单查询的数据范围【已确认】**
+**P0-01 · “只看本人订单”没有落实到订单查询的数据范围【已修复，待生产验收】**
+
+- 修复（迁移 `202611190005_order_scope.sql`、`order_scope.ts`、`orders_center.ts`）：范围由已认证会话的身份在云函数里推出（老板 / 有 `order_view_all` 看全店；只有 `order_view_own` 的员工只看派给自己的；没有对应排班资源或权限的一律 403），不接受客户端传入。本人订单 = 关联到派给该技师的预约的消费订单及其退款行；充值、次卡、没有关联预约的直接订单不在本人范围内，详情和退款越范围按“订单不存在”处理，经办人选项只给能看全店的身份。隔离测试 `supabase/tests/order_scope.sql` 复现并验证。待在生产用老板、前台、两名技师账号各验证一次。
+
+以下为修复前的原始记录：
 
 - 现状：`staff_gate.ts` 对 `order_list`、`order_detail` 同时接受 `order_view_all` 和 `order_view_own`。但 `orders_center.ts` 只传门店 ID，`order_feed` / `order_detail` 未按当前员工限定订单；`with_options=true` 还会附带全店经办人。技师默认有 `order_view_own`，因此即使 App 不展示订单中心入口，直接调用接口仍可读取本店其他人的订单及全店汇总。这里是同店角色越权，不是已证明的跨店越权。
 - 依据：[权限网关](../supabase/functions/merchant-v1/staff_gate.ts) 的 `byAction`、[订单处理器](../supabase/functions/merchant-v1/orders_center.ts)、[订单查询 SQL](../supabase/migrations/202611040001_order_center.sql)。本次运行 `decide('technician', {order_view_own:true}, …)`，列表和详情均返回允许。
