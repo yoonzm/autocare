@@ -55,6 +55,36 @@ begin
     assert caught,'不能关联别家的工单';
   end;
 
+
+  -- 退回供应商同步退款开支：负数、记材料采购、不受预算拦截、作废时一起撤销
+  declare rd jsonb; rid uuid:=gen_random_uuid(); rd2 jsonb; rid2 uuid:=gen_random_uuid(); rid3 uuid:=gen_random_uuid(); caught boolean:=false;
+  begin
+    perform public.inventory_document_save(shop,gen_random_uuid(),'in',jsonb_build_object('supplier','运费供应商','date','2026-11-17','lines',
+      jsonb_build_array(jsonb_build_object('id',pa,'quantity',20,'cost',10))),0,true);
+    rd:=public.inventory_document_save(shop,rid,'out',jsonb_build_object('reason','退回供应商','supplier','运费供应商','refund_amount',80,'sync_expense',true,
+      'lines',jsonb_build_array(jsonb_build_object('id',pa,'quantity',2))),0,true);
+    assert (select amount from public.expense_entries where source_document=rid)=-80,'退款开支是负数';
+    assert (select category from public.expense_entries where source_document=rid)='材料采购','记在材料采购';
+    assert (select payee from public.expense_entries where source_document=rid)='运费供应商' and (select note from public.expense_entries where source_document=rid)='退回供应商退款';
+    -- 没开同步 / 应退金额为 0：不记
+    rd2:=public.inventory_document_save(shop,rid2,'out',jsonb_build_object('reason','退回供应商','supplier','运费供应商','refund_amount',50,
+      'lines',jsonb_build_array(jsonb_build_object('id',pa,'quantity',1))),0,true);
+    assert not exists(select 1 from public.expense_entries where source_document=rid2),'没开同步不记';
+    perform public.inventory_document_save(shop,rid3,'out',jsonb_build_object('reason','退回供应商','supplier','运费供应商','refund_amount',0,'sync_expense',true,
+      'lines',jsonb_build_array(jsonb_build_object('id',pa,'quantity',1))),0,true);
+    assert not exists(select 1 from public.expense_entries where source_document=rid3),'应退金额为 0 不记';
+    -- 其他出库类型不记开支
+    perform public.inventory_document_save(shop,gen_random_uuid(),'out',jsonb_build_object('reason','损耗报废','scrap_reason','破损','sync_expense',true,'refund_amount',10,
+      'lines',jsonb_build_array(jsonb_build_object('id',pa,'quantity',1))),0,true);
+    assert (select count(*) from public.expense_entries where store_id=shop and amount<0)=1,'只有退回供应商才记负数开支';
+    -- 手工记账仍然不能是负数
+    begin
+      perform public.expense_mutate(shop,'rf-'||gen_random_uuid()::text,'save',jsonb_build_object('id',gen_random_uuid(),'amount',-5,'category','其他','occurred_on','2026-11-17','account','现金','status','paid','payee','','note',''));
+    exception when others then caught:=sqlerrm like '%invalid_amount%'; end;
+    assert caught,'手工记账不能是负数（应报 invalid_amount）';
+    assert not exists(select 1 from public.expense_entries where store_id=shop and source_document is null and amount<=0);
+  end;
+
   assert not has_function_privilege('authenticated','public.inventory_allocate_freight(jsonb,numeric)','execute');
 end $$;
 rollback;

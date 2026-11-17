@@ -3,13 +3,13 @@ import 'package:autocare_ui_kit/autocare_ui_kit.dart'
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../kit/async_kit.dart' show AppToast;
 import '../../kit/kit.dart';
 import '../../kit/page_header.dart';
 import '../../kit/text_input.dart' show MoneyInputFormatter;
 import '../../theme.dart';
 import '../../widgets/app_icon.dart';
 import 'inventory_controller.dart';
+import 'stock_in_price_sheet.dart' show moneyGrouped;
 import 'stock_out_line_template.dart';
 
 /// 出库类型单选标签（四种类型互斥）。出库页的各种版式共用。
@@ -69,6 +69,9 @@ class _StockOutVariantState extends State<StockOutVariantPage> {
       ],
     ),
   );
+
+  num get _refundValue =>
+      c.payload['refund_amount'] is num ? c.payload['refund_amount'] as num : 0;
 
   Widget _title(String t) => Text(t, style: ts(15, w: FontWeight.w600, h: 22));
   Widget _label(String t, {bool required = false}) => Text.rich(
@@ -230,6 +233,7 @@ class _StockOutVariantState extends State<StockOutVariantPage> {
                       c.payload['refund_amount'] = n;
                     }
                     c.dirty = true;
+                    setState(() {});
                   },
                 ),
               ),
@@ -238,8 +242,7 @@ class _StockOutVariantState extends State<StockOutVariantPage> {
           ),
         ),
         const SizedBox(height: 6),
-        // TODO: 退款开支要写入负数开支，开支目前只支持大于 0 的金额，等开支支持退款冲减后再接通。
-        Text('仅作记录；开支暂不支持负数，退款请在开支里手动记录', style: ts(12, color: C.muted, h: 17)),
+        Text('可同步生成一笔负数开支', style: ts(12, color: C.muted, h: 17)),
       ],
     ),
     Row(
@@ -248,17 +251,23 @@ class _StockOutVariantState extends State<StockOutVariantPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Text('同步记一笔退款开支', style: ts(14, w: FontWeight.w500, h: 20)),
               Text(
-                '同步记一笔退款开支',
-                style: ts(14, w: FontWeight.w500, color: C.muted, h: 20),
+                _refundValue > 0
+                    ? '在开支里记 -${_refundValue == _refundValue.roundToDouble() ? moneyGrouped(_refundValue).replaceAll('.00', '').substring(1) : moneyGrouped(_refundValue).substring(1)} 元'
+                    : '填写应退金额后，在开支里记一笔负数',
+                style: ts(12, color: C.muted, h: 17),
               ),
-              Text('暂未开放：开支暂不支持负数', style: ts(12, color: C.muted, h: 17)),
             ],
           ),
         ),
         HSwitchValue(
-          value: false,
-          onChanged: (_) => AppToast.show(context, '开支暂不支持负数，退款开支请手动记录'),
+          value: c.payload['sync_expense'] == true,
+          onChanged: (_) {
+            if (c.busy) return;
+            c.payload['sync_expense'] = c.payload['sync_expense'] != true;
+            c.changed(requote: false);
+          },
         ),
       ],
     ),

@@ -107,10 +107,12 @@ class ExpenseEntryTemplate extends StatelessWidget {
           hcol(
             [
               Text(
-                '−${expenseMoney(record['amount'])}',
+                expenseSigned(record['amount'] as num),
                 style: hts(
                   15,
-                  dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                  (record['amount'] as num) < 0
+                      ? dk(context, Color(0xFF2B7745), Color(0xFF6EE08F))
+                      : dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
                   w: FontWeight.w600,
                   lh: 22,
                   tab: true,

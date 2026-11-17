@@ -23,6 +23,9 @@ export function documentError(
   if (
     payload.freight_to_cost != null && typeof payload.freight_to_cost !== "boolean"
   ) return "运费是否计入成本须为开关值";
+  if (payload.sync_expense != null && typeof payload.sync_expense !== "boolean") {
+    return "是否同步开支须为开关值";
+  }
   if (payload.date != null && !day(payload.date)) return "单据日期无效";
   if (
     payload.scrap_reason != null &&

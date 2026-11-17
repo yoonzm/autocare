@@ -359,6 +359,7 @@ class InventoryController extends ChangeNotifier {
       if (payload['reason'] != '退回供应商') {
         payload.remove('refund_amount');
         payload.remove('supplier');
+        payload.remove('sync_expense');
       }
     }
     _saving = true;
@@ -579,6 +580,10 @@ class InventoryController extends ChangeNotifier {
     // 损耗报废默认「破损」（设计稿）；其他类型不带报废原因。
     if (reason == '损耗报废') {
       payload['scrap_reason'] ??= '破损';
+    }
+    // 退回供应商默认同步退款开支（设计稿：开关默认打开）。
+    if (reason == '退回供应商') {
+      payload['sync_expense'] ??= true;
     }
     changed(requote: false);
   }

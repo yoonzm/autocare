@@ -31,7 +31,13 @@ const expenseCategories = [
   '损耗',
 ];
 final expenseChanged = ValueNotifier(0);
-String expenseMoney(num value) => '¥${value.toStringAsFixed(2)}';
+String expenseMoney(num value) => value < 0
+    ? '-¥${(-value).toStringAsFixed(2)}'
+    : '¥${value.toStringAsFixed(2)}';
+
+/// 列表 / 详情里的金额：支出显示「−¥120.00」；退款（库存单同步的负数开支）显示「+¥80.00」。
+String expenseSigned(num amount) =>
+    amount < 0 ? '+${expenseMoney(-amount)}' : '−${expenseMoney(amount)}';
 List<Map<String, dynamic>> expenseMaps(dynamic rows) => [
   for (final row in rows as List? ?? const [])
     Map<String, dynamic>.from(row as Map),

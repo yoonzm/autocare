@@ -21,8 +21,8 @@ extension ExpenseFormatting on ExpenseController {
   String get marketingText => expenseMoney(spent('营销推广'));
   String get otherText =>
       expenseMoney(spent('其他') + spent('税费') + spent('设备维修') + spent('损耗'));
-  String get entryAmountText =>
-      '−${expenseMoney(draft['amount'] as num? ?? 0)}';
+  String get entryAmountText => expenseSigned(draft['amount'] as num? ?? 0);
+  bool get entryIsRefund => (draft['amount'] as num? ?? 0) < 0;
   String get paymentStatusText => draft['status'] == 'paid' ? '已付款' : '挂账待付';
   String get entryDateText => '${draft['occurred_on']}';
   String get entryAccountText => '${draft['account']}';

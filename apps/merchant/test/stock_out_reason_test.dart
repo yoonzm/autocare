@@ -1,6 +1,9 @@
 import 'package:autocare_ui_kit/autocare_ui_kit.dart' show AppChoiceChip;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:autocare_merchant/kit/kit.dart' show HSwitchValue;
+import 'package:autocare_merchant/pages/expenses/expense_controller.dart'
+    show expenseMoney, expenseSigned;
 import 'package:autocare_merchant/pages/inventory/inventory_controller.dart';
 import 'package:autocare_merchant/pages/inventory/stock_out_live_template.dart';
 
@@ -17,6 +20,13 @@ final product = <String, dynamic>{
 };
 
 void main() {
+  test('开支金额显示：支出 −¥120.00，退款（负数开支）+¥80.00', () {
+    expect(expenseSigned(120), '−¥120.00');
+    expect(expenseSigned(-80), '+¥80.00');
+    expect(expenseMoney(-80), '-¥80.00');
+    expect(expenseMoney(1280), '¥1280.00');
+  });
+
   testWidgets('出库类型：四个标签互斥，点谁谁选中，payload.reason 跟着变', (t) async {
     t.view.physicalSize = const Size(390, 1800);
     t.view.devicePixelRatio = 1;
@@ -90,7 +100,7 @@ void main() {
     expect(find.text('关联信息'), findsOneWidget);
   });
 
-  testWidgets('退回供应商版式：供应商必填、应退金额记录；退款开支暂未开放不假装成功', (t) async {
+  testWidgets('退回供应商版式：供应商必填、应退金额记录；退款开支开关', (t) async {
     t.view.physicalSize = const Size(390, 1800);
     t.view.devicePixelRatio = 1;
     addTearDown(t.view.resetPhysicalSize);
@@ -116,6 +126,12 @@ void main() {
     expect(c.outIssue(), isNull);
     await t.enterText(find.byType(TextField).first, '1280');
     expect(c.payload['refund_amount'], 1280);
-    expect(find.text('暂未开放：开支暂不支持负数'), findsOneWidget);
+    await t.pump();
+    // 开关默认打开；填了应退金额才说明会记多少
+    expect(c.payload['sync_expense'], true);
+    expect(find.text('在开支里记 -1,280 元'), findsOneWidget);
+    await t.tap(find.byType(HSwitchValue));
+    await t.pump();
+    expect(c.payload['sync_expense'], false);
   });
 }

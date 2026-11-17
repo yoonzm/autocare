@@ -65,3 +65,7 @@ Deno.test("outbound scrap reason and supplier return rules", () => {
     true,
   );
 });
+Deno.test("sync_expense must be a boolean", () => {
+  equal(documentError("in", { sync_expense: "yes", lines: [{ quantity: 1, cost: 1 }] }) !== null, true);
+  equal(documentError("in", { sync_expense: true, lines: [{ quantity: 1, cost: 1 }] }), null);
+});

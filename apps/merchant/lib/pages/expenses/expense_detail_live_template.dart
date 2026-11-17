@@ -97,7 +97,17 @@ class ExpenseDetailLiveTemplate extends StatelessWidget {
                         c.entryAmountText,
                         style: hts(
                           36,
-                          dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                          c.entryIsRefund
+                              ? dk(
+                                  context,
+                                  Color(0xFF2B7745),
+                                  Color(0xFF6EE08F),
+                                )
+                              : dk(
+                                  context,
+                                  Color(0xFF18181B),
+                                  Color(0xFFFAFAFA),
+                                ),
                           w: FontWeight.w600,
                           lh: 44,
                           ls: -1.08,
