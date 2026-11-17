@@ -1,6 +1,13 @@
 import 'package:autocare_ui_kit/autocare_ui_kit.dart'
-    show AppSegmented, SegmentItem;
+    show
+        AppButton,
+        AppButtonKind,
+        AppSegmented,
+        AppTextField,
+        SegmentItem,
+        showAppBottomSheet;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show LengthLimitingTextInputFormatter;
 
 import '../../backend/merchant_api.dart';
 import '../../backend/package_calc.dart' show formatMoney;
@@ -148,21 +155,44 @@ class _ServiceEditPageState extends State<ServiceEditPage> {
     ], _category);
     if (value == null || !mounted) return;
     if (value == _newCategory) {
-      final created = (await inputDialog(
-        context,
-        '新建分类',
-        '如：打蜡抛光',
-        '',
-      ))?.trim();
+      final created = (await _askNewCategory())?.trim();
       if (created == null || created.isEmpty || !mounted) return;
-      if (created.length > 20) {
-        AppToast.show(context, '分类名称最多 20 个字', kind: ToastKind.error);
-        return;
-      }
       setState(() => _category = created);
       return;
     }
     setState(() => _category = value);
+  }
+
+  /// 新建分类：底部弹层 + 组件库输入框（不用系统对话框）。名称最多 20 字，由输入框限制。
+  Future<String?> _askNewCategory() async {
+    final ctrl = TextEditingController();
+    try {
+      return await showAppBottomSheet<String>(
+        context,
+        title: '新建分类',
+        builder: (sheetContext) => AppTextField(
+          label: '分类名称',
+          hint: '如：打蜡抛光',
+          controller: ctrl,
+          formatters: [LengthLimitingTextInputFormatter(20)],
+          onSubmitted: (v) => Navigator.of(sheetContext).pop(v),
+        ),
+        actions: [
+          AppButton(
+            label: '取消',
+            kind: AppButtonKind.secondary,
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          AppButton(
+            label: '确定',
+            onPressed: () => Navigator.of(context).pop(ctrl.text),
+          ),
+        ],
+      );
+    } finally {
+      // 弹层关闭动画结束后再释放，避免动画期间读取已释放的控制器。
+      Future<void>.delayed(const Duration(milliseconds: 400), ctrl.dispose);
+    }
   }
 
   Future<void> _pickDuration() async {
@@ -485,7 +515,7 @@ class _ServiceEditPageState extends State<ServiceEditPage> {
                 width: 96,
                 child: AppTextInput(
                   style: ts(26, w: FontWeight.w600, h: 32, spacing: -0.52),
-                  hint: '请输入门店价',
+                  hint: '0.00',
                   controller: _price,
                   keyboard: const TextInputType.numberWithOptions(
                     decimal: true,
