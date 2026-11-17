@@ -360,9 +360,9 @@ class _ProductEditState extends State<ProductEditLivePage> {
       child: Scaffold(
         backgroundColor: C.bg,
         resizeToAvoidBottomInset: true,
-        body: Column(
+        body: Stack(
           children: [
-            Expanded(
+            Positioned.fill(
               child: HHeaderFrame(
                 bg: C.bg,
                 header: AppPageHeader(
@@ -372,7 +372,8 @@ class _ProductEditState extends State<ProductEditLivePage> {
                 body: SingleChildScrollView(
                   keyboardDismissBehavior:
                       ScrollViewKeyboardDismissBehavior.onDrag,
-                  padding: const EdgeInsets.fromLTRB(20, 6, 20, 24),
+                  // 底部留出操作栏的高度，内容从半透明栏下面滑过。
+                  padding: const EdgeInsets.fromLTRB(20, 6, 20, 130),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -574,35 +575,32 @@ class _ProductEditState extends State<ProductEditLivePage> {
                 ),
               ),
             ),
-            Container(
-              decoration: BoxDecoration(
-                color: C.bg,
-                border: Border(top: BorderSide(color: C.line)),
-              ),
-              padding: EdgeInsets.fromLTRB(20, 12, 20, bottomInset(context)),
-              child: Row(
-                children: [
-                  if (editing) ...[
+            HBottomDock(
+              child: HBottomBar(
+                child: Row(
+                  children: [
+                    if (editing) ...[
+                      Expanded(
+                        child: LoadingButton(
+                          label: '取消',
+                          style: LoadingButtonStyle.secondary,
+                          onPressed: busy
+                              ? null
+                              : () async => Navigator.of(context).maybePop(),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                    ],
                     Expanded(
+                      flex: editing ? 2 : 1,
                       child: LoadingButton(
-                        label: '取消',
-                        style: LoadingButtonStyle.secondary,
-                        onPressed: busy
-                            ? null
-                            : () async => Navigator.of(context).maybePop(),
+                        label: editing ? '保存修改' : '保存',
+                        loadingLabel: '提交中…',
+                        onPressed: _save,
                       ),
                     ),
-                    const SizedBox(width: 10),
                   ],
-                  Expanded(
-                    flex: editing ? 2 : 1,
-                    child: LoadingButton(
-                      label: editing ? '保存修改' : '保存',
-                      loadingLabel: '提交中…',
-                      onPressed: _save,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ],

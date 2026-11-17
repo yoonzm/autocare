@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/pages/inventory/product_edit_live_page.dart';
+import 'package:autocare_merchant/kit/kit.dart' show HBottomBar;
 import 'package:autocare_merchant/routes.dart';
 import 'package:autocare_merchant/kit/async_kit.dart' show SkeletonList;
 
@@ -51,6 +52,32 @@ class _SlowApi extends _Api {
 }
 
 void main() {
+  testWidgets('底部操作栏按设计稿：半透明白栏浮在内容上，内容底部留出栏高度', (t) async {
+    final api = _Api();
+    merchantApi = api;
+    phone(t);
+    await t.pumpWidget(const MaterialApp(home: ProductEditLivePage()));
+    await t.pumpAndSettle();
+    expect(find.byType(HBottomBar), findsOneWidget);
+    final bar = t.getRect(find.byType(HBottomBar));
+    final screen = t.view.physicalSize / t.view.devicePixelRatio;
+    expect(bar.bottom, screen.height);
+    final box = t.widget<DecoratedBox>(
+      find
+          .descendant(
+            of: find.byType(HBottomBar),
+            matching: find.byType(DecoratedBox),
+          )
+          .first,
+    );
+    final deco = box.decoration as BoxDecoration;
+    expect(deco.color!.a, closeTo(0.94, 0.01));
+    final scroll = t.widget<SingleChildScrollView>(
+      find.byType(SingleChildScrollView).first,
+    );
+    expect((scroll.padding as EdgeInsets).bottom, 130);
+  });
+
   testWidgets('新增商品是表单页：分类选项加载时先显示页面壳层和表单，只有分类区占位，不出整页骨架', (t) async {
     final api = _SlowApi();
     merchantApi = api;

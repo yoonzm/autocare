@@ -165,6 +165,28 @@ class HBottomDock extends StatelessWidget {
   }
 }
 
+/// 底部操作栏（设计稿：白色 94%、顶部 1px #E4E4E7 线、内边距 12 / 20 / 30）。
+/// 放进 [HBottomDock]，内容区底部要留出栏的高度，内容才能从半透明栏下面滑过。
+class HBottomBar extends StatelessWidget {
+  final Widget child;
+  const HBottomBar({super.key, required this.child});
+  @override
+  Widget build(BuildContext context) => hbox(
+    bg: dk(
+      context,
+      const Color.fromRGBO(255, 255, 255, 0.94),
+      const Color.fromRGBO(9, 9, 11, 0.92),
+    ),
+    shadow: dk(
+      context,
+      const [BoxShadow(color: Color(0xFFE4E4E7), offset: Offset(0, -1))],
+      const [BoxShadow(color: Color(0xFF3A3A40), offset: Offset(0, -1))],
+    ),
+    pad: EdgeInsets.fromLTRB(20, 12, 20, bottomInset(context)),
+    child: child,
+  );
+}
+
 double bottomInset(BuildContext context, [double min = 16]) =>
     math.max(MediaQuery.of(context).padding.bottom, min);
 

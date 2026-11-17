@@ -756,7 +756,15 @@ class _OrderPageState extends State<OrderPage> {
               decoration: BoxDecoration(
                 color: C.card,
                 boxShadow: [
-                  BoxShadow(color: C.line, offset: const Offset(0, -1)),
+                  // 设计稿：顶部 1px 线是 #E8E8EA（深色 #26262B），不是通用分割线色
+                  BoxShadow(
+                    color: dk(
+                      context,
+                      const Color(0xFFE8E8EA),
+                      const Color(0xFF26262B),
+                    ),
+                    offset: const Offset(0, -1),
+                  ),
                   BoxShadow(
                     color: Color(0x0A000000),
                     blurRadius: 24,
