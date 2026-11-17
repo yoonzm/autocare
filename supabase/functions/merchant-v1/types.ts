@@ -140,5 +140,6 @@ export type ApiResponse =
   | { store: StoreProfileRow }
   | { items: ServiceItemRow[] | CardTypeRow[] | PackageRow[] | unknown[]; counts?: Record<string, number>; total?: number; matched?: number; total_balance?: number; new_this_month?: number }
   | { rules: CardRules }
+  | { freight: number | null }
   | { item: ServiceItemRow | CardTypeRow | PackageRow | unknown }
   | { error: string; code?: string };
