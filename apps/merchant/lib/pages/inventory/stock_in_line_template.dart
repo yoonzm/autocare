@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../kit/kit.dart';
 import 'inventory_controller.dart';
 import '../../resources/merchant_svgs.dart';
+import '../../widgets/app_icon.dart';
 
 class StockInLineTemplate extends StatelessWidget {
   final InventoryController c;
@@ -21,6 +23,70 @@ class StockInLineTemplate extends StatelessWidget {
       gap: 0,
     ),
   );
+
+  /// 单价：带笔形图标的灰色块，点击弹出「修改单价」；没有默认价显示「请输入」，单价为 0 标「赠品」。
+  Widget _priceChip(BuildContext context, Color muted, Color ink) {
+    final has = line['cost'] is num;
+    return Semantics(
+      button: true,
+      label: '修改单价',
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: c.busy ? null : () => c.editLine(context, line, 'cost'),
+        child: Container(
+          height: 32,
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          decoration: BoxDecoration(
+            color: dk(
+              context,
+              const Color(0xFFF4F4F5),
+              const Color(0xFF27272A),
+            ),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('单价', style: hts(12, muted, lh: 16)),
+              const SizedBox(width: 6),
+              Text(
+                c.lineCostText(line),
+                style: has
+                    ? hts(14, ink, w: FontWeight.w600, lh: 20, tab: true)
+                    : hts(
+                        14,
+                        dk(
+                          context,
+                          const Color(0xFFA1A1AA),
+                          const Color(0xFF71717A),
+                        ),
+                        lh: 20,
+                      ),
+              ),
+              if (has) ...[
+                const SizedBox(width: 6),
+                Text('/ ${c.lineUnit(line)}', style: hts(12, muted, lh: 16)),
+              ],
+              if (c.lineIsGift(line)) ...[
+                const SizedBox(width: 6),
+                Text(
+                  '赠品',
+                  style: hts(
+                    11,
+                    const Color(0xFF855F2E),
+                    w: FontWeight.w600,
+                    lh: 16,
+                  ),
+                ),
+              ],
+              const SizedBox(width: 6),
+              AppIcon('pencil', size: 14, color: muted),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,11 +127,13 @@ class StockInLineTemplate extends StatelessWidget {
         hrow(
           [
             Expanded(
-              child: GestureDetector(
-                onTap: () => c.editLine(context, line, 'cost'),
-                child: Text(
-                  c.lineUnitCostLabel(line),
-                  style: hts(13, muted, lh: 18),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                // 金额很大或字体放大时整体缩小，不溢出。
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: _priceChip(context, muted, ink),
                 ),
               ),
             ),
@@ -102,7 +170,7 @@ class StockInLineTemplate extends StatelessWidget {
                   child: Align(
                     alignment: Alignment.center,
                     widthFactor: 1,
-                    child: c.quantityLabel(context, line, size: 16),
+                    child: StockQtyField(c: c, line: line),
                   ),
                 ),
               ),
@@ -318,5 +386,95 @@ class StockInAddTemplate extends StatelessWidget {
     cross: CrossAxisAlignment.stretch,
     gap: 8,
     intrinsic: true,
+  );
+}
+
+/// 入库数量：数字做成输入框，点击直接输入，加减按钮保留。
+/// 数量大于 0、最大 9999；不允许小数的商品只能输入整数。
+class StockQtyField extends StatefulWidget {
+  final InventoryController c;
+  final Map<String, dynamic> line;
+  const StockQtyField({super.key, required this.c, required this.line});
+
+  @override
+  State<StockQtyField> createState() => _StockQtyFieldState();
+}
+
+class _StockQtyFieldState extends State<StockQtyField> {
+  late final _ctrl = TextEditingController(text: _text());
+
+  String _text() {
+    final q = widget.line['quantity'];
+    return q is num && q > 0 ? qty(q) : '';
+  }
+
+  bool get _decimal => widget.c.product(widget.line)['allow_decimal'] != false;
+
+  @override
+  void didUpdateWidget(StockQtyField old) {
+    super.didUpdateWidget(old);
+    // 加减按钮改了数量：同步到输入框；用户正在输入的内容不覆盖。
+    final typed = num.tryParse(_ctrl.text);
+    final q = widget.line['quantity'];
+    if (q is num && q != typed) {
+      _ctrl.text = _text();
+      _ctrl.selection = TextSelection.collapsed(offset: _ctrl.text.length);
+    }
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  void _changed(String v) {
+    var n = num.tryParse(v);
+    if (n != null && n > 9999) {
+      n = 9999;
+      _ctrl.text = '9999';
+      _ctrl.selection = const TextSelection.collapsed(offset: 4);
+    }
+    widget.line['quantity'] = n;
+    widget.c.changed();
+  }
+
+  @override
+  Widget build(BuildContext context) => Container(
+    constraints: const BoxConstraints(minWidth: 48, maxWidth: 88),
+    width: 64,
+    height: 32,
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(10),
+      border: Border.all(
+        color: dk(context, const Color(0xFFD4D4D8), const Color(0xFF3F3F46)),
+      ),
+    ),
+    alignment: Alignment.center,
+    child: TextField(
+      controller: _ctrl,
+      enabled: !widget.c.busy,
+      textAlign: TextAlign.center,
+      keyboardType: TextInputType.numberWithOptions(decimal: _decimal),
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(
+          _decimal ? RegExp(r'^\d*\.?\d{0,3}') : RegExp(r'^\d*'),
+        ),
+        LengthLimitingTextInputFormatter(8),
+      ],
+      onChanged: _changed,
+      style: hts(
+        16,
+        dk(context, const Color(0xFF18181B), const Color(0xFFFAFAFA)),
+        w: FontWeight.w600,
+        lh: 22,
+        tab: true,
+      ),
+      decoration: const InputDecoration(
+        isCollapsed: true,
+        border: InputBorder.none,
+        hintText: '0',
+      ),
+    ),
   );
 }

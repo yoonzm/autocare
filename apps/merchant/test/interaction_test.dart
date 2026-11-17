@@ -122,6 +122,11 @@ Future<void> open(WidgetTester t, String name, {Object? arguments}) async {
   await t.pump(const Duration(milliseconds: 100));
 }
 
+/// 入库数量是输入框，数值在输入框里而不是 Text。
+Finder qtyField(String text) => find.byWidgetPredicate(
+  (w) => w is EditableText && w.controller.text == text,
+);
+
 void main() {
   testWidgets('挂单列表：标签筛选会过滤条目', (t) async {
     final original = merchantApi;
@@ -162,16 +167,16 @@ void main() {
     await t.pumpAndSettle();
     expect(find.text('接口库存商品'), findsOneWidget);
     expect(find.text('6'), findsNothing);
-    expect(find.text('2.5'), findsOneWidget);
-    final c = t.getCenter(find.text('2.5'));
-    await t.tapAt(c + const Offset(36, 0));
+    expect(qtyField('2.5'), findsOneWidget);
+    final c = t.getCenter(qtyField('2.5'));
+    await t.tapAt(c + const Offset(52, 0));
     await t.pump();
-    expect(find.text('3.5'), findsOneWidget);
-    await t.tapAt(c + const Offset(-36, 0));
+    expect(qtyField('3.5'), findsOneWidget);
+    await t.tapAt(c + const Offset(-52, 0));
     await t.pump();
-    await t.tapAt(c + const Offset(-36, 0));
+    await t.tapAt(c + const Offset(-52, 0));
     await t.pump();
-    expect(find.text('1.5'), findsOneWidget);
+    expect(qtyField('1.5'), findsOneWidget);
     await t.pump(const Duration(milliseconds: 350));
     await t.pumpAndSettle();
     expect(

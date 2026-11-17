@@ -105,7 +105,7 @@ class _ProductListState extends State<ProductListLivePage> {
       lines.add({
         'id': p.data['id'],
         'quantity': need,
-        'cost': p.data['cost'],
+        'cost': defaultInboundCost(p.data),
         'version': p.data['version'],
       });
     }

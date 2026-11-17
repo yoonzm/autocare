@@ -205,6 +205,8 @@ export async function handleInventory(
         Number.isFinite(l.quantity) &&
         l.quantity >= 0 && l.quantity <= 999999999 &&
         (input.kind !== "in" ||
+          // 草稿允许入库单价暂时留空（页面显示「请输入」）；提交入库时必须填写。
+          (input.post === false && l.cost == null) ||
           (typeof l.cost === "number" && Number.isFinite(l.cost) &&
             l.cost >= 0))
       )

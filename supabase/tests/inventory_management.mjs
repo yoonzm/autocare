@@ -75,6 +75,7 @@ try{
  await mutate('settings_save',{...setting,expiry_days:7,low_enabled:false});
  await assert.rejects(()=>mutate('settings_save',{...setting,expiry_days:60}),/settings_changed/);
  const read=await value('select inventory_read($1) value',[store]);assert.equal(read.items[0].low,false);
+ assert.equal(Number(read.items[0].last_cost),Number(await value('select cost value from inventory_batches where product_id=$1 order by received_on desc,created_at desc,id desc limit 1',[read.items[0].id])),'库存读取带最近一次入库单价');
  assert.equal((await value('select inventory_documents_read($1) value',[other])).items.length,0);
  assert.equal((await value('select inventory_read($1,$2) value',[other,base.id])).item,null);
  for(const fn of ['inventory_mutate(uuid,text,text,jsonb)','inventory_document_save(uuid,uuid,text,jsonb,integer,boolean)','inventory_documents_read(uuid,uuid)','inventory_options(uuid)']) assert.equal(await value('select has_function_privilege($1,$2,$3) value',['authenticated',fn,'execute']),false);

@@ -22,6 +22,7 @@ import '../../kit/kit.dart';
 import '../../theme.dart';
 import 'inventory_live_page.dart';
 import 'stock_in_line_template.dart';
+import 'stock_in_price_sheet.dart';
 import 'stock_out_line_template.dart';
 
 /// Keep the key across ambiguous network failures; editing creates a new intent.
@@ -80,6 +81,14 @@ String money(num n) => '¥${n.toStringAsFixed(2)}';
 List<Map<String, dynamic>> maps(dynamic v) =>
     (v as List? ?? []).map((e) => Map<String, dynamic>.from(e as Map)).toList();
 
+/// 入库单价的默认值：最近一次入库单价；没有入库记录取商品成本价；都没有（或为 0）返回 null，页面显示「请输入」。
+num? defaultInboundCost(Map<String, dynamic> product) {
+  final last = product['last_cost'];
+  if (last is num) return last;
+  final cost = product['cost'];
+  return cost is num && cost > 0 ? cost : null;
+}
+
 class InventoryController extends ChangeNotifier {
   void setBusy(bool value) {
     busy = value;
@@ -122,11 +131,25 @@ class InventoryController extends ChangeNotifier {
     _quoting = true;
     if (!disposed) notifyListeners();
     try {
-      final request = merchantApi.invoke({
-        'action': 'inventory_quote',
-        'kind': mode,
-        'payload': {...payload, 'lines': lines},
-      });
+      // 入库单价或数量还没填完整的行不参与报价（服务端要求每行都有数字）。
+      final quoteLines = mode == 'in'
+          ? [
+              for (final l in lines)
+                if (l['cost'] is num && l['quantity'] is num) l,
+            ]
+          : lines;
+      final request = quoteLines.isEmpty && lines.isNotEmpty
+          ? Future<Map<String, dynamic>>.value({
+              'item': {
+                'subtotal': 0,
+                'total': (payload['freight'] as num?) ?? 0,
+              },
+            })
+          : merchantApi.invoke({
+              'action': 'inventory_quote',
+              'kind': mode,
+              'payload': {...payload, 'lines': quoteLines},
+            });
       final result =
           (await Future.wait([
                 request,
@@ -194,7 +217,7 @@ class InventoryController extends ChangeNotifier {
         lines.add({
           'id': p['id'],
           'quantity': 1,
-          'cost': p['cost'],
+          'cost': defaultInboundCost(p),
           'version': p['version'],
         });
       }
@@ -360,6 +383,11 @@ class InventoryController extends ChangeNotifier {
   Future<void> submit(BuildContext context) async {
     if (busy) return;
     if (mode == 'in') {
+      final issue = inboundLineIssue();
+      if (issue != null) {
+        AppToast.show(context, issue);
+        return;
+      }
       // 启用保质期管理的商品必须填到期日（服务端同样校验）。
       final missing = lines
           .where((l) => lineShelf(l) && lineExpiry(l) == null)
@@ -372,9 +400,33 @@ class InventoryController extends ChangeNotifier {
     await runBusy(actionKey('submit'), () => save(context, true));
   }
 
-  Future<void> saveDraft(BuildContext context) => busy
-      ? Future.value()
-      : runBusy(actionKey('draft'), () => save(context, false));
+  /// 入库明细的单价、数量校验：单价必填（0 表示赠品），数量大于 0、最大 9999，不允许小数的商品只能填整数。
+  String? inboundLineIssue({bool draft = false}) {
+    for (final l in lines) {
+      final name = lineName(l);
+      if (!draft && l['cost'] is! num) return '请填写「$name」的入库单价';
+      final q = l['quantity'];
+      if (q is! num || q <= 0) return '「$name」的入库数量须大于 0';
+      if (q > 9999) return '「$name」的入库数量最大 9999';
+      if (product(l)['allow_decimal'] == false && q != q.truncate()) {
+        return '「$name」只能入库整数数量';
+      }
+    }
+    return null;
+  }
+
+  Future<void> saveDraft(BuildContext context) {
+    if (busy) return Future.value();
+    if (mode == 'in') {
+      final issue = inboundLineIssue(draft: true);
+      if (issue != null) {
+        AppToast.show(context, issue);
+        return Future.value();
+      }
+    }
+    return runBusy(actionKey('draft'), () => save(context, false));
+  }
+
   Future<void> selectSupplier(BuildContext context) =>
       runBusy(actionKey('supplier'), () => pick(context, 'supplier', '供应商'));
   void setOutReason(String reason) {
@@ -519,7 +571,7 @@ class InventoryController extends ChangeNotifier {
       lines.add({
         'id': result['id'],
         'quantity': 1,
-        'cost': result['cost'],
+        'cost': defaultInboundCost(result),
         'version': result['version'],
       });
     }
@@ -539,7 +591,7 @@ class InventoryController extends ChangeNotifier {
       lines.add({
         'id': result['id'],
         'quantity': 1,
-        'cost': result['cost'],
+        'cost': defaultInboundCost(result),
         'version': result['version'],
       });
     }
@@ -554,7 +606,7 @@ class InventoryController extends ChangeNotifier {
   void adjust(Map<String, dynamic> line, num delta) {
     line['quantity'] = ((line['quantity'] as num? ?? 0) + delta).clamp(
       0,
-      999999999,
+      mode == 'in' ? 9999 : 999999999,
     );
     changed();
   }
@@ -593,9 +645,20 @@ class InventoryController extends ChangeNotifier {
     return '当前库存 ${qty(p['stock'])} ${p['unit']}${p['stock'] < p['safe'] ? ' · 低于安全库存' : ''}';
   }
 
+  /// 入库单价显示：没有默认价时显示「请输入」，不显示 ¥0.00。
+  String lineCostText(Map<String, dynamic> l) {
+    final c = l['cost'];
+    return c is num ? moneyGrouped(c) : '请输入';
+  }
+
+  String lineUnit(Map<String, dynamic> l) => '${product(l)['unit']}';
+
+  /// 单价为 0 的行按赠品入库。
+  bool lineIsGift(Map<String, dynamic> l) => l['cost'] is num && l['cost'] == 0;
+
   String lineUnitCostLabel(Map<String, dynamic> l) {
     final p = product(l);
-    return '单价 ${money(l['cost'])} / ${p['unit']}';
+    return '单价 ${l['cost'] is num ? money(l['cost'] as num) : '请输入'} / ${p['unit']}';
   }
 
   String lineBatchLabel(Map<String, dynamic> l) {
@@ -612,7 +675,8 @@ class InventoryController extends ChangeNotifier {
   }
 
   String lineTotalLabel(Map<String, dynamic> l) {
-    return money((l['quantity'] as num? ?? 0) * (l['cost'] as num));
+    final c = l['cost'];
+    return c is num ? moneyGrouped((l['quantity'] as num? ?? 0) * c) : '—';
   }
 
   String lineRemainingLabel(Map<String, dynamic> l) {
@@ -626,15 +690,18 @@ class InventoryController extends ChangeNotifier {
     String field,
   ) async {
     if (field == 'cost') {
-      final v = await inputDialog(
+      final p = product(l);
+      final v = await showStockInPriceSheet(
         context,
-        '成本单价',
-        '请输入成本单价',
-        '${l['cost']}',
-        numeric: true,
+        productName: lineName(l),
+        unit: '${p['unit']}',
+        quantity: l['quantity'] as num? ?? 0,
+        current: l['cost'] as num?,
+        lastCost: p['last_cost'] as num?,
+        productCost: p['cost'] as num?,
       );
-      if (v != null && num.tryParse(v) != null) {
-        l['cost'] = num.parse(v);
+      if (v != null) {
+        l['cost'] = v;
         changed();
       }
     } else {

@@ -859,6 +859,12 @@
       "legacyDependencies": []
     },
     {
+      "path": "pages/inventory/stock_in_price_sheet.dart",
+      "domain": "inventory",
+      "status": "verified",
+      "legacyDependencies": []
+    },
+    {
       "path": "pages/inventory/stock_in_live_template.dart",
       "domain": "inventory",
       "status": "verified",
