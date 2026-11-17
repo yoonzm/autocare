@@ -60,6 +60,7 @@ jobs:
           node supabase/tests/member_portal.mjs "$RUNNER_TEMP/sms-db-test/node_modules/@electric-sql/pglite/dist/index.js"
           node supabase/tests/staff_identity.mjs "$RUNNER_TEMP/sms-db-test/node_modules/@electric-sql/pglite/dist/index.js"
           node supabase/tests/service_consumables.mjs "$RUNNER_TEMP/sms-db-test/node_modules/@electric-sql/pglite/dist/index.js"
+          node supabase/tests/inventory_freight.mjs "$RUNNER_TEMP/sms-db-test/node_modules/@electric-sql/pglite/dist/index.js"
 
   deploy:
     needs: check

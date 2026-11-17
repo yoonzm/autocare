@@ -22,6 +22,7 @@ import '../../kit/kit.dart';
 import '../../theme.dart';
 import 'inventory_live_page.dart';
 import 'stock_in_line_template.dart';
+import 'stock_in_freight_sheet.dart';
 import 'stock_in_price_sheet.dart' show moneyGrouped, showStockInPriceSheet;
 import 'stock_out_line_template.dart';
 
@@ -253,7 +254,39 @@ class InventoryController extends ChangeNotifier {
       ? '请输入供应商'
       : '${mode == 'detail' ? detail['supplier'] : payload['supplier']}';
   String get dateLabelText => dateLabel('${payload['date']}');
-  String get freightLabel => money(payload['freight'] as num? ?? 0);
+  String get freightLabel => moneyGrouped(payload['freight'] as num? ?? 0);
+
+  /// 运费是否摊入商品成本（运费行右侧显示「计入成本」）。
+  bool get freightToCost =>
+      payload['freight_to_cost'] == true &&
+      ((payload['freight'] as num? ?? 0) > 0);
+
+  /// 运费弹层（设计稿 StockInFreight）。
+  Future<void> editFreight(BuildContext context) async {
+    if (busy) return;
+    final subtotal = quote?['subtotal'];
+    final result = await showStockInFreightSheet(
+      context,
+      current: payload['freight'] as num? ?? 0,
+      toCost: payload['freight_to_cost'] == true,
+      goodsTotal: subtotal is num ? subtotal : null,
+      loadLast: () async {
+        final supplier = '${payload['supplier'] ?? ''}'.trim();
+        if (supplier.isEmpty || !merchantApi.hasSession) return null;
+        final r = await merchantApi.invoke({
+          'action': 'inventory_last_freight',
+          'supplier': supplier,
+        });
+        final v = r['freight'];
+        return v is num && v > 0 ? v : null;
+      },
+    );
+    if (result == null || disposed) return;
+    payload['freight'] = result.freight;
+    payload['freight_to_cost'] = result.toCost;
+    changed();
+  }
+
   String get workorderLabel => '${payload['workorder'] ?? '未关联'}';
   String get technicianLabel => '${payload['technician'] ?? '未指定'}';
   String get _unit => '${detail['unit'] ?? ''}';

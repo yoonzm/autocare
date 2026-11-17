@@ -440,7 +440,7 @@ class StockInLiveTemplate extends StatelessWidget {
                               behavior: HitTestBehavior.opaque,
                               onTap: c.busy
                                   ? null
-                                  : () => c.pick(context, 'freight', '运费'),
+                                  : () => c.editFreight(context),
                               child: hbox(
                                 minH: 54,
                                 pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
@@ -461,6 +461,29 @@ class StockInLiveTemplate extends StatelessWidget {
                                         ),
                                       ),
                                     ),
+                                    if (c.freightToCost)
+                                      hbox(
+                                        bg: dk(
+                                          context,
+                                          Color(0xFFE1F0FE),
+                                          Color.fromRGBO(4, 133, 247, 0.18),
+                                        ),
+                                        radius: BorderRadius.circular(9),
+                                        pad: EdgeInsets.fromLTRB(8, 0, 8, 0),
+                                        child: Text(
+                                          '计入成本',
+                                          style: hts(
+                                            11,
+                                            dk(
+                                              context,
+                                              Color(0xFF1E63AE),
+                                              Color(0xFF6CB8FF),
+                                            ),
+                                            w: FontWeight.w600,
+                                            lh: 18,
+                                          ),
+                                        ),
+                                      ),
                                     Text(
                                       c.freightLabel,
                                       style: hts(

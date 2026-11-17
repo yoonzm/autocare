@@ -14,10 +14,15 @@ export function day(v: unknown): boolean {
 export function documentError(
   kind: string,
   payload: Record<string, unknown>,
+  // 草稿允许入库单价暂时留空（提交入库时必须填写）。
+  draft = false,
 ): string | null {
-  if (payload.freight != null && !decimal(payload.freight, 2)) {
-    return "运费须为非负金额，最多两位小数";
+  if (payload.freight != null && !decimal(payload.freight, 2, 99999.99)) {
+    return "运费须为 0 到 99999.99 的金额，最多两位小数";
   }
+  if (
+    payload.freight_to_cost != null && typeof payload.freight_to_cost !== "boolean"
+  ) return "运费是否计入成本须为开关值";
   if (payload.date != null && !day(payload.date)) return "单据日期无效";
   if (
     payload.payment != null &&
@@ -35,7 +40,7 @@ export function documentError(
       !line || !decimal(line.quantity, 3) ||
       (kind !== "check" && line.quantity === 0)
     ) return "数量须大于零，盘点可填零，最多三位小数";
-    if (kind === "in" && !decimal(line.cost, 2)) {
+    if (kind === "in" && !(draft && line.cost == null) && !decimal(line.cost, 2)) {
       return "成本单价无效，最多两位小数";
     }
     if (

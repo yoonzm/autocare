@@ -30,3 +30,16 @@ Deno.test("inventory dates and documents validate all lines", () => {
     true,
   );
 });
+Deno.test("inventory drafts may leave the unit cost empty, freight is capped and the cost switch is boolean", () => {
+  const lines = [{ quantity: 1, cost: null }];
+  equal(documentError("in", { lines }) !== null, true);
+  equal(documentError("in", { lines }, true), null);
+  equal(documentError("in", { lines: [{ quantity: 1, cost: "x" }] }, true) !== null, true);
+  equal(documentError("in", { freight: 99999.99, lines: [{ quantity: 1, cost: 1 }] }), null);
+  equal(documentError("in", { freight: 100000, lines: [{ quantity: 1, cost: 1 }] }) !== null, true);
+  equal(
+    documentError("in", { freight_to_cost: "yes", lines: [{ quantity: 1, cost: 1 }] }) !== null,
+    true,
+  );
+  equal(documentError("in", { freight_to_cost: true, lines: [{ quantity: 1, cost: 1 }] }), null);
+});

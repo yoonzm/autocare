@@ -19,7 +19,7 @@ const deny: Requirement = { kind: 'deny' };
 
 const inventoryReads = new Set([
   'inventory_list', 'inventory_get', 'inventory_lookup', 'inventory_options', 'inventory_documents',
-  'inventory_document_get', 'inventory_draft', 'inventory_quote', 'inventory_assignments',
+  'inventory_document_get', 'inventory_draft', 'inventory_quote', 'inventory_last_freight', 'inventory_assignments',
 ]);
 
 /** 目录型业务（kind + action）。 */

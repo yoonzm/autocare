@@ -177,6 +177,22 @@ export async function handleInventory(
       )
       : json({ item: data });
   }
+  if (input.action === "inventory_last_freight") {
+    // 同一供应商最近一次已入库单据的运费，用作运费弹层的快捷项；没有记录返回 null。
+    if (typeof input.supplier !== "string" || !input.supplier.trim()) {
+      return json({ freight: null });
+    }
+    const { data, error } = await admin.from("inventory_documents").select(
+      "payload",
+    ).eq("store_id", store).eq("kind", "in").eq("status", "posted")
+      .filter("payload->>supplier", "eq", input.supplier.trim())
+      .order("posted_at", { ascending: false }).limit(20);
+    if (error) return fail("读取上次运费失败", 500);
+    const hit = (data ?? []).map((r) => Number(r.payload?.freight)).find((n) =>
+      Number.isFinite(n) && n > 0
+    );
+    return json({ freight: hit ?? null });
+  }
   if (input.action === "inventory_draft") {
     if (!["in", "out", "check"].includes(String(input.kind))) {
       return fail("单据类型无效");
@@ -196,7 +212,7 @@ export async function handleInventory(
       Array.isArray(input.payload)
     ) return fail("单据参数无效");
     const payload = input.payload as Record<string, unknown>;
-    const validation = documentError(String(input.kind), payload);
+    const validation = documentError(String(input.kind), payload, input.post === false);
     if (validation) return fail(validation);
     if (
       !Array.isArray(payload.lines) || payload.lines.length > 200 ||
