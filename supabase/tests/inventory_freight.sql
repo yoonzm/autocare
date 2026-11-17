@@ -36,6 +36,25 @@ begin
   d:=public.inventory_document_save(shop,gen_random_uuid(),'in',payload,0,false);
   assert (d->'payload'->'lines'->0->>'cost')::numeric=10 and d->>'status'='draft','草稿保存原样';
 
+
+  -- 关联工单（进行中的预约）：显示文字由数据库生成；别家的预约不能关联
+  declare appt uuid:=gen_random_uuid(); other_owner uuid:=gen_random_uuid(); other_shop uuid; other_appt uuid:=gen_random_uuid(); caught boolean:=false; d3 jsonb;
+  begin
+    insert into public.service_items(store_id,name,category,price) values(shop,'镀晶养护','镀晶镀膜',100);
+    insert into public.appointments(id,store_id,customer_name,vehicle_plate,service_ids,items,starts_at,duration_minutes,estimate,status,request_id)
+      values(appt,shop,'散客','沪A8K29M',array[(select id from public.service_items where store_id=shop limit 1)],
+        jsonb_build_array(jsonb_build_object('name','镀晶养护','price',100)),now(),30,100,'arrived','wo-1');
+    d3:=public.inventory_document_save(shop,gen_random_uuid(),'out',jsonb_build_object('reason','施工领用','workorder_id',appt,'lines',jsonb_build_array(jsonb_build_object('id',pa,'quantity',1))),0,true);
+    assert d3->'payload'->>'workorder'='沪A8K29M 镀晶养护','工单显示文字由数据库生成，实际 '||coalesce(d3->'payload'->>'workorder','空');
+    insert into auth.users(id,phone) values(other_owner,'8613900000042');
+    insert into public.stores(owner_id,name,phone) values(other_owner,'别家','13900000042') returning id into other_shop;
+    insert into public.appointments(id,store_id,customer_name,service_ids,items,starts_at,duration_minutes,estimate,status,request_id)
+      values(other_appt,other_shop,'别人',array[gen_random_uuid()],'[]'::jsonb,now(),30,0,'arrived','wo-2');
+    begin perform public.inventory_document_save(shop,gen_random_uuid(),'out',jsonb_build_object('reason','施工领用','workorder_id',other_appt,'lines',jsonb_build_array(jsonb_build_object('id',pa,'quantity',1))),0,true);
+    exception when others then caught:=sqlerrm like '%order_not_found%'; end;
+    assert caught,'不能关联别家的工单';
+  end;
+
   assert not has_function_privilege('authenticated','public.inventory_allocate_freight(jsonb,numeric)','execute');
 end $$;
 rollback;

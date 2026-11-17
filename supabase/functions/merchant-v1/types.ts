@@ -128,7 +128,7 @@ export type Input = Record<string, unknown>;
 
 export type ApiResponse =
   | { phone: string }
-  | { technicians: { id: string; name: string }[]; orders: { id: string; vehicle_plate: string; created_at: string; label: string }[] }
+  | { technicians: { id: string; name: string; skills?: string; status?: string }[]; orders: { id: string; vehicle_plate: string; created_at: string; label: string }[]; workorders?: { id: string; plate: string; service: string; technician_id: string | null; technician: string; started_at: string }[] }
   | { id: string }
   | { version: string; unchanged: true }
   | { version: string; items: import('./region_rules.ts').Region[] }

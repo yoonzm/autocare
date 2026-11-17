@@ -23,6 +23,7 @@ import '../../theme.dart';
 import 'inventory_live_page.dart';
 import 'stock_in_line_template.dart';
 import 'stock_in_freight_sheet.dart';
+import 'stock_out_pickers.dart';
 import 'stock_in_price_sheet.dart' show moneyGrouped, showStockInPriceSheet;
 import 'stock_out_line_template.dart';
 
@@ -287,8 +288,11 @@ class InventoryController extends ChangeNotifier {
     changed();
   }
 
-  String get workorderLabel => '${payload['workorder'] ?? '未关联'}';
-  String get technicianLabel => '${payload['technician'] ?? '未指定'}';
+  bool get workorderSet => '${payload['workorder'] ?? ''}'.isNotEmpty;
+  bool get technicianSet => '${payload['technician'] ?? ''}'.isNotEmpty;
+  String get workorderLabel => workorderSet ? '${payload['workorder']}' : '未关联';
+  String get technicianLabel =>
+      technicianSet ? '${payload['technician']}' : '未指定';
   String get _unit => '${detail['unit'] ?? ''}';
   num get _monthUsed => detail['month_used'] as num? ?? 0;
   String get receiptCode => 'RK-${id.substring(0, 8)}';
@@ -297,7 +301,10 @@ class InventoryController extends ChangeNotifier {
   String get expenseLabel => '材料采购 · ${quoted('total')}';
   String get payableItemsLabel => '应付 · ${lines.length} 项商品';
   String get outSubtotalLabel => quoted('subtotal');
-  String get outCostNote => '记录本次出库成本';
+
+  /// 设计稿：关联了工单写「将计入该工单的成本核算」，没有关联写「未关联工单，仅记录出库成本」。
+  /// TODO: 按工单汇总成本的核算页面尚未实现，目前只在出库单上记录关联的工单。
+  String get outCostNote => workorderSet ? '将计入该工单的成本核算' : '未关联工单，仅记录出库成本';
   String get productName => '${detail['name'] ?? ''}';
   String get skuCategoryLabel =>
       'SKU ${detail['sku'] ?? ''} · ${detail['category'] ?? ''}';
@@ -475,6 +482,79 @@ class InventoryController extends ChangeNotifier {
     return runBusy(actionKey('draft'), () => save(context, false));
   }
 
+  /// 出库页「关联工单」「领用技师」选择器的数据（进行中的工单、技师及其状态）。
+  Future<Map<String, dynamic>> _assignments() =>
+      merchantApi.invoke({'action': 'inventory_assignments'});
+
+  /// 关联工单（设计稿 WorkOrderPicker）：选中后领用技师自动带入工单的技师，可再改；清除工单不清除技师。
+  Future<void> pickWorkorder(BuildContext context) async {
+    if (busy) return;
+    try {
+      Map<String, dynamic>? data;
+      await runBusy(actionKey('assignments'), () async {
+        data = await _assignments();
+      });
+      if (data == null || !context.mounted || disposed) return;
+      final result = await showWorkOrderPicker(
+        context,
+        workorders: maps(data!['workorders']),
+        selectedId: payload['workorder_id'] as String?,
+      );
+      if (result == null || disposed) return;
+      final w = result.item;
+      if (w == null) {
+        payload
+          ..remove('workorder_id')
+          ..remove('order_id')
+          ..remove('workorder');
+      } else {
+        payload['workorder_id'] = w['id'];
+        payload.remove('order_id');
+        payload['workorder'] = [
+          '${w['plate'] ?? ''}',
+          '${w['service'] ?? ''}',
+        ].where((e) => e.isNotEmpty).join(' ');
+        if (w['technician_id'] != null) {
+          payload['technician_id'] = w['technician_id'];
+          payload['technician'] = w['technician'];
+        }
+      }
+      changed(requote: false);
+    } catch (e) {
+      if (context.mounted && !disposed) AppToast.error(context, e);
+    }
+  }
+
+  /// 领用技师（设计稿 StaffPicker）。
+  Future<void> pickTechnician(BuildContext context) async {
+    if (busy) return;
+    try {
+      Map<String, dynamic>? data;
+      await runBusy(actionKey('assignments'), () async {
+        data = await _assignments();
+      });
+      if (data == null || !context.mounted || disposed) return;
+      final result = await showStaffPicker(
+        context,
+        technicians: maps(data!['technicians']),
+        selectedId: payload['technician_id'] as String?,
+      );
+      if (result == null || disposed) return;
+      final t = result.item;
+      if (t == null) {
+        payload
+          ..remove('technician_id')
+          ..remove('technician');
+      } else {
+        payload['technician_id'] = t['id'];
+        payload['technician'] = t['name'];
+      }
+      changed(requote: false);
+    } catch (e) {
+      if (context.mounted && !disposed) AppToast.error(context, e);
+    }
+  }
+
   Future<void> selectSupplier(BuildContext context) =>
       runBusy(actionKey('supplier'), () => pick(context, 'supplier', '供应商'));
   void setOutReason(String reason) {
@@ -501,47 +581,6 @@ class InventoryController extends ChangeNotifier {
   }
 
   Future<void> _pick(BuildContext context, String key, String label) async {
-    if (key == 'workorder' || key == 'technician') {
-      try {
-        final response = await merchantApi.invoke({
-          'action': 'inventory_assignments',
-        });
-        if (!context.mounted || disposed) return;
-        final items = maps(
-          response[key == 'technician' ? 'technicians' : 'orders'],
-        );
-        final value = await showModalBottomSheet<Map<String, dynamic>>(
-          context: context,
-          builder: (ctx) => SafeArea(
-            child: ListView(
-              shrinkWrap: true,
-              children: [
-                if (items.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.all(24),
-                    child: EmptyView.firstTime(title: '还没有可选记录'),
-                  ),
-                for (final item in items)
-                  ListTile(
-                    title: Text('${item['label'] ?? item['name']}'),
-                    onTap: () => Navigator.pop(ctx, item),
-                  ),
-              ],
-            ),
-          ),
-        );
-        if (value != null) {
-          final label = '${value['label'] ?? value['name']}';
-          payload[key == 'technician' ? 'technician_id' : 'order_id'] =
-              value['id'];
-          payload[key == 'technician' ? 'technician' : 'workorder'] = label;
-          changed(requote: false);
-        }
-      } catch (e) {
-        if (context.mounted && !disposed) AppToast.error(context, e);
-      }
-      return;
-    }
     if (mode == 'detail') {
       final updated = await editProduct(context, detail);
       if (updated != null && !disposed) {

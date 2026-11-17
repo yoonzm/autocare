@@ -145,7 +145,7 @@ class StockOutLiveTemplate extends StatelessWidget {
                               behavior: HitTestBehavior.opaque,
                               onTap: c.busy
                                   ? null
-                                  : () => c.pick(context, 'workorder', '关联工单'),
+                                  : () => c.pickWorkorder(context),
                               child: hbox(
                                 minH: 54,
                                 pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
@@ -170,11 +170,17 @@ class StockOutLiveTemplate extends StatelessWidget {
                                       c.workorderLabel,
                                       style: hts(
                                         15,
-                                        dk(
-                                          context,
-                                          Color(0xFF18181B),
-                                          Color(0xFFFAFAFA),
-                                        ),
+                                        c.workorderSet
+                                            ? dk(
+                                                context,
+                                                const Color(0xFF18181B),
+                                                const Color(0xFFFAFAFA),
+                                              )
+                                            : dk(
+                                                context,
+                                                const Color(0xFF71717A),
+                                                const Color(0xFF9A9AA3),
+                                              ),
                                         lh: 22,
                                       ),
                                     ),
@@ -205,7 +211,7 @@ class StockOutLiveTemplate extends StatelessWidget {
                               behavior: HitTestBehavior.opaque,
                               onTap: c.busy
                                   ? null
-                                  : () => c.pick(context, 'technician', '领用技师'),
+                                  : () => c.pickTechnician(context),
                               child: hbox(
                                 minH: 54,
                                 pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
@@ -230,11 +236,17 @@ class StockOutLiveTemplate extends StatelessWidget {
                                       c.technicianLabel,
                                       style: hts(
                                         15,
-                                        dk(
-                                          context,
-                                          Color(0xFF18181B),
-                                          Color(0xFFFAFAFA),
-                                        ),
+                                        c.technicianSet
+                                            ? dk(
+                                                context,
+                                                const Color(0xFF18181B),
+                                                const Color(0xFFFAFAFA),
+                                              )
+                                            : dk(
+                                                context,
+                                                const Color(0xFF71717A),
+                                                const Color(0xFF9A9AA3),
+                                              ),
                                         lh: 22,
                                       ),
                                     ),

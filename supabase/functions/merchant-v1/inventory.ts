@@ -35,8 +35,12 @@ export async function handleInventory(
       400,
     );
   if (input.action === "inventory_assignments") {
-    const [tech, orders] = await Promise.all([
-      admin.from("appointment_resources").select("id,name").eq(
+    // 出库页「关联工单」「领用技师」选择器的数据：
+    // - technicians：启用的技师，带擅长项目和当前状态（有进行中的工单为「施工中」，否则「空闲」）；
+    // - workorders：进行中的工单（客户已到店、尚未完成的预约），按到店时间倒序；
+    // - orders：旧版选择器用的最近订单，保留给还没升级的客户端。
+    const [tech, orders, working] = await Promise.all([
+      admin.from("appointment_resources").select("id,name,category").eq(
         "store_id",
         store,
       ).eq("kind", "technician").eq("active", true).order("name"),
@@ -44,10 +48,33 @@ export async function handleInventory(
         "store_id",
         store,
       ).order("created_at", { ascending: false }).limit(200),
+      admin.from("appointments").select(
+        "id,vehicle_plate,items,technician_id,arrived_at,starts_at",
+      ).eq("store_id", store).eq("status", "arrived").order("arrived_at", {
+        ascending: false,
+      }).limit(100),
     ]);
-    if (tech.error || orders.error) return fail("读取技师与工单失败", 500);
+    if (tech.error || orders.error || working.error) {
+      return fail("读取技师与工单失败", 500);
+    }
+    const names = new Map(tech.data.map((t) => [t.id, t.name]));
+    const busy = new Set(working.data.map((w) => w.technician_id));
     return json({
-      technicians: tech.data,
+      technicians: tech.data.map((t) => ({
+        id: t.id,
+        name: t.name,
+        skills: t.category ?? "",
+        status: busy.has(t.id) ? "busy" : "idle",
+      })),
+      workorders: working.data.map((w) => ({
+        id: w.id,
+        plate: w.vehicle_plate || "",
+        service: ((w.items ?? []) as { name?: string }[]).map((i) => i.name)
+          .filter(Boolean).join(" · "),
+        technician_id: w.technician_id ?? null,
+        technician: names.get(w.technician_id) ?? "",
+        started_at: w.arrived_at ?? w.starts_at,
+      })),
       orders: orders.data.map((o) => ({
         ...o,
         label: `${o.vehicle_plate || "工单"} · ${o.id.slice(0, 8)}`,
