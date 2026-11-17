@@ -11,6 +11,7 @@ import '../../backend/member_flow.dart';
 import '../../backend/service_store.dart';
 import '../../kit/async_kit.dart';
 import '../../routes.dart';
+import '../inventory/stock_out_pickers.dart' show showStaffPicker;
 import 'booking_resources_page.dart';
 
 import 'package:flutter/material.dart';
@@ -267,6 +268,40 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
     final rows = _resources
         .where((r) => r['kind'] == kind && r['active'] == true)
         .toList();
+    if (kind == 'technician') {
+      // 技师用通用的「选择技师」弹层（设计稿 AppointmentStaffPicker，与出库共用）。
+      final result = await showStaffPicker(
+        context,
+        technicians: [
+          for (final r in rows)
+            {
+              'id': r['id'],
+              'name': r['name'],
+              'skills': r['category'] ?? '',
+              'status': r['busy'] == true ? 'busy' : 'idle',
+            },
+        ],
+        selectedId: _tech?['id'] as String?,
+      );
+      if (result == null || !mounted) return;
+      final picked = result.item;
+      final value = picked == null
+          ? null
+          : rows.firstWhere((r) => r['id'] == picked['id']);
+      setState(() {
+        _tech = value;
+        if (value?['linked_id'] != null) {
+          _bay = _resources
+              .where(
+                (r) => r['id'] == value!['linked_id'] && r['active'] == true,
+              )
+              .firstOrNull;
+        }
+        time = '';
+      });
+      _changed();
+      return;
+    }
     final label = kind == 'bay' ? '工位' : '技师';
     final current = kind == 'bay' ? _bay : _tech;
     final selected = await pickValue<int>(

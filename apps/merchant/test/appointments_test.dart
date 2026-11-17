@@ -673,6 +673,30 @@ void main() {
     expect(find.text('散客预约不会生成会员，也不享受会员折扣和次卡抵扣。'), findsOneWidget);
     expect(find.text('确认预约'), findsOneWidget);
   });
+  testWidgets('新建预约的「技师」用通用选择技师弹层：姓名、擅长项目、状态，可选可清除', (t) async {
+    api.rows.add(row());
+    await open(t, const AppointmentAddPage());
+    await t.pump(const Duration(milliseconds: 700));
+    await t.pumpAndSettle();
+    expect(find.text('暂不指定'), findsWidgets);
+    await t.tap(find.text('技师'));
+    await t.pumpAndSettle();
+    expect(find.text('选择技师'), findsOneWidget);
+    expect(find.text('搜索技师姓名'), findsOneWidget);
+    expect(find.text('真实技师'), findsOneWidget);
+    expect(find.text('洗车'), findsWidgets); // 擅长项目
+    expect(find.text('空闲'), findsOneWidget);
+    await t.tap(find.text('真实技师'));
+    await t.pumpAndSettle();
+    expect(find.text('选择技师'), findsNothing);
+    expect(find.text('真实技师'), findsOneWidget); // 行上显示已选技师
+    // 清除：回到暂不指定
+    await t.tap(find.text('技师'));
+    await t.pumpAndSettle();
+    await t.tap(find.text('清除'));
+    await t.pumpAndSettle();
+    expect(find.text('真实技师'), findsNothing);
+  });
   testWidgets('到店按钮等待后端响应，不提前修改状态，失败保留预约', (t) async {
     api.bookings.add(bookingRow());
     api.gate = Completer<void>();
