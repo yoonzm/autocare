@@ -329,6 +329,7 @@ const Set<String> _cupertinoSheetPages = {
   'StaffAdd',
   'StaffEdit',
   'StaffInvite',
+  'ProductEdit',
 };
 
 /// 全屏流程（相机扫描页）：从底部滑入，左上角是 ✕，全屏显示（设计稿“页面出场方式”第 4 类）。

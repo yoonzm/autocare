@@ -1,3 +1,5 @@
+import '../../kit/sheet_route.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -312,8 +314,9 @@ class InventoryManagementController extends ChangeNotifier {
       _perform(context, () async {
         final p = await Navigator.push<Map<String, dynamic>>(
           context,
-          MaterialPageRoute(
-            builder: (_) => ProductEditLivePage(initialCode: lastCode),
+          appSheetRoute<Map<String, dynamic>>(
+            settings: const RouteSettings(name: 'ProductEdit'),
+            page: ProductEditLivePage(initialCode: lastCode),
           ),
         );
         if (p != null && context.mounted && !disposed) Navigator.pop(context);

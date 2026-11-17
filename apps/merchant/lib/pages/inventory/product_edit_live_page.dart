@@ -365,7 +365,10 @@ class _ProductEditState extends State<ProductEditLivePage> {
             Expanded(
               child: HHeaderFrame(
                 bg: C.bg,
-                header: AppPageHeader(title: editing ? '编辑商品' : '新增商品'),
+                header: AppPageHeader(
+                  title: editing ? '编辑商品' : '新增商品',
+                  leading: AppHeaderLeading.close,
+                ),
                 body: SingleChildScrollView(
                   keyboardDismissBehavior:
                       ScrollViewKeyboardDismissBehavior.onDrag,

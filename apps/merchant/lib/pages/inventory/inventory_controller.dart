@@ -825,7 +825,10 @@ Future<Map<String, dynamic>?> editProduct(
   BuildContext context,
   Map<String, dynamic>? original,
 ) => Navigator.of(context).push<Map<String, dynamic>>(
-  MaterialPageRoute(builder: (_) => ProductEditLivePage(product: original)),
+  appSheetRoute<Map<String, dynamic>>(
+    settings: const RouteSettings(name: 'ProductEdit'),
+    page: ProductEditLivePage(product: original),
+  ),
 );
 
 class InventoryNoteInput extends StatelessWidget {
