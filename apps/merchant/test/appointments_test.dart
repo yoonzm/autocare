@@ -1008,6 +1008,16 @@ void main() {
     await t.pumpAndSettle();
   });
 
+  testWidgets('日期条的卡片阴影不被翻页区域裁剪：翻页区域比卡片四周各大一圈', (t) async {
+    await open(t, const AppointmentsPage());
+    final pager = t.getRect(find.byType(PageView));
+    final card = t.getRect(find.byKey(const ValueKey('appointment-week')));
+    expect(pager.left, lessThanOrEqualTo(card.left - 20));
+    expect(pager.right, greaterThanOrEqualTo(card.right + 20));
+    expect(pager.top, lessThanOrEqualTo(card.top - 8));
+    expect(pager.bottom, greaterThanOrEqualTo(card.bottom + 8));
+  });
+
   testWidgets('日期条左右滑动切周，按新的周起始日期请求后端', (t) async {
     await open(t, const AppointmentsPage());
     final first = DateTime.parse(
@@ -1015,7 +1025,7 @@ void main() {
     );
     await t.drag(
       find.byKey(const ValueKey('appointment-week')),
-      const Offset(-200, 0),
+      const Offset(-260, 0),
     );
     await t.pumpAndSettle();
     expect(
@@ -1024,7 +1034,7 @@ void main() {
     );
     await t.drag(
       find.byKey(const ValueKey('appointment-week')),
-      const Offset(200, 0),
+      const Offset(260, 0),
     );
     await t.pumpAndSettle();
     expect(

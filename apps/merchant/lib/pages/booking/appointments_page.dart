@@ -230,14 +230,29 @@ class _AppointmentsPageState extends State<AppointmentsPage>
                         ScrollViewKeyboardDismissBehavior.onDrag,
                     padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
                     children: [
+                      // PageView 会裁剪超出自身范围的内容，卡片阴影会被切掉：
+                      // 让翻页区域四周各外扩一圈（左右 20、上下 8），卡片在每页里留出同样的内边距。
                       SizedBox(
                         key: const ValueKey('appointment-week'),
                         height: 86,
-                        child: PageView.builder(
-                          controller: _weekController,
-                          onPageChanged: _showWeek,
-                          itemBuilder: (_, page) =>
-                              _week(page - _initialWeekPage),
+                        child: LayoutBuilder(
+                          builder: (context, box) => OverflowBox(
+                            minWidth: box.maxWidth + 40,
+                            maxWidth: box.maxWidth + 40,
+                            minHeight: 102,
+                            maxHeight: 102,
+                            child: PageView.builder(
+                              controller: _weekController,
+                              onPageChanged: _showWeek,
+                              itemBuilder: (_, page) => Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 8,
+                                ),
+                                child: _week(page - _initialWeekPage),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 16),
