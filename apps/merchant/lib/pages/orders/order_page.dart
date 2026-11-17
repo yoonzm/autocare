@@ -662,62 +662,72 @@ class _OrderPageState extends State<OrderPage> {
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
-              child: Row(
+              // 标题按整行居中，不受右侧「挂单」按钮宽度（含红点）影响：标题叠在最底层，按钮盖在两侧。
+              child: Stack(
+                alignment: Alignment.center,
                 children: [
-                  RoundBtn(
-                    'chevronLeft',
-                    label: '返回',
-                    onTap: () => Navigator.of(context).maybePop(),
+                  Text(
+                    '开单收银',
+                    textAlign: TextAlign.center,
+                    style: ts(17, w: FontWeight.w600, h: 24),
                   ),
-                  Expanded(
-                    child: Text(
-                      '开单收银',
-                      textAlign: TextAlign.center,
-                      style: ts(17, w: FontWeight.w600, h: 24),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () => openRoute(context, 'HoldList'),
-                    child: Container(
-                      height: 44,
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
-                      decoration: BoxDecoration(
-                        color: C.card,
-                        borderRadius: BorderRadius.circular(22),
-                        boxShadow: softShadow,
+                  Row(
+                    children: [
+                      RoundBtn(
+                        'chevronLeft',
+                        label: '返回',
+                        onTap: () => Navigator.of(context).maybePop(),
                       ),
-                      child: Row(
-                        children: [
-                          Text('挂单', style: ts(14, w: FontWeight.w500, h: 20)),
-                          const SizedBox(width: 6),
-                          ListenableBuilder(
-                            listenable: HoldStore.tick,
-                            builder: (_, _) {
-                              // 登录后显示真实的挂单数量（没有挂单时不显示红点）
-                              final n = HoldStore.count;
-                              if (n == 0) return const SizedBox.shrink();
-                              return Container(
-                                constraints: const BoxConstraints(minWidth: 18),
-                                height: 18,
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  color: C.red,
-                                  borderRadius: BorderRadius.circular(9),
-                                ),
-                                child: Text(
-                                  '$n',
-                                  style: ts(
-                                    11,
-                                    w: FontWeight.w600,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              );
-                            },
+                      const Spacer(),
+                      GestureDetector(
+                        onTap: () => openRoute(context, 'HoldList'),
+                        child: Container(
+                          height: 44,
+                          padding: const EdgeInsets.symmetric(horizontal: 14),
+                          decoration: BoxDecoration(
+                            color: C.card,
+                            borderRadius: BorderRadius.circular(22),
+                            boxShadow: softShadow,
                           ),
-                        ],
+                          child: Row(
+                            children: [
+                              Text(
+                                '挂单',
+                                style: ts(14, w: FontWeight.w500, h: 20),
+                              ),
+                              const SizedBox(width: 6),
+                              ListenableBuilder(
+                                listenable: HoldStore.tick,
+                                builder: (_, _) {
+                                  // 登录后显示真实的挂单数量（没有挂单时不显示红点）
+                                  final n = HoldStore.count;
+                                  if (n == 0) return const SizedBox.shrink();
+                                  return Container(
+                                    constraints: const BoxConstraints(
+                                      minWidth: 18,
+                                    ),
+                                    height: 18,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      color: C.red,
+                                      borderRadius: BorderRadius.circular(9),
+                                    ),
+                                    child: Text(
+                                      '$n',
+                                      style: ts(
+                                        11,
+                                        w: FontWeight.w600,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ],
               ),

@@ -116,6 +116,13 @@ void main() {
     await t.pumpAndSettle();
   }
 
+  testWidgets('开单收银标题在页面正中，不受右侧「挂单」按钮宽度（含红点）影响', (t) async {
+    fake.holdRows.add(hold());
+    await openOrder(t);
+    final width = t.view.physicalSize.width / t.view.devicePixelRatio;
+    expect(t.getCenter(find.text('开单收银')).dx, closeTo(width / 2, 0.5));
+  });
+
   group('挂起', () {
     testWidgets('没选项目不能挂单，也不会弹出挂单保存', (t) async {
       phone(t);

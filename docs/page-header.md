@@ -4,6 +4,7 @@
 
 - **HPage 页面**：`HPage(header: AppPageHeader(...), flow: ...)`。头部在滚动区外，自带状态栏留白和左右 20 边距，flow 里不要再写头部和 `topInset`；flow 顶部留 8（头部下方自带 8，合起来是设计稿的 16 间距）。
 - **ListView 页面**：`HHeaderFrame(bg:, header:, body: ListView(...))`，ListView 顶部 padding 用 8。
+- **标题居中**：纯文字标题按整行居中，不受两侧按钮宽度不同的影响（右侧是「保存」「挂单」这类变宽按钮时也一样）；标题最宽只到较宽一侧按钮的内侧，过长省略。传了 `center`（搜索框、分段控件）时仍占满两侧按钮之间的宽度。不要再用固定宽度的占位（如 `trailing: hbox(w: 87)`）去凑对称。测试 `test/staff_header_center_test.dart`。
 - 内容滚到头部下方时出现一条淡分隔线，没滚动时和原来一样。
 - `AppPageHeader` 参数：`title` 或 `center`（自定义标题区）、`leading`（`back` / `close` / `none`）、`onLeading`、`leadingEnabled`、`trailing`（`AppHeaderAction` 黑/彩色圆钮，`AppHeaderCircle` 白色圆钮）。
 

@@ -41,6 +41,35 @@ void main() {
     );
   });
 
+  testWidgets('右侧是变宽按钮（保存、挂单、87 宽按钮）时标题仍在正中；很长的标题省略，不压住按钮', (t) async {
+    C.dark = false;
+    for (final w in [87.0, 60.0, 120.0]) {
+      expect(
+        await centerOf(
+          t,
+          AppPageHeader(
+            title: '编辑项目',
+            trailing: SizedBox(width: w, height: 44),
+          ),
+          '编辑项目',
+        ),
+        195,
+        reason: '右侧 $w 宽',
+      );
+    }
+    await centerOf(
+      t,
+      AppPageHeader(
+        title: '一个非常非常非常非常非常非常长的页面标题',
+        trailing: const SizedBox(width: 120, height: 44),
+      ),
+      '一个非常非常非常非常非常非常长的页面标题',
+    );
+    final title = t.getRect(find.text('一个非常非常非常非常非常非常长的页面标题'));
+    expect(title.right, lessThanOrEqualTo(390 - 20 - 120 - 8 + 0.5));
+    expect(title.left, greaterThanOrEqualTo(20 + 120 + 8 - 0.5));
+  });
+
   test('员工端页面不再用 87 宽的占位撑偏标题（设计稿里左右各 87，迁移后左侧只有 44）', () {
     final offenders = <String>[];
     for (final f in Directory('lib/pages/staff_app').listSync()) {
