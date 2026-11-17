@@ -415,14 +415,12 @@ class InventoryController extends ChangeNotifier {
   static const payments = ['现金', '微信', '对公转账', '挂账'];
   static const outReasons = ['施工领用', '损耗报废', '退回供应商', '内部使用'];
   int get paymentIndex => payments.indexOf('${payload['payment']}').clamp(0, 3);
-  int get reasonIndex => outReasons.indexOf('${payload['reason']}').clamp(0, 3);
   void selectPayment(int index) {
     if (busy) return;
     payload['payment'] = payments[index];
     changed(requote: false);
   }
 
-  void selectReason(int index) => setOutReason(outReasons[index]);
   void selectFilter(int index) {
     filter = index;
     notifyListeners();
