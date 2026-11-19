@@ -53,7 +53,6 @@ void main() {
     merchantApi = api = TechnicianApi();
     ServiceStore.clear();
     HoldStore.reset();
-
   });
   tearDown(() {
     merchantApi = original;
@@ -64,12 +63,17 @@ void main() {
   Future<void> open(
     WidgetTester t, {
     Map<String, dynamic>? appointment,
+    Map<String, dynamic>? hold,
     bool settle = true,
   }) async {
     phone(t);
     await t.pumpWidget(
       MaterialApp(
-        home: OrderPage(member: memberFromRow(row()), appointment: appointment),
+        home: OrderPage(
+          member: memberFromRow(row()),
+          appointment: appointment,
+          hold: hold,
+        ),
       ),
     );
     if (settle) {
@@ -109,6 +113,48 @@ void main() {
     await open(t);
     await t.ensureVisible(find.textContaining('真实技师 · 洗车'));
     expect(t.takeException(), isNull);
+  });
+
+  testWidgets('取单恢复挂单选中的技师，包含后来停用的人员', (t) async {
+    api.rows.add(row());
+    await open(
+      t,
+      hold: {
+        'id': 'h1',
+        'member_id': 'm1',
+        'items': [],
+        'technician_ids': ['t2', 't3'],
+      },
+    );
+    expect(selected(t, '真实技师 · 精洗'), isFalse);
+    expect(selected(t, '无技能技师'), isTrue);
+    expect(selected(t, '停用技师'), isTrue);
+    await t.ensureVisible(find.text('停用技师'));
+    await t.tap(find.text('停用技师'));
+    await t.pump();
+    expect(find.text('停用技师'), findsNothing);
+  });
+
+  testWidgets('挂单发送开单页勾选的所有技师', (t) async {
+    api.services.add({
+      'id': 's1',
+      'name': '精致洗车',
+      'price': 68,
+      'category': '洗车',
+      'active': true,
+    });
+    await open(t);
+    await t.tap(find.text('精致洗车'));
+    for (final name in ['真实技师 · 精洗', '无技能技师']) {
+      await t.ensureVisible(find.text(name));
+      await t.tap(find.text(name));
+      await t.pump();
+    }
+    await t.tap(find.text('挂单').last);
+    await t.pumpAndSettle();
+    await t.tap(find.text('确认挂单'));
+    await t.pumpAndSettle();
+    expect(api.heldSaves.single['technician_ids'], ['t1', 't2']);
   });
 
   testWidgets('预约带入真实技师，刷新停用后移除', (t) async {

@@ -322,9 +322,12 @@ void main() {
   });
 
   group('取单结算', () {
-    testWidgets('取单：项目放回开单页；确认收款带着挂单 ID，结清后挂单消失', (t) async {
+    testWidgets('取单：项目放回开单页；收款保留挂单 ID 和技师，结清后挂单消失', (t) async {
       phone(t);
-      fake.holdRows.add(hold(note: '客户去开会'));
+      fake.holdRows.add({
+        ...hold(note: '客户去开会'),
+        'technician_ids': ['t1', 't2'],
+      });
       await openOrder(t);
       // 开单页 → 挂单列表 → 取单结算
       await t.tap(find.text('挂单').first);
@@ -338,6 +341,7 @@ void main() {
       await t.pumpAndSettle();
       final sent = fake.checkouts.single;
       expect(sent['hold'], 'h1');
+      expect(sent['technician_ids'], ['t1', 't2']);
       expect(sent['lines'], [
         {'service_id': 's1', 'qty': 1},
         {'service_id': 's2', 'qty': 1},

@@ -11,6 +11,7 @@ class HoldDraft {
   final String plateLabel;
   final String plate;
   final List<Map<String, dynamic>> lines;
+  final List<String>? technicianIds;
 
   /// 开单页当前显示的应收（仅用于挂单弹层的展示，真正的估价在云函数）。
   final String payableText;
@@ -23,12 +24,16 @@ class HoldDraft {
     required this.plateLabel,
     required this.plate,
     required List<Map<String, dynamic>> lines,
+    List<String>? technicianIds,
     required this.payableText,
     this.holdId,
     Map<String, dynamic>? original,
   }) : lines = List.unmodifiable(
          lines.map((r) => Map<String, dynamic>.unmodifiable(r)),
        ),
+       technicianIds = technicianIds == null
+           ? null
+           : List<String>.unmodifiable(technicianIds),
        original = original == null ? null : dataSnapshot(original);
 }
 

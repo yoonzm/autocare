@@ -150,6 +150,8 @@ class _OrderPageState extends State<OrderPage> {
       _loadingCover = false;
       picked.clear();
       techs.clear();
+      final technicianId = widget.appointment?['technician_id'];
+      if (technicianId != null) techs.add('$technicianId');
       pay = 0;
       _holdId = null;
       _holdRow = null;
@@ -191,7 +193,12 @@ class _OrderPageState extends State<OrderPage> {
   final _preferredPackages = <String, String>{};
   int _qty(int index) => _quantities[_svcs[index].id] ?? 1;
 
-  /// 取单：会员、项目放回开单页，结算时由云函数按当前价格重新计算。
+  List<String> _heldTechnicians(Map<String, dynamic>? row) =>
+      (row?['technician_ids'] as List? ?? const [])
+          .whereType<String>()
+          .toList();
+
+  /// 取单：恢复会员、项目和技师，结算时由云函数按当前价格重新计算。
   Future<void> _resumeHold(Map<String, dynamic> row) async {
     row = dataSnapshot(row);
     final version = ++_resumeVersion;
@@ -221,7 +228,9 @@ class _OrderPageState extends State<OrderPage> {
             _preferredPackages[id] = '${item['member_package_id']}';
           }
         }
-        techs.clear();
+        techs
+          ..clear()
+          ..addAll(_heldTechnicians(row));
         customer = m == null ? _noMember : memberFromRow(m);
         _cover = {};
         _packageNote = '';
@@ -293,6 +302,7 @@ class _OrderPageState extends State<OrderPage> {
             },
         ],
         payableText: money(payable, digits: 2),
+        technicianIds: techs.toList(),
         holdId: _holdId,
         original: _holdRow,
       ),
@@ -529,6 +539,7 @@ class _OrderPageState extends State<OrderPage> {
     final member = _walkIn ? null : customer.data;
     final walkIn = _walkIn, selectedPay = pay;
     final due = payable, holdId = _holdId;
+    final technicians = techs.toList();
     final plate = walkIn
         ? _walkPlateCtl.text.trim()
         : customer.plate.replaceAll('·', '');
@@ -606,6 +617,7 @@ class _OrderPageState extends State<OrderPage> {
             plate: plate,
             holdId: holdId,
             appointmentId: widget.appointment?['id']?.toString(),
+            technicianIds: technicians,
           );
           if (receipt == null || !mounted) return;
           if (receipt.data['upgraded_to'] != null) {
@@ -613,6 +625,7 @@ class _OrderPageState extends State<OrderPage> {
           }
           setState(() {
             picked.clear();
+            techs.clear();
             _holdId = null;
             _holdRow = null;
             _quantities.clear();
@@ -1231,9 +1244,7 @@ class _OrderPageState extends State<OrderPage> {
             if (row['kind'] == 'bay' && row['active'] == true) '${row['name']}',
         ];
       }
-      rows = resources
-          .where((r) => r['kind'] == 'technician' && r['active'] == true)
-          .toList();
+      rows = resources.where((r) => r['kind'] == 'technician').toList();
     } catch (e) {
       failed = AppError.from(e);
     }
@@ -1250,8 +1261,14 @@ class _OrderPageState extends State<OrderPage> {
         _technicians = rows!;
         _hasTechnicians = true;
         _technicianError = null;
-        final ids = rows.map((r) => '${r['id']}').toSet();
-        techs.removeWhere((id) => !ids.contains(id));
+        final activeIds = {
+          for (final row in rows)
+            if (row['active'] == true) '${row['id']}',
+        };
+        final heldIds = _heldTechnicians(_holdRow);
+        techs.removeWhere(
+          (id) => !activeIds.contains(id) && !heldIds.contains(id),
+        );
       } else if (!_hasTechnicians) {
         _technicianError = failed;
       }
@@ -1292,7 +1309,7 @@ class _OrderPageState extends State<OrderPage> {
             )
           : const SizedBox(height: 36);
     }
-    if (_technicians.isEmpty) {
+    if (_visibleTechnicians.isEmpty) {
       return Text(
         '还没有可用技师，请在“员工与权限”中添加或启用',
         style: ts(13, color: C.muted, h: 20),
@@ -1328,13 +1345,21 @@ class _OrderPageState extends State<OrderPage> {
     return category.isEmpty ? '${row['name']}' : '${row['name']} · $category';
   }
 
-  // TODO: 多技师分配尚无订单/挂单保存接口；这里保持现有页面选择交互，
-  // 后续需后端校验 technician_ids 并持久化，不将此选择标记为已保存。
+  // 挂单已选中的技师停用后仍可回显，直到从该单移除。
+  Iterable<Map<String, dynamic>> get _visibleTechnicians {
+    final heldIds = _heldTechnicians(_holdRow);
+    return _technicians.where((row) {
+      final id = '${row['id']}';
+      return row['active'] == true ||
+          (techs.contains(id) && heldIds.contains(id));
+    });
+  }
+
   Widget _technicianChips() => Wrap(
     spacing: 8,
     runSpacing: 8,
     children: [
-      for (final t in _technicians)
+      for (final t in _visibleTechnicians)
         GestureDetector(
           onTap: () => setState(
             () => techs.contains('${t['id']}')

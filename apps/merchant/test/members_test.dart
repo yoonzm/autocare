@@ -137,6 +137,7 @@ class MemberFakeApi extends MerchantApi {
     String plate = '',
     String remark = '',
     String? holdId,
+    List<String>? technicianIds,
   }) async {
     if (checkoutError != null) throw checkoutError!;
     checkouts.add({
@@ -145,6 +146,7 @@ class MemberFakeApi extends MerchantApi {
       'method': method,
       'plate': plate,
       'hold': holdId,
+      'technician_ids': technicianIds,
     });
     if (holdId != null) holdRows.removeWhere((h) => h['id'] == holdId);
     return {
@@ -171,12 +173,14 @@ class MemberFakeApi extends MerchantApi {
     String plate = '',
     String remark = '',
     String? holdId,
+    List<String>? technicianIds,
   }) async {
     walkIns.add({
       'lines': lines,
       'method': method,
       'plate': plate,
       'hold': holdId,
+      'technician_ids': technicianIds,
     });
     if (holdId != null) holdRows.removeWhere((h) => h['id'] == holdId);
     return {
@@ -215,6 +219,7 @@ class MemberFakeApi extends MerchantApi {
     String note = '',
     String remind = '不提醒',
     String plate = '',
+    List<String>? technicianIds,
   }) async {
     if (holdSaveError != null) throw holdSaveError!;
     heldSaves.add({
@@ -225,6 +230,7 @@ class MemberFakeApi extends MerchantApi {
       'note': note,
       'remind': remind,
       'plate': plate,
+      'technician_ids': technicianIds,
     });
     final row = {
       'id': holdId ?? 'h${holdRows.length + 1}',
@@ -233,6 +239,7 @@ class MemberFakeApi extends MerchantApi {
       'note': note,
       'remind': remind,
       'vehicle_plate': plate,
+      'technician_ids': technicianIds,
       'estimate': 342,
       'created_at': DateTime.now().toUtc().toIso8601String(),
       'updated_at': DateTime.now().toUtc().toIso8601String(),

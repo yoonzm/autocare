@@ -52,6 +52,7 @@ class HoldController extends ChangeNotifier {
       'remind': remind,
       'note': note.text.trim(),
       'plate': draft.plate,
+      'technicians': draft.technicianIds,
     });
     if (_intent != body) {
       _intent = body;
@@ -69,6 +70,7 @@ class HoldController extends ChangeNotifier {
         remind: HoldStore.reminds[remind],
         note: note.text.trim(),
         plate: draft.plate,
+        technicianIds: draft.technicianIds,
         requestId: _requestId,
       );
       _intent = null;

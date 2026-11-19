@@ -5,6 +5,7 @@ import {
   parseExtend,
   parseFollowUp,
   parseHold,
+  parseOrderTechnicians,
   parseRefund,
   parseSell,
   parseWalkIn,
@@ -79,6 +80,7 @@ const HOLD_SELECT =
   '*, items:held_order_items(position, service_id, name, qty, member_package_id), member:members(id, name, phone, balance, card:card_types(name, discount))';
 
 const holdFail = (error: { code?: string; message: string }) => {
+  if (error.message.includes('order_technician_unavailable')) return fail('所选技师不可用，请重新选择');
   if (error.code === 'P0002') {
     const m = error.message;
     return fail(m.includes('hold') ? '挂单不存在或已处理' : m.includes('member') ? '会员不存在' : '服务项目不存在或已下架', 404);
@@ -108,9 +110,12 @@ export async function handleOrders(input: Input, storeId: string): Promise<Respo
   if (input.action === 'hold') {
     const v = parseHold(input);
     if (typeof v === 'string') return fail(v);
-    const { data, error } = await admin.rpc('hold_order', {
+    const technicians = parseOrderTechnicians(input.technician_ids);
+    if (typeof technicians === 'string') return fail(technicians);
+    const { data, error } = await admin.rpc('hold_order_with_technicians', {
       p_store: storeId, p_member: v.member_id, p_lines: v.lines, p_status: v.status,
       p_note: v.note, p_remind: v.remind, p_plate: v.plate, p_hold: v.hold_id,
+      p_technician_ids: technicians,
     });
     if (error) return holdFail(error);
     const { data: item } = await admin.from('held_orders').select(HOLD_SELECT).eq('id', data).single();
@@ -126,19 +131,17 @@ export async function handleOrders(input: Input, storeId: string): Promise<Respo
   if (input.action === 'checkout' && input.walk_in === true) {
     const w = parseWalkIn(input);
     if (typeof w === 'string') return fail(w);
+    const technicians = parseOrderTechnicians(input.technician_ids);
+    if (typeof technicians === 'string') return fail(technicians);
     const request = typeof input.__request === 'string' ? input.__request : null;
     const operator = await operatorOf(storeId);
-    // 取单结算散客挂单：挂单关闭和收款在同一个数据库事务里完成
-    const { data, error } = w.hold_id
-      ? await admin.rpc('settle_held_order', {
-        p_store: storeId, p_hold: w.hold_id, p_lines: w.lines, p_method: w.method, p_balance_part: null,
-        p_other: null, p_plate: w.plate, p_remark: w.remark, p_operator: operator, p_request: request,
-      })
-      : await admin.rpc('checkout_walkin', {
-        p_store: storeId, p_lines: w.lines, p_method: w.method, p_plate: w.plate, p_remark: w.remark,
-        p_operator: operator, p_request: request,
-      });
+    const { data, error } = await admin.rpc('checkout_with_technicians', {
+      p_store: storeId, p_hold: w.hold_id, p_lines: w.lines, p_method: w.method, p_balance_part: null,
+      p_other: null, p_plate: w.plate, p_remark: w.remark, p_operator: operator, p_request: request,
+      p_technician_ids: technicians, p_member: null, p_appointment: null,
+    });
     if (error) {
+      if (error.message.includes('order_technician_unavailable')) return fail('所选技师不可用，请重新选择');
       if (error.code === 'P0002') {
         const m = error.message;
         return fail(m.includes('hold') ? '挂单不存在或已处理' : m.includes('service') ? '服务项目不存在或已下架' : '请先选择服务项目', 404);
@@ -151,21 +154,17 @@ export async function handleOrders(input: Input, storeId: string): Promise<Respo
   if (input.action === 'checkout') {
     const v = parseCheckout(input);
     if (typeof v === 'string') return fail(v);
+    const technicians = parseOrderTechnicians(input.technician_ids);
+    if (typeof technicians === 'string') return fail(technicians);
     const request = typeof input.__request === 'string' ? input.__request : null;
     const operator = await operatorOf(storeId);
-    // 取单结算：挂单关闭和收款在同一个数据库事务里完成
-    const { data, error } = v.hold_id
-      ? await admin.rpc('settle_held_order', {
-        p_store: storeId, p_hold: v.hold_id, p_lines: v.lines, p_method: v.method,
-        p_balance_part: v.balance_part, p_other: v.other, p_plate: v.plate, p_remark: v.remark,
-        p_operator: operator, p_request: request,
-      })
-      : await admin.rpc('checkout_order', {
-        p_store: storeId, p_member: v.member_id, p_lines: v.lines, p_method: v.method,
-        p_balance_part: v.balance_part, p_other: v.other, p_plate: v.plate, p_remark: v.remark,
-        p_operator: operator, p_request: request,
-      });
+    const { data, error } = await admin.rpc('checkout_with_technicians', {
+      p_store: storeId, p_hold: v.hold_id, p_member: v.member_id, p_lines: v.lines, p_method: v.method,
+      p_balance_part: v.balance_part, p_other: v.other, p_plate: v.plate, p_remark: v.remark,
+      p_operator: operator, p_request: request, p_technician_ids: technicians, p_appointment: null,
+    });
     if (error) {
+      if (error.message.includes('order_technician_unavailable')) return fail('所选技师不可用，请重新选择');
       if (error.code === 'P0002') {
         const m = error.message;
         return fail(m.includes('hold') ? '挂单不存在或已处理' : m.includes('member') ? '会员不存在' : m.includes('service') ? '服务项目不存在或已下架' : '请先选择服务项目', 404);

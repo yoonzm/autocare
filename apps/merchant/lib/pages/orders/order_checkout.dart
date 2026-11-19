@@ -21,6 +21,7 @@ class OrderCheckout extends ChangeNotifier {
     String plate = '',
     String? holdId,
     String? appointmentId,
+    List<String>? technicianIds,
   }) async {
     if (busy || disposed) return null;
     if (!merchantApi.hasSession) {
@@ -33,6 +34,9 @@ class OrderCheckout extends ChangeNotifier {
     final items = List<Map<String, dynamic>>.unmodifiable(
       lines.map((row) => Map<String, dynamic>.unmodifiable(row)),
     );
+    final technicians = technicianIds == null
+        ? null
+        : List<String>.unmodifiable(technicianIds);
     final intent = jsonEncode({
       'member': snapshot?['id'],
       'lines': items,
@@ -42,6 +46,7 @@ class OrderCheckout extends ChangeNotifier {
       'plate': plate,
       'hold': holdId,
       'appointment': appointmentId,
+      'technicians': technicians,
     });
     if (_intent != intent) {
       _intent = intent;
@@ -59,6 +64,7 @@ class OrderCheckout extends ChangeNotifier {
           'balance_part': balancePart,
           'other': other,
           'plate': plate,
+          'technician_ids': ?technicians,
         }, requestId: _requestId);
       } else if (snapshot == null) {
         result = await merchantApi.checkoutWalkIn(
@@ -66,6 +72,7 @@ class OrderCheckout extends ChangeNotifier {
           method: method,
           plate: plate,
           holdId: holdId,
+          technicianIds: technicians,
           requestId: _requestId,
         );
       } else {
@@ -77,6 +84,7 @@ class OrderCheckout extends ChangeNotifier {
           other: other,
           plate: plate,
           holdId: holdId,
+          technicianIds: technicians,
           requestId: _requestId,
         );
       }

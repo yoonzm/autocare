@@ -11,6 +11,14 @@ export const VISIT_METHODS = ['电话', '微信', '到店'] as const;
 export const VISIT_RESULTS = ['已接通 · 有意向', '已接通 · 暂无需求', '未接通', '已预约到店'] as const;
 export const MAX_LINES = 30;
 
+export function parseOrderTechnicians(value: unknown): string[] | null | string {
+  if (value === undefined) return null; // Older clients keep the assignment already on the document.
+  if (!Array.isArray(value) || !value.every((id) =>
+    typeof id === 'string' && /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(id)
+  )) return '施工技师无效';
+  return value;
+}
+
 export interface SellValues {
   member_id: string;
   package_id: string;

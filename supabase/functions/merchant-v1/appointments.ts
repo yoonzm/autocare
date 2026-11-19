@@ -2,6 +2,7 @@ import { admin, fail, json, storeFor, uuid } from './shared.ts';
 import { operatorOf } from './members.ts';
 import { technicianScope } from './staff_access.ts';
 import { parseBooking, parseBookingSettings, parseResource, validDay } from './appointment_rules.ts';
+import { parseOrderTechnicians } from './ops_rules.ts';
 import type { Input } from './types.ts';
 
 const rpcError = (e: { message: string; code?: string }) => {
@@ -21,6 +22,7 @@ const rpcError = (e: { message: string; code?: string }) => {
     member_not_found: '会员不存在',
     appointment_not_found: '预约不存在',
     resource_not_found: '工位或技师不存在',
+    order_technician_unavailable: '所选技师不可用，请重新选择',
   };
   const key = Object.keys(messages).find((k) => e.message.includes(k));
   if (key) return fail(messages[key], 400);
@@ -156,16 +158,22 @@ export async function handleAppointments(input: Input, request: Request): Promis
       if (!['微信', '支付宝', '现金', 'POS 刷卡', '会员余额', '组合支付'].includes(String(input.method))) {
         return fail('收款方式无效');
       }
-      const { data, error } = await admin.rpc('checkout_appointment', {
+      const technicians = parseOrderTechnicians(input.technician_ids);
+      if (typeof technicians === 'string') return fail(technicians);
+      const { data, error } = await admin.rpc('checkout_with_technicians', {
         p_store: store,
-        p_id: input.id,
+        p_appointment: input.id,
+        p_hold: null,
+        p_member: null,
         p_lines: input.lines,
         p_method: input.method,
         p_balance_part: input.balance_part ?? null,
         p_other: input.other ?? null,
         p_plate: String(input.plate ?? '').slice(0, 10),
+        p_remark: '',
         p_operator: await operatorOf(store),
         p_request: request.headers.get('x-request-id'),
+        p_technician_ids: technicians,
       });
       return error ? rpcError(error) : json({ item: data });
     }

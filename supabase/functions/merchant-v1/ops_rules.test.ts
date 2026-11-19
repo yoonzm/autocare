@@ -1,4 +1,4 @@
-import { parseCheckout, parseHold, parseWalkIn, parseExtend, parseFollowUp, parseRefund, parseSell } from './ops_rules.ts';
+import { parseCheckout, parseHold, parseWalkIn, parseExtend, parseFollowUp, parseOrderTechnicians, parseRefund, parseSell } from './ops_rules.ts';
 
 const eq = (a: unknown, b: unknown, msg: string) => {
   if (JSON.stringify(a) !== JSON.stringify(b)) throw new Error(`${msg}: ${JSON.stringify(a)} != ${JSON.stringify(b)}`);
@@ -7,6 +7,15 @@ const M = '11111111-1111-1111-1111-111111111111';
 const P = '22222222-2222-2222-2222-222222222222';
 const S1 = '33333333-3333-3333-3333-333333333333';
 const S2 = '44444444-4444-4444-4444-444444444444';
+
+Deno.test('order technicians: omission preserves an assignment and an empty list clears it', () => {
+  eq(parseOrderTechnicians(undefined), null, 'omitted by old client');
+  eq(parseOrderTechnicians([]), [], 'explicit clear');
+  eq(parseOrderTechnicians([S1, S2]), [S1, S2], 'multiple technicians');
+  for (const invalid of [null, S1, [null], [S1.slice(0, -1)]]) {
+    eq(parseOrderTechnicians(invalid), '施工技师无效', 'reject invalid IDs');
+  }
+});
 
 Deno.test('sell: member, package and a pay method are required (余额 is allowed)', () => {
   eq(typeof parseSell({ member_id: M, package_id: P, method: '会员余额' }), 'object', 'balance');

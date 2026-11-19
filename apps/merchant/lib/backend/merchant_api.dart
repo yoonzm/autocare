@@ -750,6 +750,7 @@ class MerchantApi {
     String plate = '',
     String remark = '',
     String? holdId,
+    List<String>? technicianIds,
   }) async {
     final data = await invoke({
       'action': 'checkout',
@@ -762,6 +763,7 @@ class MerchantApi {
       'plate': plate,
       'remark': remark,
       'hold_id': ?holdId,
+      'technician_ids': ?technicianIds,
     }, requestId: requestId);
     return Map<String, dynamic>.from(data['item'] as Map);
   }
@@ -774,12 +776,14 @@ class MerchantApi {
     String plate = '',
     String remark = '',
     String? holdId,
+    List<String>? technicianIds,
   }) async {
     final data = await invoke({
       'action': 'checkout',
       'kind': 'orders',
       'walk_in': true,
       'hold_id': ?holdId,
+      'technician_ids': ?technicianIds,
       'lines': lines,
       'method': method,
       'plate': plate,
@@ -807,6 +811,7 @@ class MerchantApi {
     String note = '',
     String remind = '不提醒',
     String plate = '',
+    List<String>? technicianIds,
   }) async {
     final data = await invoke({
       'action': 'hold',
@@ -818,6 +823,7 @@ class MerchantApi {
       'note': note,
       'remind': remind,
       'plate': plate,
+      'technician_ids': ?technicianIds,
     }, requestId: requestId);
     return Map<String, dynamic>.from(data['item'] as Map);
   }

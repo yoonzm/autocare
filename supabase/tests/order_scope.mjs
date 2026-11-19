@@ -28,4 +28,6 @@ try{
 
  await db.exec(readFileSync(new URL('order_scope.sql',import.meta.url),'utf8'));
  console.log('order_scope ok');
+ await db.exec(readFileSync(new URL('order_technicians.sql',import.meta.url),'utf8'));
+ console.log('order_technicians ok');
 }finally{await db.close();}

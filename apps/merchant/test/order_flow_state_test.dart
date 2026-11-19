@@ -61,6 +61,7 @@ class FlowApi extends MemberFakeApi {
     String plate = '',
     String remark = '',
     String? holdId,
+    List<String>? technicianIds,
   }) async {
     requests.add({
       'id': memberId,
@@ -89,6 +90,7 @@ class FlowApi extends MemberFakeApi {
     String note = '',
     String remind = '不提醒',
     String plate = '',
+    List<String>? technicianIds,
   }) async {
     requests.add({
       'id': memberId,
@@ -157,18 +159,26 @@ void main() {
       lines: lines,
       method: '现金',
       requestId: 'member',
+      technicianIds: ['t1', 't2'],
     );
     await client.checkoutWalkIn(
       lines: lines,
       method: '现金',
       requestId: 'walk-in',
+      technicianIds: ['t2'],
     );
     await client.checkoutAppointment({
       'id': 'a',
       'lines': lines,
       'method': '现金',
+      'technician_ids': ['t1'],
     }, requestId: 'appointment');
-    await client.saveHold(memberId: 'm', lines: lines, requestId: 'hold');
+    await client.saveHold(
+      memberId: 'm',
+      lines: lines,
+      requestId: 'hold',
+      technicianIds: [],
+    );
     await client.cancelHold('h', requestId: 'cancel');
     expect(client.requests.map((r) => r.id), [
       'member',
@@ -178,6 +188,12 @@ void main() {
       'cancel',
     ]);
     expect(client.requests[2].body['action'], 'appointment_checkout');
+    expect(client.requests.take(4).map((r) => r.body['technician_ids']), [
+      ['t1', 't2'],
+      ['t2'],
+      ['t1'],
+      [],
+    ]);
   });
 
   test('收款实例隔离，同一实例防重，失败重试复用标识', () async {
