@@ -9,7 +9,7 @@ import 'toast.dart';
 
 /// 包装一次请求，按状态渲染：
 /// 加载中（300ms 后才出骨架，出现后至少 500ms）→ 内容（150ms 淡入）/ 空 / 错误（带重试）。
-/// 已有数据时的刷新：旧内容保留并变淡 + 顶部细进度条；刷新失败只弹带“重试”的 Toast。
+/// 已有数据时的刷新：旧内容保留并变淡；刷新失败只弹带“重试”的 Toast。
 class AsyncView<T> extends StatefulWidget {
   /// Inline sections inside a scrolling page take the height of their content.
   final bool shrinkWrap;
@@ -171,13 +171,6 @@ class AsyncViewState<T> extends State<AsyncView<T>> {
                   opacity: _loading && _showIndicator ? 0.6 : 1,
                   child: content,
                 ),
-              ),
-            if (_loading && _showIndicator)
-              const Positioned(
-                left: 0,
-                right: 0,
-                top: 0,
-                child: LinearProgressIndicator(minHeight: 2),
               ),
           ],
         );

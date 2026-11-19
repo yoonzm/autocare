@@ -188,6 +188,15 @@ class _MembersPageState extends State<MembersPage> {
     }
   }
 
+  Future<void> _pullRefresh() async {
+    _debounce?.cancel();
+    final previous = _liveList;
+    await _load();
+    if (mounted && _liveList != null && !identical(previous, _liveList)) {
+      AppToast.show(context, '已更新', kind: ToastKind.success);
+    }
+  }
+
   Future<void> _openFilters() async {
     final selected = await showMemberFilters(context, _filters);
     if (!mounted || selected == null) return;
@@ -220,252 +229,256 @@ class _MembersPageState extends State<MembersPage> {
     final list = _liveList ?? const <Member>[];
 
     return Scaffold(
-      body: ListView(
-        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        padding: EdgeInsets.fromLTRB(
-          0,
-          MediaQuery.of(context).padding.top + 12,
-          0,
-          MediaQuery.of(context).padding.bottom + 16,
-        ),
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    '会员',
-                    style: ts(28, w: FontWeight.w600, h: 36, spacing: -0.7),
-                  ),
-                ),
-                Semantics(
-                  button: true,
-                  label: '筛选会员',
-                  child: GestureDetector(
-                    onTap: _openFilters,
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: C.card,
-                        shape: BoxShape.circle,
-                        boxShadow: softShadow,
-                      ),
-                      child: Center(
-                        child: AppIcon('filter', size: 20, color: C.ink),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                GestureDetector(
-                  onTap: () {
-                    openRoute(context, 'MemberAdd');
-                  },
-                  child: Container(
-                    height: 40,
-                    padding: const EdgeInsets.fromLTRB(12, 0, 16, 0),
-                    decoration: BoxDecoration(
-                      color: C.btn,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      children: [
-                        AppIcon('add', size: 18, color: C.btnFg),
-                        const SizedBox(width: 6),
-                        Text(
-                          '新增会员',
-                          style: ts(
-                            14,
-                            w: FontWeight.w500,
-                            color: C.btnFg,
-                            h: 20,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
+      body: RefreshIndicator(
+        onRefresh: _pullRefresh,
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          padding: EdgeInsets.fromLTRB(
+            0,
+            MediaQuery.of(context).padding.top + 12,
+            0,
+            MediaQuery.of(context).padding.bottom + 16,
           ),
-          const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Container(
-              height: 44,
-              padding: const EdgeInsets.only(left: 14, right: 6),
-              decoration: BoxDecoration(
-                color: C.card,
-                borderRadius: BorderRadius.circular(14),
-                boxShadow: softShadow,
-              ),
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(
                 children: [
-                  AppIcon('search', size: 20, color: C.muted),
-                  const SizedBox(width: 8),
                   Expanded(
-                    child: TextField(
-                      controller: search,
-                      onTapOutside: onTapOutsideDismiss,
-                      onChanged: _onQuery,
-                      style: ts(14),
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        isCollapsed: true,
-                        hintText: '姓名 / 手机号 / 车牌号',
-                        hintStyle: ts(14, color: C.muted),
-                      ),
+                    child: Text(
+                      '会员',
+                      style: ts(28, w: FontWeight.w600, h: 36, spacing: -0.7),
                     ),
                   ),
                   Semantics(
                     button: true,
-                    label: '扫车牌找会员',
+                    label: '筛选会员',
                     child: GestureDetector(
-                      onTap: () => openRoute(context, 'FindScanPlate'),
+                      onTap: _openFilters,
                       child: Container(
-                        width: 32,
-                        height: 32,
+                        width: 40,
+                        height: 40,
                         decoration: BoxDecoration(
-                          color: C.inset,
+                          color: C.card,
                           shape: BoxShape.circle,
+                          boxShadow: softShadow,
                         ),
                         child: Center(
-                          child: AppIcon('scan', size: 18, color: C.ink),
+                          child: AppIcon('filter', size: 20, color: C.ink),
                         ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  GestureDetector(
+                    onTap: () {
+                      openRoute(context, 'MemberAdd');
+                    },
+                    child: Container(
+                      height: 40,
+                      padding: const EdgeInsets.fromLTRB(12, 0, 16, 0),
+                      decoration: BoxDecoration(
+                        color: C.btn,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        children: [
+                          AppIcon('add', size: 18, color: C.btnFg),
+                          const SizedBox(width: 6),
+                          Text(
+                            '新增会员',
+                            style: ts(
+                              14,
+                              w: FontWeight.w500,
+                              color: C.btnFg,
+                              h: 20,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-          ),
-          const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: _summary(),
-          ),
-          const SizedBox(height: 16),
-          SizedBox(
-            height: 34,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              children: [
-                _liveChip(
-                  _liveList == null ? '全部' : '全部 $_total',
-                  _tierId == null,
-                  () => _pickTier(null),
-                ),
-                for (final t in _tiers) ...[
-                  const SizedBox(width: 8),
-                  _liveChip(
-                    '${t['name']} ${_counts['${t['id']}'] ?? 0}',
-                    _tierId == '${t['id']}',
-                    () => _pickTier('${t['id']}'),
-                  ),
-                ],
-                // 待回访数量来自 reminders 接口。
-                const SizedBox(width: 8),
-                _followChip(),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: AppCard(
-              radius: 24,
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Stack(
-                children: [
-                  Opacity(
-                    opacity: _loading && _showSkeleton && _liveList != null
-                        ? 0.6
-                        : 1,
-                    child: _live && _liveList == null
-                        ? (_error != null
-                              ? SizedBox(
-                                  height: 300,
-                                  child: ErrorView(
-                                    error: _error!,
-                                    retrying: _loading,
-                                    onRetry: _load,
-                                  ),
-                                )
-                              : (_showSkeleton
-                                    ? const SkeletonList(count: 5)
-                                    : const SizedBox(height: 120)))
-                        : _live && list.isEmpty
-                        ? SizedBox(
-                            height: 280,
-                            child:
-                                (query.isEmpty &&
-                                    _tierId == null &&
-                                    !_filters.active)
-                                ? EmptyView.firstTime(
-                                    title: '还没有会员',
-                                    message: '办理第一张会员卡，建立会员档案',
-                                    actionLabel: '新增会员',
-                                    onAction: () {
-                                      openRoute(context, 'MemberAdd');
-                                    },
-                                  )
-                                : EmptyView.filtered(
-                                    onAction: () {
-                                      search.clear();
-                                      setState(() => query = '');
-                                      _tierId = null;
-                                      _filters = MemberFilters();
-                                      _load();
-                                    },
-                                  ),
-                          )
-                        : list.isEmpty
-                        ? Padding(
-                            padding: const EdgeInsets.all(32),
-                            child: Center(
-                              child: Text(
-                                '没有符合条件的会员',
-                                style: ts(14, color: C.muted),
-                              ),
-                            ),
-                          )
-                        : Column(
-                            children: [
-                              for (var i = 0; i < list.length; i++) ...[
-                                _row(context, list[i]),
-                                if (i < list.length - 1)
-                                  const Divider1(indent: 72),
-                              ],
-                            ],
-                          ),
-                  ),
-                  if (_loading && _showSkeleton && _liveList != null)
-                    const Positioned(
-                      left: 0,
-                      right: 0,
-                      top: 0,
-                      child: LinearProgressIndicator(minHeight: 2),
-                    ),
-                ],
-              ),
-            ),
-          ),
-          if (_live && _liveList != null && _liveList!.length < _matched)
+            const SizedBox(height: 16),
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-              child: Center(
-                child: LoadingButton(
-                  label: '加载更多',
-                  loadingLabel: '加载中…',
-                  style: LoadingButtonStyle.secondary,
-                  onPressed: () => _load(more: true),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Container(
+                height: 44,
+                padding: const EdgeInsets.only(left: 14, right: 6),
+                decoration: BoxDecoration(
+                  color: C.card,
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: softShadow,
+                ),
+                child: Row(
+                  children: [
+                    AppIcon('search', size: 20, color: C.muted),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextField(
+                        controller: search,
+                        onTapOutside: onTapOutsideDismiss,
+                        onChanged: _onQuery,
+                        style: ts(14),
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          isCollapsed: true,
+                          hintText: '姓名 / 手机号 / 车牌号',
+                          hintStyle: ts(14, color: C.muted),
+                        ),
+                      ),
+                    ),
+                    Semantics(
+                      button: true,
+                      label: '扫车牌找会员',
+                      child: GestureDetector(
+                        onTap: () => openRoute(context, 'FindScanPlate'),
+                        child: Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: C.inset,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Center(
+                            child: AppIcon('scan', size: 18, color: C.ink),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-        ],
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: _summary(),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 34,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                children: [
+                  _liveChip(
+                    _liveList == null ? '全部' : '全部 $_total',
+                    _tierId == null,
+                    () => _pickTier(null),
+                  ),
+                  for (final t in _tiers) ...[
+                    const SizedBox(width: 8),
+                    _liveChip(
+                      '${t['name']} ${_counts['${t['id']}'] ?? 0}',
+                      _tierId == '${t['id']}',
+                      () => _pickTier('${t['id']}'),
+                    ),
+                  ],
+                  // 待回访数量来自 reminders 接口。
+                  const SizedBox(width: 8),
+                  _followChip(),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: AppCard(
+                radius: 24,
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Stack(
+                  children: [
+                    Opacity(
+                      opacity: _loading && _showSkeleton && _liveList != null
+                          ? 0.6
+                          : 1,
+                      child: _live && _liveList == null
+                          ? (_error != null
+                                ? SizedBox(
+                                    height: 300,
+                                    child: ErrorView(
+                                      error: _error!,
+                                      retrying: _loading,
+                                      onRetry: _load,
+                                    ),
+                                  )
+                                : (_showSkeleton
+                                      ? const SkeletonList(count: 5)
+                                      : const SizedBox(height: 120)))
+                          : _live && list.isEmpty
+                          ? SizedBox(
+                              height: 280,
+                              child:
+                                  (query.isEmpty &&
+                                      _tierId == null &&
+                                      !_filters.active)
+                                  ? EmptyView.firstTime(
+                                      title: '还没有会员',
+                                      message: '办理第一张会员卡，建立会员档案',
+                                      actionLabel: '新增会员',
+                                      onAction: () {
+                                        openRoute(context, 'MemberAdd');
+                                      },
+                                    )
+                                  : EmptyView.filtered(
+                                      onAction: () {
+                                        search.clear();
+                                        setState(() => query = '');
+                                        _tierId = null;
+                                        _filters = MemberFilters();
+                                        _load();
+                                      },
+                                    ),
+                            )
+                          : list.isEmpty
+                          ? Padding(
+                              padding: const EdgeInsets.all(32),
+                              child: Center(
+                                child: Text(
+                                  '没有符合条件的会员',
+                                  style: ts(14, color: C.muted),
+                                ),
+                              ),
+                            )
+                          : Column(
+                              children: [
+                                for (var i = 0; i < list.length; i++) ...[
+                                  _row(context, list[i]),
+                                  if (i < list.length - 1)
+                                    const Divider1(indent: 72),
+                                ],
+                              ],
+                            ),
+                    ),
+                    if (_loading && _showSkeleton && _liveList != null)
+                      const Positioned(
+                        left: 0,
+                        right: 0,
+                        top: 0,
+                        child: LinearProgressIndicator(minHeight: 2),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            if (_live && _liveList != null && _liveList!.length < _matched)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                child: Center(
+                  child: LoadingButton(
+                    label: '加载更多',
+                    loadingLabel: '加载中…',
+                    style: LoadingButtonStyle.secondary,
+                    onPressed: () => _load(more: true),
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

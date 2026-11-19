@@ -32,6 +32,14 @@ class _InventoryPageState extends State<InventoryPage> {
   }
 
   void _reload() => _key.currentState?.reload();
+  Future<void> _pullRefresh() async {
+    final previous = products;
+    await _key.currentState?.reload();
+    if (mounted && !identical(previous, products)) {
+      AppToast.show(context, '已更新', kind: ToastKind.success);
+    }
+  }
+
   @override
   void dispose() {
     inventoryChanged.removeListener(_reload);
@@ -112,7 +120,10 @@ class _InventoryPageState extends State<InventoryPage> {
           ),
         ),
         onNext: () => openRoute(context, 'Login'),
-        builder: (context, data) => _content(context),
+        builder: (context, data) => RefreshIndicator(
+          onRefresh: _pullRefresh,
+          child: _content(context),
+        ),
       ),
     );
   }
@@ -125,6 +136,7 @@ class _InventoryPageState extends State<InventoryPage> {
         .toList();
     return Scaffold(
       body: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         padding: EdgeInsets.fromLTRB(
           20,

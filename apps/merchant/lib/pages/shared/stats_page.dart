@@ -105,6 +105,20 @@ class _StatsPageState extends State<StatsPage> {
     }
   }
 
+  Future<void> _pullRefresh() async {
+    if (_view.currentState?.busy == true) return;
+    // 筛选失败后页签已退回旧时段，下拉刷新应读取当前显示的时段。
+    if (_loadedRange != null) {
+      _target = _loadedRange!;
+      _targetCustom = _loadedCustom;
+    }
+    final previous = _data;
+    await _view.currentState?.reload();
+    if (mounted && _data != null && !identical(previous, _data)) {
+      AppToast.show(context, '已更新', kind: ToastKind.success);
+    }
+  }
+
   Future<void> _select(int i) async {
     DateTimeRange? custom;
     if (i == 3) {
@@ -217,12 +231,16 @@ class _StatsPageState extends State<StatsPage> {
         onNext: () => openRoute(context, 'Login'),
         onLoaded: _loaded,
         onSettled: _settled,
-        builder: (_, data) => _content(context),
+        builder: (_, data) => RefreshIndicator(
+          onRefresh: _pullRefresh,
+          child: _content(context),
+        ),
       ),
     );
   }
 
   Widget _content(BuildContext context) => ListView(
+    physics: const AlwaysScrollableScrollPhysics(),
     keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
     padding: EdgeInsets.fromLTRB(
       20,
