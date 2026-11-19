@@ -246,7 +246,12 @@ class _ScanPageState extends State<ScanPage>
     if (!_canRecognize()) return;
     setState(() => _pickingAlbum = true);
     try {
-      final photo = await pickSingleImage(context, source: ImageSource.gallery);
+      final photo = await pickSingleImage(
+        context,
+        source: ImageSource.gallery,
+        maxWidth: null,
+        imageQuality: null,
+      );
       if (photo != null && mounted) {
         setState(() {
           _albumPhoto = photo.path;

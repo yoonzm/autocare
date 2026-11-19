@@ -14,8 +14,8 @@ bool _picking = false;
 Future<XFile?> pickSingleImage(
   BuildContext context, {
   ImageSource? source,
-  double maxWidth = 1600,
-  int imageQuality = 85,
+  double? maxWidth = 1600,
+  int? imageQuality = 85,
 }) async {
   if (_picking) return null;
   _picking = true;
