@@ -36,16 +36,30 @@ void main() {
       await t.pump(const Duration(milliseconds: 350));
       expect(t.takeException(), isNull);
       pending.complete('loaded');
+      await t.pump();
+      await t.pump(kIndicatorMinShow);
       await t.pumpAndSettle();
       expect(find.text('loaded'), findsOneWidget);
       pending = Completer<String>();
-      unawaited(key.currentState!.reload());
+      final refresh = key.currentState!.reload();
       await t.pump(const Duration(milliseconds: 350));
       expect(find.text('loaded'), findsOneWidget);
+      expect(key.currentState!.busy, isTrue);
+      expect(find.byType(LinearProgressIndicator), findsNothing);
+      expect(t.getSize(find.byType(AsyncView<String>)).height, 80);
       expect(t.takeException(), isNull);
       pending.complete('refreshed');
+      // 没有进度条动画时 pumpAndSettle 不会等待最短展示计时器。
+      // 先处理请求完成，再显式推进时间，避免依赖持续动画驱动测试时钟。
+      await t.pump();
+      expect(find.text('loaded'), findsOneWidget);
+      await t.pump(kIndicatorMinShow);
+      await refresh;
       await t.pumpAndSettle();
       expect(find.text('refreshed'), findsOneWidget);
+      expect(key.currentState!.busy, isFalse);
+      expect(t.getSize(find.byType(AsyncView<String>)).height, 80);
+      expect(t.takeException(), isNull);
     },
   );
 }
