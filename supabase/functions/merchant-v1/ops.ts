@@ -160,7 +160,7 @@ export async function handleOrders(input: Input, storeId: string): Promise<Respo
     const operator = await operatorOf(storeId);
     const { data, error } = await admin.rpc('checkout_with_technicians', {
       p_store: storeId, p_hold: v.hold_id, p_member: v.member_id, p_lines: v.lines, p_method: v.method,
-      p_balance_part: v.balance_part, p_other: v.other, p_plate: v.plate, p_remark: v.remark,
+      p_balance_part: null, p_other: null, p_plate: v.plate, p_remark: v.remark,
       p_operator: operator, p_request: request, p_technician_ids: technicians, p_appointment: null,
     });
     if (error) {
@@ -174,7 +174,6 @@ export async function handleOrders(input: Input, storeId: string): Promise<Respo
         if (m.includes('hold_closed')) return fail('这张挂单已经处理过了', 400);
         if (m.includes('balance')) return fail('储值余额不足', 400);
         if (m.includes('package')) return fail('次卡不可用或次数不够', 400);
-        if (m.includes('combo')) return fail('组合支付的余额金额无效', 400);
         return fail('收款方式无效', 400);
       }
       return fail('收款失败', 400);

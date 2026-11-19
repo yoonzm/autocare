@@ -132,8 +132,6 @@ class MemberFakeApi extends MerchantApi {
     required String memberId,
     required List<Map<String, dynamic>> lines,
     required String method,
-    num? balancePart,
-    String? other,
     String plate = '',
     String remark = '',
     String? holdId,

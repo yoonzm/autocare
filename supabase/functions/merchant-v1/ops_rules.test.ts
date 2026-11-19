@@ -57,12 +57,10 @@ Deno.test('checkout: lines, quantities and payment are validated; prices are nev
   eq(typeof parseCheckout({ member_id: M, method: '现金', lines: [{ service_id: 'x' }] }), 'string', 'id');
 });
 
-Deno.test('checkout: combined payment needs a balance part and another method', () => {
+Deno.test('checkout: combined payment is rejected', () => {
   const lines = [{ service_id: S1 }];
-  eq(typeof parseCheckout({ member_id: M, method: '组合支付', lines, balance_part: 100, other: '微信' }), 'object', 'ok');
-  eq(typeof parseCheckout({ member_id: M, method: '组合支付', lines, other: '微信' }), 'string', 'no balance');
-  eq(typeof parseCheckout({ member_id: M, method: '组合支付', lines, balance_part: 100 }), 'string', 'no other');
-  eq(typeof parseCheckout({ member_id: M, method: '组合支付', lines, balance_part: 10.123, other: '现金' }), 'string', 'cents');
+  eq(typeof parseCheckout({ member_id: M, method: '组合支付', lines, balance_part: 100, other: '微信' }), 'string', 'combo rejected');
+  eq(typeof parseCheckout({ member_id: M, method: '组合支付', lines }), 'string', 'combo without details rejected');
 });
 
 Deno.test('hold: lines + status / remind from the design; hold_id optional; no prices', () => {

@@ -155,7 +155,7 @@ export async function handleAppointments(input: Input, request: Request): Promis
           (l.member_package_id == null || uuid(l.member_package_id))
         )
       ) return fail('订单项目无效');
-      if (!['微信', '支付宝', '现金', 'POS 刷卡', '会员余额', '组合支付'].includes(String(input.method))) {
+      if (!['微信', '支付宝', '现金', 'POS 刷卡', '会员余额'].includes(String(input.method))) {
         return fail('收款方式无效');
       }
       const technicians = parseOrderTechnicians(input.technician_ids);
@@ -167,8 +167,8 @@ export async function handleAppointments(input: Input, request: Request): Promis
         p_member: null,
         p_lines: input.lines,
         p_method: input.method,
-        p_balance_part: input.balance_part ?? null,
-        p_other: input.other ?? null,
+        p_balance_part: null,
+        p_other: null,
         p_plate: String(input.plate ?? '').slice(0, 10),
         p_remark: '',
         p_operator: await operatorOf(store),

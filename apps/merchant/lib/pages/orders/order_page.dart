@@ -484,7 +484,6 @@ class _OrderPageState extends State<OrderPage> {
           ('会员余额', '可用 $_balanceText'),
           ('微信 / 支付宝', '扫码收款'),
           ('现金', '可找零'),
-          ('组合支付', '余额 + 其他'),
         ];
   int cat = 0;
   bool searching = false;
@@ -557,8 +556,6 @@ class _OrderPageState extends State<OrderPage> {
       await runBusy(_actionKey, () async {
         try {
           String method;
-          num? balancePart;
-          String? other;
           if (walkIn) {
             if (selectedPay == 0) {
               final value = await pickFromList(context, '选择收款方式', [
@@ -581,39 +578,14 @@ class _OrderPageState extends State<OrderPage> {
             ], '微信');
             if (value == null || !mounted) return;
             method = value;
-          } else if (selectedPay == 2) {
-            method = '现金';
           } else {
-            method = '组合支付';
-            final balance = num.tryParse('${member?['balance'] ?? 0}') ?? 0;
-            final max = balance < due ? balance : due - 0.01;
-            final input = await pickAmount(
-              context,
-              '使用余额（最多 ¥${money(max)}）',
-              '',
-            );
-            if (!mounted || input == null) return;
-            final value = num.tryParse(input.replaceAll(RegExp(r'[¥,\s]'), ''));
-            if (value == null || value <= 0 || value > max) {
-              toast(context, '请填写使用的余额金额');
-              return;
-            }
-            balancePart = value;
-            other = await pickFromList(context, '其余部分的收款方式', [
-              '微信',
-              '支付宝',
-              '现金',
-              'POS 刷卡',
-            ], '微信');
-            if (other == null || !mounted) return;
+            method = '现金';
           }
           setState(() => _submitting = true);
           final receipt = await _payment.pay(
             member: member,
             lines: lines,
             method: method,
-            balancePart: balancePart,
-            other: other,
             plate: plate,
             holdId: holdId,
             appointmentId: widget.appointment?['id']?.toString(),

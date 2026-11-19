@@ -55,8 +55,6 @@ export interface CheckoutValues {
   member_id: string;
   lines: CheckoutLine[];
   method: string;
-  balance_part: number | null;
-  other: string | null;
   plate: string;
   remark: string;
   hold_id: string | null;
@@ -152,18 +150,8 @@ export function parseCheckout(input: Record<string, unknown>): CheckoutValues | 
   const lines = parseLines(input);
   if (typeof lines === 'string') return lines;
   const method = text(input.method);
-  const methods = [...PAY_METHODS, '会员余额', '组合支付'] as readonly string[];
+  const methods = [...PAY_METHODS, '会员余额'] as readonly string[];
   if (!methods.includes(method)) return '请选择收款方式';
-  let balancePart: number | null = null;
-  let other: string | null = null;
-  if (method === '组合支付') {
-    balancePart = Number(input.balance_part);
-    if (!Number.isFinite(balancePart) || balancePart <= 0 || Math.round(balancePart * 100) !== balancePart * 100) {
-      return '请填写使用的余额金额';
-    }
-    other = text(input.other);
-    if (!(PAY_METHODS as readonly string[]).includes(other)) return '请选择其余部分的收款方式';
-  }
   const plate = text(input.plate).replace(/[\s·.]/g, '').toUpperCase();
   if (plate.length > 10) return '车牌号无效';
   const remark = text(input.remark);
@@ -173,7 +161,7 @@ export function parseCheckout(input: Record<string, unknown>): CheckoutValues | 
     if (typeof input.hold_id !== 'string' || !UUID.test(input.hold_id)) return '挂单无效';
     holdId = input.hold_id;
   }
-  return { member_id: input.member_id, lines, method, balance_part: balancePart, other, plate, remark, hold_id: holdId };
+  return { member_id: input.member_id, lines, method, plate, remark, hold_id: holdId };
 }
 
 export interface FollowUpValues {

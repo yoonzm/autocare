@@ -153,6 +153,7 @@ void main() {
     expect(find.text('奔驰 E300 · 黑'), findsOneWidget);
     expect(find.textContaining('余额 '), findsWidgets);
     expect(find.text('会员余额'), findsOneWidget);
+    expect(find.text('组合支付'), findsNothing);
     expect(find.text('确认收款'), findsOneWidget);
     // 关闭弹层没选人：不会被后面的会员变动影响
     expect(find.text('请先选择客户'), findsNothing);
