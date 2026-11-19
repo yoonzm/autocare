@@ -51,7 +51,8 @@ class ToolsApi extends MerchantApi {
     'data_note': '门店经营数据保留，不会被清除',
   };
   @override
-  Future<String> supportPhone() async => '';
+  Future<String> supportPhone() async =>
+      throw StateError('微信客服不应读取客服电话');
 }
 
 void main() {
@@ -59,7 +60,19 @@ void main() {
   late MerchantApi original;
   late ToolsApi api;
   late Directory fixture;
+  final launchedUrls = <MethodCall>[];
+  var launchSuccess = true;
   setUp(() async {
+    launchedUrls.clear();
+    launchSuccess = true;
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+          const MethodChannel('plugins.flutter.io/url_launcher'),
+          (call) async {
+            launchedUrls.add(call);
+            return launchSuccess;
+          },
+        );
     original = merchantApi;
     merchantApi = api = ToolsApi();
     fixture = await Directory.systemTemp.createTemp('autocare-account-test-');
@@ -83,6 +96,11 @@ void main() {
     storeProfile.apply({'phone': '+8613800138000', 'name': '真实门店'});
   });
   tearDown(() async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+          const MethodChannel('plugins.flutter.io/url_launcher'),
+          null,
+        );
     merchantApi = original;
     storeProfile.clear();
     C.dark = false;
@@ -139,14 +157,34 @@ void main() {
     expect(find.text('限时免费期间无套餐欠费'), findsOneWidget);
     expect(t.takeException(), isNull);
   });
-  testWidgets('关于页读取安装包版本、隐藏更新入口、客服电话缺失明确阻止', (t) async {
+  testWidgets('关于页读取安装包版本、隐藏更新入口、通过外部应用打开微信客服', (t) async {
     await open(t, 'AboutApp', dark: true);
     expect(find.text('版本 1.2.3 (42)'), findsOneWidget);
     expect(find.text('检查更新'), findsNothing);
     await t.ensureVisible(find.text('拨打'));
     await t.tap(find.text('拨打'));
     await t.pumpAndSettle();
-    expect(find.text('客服热线暂未配置'), findsOneWidget);
+    expect(launchedUrls, hasLength(1));
+    expect(launchedUrls.single.method, 'launch');
+    expect(
+      launchedUrls.single.arguments['url'],
+      'https://work.weixin.qq.com/kfid/kfc6eaf7469b168651b',
+    );
+    expect(launchedUrls.single.arguments['useSafariVC'], isFalse);
+    expect(launchedUrls.single.arguments['useWebView'], isFalse);
+    expect(t.takeException(), isNull);
+  });
+  testWidgets('微信客服打开失败时提示并允许重试', (t) async {
+    launchSuccess = false;
+    await open(t, 'AboutApp');
+    await t.ensureVisible(find.text('拨打'));
+    await t.tap(find.text('拨打'));
+    await t.pumpAndSettle();
+    expect(find.text('无法打开微信客服，请稍后重试'), findsOneWidget);
+    launchSuccess = true;
+    await t.tap(find.text('拨打'));
+    await t.pumpAndSettle();
+    expect(launchedUrls, hasLength(2));
     expect(t.takeException(), isNull);
   });
   test('缓存按真实文件统计，清理后保留设置、登录信息及缓存目录外文件', () async {

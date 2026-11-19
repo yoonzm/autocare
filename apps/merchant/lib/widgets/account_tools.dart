@@ -191,13 +191,11 @@ Widget accountCacheClear(BuildContext context, Widget button) =>
     });
 Widget accountSupportCall(BuildContext context, Widget row) =>
     accountAction(context, 'account:support', row, () async {
-      final phone = await merchantApi.supportPhone();
-      if (phone.isEmpty) throw const AppError('客服热线暂未配置');
       if (!await launchUrl(
-        Uri(scheme: 'tel', path: phone),
+        Uri.parse('https://work.weixin.qq.com/kfid/kfc6eaf7469b168651b'),
         mode: LaunchMode.externalApplication,
       )) {
-        throw const AppError('无法打开拨号，请在支持电话的设备上重试');
+        throw const AppError('无法打开微信客服，请稍后重试');
       }
     });
 
