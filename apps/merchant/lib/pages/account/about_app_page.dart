@@ -300,49 +300,6 @@ class AboutAppPage extends StatelessWidget {
                           ),
                         ),
                       ),
-                      hbox(
-                        h: 1,
-                        bg: dk(context, Color(0xFFEFEFF1), Color(0xFF2A2A2E)),
-                        margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
-                      ),
-                      GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () => openRoute(context, 'Privacy'),
-                        child: hbox(
-                          minH: 60,
-                          pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                          child: hrow(
-                            [
-                              Expanded(
-                                flex: 1,
-                                child: hcol(
-                                  [
-                                    Text(
-                                      '第三方信息共享清单',
-                                      style: hts(
-                                        15,
-                                        dk(
-                                          context,
-                                          Color(0xFF18181B),
-                                          Color(0xFFFAFAFA),
-                                        ),
-                                        lh: 22,
-                                      ),
-                                    ),
-                                  ],
-                                  main: MainAxisAlignment.start,
-                                  cross: CrossAxisAlignment.stretch,
-                                  gap: 1,
-                                ),
-                              ),
-                              hsvg(dk(context, Svgs.s3, Svgs.s4), w: 16, h: 16),
-                            ],
-                            main: MainAxisAlignment.start,
-                            cross: CrossAxisAlignment.center,
-                            gap: 12,
-                          ),
-                        ),
-                      ),
                     ],
                     main: MainAxisAlignment.start,
                     cross: CrossAxisAlignment.stretch,
