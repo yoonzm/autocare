@@ -371,25 +371,39 @@ void main() {
     b.dispose();
   });
 
-  testWidgets('会员列表搜索的新响应不会被晚到的旧结果覆盖', (t) async {
-    phone(t);
-    api.rows.add(row(id: 'b', name: '新会员'));
-    api.oldList = Completer<MemberPage>();
-    await t.pumpWidget(const MaterialApp(home: MembersPage()));
-    await t.pumpAndSettle();
-    await t.enterText(find.byType(TextField), '旧');
-    await t.pump(const Duration(milliseconds: 400));
-    await t.enterText(find.byType(TextField), '新');
-    await t.pump(const Duration(milliseconds: 400));
-    await t.pumpAndSettle();
-    expect(find.text('新会员'), findsOneWidget);
-    api.oldList!.complete(
-      MemberPage(
-        items: [row(id: 'a', name: '旧会员')],
-      ),
-    );
-    await t.pumpAndSettle();
-    expect(find.text('新会员'), findsOneWidget);
-    expect(find.text('旧会员'), findsNothing);
-  });
+  for (final oldFails in [false, true]) {
+    testWidgets('会员列表新搜索不等待旧请求，丢弃迟到的${oldFails ? '错误' : '结果'}', (t) async {
+      phone(t);
+      api.rows.add(row(id: 'b', name: '新会员'));
+      api.oldList = Completer<MemberPage>();
+      await t.pumpWidget(const MaterialApp(home: MembersPage()));
+      await t.pumpAndSettle();
+      await t.enterText(find.byType(TextField), '旧');
+      await t.pump(const Duration(milliseconds: 400));
+      await t.enterText(find.byType(TextField), '新');
+      await t.pump(const Duration(milliseconds: 400));
+      await t.pump();
+      await t.pump(kIndicatorMinShow);
+      await t.pumpAndSettle();
+      expect(api.listCalls.last.q, '新');
+      expect(api.oldList!.isCompleted, isFalse);
+      expect(find.text('新会员'), findsOneWidget);
+      if (oldFails) {
+        api.oldList!.completeError(const AppError('旧搜索失败'));
+      } else {
+        api.oldList!.complete(
+          MemberPage(
+            items: [row(id: 'a', name: '旧会员')],
+          ),
+        );
+      }
+      await t.pump();
+      await t.pump(kIndicatorMinShow);
+      await t.pumpAndSettle();
+      expect(find.text('旧搜索失败'), findsNothing);
+      expect(t.takeException(), isNull);
+      expect(find.text('新会员'), findsOneWidget);
+      expect(find.text('旧会员'), findsNothing);
+    });
+  }
 }

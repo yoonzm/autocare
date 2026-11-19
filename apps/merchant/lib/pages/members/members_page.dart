@@ -41,6 +41,7 @@ class _MembersPageState extends State<MembersPage> {
   final _viewKey = GlobalKey<AsyncViewState<_MembersResult>>();
   bool _reloadPending = false;
   Completer<void>? _refreshDone;
+  Completer<void> _requestChanged = Completer<void>();
   String query = '';
   final search = TextEditingController();
   bool _subscribed = false;
@@ -101,6 +102,8 @@ class _MembersPageState extends State<MembersPage> {
     if (!_live || !mounted) return;
     _loadVersion++;
     _reloadPending = true;
+    _requestChanged.complete();
+    _requestChanged = Completer<void>();
     final done = _refreshDone ??= Completer<void>();
     if (_viewKey.currentState?.busy == false) {
       unawaited(_viewKey.currentState!.reload());
@@ -141,7 +144,12 @@ class _MembersPageState extends State<MembersPage> {
       final version = _loadVersion;
       _reloadPending = false;
       try {
-        final result = await _requestPage(version);
+        // 新搜索无需等待旧请求；Future.any 仍会接住旧请求的迟到错误。
+        final result = await Future.any<_MembersResult?>([
+          _requestPage(version),
+          _requestChanged.future.then<_MembersResult?>((_) => null),
+        ]);
+        if (result == null) continue;
         if (!mounted || version == _loadVersion) return result;
       } catch (_) {
         if (!mounted || version == _loadVersion) rethrow;
