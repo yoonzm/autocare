@@ -18,6 +18,13 @@ import '../../widgets/app_icon.dart';
 import '../../widgets/common.dart';
 import 'member_detail_page.dart';
 
+typedef _MembersResult = ({
+  int version,
+  MemberPage page,
+  List<Member> rows,
+  List<Map<String, dynamic>> tiers,
+});
+
 class MembersPage extends StatefulWidget {
   const MembersPage({super.key});
   @override
@@ -28,6 +35,10 @@ class _MembersPageState extends State<MembersPage> {
   MemberFilters _filters = MemberFilters();
   int? _pendingReminders;
   int _reminderVersion = 0, _loadVersion = 0;
+  int? _displayedVersion;
+  final _viewKey = GlobalKey<AsyncViewState<_MembersResult>>();
+  bool _reloadPending = false;
+  Completer<void>? _refreshDone;
   String query = '';
   final search = TextEditingController();
   bool _subscribed = false;
@@ -42,10 +53,6 @@ class _MembersPageState extends State<MembersPage> {
   num _totalBalance = 0;
   int _newThisMonth = 0;
   bool _loadingMore = false;
-  AppError? _error;
-  bool _loading = false;
-  bool _showSkeleton = false;
-  DateTime? _skeletonAt;
   Timer? _debounce;
 
   /// 当前选中的卡种（null = 全部）。
@@ -57,7 +64,6 @@ class _MembersPageState extends State<MembersPage> {
     if (_live) {
       memberChanged.addListener(_load);
       _subscribed = true;
-      _load();
     }
   }
 
@@ -65,105 +71,132 @@ class _MembersPageState extends State<MembersPage> {
   void dispose() {
     _debounce?.cancel();
     search.dispose();
+    _refreshDone?.complete();
+    _refreshDone = null;
     if (_subscribed) {
       memberChanged.removeListener(_load);
     }
     super.dispose();
   }
 
-  Future<void> _load({bool more = false}) async {
-    if (!_live || (more && (_loading || _loadingMore))) return;
-    final version = ++_loadVersion;
-    final offset = more ? (_liveList?.length ?? 0) : 0;
-    setState(() {
-      if (more) {
-        _loadingMore = true;
-      } else {
-        _loading = true;
-        _showSkeleton = false;
-        _skeletonAt = null;
-      }
-    });
-    final timer = Timer(kIndicatorDelay, () {
-      if (mounted && version == _loadVersion && _loading && !more) {
-        setState(() {
-          _showSkeleton = true;
-          _skeletonAt = DateTime.now();
-        });
-      }
-    });
-    List<Member>? rows;
-    List<Map<String, dynamic>>? tiers;
-    Map<String, int>? counts;
-    MemberPage? pageData;
-    int? total;
-    AppError? failed;
-    final asked = (query: query, tier: _tierId, filters: _filters);
+  // AsyncView owns first-load / refresh / error UI. The page only coordinates
+  // changing search criteria and pagination, which must not accept stale results.
+  Future<void> _load() async {
+    if (!_live || !mounted) return;
+    _loadVersion++;
+    _reloadPending = true;
+    final done = _refreshDone ??= Completer<void>();
+    if (_viewKey.currentState?.busy == false) {
+      unawaited(_viewKey.currentState!.reload());
+    }
+    await done.future;
+  }
+
+  Future<_MembersResult> _requestPage(int version, {int offset = 0}) async {
     final filterArgs = _filters;
-    try {
-      final res = await Future.wait<Object>([
-        merchantApi.members(
-          query: asked.query,
-          cardTypeId: asked.tier,
-          cardTypeIds: filterArgs.tierIds.toList(),
-          balanceMin: filterArgs.min,
-          balanceMax: filterArgs.max,
-          visitedWithinDays: filterArgs.within,
-          visitedOverDays: filterArgs.over,
-          packageStatus: filterArgs.packageStatusKey,
-          vehicleProject: filterArgs.vehicleProjectKey,
-          offset: offset,
-        ),
-        merchantApi.list('cards'),
-      ]);
-      final page = res[0] as MemberPage;
-      pageData = page;
-      rows = [for (final r in page.items) memberFromRow(r)];
-      counts = page.counts;
-      total = page.total;
-      tiers = res[1] as List<Map<String, dynamic>>;
-    } catch (e) {
-      failed = AppError.from(e);
-    }
-    timer.cancel();
-    final at = _skeletonAt;
-    if (at != null) {
-      final left = kIndicatorMinShow - DateTime.now().difference(at);
-      if (left > Duration.zero) await Future<void>.delayed(left);
-    }
-    if (!mounted || version != _loadVersion) return;
-    setState(() {
-      _loading = false;
-      _loadingMore = false;
-      _showSkeleton = false;
-      if (failed == null) {
-        _liveList = more ? [...?_liveList, ...rows!] : rows;
-        if (!more) unawaited(_loadReminderCount());
-        _matched = pageData!.matched;
-        _totalBalance = pageData.totalBalance;
-        _newThisMonth = pageData.newThisMonth;
-        _counts = counts!;
-        _total = total!;
-        _tiers = tiers!;
-        _error = null;
-      } else if (_liveList == null) {
-        _error = failed;
+    final res = await Future.wait<Object>([
+      merchantApi.members(
+        query: query,
+        cardTypeId: _tierId,
+        cardTypeIds: filterArgs.tierIds.toList(),
+        balanceMin: filterArgs.min,
+        balanceMax: filterArgs.max,
+        visitedWithinDays: filterArgs.within,
+        visitedOverDays: filterArgs.over,
+        packageStatus: filterArgs.packageStatusKey,
+        vehicleProject: filterArgs.vehicleProjectKey,
+        offset: offset,
+      ),
+      merchantApi.list('cards'),
+    ]);
+    final page = res[0] as MemberPage;
+    return (
+      version: version,
+      page: page,
+      rows: [for (final row in page.items) memberFromRow(row)],
+      tiers: res[1] as List<Map<String, dynamic>>,
+    );
+  }
+
+  Future<_MembersResult> _fetch() async {
+    // Includes retries initiated by AsyncView itself, not just page gestures.
+    _loadVersion++;
+    while (true) {
+      final version = _loadVersion;
+      _reloadPending = false;
+      try {
+        final result = await _requestPage(version);
+        if (!mounted || version == _loadVersion) return result;
+      } catch (_) {
+        if (!mounted || version == _loadVersion) rethrow;
       }
+      // Search/filter changed during the request: discard both stale data and
+      // stale errors and fetch the latest criteria before AsyncView renders.
+    }
+  }
+
+  void _loaded(_MembersResult result) {
+    if (result.version != _loadVersion) {
+      // Criteria can also change during AsyncView's minimum indicator time.
+      _reloadPending = true;
+      return;
+    }
+    setState(() {
+      _liveList = result.rows;
+      _displayedVersion = result.version;
+      _applySummary(result);
     });
-    if (failed != null && _liveList != null) {
+    unawaited(_loadReminderCount());
+  }
+
+  void _applySummary(_MembersResult result) {
+    _matched = result.page.matched;
+    _totalBalance = result.page.totalBalance;
+    _newThisMonth = result.page.newThisMonth;
+    _counts = result.page.counts;
+    _total = result.page.total;
+    _tiers = result.tiers;
+  }
+
+  void _settled() {
+    if (_reloadPending) {
+      unawaited(_viewKey.currentState!.reload());
+      return;
+    }
+    final done = _refreshDone;
+    _refreshDone = null;
+    done?.complete();
+  }
+
+  Future<void> _loadMore() async {
+    if (_loadingMore ||
+        _viewKey.currentState?.busy != false ||
+        _displayedVersion != _loadVersion ||
+        _liveList == null ||
+        _liveList!.length >= _matched) {
+      return;
+    }
+    final version = _loadVersion;
+    setState(() => _loadingMore = true);
+    try {
+      final result = await _requestPage(version, offset: _liveList!.length);
+      if (!mounted || version != _loadVersion) return;
+      setState(() {
+        _liveList = [..._liveList!, ...result.rows];
+        _applySummary(result);
+      });
+    } catch (e) {
+      if (!mounted || version != _loadVersion) return;
+      final error = AppError.from(e);
       AppToast.show(
         context,
-        failed.message,
+        error.message,
         kind: ToastKind.error,
-        actionLabel: failed.retryable ? '重试' : null,
-        onAction: failed.retryable ? _load : null,
+        actionLabel: error.retryable ? '重试' : null,
+        onAction: error.retryable ? _loadMore : null,
       );
-    } else if (failed == null &&
-        (asked.query != query ||
-            asked.tier != _tierId ||
-            asked.filters != _filters)) {
-      // 请求期间又改了搜索 / 筛选：按最新条件再取一次
-      unawaited(_load());
+    } finally {
+      if (mounted) setState(() => _loadingMore = false);
     }
   }
 
@@ -205,7 +238,10 @@ class _MembersPageState extends State<MembersPage> {
   }
 
   void _onQuery(String v) {
-    setState(() => query = v.trim());
+    setState(() {
+      query = v.trim();
+      _loadVersion++;
+    });
     if (!_live) return;
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), _load);
@@ -226,8 +262,6 @@ class _MembersPageState extends State<MembersPage> {
         ),
       );
     }
-    final list = _liveList ?? const <Member>[];
-
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: _pullRefresh,
@@ -390,78 +424,22 @@ class _MembersPageState extends State<MembersPage> {
               child: AppCard(
                 radius: 24,
                 padding: const EdgeInsets.symmetric(vertical: 4),
-                child: Stack(
-                  children: [
-                    Opacity(
-                      opacity: _loading && _showSkeleton && _liveList != null
-                          ? 0.6
-                          : 1,
-                      child: _live && _liveList == null
-                          ? (_error != null
-                                ? SizedBox(
-                                    height: 300,
-                                    child: ErrorView(
-                                      error: _error!,
-                                      retrying: _loading,
-                                      onRetry: _load,
-                                    ),
-                                  )
-                                : (_showSkeleton
-                                      ? const SkeletonList(count: 5)
-                                      : const SizedBox(height: 120)))
-                          : _live && list.isEmpty
-                          ? SizedBox(
-                              height: 280,
-                              child:
-                                  (query.isEmpty &&
-                                      _tierId == null &&
-                                      !_filters.active)
-                                  ? EmptyView.firstTime(
-                                      title: '还没有会员',
-                                      message: '办理第一张会员卡，建立会员档案',
-                                      actionLabel: '新增会员',
-                                      onAction: () {
-                                        openRoute(context, 'MemberAdd');
-                                      },
-                                    )
-                                  : EmptyView.filtered(
-                                      onAction: () {
-                                        search.clear();
-                                        setState(() => query = '');
-                                        _tierId = null;
-                                        _filters = MemberFilters();
-                                        _load();
-                                      },
-                                    ),
-                            )
-                          : list.isEmpty
-                          ? Padding(
-                              padding: const EdgeInsets.all(32),
-                              child: Center(
-                                child: Text(
-                                  '没有符合条件的会员',
-                                  style: ts(14, color: C.muted),
-                                ),
-                              ),
-                            )
-                          : Column(
-                              children: [
-                                for (var i = 0; i < list.length; i++) ...[
-                                  _row(context, list[i]),
-                                  if (i < list.length - 1)
-                                    const Divider1(indent: 72),
-                                ],
-                              ],
-                            ),
-                    ),
-                    if (_loading && _showSkeleton && _liveList != null)
-                      const Positioned(
-                        left: 0,
-                        right: 0,
-                        top: 0,
-                        child: LinearProgressIndicator(minHeight: 2),
-                      ),
-                  ],
+                child: AsyncView<_MembersResult>(
+                  key: _viewKey,
+                  load: _fetch,
+                  onLoaded: _loaded,
+                  onSettled: _settled,
+                  shrinkWrap: true,
+                  inlineError: true,
+                  pullToRefresh: false,
+                  skeletonScrollable: false,
+                  skeletonPadding: EdgeInsets.zero,
+                  waiting: const SizedBox(height: 120),
+                  skeleton: const SkeletonList(count: 5),
+                  isEmpty: (_) => _liveList?.isEmpty == true,
+                  empty: (_) => _emptyList(),
+                  onNext: () => openRoute(context, 'Login'),
+                  builder: (_, result) => _memberList(),
                 ),
               ),
             ),
@@ -473,7 +451,7 @@ class _MembersPageState extends State<MembersPage> {
                     label: '加载更多',
                     loadingLabel: '加载中…',
                     style: LoadingButtonStyle.secondary,
-                    onPressed: () => _load(more: true),
+                    onPressed: _loadMore,
                   ),
                 ),
               ),
@@ -482,6 +460,42 @@ class _MembersPageState extends State<MembersPage> {
       ),
     );
   }
+
+  Widget _memberList() {
+    final list = _liveList;
+    if (list == null) return const SizedBox(height: 120);
+    return Column(
+      children: [
+        for (var i = 0; i < list.length; i++) ...[
+          _row(context, list[i]),
+          if (i < list.length - 1) const Divider1(indent: 72),
+        ],
+      ],
+    );
+  }
+
+  Widget _emptyList() => SizedBox(
+    height: 280,
+    child: query.isEmpty && _tierId == null && !_filters.active
+        ? EmptyView.firstTime(
+            title: '还没有会员',
+            message: '办理第一张会员卡，建立会员档案',
+            actionLabel: '新增会员',
+            onAction: () => openRoute(context, 'MemberAdd'),
+          )
+        : EmptyView.filtered(
+            onAction: () {
+              search.clear();
+              setState(() {
+                query = '';
+                _tierId = null;
+                _filters = MemberFilters();
+              });
+              _debounce?.cancel();
+              unawaited(_load());
+            },
+          ),
+  );
 
   /// 储值余额合计：不到 1 万显示整数，否则 `¥48.6万`。
   static String _compactMoney(num v) {
