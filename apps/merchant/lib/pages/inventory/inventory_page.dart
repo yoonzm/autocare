@@ -13,7 +13,9 @@ import '../../widgets/app_icon.dart';
 import '../../widgets/common.dart';
 
 class InventoryPage extends StatefulWidget {
-  const InventoryPage({super.key});
+  const InventoryPage({super.key, this.active = true});
+
+  final bool active;
   @override
   State<InventoryPage> createState() => _InventoryPageState();
 }
@@ -37,6 +39,17 @@ class _InventoryPageState extends State<InventoryPage> {
     await _key.currentState?.reload();
     if (mounted && !identical(previous, products)) {
       AppToast.show(context, '已更新', kind: ToastKind.success);
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant InventoryPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!oldWidget.active && widget.active) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || !widget.active) return;
+        _reload();
+      });
     }
   }
 
@@ -120,10 +133,8 @@ class _InventoryPageState extends State<InventoryPage> {
           ),
         ),
         onNext: () => openRoute(context, 'Login'),
-        builder: (context, data) => RefreshIndicator(
-          onRefresh: _pullRefresh,
-          child: _content(context),
-        ),
+        builder: (context, data) =>
+            RefreshIndicator(onRefresh: _pullRefresh, child: _content(context)),
       ),
     );
   }

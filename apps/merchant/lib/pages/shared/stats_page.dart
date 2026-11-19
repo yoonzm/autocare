@@ -41,7 +41,9 @@ const _compositionKeys = ['coating', 'wrap', 'wash', 'other'];
 const _compositionNames = ['镀晶 / 镀膜', '车衣 / 改色膜', '洗车美容', '内饰清洁及其他'];
 
 class StatsPage extends StatefulWidget {
-  const StatsPage({super.key});
+  const StatsPage({super.key, this.active = true});
+
+  final bool active;
   @override
   State<StatsPage> createState() => _StatsPageState();
 }
@@ -63,6 +65,17 @@ class _StatsPageState extends State<StatsPage> {
   int _inflightRange = 2;
   DateTimeRange? _inflightCustom;
   String? _failed;
+
+  @override
+  void didUpdateWidget(covariant StatsPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!oldWidget.active && widget.active) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || !widget.active) return;
+        _refreshCurrent();
+      });
+    }
+  }
 
   String _key(int range, DateTimeRange? custom) =>
       range == 3 ? '3|${custom?.start}|${custom?.end}' : '$range';
@@ -105,15 +118,19 @@ class _StatsPageState extends State<StatsPage> {
     }
   }
 
-  Future<void> _pullRefresh() async {
+  Future<void> _refreshCurrent() async {
     if (_view.currentState?.busy == true) return;
     // 筛选失败后页签已退回旧时段，下拉刷新应读取当前显示的时段。
     if (_loadedRange != null) {
       _target = _loadedRange!;
       _targetCustom = _loadedCustom;
     }
-    final previous = _data;
     await _view.currentState?.reload();
+  }
+
+  Future<void> _pullRefresh() async {
+    final previous = _data;
+    await _refreshCurrent();
     if (mounted && _data != null && !identical(previous, _data)) {
       AppToast.show(context, '已更新', kind: ToastKind.success);
     }
@@ -231,10 +248,8 @@ class _StatsPageState extends State<StatsPage> {
         onNext: () => openRoute(context, 'Login'),
         onLoaded: _loaded,
         onSettled: _settled,
-        builder: (_, data) => RefreshIndicator(
-          onRefresh: _pullRefresh,
-          child: _content(context),
-        ),
+        builder: (_, data) =>
+            RefreshIndicator(onRefresh: _pullRefresh, child: _content(context)),
       ),
     );
   }

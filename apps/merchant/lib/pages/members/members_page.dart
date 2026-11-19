@@ -26,7 +26,9 @@ typedef _MembersResult = ({
 });
 
 class MembersPage extends StatefulWidget {
-  const MembersPage({super.key});
+  const MembersPage({super.key, this.active = true});
+
+  final bool active;
   @override
   State<MembersPage> createState() => _MembersPageState();
 }
@@ -64,6 +66,20 @@ class _MembersPageState extends State<MembersPage> {
     if (_live) {
       memberChanged.addListener(_load);
       _subscribed = true;
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant MembersPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!oldWidget.active && widget.active) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || !widget.active) return;
+        if (_viewKey.currentState?.busy == false) {
+          _debounce?.cancel();
+          unawaited(_load());
+        }
+      });
     }
   }
 

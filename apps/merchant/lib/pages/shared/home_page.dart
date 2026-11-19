@@ -22,7 +22,9 @@ import 'settings_page.dart';
 import 'shell.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({super.key, this.active = true});
+
+  final bool active;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -103,6 +105,23 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         _pausedAt != null &&
         DateTime.now().difference(_pausedAt!) >= const Duration(minutes: 5)) {
       unawaited(_refresh());
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant HomePage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!oldWidget.active && widget.active) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || !widget.active) return;
+        if (_statsKey.currentState?.busy == false) {
+          unawaited(_reloadStats());
+        }
+        if (_appointmentKey.currentState?.busy == false) {
+          unawaited(_reloadAppointments());
+        }
+        unawaited(HoldStore.load());
+      });
     }
   }
 

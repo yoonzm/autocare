@@ -31,13 +31,6 @@ class _ShellState extends State<Shell> {
     super.dispose();
   }
 
-  static const _pages = <Widget>[
-    HomePage(),
-    MembersPage(),
-    InventoryPage(),
-    StatsPage(),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return _tabs(context);
@@ -49,7 +42,15 @@ class _ShellState extends State<Shell> {
       builder: (context, idx, _) => Scaffold(
         // 底栏上方探出的 24px 是透明区域，内容要能从它后面透出来
         extendBody: true,
-        body: IndexedStack(index: idx, children: _pages),
+        body: IndexedStack(
+          index: idx,
+          children: [
+            HomePage(active: idx == 0),
+            MembersPage(active: idx == 1),
+            InventoryPage(active: idx == 2),
+            StatsPage(active: idx == 3),
+          ],
+        ),
         bottomNavigationBar: _BottomBar(
           index: idx,
           onTab: (i) => tabIndex.value = i,
