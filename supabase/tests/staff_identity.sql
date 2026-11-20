@@ -42,6 +42,16 @@ begin
   r:=public.platform_merchant_session(tech_u,tech_s,true);
   assert r->>'role'='technician' and (r->>'store_id')::uuid=shop;
 
+  -- 店长默认可管理开支，前台 / 技师保持关闭；上下文与后端权限一致。
+  assert public.staff_permission_default('manager','expense');
+  caps:=public.staff_caps(shop,'manager');
+  assert (caps->>'expense')::boolean;
+  assert public.staff_has_permission(shop,'manager','expense');
+  assert (public.staff_context(shop,'manager',null)->'caps'->>'expense')::boolean;
+  assert not public.staff_has_permission(shop,'cashier','expense');
+  assert not public.staff_has_permission(shop,'technician','expense');
+  assert not (caps->>'staff_manage')::boolean and not (caps->>'export')::boolean;
+
   -- 生效权限：技师默认可开单收银，不能看会员完整资料 / 营业额，即使保存了开关。
   caps:=public.staff_caps(shop,'technician');
   assert (caps->>'order_view_own')::boolean and (caps->>'order_submit')::boolean and (caps->>'member_lookup')::boolean and (caps->>'cashier')::boolean;

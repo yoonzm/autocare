@@ -1,9 +1,9 @@
-import '../../routes.dart' show openRoute;
-
 import 'package:flutter/material.dart';
 
 import '../../backend/access_flow.dart';
+import '../../routes.dart' show openRoute;
 import '../../kit/kit.dart';
+import '../../kit/page_header.dart';
 import '../../resources/staff_svgs.dart';
 
 class StNoPermTemplate extends StatelessWidget {
@@ -16,11 +16,12 @@ class StNoPermTemplate extends StatelessWidget {
         ? '平台'
         : (Access.role == 'manager' ? '老板' : '店长');
     return HPage(
+      header: const AppPageHeader(title: '权限提示'),
       bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
       flow: hcol(
         [
           hbox(
-            pad: EdgeInsets.fromLTRB(28, 0, 28, 120),
+            pad: EdgeInsets.fromLTRB(28, 32, 28, 120),
             child: hcol(
               [
                 hbox(
@@ -54,15 +55,6 @@ class StNoPermTemplate extends StatelessWidget {
                     14,
                     dk(context, Color(0xFF52525B), Color(0xFFA8A8B3)),
                     lh: 21,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                Text(
-                  '从消息推送或分享链接直接打开无权限的页面时，显示这一页。',
-                  style: hts(
-                    12,
-                    dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
-                    lh: 18,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -108,35 +100,10 @@ class StNoPermTemplate extends StatelessWidget {
             child: hrow(
               [
                 Expanded(
-                  flex: 10,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => openRoute(context, 'StMine'),
-                    child: hbox(
-                      h: 50,
-                      bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
-                      radius: BorderRadius.circular(25),
-                      child: Align(
-                        alignment: Alignment(0, 0),
-                        widthFactor: 1,
-                        child: Text(
-                          '联系店长',
-                          style: hts(
-                            15,
-                            dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                            w: FontWeight.w500,
-                            lh: 22,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
                   flex: 14,
                   child: GestureDetector(
                     behavior: HitTestBehavior.opaque,
-                    onTap: () => Navigator.of(context).maybePop(),
+                    onTap: () => openRoute(context, 'Main'),
                     child: hbox(
                       h: 50,
                       bg: Color(0xFF0485F7),
