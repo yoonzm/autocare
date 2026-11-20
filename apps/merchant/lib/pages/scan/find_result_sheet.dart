@@ -464,11 +464,13 @@ class FindResultSheet extends StatelessWidget {
                   constrainedAxis: Axis.horizontal,
                   child: GestureDetector(
                     behavior: HitTestBehavior.opaque,
-                    onTap: () => openRoute(
-                      context,
-                      'MemberDetail',
-                      arguments: MemberRouteData(member: result!.member),
-                    ),
+                    onTap:
+                        onViewMember ??
+                        () => openRoute(
+                          context,
+                          'MemberDetail',
+                          arguments: MemberRouteData(member: result!.member),
+                        ),
                     child: hbox(
                       h: 48,
                       bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
@@ -496,11 +498,13 @@ class FindResultSheet extends StatelessWidget {
                   constrainedAxis: Axis.horizontal,
                   child: GestureDetector(
                     behavior: HitTestBehavior.opaque,
-                    onTap: () => openRoute(
-                      context,
-                      'Order',
-                      arguments: OrderRouteData(member: result!.member),
-                    ),
+                    onTap:
+                        onOrderMember ??
+                        () => openRoute(
+                          context,
+                          'Order',
+                          arguments: OrderRouteData(member: result!.member),
+                        ),
                     child: hbox(
                       h: 48,
                       bg: Color(0xFF0485F7),

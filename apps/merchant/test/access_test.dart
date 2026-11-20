@@ -174,6 +174,38 @@ void main() {
     expect(find.textContaining('请联系店长开通后再试'), findsOneWidget);
   });
 
+  for (final (role, label, permission) in [
+    ('cashier', '开单收银', '开单收银'),
+    ('technician', '开单', '开单提交'),
+  ]) {
+    testWidgets('$role 首页开单无权限时在进入开单页前拦截', (t) async {
+      Access.apply({
+        ...api.identityCtx,
+        'role': role,
+        'caps': <String, bool>{},
+      });
+      await open(t, const StaffTabs());
+      await t.tap(text(label));
+      await t.pumpAndSettle();
+      expect(text('暂无权限访问'), findsOneWidget);
+      expect(find.textContaining('「$permission」'), findsOneWidget);
+      expect(navTracker.has('Order'), isFalse);
+    });
+  }
+
+  testWidgets('前台有开单权限时仍可从首页进入开单页', (t) async {
+    Access.apply({
+      ...api.identityCtx,
+      'role': 'cashier',
+      'caps': {'cashier': true},
+    });
+    await open(t, const StaffTabs());
+    await t.tap(text('开单收银'));
+    await t.pumpAndSettle();
+    expect(navTracker.has('Order'), isTrue);
+    expect(text('暂无权限访问'), findsNothing);
+  });
+
   testWidgets('权限判断：老板全开；员工按服务端生效权限', (t) async {
     expect(Access.can('anything'), isTrue);
     Access.apply({...api.identityCtx});

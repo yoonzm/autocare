@@ -380,6 +380,18 @@ void _openRouteCore(BuildContext context, String name, {Object? arguments}) {
   final memberPackage = arguments is MemberPackageRouteData ? arguments : null;
   final nav = Navigator.of(context);
   if (!Access.isOwner) {
+    if (name == 'Order') {
+      final technician = Access.role == 'technician';
+      final cap = technician ? 'order_submit' : 'cashier';
+      if (!Access.can(cap)) {
+        nav.push(
+          MaterialPageRoute<void>(
+            builder: (_) => staffNoPerm(technician ? '开单提交' : '开单收银'),
+          ),
+        );
+        return;
+      }
+    }
     final need = _routeCaps[name];
     if (need != null && (need.$1 == 'owner' || !Access.can(need.$1))) {
       nav.push(MaterialPageRoute<void>(builder: (_) => staffNoPerm(need.$2)));

@@ -1,4 +1,5 @@
 import 'package:autocare_merchant/pages/scan/find_result_sheet.dart';
+import 'package:autocare_merchant/pages/scan/scan_result.dart';
 import 'package:autocare_merchant/widgets/color_fields.dart' show HVehicleColor;
 
 import 'dart:async';
@@ -127,6 +128,34 @@ void main() {
   }
 
   final bolt = find.byWidgetPredicate((w) => w is AppIcon && w.name == 'bolt');
+
+  testWidgets('员工扫码结果的查看会员与开单按钮使用员工回调', (t) async {
+    phone(t);
+    var views = 0;
+    var orders = 0;
+    await t.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: FindResultSheet(
+            result: ScanResult({
+              'matched': true,
+              'plate': '沪A8K29M',
+              'member': row(),
+            }),
+            onViewMember: () => views++,
+            onOrderMember: () => orders++,
+          ),
+        ),
+      ),
+    );
+
+    await t.tap(find.text('查看会员'));
+    await t.pump();
+    expect(views, 1);
+    await t.tap(find.text('为他开单'));
+    await t.pump();
+    expect(orders, 1);
+  });
 
   testWidgets('扫描页直接显示实时相机画面，不再是示意背景', (t) async {
     CameraPlatform.instance = _FakeCamera();
