@@ -4,7 +4,7 @@
 
 - 商店名称与 iOS 显示名称：我的汽美管家；Bundle ID 保持 `com.yoonzm.autocare.merchant`。
 - 仅声明 iPhone 设备支持，不提供原生 iPad 版本；iPad 上的 iPhone 兼容运行不由这一设置禁止。
-- APP 备案号：`陕ICP备2022007344号-6A`（用户提供，提审时需核对 App Store Connect 与备案信息一致）。
+- APP 备案号：`陕ICP备2022007344号-6A`。2026-11-20 根据用户提供的备案截图核对：主办单位西安追慕科技有限公司，服务名称我的汽美管家，审核通过日期 2026-11-18；已保存至 App Store Connect，并确认中英文主体对应关系。
 - 用户已确认上一版 TestFlight 真机验收完成；本次名称与设备范围调整需重新打包，不能用旧构建代表新配置。
 - 审核使用用户名/密码登录；审核凭据仅填写 App Store Connect 的审核专用字段，不保存在仓库。
 - 运营主体：西安追慕科技有限公司（Xi'an Zhuimu Technology Co., Ltd）；2026-11-20 从用户已登录的 App Store Connect 商务页核对。
@@ -13,7 +13,12 @@
 - 技术支持网址：`https://member.mymember.ltd/member-sit/`（2026-11-20 匿名 GET 验证为 HTTP 200）；按用户要求，商户 App 保留原微信客服入口 `https://work.weixin.qq.com/kfid/kfc6eaf7469b168651b`，不随支持页配置更换。
 - 上述电话和邮箱已纳入上架资料；本次未更改生产服务器环境变量。复用客服配置不替换商户端专属隐私政策，隐私政策仍需准确反映本 App 的实际数据处理。
 - 隐私政策与用户协议匿名访问已于 2026-11-20 修复并验证（HTTP 200 / HTML）；维护和回滚见 [协议页面说明](legal-pages.md)。
-- 待完成：真实 iPhone 截图、App Privacy 申报及归档隐私清单核验。账号注销说明必须与实际数据处理一致，不能将停用账号表述为删除全部数据。
+- 2026-11-20 已在 App Store Connect 保存名称、副标题、商务/效率分类、推广文本、描述、关键词、支持网址、版权、审核联系人及用户名/密码登录信息；审核备注说明当前免费、线下业务记账、不处理线上付款、注册需要中国大陆手机号。账号密码不写入仓库。
+- 年龄问卷结果为 4+，不申报为儿童 App。定价免费，按用户确认选择全部 175 个可用国家或地区；关闭 Mac 和 Apple Vision Pro 的兼容分发。免费 App 协议有效，无需为首版免费 App 签署付费协议。
+- 公开隐私政策 URL 已保存，App Privacy 的 14 类数据答复已发布，详见下方实际填报记录。构建 173 的 IPA 已检查：显示名称正确，`UIDeviceFamily=[1]`，最低 iOS 15，非豁免加密为 false；包含 10 份 SDK/Flutter 隐私清单，均未声明追踪，UserDefaults、文件时间戳及启动时间的必需原因声明随 SDK/引擎打包。最新构建仍需确认上传和处理结果。
+- 中国大陆 AIGC / 安全评估问卷按当前仅车牌识别、无内容生成分发或端到端即时通信功能选择“否”，两项状态均为“有效”。新增相关功能时必须重新核对。
+- 审核账号已通过生产密码登录验证，门店、首页统计、服务项目、会员列表接口均返回 200（10 个服务项目、2 条会员记录）；验证会话已单独退出，未修改业务记录。新版 iPhone 实机验收仍由用户完成。
+- 待完成：真实 iPhone 截图、新版真机验收、最新构建选择、欧盟 DSA 交易商身份确认。用户明确暂不修改注销后端；账号注销页面、政策与真实数据处理的一致性仍为发布前待处理项，不视为已解决。
 - 中国大陆分发除 APP 备案外，当前 App Store Connect 还要求填写 AIGC 与安全评估相关声明。仅车牌识别不等于面向用户提供内容生成服务，但须按实际功能和第三方服务用途核对问卷，不自动复制其他 App 的答案；只有适用受监管功能时才提供相应备案及报告。参见 [Apple 中国大陆合规说明](https://developer.apple.com/help/app-store-connect/manage-compliance-information/view-china-mainland-compliance-information)。
 
 ### 简体中文商店文案草案
@@ -57,7 +62,7 @@ The current version is free and has no software subscription or in-app purchase 
 
 Camera and photo-library access are used for vehicle plate recognition and uploading business photos or receipts. The app does not require external hardware for its core workflows.
 
-提交前确认审核账号可正常使用且有可供审核的门店业务记录；不要将上述说明视为账号已登录核验。
+2026-11-20 已验证审核账号生产密码登录及门店业务数据读取；正式提交前还需在最新 iPhone 构建复测。
 
 ### iPhone 截图文案
 
@@ -70,9 +75,16 @@ Camera and photo-library access are used for vehicle plate recognition and uploa
 5. 库存进出，心中有数 —— 商品与库存页面。
 6. 员工协作，进度可查 —— 施工任务页面。
 
-### App Privacy 填写草案
+### App Privacy 实际填报记录（2026-11-20）
 
-以下是根据当前功能整理的待核验清单，不是已提交的声明，也不是第三方 SDK 或服务商数据实践的完整审计。不能填写“不收集数据”。
+已在 App Store Connect 填写并发布以下 14 类数据，均为 App 功能用途、与用户关联、不用于追踪：姓名、电子邮件地址、电话号码、实际地址、付款信息、其他财务信息、照片或视频、客户支持、其他用户内容、用户 ID、购买历史记录、产品交互、其他诊断数据、其他数据类型。
+
+- 付款信息指记录的线下付款方式；不表示采集银行卡号或处理线上付款。其他财务信息包括营业收入、开支、储值余额和员工提成。
+- 产品交互与其他诊断数据对应账号登录/会话记录及服务端操作/错误记录，不表示接入广告或行为分析 SDK。
+- 会话 ID 与平台名称不申报为设备广告 ID；当前未见 IDFA/广告追踪 SDK。相机图片、车牌识别和上传的业务图片按实际用途申报。
+- 核对依据：`apps/merchant/pubspec.yaml`、`lib/backend/merchant_api.dart`、`supabase/functions/merchant-v1/{auth,account,account_tools,media,plate_recognition}.ts` 及生产 IPA 中的 SDK 隐私清单。后续变更第三方服务、上传字段或留存方式时须同步更新申报。
+
+下表保留业务数据与申报类别的对应关系；这不是第三方服务商数据实践的完整审计，不能填写“不收集数据”。
 
 | 数据类别 | 当前功能中的例子 | 用途与关联草案 |
 | --- | --- | --- |

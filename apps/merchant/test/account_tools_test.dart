@@ -51,8 +51,7 @@ class ToolsApi extends MerchantApi {
     'data_note': '门店经营数据保留，不会被清除',
   };
   @override
-  Future<String> supportPhone() async =>
-      throw StateError('微信客服不应读取客服电话');
+  Future<String> supportPhone() async => throw StateError('在线客服不应读取客服电话');
 }
 
 void main() {
@@ -157,12 +156,15 @@ void main() {
     expect(find.text('限时免费期间无套餐欠费'), findsOneWidget);
     expect(t.takeException(), isNull);
   });
-  testWidgets('关于页读取安装包版本、隐藏更新入口、通过外部应用打开微信客服', (t) async {
+  testWidgets('关于页读取安装包版本、隐藏更新入口、通过外部应用打开在线客服', (t) async {
     await open(t, 'AboutApp', dark: true);
     expect(find.text('版本 1.2.3 (42)'), findsOneWidget);
     expect(find.text('检查更新'), findsNothing);
-    await t.ensureVisible(find.text('拨打'));
-    await t.tap(find.text('拨打'));
+    expect(find.text('在线客服'), findsOneWidget);
+    expect(find.text('客服热线'), findsNothing);
+    expect(find.text('拨打'), findsNothing);
+    await t.ensureVisible(find.text('联系客服'));
+    await t.tap(find.text('联系客服'));
     await t.pumpAndSettle();
     expect(launchedUrls, hasLength(1));
     expect(launchedUrls.single.method, 'launch');
@@ -174,15 +176,15 @@ void main() {
     expect(launchedUrls.single.arguments['useWebView'], isFalse);
     expect(t.takeException(), isNull);
   });
-  testWidgets('微信客服打开失败时提示并允许重试', (t) async {
+  testWidgets('在线客服打开失败时提示并允许重试', (t) async {
     launchSuccess = false;
     await open(t, 'AboutApp');
-    await t.ensureVisible(find.text('拨打'));
-    await t.tap(find.text('拨打'));
+    await t.ensureVisible(find.text('联系客服'));
+    await t.tap(find.text('联系客服'));
     await t.pumpAndSettle();
-    expect(find.text('无法打开微信客服，请稍后重试'), findsOneWidget);
+    expect(find.text('无法打开在线客服，请稍后重试'), findsOneWidget);
     launchSuccess = true;
-    await t.tap(find.text('拨打'));
+    await t.tap(find.text('联系客服'));
     await t.pumpAndSettle();
     expect(launchedUrls, hasLength(2));
     expect(t.takeException(), isNull);

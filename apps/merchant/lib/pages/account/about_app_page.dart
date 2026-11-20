@@ -355,7 +355,7 @@ class AboutAppPage extends StatelessWidget {
                                 child: hcol(
                                   [
                                     Text(
-                                      '客服热线',
+                                      '在线客服',
                                       style: hts(
                                         15,
                                         dk(
@@ -385,7 +385,7 @@ class AboutAppPage extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                '拨打',
+                                '联系客服',
                                 style: hts(
                                   14,
                                   dk(

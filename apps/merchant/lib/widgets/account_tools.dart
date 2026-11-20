@@ -195,7 +195,7 @@ Widget accountSupportCall(BuildContext context, Widget row) =>
         Uri.parse('https://work.weixin.qq.com/kfid/kfc6eaf7469b168651b'),
         mode: LaunchMode.externalApplication,
       )) {
-        throw const AppError('无法打开微信客服，请稍后重试');
+        throw const AppError('无法打开在线客服，请稍后重试');
       }
     });
 

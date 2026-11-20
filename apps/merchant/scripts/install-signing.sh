@@ -32,7 +32,8 @@ options = {
     'signingCertificate': 'Apple Distribution',
     'provisioningProfiles': {bundle: uuid},
     'manageAppVersionAndBuildNumber': False,
-    'testFlightInternalTestingOnly': True,
+    # Allow the same build to be tested in TestFlight and submitted to the App Store.
+    'testFlightInternalTestingOnly': False,
     'uploadSymbols': True,
 }
 (temp / 'ExportOptions.plist').write_bytes(plistlib.dumps(options))
