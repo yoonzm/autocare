@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/backend/staff_flow.dart';
+import 'package:autocare_merchant/backend/store_context.dart';
 import 'package:autocare_merchant/kit/async_kit.dart';
 import 'package:autocare_merchant/pages/staff/staff_detail_template.dart';
 import 'package:autocare_merchant/pages/staff/staff_records_template.dart';
@@ -36,10 +37,12 @@ void main() {
   setUp(() {
     original = merchantApi;
     merchantApi = api = RecordsApi();
+    StoreContext.bind('s1');
     navTracker.stack.clear();
   });
   tearDown(() {
     merchantApi = original;
+    StoreContext.bind(null);
     navTracker.stack.clear();
   });
 
