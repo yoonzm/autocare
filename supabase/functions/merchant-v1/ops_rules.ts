@@ -28,8 +28,7 @@ export function parseSell(input: Record<string, unknown>): SellValues | string {
   if (typeof input.member_id !== 'string' || !UUID.test(input.member_id)) return '会员无效';
   if (typeof input.package_id !== 'string' || !UUID.test(input.package_id)) return '请选择次卡套餐';
   const method = text(input.method);
-  const methods = [...PAY_METHODS, '会员余额'] as readonly string[];
-  if (!methods.includes(method)) return '请选择收款方式';
+  if (!(PAY_METHODS as readonly string[]).includes(method)) return '请选择收款方式';
   return { member_id: input.member_id, package_id: input.package_id, method };
 }
 

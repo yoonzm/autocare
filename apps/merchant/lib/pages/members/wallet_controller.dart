@@ -1,7 +1,7 @@
 import 'member_picker_sheet.dart';
 import 'recharge_pick_sheet.dart';
-import 'member_route_data.dart';
 
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -27,14 +27,15 @@ class WalletReceipt {
 
 class WalletController extends ChangeNotifier {
   static const methods = ['微信', '支付宝', '现金'];
-  static const saleMethods = [...methods, '会员余额'];
   Map<String, dynamic>? member;
   final custom = TextEditingController();
-  int tab, preset = 1, method = 0, saleMethod = 0;
+  int tab, preset = 1, method = 0;
   List<Map<String, dynamic>> options = [], packages = [];
   String packageId = '';
   bool busy = false, disposed = false;
   final ready = <int>{};
+  final loading = <int>{};
+  final Map<int, Object> errors = {};
   String? _body, _requestId;
   WalletController({Map<String, dynamic>? member, this.tab = 0})
     : member = member == null ? null : Map.unmodifiable(member) {
@@ -48,9 +49,10 @@ class WalletController extends ChangeNotifier {
   MemberView get memberView => MemberView(member ?? const {});
   int get presetIndex => custom.text.trim().isEmpty ? preset : -1;
   void selectTab(int value) {
-    if (!busy) {
+    if (!busy && tab != value) {
       tab = value;
       _changed();
+      unawaited(ensureTabLoaded(value));
     }
   }
 
@@ -64,13 +66,6 @@ class WalletController extends ChangeNotifier {
   void selectMethod(int value) {
     if (!busy) {
       method = value;
-      _changed();
-    }
-  }
-
-  void selectSaleMethod(int value) {
-    if (!busy) {
-      saleMethod = value;
       _changed();
     }
   }
@@ -120,6 +115,28 @@ class WalletController extends ChangeNotifier {
       }
     }
     ready.add(selectedTab);
+    errors.remove(selectedTab);
+  }
+
+  Future<void> ensureTabLoaded(int selectedTab, {bool force = false}) async {
+    if (disposed) return;
+    if (!force &&
+        (ready.contains(selectedTab) || loading.contains(selectedTab))) {
+      return;
+    }
+    loading.add(selectedTab);
+    errors.remove(selectedTab);
+    _changed();
+    try {
+      final data = await loadOptions(selectedTab);
+      if (disposed) return;
+      applyOptions(selectedTab, data);
+    } catch (e) {
+      if (!disposed) errors[selectedTab] = e;
+    } finally {
+      loading.remove(selectedTab);
+      _changed();
+    }
   }
 
   String amountLabel(int index) => index < options.length
@@ -149,8 +166,6 @@ class WalletController extends ChangeNotifier {
   String get saleSaving =>
       '−¥${formatMoney(((_package?.original ?? 0) - (_package?.price ?? 0)).clamp(0, double.infinity))}';
   String get saleDue => '¥${money2(_package?.price ?? 0)}';
-  String get saleConfirm => '确认收款 ¥${formatMoney(_package?.price ?? 0)}';
-  String get saleBalanceChip => '储值余额 ¥${formatMoney(balance)}';
   String get saleAll => '查看全部 ${packages.length} 个在售套餐';
 
   Future<void> chooseMember(BuildContext context) async {
@@ -170,16 +185,6 @@ class WalletController extends ChangeNotifier {
     if (selected != null && !disposed) selectPackage(selected);
   }
 
-  void openMember(BuildContext context) {
-    if (member != null) {
-      openRoute(
-        context,
-        'MemberDetail',
-        arguments: MemberRouteData(member: member),
-      );
-    }
-  }
-
   Future<WalletReceipt?> pay({required bool sale}) async {
     if (busy || disposed) return null;
     final customer = member;
@@ -187,7 +192,7 @@ class WalletController extends ChangeNotifier {
     if (!ready.contains(sale ? 1 : 0)) throw const AppError('请先读取收款配置');
     final selected = selectedPackage;
     final submittedAmount = amount;
-    final payment = sale ? saleMethods[saleMethod] : methods[method];
+    final payment = methods[method];
     if (sale && selected == null) throw const AppError('请选择次卡套餐');
     if (!sale && submittedAmount <= 0) throw const AppError('请选择或输入充值金额');
     final intent = jsonEncode({

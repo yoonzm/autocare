@@ -8,7 +8,6 @@ import 'package:autocare_merchant/pages/members/wallet_controller.dart';
 import 'package:autocare_merchant/pages/members/wallet_page.dart';
 import 'package:autocare_merchant/pages/members/member_picker_sheet.dart';
 import 'package:autocare_merchant/pages/members/recharge_pick_sheet.dart';
-import 'package:autocare_merchant/pages/members/recharge_page.dart';
 import 'package:autocare_merchant/pages/members/packages/member_package_controller.dart';
 import 'package:autocare_merchant/pages/members/packages/member_package_route_data.dart';
 import 'package:autocare_merchant/pages/members/packages/package_detail_page.dart';
@@ -105,7 +104,6 @@ void main() {
   });
   tearDown(() {
     merchantApi = original;
-
   });
 
   test('四个记账接口把调用者的幂等标识传到请求层', () async {
@@ -166,7 +164,6 @@ void main() {
   });
 
   test('两个页面各自提交，同一页面防重复且等待期间固定会员和金额', () async {
-
     final first = controller(api), second = controller(api, id: 'b');
     second.custom.text = '88';
     api.gate = Completer<void>();
@@ -319,7 +316,6 @@ void main() {
   });
 
   testWidgets('缺少次卡参数时明确阻止，不读取旧全局状态', (t) async {
-
     await t.pumpWidget(
       const MaterialApp(home: Scaffold(body: PackageDetailPage())),
     );
@@ -336,21 +332,18 @@ void main() {
       ),
     );
     await t.pumpAndSettle();
-    final old = t.widget<RechargePage>(find.byType(RechargePage)).controller!;
-    old.custom.text = '123';
+    final oldField = t.widget<TextFormField>(find.byType(TextFormField));
+    await t.enterText(find.byType(TextFormField), '123');
+    await t.pump();
     await t.pumpWidget(
       MaterialApp(
         home: WalletPage(member: row(id: 'b')),
       ),
     );
     await t.pumpAndSettle();
-    final current = t
-        .widget<RechargePage>(find.byType(RechargePage))
-        .controller!;
-    expect(old.disposed, isTrue);
-    expect(current.member!['id'], 'b');
-    expect(current.custom.text, isEmpty);
-    expect(current, isNot(same(old)));
+    final currentField = t.widget<TextFormField>(find.byType(TextFormField));
+    expect(currentField.controller, isNot(same(oldField.controller)));
+    expect(currentField.controller!.text, isEmpty);
   });
 
   testWidgets('旧次卡响应晚到不能覆盖新次卡详情', (t) async {
@@ -414,6 +407,5 @@ void main() {
     Navigator.of(t.element(find.byType(MemberPickerSheet).last)).pop();
     await t.pumpAndSettle();
     await a;
-
   });
 }

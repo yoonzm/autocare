@@ -18,7 +18,7 @@ Deno.test('order technicians: omission preserves an assignment and an empty list
 });
 
 Deno.test('sell: member, package and a pay method are required (余额 is allowed)', () => {
-  eq(typeof parseSell({ member_id: M, package_id: P, method: '会员余额' }), 'object', 'balance');
+  eq(typeof parseSell({ member_id: M, package_id: P, method: '会员余额' }), 'string', 'balance disallowed');
   eq(typeof parseSell({ member_id: M, package_id: P, method: '微信' }), 'object', 'wechat');
   eq(typeof parseSell({ member_id: M, package_id: P, method: '赊账' }), 'string', 'bad method');
   eq(typeof parseSell({ member_id: M, method: '微信' }), 'string', 'no package');

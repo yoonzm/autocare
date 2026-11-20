@@ -1,5 +1,4 @@
 import 'package:autocare_merchant/pages/members/wallet_page.dart';
-import 'package:autocare_merchant/pages/members/recharge_page.dart';
 import 'package:autocare_merchant/pages/members/recharge_success_page.dart';
 import 'package:autocare_merchant/pages/members/packages/package_choices.dart'
     show PackageChoices;
@@ -1630,13 +1629,6 @@ void main() {
       await t.tap(find.text('林晓雯').last);
       await t.pumpAndSettle();
       // 进入充值页，显示选中的会员
-      expect(
-        t
-            .widget<RechargePage>(find.byType(RechargePage))
-            .controller!
-            .member!['name'],
-        '林晓雯',
-      );
       expect(find.text('请先选择会员'), findsNothing);
       expect(find.text('确认收款'), findsOneWidget);
       expect(find.textContaining('林晓雯', findRichText: true), findsWidgets);
@@ -1689,15 +1681,16 @@ void main() {
       expect(find.text('王建国'), findsOneWidget);
       expect(find.text('138 **** 6021 · 未登记车辆'), findsOneWidget);
       expect(find.text('金卡会员'), findsOneWidget);
-      expect(find.text('确认收款 ¥1,080'), findsOneWidget);
-      expect(find.text('¥1,080.00'), findsOneWidget);
+      expect(find.text('确认收款'), findsOneWidget);
+      expect(find.text('¥1,080.00'), findsWidgets);
       expect(find.text('−¥280'), findsOneWidget); // 原价 20×68 = 1360
       expect(find.text('查看全部 2 个在售套餐'), findsOneWidget);
-      expect(find.text('储值余额 ¥3,680'), findsOneWidget);
+      expect(find.text('储值余额 ¥3,680'), findsNothing);
+      expect(find.text('会员余额'), findsNothing);
       await t.tap(find.text('精致洗车 10 次卡'));
       await t.pump();
       await t.pump();
-      expect(find.text('确认收款 ¥580'), findsOneWidget);
+      expect(find.text('¥580.00'), findsWidgets);
     });
 
     testWidgets('确认收款：提交会员 / 套餐 / 收款方式，成功页显示云函数返回的结果', (t) async {
@@ -1706,8 +1699,8 @@ void main() {
       await t.ensureVisible(find.text('现金').last);
       await t.tap(find.text('现金').last);
       await t.pump();
-      await t.ensureVisible(find.text('确认收款 ¥1,080'));
-      await t.tap(find.text('确认收款 ¥1,080'));
+      await t.ensureVisible(find.text('确认收款'));
+      await t.tap(find.text('确认收款'));
       await t.pumpAndSettle();
       expect(fake.sales.single, {
         'member': 'm1',
@@ -1728,8 +1721,8 @@ void main() {
       phone(t);
       await openSale(t);
       fake.sellError = const AppError('已达到该套餐的每人限购份数');
-      await t.ensureVisible(find.text('确认收款 ¥1,080'));
-      await t.tap(find.text('确认收款 ¥1,080'));
+      await t.ensureVisible(find.text('确认收款'));
+      await t.tap(find.text('确认收款'));
       await t.pumpAndSettle();
       expect(find.text('已达到该套餐的每人限购份数'), findsOneWidget);
       expect(find.text('购买成功'), findsNothing);

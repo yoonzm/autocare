@@ -23,10 +23,8 @@ import '../pages/members/packages/package_sold_page.dart';
 import '../pages/orders/pay_success_page.dart';
 import '../pages/account/privacy_page.dart';
 import '../pages/account/profile_edit_page.dart';
-import '../pages/members/recharge_page.dart';
-import '../pages/members/recharge_card_page.dart';
-import '../pages/members/recharge_empty_page.dart';
 import '../pages/members/recharge_success_page.dart';
+import '../pages/members/wallet_page.dart';
 import '../pages/account/reg_done_page.dart';
 import '../pages/account/reg_phone_page.dart';
 import '../pages/account/reg_shop_page.dart';
@@ -47,10 +45,9 @@ import '../pages/members/packages/package_extend_sheet.dart';
 import '../pages/members/packages/package_refund_sheet.dart';
 import '../pages/members/recharge_pick_sheet.dart';
 import '../pages/scan/find_not_found_sheet.dart';
-import '../pages/members/recharge_empty_card_page.dart';
 
 final Map<String, WidgetBuilder> pageBuilders = {
-  'RechargeEmptyCard': (_) => const RechargeEmptyCardPage(),
+  'RechargeEmptyCard': (_) => const WalletPage(initial: 1),
   'AboutApp': (_) => const AboutAppPage(),
   'CardTierEdit': (_) => const CardTierEditPage(),
   'ChangePassword': (_) => const ChangePasswordPage(),
@@ -73,9 +70,9 @@ final Map<String, WidgetBuilder> pageBuilders = {
   'PaySuccess': (_) => const PaySuccessPage(),
   'Privacy': (_) => const PrivacyPage(),
   'ProfileEdit': (_) => const ProfileEditPage(),
-  'Recharge': (_) => const RechargePage(),
-  'RechargeCard': (_) => const RechargeCardPage(),
-  'RechargeEmpty': (_) => const RechargeEmptyPage(),
+  'Recharge': (_) => const WalletPage(initial: 0),
+  'RechargeCard': (_) => const WalletPage(initial: 1),
+  'RechargeEmpty': (_) => const WalletPage(initial: 0),
   'RechargeSuccess': (_) => const RechargeSuccessPage(),
   'RegDone': (_) => const RegDonePage(),
   'RegPhone': (_) => const RegPhonePage(),
