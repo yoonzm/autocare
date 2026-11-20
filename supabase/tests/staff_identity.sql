@@ -72,6 +72,11 @@ begin
     values(shop,'李梅','{}',jsonb_build_array(jsonb_build_object('name','精致洗车')),now()+interval '1 minute',30,68,'h-1',(tech->>'resource_id')::uuid,'waiting','沪AF09316'),
           (shop,'他人','{}','[]',now()+interval '2 minute',30,68,'h-2',null,'waiting','沪B1');
   r:=public.staff_home(shop,tech_id);
+  assert (r->>'waiting')::int=0 and jsonb_array_length(r->'tasks')=0,'预约未转挂单不进入技师任务';
+  insert into public.held_orders(store_id,vehicle_plate,status,technician_ids) values
+    (shop,'沪AF09316','待施工',array[(tech->>'resource_id')::uuid]),
+    (shop,'沪B1','待施工','{}');
+  r:=public.staff_home(shop,tech_id);
   assert (r->>'waiting')::int=1 and jsonb_array_length(r->'tasks')=1 and r->'tasks'->0->>'plate'='沪AF09316' and (r->>'done_today')::int=0;
   r:=public.staff_home(shop,cash_id);
   assert (r->>'waiting')::int>=1 and r ? 'orders_today' and not (r ? 'revenue_today'),'前台不返回营业额';

@@ -65,7 +65,7 @@ begin
     null,null,null,appt,null,null);
   assert (select technician_ids from public.orders where id=(result->>'order_id')::uuid)=array[tech_a], '预约转开单沿用预约技师';
   assert not has_function_privilege('authenticated','public.checkout_with_technicians(uuid,jsonb,text,text,text,text,text,uuid[],uuid,uuid,uuid,numeric,text)','execute');
-  assert not has_function_privilege('anon','public.hold_order_with_technicians(uuid,uuid,jsonb,text,text,text,text,uuid,uuid[])','execute');
+  assert not has_function_privilege('anon','public.hold_order_with_technicians(uuid,uuid,jsonb,text,text,text,text,uuid,uuid[],uuid)','execute');
 end;
 $$;
 rollback;
