@@ -38,8 +38,11 @@ class StFrontHomeTemplate extends StatelessWidget {
         '${(q['submitter'] as Map?)?['name'] ?? '—'} · ${stClock(q['created_at'])} 提交';
     String qPayable(Map<String, dynamic> q) =>
         stMoney(((q['quote'] as Map?)?['payable']) ?? 0);
-    String qMember(Map<String, dynamic> q) =>
-        '${(q['member'] as Map?)?['name'] ?? ''} · ${((q['member'] as Map?)?['card'] as Map?)?['name'] ?? '会员'} · 会员价';
+    String qMember(Map<String, dynamic> q) {
+      final m = q['member'] as Map?;
+      if (m == null) return '散客 · 非会员';
+      return '${m['name'] ?? ''} · ${(m['card'] as Map?)?['name'] ?? '会员'} · 会员价';
+    }
     // _queueBlock：待收银 · 技师提交（有队列时显示）
     return HPage(
       bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),

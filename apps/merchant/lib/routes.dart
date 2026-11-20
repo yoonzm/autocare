@@ -49,7 +49,6 @@ import 'pages/inventory/product_edit_live_page.dart';
 import 'pages/inventory/product_list_live_page.dart';
 import 'pages/staff/staff_route_data.dart';
 import 'pages/staff_app/staff_tabs.dart';
-import 'pages/staff_app/st_progress_template.dart';
 import 'backend/access_flow.dart';
 import 'pages/staff/staff_detail_template.dart';
 import 'pages/staff/staff_detail_off_template.dart';
@@ -85,7 +84,6 @@ final Map<String, WidgetBuilder> sheetRoutes = {
   'FindNotFound': (_) => ErrorView(error: const AppError('请先扫描车牌')),
   'ScanPlateResult': (_) => ErrorView(error: const AppError('请先扫描车牌')),
   'OrderFilter': (_) => ErrorView(error: const AppError('请从订单列表打开筛选')),
-  'StProgress': (_) => const StProgressSheet(),
   'DisableStaff': (_) => const DisableStaffSheet(),
   'StaffEnable': (_) => const StaffEnableSheet(),
   'StaffTransfer': (_) => const StaffTransferSheet(),
@@ -378,7 +376,6 @@ bool _sameRoute(Route<dynamic> route, String name, Object? arguments) =>
 
 void _openRouteCore(BuildContext context, String name, {Object? arguments}) {
   final staff = arguments is StaffRouteData ? arguments : null;
-  final task = arguments is TaskRouteData ? arguments : null;
   final memberData = arguments is MemberRouteData ? arguments : null;
   final memberPackage = arguments is MemberPackageRouteData ? arguments : null;
   final nav = Navigator.of(context);
@@ -442,7 +439,6 @@ void _openRouteCore(BuildContext context, String name, {Object? arguments}) {
               'PackageRefund' => PackageRefundSheet(data: memberPackage),
               'MemberMore' => MemberMoreSheet(member: memberData?.member),
               'MemberDelete' => MemberDeleteSheet(member: memberData?.member),
-              'StProgress' => StProgressSheet(taskId: task?.taskId),
               'DisableStaff' => DisableStaffSheet(staffId: staff?.staffId),
               'StaffEnable' => StaffEnableSheet(staffId: staff?.staffId),
               'StaffTransfer' => StaffTransferSheet(staffId: staff?.staffId),

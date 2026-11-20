@@ -89,6 +89,7 @@ export const HOLD_REMINDS = ['不提醒', '30 分钟', '1 小时', '完工时'] 
 
 export interface HoldValues {
   hold_id: string | null;
+  appointment_id: string | null;
   /** 为空 = 散客挂单 */
   member_id: string | null;
   lines: CheckoutLine[];
@@ -105,6 +106,11 @@ export function parseHold(input: Record<string, unknown>): HoldValues | string {
     if (typeof input.hold_id !== 'string' || !UUID.test(input.hold_id)) return '挂单无效';
     holdId = input.hold_id;
   }
+  let appointmentId: string | null = null;
+  if (input.appointment_id != null && input.appointment_id !== '') {
+    if (typeof input.appointment_id !== 'string' || !UUID.test(input.appointment_id)) return '预约无效';
+    appointmentId = input.appointment_id;
+  }
   const lines = parseLines(input);
   if (typeof lines === 'string') return lines;
   if (walkIn && lines.some((l) => l.member_package_id)) return '散客不能使用次卡';
@@ -116,7 +122,16 @@ export function parseHold(input: Record<string, unknown>): HoldValues | string {
   if (note.length > 200) return '备注不能超过 200 字';
   const plate = text(input.plate).replace(/[\s·.]/g, '').toUpperCase();
   if (plate.length > 10) return '车牌号无效';
-  return { hold_id: holdId, member_id: walkIn ? null : (input.member_id as string), lines, status, note, remind, plate };
+  return {
+    hold_id: holdId,
+    appointment_id: appointmentId,
+    member_id: walkIn ? null : (input.member_id as string),
+    lines,
+    status,
+    note,
+    remind,
+    plate,
+  };
 }
 
 /** 散客开单：不记会员、没有折扣和次卡抵扣，只能用现金类收款方式。 */

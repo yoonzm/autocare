@@ -5,7 +5,9 @@ import 'package:flutter/foundation.dart';
 import '../../backend/appointment_flow.dart';
 import '../../backend/hold_store.dart';
 import '../../backend/merchant_api.dart';
+import '../../backend/task_flow.dart';
 import '../members/member_events.dart';
+import '../staff_app/st_cash_queue_template.dart' show StQueueFlow;
 import 'order_route_data.dart';
 
 /// 只提交选择并交付本次服务端回执；价格、权限、余额和核销由服务端决定。
@@ -83,6 +85,8 @@ class OrderCheckout extends ChangeNotifier {
       _intent = null;
       _requestId = null;
       memberChanged.value++;
+      TaskFlow.notify();
+      StQueueFlow.changed.value++;
       if (appointmentId != null) AppointmentFlow.notify();
       if (holdId != null) HoldStore.recordRemoved(holdId);
       return OrderReceipt({

@@ -82,6 +82,7 @@ class FlowApi extends MemberFakeApi {
   Future<Map<String, dynamic>> saveHold({
     String? requestId,
     String? holdId,
+    String? appointmentId,
     String? memberId,
     required List<Map<String, dynamic>> lines,
     String status = '待施工',

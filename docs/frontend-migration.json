@@ -721,12 +721,6 @@
       "legacyDependencies": []
     },
     {
-      "path": "pages/staff_app/st_progress_template.dart",
-      "domain": "staff_app",
-      "status": "verified",
-      "legacyDependencies": []
-    },
-    {
       "path": "pages/staff_app/st_redeem_sheet.dart",
       "domain": "staff_app",
       "status": "verified",
@@ -1574,13 +1568,6 @@
       ]
     },
     "pages/staff_app/st_live.dart": {
-      "tests": "staff_work_test 11 项及 task_page_state_test 3 项通过；任务参数复用、旧任务返回后的进度读取、重复提交拦截、无回执阻止与结果实例隔离",
-      "visualFixture": "布局与原有选中/未选中子组件保持不变，仅变更事件、构造参数、选择控制器归属与异步锁定，不重复截图",
-      "remainingTODO": [
-        "施工照片、耗材领用仍未接通并明确阻止"
-      ]
-    },
-    "pages/staff_app/st_progress_template.dart": {
       "tests": "staff_work_test 11 项及 task_page_state_test 3 项通过；任务参数复用、旧任务返回后的进度读取、重复提交拦截、无回执阻止与结果实例隔离",
       "visualFixture": "布局与原有选中/未选中子组件保持不变，仅变更事件、构造参数、选择控制器归属与异步锁定，不重复截图",
       "remainingTODO": [

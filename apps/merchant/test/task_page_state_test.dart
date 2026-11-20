@@ -81,7 +81,7 @@ void main() {
     );
     await t.pumpAndSettle();
     expect(find.text('沪A8K29M'), findsOneWidget);
-    await t.tap(find.text('更新进度'));
+    await t.tap(find.text('提交完工'));
     await t.pumpAndSettle();
     expect(
       api.calls.lastWhere((c) => c['action'] == 'staff_task_detail')['id'],

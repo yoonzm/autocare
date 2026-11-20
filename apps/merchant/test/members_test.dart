@@ -211,6 +211,7 @@ class MemberFakeApi extends MerchantApi {
   Future<Map<String, dynamic>> saveHold({
     String? requestId,
     String? holdId,
+    String? appointmentId,
     String? memberId,
     required List<Map<String, dynamic>> lines,
     String status = '待施工',
@@ -222,6 +223,7 @@ class MemberFakeApi extends MerchantApi {
     if (holdSaveError != null) throw holdSaveError!;
     heldSaves.add({
       'hold': holdId,
+      'appointment_id': appointmentId,
       'member': memberId,
       'lines': lines,
       'status': status,

@@ -122,7 +122,7 @@ export async function handleOrders(input: Input, storeId: string, maskMemberPhon
     const { data, error } = await admin.rpc('hold_order_with_technicians', {
       p_store: storeId, p_member: v.member_id, p_lines: v.lines, p_status: v.status,
       p_note: v.note, p_remind: v.remind, p_plate: v.plate, p_hold: v.hold_id,
-      p_technician_ids: technicians,
+      p_technician_ids: technicians, p_appointment: v.appointment_id,
     });
     if (error) return holdFail(error);
     const { data: item } = await admin.from('held_orders').select(HOLD_SELECT).eq('id', data).single();

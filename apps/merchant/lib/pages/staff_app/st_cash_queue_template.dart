@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../backend/hold_store.dart';
+import '../../backend/task_flow.dart';
 import '../orders/order_route_data.dart';
 import '../../backend/merchant_api.dart';
 import '../../kit/async_kit.dart';
@@ -45,8 +46,11 @@ class _StCashQueueTemplateState extends State<StCashQueueTemplate> {
   String _sub(Map<String, dynamic> h) =>
       '${(h['member'] as Map?)?['phone'] ?? ''}';
   String _time(Map<String, dynamic> h) => '${stClock(h['created_at'])} 提交';
-  String _who(Map<String, dynamic> h) =>
-      '${(h['member'] as Map?)?['name'] ?? ''} · ${_level(h)}';
+  String _who(Map<String, dynamic> h) {
+    final m = h['member'] as Map?;
+    if (m == null) return '散客 · 非会员';
+    return '${m['name'] ?? ''} · ${_level(h)}';
+  }
   String _submitter(Map<String, dynamic> h) {
     final s = h['submitter'] as Map?;
     if (s == null) return '提交人 —';
@@ -91,6 +95,7 @@ class _StCashQueueTemplateState extends State<StCashQueueTemplate> {
     if (!saved) return;
     if (mounted) setState(() => _returned.add('${h['id']}'));
     HoldStore.recordRemoved('${h['id']}');
+    TaskFlow.notify();
     StQueueFlow.changed.value++;
     if (mounted) AppToast.show(context, '已退回，已通知提交人', kind: ToastKind.success);
   }

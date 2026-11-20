@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../backend/access_flow.dart';
+import '../../backend/hold_store.dart';
 import '../../backend/merchant_api.dart';
 import '../../backend/task_flow.dart';
 import '../../kit/async_kit.dart';
@@ -8,6 +9,7 @@ import '../staff/staff_live.dart';
 import '../../kit/kit.dart';
 import '../../routes.dart' show openRoute;
 import '../../resources/staff_svgs.dart';
+import 'st_cash_queue_template.dart' show StQueueFlow;
 import 'st_live.dart';
 import 'task_route_data.dart';
 import '../../kit/page_header.dart';
@@ -528,6 +530,8 @@ class StFinishTemplate extends StatelessWidget {
                                   {'id': t['id']},
                                 );
                                 TaskFlow.notify();
+                                HoldStore.invalidated.value++;
+                                StQueueFlow.changed.value++;
                                 if (context.mounted) {
                                   openRoute(
                                     context,

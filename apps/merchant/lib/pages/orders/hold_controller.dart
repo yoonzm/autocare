@@ -2,9 +2,12 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 
+import '../../backend/appointment_flow.dart';
 import '../../backend/hold_store.dart';
 import '../../backend/merchant_api.dart';
+import '../../backend/task_flow.dart';
 import '../../kit/async_kit.dart';
+import '../staff_app/st_cash_queue_template.dart' show StQueueFlow;
 import 'hold_draft.dart';
 
 class HoldController extends ChangeNotifier {
@@ -46,6 +49,7 @@ class HoldController extends ChangeNotifier {
     if (note.text.trim().length > 200) throw const AppError('备注不能超过 200 字');
     final body = jsonEncode({
       'id': draft.holdId,
+      'appointment': draft.appointmentId,
       'member': draft.memberId,
       'lines': draft.lines,
       'status': status,
@@ -63,6 +67,7 @@ class HoldController extends ChangeNotifier {
     try {
       final row = await merchantApi.saveHold(
         holdId: draft.holdId,
+        appointmentId: draft.appointmentId,
         memberId: draft.memberId,
         lines: draft.lines,
         status: HoldStore.statuses[status],
@@ -76,6 +81,9 @@ class HoldController extends ChangeNotifier {
       _intent = null;
       _requestId = null;
       HoldStore.recordSaved(row);
+      if (draft.appointmentId != null) AppointmentFlow.notify();
+      TaskFlow.notify();
+      StQueueFlow.changed.value++;
       return row;
     } finally {
       busy = false;

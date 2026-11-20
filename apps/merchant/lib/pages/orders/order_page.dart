@@ -282,13 +282,8 @@ class _OrderPageState extends State<OrderPage> {
     }
   }
 
-  /// 挂单：把这一单交给挂单弹层（价格、折扣、次卡抵扣由云函数估算）。
+  /// 挂单：把这一单交给挂单弹层（价格、折扣、次卡抵扣由云函数估算；预约单可转为挂单派给技师施工）。
   Future<void> _hold() async {
-    // TODO: 预约关联挂单尚未实现；不得丢弃预约关联后冒充成功。
-    if (widget.appointment != null) {
-      AppToast.show(context, '预约订单请直接结算，暂不支持挂单');
-      return;
-    }
     if (picked.isEmpty) {
       toast(context, '请先选择服务项目');
       return;
@@ -303,7 +298,11 @@ class _OrderPageState extends State<OrderPage> {
       context,
       HoldDraft(
         memberId: _walkIn ? null : id,
-        memberName: _walkIn ? '散客' : customer.name,
+        memberName: _walkIn
+            ? ('${widget.appointment?['customer_name'] ?? ''}'.trim().isEmpty
+                  ? '散客'
+                  : '${widget.appointment!['customer_name']}')
+            : customer.name,
         level: _walkIn ? '非会员' : customer.level,
         plateLabel: _walkIn
             ? (_walkPlateCtl.text.trim().isEmpty
@@ -326,6 +325,7 @@ class _OrderPageState extends State<OrderPage> {
         payableText: money(payable, digits: 2),
         technicianIds: techs.toList(),
         holdId: _holdId,
+        appointmentId: widget.appointment?['id']?.toString(),
         original: _holdRow,
       ),
     );

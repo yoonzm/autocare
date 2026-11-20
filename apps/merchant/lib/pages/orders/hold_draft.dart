@@ -16,6 +16,7 @@ class HoldDraft {
   /// 开单页当前显示的应收（仅用于挂单弹层的展示，真正的估价在云函数）。
   final String payableText;
   final String? holdId;
+  final String? appointmentId;
   final Map<String, dynamic>? original;
   HoldDraft({
     this.memberId,
@@ -27,6 +28,7 @@ class HoldDraft {
     List<String>? technicianIds,
     required this.payableText,
     this.holdId,
+    this.appointmentId,
     Map<String, dynamic>? original,
   }) : lines = List.unmodifiable(
          lines.map((r) => Map<String, dynamic>.unmodifiable(r)),

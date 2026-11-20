@@ -788,6 +788,7 @@ class MerchantApi {
   Future<Map<String, dynamic>> saveHold({
     String? requestId,
     String? holdId,
+    String? appointmentId,
 
     /// 为空 = 散客挂单（不记会员，没有折扣和次卡）。
     String? memberId,
@@ -802,6 +803,7 @@ class MerchantApi {
       'action': 'hold',
       'kind': 'orders',
       'hold_id': ?holdId,
+      'appointment_id': ?appointmentId,
       if (memberId == null) 'walk_in': true else 'member_id': memberId,
       'lines': lines,
       'status': status,

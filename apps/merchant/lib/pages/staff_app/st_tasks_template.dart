@@ -2,6 +2,7 @@ import '../../kit/single_selection.dart';
 
 import 'package:flutter/material.dart';
 
+import '../../backend/hold_store.dart';
 import '../../backend/merchant_api.dart';
 import '../../kit/kit.dart';
 import '../../resources/staff_svgs.dart';
@@ -159,50 +160,6 @@ class _StTasksTemplateState extends State<StTasksTemplate> {
                       w: FontWeight.w600,
                       lh: 22,
                     ),
-                  ),
-                  hrow(
-                    [
-                      Expanded(
-                        flex: 1,
-                        child: hbox(
-                          h: 6,
-                          bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
-                          radius: BorderRadius.circular(3),
-                          clip: true,
-                          child: hcol(
-                            [
-                              Align(
-                                alignment: Alignment.topLeft,
-                                child: hfrac(
-                                  ((t['progress'] as num?) ?? 0) / 100,
-                                  hbox(
-                                    h: 6,
-                                    bg: Color(0xFF0485F7),
-                                    radius: BorderRadius.circular(3),
-                                  ),
-                                ),
-                              ),
-                            ],
-                            main: MainAxisAlignment.start,
-                            cross: CrossAxisAlignment.stretch,
-                            gap: 0,
-                            min: false,
-                          ),
-                        ),
-                      ),
-                      Text(
-                        '${t['progress'] ?? 0}%',
-                        style: hts(
-                          12,
-                          Color(0xFF0485F7),
-                          w: FontWeight.w600,
-                          lh: 17,
-                        ),
-                      ),
-                    ],
-                    main: MainAxisAlignment.start,
-                    cross: CrossAxisAlignment.center,
-                    gap: 10,
                   ),
                   Text(
                     '${t['bay_name'] ?? '未指定工位'} · 预计 ${stClock(stEnd(t))}',
@@ -372,6 +329,8 @@ class _StTasksTemplateState extends State<StTasksTemplate> {
                         child: Text(
                           finished
                               ? '完工 ${stClock(t['finished_at'] ?? t['completed_at'])}'
+                              : t['source'] == 'hold'
+                              ? '${stClock(t['starts_at'])} 挂单'
                               : '预计 ${stClock(t['starts_at'])} 到店',
                           style: hts(
                             12,
@@ -730,6 +689,7 @@ class StTasksLivePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => StLive(
     title: '我的任务',
+    refresh: HoldStore.invalidated,
     load: () => merchantApi.staffWork('staff_task_list'),
     builder: (_, d) => StTasksTemplate(d: d),
   );

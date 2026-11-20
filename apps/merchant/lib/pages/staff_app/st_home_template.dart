@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../backend/access_flow.dart';
+import '../../backend/hold_store.dart';
 import '../../backend/merchant_api.dart';
 import '../../kit/kit.dart';
 import '../../routes.dart' show openRoute;
@@ -763,59 +764,6 @@ class StHomeTemplate extends StatelessWidget {
                                           lh: 22,
                                         ),
                                       ),
-                                      hrow(
-                                        [
-                                          Expanded(
-                                            flex: 1,
-                                            child: hbox(
-                                              h: 6,
-                                              bg: dk(
-                                                context,
-                                                Color(0xFFEEEEF0),
-                                                Color(0xFF27272A),
-                                              ),
-                                              radius: BorderRadius.circular(3),
-                                              clip: true,
-                                              child: hcol(
-                                                [
-                                                  Align(
-                                                    alignment:
-                                                        Alignment.topLeft,
-                                                    child: hfrac(
-                                                      0.0,
-                                                      hbox(
-                                                        h: 6,
-                                                        bg: Color(0xFF0485F7),
-                                                        radius:
-                                                            BorderRadius.circular(
-                                                              3,
-                                                            ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                                main: MainAxisAlignment.start,
-                                                cross:
-                                                    CrossAxisAlignment.stretch,
-                                                gap: 0,
-                                                min: false,
-                                              ),
-                                            ),
-                                          ),
-                                          Text(
-                                            '进行中',
-                                            style: hts(
-                                              12,
-                                              Color(0xFF0485F7),
-                                              w: FontWeight.w600,
-                                              lh: 17,
-                                            ),
-                                          ),
-                                        ],
-                                        main: MainAxisAlignment.start,
-                                        cross: CrossAxisAlignment.center,
-                                        gap: 10,
-                                      ),
                                       Text(
                                         '${t['bay_name'] ?? '未指定工位'} · 预计 ${stClock(stEnd(t))}',
                                         style: hts(
@@ -1081,7 +1029,9 @@ class StHomeTemplate extends StatelessWidget {
                                           Flexible(
                                             flex: 89,
                                             child: Text(
-                                              '预计 ${stClock(t['starts_at'])} 到店',
+                                              t['source'] == 'hold'
+                                                  ? '${stClock(t['starts_at'])} 挂单'
+                                                  : '预计 ${stClock(t['starts_at'])} 到店',
                                               style: hts(
                                                 12,
                                                 dk(
@@ -1150,6 +1100,7 @@ class StHomeLivePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => StLive(
     title: '工作台',
+    refresh: HoldStore.invalidated,
     load: merchantApi.staffHome,
     builder: (_, d) => StHomeTemplate(d: d),
   );

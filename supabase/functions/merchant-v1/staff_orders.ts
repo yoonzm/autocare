@@ -53,11 +53,25 @@ export async function handleStaffOrders(
     }
     if (action === 'staff_cash_queue') {
       const { data, error } = await admin.from('held_orders').select(QUEUE_SELECT)
-        .eq('store_id', store).not('submitted_by', 'is', null).is('settled_at', null).is('cancelled_at', null)
+        .eq('store_id', store).is('settled_at', null).is('cancelled_at', null)
+        .or('submitted_by.not.is.null,status.eq.待结算')
         .order('created_at', { ascending: false }).limit(50);
       if (error) return fail('读取失败，请稍后重试', 500);
       type Item = { service_id: string | null; name: string; qty: number; member_package_id: string | null };
-      const rows = (data ?? []) as unknown as { id: string; member_id: string; items: Item[]; member: { phone?: string } | null }[];
+      type Row = {
+        id: string;
+        member_id: string | null;
+        technician_ids?: string[] | null;
+        items: Item[];
+        member: { phone?: string } | null;
+        submitter: { name: string; role: string } | null;
+      };
+      const rows = (data ?? []) as unknown as Row[];
+      const techResIds = [...new Set(rows.flatMap((r) => r.technician_ids ?? []).filter((x): x is string => !!x))];
+      const { data: techStaff } = techResIds.length
+        ? await admin.from('store_staff').select('resource_id, name, role').eq('store_id', store).in('resource_id', techResIds)
+        : { data: [] as { resource_id: string; name: string; role: string }[] };
+      const techOf = new Map((techStaff ?? []).map((t) => [t.resource_id, { name: t.name, role: t.role }]));
       const ids = [...new Set(rows.flatMap((r) => r.items.map((i) => i.service_id).filter((x): x is string => !!x)))];
       const { data: prices } = ids.length
         ? await admin.from('service_items').select('id, price').eq('store_id', store).in('id', ids)
@@ -69,8 +83,10 @@ export async function handleStaffOrders(
           service_id: i.service_id, qty: i.qty, ...(i.member_package_id ? { member_package_id: i.member_package_id } : {}),
         }));
         const { data: quote } = await admin.rpc('quote_order', { p_store: store, p_member: r.member_id, p_lines: lines });
+        const fallbackTech = (r.technician_ids ?? []).map((id) => techOf.get(id)).find((x) => !!x) ?? null;
         return {
           ...r,
+          submitter: r.submitter ?? fallbackTech,
           // 前台只看到脱敏手机号；取单结算用会员 ID。
           member: r.member ? { ...r.member, phone: maskPhone(r.member.phone) } : r.member,
           lines: r.items.map((i) => ({ name: i.name, qty: i.qty, unit_price: priceOf.get(i.service_id ?? '') ?? 0 })),

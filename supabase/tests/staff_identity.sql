@@ -77,6 +77,9 @@ begin
   assert (r->>'waiting')::int>=1 and r ? 'orders_today' and not (r ? 'revenue_today'),'前台不返回营业额';
   caught:=false; begin perform public.staff_home(shop2,tech_id); exception when sqlstate 'P0002' then caught:=true; end;
   assert caught,'不能读取他店员工的工作台';
+  r:=public.staff_perf(shop,tech_id);
+  assert (r->>'month_orders')::int=0 and (r->>'month_commission')::numeric=0 and jsonb_array_length(r->'days')=7;
+  assert jsonb_array_length(r->'rows')=0,'空提成明细正常返回';
 
   -- 首页统计兼容直接开单、多技师订单和旧预约订单；显式技师归属优先于预约。
   declare resource uuid:=(tech->>'resource_id')::uuid; other_resource uuid:=gen_random_uuid(); appointment uuid; reassigned uuid;
@@ -101,6 +104,30 @@ begin
     assert (r->>'orders_today')::int=5 and not (r ? 'revenue_today'),'前台首页正常且不暴露营业额';
     assert not has_function_privilege('authenticated','public.staff_home(uuid,uuid)','execute');
     assert has_function_privilege('service_role','public.staff_home(uuid,uuid)','execute');
+
+    insert into public.staff_commissions(order_id,position,store_id,staff_id,base,rule,rate,amount)
+      select id,0,shop,tech_id,100,'flat_percent',10,10 from public.orders where store_id=shop and payable=100;
+    r:=public.staff_perf(shop,tech_id);
+    assert (r->>'month_orders')::int=3 and (r->>'month_revenue')::numeric=350,'提成页与首页采用相同订单归属';
+    assert (r->>'month_commission')::numeric=10 and jsonb_array_length(r->'rows')=1,'真实提成金额与明细保留';
+    assert (select sum((v->>'amount')::numeric) from jsonb_array_elements(r->'days') v)=10,'七日提成汇总';
+    r:=public.staff_json(shop,tech_id);
+    assert (r->>'month_orders')::int=3 and (r->>'total_orders')::int=4,'员工资料包含历史订单并排除他人和他店订单';
+    assert (r->>'month_commission')::numeric=10 and (r->>'total_commission')::numeric=10;
+    assert not (r->>'busy')::boolean,'待到店不是施工中';
+    update public.appointments set status='arrived',starts_at=now()-interval '1 minute' where id=appointment;
+    assert (public.staff_json(shop,tech_id)->>'busy')::boolean,'员工施工状态使用有效预约字段';
+    update public.appointments set status='waiting' where id=appointment;
+    assert jsonb_array_length(public.staff_list(shop)->'staff')=2,'员工列表调用真实员工资料函数';
+    assert public.staff_json(shop2,tech_id) is null,'员工资料不得跨店读取';
+    caught:=false; begin perform public.staff_perf(shop2,tech_id); exception when sqlstate 'P0002' then caught:=true; end;
+    assert caught,'提成页不得跨店读取';
+    r:=public.staff_perf(shop,cash_id);
+    assert (r->>'month_orders')::int=0 and (r->>'month_commission')::numeric=0,'前台不继承技师业绩';
+    assert not has_function_privilege('authenticated','public.staff_perf(uuid,uuid)','execute');
+    assert not has_function_privilege('anon','public.staff_json(uuid,uuid)','execute');
+    assert has_function_privilege('service_role','public.staff_perf(uuid,uuid)','execute');
+    assert has_function_privilege('service_role','public.staff_json(uuid,uuid)','execute');
   end;
 
   -- 套餐到期：员工业务请求返回 plan_expired；老板的退出/读取走非业务路径不受影响。

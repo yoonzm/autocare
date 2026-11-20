@@ -221,22 +221,30 @@ void main() {
     expect(api.heldSaves.single['technician_ids'], ['t1', 't2']);
   });
 
-  testWidgets('预约带入真实技师，刷新停用后移除', (t) async {
+  testWidgets('预约带入真实技师，可转为挂单派给技师，刷新停用后移除', (t) async {
+    api.services.add({
+      'id': 's1',
+      'name': '精致洗车',
+      'price': 68,
+      'category': '洗车',
+      'active': true,
+    });
     await open(
       t,
       appointment: {
         'id': 'a1',
         'member_id': 'm1',
         'technician_id': 't1',
-        'service_ids': [],
+        'service_ids': ['s1'],
       },
     );
     expect(selected(t, '真实技师 · 精洗'), isTrue);
-    api.resources = [];
-    AppointmentFlow.changed.value++;
+    await t.tap(find.text('挂单').last);
     await t.pumpAndSettle();
-    expect(find.textContaining('还没有可用技师'), findsOneWidget);
-    expect(find.text('真实技师 · 精洗'), findsNothing);
+    await t.tap(find.text('确认挂单'));
+    await t.pumpAndSettle();
+    expect(api.heldSaves.single['appointment_id'], 'a1');
+    expect(api.heldSaves.single['technician_ids'], ['t1']);
   });
 
   testWidgets('加载延迟骨架，失败重试，不回退示例人员', (t) async {

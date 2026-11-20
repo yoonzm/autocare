@@ -103,8 +103,8 @@ class WorkApi extends BookingApi {
         final stage = values['stage'] as int;
         tasks[values['id']] = {
           ...tasks[values['id']]!,
+          'status': 'arrived',
           'stage': stage,
-          'progress': stage * 25 + 12,
         };
         return {...tasks[values['id']]!};
       case 'staff_task_finish':
@@ -217,7 +217,6 @@ void main() {
     expect(text('已完成 1'), findsWidgets);
     // 有施工中的任务时默认停在「施工中」
     expect(text('沪A8K29M'), findsOneWidget);
-    expect(text('37%'), findsOneWidget);
     expect(text('沪B5X770'), findsNothing);
     await t.tap(text('待施工 1').first);
     await t.pumpAndSettle();
@@ -230,55 +229,47 @@ void main() {
     expect(text('已完成'), findsWidgets);
   });
 
-  testWidgets('任务详情：节点按进度显示，施工中才有更新进度 / 提交完工', (t) async {
+  testWidgets('任务详情：极简三态展示，施工中显示提交完工且无细分工序节点', (t) async {
     await start(t, 'StTaskDetail', taskId: 'a1');
     expect(calls('staff_task_detail').single['id'], 'a1');
     expect(text('施工中'), findsOneWidget);
     expect(text('3 号工位'), findsOneWidget);
     expect(text('全车镀晶 · 9H 陶瓷'), findsOneWidget);
-    expect(text('全车镀晶 · 9H 陶瓷 施工'), findsOneWidget);
-    expect(text('清洗 · 打磨'), findsOneWidget);
-    expect(text('进行中'), findsOneWidget);
-    expect(text('37%'), findsOneWidget);
-    expect(text('更新进度'), findsOneWidget);
+    expect(text('施工节点'), findsNothing);
+    expect(text('更新进度'), findsNothing);
     expect(text('提交完工'), findsOneWidget);
     expect(text('施工照片'), findsOneWidget);
     expect(calls('staff_task_photo_list').single['target_id'], 'a1');
     expect(find.textContaining('宝马'), findsNothing, reason: '车型没有数据来源，不显示示例车型');
   });
 
-  testWidgets('待开工的任务只能查看，不显示更新进度 / 提交完工', (t) async {
+  testWidgets('待施工挂单任务：点击「开始施工」转为施工中并切换为「提交完工」；已完成任务无底部按钮', (t) async {
     await start(t, 'StTaskDetail', taskId: 'w1');
     expect(text('待开工'), findsOneWidget);
-    expect(text('更新进度'), findsNothing);
+    expect(text('开始施工'), findsOneWidget);
+    expect(text('提交完工'), findsNothing);
+    await t.tap(text('开始施工'));
+    await t.pumpAndSettle();
+    final c = calls('staff_task_progress').single;
+    expect(c['id'], 'w1');
+    expect(c['stage'], 1);
+    expect(text('施工中'), findsOneWidget);
+    expect(text('提交完工'), findsOneWidget);
+
+    await start(t, 'StTaskDetail', taskId: 'd1');
+    expect(text('已完成'), findsOneWidget);
+    expect(text('开始施工'), findsNothing);
     expect(text('提交完工'), findsNothing);
   });
 
-  testWidgets('更新进度：选择阶段后保存，向服务端提交已完成的节点数', (t) async {
-    await start(t, 'StTaskDetail', taskId: 'a1');
-    await t.tap(text('更新进度'));
+  testWidgets('开始施工失败：保持待开工状态并提示服务端的原因', (t) async {
+    api.workError = const AppError('该任务已提交完工');
+    await start(t, 'StTaskDetail', taskId: 'w1');
+    await t.tap(text('开始施工'));
     await t.pumpAndSettle();
-    expect(text('取消'), findsOneWidget);
-    await t.tap(find.text('固化 · 质检').last);
-    await t.pumpAndSettle();
-    await t.tap(text('保存'));
-    await t.pumpAndSettle();
-    final c = calls('staff_task_progress').single;
-    expect(c['id'], 'a1');
-    expect(c['stage'], 3);
-    expect(text('保存'), findsNothing, reason: '保存后关闭弹层');
-    expect(text('87%'), findsOneWidget, reason: '详情页刷新为新进度');
-  });
-
-  testWidgets('更新进度失败：保持弹层并提示服务端的原因', (t) async {
-    api.workError = const AppError('施工进度不能倒退');
-    await start(t, 'StTaskDetail', taskId: 'a1');
-    await t.tap(text('更新进度'));
-    await t.pumpAndSettle();
-    await t.tap(text('保存'));
-    await t.pumpAndSettle();
-    expect(find.textContaining('不能倒退'), findsOneWidget);
-    expect(text('保存'), findsOneWidget);
+    expect(find.textContaining('已提交完工'), findsOneWidget);
+    expect(text('待开工'), findsOneWidget);
+    expect(text('开始施工'), findsOneWidget);
   });
 
   testWidgets('完工提交：确认后调用服务端，进入完工结果页显示预计提成', (t) async {
