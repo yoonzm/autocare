@@ -50,6 +50,21 @@ void main() {
     });
     await expectation;
   });
+  test('退出后迟到的 401 不再触发登录失效跳转', () async {
+    final api = PendingApi();
+    final before = authExpired.value;
+    final pending = api.invoke({'action': 'staff_home'});
+    final expectation = expectLater(
+      pending,
+      throwsA(
+        isA<AppError>().having((e) => e.type, 'type', isNot(AppErrorType.auth)),
+      ),
+    );
+    StoreContext.bind(null);
+    api.pending.completeError(const AppError('登录已过期', type: AppErrorType.auth));
+    await expectation;
+    expect(authExpired.value, before);
+  });
   test('旧店服务缓存迟到不能覆盖新店，也不能清除新店进行中的请求', () async {
     final api = CacheApi();
     merchantApi = api;

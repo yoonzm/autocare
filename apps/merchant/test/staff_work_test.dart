@@ -1,4 +1,10 @@
+import 'dart:async';
+
 import 'package:autocare_merchant/pages/staff_app/task_route_data.dart';
+import 'package:autocare_merchant/pages/staff_app/staff_tabs.dart';
+import 'package:autocare_merchant/pages/account/login_page.dart';
+import 'package:autocare_merchant/backend/store_profile.dart';
+import 'package:autocare_merchant/backend/store_context.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,6 +17,18 @@ import 'members_test.dart' show phone;
 
 /// 员工工作流（任务 / 进度 / 完工 / 业绩 / 今日到店）的假后端。
 class WorkApi extends BookingApi {
+  bool clearOnSignOut = false;
+  Future<void>? signOutGate;
+  @override
+  Future<void> signOut() async {
+    calls.add({'action': 'sign_out'});
+    if (clearOnSignOut) {
+      StoreContext.bind(null);
+      storeProfile.clear();
+    }
+    await signOutGate;
+  }
+
   Map<String, Map<String, dynamic>> tasks = {
     'w1': task(
       'w1',
@@ -210,6 +228,68 @@ void main() {
     await t.pumpAndSettle();
   }
 
+  testWidgets('技师在我的页面进入真实任务列表，前台不显示任务入口', (t) async {
+    await start(t, 'StMine');
+    expect(text('联系店长'), findsNothing);
+    expect(text('共 3 个任务'), findsOneWidget);
+    await t.ensureVisible(text('我的任务'));
+    await t.tap(text('我的任务'));
+    await t.pumpAndSettle();
+    expect(calls('staff_task_list'), hasLength(2));
+    expect(text('施工中 1'), findsWidgets);
+
+    Access.apply({...api.identityCtx, 'role': 'cashier', 'caps': const {}});
+    await start(t, 'StMine');
+    expect(text('联系店长'), findsNothing);
+    expect(text('我的任务'), findsNothing);
+    expect(calls('staff_task_list'), hasLength(2));
+  });
+
+  testWidgets('店员退出登录沿用老板端的圆角按钮样式并退出会话', (t) async {
+    await start(t, 'StMine');
+    final label = text('退出登录');
+    await t.ensureVisible(label);
+    final button = t.widget<Container>(
+      find.ancestor(of: label, matching: find.byType(Container)).first,
+    );
+    expect(button.constraints?.maxHeight, 50);
+    final decoration = button.decoration! as BoxDecoration;
+    expect(decoration.borderRadius, BorderRadius.circular(25));
+    expect(t.widget<Text>(label).style?.fontWeight, FontWeight.w600);
+    await t.tap(label);
+    await t.pumpAndSettle();
+    expect(calls('sign_out'), hasLength(1));
+    expect(Access.role, 'owner');
+  });
+
+  testWidgets('退出时旧店员工作台不因身份清理重新发请求', (t) async {
+    final gate = Completer<void>();
+    addTearDown(() {
+      if (!gate.isCompleted) gate.complete();
+    });
+    api.clearOnSignOut = true;
+    api.signOutGate = gate.future;
+    phone(t);
+    await t.pumpWidget(
+      MaterialApp(navigatorObservers: [navTracker], home: const StaffTabs()),
+    );
+    await t.pumpAndSettle();
+    final ctx = t.element(find.byType(StaffTabs));
+    openRoute(ctx, 'StMine');
+    await t.pumpAndSettle();
+    final before = calls('staff_home').length;
+    await t.ensureVisible(text('退出登录'));
+    await t.tap(text('退出登录'));
+    await t.pump();
+    await t.pump();
+    expect(calls('staff_home'), hasLength(before));
+    gate.complete();
+    await t.pump(const Duration(milliseconds: 600));
+    await t.pumpAndSettle();
+    expect(find.byType(LoginPage), findsOneWidget);
+    expect(navTracker.stack, hasLength(1));
+  });
+
   testWidgets('我的任务：三个分组的数量与卡片都来自服务端，切换分组只显示对应任务', (t) async {
     await start(t, 'StTasks');
     expect(text('待施工 1'), findsWidgets);
@@ -323,5 +403,27 @@ void main() {
     expect(text('客户 王建国 · 黑金会员'), findsOneWidget);
     expect(text('客户 赵磊 · 银卡'), findsOneWidget);
     expect(text('沪A8K29M'), findsOneWidget);
+  });
+
+  testWidgets('我的页面今日到店数量与真实预约列表一致', (t) async {
+    Access.apply({
+      ...api.identityCtx,
+      'role': 'cashier',
+      'caps': {'arrivals_today': true},
+    });
+    api.home['waiting'] = 5;
+    api.home['working'] = 7;
+    await start(t, 'StMine');
+    expect(text('2 位'), findsOneWidget);
+    expect(calls('staff_arrivals'), hasLength(1));
+    await t.tap(text('今日到店'));
+    await t.pumpAndSettle();
+    expect(text('2 位车主'), findsOneWidget);
+    expect(calls('staff_arrivals'), hasLength(2));
+
+    Access.apply({...api.identityCtx, 'role': 'cashier', 'caps': const {}});
+    await start(t, 'StMine');
+    expect(text('今日到店'), findsNothing);
+    expect(calls('staff_arrivals'), hasLength(2));
   });
 }

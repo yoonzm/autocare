@@ -10,13 +10,26 @@ import 'package:autocare_merchant/routes.dart' show navTracker, openRoute;
 import 'appointments_test.dart' show BookingApi;
 import 'members_test.dart' show phone;
 
+class AccessApi extends BookingApi {
+  @override
+  Future<Map<String, dynamic>> staffWork(
+    String action, [
+    Map<String, dynamic> values = const {},
+  ]) async {
+    if (action == 'staff_task_list' || action == 'staff_arrivals') {
+      return {'items': []};
+    }
+    return super.staffWork(action, values);
+  }
+}
+
 void main() {
   late MerchantApi original;
-  late BookingApi api;
+  late AccessApi api;
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     original = merchantApi;
-    merchantApi = api = BookingApi();
+    merchantApi = api = AccessApi();
     navTracker.stack.clear();
     Access.role = 'owner';
     Access.caps = const {};

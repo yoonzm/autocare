@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../backend/merchant_api.dart';
 import '../../backend/staff_flow.dart';
+import '../../backend/store_context.dart';
 import '../../kit/async_kit.dart';
 import '../../kit/kit.dart' show dk;
 
@@ -77,7 +78,7 @@ class _StaffLiveHostState extends State<StaffLiveHost> {
   }
 
   void _reload() {
-    if (!mounted) return;
+    if (!mounted || StoreContext.id == null) return;
     if (_key.currentState?.busy == true) {
       _pending = true;
       return;

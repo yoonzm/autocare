@@ -49,7 +49,7 @@ class _StaffTabsState extends State<StaffTabs> {
   }
 
   void _onAccess() {
-    if (mounted) setState(() {});
+    if (mounted && Access.usesStaffShell) setState(() {});
   }
 
   @override

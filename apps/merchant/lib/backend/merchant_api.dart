@@ -183,6 +183,10 @@ class MerchantApi {
     try {
       return await send();
     } on AppError catch (e) {
+      // 会话或门店已切换时，旧请求的 401 不能再次触发全局登录跳转。
+      if (epoch != StoreContext.epoch) {
+        throw const AppError('门店已切换，请重新操作');
+      }
       // 身份 / 套餐状态：交给全局处理（回登录、套餐到期页、加入门店），不当作令牌失效重试
       if (const {
         'plan_expired',

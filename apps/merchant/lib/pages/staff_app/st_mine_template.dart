@@ -8,6 +8,7 @@ import '../../kit/kit.dart';
 import '../../preferences/theme_preferences.dart';
 import '../../routes.dart' show openRoute;
 import '../../resources/staff_svgs.dart';
+import '../../theme.dart' show C, softShadow, ts;
 import 'st_live.dart';
 import '../../kit/page_header.dart';
 
@@ -17,6 +18,7 @@ class StMineTemplate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final logoutKey = 'staff-mine-logout-${identityHashCode(context)}';
     final name = '${d['name']}';
     final phone = '${d['phone'] ?? ''}';
     final masked = phone.length == 11
@@ -412,156 +414,172 @@ class StMineTemplate extends StatelessWidget {
                           ),
                         ),
                       ),
-                      hbox(
-                        h: 1,
-                        bg: dk(context, Color(0xFFEFEFF1), Color(0xFF2A2A2E)),
-                        margin: EdgeInsets.fromLTRB(60, 0, 0, 0),
-                      ),
-                      GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () => openRoute(context, 'StArrivals'),
-                        child: hbox(
-                          minH: 60,
-                          pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                          child: hrow(
-                            [
-                              hbox(
-                                w: 32,
-                                h: 32,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFE1F0FE),
-                                  Color.fromRGBO(4, 133, 247, 0.18),
-                                ),
-                                radius: BorderRadius.circular(10),
-                                child: hrow(
-                                  [
-                                    hsvg(
-                                      dk(context, Svgs.s65, Svgs.s66),
-                                      w: 18,
-                                      h: 18,
-                                    ),
-                                  ],
-                                  main: MainAxisAlignment.center,
-                                  cross: CrossAxisAlignment.center,
-                                  gap: 0,
-                                ),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: hcol(
-                                  [
-                                    Text(
-                                      '今日到店',
-                                      style: hts(
-                                        15,
-                                        dk(
-                                          context,
-                                          Color(0xFF18181B),
-                                          Color(0xFFFAFAFA),
-                                        ),
-                                        lh: 22,
+                      if (Access.can('arrivals_today')) ...[
+                        hbox(
+                          h: 1,
+                          bg: dk(context, Color(0xFFEFEFF1), Color(0xFF2A2A2E)),
+                          margin: EdgeInsets.fromLTRB(60, 0, 0, 0),
+                        ),
+                        GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () => openRoute(context, 'StArrivals'),
+                          child: hbox(
+                            minH: 60,
+                            pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                            child: hrow(
+                              [
+                                hbox(
+                                  w: 32,
+                                  h: 32,
+                                  bg: dk(
+                                    context,
+                                    Color(0xFFE1F0FE),
+                                    Color.fromRGBO(4, 133, 247, 0.18),
+                                  ),
+                                  radius: BorderRadius.circular(10),
+                                  child: hrow(
+                                    [
+                                      hsvg(
+                                        dk(context, Svgs.s65, Svgs.s66),
+                                        w: 18,
+                                        h: 18,
                                       ),
-                                    ),
-                                    Text(
-                                      '${(d['waiting'] ?? 0) + (d['working'] ?? 0)} 位',
-                                      style: hts(
-                                        12,
-                                        dk(
-                                          context,
-                                          Color(0xFF71717A),
-                                          Color(0xFF9A9AA3),
-                                        ),
-                                        lh: 16,
-                                      ),
-                                    ),
-                                  ],
-                                  main: MainAxisAlignment.start,
-                                  cross: CrossAxisAlignment.stretch,
-                                  gap: 1,
+                                    ],
+                                    main: MainAxisAlignment.center,
+                                    cross: CrossAxisAlignment.center,
+                                    gap: 0,
+                                  ),
                                 ),
-                              ),
-                              hsvg(
-                                dk(context, Svgs.s45, Svgs.s46),
-                                w: 16,
-                                h: 16,
-                              ),
-                            ],
-                            main: MainAxisAlignment.start,
-                            cross: CrossAxisAlignment.center,
-                            gap: 12,
+                                Expanded(
+                                  flex: 1,
+                                  child: hcol(
+                                    [
+                                      Text(
+                                        '今日到店',
+                                        style: hts(
+                                          15,
+                                          dk(
+                                            context,
+                                            Color(0xFF18181B),
+                                            Color(0xFFFAFAFA),
+                                          ),
+                                          lh: 22,
+                                        ),
+                                      ),
+                                      Text(
+                                        '${d['arrivals_total']} 位',
+                                        style: hts(
+                                          12,
+                                          dk(
+                                            context,
+                                            Color(0xFF71717A),
+                                            Color(0xFF9A9AA3),
+                                          ),
+                                          lh: 16,
+                                        ),
+                                      ),
+                                    ],
+                                    main: MainAxisAlignment.start,
+                                    cross: CrossAxisAlignment.stretch,
+                                    gap: 1,
+                                  ),
+                                ),
+                                hsvg(
+                                  dk(context, Svgs.s45, Svgs.s46),
+                                  w: 16,
+                                  h: 16,
+                                ),
+                              ],
+                              main: MainAxisAlignment.start,
+                              cross: CrossAxisAlignment.center,
+                              gap: 12,
+                            ),
                           ),
                         ),
-                      ),
-                      hbox(
-                        h: 1,
-                        bg: dk(context, Color(0xFFEFEFF1), Color(0xFF2A2A2E)),
-                        margin: EdgeInsets.fromLTRB(60, 0, 0, 0),
-                      ),
-                      GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () => AppToast.show(context, '请直接联系店长'),
-                        child: hbox(
-                          minH: 60,
-                          pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                          child: hrow(
-                            [
-                              hbox(
-                                w: 32,
-                                h: 32,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFEEEEF0),
-                                  Color(0xFF27272A),
-                                ),
-                                radius: BorderRadius.circular(10),
-                                child: hrow(
-                                  [
-                                    hsvg(
-                                      dk(context, Svgs.s67, Svgs.s68),
-                                      w: 18,
-                                      h: 18,
-                                    ),
-                                  ],
-                                  main: MainAxisAlignment.center,
-                                  cross: CrossAxisAlignment.center,
-                                  gap: 0,
-                                ),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: hcol(
-                                  [
-                                    Text(
-                                      '联系店长',
-                                      style: hts(
-                                        15,
-                                        dk(
-                                          context,
-                                          Color(0xFF18181B),
-                                          Color(0xFFFAFAFA),
-                                        ),
-                                        lh: 22,
+                      ],
+                      if (Access.can('order_view_own')) ...[
+                        hbox(
+                          h: 1,
+                          bg: dk(context, Color(0xFFEFEFF1), Color(0xFF2A2A2E)),
+                          margin: EdgeInsets.fromLTRB(60, 0, 0, 0),
+                        ),
+                        GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () => openRoute(context, 'StTasks'),
+                          child: hbox(
+                            minH: 60,
+                            pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                            child: hrow(
+                              [
+                                hbox(
+                                  w: 32,
+                                  h: 32,
+                                  bg: dk(
+                                    context,
+                                    Color(0xFFEEEEF0),
+                                    Color(0xFF27272A),
+                                  ),
+                                  radius: BorderRadius.circular(10),
+                                  child: hrow(
+                                    [
+                                      hsvg(
+                                        dk(context, Svgs.s67, Svgs.s68),
+                                        w: 18,
+                                        h: 18,
                                       ),
-                                    ),
-                                  ],
-                                  main: MainAxisAlignment.start,
-                                  cross: CrossAxisAlignment.stretch,
-                                  gap: 1,
+                                    ],
+                                    main: MainAxisAlignment.center,
+                                    cross: CrossAxisAlignment.center,
+                                    gap: 0,
+                                  ),
                                 ),
-                              ),
-                              hsvg(
-                                dk(context, Svgs.s45, Svgs.s46),
-                                w: 16,
-                                h: 16,
-                              ),
-                            ],
-                            main: MainAxisAlignment.start,
-                            cross: CrossAxisAlignment.center,
-                            gap: 12,
+                                Expanded(
+                                  flex: 1,
+                                  child: hcol(
+                                    [
+                                      Text(
+                                        '我的任务',
+                                        style: hts(
+                                          15,
+                                          dk(
+                                            context,
+                                            Color(0xFF18181B),
+                                            Color(0xFFFAFAFA),
+                                          ),
+                                          lh: 22,
+                                        ),
+                                      ),
+                                      Text(
+                                        '共 ${d['task_total']} 个任务',
+                                        style: hts(
+                                          12,
+                                          dk(
+                                            context,
+                                            Color(0xFF71717A),
+                                            Color(0xFF9A9AA3),
+                                          ),
+                                          lh: 16,
+                                        ),
+                                      ),
+                                    ],
+                                    main: MainAxisAlignment.start,
+                                    cross: CrossAxisAlignment.stretch,
+                                    gap: 1,
+                                  ),
+                                ),
+                                hsvg(
+                                  dk(context, Svgs.s45, Svgs.s46),
+                                  w: 16,
+                                  h: 16,
+                                ),
+                              ],
+                              main: MainAxisAlignment.start,
+                              cross: CrossAxisAlignment.center,
+                              gap: 12,
+                            ),
                           ),
                         ),
-                      ),
+                      ],
                     ],
                     main: MainAxisAlignment.start,
                     cross: CrossAxisAlignment.stretch,
@@ -844,79 +862,45 @@ class StMineTemplate extends StatelessWidget {
                           ),
                         ),
                       ),
-                      hbox(
-                        h: 1,
-                        bg: dk(context, Color(0xFFEFEFF1), Color(0xFF2A2A2E)),
-                        margin: EdgeInsets.fromLTRB(60, 0, 0, 0),
-                      ),
-                      GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () => AccessFlow.signOut(context),
-                        child: hbox(
-                          minH: 60,
-                          pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                          child: hrow(
-                            [
-                              hbox(
-                                w: 32,
-                                h: 32,
-                                bg: dk(
-                                  context,
-                                  Color(0xFFFFE1E2),
-                                  Color.fromRGBO(255, 56, 60, 0.18),
-                                ),
-                                radius: BorderRadius.circular(10),
-                                child: hrow(
-                                  [
-                                    hsvg(
-                                      dk(context, Svgs.s79, Svgs.s80),
-                                      w: 18,
-                                      h: 18,
-                                    ),
-                                  ],
-                                  main: MainAxisAlignment.center,
-                                  cross: CrossAxisAlignment.center,
-                                  gap: 0,
-                                ),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: hcol(
-                                  [
-                                    Text(
-                                      '退出登录',
-                                      style: hts(
-                                        15,
-                                        dk(
-                                          context,
-                                          Color(0xFF18181B),
-                                          Color(0xFFFAFAFA),
-                                        ),
-                                        lh: 22,
-                                      ),
-                                    ),
-                                  ],
-                                  main: MainAxisAlignment.start,
-                                  cross: CrossAxisAlignment.stretch,
-                                  gap: 1,
-                                ),
-                              ),
-                              hsvg(
-                                dk(context, Svgs.s45, Svgs.s46),
-                                w: 16,
-                                h: 16,
-                              ),
-                            ],
-                            main: MainAxisAlignment.start,
-                            cross: CrossAxisAlignment.center,
-                            gap: 12,
-                          ),
-                        ),
-                      ),
                     ],
                     main: MainAxisAlignment.start,
                     cross: CrossAxisAlignment.stretch,
                     gap: 0,
+                  ),
+                ),
+                AsyncActionScope(
+                  actionKey: logoutKey,
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () =>
+                        runBusy(logoutKey, () => AccessFlow.signOut(context)),
+                    child: Container(
+                      height: 50,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: C.card,
+                        borderRadius: BorderRadius.circular(25),
+                        boxShadow: softShadow,
+                      ),
+                      child: hBusy(
+                        logoutKey,
+                        Text(
+                          '退出登录',
+                          style: ts(
+                            16,
+                            w: FontWeight.w600,
+                            color: C.redInk,
+                            h: 24,
+                          ),
+                        ),
+                        style: ts(
+                          16,
+                          w: FontWeight.w600,
+                          color: C.redInk,
+                          h: 24,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -945,7 +929,22 @@ class StMineLivePage extends StatelessWidget {
     listenable: Access.changed,
     builder: (_, _) => StLive(
       title: '我的',
-      load: merchantApi.staffHome,
+      load: () async {
+        final hasArrivals = Access.can('arrivals_today');
+        final hasTasks = Access.can('order_view_own');
+        final results = await Future.wait([
+          merchantApi.staffHome(),
+          if (hasArrivals) merchantApi.staffWork('staff_arrivals'),
+          if (hasTasks) merchantApi.staffWork('staff_task_list'),
+        ]);
+        return {
+          ...results.first,
+          if (hasArrivals)
+            'arrivals_total': (results[1]['items'] as List? ?? const []).length,
+          if (hasTasks)
+            'task_total': (results.last['items'] as List? ?? const []).length,
+        };
+      },
       builder: (_, d) => StMineTemplate(d: d),
     ),
   );
