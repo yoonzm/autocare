@@ -271,7 +271,8 @@ class _LoginPageState extends State<LoginPage> {
                 color: C.primary,
                 borderRadius: BorderRadius.circular(18),
               ),
-              child: AppIcon('car', color: Colors.white, size: 30),
+              clipBehavior: Clip.antiAlias,
+              child: Image.asset('assets/brand_icon.png', fit: BoxFit.cover),
             ),
             const SizedBox(height: 20),
             Text(
