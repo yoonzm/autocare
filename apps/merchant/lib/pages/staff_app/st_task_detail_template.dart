@@ -430,25 +430,67 @@ class StTaskDetailTemplate extends StatelessWidget {
                       gap: 0,
                     ),
                   ),
-                  UploadGallery(
-                    key: ValueKey('task-photos-${d['id']}'),
-                    title: '施工照片',
-                    max: 6,
-                    load: MediaApi.task(merchantApi, d['id'].toString()).load,
-                    upload: Access.can('progress_update')
-                        ? MediaApi.task(merchantApi, d['id'].toString()).upload
-                        : null,
-                    remove: Access.can('progress_update')
-                        ? MediaApi.task(merchantApi, d['id'].toString()).remove
-                        : null,
-                    discard: MediaApi.task(
-                      merchantApi,
-                      d['id'].toString(),
-                    ).discard,
-                    refresh: MediaApi.task(
-                      merchantApi,
-                      d['id'].toString(),
-                    ).refresh,
+                  hbox(
+                    bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                    radius: BorderRadius.circular(24),
+                    shadow: dk(
+                      context,
+                      [
+                        BoxShadow(
+                          color: Color.fromRGBO(0, 0, 0, 0.06),
+                          offset: Offset(0, 0),
+                          blurRadius: 1,
+                          spreadRadius: 0,
+                        ),
+                        BoxShadow(
+                          color: Color.fromRGBO(0, 0, 0, 0.06),
+                          offset: Offset(0, 1),
+                          blurRadius: 2,
+                          spreadRadius: 0,
+                        ),
+                        BoxShadow(
+                          color: Color.fromRGBO(0, 0, 0, 0.04),
+                          offset: Offset(0, 2),
+                          blurRadius: 4,
+                          spreadRadius: 0,
+                        ),
+                      ],
+                      [
+                        BoxShadow(
+                          color: Color(0xFF26262B),
+                          offset: Offset(0, 0),
+                          blurRadius: 0,
+                          spreadRadius: 1,
+                        ),
+                      ],
+                    ),
+                    pad: EdgeInsets.fromLTRB(16, 16, 16, 16),
+                    child: UploadGallery(
+                      key: ValueKey('task-photos-${d['id']}'),
+                      title: '施工照片',
+                      max: 6,
+                      load: MediaApi.task(merchantApi, d['id'].toString()).load,
+                      upload: Access.can('progress_update')
+                          ? MediaApi.task(
+                              merchantApi,
+                              d['id'].toString(),
+                            ).upload
+                          : null,
+                      remove: Access.can('progress_update')
+                          ? MediaApi.task(
+                              merchantApi,
+                              d['id'].toString(),
+                            ).remove
+                          : null,
+                      discard: MediaApi.task(
+                        merchantApi,
+                        d['id'].toString(),
+                      ).discard,
+                      refresh: MediaApi.task(
+                        merchantApi,
+                        d['id'].toString(),
+                      ).refresh,
+                    ),
                   ),
                 ],
                 main: MainAxisAlignment.start,
