@@ -50,7 +50,7 @@ class _RolePermissionTemplateState extends State<RolePermissionTemplate> {
 
   void set(String k, bool v) {
     if (role == 'manager') {
-      AppToast.show(context, '店长权限固定为全部，不能修改');
+      AppToast.show(context, '店长权限由系统固定，不能在此修改');
       return;
     }
     setState(() {
@@ -1105,7 +1105,7 @@ class _RolePermissionTemplateState extends State<RolePermissionTemplate> {
   }
 }
 
-/// 角色权限（设计稿 RolePermission）：逐店读取并保存角色权限开关，店长固定为全部。
+/// 角色权限（设计稿 RolePermission）：逐店读取并保存角色权限开关，店长权限由系统固定。
 class RolePermissionLivePage extends StatelessWidget {
   final String initialRole;
   const RolePermissionLivePage({super.key, this.initialRole = 'technician'});

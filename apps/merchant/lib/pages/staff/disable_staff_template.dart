@@ -1,3 +1,5 @@
+import '../../backend/access_flow.dart';
+
 import 'package:flutter/material.dart';
 
 import 'staff_route_data.dart';
@@ -324,6 +326,11 @@ class DisableStaffSheet extends StatelessWidget {
     sheet: true,
     staffId: staffId,
     load: (id) => merchantApi.staff('get', {'id': id}),
-    builder: (_, data) => DisableStaffTemplate(d: data),
+    builder: (_, data) => Access.canManageStaff(data)
+        ? DisableStaffTemplate(d: data)
+        : ErrorView(
+            error: const AppError('仅老板可管理店长', type: AppErrorType.forbidden),
+            onNext: () => Navigator.of(context).maybePop(),
+          ),
   );
 }

@@ -351,6 +351,10 @@ void openRoute(BuildContext context, String name, {Object? arguments}) =>
 /// 没有对应权限时直达这些页面：显示「暂无权限访问」（设计稿 StNoPerm），入口本身已按权限隐藏。
 const Map<String, (String, String)> _routeCaps = {
   'Staff': ('staff_view', '查看员工列表'),
+  'StaffAdd': ('staff_manage', '管理员工'),
+  'StaffEdit': ('staff_manage', '管理员工'),
+  'RolePermission': ('owner', '老板授权'),
+  'StaffCommission': ('owner', '老板授权'),
   'Stats': ('stats_view_store', '查看门店营业统计'),
   'Expenses': ('expense', '开支管理'),
   'Inventory': ('stock_manage', '库存管理'),

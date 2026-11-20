@@ -1,3 +1,5 @@
+import 'package:autocare_merchant/pages/staff/staff_detail_template.dart';
+import 'package:autocare_merchant/backend/access_flow.dart';
 import 'package:autocare_merchant/pages/staff/staff_editor_page.dart';
 
 import 'dart:async';
@@ -45,6 +47,63 @@ void main() {
       await t.pump();
     }
   }
+
+  for (final role in ['manager', 'cashier', 'technician']) {
+    testWidgets('店长查看$role详情只显示允许的操作', (t) async {
+      Access.role = 'manager';
+      Access.caps = {'staff_manage': true, 'staff_view': true};
+      addTearDown(() {
+        Access.role = 'owner';
+        Access.caps = {};
+      });
+      await open(
+        t,
+        StaffDetailTemplate(d: {...api.staffRows.first, 'role': role}),
+      );
+      expect(find.text('提成方案'), findsNothing);
+      expect(
+        find.text('编辑'),
+        role == 'manager' ? findsNothing : findsOneWidget,
+      );
+      expect(
+        find.text('停用账号'),
+        role == 'manager' ? findsNothing : findsOneWidget,
+      );
+      expect(t.takeException(), isNull);
+    });
+  }
+
+  testWidgets('店长新增员工只提供前台技师角色', (t) async {
+    Access.role = 'manager';
+    Access.caps = {'staff_manage': true, 'staff_view': true};
+    addTearDown(() {
+      Access.role = 'owner';
+      Access.caps = {};
+    });
+    await open(t, const StaffEditorPage(initialRole: 'manager'));
+    expect(find.text('店长'), findsNothing);
+    expect(find.text('前台收银'), findsWidgets);
+    expect(find.text('施工技师'), findsWidgets);
+    expect(t.takeException(), isNull);
+  });
+
+  testWidgets('店长不能直接打开其他店长的编辑页', (t) async {
+    Access.role = 'manager';
+    Access.caps = {'staff_manage': true, 'staff_view': true};
+    addTearDown(() {
+      Access.role = 'owner';
+      Access.caps = {};
+    });
+    await open(
+      t,
+      const StaffEditorPage(
+        row: {'id': 'manager-id', 'role': 'manager'},
+        options: {},
+      ),
+    );
+    expect(find.byType(ErrorView), findsOneWidget);
+    expect(find.text('保存'), findsNothing);
+  });
 
   testWidgets('员工列表首次加载：标题栏和角色页签立即显示，骨架贴合列表而不是通用卡片', (t) async {
     api.optionsGate = Completer<void>();

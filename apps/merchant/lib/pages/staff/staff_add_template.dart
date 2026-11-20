@@ -1,3 +1,4 @@
+import '../../backend/access_flow.dart';
 import '../../kit/single_selection.dart';
 import '../../kit/multiple_selection.dart';
 import '../../kit/text_input.dart';
@@ -358,116 +359,117 @@ class StaffAddTemplate extends StatelessWidget {
                             c.setDraft('role', StaffEditorController.roles[i]),
                         builder: (context, selection) => hcol(
                           [
-                            HSel(
-                              ctrl: selection,
-                              index: 0,
-                              on: hbox(
-                                bg: dk(
-                                  context,
-                                  Color(0xFFE1F0FE),
-                                  Color.fromRGBO(4, 133, 247, 0.18),
-                                ),
-                                radius: BorderRadius.circular(18),
-                                border: Border.all(
-                                  color: Color(0xFF0485F7),
-                                  width: 1.5,
-                                ),
-                                pad: EdgeInsets.fromLTRB(14, 12, 14, 12),
-                                child: hrow(
-                                  [
-                                    Expanded(
-                                      flex: 1,
-                                      child: hcol(
-                                        [
-                                          Text(
-                                            '店长',
-                                            style: hts(
-                                              15,
-                                              dk(
-                                                context,
-                                                Color(0xFF18181B),
-                                                Color(0xFFFAFAFA),
+                            if (Access.isOwner)
+                              HSel(
+                                ctrl: selection,
+                                index: 0,
+                                on: hbox(
+                                  bg: dk(
+                                    context,
+                                    Color(0xFFE1F0FE),
+                                    Color.fromRGBO(4, 133, 247, 0.18),
+                                  ),
+                                  radius: BorderRadius.circular(18),
+                                  border: Border.all(
+                                    color: Color(0xFF0485F7),
+                                    width: 1.5,
+                                  ),
+                                  pad: EdgeInsets.fromLTRB(14, 12, 14, 12),
+                                  child: hrow(
+                                    [
+                                      Expanded(
+                                        flex: 1,
+                                        child: hcol(
+                                          [
+                                            Text(
+                                              '店长',
+                                              style: hts(
+                                                15,
+                                                dk(
+                                                  context,
+                                                  Color(0xFF18181B),
+                                                  Color(0xFFFAFAFA),
+                                                ),
+                                                w: FontWeight.w600,
+                                                lh: 22,
                                               ),
-                                              w: FontWeight.w600,
-                                              lh: 22,
                                             ),
-                                          ),
-                                          Text(
-                                            '全部权限，含收银、会员充值与退款、经营数据',
-                                            style: hts(
-                                              12,
-                                              dk(
-                                                context,
-                                                Color(0xFF71717A),
-                                                Color(0xFF9A9AA3),
+                                            Text(
+                                              '负责门店日常经营，可管理前台与技师',
+                                              style: hts(
+                                                12,
+                                                dk(
+                                                  context,
+                                                  Color(0xFF71717A),
+                                                  Color(0xFF9A9AA3),
+                                                ),
+                                                lh: 16,
                                               ),
-                                              lh: 16,
                                             ),
-                                          ),
-                                        ],
-                                        main: MainAxisAlignment.start,
-                                        cross: CrossAxisAlignment.stretch,
-                                        gap: 1,
+                                          ],
+                                          main: MainAxisAlignment.start,
+                                          cross: CrossAxisAlignment.stretch,
+                                          gap: 1,
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                  main: MainAxisAlignment.start,
-                                  cross: CrossAxisAlignment.center,
-                                  gap: 10,
+                                    ],
+                                    main: MainAxisAlignment.start,
+                                    cross: CrossAxisAlignment.center,
+                                    gap: 10,
+                                  ),
+                                ),
+                                off: hbox(
+                                  bg: dk(
+                                    context,
+                                    Color(0xFFF4F4F5),
+                                    Color(0xFF27272A),
+                                  ),
+                                  radius: BorderRadius.circular(18),
+                                  pad: EdgeInsets.fromLTRB(14, 12, 14, 12),
+                                  child: hrow(
+                                    [
+                                      Expanded(
+                                        flex: 1,
+                                        child: hcol(
+                                          [
+                                            Text(
+                                              '店长',
+                                              style: hts(
+                                                15,
+                                                dk(
+                                                  context,
+                                                  Color(0xFF18181B),
+                                                  Color(0xFFFAFAFA),
+                                                ),
+                                                w: FontWeight.w600,
+                                                lh: 22,
+                                              ),
+                                            ),
+                                            Text(
+                                              '负责门店日常经营，可管理前台与技师',
+                                              style: hts(
+                                                12,
+                                                dk(
+                                                  context,
+                                                  Color(0xFF71717A),
+                                                  Color(0xFF9A9AA3),
+                                                ),
+                                                lh: 16,
+                                              ),
+                                            ),
+                                          ],
+                                          main: MainAxisAlignment.start,
+                                          cross: CrossAxisAlignment.stretch,
+                                          gap: 1,
+                                        ),
+                                      ),
+                                    ],
+                                    main: MainAxisAlignment.start,
+                                    cross: CrossAxisAlignment.center,
+                                    gap: 10,
+                                  ),
                                 ),
                               ),
-                              off: hbox(
-                                bg: dk(
-                                  context,
-                                  Color(0xFFF4F4F5),
-                                  Color(0xFF27272A),
-                                ),
-                                radius: BorderRadius.circular(18),
-                                pad: EdgeInsets.fromLTRB(14, 12, 14, 12),
-                                child: hrow(
-                                  [
-                                    Expanded(
-                                      flex: 1,
-                                      child: hcol(
-                                        [
-                                          Text(
-                                            '店长',
-                                            style: hts(
-                                              15,
-                                              dk(
-                                                context,
-                                                Color(0xFF18181B),
-                                                Color(0xFFFAFAFA),
-                                              ),
-                                              w: FontWeight.w600,
-                                              lh: 22,
-                                            ),
-                                          ),
-                                          Text(
-                                            '全部权限，含收银、会员充值与退款、经营数据',
-                                            style: hts(
-                                              12,
-                                              dk(
-                                                context,
-                                                Color(0xFF71717A),
-                                                Color(0xFF9A9AA3),
-                                              ),
-                                              lh: 16,
-                                            ),
-                                          ),
-                                        ],
-                                        main: MainAxisAlignment.start,
-                                        cross: CrossAxisAlignment.stretch,
-                                        gap: 1,
-                                      ),
-                                    ),
-                                  ],
-                                  main: MainAxisAlignment.start,
-                                  cross: CrossAxisAlignment.center,
-                                  gap: 10,
-                                ),
-                              ),
-                            ),
                             HSel(
                               ctrl: selection,
                               index: 1,

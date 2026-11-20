@@ -364,7 +364,7 @@ void main() {
       find.descendant(of: row, matching: find.byType(GestureDetector)).last,
     );
     await t.pump();
-    expect(find.textContaining('店长权限固定为全部'), findsWidgets);
+    expect(find.textContaining('店长权限由系统固定'), findsWidgets);
     await t.pump(const Duration(seconds: 4));
     await t.ensureVisible(text('保存'));
     await t.pumpAndSettle();

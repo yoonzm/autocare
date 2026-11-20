@@ -1,3 +1,5 @@
+import '../../backend/access_flow.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../routes.dart' show openRoute;
@@ -450,71 +452,72 @@ class StaffDetailOffTemplate extends StatelessWidget {
         gap: 0,
       ),
       overlays: [
-        HBottomDock(
-          child: hbox(
-            bg: dk(
-              context,
-              Color.fromRGBO(255, 255, 255, 0.94),
-              Color.fromRGBO(9, 9, 11, 0.92),
-            ),
-            shadow: dk(
-              context,
-              [
-                BoxShadow(
-                  color: Color(0xFFE4E4E7),
-                  offset: Offset(0, -1),
-                  blurRadius: 0,
-                  spreadRadius: 0,
-                ),
-              ],
-              [
-                BoxShadow(
-                  color: Color(0xFF3A3A40),
-                  offset: Offset(0, -1),
-                  blurRadius: 0,
-                  spreadRadius: 0,
-                ),
-              ],
-            ),
-            pad: EdgeInsets.fromLTRB(20, 12, 20, bottomInset(context)),
-            child: hrow(
-              [
-                Expanded(
-                  flex: 1,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => openRoute(
-                      context,
-                      'StaffEnable',
-                      arguments: StaffRouteData(staffId: d['id'] as String?),
-                    ),
-                    child: hbox(
-                      h: 50,
-                      bg: Color(0xFF0485F7),
-                      radius: BorderRadius.circular(25),
-                      child: Align(
-                        alignment: Alignment(0, 0),
-                        widthFactor: 1,
-                        child: Text(
-                          '重新启用账号',
-                          style: hts(
-                            15,
-                            Color(0xFFFFFFFF),
-                            w: FontWeight.w600,
-                            lh: 22,
+        if (Access.canManageStaff(d))
+          HBottomDock(
+            child: hbox(
+              bg: dk(
+                context,
+                Color.fromRGBO(255, 255, 255, 0.94),
+                Color.fromRGBO(9, 9, 11, 0.92),
+              ),
+              shadow: dk(
+                context,
+                [
+                  BoxShadow(
+                    color: Color(0xFFE4E4E7),
+                    offset: Offset(0, -1),
+                    blurRadius: 0,
+                    spreadRadius: 0,
+                  ),
+                ],
+                [
+                  BoxShadow(
+                    color: Color(0xFF3A3A40),
+                    offset: Offset(0, -1),
+                    blurRadius: 0,
+                    spreadRadius: 0,
+                  ),
+                ],
+              ),
+              pad: EdgeInsets.fromLTRB(20, 12, 20, bottomInset(context)),
+              child: hrow(
+                [
+                  Expanded(
+                    flex: 1,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => openRoute(
+                        context,
+                        'StaffEnable',
+                        arguments: StaffRouteData(staffId: d['id'] as String?),
+                      ),
+                      child: hbox(
+                        h: 50,
+                        bg: Color(0xFF0485F7),
+                        radius: BorderRadius.circular(25),
+                        child: Align(
+                          alignment: Alignment(0, 0),
+                          widthFactor: 1,
+                          child: Text(
+                            '重新启用账号',
+                            style: hts(
+                              15,
+                              Color(0xFFFFFFFF),
+                              w: FontWeight.w600,
+                              lh: 22,
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ],
-              main: MainAxisAlignment.start,
-              cross: CrossAxisAlignment.center,
-              gap: 10,
+                ],
+                main: MainAxisAlignment.start,
+                cross: CrossAxisAlignment.center,
+                gap: 10,
+              ),
             ),
           ),
-        ),
       ],
     );
   }

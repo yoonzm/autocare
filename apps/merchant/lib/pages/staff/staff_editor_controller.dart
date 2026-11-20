@@ -1,3 +1,5 @@
+import '../../backend/access_flow.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../backend/appointment_flow.dart';
@@ -29,7 +31,9 @@ class StaffEditorController extends ChangeNotifier {
        draft = {
          'name': '',
          'phone': '',
-         'role': initialRole ?? 'technician',
+         'role': !Access.isOwner && initialRole == 'manager'
+             ? 'technician'
+             : initialRole ?? 'technician',
          'skills': '',
          'bay_id': null,
          'joined_on': bookingDay(bookingToday),
@@ -91,6 +95,7 @@ class StaffEditorController extends ChangeNotifier {
 
   void setDraft(String key, Object? value) {
     if (locked) return;
+    if (key == 'role' && !Access.isOwner && value == 'manager') return;
     draft[key] = value;
     edited();
   }
@@ -112,6 +117,10 @@ class StaffEditorController extends ChangeNotifier {
   Future<Map<String, dynamic>?> persist() async {
     if (busy || disposed || _committed) return null;
     if (_uncertain) throw const AppError('保存结果未确认，请先返回员工列表核对，避免重复新增');
+    if (!Access.canManageStaff(creating ? null : draft) ||
+        (!Access.isOwner && draft['role'] == 'manager')) {
+      throw const AppError('仅老板可管理店长', type: AppErrorType.forbidden);
+    }
     busy = true;
     changed();
     try {

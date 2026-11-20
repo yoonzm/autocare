@@ -1,3 +1,5 @@
+import '../../backend/access_flow.dart';
+
 import 'package:flutter/material.dart';
 
 import 'staff_route_data.dart';
@@ -109,65 +111,67 @@ class StaffDetailTemplate extends StatelessWidget {
       bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
       header: AppPageHeader(
         title: '员工详情',
-        trailing: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () => Navigator.of(context).push(
-            appSheetRoute<void>(
-              settings: const RouteSettings(name: 'StaffEdit'),
-              page: StaffEditorPage(row: d),
-            ),
-          ),
-          child: hbox(
-            h: 44,
-            bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-            radius: BorderRadius.circular(22),
-            shadow: dk(
-              context,
-              [
-                BoxShadow(
-                  color: Color.fromRGBO(0, 0, 0, 0.06),
-                  offset: Offset(0, 0),
-                  blurRadius: 1,
-                  spreadRadius: 0,
+        trailing: !Access.canManageStaff(d)
+            ? null
+            : GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => Navigator.of(context).push(
+                  appSheetRoute<void>(
+                    settings: const RouteSettings(name: 'StaffEdit'),
+                    page: StaffEditorPage(row: d),
+                  ),
                 ),
-                BoxShadow(
-                  color: Color.fromRGBO(0, 0, 0, 0.06),
-                  offset: Offset(0, 1),
-                  blurRadius: 2,
-                  spreadRadius: 0,
-                ),
-                BoxShadow(
-                  color: Color.fromRGBO(0, 0, 0, 0.04),
-                  offset: Offset(0, 2),
-                  blurRadius: 4,
-                  spreadRadius: 0,
-                ),
-              ],
-              [
-                BoxShadow(
-                  color: Color(0xFF26262B),
-                  offset: Offset(0, 0),
-                  blurRadius: 0,
-                  spreadRadius: 1,
-                ),
-              ],
-            ),
-            pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-            child: Align(
-              alignment: Alignment(-1, 0),
-              widthFactor: 1,
-              child: Text(
-                '编辑',
-                style: hts(
-                  14,
-                  dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                  w: FontWeight.w500,
-                  lh: 20,
+                child: hbox(
+                  h: 44,
+                  bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                  radius: BorderRadius.circular(22),
+                  shadow: dk(
+                    context,
+                    [
+                      BoxShadow(
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 0),
+                        blurRadius: 1,
+                        spreadRadius: 0,
+                      ),
+                      BoxShadow(
+                        color: Color.fromRGBO(0, 0, 0, 0.06),
+                        offset: Offset(0, 1),
+                        blurRadius: 2,
+                        spreadRadius: 0,
+                      ),
+                      BoxShadow(
+                        color: Color.fromRGBO(0, 0, 0, 0.04),
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
+                        spreadRadius: 0,
+                      ),
+                    ],
+                    [
+                      BoxShadow(
+                        color: Color(0xFF26262B),
+                        offset: Offset(0, 0),
+                        blurRadius: 0,
+                        spreadRadius: 1,
+                      ),
+                    ],
+                  ),
+                  pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                  child: Align(
+                    alignment: Alignment(-1, 0),
+                    widthFactor: 1,
+                    child: Text(
+                      '编辑',
+                      style: hts(
+                        14,
+                        dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                        w: FontWeight.w500,
+                        lh: 20,
+                      ),
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
-        ),
       ),
       flow: hcol(
         [
@@ -498,74 +502,80 @@ class StaffDetailTemplate extends StatelessWidget {
                           gap: 12,
                         ),
                       ),
-                      hbox(
-                        h: 1,
-                        bg: dk(context, Color(0xFFEFEFF1), Color(0xFF2A2A2E)),
-                        margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
-                      ),
-                      GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () {
-                          openRoute(
-                            context,
-                            'RolePermission',
-                            arguments: StaffRouteData(
-                              role: d['role'] == 'cashier'
-                                  ? 'cashier'
-                                  : 'technician',
+                      if (Access.isOwner)
+                        hbox(
+                          h: 1,
+                          bg: dk(context, Color(0xFFEFEFF1), Color(0xFF2A2A2E)),
+                          margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
+                        ),
+                      if (Access.isOwner)
+                        GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () {
+                            openRoute(
+                              context,
+                              'RolePermission',
+                              arguments: StaffRouteData(
+                                role: d['role'] == 'cashier'
+                                    ? 'cashier'
+                                    : 'technician',
+                              ),
+                            );
+                          },
+                          child: hbox(
+                            minH: 54,
+                            pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                            child: hrow(
+                              [
+                                Expanded(
+                                  flex: 1,
+                                  child: Text(
+                                    '角色与权限',
+                                    style: hts(
+                                      14,
+                                      dk(
+                                        context,
+                                        Color(0xFF52525B),
+                                        Color(0xFFA8A8B3),
+                                      ),
+                                      lh: 20,
+                                    ),
+                                  ),
+                                ),
+                                hbox(
+                                  bg: dk(
+                                    context,
+                                    Color(0xFFE1F0FE),
+                                    Color.fromRGBO(4, 133, 247, 0.18),
+                                  ),
+                                  radius: BorderRadius.circular(10),
+                                  pad: EdgeInsets.fromLTRB(8, 0, 8, 0),
+                                  child: Text(
+                                    role,
+                                    style: hts(
+                                      12,
+                                      dk(
+                                        context,
+                                        Color(0xFF1E63AE),
+                                        Color(0xFF6AB4FA),
+                                      ),
+                                      w: FontWeight.w500,
+                                      lh: 20,
+                                    ),
+                                  ),
+                                ),
+                                hsvg(
+                                  dk(context, Svgs.s3, Svgs.s4),
+                                  w: 16,
+                                  h: 16,
+                                ),
+                              ],
+                              main: MainAxisAlignment.start,
+                              cross: CrossAxisAlignment.center,
+                              gap: 12,
                             ),
-                          );
-                        },
-                        child: hbox(
-                          minH: 54,
-                          pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                          child: hrow(
-                            [
-                              Expanded(
-                                flex: 1,
-                                child: Text(
-                                  '角色与权限',
-                                  style: hts(
-                                    14,
-                                    dk(
-                                      context,
-                                      Color(0xFF52525B),
-                                      Color(0xFFA8A8B3),
-                                    ),
-                                    lh: 20,
-                                  ),
-                                ),
-                              ),
-                              hbox(
-                                bg: dk(
-                                  context,
-                                  Color(0xFFE1F0FE),
-                                  Color.fromRGBO(4, 133, 247, 0.18),
-                                ),
-                                radius: BorderRadius.circular(10),
-                                pad: EdgeInsets.fromLTRB(8, 0, 8, 0),
-                                child: Text(
-                                  role,
-                                  style: hts(
-                                    12,
-                                    dk(
-                                      context,
-                                      Color(0xFF1E63AE),
-                                      Color(0xFF6AB4FA),
-                                    ),
-                                    w: FontWeight.w500,
-                                    lh: 20,
-                                  ),
-                                ),
-                              ),
-                              hsvg(dk(context, Svgs.s3, Svgs.s4), w: 16, h: 16),
-                            ],
-                            main: MainAxisAlignment.start,
-                            cross: CrossAxisAlignment.center,
-                            gap: 12,
                           ),
                         ),
-                      ),
                       hbox(
                         h: 1,
                         bg: dk(context, Color(0xFFEFEFF1), Color(0xFF2A2A2E)),
@@ -628,60 +638,66 @@ class StaffDetailTemplate extends StatelessWidget {
                           gap: 12,
                         ),
                       ),
-                      hbox(
-                        h: 1,
-                        bg: dk(context, Color(0xFFEFEFF1), Color(0xFF2A2A2E)),
-                        margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
-                      ),
-                      GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () => openRoute(
-                          context,
-                          'StaffCommission',
-                          arguments: StaffRouteData(
-                            staffId: d['id'] as String?,
-                          ),
+                      if (Access.isOwner)
+                        hbox(
+                          h: 1,
+                          bg: dk(context, Color(0xFFEFEFF1), Color(0xFF2A2A2E)),
+                          margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
                         ),
-                        child: hbox(
-                          minH: 54,
-                          pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                          child: hrow(
-                            [
-                              Expanded(
-                                flex: 1,
-                                child: Text(
-                                  '提成方案',
+                      if (Access.isOwner)
+                        GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () => openRoute(
+                            context,
+                            'StaffCommission',
+                            arguments: StaffRouteData(
+                              staffId: d['id'] as String?,
+                            ),
+                          ),
+                          child: hbox(
+                            minH: 54,
+                            pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                            child: hrow(
+                              [
+                                Expanded(
+                                  flex: 1,
+                                  child: Text(
+                                    '提成方案',
+                                    style: hts(
+                                      14,
+                                      dk(
+                                        context,
+                                        Color(0xFF52525B),
+                                        Color(0xFFA8A8B3),
+                                      ),
+                                      lh: 20,
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  staffCommissionLabel(d),
                                   style: hts(
-                                    14,
+                                    15,
                                     dk(
                                       context,
-                                      Color(0xFF52525B),
-                                      Color(0xFFA8A8B3),
+                                      Color(0xFF18181B),
+                                      Color(0xFFFAFAFA),
                                     ),
-                                    lh: 20,
+                                    lh: 22,
                                   ),
                                 ),
-                              ),
-                              Text(
-                                staffCommissionLabel(d),
-                                style: hts(
-                                  15,
-                                  dk(
-                                    context,
-                                    Color(0xFF18181B),
-                                    Color(0xFFFAFAFA),
-                                  ),
-                                  lh: 22,
+                                hsvg(
+                                  dk(context, Svgs.s3, Svgs.s4),
+                                  w: 16,
+                                  h: 16,
                                 ),
-                              ),
-                              hsvg(dk(context, Svgs.s3, Svgs.s4), w: 16, h: 16),
-                            ],
-                            main: MainAxisAlignment.start,
-                            cross: CrossAxisAlignment.center,
-                            gap: 12,
+                              ],
+                              main: MainAxisAlignment.start,
+                              cross: CrossAxisAlignment.center,
+                              gap: 12,
+                            ),
                           ),
                         ),
-                      ),
                     ],
                     main: MainAxisAlignment.start,
                     cross: CrossAxisAlignment.stretch,
@@ -798,63 +814,64 @@ class StaffDetailTemplate extends StatelessWidget {
                     gap: 12,
                   ),
                 ),
-                GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () => openRoute(
-                    context,
-                    'DisableStaff',
-                    arguments: StaffRouteData(staffId: d['id'] as String?),
-                  ),
-                  child: hbox(
-                    h: 48,
-                    bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                    radius: BorderRadius.circular(24),
-                    shadow: dk(
+                if (Access.canManageStaff(d))
+                  GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => openRoute(
                       context,
-                      [
-                        BoxShadow(
-                          color: Color.fromRGBO(0, 0, 0, 0.06),
-                          offset: Offset(0, 0),
-                          blurRadius: 1,
-                          spreadRadius: 0,
-                        ),
-                        BoxShadow(
-                          color: Color.fromRGBO(0, 0, 0, 0.06),
-                          offset: Offset(0, 1),
-                          blurRadius: 2,
-                          spreadRadius: 0,
-                        ),
-                        BoxShadow(
-                          color: Color.fromRGBO(0, 0, 0, 0.04),
-                          offset: Offset(0, 2),
-                          blurRadius: 4,
-                          spreadRadius: 0,
-                        ),
-                      ],
-                      [
-                        BoxShadow(
-                          color: Color(0xFF26262B),
-                          offset: Offset(0, 0),
-                          blurRadius: 0,
-                          spreadRadius: 1,
-                        ),
-                      ],
+                      'DisableStaff',
+                      arguments: StaffRouteData(staffId: d['id'] as String?),
                     ),
-                    child: Align(
-                      alignment: Alignment(0, 0),
-                      widthFactor: 1,
-                      child: Text(
-                        '停用账号',
-                        style: hts(
-                          15,
-                          dk(context, Color(0xFFA43433), Color(0xFFFF7B7E)),
-                          w: FontWeight.w500,
-                          lh: 22,
+                    child: hbox(
+                      h: 48,
+                      bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                      radius: BorderRadius.circular(24),
+                      shadow: dk(
+                        context,
+                        [
+                          BoxShadow(
+                            color: Color.fromRGBO(0, 0, 0, 0.06),
+                            offset: Offset(0, 0),
+                            blurRadius: 1,
+                            spreadRadius: 0,
+                          ),
+                          BoxShadow(
+                            color: Color.fromRGBO(0, 0, 0, 0.06),
+                            offset: Offset(0, 1),
+                            blurRadius: 2,
+                            spreadRadius: 0,
+                          ),
+                          BoxShadow(
+                            color: Color.fromRGBO(0, 0, 0, 0.04),
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
+                            spreadRadius: 0,
+                          ),
+                        ],
+                        [
+                          BoxShadow(
+                            color: Color(0xFF26262B),
+                            offset: Offset(0, 0),
+                            blurRadius: 0,
+                            spreadRadius: 1,
+                          ),
+                        ],
+                      ),
+                      child: Align(
+                        alignment: Alignment(0, 0),
+                        widthFactor: 1,
+                        child: Text(
+                          '停用账号',
+                          style: hts(
+                            15,
+                            dk(context, Color(0xFFA43433), Color(0xFFFF7B7E)),
+                            w: FontWeight.w500,
+                            lh: 22,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
               ],
               main: MainAxisAlignment.start,
               cross: CrossAxisAlignment.stretch,

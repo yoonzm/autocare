@@ -43,6 +43,24 @@ void main() {
     Access.context = const {};
   });
 
+  test('店长只管理前台技师，老板保留全部员工管理', () {
+    Access.role = 'manager';
+    Access.caps = {'staff_manage': true};
+    expect(Access.canManageStaff(), isTrue);
+    for (final role in ['cashier', 'technician']) {
+      expect(Access.canManageStaff({'role': role}), isTrue);
+    }
+    expect(Access.canManageStaff({'role': 'manager'}), isFalse);
+    expect(Access.canManageStaff({'role': 'owner'}), isFalse);
+    Access.caps = {};
+    expect(Access.canManageStaff(), isFalse);
+    Access.role = 'cashier';
+    Access.caps = {'staff_manage': true};
+    expect(Access.canManageStaff(), isFalse);
+    Access.role = 'owner';
+    expect(Access.canManageStaff({'role': 'manager'}), isTrue);
+  });
+
   Future<void> open(WidgetTester t, Widget page) async {
     phone(t);
     await t.pumpWidget(

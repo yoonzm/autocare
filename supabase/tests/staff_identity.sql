@@ -50,7 +50,7 @@ begin
   assert (public.staff_context(shop,'manager',null)->'caps'->>'expense')::boolean;
   assert not public.staff_has_permission(shop,'cashier','expense');
   assert not public.staff_has_permission(shop,'technician','expense');
-  assert not (caps->>'staff_manage')::boolean and not (caps->>'export')::boolean;
+  assert (caps->>'staff_manage')::boolean and not (caps->>'export')::boolean;
 
   -- 生效权限：技师默认可开单收银，不能看会员完整资料 / 营业额，即使保存了开关。
   caps:=public.staff_caps(shop,'technician');

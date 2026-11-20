@@ -124,3 +124,14 @@ Deno.test('inventory document kinds do not route through catalog permissions', (
     }
   }
 });
+
+Deno.test('staff management does not grant commission or role authorization', () => {
+  for (const action of ['staff_save', 'staff_status', 'staff_invite']) {
+    assert(can('manager', ['staff_manage'], { action }));
+    assert(!can('manager', [], { action }));
+  }
+  for (const action of ['staff_commission_save', 'staff_permissions_save']) {
+    assert(!can('manager', ['staff_manage'], { action }));
+    assert(can('owner', [], { action }));
+  }
+});

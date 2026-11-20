@@ -104,7 +104,7 @@ const byAction: Record<string, Requirement> = {
   staff_records: cap('staff_view'),
   staff_save: cap('staff_manage'),
   staff_status: cap('staff_manage'),
-  staff_commission_save: cap('staff_manage'),
+  staff_commission_save: owner,
   staff_invite: cap('staff_manage'),
   staff_permissions_save: owner,
 };

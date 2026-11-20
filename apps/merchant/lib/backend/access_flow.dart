@@ -44,6 +44,14 @@ class Access {
   /// 老板拥有全部权限；其余身份取服务端算好的生效权限。
   static bool can(String key) => isOwner || caps[key] == true;
 
+  /// 店长只管理本店前台与技师；实际归属和角色由服务端再次校验。
+  static bool canManageStaff([Map<String, dynamic>? employee]) =>
+      isOwner ||
+      (role == 'manager' &&
+          can('staff_manage') &&
+          (employee == null ||
+              const ['cashier', 'technician'].contains(employee['role'])));
+
   static String roleName([String? r]) => switch (r ?? role) {
     'owner' => '老板',
     'manager' => '店长',

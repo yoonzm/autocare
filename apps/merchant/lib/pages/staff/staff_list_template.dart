@@ -1,3 +1,4 @@
+import '../../backend/access_flow.dart';
 import '../../kit/single_selection.dart';
 
 import 'package:flutter/material.dart';
@@ -21,13 +22,15 @@ class StaffListTemplate extends StatelessWidget {
       bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
       header: AppPageHeader(
         title: '员工与权限',
-        trailing: AppHeaderAction(
-          lightSvg: Svgs.s81,
-          darkSvg: Svgs.s81,
-          label: '新增员工',
-          color: Color(0xFF0485F7),
-          onTap: () => c.editResource(context, null),
-        ),
+        trailing: !Access.canManageStaff()
+            ? null
+            : AppHeaderAction(
+                lightSvg: Svgs.s81,
+                darkSvg: Svgs.s81,
+                label: '新增员工',
+                color: Color(0xFF0485F7),
+                onTap: () => c.editResource(context, null),
+              ),
       ),
       flow: hcol(
         [
@@ -827,29 +830,30 @@ class StaffListTemplate extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              onTap: () {
-                                openRoute(
-                                  context,
-                                  'RolePermission',
-                                  arguments: StaffRouteData(role: c.roleKey),
-                                );
-                              },
-                              child: Text(
-                                '编辑权限',
-                                style: hts(
-                                  13,
-                                  dk(
+                            if (Access.isOwner)
+                              GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: () {
+                                  openRoute(
                                     context,
-                                    Color(0xFF1E63AE),
-                                    Color(0xFF6AB4FA),
+                                    'RolePermission',
+                                    arguments: StaffRouteData(role: c.roleKey),
+                                  );
+                                },
+                                child: Text(
+                                  '编辑权限',
+                                  style: hts(
+                                    13,
+                                    dk(
+                                      context,
+                                      Color(0xFF1E63AE),
+                                      Color(0xFF6AB4FA),
+                                    ),
+                                    w: FontWeight.w500,
+                                    lh: 18,
                                   ),
-                                  w: FontWeight.w500,
-                                  lh: 18,
                                 ),
                               ),
-                            ),
                           ],
                           main: MainAxisAlignment.start,
                           cross: CrossAxisAlignment.center,
@@ -1239,24 +1243,26 @@ Widget _emptyRoleCard(BuildContext context, StaffEditorController c) {
             gap: 2,
           ),
         ),
-        GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () => c.addStaff(context),
-          child: hbox(
-            h: 44,
-            pad: EdgeInsets.fromLTRB(4, 0, 4, 0),
-            align: Alignment.center,
-            child: Text(
-              all ? '添加员工' : '添加$role',
-              style: hts(
-                13,
-                dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
-                w: FontWeight.w600,
-                lh: 18,
+        if (Access.canManageStaff() &&
+            (all || c.roleKey != 'manager' || Access.isOwner))
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => c.addStaff(context),
+            child: hbox(
+              h: 44,
+              pad: EdgeInsets.fromLTRB(4, 0, 4, 0),
+              align: Alignment.center,
+              child: Text(
+                all ? '添加员工' : '添加$role',
+                style: hts(
+                  13,
+                  dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                  w: FontWeight.w600,
+                  lh: 18,
+                ),
               ),
             ),
           ),
-        ),
       ],
       main: MainAxisAlignment.start,
       cross: CrossAxisAlignment.center,

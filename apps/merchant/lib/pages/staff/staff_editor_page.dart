@@ -1,3 +1,5 @@
+import '../../backend/access_flow.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../backend/data_snapshot.dart';
@@ -121,24 +123,29 @@ class _StaffEditorHostState extends State<_StaffEditorHost> {
     );
   }
 
-  Widget _view() => KeyedSubtree(
-    key: ObjectKey(c),
-    child: ListenableBuilder(
-      listenable: Listenable.merge([c!, busyActions]),
-      builder: (_, _) => ConfirmDiscard(
-        dirty: c!.dirty,
-        busy: c!.locked,
-        child: AbsorbPointer(
-          absorbing: c!.locked,
-          child: widget.listing
-              ? StaffListTemplate(c: c!)
-              : widget.row == null
-              ? StaffAddTemplate(c: c!)
-              : StaffEditTemplate(c: c!),
-        ),
-      ),
-    ),
-  );
+  Widget _view() => !widget.listing && !Access.canManageStaff(widget.row)
+      ? ErrorView(
+          error: const AppError('仅老板可管理店长', type: AppErrorType.forbidden),
+          onNext: () => Navigator.of(context).maybePop(),
+        )
+      : KeyedSubtree(
+          key: ObjectKey(c),
+          child: ListenableBuilder(
+            listenable: Listenable.merge([c!, busyActions]),
+            builder: (_, _) => ConfirmDiscard(
+              dirty: c!.dirty,
+              busy: c!.locked,
+              child: AbsorbPointer(
+                absorbing: c!.locked,
+                child: widget.listing
+                    ? StaffListTemplate(c: c!)
+                    : widget.row == null
+                    ? StaffAddTemplate(c: c!)
+                    : StaffEditTemplate(c: c!),
+              ),
+            ),
+          ),
+        );
   Widget skeleton(bool blocks) => ResourceSkeleton(
     kind: widget.listing
         ? ResourceSkeletonKind.staffList
