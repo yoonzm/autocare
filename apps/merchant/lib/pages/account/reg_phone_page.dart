@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 
 import '../../backend/merchant_api.dart';
 import '../../backend/password_validation.dart';
@@ -22,6 +23,8 @@ class RegPhonePage extends StatefulWidget {
 }
 
 class _RegPhonePageState extends State<RegPhonePage> {
+  late final _loginTap = TapGestureRecognizer()
+    ..onTap = () => openRoute(context, 'Login');
   final _phone = TextEditingController();
   final _code = TextEditingController();
   final _password = TextEditingController();
@@ -31,6 +34,7 @@ class _RegPhonePageState extends State<RegPhonePage> {
   late final _api = merchantApi;
   @override
   void dispose() {
+    _loginTap.dispose();
     _phone.dispose();
     _code.dispose();
     _password.dispose();
@@ -786,6 +790,7 @@ class _RegPhonePageState extends State<RegPhonePage> {
                           ),
                           TextSpan(
                             text: '去登录',
+                            recognizer: _loginTap,
                             style: hts(
                               13,
                               dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),

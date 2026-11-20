@@ -8,6 +8,8 @@ import 'package:autocare_merchant/pages/account/reg_phone_page.dart';
 import 'package:autocare_merchant/pages/account/reg_shop_page.dart';
 import 'package:autocare_merchant/pages/account/reg_done_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:autocare_merchant/pages/account/login_page.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -118,6 +120,30 @@ void main() {
     await t.tap(find.text('确定'));
     await t.pumpAndSettle();
   }
+
+  testWidgets('已有账号的去登录链接进入登录页并清理注册路由', (t) async {
+    final c = await host(t);
+    push(c, const RegPhonePage());
+    await t.pumpAndSettle();
+    final link = find.byWidgetPredicate(
+      (widget) => widget is RichText &&
+          widget.text.toPlainText() == '已有账号？去登录',
+    );
+    await t.ensureVisible(link);
+    await t.pumpAndSettle();
+    final paragraph = t.renderObject<RenderParagraph>(link);
+    final box = paragraph.getBoxesForSelection(
+      const TextSelection(baseOffset: 5, extentOffset: 8),
+    ).single;
+    await t.tapAt(paragraph.localToGlobal(box.toRect().center));
+    await t.pumpAndSettle();
+    expect(find.byType(LoginPage), findsOneWidget);
+    expect(find.byType(RegPhonePage), findsNothing);
+    expect(Navigator.of(t.element(find.byType(LoginPage))).canPop(), isFalse);
+    expect(api.checks, isEmpty);
+    expect(api.registrations, isEmpty);
+    expect(t.takeException(), isNull);
+  });
 
   testWidgets('验证期间防重复，临时凭据显式传给第二步', (t) async {
     final c = await host(t);
