@@ -352,7 +352,7 @@ class StHomeTemplate extends StatelessWidget {
                         flex: 1,
                         child: GestureDetector(
                           behavior: HitTestBehavior.opaque,
-                          onTap: () => openRoute(context, 'StOrder'),
+                          onTap: () => openRoute(context, 'Order'),
                           child: hbox(
                             pad: EdgeInsets.fromLTRB(0, 14, 0, 14),
                             child: hcol(

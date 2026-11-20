@@ -31,6 +31,14 @@ class Access {
   static bool get usesStaffShell => role == 'cashier' || role == 'technician';
   static String get storeName => '${context['store_name'] ?? ''}';
   static String get userName => '${context['name'] ?? ''}';
+  static String? get resourceId {
+    final value = '${context['resource_id'] ?? ''}'.trim();
+    return value.isEmpty ? null : value;
+  }
+
+  /// 当前技师对应的排班资源 ID（与开单页技师选择列表的 id 一致）。
+  static String? get technicianResourceId =>
+      role == 'technician' ? resourceId : null;
   static bool get planExpired => context['plan_expired'] == true;
 
   /// 老板拥有全部权限；其余身份取服务端算好的生效权限。

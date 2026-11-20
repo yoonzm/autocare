@@ -1,4 +1,5 @@
 import 'member_picker_widgets.dart';
+import '../../backend/access_flow.dart';
 import '../../routes.dart' show openRoute;
 
 import 'package:flutter/material.dart';
@@ -110,7 +111,8 @@ class _MemberPickerSheetState extends State<MemberPickerSheet> {
             query,
             (member) => Navigator.of(context).pop(member),
           ),
-          hbox(
+          if (Access.can('member_edit'))
+            hbox(
             bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
             shadow: dk(
               context,

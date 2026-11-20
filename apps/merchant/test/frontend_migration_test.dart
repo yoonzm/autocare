@@ -158,11 +158,18 @@ void main() {
     }
   });
 
-  test('员工会员/开单/核销不再读取全局会员或共享提交 key', () {
+  test('员工会员/核销不再读取全局会员或共享提交 key，独立技师开单页已移除', () {
+    expect(
+      File('lib/pages/staff_app/st_order_template.dart').existsSync(),
+      isFalse,
+    );
+    expect(
+      File('lib/pages/staff_app/st_order_controller.dart').existsSync(),
+      isFalse,
+    );
     for (final name in [
       'st_member_template',
       'st_member_info_template',
-      'st_order_template',
       'st_redeem_sheet',
       'st_cash_queue_template',
     ]) {

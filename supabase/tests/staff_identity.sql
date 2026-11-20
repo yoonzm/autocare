@@ -42,14 +42,16 @@ begin
   r:=public.platform_merchant_session(tech_u,tech_s,true);
   assert r->>'role'='technician' and (r->>'store_id')::uuid=shop;
 
-  -- 生效权限：技师不能看会员完整资料 / 营业额 / 收银，即使保存了开关。
+  -- 生效权限：技师默认可开单收银，不能看会员完整资料 / 营业额，即使保存了开关。
   caps:=public.staff_caps(shop,'technician');
-  assert (caps->>'order_view_own')::boolean and (caps->>'order_submit')::boolean and (caps->>'member_lookup')::boolean;
-  assert not (caps->>'member_view')::boolean and not (caps->>'cashier')::boolean and not (caps->>'stats_view_store')::boolean;
+  assert (caps->>'order_view_own')::boolean and (caps->>'order_submit')::boolean and (caps->>'member_lookup')::boolean and (caps->>'cashier')::boolean;
+  assert not (caps->>'member_view')::boolean and not (caps->>'stats_view_store')::boolean;
   assert not (caps->>'member_refund_adjust')::boolean and not (caps->>'staff_manage')::boolean;
   update public.store_role_permissions set allowed=true where store_id=shop and role='technician' and permission in ('member_view','stats_view_store');
   assert not (public.staff_caps(shop,'technician')->>'member_view')::boolean,'不可开启的项不受已保存开关影响';
-  -- 技师可由老板打开「开单收银」（设计稿：可配·默认关）。
+  -- 技师的「开单收银」可由老板关闭再开启。
+  perform public.save_staff_permissions(shop,'technician','{"cashier":false}');
+  assert not (public.staff_caps(shop,'technician')->>'cashier')::boolean;
   perform public.save_staff_permissions(shop,'technician','{"cashier":true}');
   assert (public.staff_caps(shop,'technician')->>'cashier')::boolean;
   caps:=public.staff_caps(shop,'cashier');
@@ -63,7 +65,7 @@ begin
   r:=public.staff_context(shop,'technician',tech_id);
   assert (r->>'identity_count')::int=1,'纯员工只有一个身份';
   assert (public.staff_context(shop2,'owner',null)->>'identity_count')::int=2,'兼职老板有老板 + 前台两个身份';
-  assert r->>'role'='technician' and r->>'store_name'='老板的店' and r->>'name'='老周' and not (r->>'plan_expired')::boolean;
+  assert r->>'role'='technician' and r->>'store_name'='老板的店' and r->>'name'='老周' and r->>'resource_id'=tech->>'resource_id' and not (r->>'plan_expired')::boolean;
 
   -- 工作台：技师只看自己的任务；前台看全店今日待到店 / 施工中，只给笔数。
   insert into public.appointments(store_id,customer_name,service_ids,items,starts_at,duration_minutes,estimate,request_id,technician_id,status,vehicle_plate)

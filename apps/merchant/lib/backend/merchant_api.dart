@@ -448,17 +448,6 @@ class MerchantApi {
     return Map<String, dynamic>.from(data['item'] as Map);
   }
 
-  Future<Map<String, dynamic>> submitStaffOrder(
-    Map<String, dynamic> values, {
-    String? requestId,
-  }) async {
-    final data = await invoke({
-      ...values,
-      'action': 'staff_order_submit',
-    }, requestId: requestId);
-    return Map<String, dynamic>.from(data['item'] as Map);
-  }
-
   /// 订单中心：list（统一订单列表 + 汇总）/ detail / refund。金额、状态、退回方式都由云函数计算。
   Future<Map<String, dynamic>> orderCenter(
     String action, [

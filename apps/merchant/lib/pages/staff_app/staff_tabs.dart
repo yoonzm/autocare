@@ -10,7 +10,7 @@ import 'st_home_template.dart';
 import '../scan/scan_page.dart';
 import 'st_arrivals_template.dart';
 import 'st_cash_queue_template.dart';
-import 'st_order_template.dart';
+import '../orders/order_route_data.dart';
 import 'st_member_info_template.dart';
 import 'st_member_template.dart';
 import 'st_done_template.dart';
@@ -223,16 +223,9 @@ Widget? stPageFor(
       'StMemberInfo',
       arguments: StMemberRouteData('${m['id']}'),
     ),
-    onOrderMember: (context, m) => openRoute(
-      context,
-      'StOrder',
-      arguments: StMemberRouteData('${m['id']}'),
-    ),
+    onOrderMember: (context, m) =>
+        openRoute(context, 'Order', arguments: OrderRouteData(member: m)),
   ),
-  'StOrder' =>
-    member == null
-        ? const StMemberLivePage(forOrder: true)
-        : StOrderLivePage(memberId: member.memberId),
   'StCashQueue' => const StCashQueueLivePage(),
   'StPerf' => const StPerfLivePage(),
   _ => null,

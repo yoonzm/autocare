@@ -1,5 +1,6 @@
 import 'order_route_data.dart';
 import 'order_receipt_view.dart';
+import '../../backend/access_flow.dart';
 import '../../routes.dart' show openRoute;
 import '../../kit/async_kit.dart';
 
@@ -520,7 +521,14 @@ class PaySuccessPage extends StatelessWidget {
                     constrainedAxis: Axis.horizontal,
                     child: GestureDetector(
                       behavior: HitTestBehavior.opaque,
-                      onTap: () => openRoute(context, 'Main'),
+                      onTap: () => openRoute(
+                        context,
+                        Access.usesStaffShell
+                            ? (Access.role == 'technician'
+                                  ? 'StHome'
+                                  : 'StFrontHome')
+                            : 'Main',
+                      ),
                       child: hbox(
                         h: 50,
                         bg: dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),

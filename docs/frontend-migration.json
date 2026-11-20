@@ -715,12 +715,6 @@
       "legacyDependencies": []
     },
     {
-      "path": "pages/staff_app/st_order_template.dart",
-      "domain": "staff_app",
-      "status": "verified",
-      "legacyDependencies": []
-    },
-    {
       "path": "pages/staff_app/st_perf_template.dart",
       "domain": "staff_app",
       "status": "verified",
@@ -1148,12 +1142,6 @@
     },
     {
       "path": "pages/staff_app/st_member_route_data.dart",
-      "domain": "staff_app",
-      "status": "verified",
-      "legacyDependencies": []
-    },
-    {
-      "path": "pages/staff_app/st_order_controller.dart",
       "domain": "staff_app",
       "status": "verified",
       "legacyDependencies": []
@@ -2229,10 +2217,6 @@
       "batch": "staffMemberOrderBatch",
       "state": "显式会员ID、查询/估价状态与提交锁归实例；核销短信复用统一控制器，扫码回调明确进入员工路由。待收银真实计数，已收历史缺少接口明确阻止；假数值和旧选择器已删除。受影响业务97项与共享async_kit包7项全部通过，静态分析无问题。原布局与配色保留，无需逐页截图。"
     },
-    "pages/staff_app/st_order_template.dart": {
-      "batch": "staffMemberOrderBatch",
-      "state": "显式会员ID、查询/估价状态与提交锁归实例；核销短信复用统一控制器，扫码回调明确进入员工路由。待收银真实计数，已收历史缺少接口明确阻止；假数值和旧选择器已删除。受影响业务97项与共享async_kit包7项全部通过，静态分析无问题。原布局与配色保留，无需逐页截图。"
-    },
     "pages/staff_app/st_redeem_sheet.dart": {
       "batch": "staffMemberOrderBatch",
       "state": "显式会员ID、查询/估价状态与提交锁归实例；核销短信复用统一控制器，扫码回调明确进入员工路由。待收银真实计数，已收历史缺少接口明确阻止；假数值和旧选择器已删除。受影响业务97项与共享async_kit包7项全部通过，静态分析无问题。原布局与配色保留，无需逐页截图。"
@@ -2242,10 +2226,6 @@
       "state": "显式会员ID、查询/估价状态与提交锁归实例；核销短信复用统一控制器，扫码回调明确进入员工路由。待收银真实计数，已收历史缺少接口明确阻止；假数值和旧选择器已删除。受影响业务97项与共享async_kit包7项全部通过，静态分析无问题。原布局与配色保留，无需逐页截图。"
     },
     "pages/staff_app/st_member_route_data.dart": {
-      "batch": "staffMemberOrderBatch",
-      "state": "显式会员ID、查询/估价状态与提交锁归实例；核销短信复用统一控制器，扫码回调明确进入员工路由。待收银真实计数，已收历史缺少接口明确阻止；假数值和旧选择器已删除。受影响业务97项与共享async_kit包7项全部通过，静态分析无问题。原布局与配色保留，无需逐页截图。"
-    },
-    "pages/staff_app/st_order_controller.dart": {
       "batch": "staffMemberOrderBatch",
       "state": "显式会员ID、查询/估价状态与提交锁归实例；核销短信复用统一控制器，扫码回调明确进入员工路由。待收银真实计数，已收历史缺少接口明确阻止；假数值和旧选择器已删除。受影响业务97项与共享async_kit包7项全部通过，静态分析无问题。原布局与配色保留，无需逐页截图。"
     },

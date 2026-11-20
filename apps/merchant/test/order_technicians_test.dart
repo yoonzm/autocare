@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:autocare_merchant/backend/access_flow.dart';
 import 'package:autocare_merchant/backend/appointment_flow.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/backend/member_flow.dart';
@@ -9,6 +10,8 @@ import 'package:autocare_merchant/backend/hold_store.dart';
 import 'package:autocare_merchant/backend/service_store.dart';
 import 'package:autocare_merchant/kit/async_kit.dart';
 import 'package:autocare_merchant/pages/orders/order_page.dart';
+import 'package:autocare_merchant/pages/staff_app/st_member_info_template.dart';
+import 'package:autocare_merchant/routes.dart' show navTracker;
 
 import 'members_test.dart' show MemberFakeApi, phone, row;
 
@@ -33,6 +36,7 @@ class TechnicianApi extends MemberFakeApi {
   ];
   Object? error;
   Completer<void>? gate;
+  final staffWorkCalls = <Map<String, dynamic>>[];
   @override
   Future<Map<String, dynamic>> appointment(
     String action, [
@@ -42,6 +46,59 @@ class TechnicianApi extends MemberFakeApi {
     await gate?.future;
     if (error != null) throw error!;
     return {'resources': resources};
+  }
+
+  @override
+  Future<Map<String, dynamic>> staffWork(
+    String action, [
+    Map<String, dynamic> values = const {},
+  ]) async {
+    staffWorkCalls.add({'action': action, ...values});
+    if (action == 'staff_member_search') {
+      return {
+        'items': [
+          {
+            'id': 'm1',
+            'name': '王建国',
+            'level': '黑金卡',
+            'discount': 0.9,
+            'balance': 3680,
+            'phone_masked': '138****6021',
+            'plate': '沪A8K29M',
+            'card': {'name': '黑金卡', 'discount': 0.9},
+            'vehicles': [
+              {'plate': '沪A8K29M'},
+            ],
+          },
+        ],
+      };
+    }
+    if (action == 'staff_member_info') {
+      return {
+        'id': 'm1',
+        'name': '王建国',
+        'level': '黑金卡',
+        'discount': 0.9,
+        'balance': 3680,
+        'phone_masked': '138****6021',
+        'plate': '沪A8K29M',
+        'vehicles': [
+          {'plate': '沪A8K29M', 'model': '宝马 5 系', 'color': '黑色'},
+        ],
+        'packages': [
+          {
+            'id': 'p1',
+            'name': '精致洗车年卡',
+            'remaining': 8,
+            'total': 10,
+            'items': [
+              {'service_id': 's1', 'name': '精致洗车', 'remaining': 8},
+            ],
+          },
+        ],
+      };
+    }
+    return super.staffWork(action, values);
   }
 }
 
@@ -53,12 +110,19 @@ void main() {
     merchantApi = api = TechnicianApi();
     ServiceStore.clear();
     HoldStore.reset();
+    navTracker.stack.clear();
+    Access.role = 'owner';
+    Access.caps = const {};
+    Access.context = const {};
   });
   tearDown(() {
     merchantApi = original;
-
     ServiceStore.clear();
     HoldStore.reset();
+    navTracker.stack.clear();
+    Access.role = 'owner';
+    Access.caps = const {};
+    Access.context = const {};
   });
   Future<void> open(
     WidgetTester t, {
@@ -199,5 +263,88 @@ void main() {
     expect(find.text('真实技师 · 精洗'), findsOneWidget);
     expect(find.text('网络不太给力'), findsOneWidget);
     await t.pump(const Duration(seconds: 9));
+  });
+
+  testWidgets('技师身份复用开单页：默认选中当前技师，可取消或加选，走脱敏会员选择与次卡读取', (t) async {
+    Access.apply({
+      'role': 'technician',
+      'staff_id': 'st1',
+      'resource_id': 't1',
+      'store_id': 's1',
+      'caps': {
+        'cashier': true,
+        'order_submit': true,
+        'member_lookup': true,
+        'member_view': false,
+        'member_edit': false,
+      },
+    });
+    api.services.add({
+      'id': 's1',
+      'name': '精致洗车',
+      'price': 68,
+      'category': '洗车',
+      'active': true,
+    });
+    phone(t);
+    await t.pumpWidget(const MaterialApp(home: OrderPage()));
+    await t.pumpAndSettle();
+    // 打开选择会员弹层：技师走脱敏接口且不显示「新增会员」
+    await t.tap(find.text('选择会员'));
+    await t.pumpAndSettle();
+    expect(
+      api.staffWorkCalls.where((c) => c['action'] == 'staff_member_search'),
+      hasLength(1),
+    );
+    expect(find.text('新增会员'), findsNothing);
+    expect(find.textContaining('138 **** 6021'), findsOneWidget);
+    await t.tap(find.text('王建国'));
+    await t.pumpAndSettle();
+    expect(
+      api.staffWorkCalls.where((c) => c['action'] == 'staff_member_info'),
+      hasLength(1),
+    );
+    // 默认选中当前技师 t1，其他技师未选中
+    expect(selected(t, '真实技师 · 精洗'), isTrue);
+    expect(selected(t, '无技能技师'), isFalse);
+    // 可手动加选其他技师
+    await t.ensureVisible(find.text('无技能技师'));
+    await t.tap(find.text('无技能技师'));
+    await t.pump();
+    expect(selected(t, '无技能技师'), isTrue);
+    // 可取消当前技师
+    await t.tap(find.text('真实技师 · 精洗'));
+    await t.pump();
+    expect(selected(t, '真实技师 · 精洗'), isFalse);
+  });
+
+  testWidgets('技师从会员简况点「为他开单」直接进入商家端开单页并默认选中当前技师', (t) async {
+    Access.apply({
+      'role': 'technician',
+      'staff_id': 'st1',
+      'resource_id': 't2',
+      'store_id': 's1',
+      'caps': {
+        'cashier': true,
+        'order_submit': true,
+        'member_lookup': true,
+        'member_view': false,
+        'member_edit': false,
+      },
+    });
+    phone(t);
+    await t.pumpWidget(
+      MaterialApp(
+        navigatorObservers: [navTracker],
+        home: const StMemberInfoLivePage(memberId: 'm1'),
+      ),
+    );
+    await t.pumpAndSettle();
+    await t.tap(find.text('为他开单'));
+    await t.pumpAndSettle();
+    expect(find.byType(OrderPage), findsOneWidget);
+    expect(find.text('王建国'), findsOneWidget);
+    expect(selected(t, '无技能技师'), isTrue);
+    expect(selected(t, '真实技师 · 精洗'), isFalse);
   });
 }

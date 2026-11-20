@@ -9,6 +9,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../backend/access_flow.dart';
 import '../../backend/hold_store.dart';
 import '../../backend/member_flow.dart';
 import '../../backend/service_store.dart';
@@ -100,13 +101,22 @@ class _OrderPageState extends State<OrderPage> {
 
   String get _discountLabel => '${customer.level} $_discountN';
 
+  void _selectDefaultTechnician() {
+    final id = Access.technicianResourceId;
+    if (id != null) techs.add(id);
+  }
+
   @override
   void initState() {
     super.initState();
     if (_live) {
       picked.clear();
       final technicianId = widget.appointment?['technician_id'];
-      if (technicianId != null) techs.add('$technicianId');
+      if (technicianId != null) {
+        techs.add('$technicianId');
+      } else if (widget.hold == null) {
+        _selectDefaultTechnician();
+      }
       AppointmentFlow.changed.addListener(_refreshTechnicians);
       unawaited(_loadTechnicians());
       if (widget.appointment != null) {
@@ -151,7 +161,11 @@ class _OrderPageState extends State<OrderPage> {
       picked.clear();
       techs.clear();
       final technicianId = widget.appointment?['technician_id'];
-      if (technicianId != null) techs.add('$technicianId');
+      if (technicianId != null) {
+        techs.add('$technicianId');
+      } else if (widget.hold == null) {
+        _selectDefaultTechnician();
+      }
       pay = 0;
       _holdId = null;
       _holdRow = null;
@@ -205,7 +219,15 @@ class _OrderPageState extends State<OrderPage> {
     final memberId = '${(row['member'] as Map?)?['id'] ?? row['member_id']}';
     final walkIn = row['member_id'] == null && row['member'] == null;
     try {
-      final m = walkIn ? null : await merchantApi.member(memberId);
+      final m = walkIn
+          ? null
+          : Access.can('member_view')
+          ? await merchantApi.member(memberId)
+          : normalizeStaffMemberRow(
+              await merchantApi.staffWork('staff_member_info', {
+                'id': memberId,
+              }),
+            );
       if (!mounted || version != _resumeVersion) return;
       if (_liveSvcs.isEmpty) await _loadServices();
       if (!mounted || version != _resumeVersion) return;
@@ -311,6 +333,7 @@ class _OrderPageState extends State<OrderPage> {
     setState(() {
       picked.clear();
       techs.clear();
+      _selectDefaultTechnician();
       _holdId = null;
       _holdRow = null;
       _quantities.clear();
@@ -421,17 +444,32 @@ class _OrderPageState extends State<OrderPage> {
       _coverError = null;
     });
     try {
-      final rows = await merchantApi.memberPackages(id);
+      final rows = Access.can('member_view')
+          ? await merchantApi.memberPackages(id)
+          : [
+              for (final p
+                  in ((await merchantApi.staffWork('staff_member_info', {
+                            'id': id,
+                          }))['packages']
+                          as List? ??
+                      const []))
+                Map<String, dynamic>.from(p as Map),
+            ];
       final map = <String, (String, int)>{};
       var packages = 0, remaining = 0;
       String? onlyName;
+      int itemLeft(Map it) {
+        if (it['remaining'] is num) return (it['remaining'] as num).toInt();
+        return ((it['total'] as num? ?? 0) - (it['used'] as num? ?? 0)).toInt();
+      }
+
       for (final p in rows) {
         if (p['refunded_at'] != null) continue;
         final exp = DateTime.tryParse('${p['expires_at'] ?? ''}');
         if (exp != null && exp.isBefore(DateTime.now())) continue;
         var left = 0;
         for (final it in (p['items'] as List? ?? const [])) {
-          left += ((it['total'] as num) - (it['used'] as num)).toInt();
+          left += itemLeft(it as Map);
         }
         if (left > 0) {
           packages++;
@@ -439,7 +477,7 @@ class _OrderPageState extends State<OrderPage> {
           onlyName = '${p['name'] ?? ''}';
         }
         for (final it in (p['items'] as List? ?? const [])) {
-          final left = ((it['total'] as num) - (it['used'] as num)).toInt();
+          final left = itemLeft(it as Map);
           final sid = '${it['service_id']}';
           if (left >= (_quantities[sid] ?? 1) &&
               (!map.containsKey(sid) || _preferredPackages[sid] == p['id'])) {
@@ -598,6 +636,7 @@ class _OrderPageState extends State<OrderPage> {
           setState(() {
             picked.clear();
             techs.clear();
+            if (widget.appointment == null) _selectDefaultTechnician();
             _holdId = null;
             _holdRow = null;
             _quantities.clear();

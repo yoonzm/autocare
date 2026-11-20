@@ -21,12 +21,16 @@ const listItem = (m: Row) => ({
   name: m.name,
   level: m.card?.name ?? '',
   color: m.card?.color ?? '',
+  discount: Number(m.card?.discount ?? 1),
+  balance: Number(m.balance ?? 0),
+  card: m.card ? { name: m.card.name ?? '', color: m.card.color ?? '', discount: Number(m.card.discount ?? 1) } : null,
   phone_masked: maskPhone(m.phone),
   plate: m.vehicles?.[0]?.plate ?? '',
+  vehicles: (m.vehicles ?? []).map((v) => ({ plate: v.plate })),
 });
 
 export async function handleStaffMembers(input: Record<string, unknown>, store: string): Promise<Response> {
-  const select = 'id, name, phone, card:card_types(name, color), vehicles:member_vehicles(plate)';
+  const select = 'id, name, phone, balance, last_visit_at, card:card_types(name, color, discount), vehicles:member_vehicles(plate)';
   if (input.action === 'staff_member_search') {
     const q = typeof input.q === 'string' ? safeLike(input.q).slice(0, 30) : '';
     let query = admin.from('members').select(select).eq('store_id', store).is('deleted_at', null).limit(LIST_LIMIT);

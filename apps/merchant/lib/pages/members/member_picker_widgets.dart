@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../backend/access_flow.dart';
+import '../../backend/member_flow.dart' show normalizeStaffMemberRow;
 import '../../backend/merchant_api.dart';
 import '../../backend/package_calc.dart' show formatMoney;
 import '../../kit/async_kit.dart';
@@ -183,18 +185,36 @@ class _PickerListState extends State<_PickerList> {
       }
     });
     try {
-      // 搜索时只看匹配的会员；不搜索时分“最近使用”和“全部会员”
-      final all = await merchantApi.members(query: query, limit: 50);
-      final recent = query.isEmpty
-          ? await merchantApi.members(recent: true, limit: 3)
-          : null;
+      // 搜索时只看匹配的会员；无完整会员权限（如技师）走脱敏查询接口，不暴露完整手机号。
+      final List<Map<String, dynamic>> allItems;
+      final int total;
+      final List<Map<String, dynamic>> recentItems;
+      if (Access.can('member_view')) {
+        final all = await merchantApi.members(query: query, limit: 50);
+        final recent = query.isEmpty
+            ? await merchantApi.members(recent: true, limit: 3)
+            : null;
+        allItems = all.items;
+        total = all.matched;
+        recentItems = recent?.items ?? const [];
+      } else {
+        final res = await merchantApi.staffWork('staff_member_search', {
+          'q': query,
+        });
+        allItems = [
+          for (final item in (res['items'] as List? ?? const []))
+            normalizeStaffMemberRow(Map<String, dynamic>.from(item as Map)),
+        ];
+        total = allItems.length;
+        recentItems = const [];
+      }
       timer.cancel();
       await finishIndicator();
       if (!mounted || version != _version) return;
       setState(() {
-        _all = all.items;
-        _total = all.matched;
-        _recent = recent?.items ?? const [];
+        _all = allItems;
+        _total = total;
+        _recent = recentItems;
         _loaded = true;
         _error = null;
       });
@@ -259,7 +279,7 @@ class _PickerListState extends State<_PickerList> {
           ),
           const SizedBox(height: 10),
           Text(
-            '请检查车牌或手机号，也可以新增为会员',
+            Access.can('member_edit') ? '请检查车牌或手机号，也可以新增为会员' : '请检查车牌或手机号后重试',
             textAlign: TextAlign.center,
             style: hts(
               13,
@@ -291,28 +311,30 @@ class _PickerListState extends State<_PickerList> {
                   ),
                 ),
               ),
-              const SizedBox(width: 10),
-              GestureDetector(
-                onTap: () => openRoute(context, 'MemberAdd'),
-                child: Container(
-                  height: 44,
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF0485F7),
-                    borderRadius: BorderRadius.circular(22),
-                  ),
-                  child: Text(
-                    '新增会员',
-                    style: hts(
-                      14,
-                      const Color(0xFFFFFFFF),
-                      w: FontWeight.w600,
-                      lh: 20,
+              if (Access.can('member_edit')) ...[
+                const SizedBox(width: 10),
+                GestureDetector(
+                  onTap: () => openRoute(context, 'MemberAdd'),
+                  child: Container(
+                    height: 44,
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0485F7),
+                      borderRadius: BorderRadius.circular(22),
+                    ),
+                    child: Text(
+                      '新增会员',
+                      style: hts(
+                        14,
+                        const Color(0xFFFFFFFF),
+                        w: FontWeight.w600,
+                        lh: 20,
+                      ),
                     ),
                   ),
                 ),
-              ),
+              ],
             ],
           ),
         ],
@@ -344,7 +366,10 @@ class _PickerListState extends State<_PickerList> {
         );
       }
       if (_q.isEmpty) {
-        return const EmptyView(title: '还没有会员', message: '点下面的“新增会员”办卡');
+        return EmptyView(
+          title: '还没有会员',
+          message: Access.can('member_edit') ? '点下面的“新增会员”办卡' : '暂无可选择的会员',
+        );
       }
       return _noResult(context);
     }

@@ -35,7 +35,9 @@ Deno.test('catalog rules: members, orders, appointments follow capabilities', ()
   assert(can('cashier', ['cashier'], { kind: 'orders', action: 'checkout' }));
   assert(!can('technician', ['order_submit'], { kind: 'orders', action: 'checkout' }));
   assert(can('technician', ['appt_view'], { action: 'appointment_board' }));
-  assert(!can('technician', ['appt_view'], { action: 'appointment_options' }), '选项含全部技师手机号');
+  assert(!can('technician', ['appt_view'], { action: 'appointment_options' }), '仅看预约不能读选项');
+  assert(can('technician', ['cashier'], { action: 'appointment_options' }), '开单收银可读工位与技师列表');
+  assert(can('technician', ['order_submit'], { action: 'appointment_options' }), '开单提交可读工位与技师列表');
   assert(!can('technician', ['appt_view'], { action: 'appointment_save' }));
   assert(can('cashier', ['appt_edit', 'cashier'], { action: 'appointment_checkout' }));
   assert(!can('manager', ['appt_edit'], { action: 'appointment_settings_save' }));

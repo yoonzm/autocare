@@ -16,7 +16,7 @@ import { handleAppointments } from './appointments.ts';
 import { handleStaff } from './staff.ts';
 import { handleIdentity } from './identity.ts';
 import { handleStaffWork } from './staff_work.ts';
-import { gateStaff } from './staff_access.ts';
+import { gateStaff, hasCap } from './staff_access.ts';
 import { handleMembers, handleVehicles } from './members.ts';
 import { handleFollowUps, handleMemberPackages, handleOrders } from './ops.ts';
 import { handlePackages } from './packages.ts';
@@ -79,7 +79,7 @@ Deno.serve(async (request: Request): Promise<Response> => {
   if (input.kind === 'members') return handleMembers(input, storeId);
   if (input.kind === 'vehicles') return handleVehicles(input, storeId);
   if (input.kind === 'member_packages') return handleMemberPackages(input, storeId);
-  if (input.kind === 'orders') return handleOrders(input, storeId);
+  if (input.kind === 'orders') return handleOrders(input, storeId, !(await hasCap(request, 'member_view')));
   if (input.kind === 'follow_ups') return handleFollowUps(input, storeId);
   return input.kind === 'services'
     ? handleServices(input, storeId)

@@ -7,8 +7,6 @@ import 'package:autocare_merchant/kit/sms_code.dart';
 import 'package:autocare_merchant/pages/staff_app/st_member_template.dart';
 import 'package:autocare_merchant/pages/staff_app/st_member_info_template.dart';
 import 'package:autocare_merchant/pages/staff_app/st_member_route_data.dart';
-import 'package:autocare_merchant/pages/staff_app/st_order_controller.dart';
-import 'package:autocare_merchant/pages/staff_app/st_order_template.dart';
 import 'package:autocare_merchant/pages/staff_app/st_cash_queue_template.dart';
 import 'package:autocare_merchant/pages/staff_app/staff_tabs.dart'
     show stPageFor;
@@ -17,15 +15,11 @@ import 'package:autocare_merchant/routes.dart' show pageFor;
 
 import 'staff_member_test.dart' show MemberLookupApi;
 import 'members_test.dart' show phone;
-import 'wallet_state_test.dart' show RecordingApi;
 
 class StaffInputApi extends MemberLookupApi {
   final pending = <Completer<Map<String, dynamic>>>[];
-  final writes = <Map<String, dynamic>>[];
   bool defer = false;
   bool deferReturns = false;
-  Object? failWrite;
-  Completer<Map<String, dynamic>>? write;
   @override
   Future<Map<String, dynamic>> staffWork(
     String action, [
@@ -39,7 +33,6 @@ class StaffInputApi extends MemberLookupApi {
     }
     if (defer &&
         const [
-          'staff_order_quote',
           'staff_member_search',
           'staff_member_info',
         ].contains(action)) {
@@ -48,29 +41,9 @@ class StaffInputApi extends MemberLookupApi {
       pending.add(c);
       return c.future;
     }
-    if (action == 'staff_order_quote') {
-      calls.add({'action': action, ...values});
-      return Future.value({'payable': 61});
-    }
     return super.staffWork(action, values);
   }
-
-  @override
-  Future<Map<String, dynamic>> submitStaffOrder(
-    Map<String, dynamic> values, {
-    String? requestId,
-  }) async {
-    writes.add({...values, 'requestId': requestId});
-    if (write != null) return write!.future;
-    if (failWrite != null) throw failWrite!;
-    return {'id': 'h1'};
-  }
 }
-
-const info = {'id': 'm1', 'name': '会员甲', 'level': '会员', 'plate': '沪A12345'};
-const services = [
-  {'id': 's1', 'name': '精致洗车', 'price': 68, 'active': true},
-];
 
 void main() {
   late MerchantApi original;
@@ -81,114 +54,6 @@ void main() {
   });
   tearDown(() {
     merchantApi = original;
-  });
-
-  test('快速开单请求编号传到实际请求层', () async {
-    final transport = RecordingApi();
-    await transport.submitStaffOrder({
-      'member_id': 'm1',
-      'lines': services,
-    }, requestId: 'staff-retry');
-    expect(transport.requests.single.id, 'staff-retry');
-    expect(transport.requests.single.body['action'], 'staff_order_submit');
-  });
-
-  test('估价按实例隔离，选择改变后旧估价不能恢复已取消的项目', () async {
-    api.defer = true;
-    final a = StOrderController(info),
-        b = StOrderController({...info, 'id': 'm2'});
-    final first = a.toggle('s1'), other = b.toggle('s2');
-    await a.toggle('s1');
-    api.pending[0].complete({'payable': 999});
-    api.pending[1].complete({'payable': 42});
-    await Future.wait([first, other]);
-    expect(a.quote, isNull);
-    expect(a.selected, isEmpty);
-    expect(b.quote!['payable'], 42);
-    expect(api.calls[1]['member_id'], 'm2');
-    a.dispose();
-    b.dispose();
-  });
-
-  test('估价失败保留选择并阻止提交；重试成功后才提交真实输入', () async {
-    api.defer = true;
-    final c = StOrderController(info)..note = '车内有物品';
-    final first = c.toggle('s1');
-    api.pending[0].completeError(const AppError('读取失败'));
-    await first;
-    await expectLater(c.submit(), throwsA(isA<AppError>()));
-    expect(api.writes, isEmpty);
-    final retry = c.refreshQuote();
-    api.pending[1].complete({'payable': 61});
-    await retry;
-    expect(await c.submit(), isTrue);
-    expect(api.writes.single['lines'], [
-      {'service_id': 's1', 'qty': 1},
-    ]);
-    expect(api.writes.single['note'], '车内有物品');
-    expect(api.writes.single['plate'], '沪A12345');
-    c.dispose();
-  });
-
-  test('明确业务失败可重试并沿用标识；提交锁和成功状态不会影响另一实例', () async {
-    final a = StOrderController(info),
-        b = StOrderController({...info, 'id': 'm2'});
-    await a.toggle('s1');
-    await b.toggle('s2');
-    api.failWrite = const AppError('项目已下架');
-    await expectLater(a.submit(), throwsA(isA<AppError>()));
-    expect(a.selected, {'s1'});
-    api.failWrite = null;
-    api.write = Completer<Map<String, dynamic>>();
-    final pending = a.submit();
-    expect(await a.submit(), isFalse);
-    await a.toggle('s2');
-    expect(a.selected, {'s1'});
-    api.write!.complete({'id': 'h1'});
-    expect(await pending, isTrue);
-    expect(await a.submit(), isFalse);
-    expect(b.submitted, isFalse);
-    expect(api.writes[0]['requestId'], api.writes[1]['requestId']);
-    a.dispose();
-    b.dispose();
-  });
-
-  test('网络结果不明确时保留输入，阻止无幂等保证的重复开单', () async {
-    final c = StOrderController(info);
-    await c.toggle('s1');
-    api.failWrite = const AppError.timeout();
-    await expectLater(
-      c.submit(),
-      throwsA(
-        isA<AppError>().having((e) => e.message, '提示核对', contains('前台核对')),
-      ),
-    );
-    api.failWrite = null;
-    await expectLater(c.submit(), throwsA(isA<AppError>()));
-    expect(api.writes.length, 1);
-    expect(c.selected, {'s1'});
-    c.dispose();
-  });
-
-  test('销毁后旧估价不通知页面；实际写入完成仍保留提交结果', () async {
-    api.defer = true;
-    final a = StOrderController(info);
-    final quote = a.toggle('s1');
-    a.dispose();
-    api.pending[0].complete({'payable': 61});
-    await quote;
-    expect(a.quote, isNull);
-    api.defer = false;
-    final b = StOrderController(info);
-    await b.toggle('s1');
-    var notified = 0;
-    b.addListener(() => notified++);
-    api.write = Completer<Map<String, dynamic>>();
-    final submit = b.submit();
-    b.dispose();
-    api.write!.complete({'id': 'h1'});
-    expect(await submit, isTrue);
-    expect(notified, 1);
   });
 
   testWidgets('搜索防抖废弃旧响应，错误可在原查询重试', (t) async {
@@ -227,31 +92,6 @@ void main() {
     expect(find.text('新会员'), findsOneWidget);
   });
 
-  testWidgets('快速开单模板复用到新会员时清空旧选择备注，旧估价不回填', (t) async {
-    phone(t);
-    api.defer = true;
-    Future<void> show(Map<String, dynamic> member) => t.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: StOrderTemplate(info: member, services: services),
-        ),
-      ),
-    );
-    await show(info);
-    await t.tap(find.text('精致洗车'));
-    await t.pump();
-    await show({...info, 'id': 'm2', 'name': '会员乙'});
-    api.pending[0].complete({'payable': 999});
-    await t.pumpAndSettle();
-    expect(find.text('已选 0 项 · 会员价'), findsOneWidget);
-    expect(find.text('¥999'), findsNothing);
-    await t.tap(find.text('精致洗车'));
-    await t.pump();
-    expect(api.calls.last['member_id'], 'm2');
-    api.pending[1].complete({'payable': 42});
-    await t.pumpAndSettle();
-  });
-
   testWidgets('会员简况目标改变后只展示新会员，旧响应不能覆盖', (t) async {
     phone(t);
     api.defer = true;
@@ -272,15 +112,8 @@ void main() {
     expect(find.text('旧会员'), findsNothing);
   });
 
-  test('员工路由显式接受会员目标，无目标快速开单先查找会员', () {
-    expect(
-      pageFor('StOrder'),
-      isA<StMemberLivePage>().having((p) => p.forOrder, '开单选择', isTrue),
-    );
-    expect(
-      pageFor('StOrder', arguments: const StMemberRouteData('m2')),
-      isA<StOrderLivePage>().having((p) => p.memberId, '会员', 'm2'),
-    );
+  test('独立技师开单路由已移除，员工简况显式接受会员目标', () {
+    expect(pageFor('StOrder'), isNull);
     expect(
       pageFor('StMemberInfo', arguments: const StMemberRouteData('m1')),
       isA<StMemberInfoLivePage>().having((p) => p.memberId, '会员', 'm1'),

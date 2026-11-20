@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../../backend/member_flow.dart' show normalizeStaffMemberRow;
 import '../../backend/merchant_api.dart';
 import '../../kit/kit.dart';
 import '../../resources/staff_svgs.dart';
 import 'st_live.dart';
-import 'st_member_route_data.dart';
+import '../orders/order_route_data.dart';
 import '../members/member_events.dart';
 import '../../routes.dart' show openRoute;
 import 'st_redeem_sheet.dart';
@@ -840,8 +841,10 @@ class StMemberInfoTemplate extends StatelessWidget {
                         behavior: HitTestBehavior.opaque,
                         onTap: () => openRoute(
                           context,
-                          'StOrder',
-                          arguments: StMemberRouteData('${d['id']}'),
+                          'Order',
+                          arguments: OrderRouteData(
+                            member: normalizeStaffMemberRow(d),
+                          ),
                         ),
                         child: hbox(
                           h: 50,

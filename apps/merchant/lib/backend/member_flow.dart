@@ -1,6 +1,35 @@
 import '../pages/members/member_models.dart';
 import 'package_calc.dart' show formatMoney;
 
+/// 员工端脱敏会员查询 / 简况返回的行 -> [memberFromRow] 与开单页可直接使用的数据（保持手机号脱敏）。
+Map<String, dynamic> normalizeStaffMemberRow(Map<String, dynamic> row) {
+  final rawCard = row['card'];
+  final card = rawCard is Map
+      ? Map<String, dynamic>.from(rawCard)
+      : <String, dynamic>{
+          'name': '${row['level'] ?? ''}',
+          if (row['color'] != null) 'color': row['color'],
+          'discount': row['discount'] ?? 1,
+        };
+  final rawVehicles = row['vehicles'];
+  final plate = '${row['plate'] ?? ''}'.trim();
+  final vehicles = rawVehicles is List
+      ? [
+          for (final item in rawVehicles)
+            if (item is Map) Map<String, dynamic>.from(item),
+        ]
+      : [
+          if (plate.isNotEmpty) {'plate': plate},
+        ];
+  return {
+    ...row,
+    'phone': '${row['phone_masked'] ?? row['phone'] ?? ''}',
+    'balance': row['balance'] ?? 0,
+    'card': card,
+    'vehicles': vehicles,
+  };
+}
+
 /// 后端的会员记录 -> 页面里用的 [Member]。
 /// 余额和最近到店使用服务端字段。
 Member memberFromRow(Map<String, dynamic> row) {

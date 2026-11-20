@@ -15,13 +15,7 @@ import '../../kit/page_header.dart';
 /// 员工端会员查询：只返回脱敏后的服务相关信息（服务端校验「会员查询」权限）。
 class StMemberTemplate extends StatefulWidget {
   final List<Map<String, dynamic>> initial;
-  final bool forOrder, selectOnly;
-  const StMemberTemplate({
-    super.key,
-    required this.initial,
-    this.forOrder = false,
-    this.selectOnly = false,
-  });
+  const StMemberTemplate({super.key, required this.initial});
 
   @override
   State<StMemberTemplate> createState() => _StMemberTemplateState();
@@ -92,15 +86,7 @@ class _StMemberTemplateState extends State<StMemberTemplate> {
 
   void onOpen(Map<String, dynamic> m) {
     final id = '${m['id']}';
-    if (widget.selectOnly) {
-      Navigator.of(context).pop(id);
-      return;
-    }
-    openRoute(
-      context,
-      widget.forOrder ? 'StOrder' : 'StMemberInfo',
-      arguments: StMemberRouteData(id),
-    );
+    openRoute(context, 'StMemberInfo', arguments: StMemberRouteData(id));
   }
 
   String _initial(Map<String, dynamic> m) => stInitial('${m['name'] ?? ''}');
@@ -663,20 +649,13 @@ class _StMemberTemplateState extends State<StMemberTemplate> {
 
 /// 员工底部「会员」Tab / 会员查询页：默认列出最近到店的会员。
 class StMemberLivePage extends StatelessWidget {
-  final bool forOrder, selectOnly;
-  const StMemberLivePage({
-    super.key,
-    this.forOrder = false,
-    this.selectOnly = false,
-  });
+  const StMemberLivePage({super.key});
 
   @override
   Widget build(BuildContext context) => StLive(
     title: '会员查询',
     load: () => merchantApi.staffWork('staff_member_search', {'q': ''}),
     builder: (_, d) => StMemberTemplate(
-      forOrder: forOrder,
-      selectOnly: selectOnly,
       initial: [
         for (final x in (d['items'] as List? ?? const []))
           Map<String, dynamic>.from(x as Map),

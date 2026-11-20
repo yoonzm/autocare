@@ -79,8 +79,8 @@ const byAction: Record<string, Requirement> = {
   get_subscription: owner,
   appointment_board: cap('appt_view'),
   appointment_get: cap('appt_view'),
-  // 选项里含全部技师的手机号等，只给能编辑预约的身份
-  appointment_options: cap('appt_edit'),
+  // 选项里含技师与工位，开单页需要读取；无 appt_edit 权限时由 appointments.ts 去掉手机号。
+  appointment_options: anyCap('appt_edit', 'cashier', 'order_submit'),
   appointment_slots: cap('appt_edit'),
   appointment_summary: cap('appt_view'),
   appointment_save: cap('appt_edit'),

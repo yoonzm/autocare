@@ -1,5 +1,6 @@
 import { admin, fail, json, uuid } from './shared.ts';
 import { operatorOf } from './members.ts';
+import { maskPhone } from './staff_member_rules.ts';
 import {
   parseCheckout,
   parseExtend,
@@ -93,19 +94,25 @@ const holdFail = (error: { code?: string; message: string }) => {
 };
 
 /** 开单收银 + 挂单（挂起 / 取单 / 删除）。估价和扣款都在数据库函数里按服务端价格计算。 */
-export async function handleOrders(input: Input, storeId: string): Promise<Response> {
+export async function handleOrders(input: Input, storeId: string, maskMemberPhone = false): Promise<Response> {
+  const sanitizeHold = (row: Record<string, unknown> | null) => {
+    if (!row || !maskMemberPhone) return row;
+    const member = row.member as Record<string, unknown> | null | undefined;
+    if (!member || typeof member.phone !== 'string') return row;
+    return { ...row, member: { ...member, phone: maskPhone(member.phone) } };
+  };
   if (input.action === 'holds') {
     const { data, error } = await admin.from('held_orders').select(HOLD_SELECT)
       .eq('store_id', storeId).is('settled_at', null).is('cancelled_at', null)
       .order('created_at', { ascending: false }).limit(200);
-    return error ? fail('读取失败', 500) : json({ items: data ?? [] });
+    return error ? fail('读取失败', 500) : json({ items: (data ?? []).map((r) => sanitizeHold(r as unknown as Record<string, unknown>)) });
   }
   if (input.action === 'hold_get') {
     if (!uuid(input.id)) return fail('挂单无效');
     const { data, error } = await admin.from('held_orders').select(HOLD_SELECT)
       .eq('id', input.id).eq('store_id', storeId).is('settled_at', null).is('cancelled_at', null).maybeSingle();
     if (error) return fail('读取失败', 500);
-    return data ? json({ item: data }) : fail('挂单不存在或已处理', 404);
+    return data ? json({ item: sanitizeHold(data as unknown as Record<string, unknown>) }) : fail('挂单不存在或已处理', 404);
   }
   if (input.action === 'hold') {
     const v = parseHold(input);
@@ -119,7 +126,7 @@ export async function handleOrders(input: Input, storeId: string): Promise<Respo
     });
     if (error) return holdFail(error);
     const { data: item } = await admin.from('held_orders').select(HOLD_SELECT).eq('id', data).single();
-    return json({ item });
+    return json({ item: sanitizeHold(item as unknown as Record<string, unknown> | null) });
   }
   if (input.action === 'hold_cancel') {
     if (!uuid(input.id)) return fail('挂单无效');

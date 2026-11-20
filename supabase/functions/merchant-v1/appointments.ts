@@ -1,6 +1,6 @@
 import { admin, fail, json, storeFor, uuid } from './shared.ts';
 import { operatorOf } from './members.ts';
-import { technicianScope } from './staff_access.ts';
+import { hasCap, technicianScope } from './staff_access.ts';
 import { parseBooking, parseBookingSettings, parseResource, validDay } from './appointment_rules.ts';
 import { parseOrderTechnicians } from './ops_rules.ts';
 import type { Input } from './types.ts';
@@ -49,13 +49,21 @@ export async function handleAppointments(input: Input, request: Request): Promis
   };
   try {
     if (action === 'appointment_options') {
-      const [s, services, resources] = await Promise.all([
+      const [s, services, resources, canEditAppt] = await Promise.all([
         settings(),
         admin.from('service_items').select('*').eq('store_id', store).eq('active', true).order('created_at'),
         admin.rpc('appointment_resource_list', { p_store: store }),
+        hasCap(request, 'appt_edit'),
       ]);
       if (services.error || resources.error) return fail('读取预约选项失败', 500);
-      return json({ item: { settings: s, services: services.data, resources: resources.data } });
+      const list = Array.isArray(resources.data) ? resources.data : [];
+      const sanitized = canEditAppt
+        ? list
+        : list.map((r: Record<string, unknown>) => {
+            const { phone: _phone, ...rest } = r;
+            return rest;
+          });
+      return json({ item: { settings: s, services: services.data, resources: sanitized } });
     }
     if (action === 'appointment_board') {
       if (!validDay(input.day)) return fail('日期无效');

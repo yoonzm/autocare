@@ -48,3 +48,16 @@ export async function orderScopeOf(request: Request): Promise<OrderScope> {
   }
   return orderScopeFor(state.role, caps as Record<string, boolean> | null, resource);
 }
+
+/** 当前会话是否具备指定权限（老板固定返回 true）。用于决定是否返回手机号等敏感字段。 */
+export async function hasCap(request: Request, cap: string): Promise<boolean> {
+  const token = request.headers.get('Authorization')?.replace(/^Bearer\s+/i, '');
+  if (!token) return false;
+  const { data: auth } = await admin.auth.getUser(token);
+  if (!auth?.user) return false;
+  const state = await resolveSession(auth.user.id, token, false);
+  if (state instanceof Response) return false;
+  if (state.role === 'owner') return true;
+  const { data: caps } = await admin.rpc('staff_caps', { p_store: state.store, p_role: state.role });
+  return Boolean((caps as Record<string, boolean> | null)?.[cap]);
+}
