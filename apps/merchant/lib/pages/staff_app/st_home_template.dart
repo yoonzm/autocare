@@ -32,27 +32,52 @@ class StHomeTemplate extends StatelessWidget {
             .join(' + ');
     String plateOf(Map<String, dynamic> t) =>
         '${t['plate'] ?? ''}'.isEmpty ? '未登记车牌' : '${t['plate']}';
+    Widget taskHeader(String title, {required bool showAll}) => hbox(
+      pad: EdgeInsets.fromLTRB(4, 0, 4, 0),
+      child: hrow(
+        [
+          Expanded(
+            flex: 1,
+            child: Text(
+              title,
+              style: hts(
+                13,
+                dk(context, Color(0xFF52525B), Color(0xFFA8A8B3)),
+                w: FontWeight.w500,
+                lh: 18,
+              ),
+            ),
+          ),
+          if (showAll)
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => openRoute(context, 'StTasks'),
+              child: Text(
+                '全部任务',
+                style: hts(
+                  13,
+                  dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+                  w: FontWeight.w500,
+                  lh: 18,
+                ),
+              ),
+            ),
+        ],
+        main: MainAxisAlignment.start,
+        cross: CrossAxisAlignment.center,
+        gap: 0,
+      ),
+    );
     return HPage(
       bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
       flow: hcol(
         [
           hbox(
-            pad: EdgeInsets.fromLTRB(20, topInset(context), 20, 110),
+            pad: EdgeInsets.fromLTRB(20, topInset(context), 20, 32),
             child: hcol(
               [
                 hrow(
                   [
-                    hbox(
-                      w: 40,
-                      h: 40,
-                      bg: dk(context, Color(0xFF18181B), Color(0xFF34343A)),
-                      radius: BorderRadius.circular(20),
-                      align: Alignment(0, 0),
-                      child: Text(
-                        stInitial(name),
-                        style: hts(16, Color(0xFFF5D78E), w: FontWeight.w600),
-                      ),
-                    ),
                     Expanded(
                       flex: 1,
                       child: hcol(
@@ -78,6 +103,30 @@ class StHomeTemplate extends StatelessWidget {
                         main: MainAxisAlignment.start,
                         cross: CrossAxisAlignment.stretch,
                         gap: 1,
+                      ),
+                    ),
+                    Semantics(
+                      button: true,
+                      label: '我的',
+                      excludeSemantics: true,
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => openRoute(context, 'StMine'),
+                        child: hbox(
+                          w: 40,
+                          h: 40,
+                          bg: dk(context, Color(0xFF18181B), Color(0xFF34343A)),
+                          radius: BorderRadius.circular(20),
+                          align: Alignment(0, 0),
+                          child: Text(
+                            stInitial(name),
+                            style: hts(
+                              16,
+                              Color(0xFFF5D78E),
+                              w: FontWeight.w600,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -146,13 +195,17 @@ class StHomeTemplate extends StatelessWidget {
                           cross: CrossAxisAlignment.stretch,
                           gap: 0,
                         ),
-                        Text(
-                          stMoney(d['revenue_today']),
-                          style: hts(
-                            34,
-                            Color(0xFFF5D78E),
-                            w: FontWeight.w600,
-                            lh: 42,
+                        GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () => openRoute(context, 'StPerf'),
+                          child: Text(
+                            stMoney(d['revenue_today']),
+                            style: hts(
+                              34,
+                              Color(0xFFF5D78E),
+                              w: FontWeight.w600,
+                              lh: 42,
+                            ),
                           ),
                         ),
                         hcol(
@@ -161,95 +214,107 @@ class StHomeTemplate extends StatelessWidget {
                               [
                                 Expanded(
                                   flex: 1,
-                                  child: hcol(
-                                    [
-                                      Text(
-                                        '${d['done_today'] ?? 0}',
-                                        style: hts(
-                                          17,
-                                          Color(0xFFFAFAFA),
-                                          w: FontWeight.w600,
-                                          lh: 24,
-                                        ),
-                                      ),
-                                      Text(
-                                        '完成单',
-                                        style: hts(
-                                          11,
-                                          dk(
-                                            context,
-                                            Color(0xFFA1A1AA),
-                                            Color(0xFF80808A),
+                                  child: GestureDetector(
+                                    behavior: HitTestBehavior.opaque,
+                                    onTap: () => openRoute(context, 'StTasks'),
+                                    child: hcol(
+                                      [
+                                        Text(
+                                          '${d['done_today'] ?? 0}',
+                                          style: hts(
+                                            17,
+                                            Color(0xFFFAFAFA),
+                                            w: FontWeight.w600,
+                                            lh: 24,
                                           ),
-                                          lh: 16,
                                         ),
-                                      ),
-                                    ],
-                                    main: MainAxisAlignment.start,
-                                    cross: CrossAxisAlignment.stretch,
-                                    gap: 2,
+                                        Text(
+                                          '完成单',
+                                          style: hts(
+                                            11,
+                                            dk(
+                                              context,
+                                              Color(0xFFA1A1AA),
+                                              Color(0xFF80808A),
+                                            ),
+                                            lh: 16,
+                                          ),
+                                        ),
+                                      ],
+                                      main: MainAxisAlignment.start,
+                                      cross: CrossAxisAlignment.stretch,
+                                      gap: 2,
+                                    ),
                                   ),
                                 ),
                                 Expanded(
                                   flex: 1,
-                                  child: hcol(
-                                    [
-                                      Text(
-                                        stMoney(d['commission_today']),
-                                        style: hts(
-                                          17,
-                                          Color(0xFFFAFAFA),
-                                          w: FontWeight.w600,
-                                          lh: 24,
-                                        ),
-                                      ),
-                                      Text(
-                                        '预计提成',
-                                        style: hts(
-                                          11,
-                                          dk(
-                                            context,
-                                            Color(0xFFA1A1AA),
-                                            Color(0xFF80808A),
+                                  child: GestureDetector(
+                                    behavior: HitTestBehavior.opaque,
+                                    onTap: () => openRoute(context, 'StPerf'),
+                                    child: hcol(
+                                      [
+                                        Text(
+                                          stMoney(d['commission_today']),
+                                          style: hts(
+                                            17,
+                                            Color(0xFFFAFAFA),
+                                            w: FontWeight.w600,
+                                            lh: 24,
                                           ),
-                                          lh: 16,
                                         ),
-                                      ),
-                                    ],
-                                    main: MainAxisAlignment.start,
-                                    cross: CrossAxisAlignment.stretch,
-                                    gap: 2,
+                                        Text(
+                                          '预计提成',
+                                          style: hts(
+                                            11,
+                                            dk(
+                                              context,
+                                              Color(0xFFA1A1AA),
+                                              Color(0xFF80808A),
+                                            ),
+                                            lh: 16,
+                                          ),
+                                        ),
+                                      ],
+                                      main: MainAxisAlignment.start,
+                                      cross: CrossAxisAlignment.stretch,
+                                      gap: 2,
+                                    ),
                                   ),
                                 ),
                                 Expanded(
                                   flex: 1,
-                                  child: hcol(
-                                    [
-                                      Text(
-                                        '${d['waiting'] ?? 0}',
-                                        style: hts(
-                                          17,
-                                          Color(0xFFFAFAFA),
-                                          w: FontWeight.w600,
-                                          lh: 24,
-                                        ),
-                                      ),
-                                      Text(
-                                        '待施工',
-                                        style: hts(
-                                          11,
-                                          dk(
-                                            context,
-                                            Color(0xFFA1A1AA),
-                                            Color(0xFF80808A),
+                                  child: GestureDetector(
+                                    behavior: HitTestBehavior.opaque,
+                                    onTap: () => openRoute(context, 'StTasks'),
+                                    child: hcol(
+                                      [
+                                        Text(
+                                          '${d['waiting'] ?? 0}',
+                                          style: hts(
+                                            17,
+                                            Color(0xFFFAFAFA),
+                                            w: FontWeight.w600,
+                                            lh: 24,
                                           ),
-                                          lh: 16,
                                         ),
-                                      ),
-                                    ],
-                                    main: MainAxisAlignment.start,
-                                    cross: CrossAxisAlignment.stretch,
-                                    gap: 2,
+                                        Text(
+                                          '待施工',
+                                          style: hts(
+                                            11,
+                                            dk(
+                                              context,
+                                              Color(0xFFA1A1AA),
+                                              Color(0xFF80808A),
+                                            ),
+                                            lh: 16,
+                                          ),
+                                        ),
+                                      ],
+                                      main: MainAxisAlignment.start,
+                                      cross: CrossAxisAlignment.stretch,
+                                      gap: 2,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -562,21 +627,12 @@ class StHomeTemplate extends StatelessWidget {
                     gap: 0,
                   ),
                 ),
+                if (working.isEmpty && waiting.isEmpty)
+                  taskHeader('我的任务', showAll: true),
                 if (working.isNotEmpty)
                   hcol(
                     [
-                      hbox(
-                        pad: EdgeInsets.fromLTRB(4, 0, 0, 0),
-                        child: Text(
-                          '进行中',
-                          style: hts(
-                            13,
-                            dk(context, Color(0xFF52525B), Color(0xFFA8A8B3)),
-                            w: FontWeight.w500,
-                            lh: 18,
-                          ),
-                        ),
-                      ),
+                      taskHeader('进行中', showAll: true),
                       for (final t in working)
                         GestureDetector(
                           behavior: HitTestBehavior.opaque,
@@ -793,18 +849,7 @@ class StHomeTemplate extends StatelessWidget {
                 if (waiting.isNotEmpty)
                   hcol(
                     [
-                      hbox(
-                        pad: EdgeInsets.fromLTRB(4, 0, 0, 0),
-                        child: Text(
-                          '待施工',
-                          style: hts(
-                            13,
-                            dk(context, Color(0xFF52525B), Color(0xFFA8A8B3)),
-                            w: FontWeight.w500,
-                            lh: 18,
-                          ),
-                        ),
-                      ),
+                      taskHeader('待施工', showAll: working.isEmpty),
                       for (final t in waiting)
                         GestureDetector(
                           behavior: HitTestBehavior.opaque,

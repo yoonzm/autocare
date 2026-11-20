@@ -39,6 +39,7 @@ import 'pages/booking/appointment_settings_live_page.dart';
 import 'pages/booking/booking_resources_page.dart';
 import 'navigation/page_registry.dart';
 import 'pages/account/login_page.dart';
+import 'pages/members/members_page.dart';
 import 'pages/members/member_detail_page.dart';
 import 'pages/members/member_add_page.dart';
 import 'pages/members/member_records_live_page.dart';
@@ -238,6 +239,8 @@ Widget? pageFor(String name, {Object? arguments}) {
           : ErrorView(
               error: const AppError('请先选择会员', type: AppErrorType.notFound),
             );
+    case 'Members':
+      return const MembersPage();
     case 'MemberAdd':
       return MemberAddPage(vehicle: memberData?.vehicle);
     case 'MemberEdit':
@@ -385,10 +388,8 @@ void _openRouteCore(BuildContext context, String name, {Object? arguments}) {
       nav.push(MaterialPageRoute<void>(builder: (_) => staffNoPerm(need.$2)));
       return;
     }
-    // 员工外壳的 Tab：切换底部导航，而不是再压一层页面
-    final tab = staffTabIndex(name);
-    if (tab != null && Access.usesStaffShell) {
-      staffTab.value = tab;
+    // 员工外壳的根工作台：直接回退到栈底，不再重复压栈
+    if (Access.usesStaffShell && isStaffRootRoute(name)) {
       nav.popUntil((r) => r.isFirst);
       return;
     }
@@ -453,7 +454,7 @@ void _openRouteCore(BuildContext context, String name, {Object? arguments}) {
     );
     return;
   }
-  if (tabRoutes.containsKey(name)) {
+  if (tabRoutes.containsKey(name) && !Access.usesStaffShell) {
     tabIndex.value = tabRoutes[name]!;
     if (shellMounted) {
       nav.popUntil((r) => r.isFirst);

@@ -303,6 +303,14 @@ class _MembersPageState extends State<MembersPage> {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(
                 children: [
+                  if (Navigator.of(context).canPop()) ...[
+                    RoundBtn(
+                      'chevronLeft',
+                      label: '返回',
+                      onTap: () => Navigator.of(context).maybePop(),
+                    ),
+                    const SizedBox(width: 12),
+                  ],
                   Expanded(
                     child: Text(
                       '会员',

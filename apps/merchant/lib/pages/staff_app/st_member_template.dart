@@ -419,11 +419,11 @@ class _StMemberTemplateState extends State<StMemberTemplate> {
   Widget build(BuildContext context) {
     return HPage(
       bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
-      header: AppPageHeader(title: '会员查询', leading: AppHeaderLeading.none),
+      header: AppPageHeader(title: '会员查询'),
       flow: hcol(
         [
           hbox(
-            pad: EdgeInsets.fromLTRB(20, 8, 20, 110),
+            pad: EdgeInsets.fromLTRB(20, 8, 20, 32),
             child: hcol(
               [
                 hbox(

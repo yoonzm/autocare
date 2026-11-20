@@ -78,6 +78,31 @@ begin
   caught:=false; begin perform public.staff_home(shop2,tech_id); exception when sqlstate 'P0002' then caught:=true; end;
   assert caught,'不能读取他店员工的工作台';
 
+  -- 首页统计兼容直接开单、多技师订单和旧预约订单；显式技师归属优先于预约。
+  declare resource uuid:=(tech->>'resource_id')::uuid; other_resource uuid:=gen_random_uuid(); appointment uuid; reassigned uuid;
+  begin
+    select id into appointment from public.appointments where store_id=shop and request_id='h-1';
+    insert into public.appointments(store_id,customer_name,service_ids,items,starts_at,duration_minutes,estimate,request_id,technician_id,status)
+      values(shop,'归属调整','{}','[]',now(),30,900,'h-reassigned',resource,'cancelled') returning id into reassigned;
+    insert into public.orders(store_id,payable,technician_ids,appointment_id) values
+      (shop,100,array[resource],null),
+      (shop,200,array[resource,other_resource],null),
+      (shop,50,'{}',appointment),
+      (shop,900,array[other_resource],reassigned),
+      (shop,800,'{}',null),
+      (shop2,700,array[resource],null);
+    insert into public.orders(store_id,payable,technician_ids,created_at)
+      values(shop,600,array[resource],date_trunc('month',now() at time zone 'Asia/Shanghai') at time zone 'Asia/Shanghai'-interval '1 day');
+    r:=public.staff_home(shop,tech_id);
+    assert (r->>'done_today')::int=3,'直接开单、多技师和旧预约订单各计一次，排除他人/他店/历史订单';
+    assert (r->>'revenue_today')::numeric=350,'只统计本人归属订单';
+    assert (r->>'month_done')::int=3,'月度统计采用相同归属规则';
+    r:=public.staff_home(shop,cash_id);
+    assert (r->>'orders_today')::int=5 and not (r ? 'revenue_today'),'前台首页正常且不暴露营业额';
+    assert not has_function_privilege('authenticated','public.staff_home(uuid,uuid)','execute');
+    assert has_function_privilege('service_role','public.staff_home(uuid,uuid)','execute');
+  end;
+
   -- 套餐到期：员工业务请求返回 plan_expired；老板的退出/读取走非业务路径不受影响。
   update public.account_subscriptions set ends_at=now()-interval '1 day' where owner_id=owner_u;
   r:=public.platform_merchant_session(tech_u,tech_s,true);

@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:autocare_merchant/backend/access_flow.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
-import 'package:autocare_merchant/pages/staff_app/staff_tabs.dart';
 import 'package:autocare_merchant/routes.dart' show navTracker, openRoute;
 
 import 'appointments_test.dart' show BookingApi;
@@ -191,14 +190,6 @@ void main() {
 
   Future<void> start(WidgetTester t, String route, {String? taskId}) async {
     phone(t);
-    if (route == 'StTasks') {
-      // 任务是技师外壳的底部 Tab：从外壳切换过去
-      await t.pumpWidget(const MaterialApp(home: StaffTabs()));
-      await t.pumpAndSettle();
-      openRoute(t.element(find.byType(StaffTabs)), route);
-      await t.pumpAndSettle();
-      return;
-    }
     late BuildContext ctx;
     await t.pumpWidget(
       MaterialApp(

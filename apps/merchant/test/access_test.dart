@@ -66,7 +66,7 @@ void main() {
     expect(text('沪A8K29M'), findsOneWidget);
     expect(text('全车镀晶 · 9H 陶瓷'), findsOneWidget);
     expect(text('3 号工位 · 预计 10:30'), findsNothing); // 预计完工 = 开始 + 标准工时（北京时间）
-    expect(text('工作台'), findsWidgets);
+    expect(text('全部任务'), findsOneWidget);
   });
 
   testWidgets('待确认加入的身份：先到「加入门店」，确认后才进入工作台', (t) async {
@@ -99,17 +99,11 @@ void main() {
     expect(text('换个手机号'), findsOneWidget);
   });
 
-  testWidgets('员工外壳：技师底部导航四项，「我的」只对多身份账号显示切换身份', (t) async {
+  testWidgets('员工外壳：无底部 Tab，点击右上角头像进入「我的」，「我的」只对多身份账号显示切换身份', (t) async {
     Access.apply(api.identityCtx);
     await open(t, const StaffTabs());
-    for (final label in ['工作台', '任务', '会员', '我的']) {
-      expect(text(label), findsWidgets);
-    }
-    Finder nav(String label) => find.descendant(
-      of: find.byType(StaffNavBar),
-      matching: find.text(label),
-    );
-    await t.tap(nav('我的'));
+    expect(text('全部任务'), findsOneWidget);
+    await t.tap(find.bySemanticsLabel('我的'));
     await t.pumpAndSettle();
     expect(text('老周'), findsWidgets);
     expect(text('¥4,620'), findsWidgets);
@@ -118,15 +112,14 @@ void main() {
     expect(find.textContaining('当前：悦驰汽车装饰 · 松江店 · 施工技师'), findsOneWidget);
     // 单身份账号不显示
     Access.apply({...api.identityCtx, 'identity_count': 1});
+    await t.tap(find.bySemanticsLabel('返回'));
     await t.pumpAndSettle();
-    await t.tap(nav('工作台'));
-    await t.pumpAndSettle();
-    await t.tap(nav('我的'));
+    await t.tap(find.bySemanticsLabel('我的'));
     await t.pumpAndSettle();
     expect(text('切换身份'), findsNothing, reason: '只有一个身份的账号不显示切换身份');
   });
 
-  testWidgets('员工外壳：前台底部是 工作台 · 预约 · 会员 · 我的，工作台只给笔数', (t) async {
+  testWidgets('员工外壳：前台工作台无底部 Tab，快捷区提供会员管理，工作台只给笔数', (t) async {
     api.identityCtx = {...api.identityCtx, 'role': 'cashier'};
     api.home = {
       'role': 'cashier',
@@ -149,8 +142,8 @@ void main() {
     };
     Access.apply(api.identityCtx);
     await open(t, const StaffTabs());
-    for (final label in ['工作台', '预约', '会员', '我的']) {
-      expect(text(label), findsWidgets);
+    for (final label in ['开单收银', '会员管理', '扫车牌找会员', '预约管理']) {
+      expect(text(label), findsOneWidget);
     }
     expect(text('36 笔'), findsOneWidget);
     expect(find.textContaining('¥'), findsNothing, reason: '前台工作台不显示金额');

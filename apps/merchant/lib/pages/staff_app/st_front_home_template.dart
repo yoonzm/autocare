@@ -46,22 +46,11 @@ class StFrontHomeTemplate extends StatelessWidget {
       flow: hcol(
         [
           hbox(
-            pad: EdgeInsets.fromLTRB(20, topInset(context), 20, 110),
+            pad: EdgeInsets.fromLTRB(20, topInset(context), 20, 32),
             child: hcol(
               [
                 hrow(
                   [
-                    hbox(
-                      w: 40,
-                      h: 40,
-                      bg: dk(context, Color(0xFF18181B), Color(0xFF34343A)),
-                      radius: BorderRadius.circular(20),
-                      align: Alignment(0, 0),
-                      child: Text(
-                        stInitial(name),
-                        style: hts(16, Color(0xFFF5D78E), w: FontWeight.w600),
-                      ),
-                    ),
                     Expanded(
                       flex: 1,
                       child: hcol(
@@ -87,6 +76,30 @@ class StFrontHomeTemplate extends StatelessWidget {
                         main: MainAxisAlignment.start,
                         cross: CrossAxisAlignment.stretch,
                         gap: 1,
+                      ),
+                    ),
+                    Semantics(
+                      button: true,
+                      label: '我的',
+                      excludeSemantics: true,
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => openRoute(context, 'StMine'),
+                        child: hbox(
+                          w: 40,
+                          h: 40,
+                          bg: dk(context, Color(0xFF18181B), Color(0xFF34343A)),
+                          radius: BorderRadius.circular(20),
+                          align: Alignment(0, 0),
+                          child: Text(
+                            stInitial(name),
+                            style: hts(
+                              16,
+                              Color(0xFFF5D78E),
+                              w: FontWeight.w600,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -378,7 +391,7 @@ class StFrontHomeTemplate extends StatelessWidget {
                         flex: 1,
                         child: GestureDetector(
                           behavior: HitTestBehavior.opaque,
-                          onTap: () => openRoute(context, 'Recharge'),
+                          onTap: () => openRoute(context, 'Members'),
                           child: hbox(
                             pad: EdgeInsets.fromLTRB(0, 14, 0, 14),
                             child: hcol(
@@ -406,7 +419,7 @@ class StFrontHomeTemplate extends StatelessWidget {
                                   ),
                                 ),
                                 Text(
-                                  '会员充值',
+                                  '会员管理',
                                   style: hts(
                                     13,
                                     dk(

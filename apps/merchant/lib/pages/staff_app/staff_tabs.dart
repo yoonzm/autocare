@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../backend/access_flow.dart';
-import '../../kit/kit.dart' show dk, hsvg, hts;
-import '../booking/appointments_page.dart';
-import '../../resources/staff_svgs.dart';
-import '../members/members_page.dart';
 import 'st_front_home_template.dart';
 import 'st_home_template.dart';
 import '../scan/scan_page.dart';
@@ -24,26 +20,14 @@ import 'task_route_data.dart';
 import 'st_member_route_data.dart';
 import '../../routes.dart' show openRoute;
 
-/// 员工外壳（前台收银 / 施工技师）当前选中的底部 Tab。
-final ValueNotifier<int> staffTab = ValueNotifier<int>(0);
-
-/// 员工外壳里的 Tab 路由名 → 下标。前台与技师的第 2、3 个 Tab 不同。
-int? staffTabIndex(String name) => switch (Access.role) {
-  'technician' => const {
-    'StHome': 0,
-    'StTasks': 1,
-    'StMember': 2,
-    'StMine': 3,
-  }[name],
-  'cashier' => const {
-    'StFrontHome': 0,
-    'Appointments': 1,
-    'Members': 2,
-    'StMine': 3,
-  }[name],
-  _ => null,
+/// 是否为当前员工身份的根工作台路由（回到根页时直接回退到栈底）。
+bool isStaffRootRoute(String name) => switch (Access.role) {
+  'technician' => name == 'StHome' || name == 'Main',
+  'cashier' => name == 'StFrontHome' || name == 'Main',
+  _ => false,
 };
 
+/// 员工外壳（前台收银 / 施工技师）：无底部 Tab，单工作台首页 + 右上角头像进入「我的」。
 class StaffTabs extends StatefulWidget {
   const StaffTabs({super.key});
 
@@ -55,7 +39,6 @@ class _StaffTabsState extends State<StaffTabs> {
   @override
   void initState() {
     super.initState();
-    staffTab.value = 0;
     Access.changed.addListener(_onAccess);
   }
 
@@ -69,130 +52,12 @@ class _StaffTabsState extends State<StaffTabs> {
     if (mounted) setState(() {});
   }
 
-  List<Widget> get _pages => Access.role == 'technician'
-      ? const [
-          StHomeLivePage(),
-          StTasksLivePage(),
-          StMemberLivePage(),
-          StMineLivePage(),
-        ]
-      : const [
-          StFrontHomeLivePage(),
-          AppointmentsPage(),
-          MembersPage(),
-          StMineLivePage(),
-        ];
-
   @override
-  Widget build(BuildContext context) => ValueListenableBuilder<int>(
-    valueListenable: staffTab,
-    builder: (context, idx, _) => Scaffold(
-      body: IndexedStack(index: idx, children: _pages),
-      bottomNavigationBar: StaffNavBar(
-        index: idx,
-        role: Access.role,
-        onTap: (i) => staffTab.value = i,
-      ),
-    ),
+  Widget build(BuildContext context) => Scaffold(
+    body: Access.role == 'technician'
+        ? const StHomeLivePage()
+        : const StFrontHomeLivePage(),
   );
-}
-
-/// 设计稿底部导航（84 高，含安全区）：工作台 · 任务 / 预约 · 会员 · 我的。
-class StaffNavBar extends StatelessWidget {
-  final int index;
-  final String role;
-  final ValueChanged<int> onTap;
-  const StaffNavBar({
-    super.key,
-    required this.index,
-    required this.role,
-    required this.onTap,
-  });
-
-  // 设计稿的图标是描边 SVG；选中态只是把灰色描边换成主色。
-  static String _blue(String svg) =>
-      svg.replaceAll('#71717A', '#0485F7').replaceAll('#9A9AA3', '#0485F7');
-
-  @override
-  Widget build(BuildContext context) {
-    final tabs = role == 'technician'
-        ? [
-            ('工作台', Svgs.s51, Svgs.s52),
-            ('任务', Svgs.s43, Svgs.s44),
-            ('会员', Svgs.s34, Svgs.s35),
-            ('我的', Svgs.s34, Svgs.s35),
-          ]
-        : [
-            ('工作台', Svgs.s51, Svgs.s52),
-            ('预约', Svgs.s32, Svgs.s33),
-            ('会员', Svgs.s34, Svgs.s35),
-            ('我的', Svgs.s34, Svgs.s35),
-          ];
-    final bottom = MediaQuery.paddingOf(context).bottom;
-    return Container(
-      height: 84 - 34 + (bottom > 0 ? bottom : 34),
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      decoration: BoxDecoration(
-        color: dk(context, const Color(0xFFFFFFFF), const Color(0xFF18181B)),
-        border: Border(
-          top: BorderSide(
-            color: dk(
-              context,
-              const Color(0xFFE8E8EA),
-              const Color(0xFF26262B),
-            ),
-          ),
-        ),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          for (var i = 0; i < tabs.length; i++)
-            Expanded(
-              child: Semantics(
-                button: true,
-                selected: i == index,
-                label: tabs[i].$1,
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () => onTap(i),
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 10),
-                    child: Column(
-                      children: [
-                        hsvg(
-                          i == index
-                              ? _blue(tabs[i].$2)
-                              : dk(context, tabs[i].$2, tabs[i].$3),
-                          w: 24,
-                          h: 24,
-                        ),
-                        const SizedBox(height: 3),
-                        Text(
-                          tabs[i].$1,
-                          style: hts(
-                            11,
-                            i == index
-                                ? const Color(0xFF0485F7)
-                                : dk(
-                                    context,
-                                    const Color(0xFF71717A),
-                                    const Color(0xFF9A9AA3),
-                                  ),
-                            w: i == index ? FontWeight.w600 : FontWeight.w500,
-                            lh: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
 }
 
 /// 没有权限的直达路由统一落到这里（设计稿 StNoPerm）。
