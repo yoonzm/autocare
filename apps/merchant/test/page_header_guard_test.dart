@@ -20,7 +20,7 @@ void main() {
     final bad = <String>[];
     for (final f in Directory('lib/pages').listSync(recursive: true)) {
       if (f is! File || !f.path.endsWith('.dart')) continue;
-      final rel = f.path.replaceFirst('lib/pages/', '');
+      final rel = f.path.replaceAll('\\', '/').replaceFirst('lib/pages/', '');
       final s = f.readAsStringSync();
       if (!s.contains('HPage(')) continue;
       if (noHeaderPages.contains(rel)) continue;

@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -6,35 +5,15 @@ import 'package:autocare_merchant/routes.dart';
 import 'package:autocare_merchant/navigation/page_registry.dart';
 
 void main() {
-  final inventory = jsonDecode(
-    File('../../docs/frontend-migration.json').readAsStringSync(),
-  ) as Map<String, dynamic>;
-  final entries = (inventory['entries'] as List).cast<Map<String, dynamic>>();
-
-  test('迁移清单覆盖全部现存页面，移除的旧文件不能继续留在清单', () {
-    final listed = entries.map((entry) => 'lib/${entry['path']}').toSet();
-    final actualPages = Directory('lib/pages')
+  test('现存页面不再使用全局编辑草稿或按路由猜测字段', () {
+    final pages = Directory('lib/pages')
         .listSync(recursive: true)
         .whereType<File>()
-        .where((file) => file.path.endsWith('.dart'))
-        .map((file) => file.path.replaceAll('\\', '/'))
-        .toSet();
-    expect(listed, containsAll(actualPages));
-    expect(
-      entries.map((entry) => entry['path']).toSet(),
-      hasLength(entries.length),
-    );
-    for (final path in listed) {
-      expect(File(path).existsSync(), isTrue, reason: '$path 已移动或删除，需要更新清单');
-    }
-  });
-
-  test('已验证页面不再使用全局编辑草稿或按路由猜测字段', () {
-    final migrated = entries.where((entry) => entry['status'] == 'verified');
-    expect(migrated, isNotEmpty);
-    for (final entry in migrated) {
-      final path = 'lib/${entry['path']}';
-      final source = File(path).readAsStringSync();
+        .where((file) => file.path.endsWith('.dart'));
+    expect(pages, isNotEmpty);
+    for (final file in pages) {
+      final path = file.path;
+      final source = file.readAsStringSync();
       for (final legacy in [
         'TaskFlow.currentId',
         'TaskFlow.finished',
@@ -607,11 +586,16 @@ void main() {
       expect(pageBuilders.containsKey(name), isFalse, reason: name);
       expect(sheetRoutes.containsKey(name), isFalse, reason: name);
     }
-    for (final entry in (inventory['removed'] as List)) {
+    for (final name in [
+      'recharge_card_page',
+      'recharge_empty_card_page',
+      'recharge_empty_page',
+      'recharge_page',
+    ]) {
       expect(
-        File('lib/${entry['path']}').existsSync(),
+        File('lib/pages/members/$name.dart').existsSync(),
         isFalse,
-        reason: entry['path'],
+        reason: '$name 已合并到 wallet_page.dart',
       );
     }
   });

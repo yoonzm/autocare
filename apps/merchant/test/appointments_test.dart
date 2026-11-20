@@ -1176,13 +1176,16 @@ void main() {
     );
     await t.tap(find.text('开单入口'));
     await t.pumpAndSettle();
+    await t.ensureVisible(find.text('微信'));
+    await t.tap(find.text('微信'));
+    await t.pump();
     await t.tap(find.text('确认收款'));
     await t.pumpAndSettle();
-    await t.tap(find.text('微信').last);
-    await t.pumpAndSettle();
-    final call = api.calls.lastWhere((c) => c['action'] == 'checkout');
+    final call = api.calls.where((c) => c['action'] == 'checkout').single;
     expect(call['id'], 'a1');
+    expect(call['method'], '微信');
     expect((call['lines'] as List).single['service_id'], 's1');
     expect(api.bookings.single['status'], 'done');
+    expect(find.text('收款成功'), findsOneWidget);
   });
 }

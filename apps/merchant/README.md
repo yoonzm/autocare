@@ -2,7 +2,7 @@
 
 汽美管家商户端 Flutter App，老板、店长、前台和技师共用同一应用。业务数据走真实接口；未接通的渠道或能力明确标注 TODO 并阻止假成功，不提供未登录设计预览或样例数据回退。一期范围见 [`docs/mvp-v1.md`](../../docs/mvp-v1.md)。
 
-页面按业务组织在 `lib/pages/`，共享图标在 `lib/resources/`，导航在 `lib/navigation/`。后续直接维护 Dart 源码，设计稿仅作视觉参考；设计转 Flutter 的生成、派生与绑定脚本已经删除。维护规范见 [`docs/frontend-guidelines.md` 第 18 节](../../docs/frontend-guidelines.md)，逐页验收证据见 [`docs/frontend-migration.json`](../../docs/frontend-migration.json)。`tools/golden/` 仅用于视觉回归，不生成页面代码。
+页面按业务组织在 `lib/pages/`，共享图标在 `lib/resources/`，导航在 `lib/navigation/`。后续直接维护 Dart 源码，设计稿仅作视觉参考；设计转 Flutter 的生成、派生与绑定脚本已经删除。维护规范见 [`docs/frontend-guidelines.md` 第 18 节](../../docs/frontend-guidelines.md)，源码迁移守卫见 [`test/frontend_migration_test.dart`](test/frontend_migration_test.dart)。`tools/golden/` 仅用于视觉回归，不生成页面代码。
 
 ```sh
 flutter pub get
