@@ -500,7 +500,7 @@ class PackageSoldPage extends StatelessWidget {
                         context,
                         'PackageDetail',
                         arguments: MemberPackageRouteData(
-                          id: '${receipt!.data['id']}',
+                          id: '${receipt!.data['member_package_id']}',
                           member: receipt!.member,
                         ),
                       ),

@@ -11,15 +11,18 @@ import 'package:autocare_merchant/pages/members/recharge_pick_sheet.dart';
 import 'package:autocare_merchant/pages/members/packages/member_package_controller.dart';
 import 'package:autocare_merchant/pages/members/packages/member_package_route_data.dart';
 import 'package:autocare_merchant/pages/members/packages/package_detail_page.dart';
+import 'package:autocare_merchant/pages/members/packages/package_sold_page.dart';
 
 import 'members_test.dart' show MemberFakeApi, row, phone;
 
 class WalletApi extends MemberFakeApi {
+  String? requestedPackageId;
   final attempts = <Map<String, dynamic>>[];
   Completer<void>? gate;
   Completer<Map<String, dynamic>>? oldPackage;
   @override
   Future<Map<String, dynamic>> memberPackage(String id) async {
+    requestedPackageId = id;
     if (id == 'old') return oldPackage!.future;
     return {'id': id, 'name': '新次卡', 'total_count': 20, 'used_count': 2};
   }
@@ -104,6 +107,26 @@ void main() {
   });
   tearDown(() {
     merchantApi = original;
+  });
+
+  testWidgets('次卡购买成功后查看次卡使用回执的 member_package_id', (t) async {
+    phone(t);
+    final receipt = WalletReceipt(
+      member: row(id: 'a'),
+      sale: true,
+      data: {
+        'member_package_id': 'mp1',
+        'name': '洗车次卡',
+        'price': 100,
+        'total_count': 10,
+      },
+    );
+    await t.pumpWidget(MaterialApp(home: PackageSoldPage(receipt: receipt)));
+    await t.pumpAndSettle();
+    await t.ensureVisible(find.text('查看次卡'));
+    await t.tap(find.text('查看次卡'));
+    await t.pumpAndSettle();
+    expect(api.requestedPackageId, 'mp1');
   });
 
   test('四个记账接口把调用者的幂等标识传到请求层', () async {
