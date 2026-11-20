@@ -11,6 +11,7 @@ import 'package:autocare_merchant/backend/store_profile.dart';
 import 'package:autocare_merchant/kit/async_kit.dart';
 import 'package:autocare_merchant/kit/kit.dart' show HSel, HNumberStepper;
 import 'package:autocare_merchant/pages/members/member_detail_page.dart';
+import 'package:autocare_merchant/widgets/common.dart' show RoundBtn;
 import 'package:autocare_merchant/pages/orders/order_page.dart';
 import 'package:autocare_merchant/pages/members/members_page.dart';
 import 'package:autocare_merchant/pages/members/member_filter_sheet.dart';
@@ -2040,6 +2041,30 @@ void main() {
         'content': '约了周六镀晶复养',
         'next': null,
       });
+      expect(find.text('保存回访'), findsNothing);
+      expect(find.text('open'), findsOneWidget);
+    });
+
+    testWidgets('从会员详情发起回访，保存后返回会员详情', (t) async {
+      phone(t);
+      final member = row(tier: 't-gold', tierName: '金卡');
+      fake.rows.add(member);
+      await t.pumpWidget(app(MemberDetailPage(member: memberFromRow(member))));
+      await t.pumpAndSettle();
+      await t.tap(
+        find.byWidgetPredicate((w) => w is RoundBtn && w.label == '更多'),
+      );
+      await t.pumpAndSettle();
+      await t.tap(find.text('发起回访'));
+      await t.pumpAndSettle();
+      expect(find.text('记录回访'), findsOneWidget);
+      await t.tap(find.text('已预约到店'));
+      await t.pump();
+      await t.tap(find.text('保存回访'));
+      await t.pumpAndSettle();
+      expect(fake.visits, hasLength(1));
+      expect(find.text('记录回访'), findsNothing);
+      expect(find.text('会员详情'), findsOneWidget);
     });
 
     testWidgets('回访提醒：真实提醒数据、数量、页签筛选，标记已回访后消失', (t) async {

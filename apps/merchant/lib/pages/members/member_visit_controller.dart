@@ -89,7 +89,7 @@ class MemberVisitController extends ChangeNotifier {
     try {
       if (await save() && context.mounted && !disposed) {
         AppToast.show(context, '已保存回访', kind: ToastKind.success);
-        Navigator.of(context).maybePop();
+        Navigator.of(context).pop();
       }
     } catch (e) {
       if (context.mounted && !disposed) AppToast.error(context, e);
