@@ -803,7 +803,7 @@ class StMineTemplate extends StatelessWidget {
                                 child: hcol(
                                   [
                                     Text(
-                                      '关于汽美管家',
+                                      '关于我的汽美管家',
                                       style: hts(
                                         15,
                                         dk(

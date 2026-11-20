@@ -10,7 +10,7 @@ Future<void> testExecutable(FutureOr<void> Function() testMain) async {
     busyActions.value = const {};
     // Widget tests have no installed app or native cache directory.
     PackageInfo.setMockInitialValues(
-      appName: '汽美管家',
+      appName: '我的汽美管家',
       packageName: 'com.yoonzm.autocare.merchant',
       version: '1.0.0',
       buildNumber: '1',

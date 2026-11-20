@@ -1,5 +1,93 @@
 # 发布约定
 
+## App Store 首版资料（2026-11-20）
+
+- 商店名称与 iOS 显示名称：我的汽美管家；Bundle ID 保持 `com.yoonzm.autocare.merchant`。
+- 仅声明 iPhone 设备支持，不提供原生 iPad 版本；iPad 上的 iPhone 兼容运行不由这一设置禁止。
+- APP 备案号：`陕ICP备2022007344号-6A`（用户提供，提审时需核对 App Store Connect 与备案信息一致）。
+- 用户已确认上一版 TestFlight 真机验收完成；本次名称与设备范围调整需重新打包，不能用旧构建代表新配置。
+- 审核使用用户名/密码登录；审核凭据仅填写 App Store Connect 的审核专用字段，不保存在仓库。
+- 运营主体：西安追慕科技有限公司（Xi'an Zhuimu Technology Co., Ltd）；2026-11-20 从用户已登录的 App Store Connect 商务页核对。
+- 审核联系信息可参照同账号“我的会员管家”的审核专用字段；用户已批准公开客服信息与技术支持页复用“我的会员管家”的配置。
+- 公开客服电话：`18706849256`；客服邮箱：`wodehuiyuanguanjia@163.com`（来源：[我的会员管家公开联系方式](https://mymember.ltd/member/assets?name=privacy-policy.html)）。公开客服邮箱与审核联系邮箱分别维护。
+- 技术支持网址：`https://member.mymember.ltd/member-sit/`（2026-11-20 匿名 GET 验证为 HTTP 200）；按用户要求，商户 App 保留原微信客服入口 `https://work.weixin.qq.com/kfid/kfc6eaf7469b168651b`，不随支持页配置更换。
+- 上述电话和邮箱已纳入上架资料；本次未更改生产服务器环境变量。复用客服配置不替换商户端专属隐私政策，隐私政策仍需准确反映本 App 的实际数据处理。
+- 待完成：隐私政策匿名访问、真实 iPhone 截图、App Privacy 申报及归档隐私清单核验。账号注销说明必须与实际数据处理一致，不能将停用账号表述为删除全部数据。
+- 中国大陆分发除 APP 备案外，当前 App Store Connect 还要求填写 AIGC 与安全评估相关声明。仅车牌识别不等于面向用户提供内容生成服务，但须按实际功能和第三方服务用途核对问卷，不自动复制其他 App 的答案；只有适用受监管功能时才提供相应备案及报告。参见 [Apple 中国大陆合规说明](https://developer.apple.com/help/app-store-connect/manage-compliance-information/view-china-mainland-compliance-information)。
+
+### 简体中文商店文案草案
+
+| 字段 | 内容 |
+| --- | --- |
+| 名称 | 我的汽美管家 |
+| 副标题 | 汽车美容门店的会员与经营管理助手 |
+| 主分类 | 商务 |
+| 次分类 | 效率（可选） |
+| 版权 | 2026 西安追慕科技有限公司 |
+| 技术支持网址 | https://member.mymember.ltd/member-sit/ |
+| 关键词 | 汽车美容,洗车管理,门店管理,会员管理,预约开单,库存管理,员工管理 |
+| 推广文本 | 从会员建档、预约排班到开单记账、库存与员工协作，我的汽美管家帮助汽车美容门店理清日常业务，让每一次服务有记录、每一笔经营有依据。 |
+| 价格 | 免费（当前版本无软件订阅或内购入口） |
+| 首版说明 | 首次发布，提供会员与车辆档案、预约管理、开单记账、储值与次卡记录、库存管理、员工协作及经营统计。 |
+
+描述：
+
+我的汽美管家是一款面向汽车美容、洗护、贴膜和养护门店的经营管理工具，让老板与员工在一部手机上处理日常业务。
+
+【会员与车辆】管理会员资料、车辆档案、储值与次卡记录，查看服务及消费记录，方便持续服务客户。
+
+【预约与开单】安排到店预约，选择服务项目、工位与技师，跟进挂单和施工任务，记录线下收款结果。
+
+【库存与开支】管理商品、供应商和出入库单据，记录经营开支及凭证，掌握日常物料使用情况。
+
+【员工协作】管理员工角色与权限，分配施工任务，记录工作进度，查看业绩与提成。
+
+【经营概览】查看营业、订单和会员等经营数据，为日常管理提供依据。
+
+当前版本免费提供门店管理功能。收银、会员充值与次卡销售用于记录门店线下业务，App 不代收代付，不提供线上充值或支付服务。
+
+### 审核备注草案（凭据另填审核专用字段）
+
+This app is a business management tool for car detailing and car-care shops. It is used by shop owners and authorized staff to manage customers, vehicles, appointments, service orders, inventory and work tasks.
+
+To sign in, select the password-login option on the login screen, enter the phone-number username and password provided in the App Review Information sign-in fields, accept the user agreement and privacy policy, and sign in. Use password login rather than SMS-code login.
+
+The current version is free and has no software subscription or in-app purchase flow. Checkout, stored-value top-ups and service packages are bookkeeping records for physical services paid for outside the app. The app does not process payments or transfer funds.
+
+Camera and photo-library access are used for vehicle plate recognition and uploading business photos or receipts. The app does not require external hardware for its core workflows.
+
+提交前确认审核账号可正常使用且有可供审核的门店业务记录；不要将上述说明视为账号已登录核验。
+
+### iPhone 截图文案
+
+使用实际运行截图，避开真实客户的手机号、车牌和照片；不使用虚构功能画面。图片尺寸以 App Store Connect 当前 iPhone 槽位要求为准。
+
+1. 门店经营，一屏掌握 —— 首页经营概览。
+2. 会员车辆，有序管理 —— 会员列表与详情。
+3. 预约到店，从容安排 —— 预约与工位视图。
+4. 服务开单，记录清楚 —— 开单与订单页面。
+5. 库存进出，心中有数 —— 商品与库存页面。
+6. 员工协作，进度可查 —— 施工任务页面。
+
+### App Privacy 填写草案
+
+以下是根据当前功能整理的待核验清单，不是已提交的声明，也不是第三方 SDK 或服务商数据实践的完整审计。不能填写“不收集数据”。
+
+| 数据类别 | 当前功能中的例子 | 用途与关联草案 |
+| --- | --- | --- |
+| 联系信息 | 姓名、手机号、资料邮箱、门店地址 | App 功能；与账号或门店关联 |
+| 标识符 | 用户账号 ID；设备标识需核对实际字段 | App 功能与账号安全；与账号关联 |
+| 用户内容 | 头像、施工照片、凭证、反馈内容及其他录入资料 | App 功能、客户支持；与账号或门店关联 |
+| 购买记录及其他财务信息 | 订单、充值、次卡、经营开支与余额记录 | App 功能；按实际字段核对苹果数据分类，不因仅线下收款就一律排除财务信息 |
+| 使用与诊断数据 | 登录及操作日志、服务端错误记录 | 安全和故障处理；按实际上传及留存情况申报 |
+| 其他数据 | 车辆档案、车牌等未归入前述分类的记录 | App 功能；与账号或门店关联 |
+
+当前功能未见广告追踪用途；是否选择“不用于追踪”仍需结合全部 SDK 及短信、识别等服务商实际用途确认。相机权限本身不等于收集数据，但图片上传并存储在服务器上属于需要核对申报的数据处理。
+
+参考：[商店字段](https://developer.apple.com/help/app-store-connect/reference/app-information/platform-version-information/)、[截图规格](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications)、[隐私申报](https://developer.apple.com/app-store/app-privacy-details/)。
+
+## 自动发布流程
+
 - `main` 合入后，按受影响目录执行各端 CI / 内测发布；各端独立版本。Supabase 正式后端按下述流程自动部署，App 签名和发布约束保持原有配置。
 - 商户端使用 `.github/workflows/merchant-internal.yml` 执行 Flutter 检查和内测打包；后台端仍由独立工作流处理。后端由 `.github/workflows/supabase-prod.yml` 独立检查和部署，触发条件见下述正式后端流程，不触发商户端打包。
 - iOS 标识为 `com.yoonzm.autocare.merchant`。先在 Apple Developer / App Store Connect 创建对应 App ID、App 和 App Store 描述文件；再在新 GitHub 仓库配置 `BUILD_CERTIFICATE_BASE64`、`P12_PASSWORD`、`BUILD_PROVISION_PROFILE_BASE64`、`ASC_KEY_ID`、`ASC_ISSUER_ID`、`ASC_PRIVATE_KEY`。不要复制 LanScope 的描述文件。配置完成后在仓库 Variables 中设置 `ENABLE_MERCHANT_TESTFLIGHT=true`，此前 iOS 发布任务会跳过。

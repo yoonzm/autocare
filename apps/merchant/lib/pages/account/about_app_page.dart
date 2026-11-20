@@ -13,7 +13,7 @@ class AboutAppPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return HPage(
       bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
-      header: AppPageHeader(title: '关于汽美管家'),
+      header: AppPageHeader(title: '关于我的汽美管家'),
       flow: hcol(
         [
           hbox(
@@ -26,7 +26,7 @@ class AboutAppPage extends StatelessWidget {
                     [
                       hsvg(Svgs.s2, w: 88, h: 88),
                       Text(
-                        '汽美管家',
+                        '我的汽美管家',
                         style: hts(
                           20,
                           dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
@@ -455,7 +455,7 @@ class AboutAppPage extends StatelessWidget {
                 hbox(
                   margin: EdgeInsets.fromLTRB(0, 8, 0, 0),
                   child: Text(
-                    '© 2026 汽美管家 · 版权所有',
+                    '© 2026 我的汽美管家 · 版权所有',
                     style: hts(
                       11,
                       dk(context, Color(0xFFA1A1AA), Color(0xFF80808A)),

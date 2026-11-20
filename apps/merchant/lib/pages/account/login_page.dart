@@ -275,7 +275,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
             const SizedBox(height: 20),
             Text(
-              '汽美管家',
+              '我的汽美管家',
               style: ts(
                 28,
                 w: FontWeight.w600,

@@ -175,7 +175,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                       _Item(
                         'info',
-                        '关于汽美管家',
+                        '关于我的汽美管家',
                         '',
                         route: 'AboutApp',
                         detail: AccountVersionText(

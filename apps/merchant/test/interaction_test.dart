@@ -532,7 +532,7 @@ void main() {
     for (final (row, title) in [
       ('营业时间与工位', '营业时间与工位'),
       ('账号与安全', '账号与安全'),
-      ('关于汽美管家', '关于汽美管家'),
+      ('关于我的汽美管家', '关于我的汽美管家'),
     ]) {
       await tester.ensureVisible(find.text(row));
       await tester.tap(find.text(row));

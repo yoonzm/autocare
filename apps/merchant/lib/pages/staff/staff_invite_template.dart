@@ -358,7 +358,7 @@ class StaffInviteTemplate extends StatelessWidget {
                   child: hcol(
                     [
                       Text(
-                        '邀请$name登录汽美管家',
+                        '邀请$name登录我的汽美管家',
                         style: hts(
                           15,
                           dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
@@ -392,7 +392,7 @@ class StaffInviteTemplate extends StatelessWidget {
                               Flexible(
                                 flex: 296,
                                 child: Text(
-                                  '下载并打开「汽美管家」App',
+                                  '下载并打开「我的汽美管家」App',
                                   style: hts(
                                     13,
                                     dk(
@@ -512,7 +512,7 @@ class StaffInviteTemplate extends StatelessWidget {
                                       await Clipboard.setData(
                                         ClipboardData(
                                           text:
-                                              '请下载「汽美管家」App，使用手机号 ${d['phone']} 获取验证码登录，确认加入门店即可开始使用。',
+                                              '请下载「我的汽美管家」App，使用手机号 ${d['phone']} 获取验证码登录，确认加入门店即可开始使用。',
                                         ),
                                       );
                                       if (context.mounted) {

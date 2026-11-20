@@ -89,7 +89,7 @@ class StAuthFailTemplate extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        '汽美管家',
+                        '我的汽美管家',
                         style: hts(
                           22,
                           Color(0xFFFAFAFA),

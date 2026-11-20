@@ -83,7 +83,7 @@ void main() {
           (call) async => '${fixture.path}/cache',
         );
     PackageInfo.setMockInitialValues(
-      appName: '汽美管家',
+      appName: '我的汽美管家',
       packageName: 'com.yoonzm.autocare.merchant',
       version: '1.2.3',
       buildNumber: '42',

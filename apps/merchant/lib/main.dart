@@ -155,7 +155,7 @@ class _QimeiAppState extends State<QimeiApp> with WidgetsBindingObserver {
     return FeedbackRecoveryScope(
       recovery: _feedbackRecovery,
       child: MaterialApp(
-        title: '汽美管家',
+        title: '我的汽美管家',
         debugShowCheckedModeBanner: false,
         theme: buildTheme(Brightness.light),
         darkTheme: buildTheme(Brightness.dark),

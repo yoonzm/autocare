@@ -29,7 +29,7 @@ void main() {
     addTearDown(() => merchantApi = originalApi);
     addTearDown(storeProfile.clear);
     await tester.pumpWidget(const QimeiApp());
-    expect(find.text('汽美管家'), findsOneWidget);
+    expect(find.text('我的汽美管家'), findsOneWidget);
     await tester.tap(find.text('密码登录'));
     await tester.pump();
     await tester.enterText(find.byType(TextField).first, '13988888812');
