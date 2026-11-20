@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 
 import 'package:autocare_merchant/backend/appointment_flow.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
@@ -20,6 +20,10 @@ class _Api extends BookingApi {
     'city': '上海市',
     'address': '徐汇路1号',
     'hours_line': '08:30–21:00 · 2 工位 · 统一管理',
+    'hours_text': '每天 00:00 – 23:59',
+    'opens_at': '00:00',
+    'closes_at': '23:59',
+    'store_code': 'CG-ABC123',
   };
   @override
   Future<Map<String, dynamic>> invoke(
@@ -75,10 +79,11 @@ void main() {
     await t.pumpAndSettle();
     for (final text in [
       '实际门店',
-      '门店编号 real-store-1',
-      '上海市 徐汇路1号',
+      '门店编号 CG-ABC123',
+      '上海市徐汇路1号',
       '02112345678',
-      '08:30–21:00 · 2 工位 · 统一管理',
+      '每天 00:00 – 23:59',
+      '营业中',
       '工位配置 · 共 2 个',
       '洗车 1',
       '美容 1',
@@ -91,7 +96,7 @@ void main() {
       '专业版',
       '共 6 张',
       '工位配置 · 共 6 个',
-      '营业中',
+      '08:30–21:00 · 2 工位 · 统一管理',
       '门店二维码',
       '门店编号 CG-0021',
       '驰光汽车美容 · 徐汇店',

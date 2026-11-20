@@ -48,11 +48,17 @@ export async function handleAccount(input: Input, request: Request): Promise<Res
     ]);
     if (hours.error || bays.error || bays.count == null) return fail('读取营业时间与工位失败', 500);
     const hoursLine = (hours.data ? `${hours.data.opens_at.slice(0, 5)}–${hours.data.closes_at.slice(0, 5)}` : '未设置营业时间') + ` · ${bays.count} 工位 · 统一管理`;
+    // 门店信息页：营业时间只展示时段，营业状态由客户端按这两个时刻判断；门店编号取门店 ID 前 6 位
+    const opensAt = hours.data ? hours.data.opens_at.slice(0, 5) : '';
+    const closesAt = hours.data ? hours.data.closes_at.slice(0, 5) : '';
+    const hoursText = hours.data ? `每天 ${opensAt} – ${closesAt}` : '未设置营业时间';
+    const storeCode = `CG-${storeId.replaceAll('-', '').slice(0, 6).toUpperCase()}`;
     const plan = { ...subscription, ...version?.snapshot, ends_at: subscription.ends_at };
     // 员工看不到订阅价格与名额，只看套餐名称与到期时间
     const visiblePlan = isOwner ? plan : { plan: plan.plan, name: plan.name, starts_at: plan.starts_at, ends_at: plan.ends_at };
     const { data: profile } = await admin.rpc('merchant_profile_get', { p_user: ownerId, p_store: storeId, p_role: session.role, p_staff: session.staffId });
     return json({ store: { ...store, id: storeId, account_phone: isOwner ? account.phone : '', hours_line: hoursLine,
+      hours_text: hoursText, opens_at: opensAt, closes_at: closesAt, store_code: storeCode,
       subscription: visiblePlan, store_count: isOwner ? count : 1, profile: await withAvatarUrl(profile) } });
   }
 

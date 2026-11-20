@@ -95,6 +95,10 @@ export interface StoreProfileRow {
   id?: string;
   account_phone?: string;
   hours_line?: string;
+  hours_text?: string;
+  opens_at?: string;
+  closes_at?: string;
+  store_code?: string;
   subscription?: Record<string, unknown>;
   store_count?: number;
   profile?: Record<string, unknown> | null;

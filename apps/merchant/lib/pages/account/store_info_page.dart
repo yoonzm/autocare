@@ -101,6 +101,106 @@ class _StoreInfoPageState extends State<StoreInfoPage> {
   }
 }
 
+/// 按营业时段判断当前是否营业；没设置营业时间返回 null（不显示状态）。
+bool? _openNow(Map store, [DateTime? now]) {
+  int? minutes(Object? v) {
+    final m = RegExp(r'^(\d{1,2}):(\d{2})').firstMatch('${v ?? ''}');
+    return m == null ? null : int.parse(m[1]!) * 60 + int.parse(m[2]!);
+  }
+
+  final from = minutes(store['opens_at']);
+  final to = minutes(store['closes_at']);
+  if (from == null || to == null) return null;
+  final t = now ?? DateTime.now();
+  final cur = t.hour * 60 + t.minute;
+  return from <= to ? cur >= from && cur < to : cur >= from || cur < to;
+}
+
+/// 顶部门头封面：只读展示第一张门店照片与总张数，点击查看大图；照片在「编辑」页管理。
+class _StoreCover extends StatefulWidget {
+  const _StoreCover({super.key});
+  @override
+  State<_StoreCover> createState() => _StoreCoverState();
+}
+
+class _StoreCoverState extends State<_StoreCover> {
+  late final Future<List<UploadRecord>> _photos = MediaApi.store(merchantApi)
+      .load();
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<UploadRecord>>(
+      future: _photos,
+      builder: (context, snap) {
+        final photos = snap.data ?? const <UploadRecord>[];
+        final base = dk(context, Color(0xFFE4E4E7), Color(0xFF27272A));
+        return GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: photos.isEmpty
+              ? null
+              : () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => ImageViewerPage(
+                      images: [for (final p in photos) p.image],
+                    ),
+                  ),
+                ),
+          child: SizedBox(
+            height: 160,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                ColoredBox(color: base),
+                if (photos.isNotEmpty)
+                  Image(
+                    image: photos.first.image,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) => const SizedBox.shrink(),
+                  )
+                else if (snap.connectionState == ConnectionState.done)
+                  Center(
+                    child: Text(
+                      '暂无门店照片',
+                      style: hts(
+                        13,
+                        dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
+                        lh: 18,
+                      ),
+                    ),
+                  ),
+                if (photos.isNotEmpty)
+                  Positioned(
+                    right: 12,
+                    bottom: 12,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xB3000000),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Text(
+                        '共 ${photos.length} 张',
+                        style: hts(
+                          12,
+                          Colors.white,
+                          w: FontWeight.w500,
+                          lh: 18,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
 class _StoreInfoView extends StatelessWidget {
   final Map<String, dynamic> data;
   final VoidCallback onEdit;
@@ -116,10 +216,13 @@ class _StoreInfoView extends StatelessWidget {
         .toList();
     int count(String category) =>
         bays.where((r) => r['category'] == category).length;
+    // 省市区之间不加分隔符，与详细地址连成一句
     final address = [
-      store['city'],
-      store['address'],
-    ].where((v) => v != null && '$v'.trim().isNotEmpty).join(' ');
+      '${store['city'] ?? ''}'.replaceAll(RegExp(r'\s*·\s*'), '').trim(),
+      '${store['address'] ?? ''}'.trim(),
+    ].where((v) => v.isNotEmpty).join();
+    final phone = '${store['phone'] ?? ''}'.replaceFirst(RegExp(r'^\+86'), '');
+    final open = _openNow(store);
     return HPage(
       bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
       header: AppPageHeader(
@@ -222,16 +325,7 @@ class _StoreInfoView extends StatelessWidget {
                   clip: true,
                   child: hcol(
                     [
-                      Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: UploadGallery(
-                          key: ObjectKey(store),
-                          title: '门店照片',
-                          max: 9,
-                          load: MediaApi.store(merchantApi).load,
-                          refresh: MediaApi.store(merchantApi).refresh,
-                        ),
-                      ),
+                      _StoreCover(key: ObjectKey(store)),
                       hbox(
                         pad: EdgeInsets.fromLTRB(16, 16, 16, 16),
                         child: hcol(
@@ -252,44 +346,56 @@ class _StoreInfoView extends StatelessWidget {
                             ),
                             hwrap(
                               [
-                                hbox(
-                                  bg: dk(
-                                    context,
-                                    Color(0xFFDDF6E7),
-                                    Color.fromRGBO(23, 201, 100, 0.16),
-                                  ),
-                                  radius: BorderRadius.circular(11),
-                                  pad: EdgeInsets.fromLTRB(8, 0, 8, 0),
-                                  child: hrow(
-                                    [
-                                      hbox(
-                                        w: 6,
-                                        h: 6,
-                                        bg: Color(0xFF17C964),
-                                        radius: BorderRadius.circular(3),
-                                      ),
-                                      Flexible(
-                                        flex: 36,
-                                        child: Text(
-                                          '—',
+                                if (open != null)
+                                  hbox(
+                                    bg: open
+                                        ? dk(
+                                            context,
+                                            Color(0xFFDDF6E7),
+                                            Color.fromRGBO(23, 201, 100, 0.16),
+                                          )
+                                        : dk(
+                                            context,
+                                            Color(0xFFEEEEF0),
+                                            Color(0xFF27272A),
+                                          ),
+                                    radius: BorderRadius.circular(11),
+                                    pad: EdgeInsets.fromLTRB(8, 0, 8, 0),
+                                    child: hrow(
+                                      [
+                                        hbox(
+                                          w: 6,
+                                          h: 6,
+                                          bg: open
+                                              ? Color(0xFF17C964)
+                                              : Color(0xFFA1A1AA),
+                                          radius: BorderRadius.circular(3),
+                                        ),
+                                        Text(
+                                          open ? '营业中' : '休息中',
                                           style: hts(
                                             12,
-                                            dk(
-                                              context,
-                                              Color(0xFF2B7745),
-                                              Color(0xFF5FD48C),
-                                            ),
+                                            open
+                                                ? dk(
+                                                    context,
+                                                    Color(0xFF2B7745),
+                                                    Color(0xFF5FD48C),
+                                                  )
+                                                : dk(
+                                                    context,
+                                                    Color(0xFF3F3F46),
+                                                    Color(0xFFD4D4D8),
+                                                  ),
                                             w: FontWeight.w500,
                                             lh: 22,
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                    main: MainAxisAlignment.start,
-                                    cross: CrossAxisAlignment.center,
-                                    gap: 5,
+                                      ],
+                                      main: MainAxisAlignment.start,
+                                      cross: CrossAxisAlignment.center,
+                                      gap: 5,
+                                    ),
                                   ),
-                                ),
                                 hbox(
                                   bg: dk(
                                     context,
@@ -321,7 +427,7 @@ class _StoreInfoView extends StatelessWidget {
                                   radius: BorderRadius.circular(11),
                                   pad: EdgeInsets.fromLTRB(8, 0, 8, 0),
                                   child: Text(
-                                    '门店编号 ${store['id'] ?? '—'}',
+                                    '门店编号 ${store['store_code'] ?? '—'}',
                                     style: hts(
                                       12,
                                       dk(
@@ -494,7 +600,7 @@ class _StoreInfoView extends StatelessWidget {
                                     ),
                                   ),
                                   Text(
-                                    '${store['phone'] ?? '—'}',
+                                    phone.isEmpty ? '—' : phone,
                                     style: hts(
                                       14,
                                       dk(
@@ -554,7 +660,7 @@ class _StoreInfoView extends StatelessWidget {
                                       ),
                                     ),
                                     Text(
-                                      '${store['hours_line'] ?? '—'}',
+                                      '${store['hours_text'] ?? '—'}',
                                       style: hts(
                                         14,
                                         dk(
