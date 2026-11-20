@@ -245,7 +245,7 @@ MVP 阶段商户 App 前端去掉开支管理的「预算」和库存管理的�
 | 编号 | 当前不足 | 建议与边界 |
 | --- | --- | --- |
 | P2-01 | **查询与低频操作不完整**：会员流水日期筛选仍提示未接通；次卡自定义延期没有天数输入；前台“今日已收明细”仍是 TODO。依据：[会员流水](../apps/merchant/lib/pages/members/member_records_live_page.dart)、[次卡控制器](../apps/merchant/lib/pages/members/packages/member_package_controller.dart)、[待收银页](../apps/merchant/lib/pages/staff_app/st_cash_queue_template.dart)。 | 先保证现有全量流水、固定延期天数和订单中心可用，再补真实筛选、参数输入和汇总；不显示看似已生效的无效筛选，也不拿默认值冒充用户自定义。 |
-| P2-02 | **联系与辅助录入体验不足**：预约“联系客户”只 Toast 展示号码，员工“联系店长”只提示自行联系；地图选址 / 导航仍未接通。依据：[预约页](../apps/merchant/lib/pages/booking/appointments_page.dart)、[员工我的](../apps/merchant/lib/pages/staff_app/st_mine_template.dart)、[门店编辑](../apps/merchant/lib/pages/account/store_edit_page.dart)。 | 核对手动联系方式和地址输入是否足够支撑一期；需要时复用真实拨号能力并处理无号码 / 拒绝权限。地图等辅助能力可延期，不作为恢复定位或扩大一期范围的默认授权。 |
+| P2-02 | **联系与辅助录入体验不足**：预约“联系客户”只 Toast 展示号码；地图选址未接通，门店信息已移除无效的“导航”按钮，员工“联系店长”入口已替换为真实任务入口。依据：[预约页](../apps/merchant/lib/pages/booking/appointments_page.dart)、[员工我的](../apps/merchant/lib/pages/staff_app/st_mine_template.dart)、[门店信息](../apps/merchant/lib/pages/account/store_info_page.dart)、[门店编辑](../apps/merchant/lib/pages/account/store_edit_page.dart)。 | 核对手动联系方式和地址输入是否足够支撑一期；需要时复用真实拨号能力并处理无号码 / 拒绝权限。地图等辅助能力可延期，不作为恢复定位或扩大一期范围的默认授权。 |
 
 ### 本次验证结果与边界
 

@@ -540,26 +540,6 @@ class _StoreInfoView extends StatelessWidget {
                                 gap: 2,
                               ),
                             ),
-                            GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              onTap: () {
-                                /* TODO: 接入地图导航渠道与门店坐标后开启。 */
-                                hToast(context, 'TODO：地图导航尚未接通');
-                              },
-                              child: Text(
-                                '导航',
-                                style: hts(
-                                  13,
-                                  dk(
-                                    context,
-                                    Color(0xFF1E63AE),
-                                    Color(0xFF6AB4FA),
-                                  ),
-                                  w: FontWeight.w500,
-                                  lh: 20,
-                                ),
-                              ),
-                            ),
                           ],
                           main: MainAxisAlignment.start,
                           cross: CrossAxisAlignment.start,
