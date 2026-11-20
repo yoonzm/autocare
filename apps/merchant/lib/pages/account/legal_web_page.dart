@@ -9,9 +9,12 @@ import '../../resources/merchant_svgs.dart';
 /// 用户协议 / 隐私政策为公开静态 HTML，更新正文不必发新版 App。
 enum LegalDoc { terms, privacy }
 
-Uri legalUrl(LegalDoc doc) => Uri.parse(
-  '$supabaseUrl/legal/${doc == LegalDoc.terms ? 'terms' : 'privacy'}.html',
-);
+Uri legalUrl(LegalDoc doc, {Brightness? brightness}) =>
+    Uri.parse(
+      '$supabaseUrl/legal/${doc == LegalDoc.terms ? 'terms' : 'privacy'}.html',
+    ).replace(
+      queryParameters: brightness == null ? null : {'theme': brightness.name},
+    );
 
 /// 网页视图的构造入口；测试里替换成不依赖原生 WebView 的占位。
 typedef LegalWebViewBuilder = Widget Function(
@@ -56,7 +59,13 @@ class _NativeLegalWebView extends StatefulWidget {
 
 class _NativeLegalWebViewState extends State<_NativeLegalWebView> {
   late final WebViewController _controller = WebViewController()
-    ..setJavaScriptMode(JavaScriptMode.disabled)
+    // 静态页仅允许 CSP 校验过的主题初始化脚本。
+    ..setJavaScriptMode(JavaScriptMode.unrestricted)
+    ..setBackgroundColor(
+      widget.url.queryParameters['theme'] == 'dark'
+          ? const Color(0xFF18181B)
+          : const Color(0xFFFFFFFF),
+    )
     ..setNavigationDelegate(
       NavigationDelegate(
         // 只允许加载这一页；页面里的任何跳转都拦下。
@@ -97,6 +106,19 @@ class _LegalWebPageState extends State<LegalWebPage> {
   int _attempt = 0;
   bool _loaded = false;
   AppError? _error;
+  Brightness? _brightness;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final brightness = Theme.of(context).brightness;
+    if (_brightness != brightness) {
+      _brightness = brightness;
+      _attempt++;
+      _loaded = false;
+      _error = null;
+    }
+  }
 
   String get _title => widget.doc == LegalDoc.terms ? '用户协议' : '隐私政策';
 
@@ -167,7 +189,7 @@ class _LegalWebPageState extends State<LegalWebPage> {
                             KeyedSubtree(
                               key: ValueKey('legal-$_attempt'),
                               child: legalWebViewBuilder(
-                                legalUrl(widget.doc),
+                                legalUrl(widget.doc, brightness: _brightness),
                                 const {},
                                 () {
                                   if (mounted && !_loaded && _error == null) {

@@ -6,7 +6,8 @@
 - 用户协议：https://autocare.mymember.ltd/legal/terms.html
 - 正文分别维护在 `supabase/static/legal/privacy.html`、`supabase/static/legal/terms.html`，修改正文时同步更新页面中的更新日期。
 - 生产 Caddy 直接提供静态文件，不经过云函数，不需要登录、apikey 或自定义请求头。旧云函数地址已移除，不兼容或重定向。
-- App 的登录页、注册页、关于页继续通过 `lib/pages/account/legal_web_page.dart` 展示网页，保留原有布局、加载、错误和重试交互，关闭 JavaScript。
+- App 的登录页、注册页、关于页继续通过 `lib/pages/account/legal_web_page.dart` 展示网页，保留原有布局、加载、错误和重试交互。App 使用 `?theme=light` 或 `?theme=dark` 同步当前主题；外部无参数访问跟随系统主题。
+- 页面仅包含一段在渲染前设置主题的脚本，WebView 开启 JavaScript，CSP 只允许该脚本的 SHA-256 哈希，不允许其他脚本或外部资源。修改脚本必须同步更新 `supabase/deploy/legal.caddy` 的哈希并安装生产路由配置；部署测试校验二者一致。
 - 运营主体西安追慕科技有限公司、客服电话 18706849256 直接维护在 HTML 中，不再读取环境变量；App 客服热线仍使用原有独立配置。
 
 ## 更新与部署

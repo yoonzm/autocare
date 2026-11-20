@@ -5,9 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
 <title>隐私政策 - 我的汽美管家</title>
+<script>const theme=new URLSearchParams(location.search).get('theme');if(theme==='light'||theme==='dark'){document.documentElement.dataset.theme=theme;}</script>
 <style>
-:root{--bg:#fff;--fg:#18181b;--muted:#71717a;--line:#e4e4e7;--accent:#0485f7}
-@media (prefers-color-scheme:dark){:root{--bg:#18181b;--fg:#fafafa;--muted:#9a9aa3;--line:#2a2a2e;--accent:#4aa3ff}}
+:root{color-scheme:light;--bg:#fff;--fg:#18181b;--muted:#71717a;--line:#e4e4e7;--accent:#0485f7}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#18181b;--fg:#fafafa;--muted:#9a9aa3;--line:#2a2a2e;--accent:#4aa3ff}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#18181b;--fg:#fafafa;--muted:#9a9aa3;--line:#2a2a2e;--accent:#4aa3ff}
 *{box-sizing:border-box}
 body{margin:0;padding:20px 20px calc(32px + env(safe-area-inset-bottom));background:var(--bg);color:var(--fg);
   font:15px/1.75 -apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue","Noto Sans SC",sans-serif;-webkit-text-size-adjust:100%}

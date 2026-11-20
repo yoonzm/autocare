@@ -1,5 +1,7 @@
 """Archive paths arrive from SSH and are extracted as root: validate the boundary."""
 import importlib.util
+import base64
+import hashlib
 import posixpath
 from pathlib import Path
 import re
@@ -61,7 +63,10 @@ class ArchiveValidation(unittest.TestCase):
                     content = (root / path).read_bytes().replace(b'\r\n', b'\n')
                     self.assertEqual(archive.extractfile(path).read(), content)
                     self.assertIn(b'<meta name="viewport"', content)
-                    self.assertNotIn(b'<script', content.lower())
+                    scripts = re.findall(rb'<script>(.*?)</script>', content, re.S)
+                    self.assertEqual(len(scripts), 1)
+                    digest = base64.b64encode(hashlib.sha256(scripts[0]).digest()).decode()
+                    self.assertIn("script-src 'sha256-" + digest + "'", (root / 'supabase/deploy/legal.caddy').read_text())
 
     def test_member_function_is_self_contained(self):
         package_spec = importlib.util.spec_from_file_location('backend_package', Path(__file__).with_name('package.py'))
