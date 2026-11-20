@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-import '../../backend/merchant_api.dart'
-    show supabaseUrl, supabasePublishableKey;
+import '../../backend/merchant_api.dart' show supabaseUrl;
 import '../../kit/async_kit.dart';
 import '../../kit/kit.dart';
 import '../../resources/merchant_svgs.dart';
 
-/// 用户协议 / 隐私政策由后端以 H5 提供（`merchant-v1/legal/<页面>`），改文案只需更新后端，不必发新版 App。
+/// 用户协议 / 隐私政策为公开静态 HTML，更新正文不必发新版 App。
 enum LegalDoc { terms, privacy }
 
 Uri legalUrl(LegalDoc doc) => Uri.parse(
-  '$supabaseUrl/functions/v1/merchant-v1/legal/${doc == LegalDoc.terms ? 'terms' : 'privacy'}',
+  '$supabaseUrl/legal/${doc == LegalDoc.terms ? 'terms' : 'privacy'}.html',
 );
 
 /// 网页视图的构造入口；测试里替换成不依赖原生 WebView 的占位。
@@ -169,7 +168,7 @@ class _LegalWebPageState extends State<LegalWebPage> {
                               key: ValueKey('legal-$_attempt'),
                               child: legalWebViewBuilder(
                                 legalUrl(widget.doc),
-                                {'apikey': supabasePublishableKey},
+                                const {},
                                 () {
                                   if (mounted && !_loaded && _error == null) {
                                     setState(() => _loaded = true);

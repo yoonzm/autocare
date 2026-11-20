@@ -99,6 +99,8 @@ jobs:
             -o UserKnownHostsFile="$HOME/.ssh/autocare-prod-known-hosts" \
             -o ConnectTimeout=15 -o ServerAliveInterval=15 -o ServerAliveCountMax=4 \
             ubuntu@122.51.217.62 < "$RUNNER_TEMP/autocare-backend.tar.gz"
+      - name: Verify static legal pages and protected routes
+        run: python3 supabase/deploy/legal_checks.py --expected-directory supabase/static/legal
       - name: Remove deployment identity
         if: always()
         run: rm -f "$HOME/.ssh/autocare-prod" "$HOME/.ssh/autocare-prod-known-hosts"

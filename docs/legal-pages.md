@@ -1,31 +1,38 @@
-# 用户协议与隐私政策（H5）
+# 用户协议与隐私政策（静态 HTML）
 
-## 形态
+## 地址与维护位置
 
-- 商户端的《用户协议》《隐私政策》是后端提供的 H5 页面，App 内（登录页、注册页、关于页）点开后用网页加载，不再把正文写死在 App 里。
-- 地址（同一个 `merchant-v1` 函数，公开只读 GET，不需要登录）：
-  - `https://autocare.mymember.ltd/functions/v1/merchant-v1/legal/terms`
-  - `https://autocare.mymember.ltd/functions/v1/merchant-v1/legal/privacy`
-- 应用商店填写隐私政策网址时可直接使用上面的地址（App 内加载时带客户端公开密钥 `apikey` 请求头；如网关要求且商店审核需要不带任何参数就能打开，需要在网关为这两条路径放行）。
+- 隐私政策：https://autocare.mymember.ltd/legal/privacy.html
+- 用户协议：https://autocare.mymember.ltd/legal/terms.html
+- 正文分别维护在 `supabase/static/legal/privacy.html`、`supabase/static/legal/terms.html`，修改正文时同步更新页面中的更新日期。
+- 生产 Caddy 直接提供静态文件，不经过云函数，不需要登录、apikey 或自定义请求头。旧云函数地址已移除，不兼容或重定向。
+- App 的登录页、注册页、关于页继续通过 `lib/pages/account/legal_web_page.dart` 展示网页，保留原有布局、加载、错误和重试交互，关闭 JavaScript。
+- 运营主体西安追慕科技有限公司、客服电话 18706849256 直接维护在 HTML 中，不再读取环境变量；App 客服热线仍使用原有独立配置。
 
-## 如何更新
+## 更新与部署
 
-1. 修改 `supabase/functions/merchant-v1/legal_content.ts` 的正文，同时更新 `LEGAL_UPDATED`。
-2. 合入 `main`，`supabase-prod.yml` 自动部署；App 下次打开页面即看到新文案（页面带 5 分钟缓存）。
-3. 涉及用户权益的重大变化，需要同时在 App 内通知用户。
+1. 修改 HTML 正文和更新日期，保留样式，确保符合实际数据处理。
+2. 提交并推送到 `main` 后，`supabase-prod.yml` 将两个文件随部署包发布到 `/srv/autocare/legal/`，页面缓存为 5 分钟。部署失败时恢复上一次函数和静态文件。
+3. 本次 App 链接切换需要构建新版；后续正文更新无需重新发布 App。App Store Connect 隐私政策字段应使用上方新地址。
+4. 涉及用户权益的重大修改须另行落实 App 内通知及同意流程。
 
-## 配置
+## 生产配置
 
-- `LEGAL_OPERATOR_NAME`：运营主体全称（服务器 `.env.support`）。写入协议和隐私政策开头的“（以下简称“我们”）”前；未配置时显示“汽美管家运营方”。
-- `MERCHANT_SUPPORT_PHONE`：客服电话，同时用于账号页客服热线。未配置时只写“通过 App 内“关于汽美管家”“帮助与反馈”联系我们”。
+- `/etc/caddy/Caddyfile` 的站点块中导入 `/etc/caddy/autocare-legal.caddy`，位于 API 和后台访问规则之前；模板维护在 `supabase/deploy/legal.caddy`。
+- 仅公开两个文件的 GET / HEAD，其他 `/legal/*` 路径或方法返回 404。返回 HTML 类型、禁止 MIME 嗅探及限制脚本和外部资源的 CSP。
+- 初始化或修改路由时，管理员将 `supabase/deploy/install_legal.py`、`legal.caddy` 和 `supabase/static/legal/` 按仓库目录结构复制到服务器，执行 `sudo python3 <仓库根目录>/supabase/deploy/install_legal.py`。脚本先备份，再验证配置并 reload Caddy；失败自动恢复。
+- 受信部署入口 `/usr/local/lib/autocare-deploy/production.py` 及其依赖 `legal_checks.py` 必须由管理员安装为 root 所有，普通部署包不能替换这些脚本。
+- 2026-11-20 已撤销此前两条云函数 GET 的运行时 JWT 例外，恢复原始鉴权；协议页面不再依赖 Edge Runtime 配置。
+- 本次安装备份：`/var/lib/autocare-deploy/static-legal-20261120T091307531778Z`，其中 `0` 为原 Caddyfile。恢复它并 reload Caddy 可撤销静态路由，但新链接将不可访问；正常正文回滚应恢复静态文件并保留路由。
+
+## 验收
+
+```bash
+python3 supabase/deploy/legal_checks.py --expected-directory supabase/static/legal
+```
+
+检查匿名访问、HTML 正文与源文件一致、安全响应头、HEAD、禁止的路径/方法，以及商户、运营后台、会员接口仍要求鉴权。部署入口和 Actions 均执行检查。App 测试覆盖新链接、无鉴权请求头和错误重试。
 
 ## 正文依据
 
-文案按商户端当前真实功能撰写：手机号验证码 / 密码登录；会员、车辆、订单、库存、开支、员工数据；相机与相册（仅车牌扫描、门店 / 施工 / 凭证 / 反馈图片）；短信（助通）；车牌识别（阿里云百炼，仅发送车牌照片）；账号自助注销立即生效、业务数据保留；限时免费，不收费、不代收货款。功能范围变化（例如重新开放行驶证扫描、线上支付、定位）时要同步改正文。
-
-## 实现说明
-
-- `legal.ts` 把正文渲染成自带样式的单页 HTML（浅色 / 深色自适应），返回 `text/html`，并带 `Content-Security-Policy`（禁止脚本和外部资源）与 5 分钟缓存。
-- App 端 `lib/pages/account/legal_web_page.dart` 用 `webview_flutter` 加载，关闭 JavaScript，只允许加载这一个地址；失败显示统一错误视图和重试。
-- 注意：部分网关 / 托管环境会把函数返回的 HTML 改成 `text/plain`。首次部署后请在真机打开确认显示为排版页面而不是源码。
-- 本文只是按产品功能整理的文本，不构成法律意见；上线前需法务审核。
+正文沿用当前真实功能：手机号验证码 / 密码登录；会员、车辆、订单、库存、开支、员工数据；相机与相册；短信（助通）；车牌识别（阿里云百炼）；账号自助注销立即生效、业务数据保留；限时免费，不收费、不代收货款。功能或实际数据处理变化时须同步更新正文。

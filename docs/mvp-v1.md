@@ -169,7 +169,7 @@ MVP 阶段商户 App 前端去掉开支管理的「预算」和库存管理的�
 - 在线预约：编辑项目页去掉“支持线上预约”开关（客户可在小程序预约此项目），一期不做会员端；后端不动。
 - 员工邀请：去掉邀请二维码占位，邀请页只保留“下载并打开 App → 用该手机号验证码登录 → 自动激活”的提示和“复制邀请说明”。
 - 会员筛选：次卡状态（7 天内到期 / 剩余 ≤ 2 次 / 已用完）和车辆与项目（新能源车主 / 做过镀晶 / 车衣质保中 / 多辆车）已接通真实后端，口径见迁移 `202611140001_member_filter_extra.sql`。
-- 用户协议与隐私政策：改为后端 H5，App 内用网页加载，详见 [协议与隐私页面](legal-pages.md)。
+- 用户协议与隐私政策：改为公开静态 HTML，App 内用网页加载，详见 [协议与隐私页面](legal-pages.md)。
 
 ## 商户端上线差距与优先级（2026-11-16）
 
@@ -210,10 +210,10 @@ MVP 阶段商户 App 前端去掉开支管理的「预算」和库存管理的�
 - 依据：[退款 SQL](../supabase/migrations/202611040001_order_center.sql)、[提成快照](../supabase/migrations/202611090001_staff.sql) 的 `staff_commission_snapshot`、[员工业绩](../supabase/migrations/202611100002_staff_tasks.sql) 的 `staff_perf`。隔离样本为订单金额 100、提成 10，退款后仍返回营业额 100、提成 10、订单数 1。
 - 完成标准：明确全额退款及跨月退款的冲正口径，在服务端落实；员工工作台、业绩、员工管理汇总与订单账务一致。验证重复退款不会重复冲正，规则变化不改写原始提成快照。
 
-**P0-04 · 协议网址无法公开打开，运营主体仍为泛称【生产只读检查已确认】**
+**P0-04 · 协议静态公开访问已修复；发布前核对实际数据处理**
 
-- 现状：本次直接 GET 生产 `/functions/v1/merchant-v1/legal/terms` 与 `/legal/privacy`，不带请求头均返回 **401 / `UNAUTHORIZED_NO_AUTH_HEADER`**；带 App 的公开 `apikey` 时均为 **200 / `text/html`**。所以 App 内可打开并不代表应用商店填写的网址可访问。返回正文仍使用“汽美管家运营方”，未展示运营主体全称。
-- 依据：[协议页面说明](legal-pages.md)、[协议正文](../supabase/functions/merchant-v1/legal_content.ts)、[App 网页加载](../apps/merchant/lib/pages/account/legal_web_page.dart)。Apple 要求 App 内及商店元数据提供可访问的隐私政策链接，见 [App Review Guidelines 5.1.1](https://developer.apple.com/app-store/review/guidelines/#data-collection-and-storage)。
+- 2026-11-20 更新：协议迁移到 Caddy 静态 HTML，匿名请求返回 **200 / `text/html`**，无需自定义请求头。已撤销 Edge Runtime 的协议鉴权例外，移除旧云函数页面，不兼容旧地址；业务入口继续要求鉴权。正文已填写西安追慕科技有限公司及客服电话。维护与验收见 [协议页面说明](legal-pages.md)。
+- 依据：[协议页面说明](legal-pages.md)、[协议正文](../supabase/static/legal/privacy.html)、[App 网页加载](../apps/merchant/lib/pages/account/legal_web_page.dart)。Apple 要求 App 内及商店元数据提供可访问的隐私政策链接，见 [App Review Guidelines 5.1.1](https://developer.apple.com/app-store/review/guidelines/#data-collection-and-storage)。
 - 完成标准：只为这两条公开只读协议路径配置合适的网关访问，不放开业务接口；在无登录、无自定义请求头的浏览器中均返回正常 HTML。填写真实运营主体、可用联系方式，核对实际数据处理与政策正文；按目标商店完成资料审核。不能把公开客户端密钥当成审核人员打开协议的前提。
 
 **P0-05 · iOS 交付条件需核验【iOS 待验收；Android 已决定 MVP 不上线】**
@@ -234,7 +234,7 @@ MVP 阶段商户 App 前端去掉开支管理的「预算」和库存管理的�
 | P1-05 | **多项经营流水的经办人会记成门店联系人【已确认】**。`operatorOf(storeId)` 读取 `stores.contact_name/contact_role`，消费收银、充值、售卡、积分调整、退款、回访等调用它，没有使用实际登录员工身份。前台与店主操作因此可能全部显示为同一人，无法可靠追责或按经办人核账。依据：[operatorOf](../supabase/functions/merchant-v1/members.ts)、[订单与回访](../supabase/functions/merchant-v1/ops.ts)、[退款](../supabase/functions/merchant-v1/orders_center.ts)。 | 后端从有效会话取得操作者账号 / 员工 ID，保存显示名快照；不得信任客户端填写经办人。两名员工分别处理交易后，流水及筛选能正确区分，员工改名或停用后历史归属仍可追溯。 |
 | P1-06 | **核销的验证码消费与扣次分成两个事务，失败后缺少结果恢复【已确认调用顺序】**。`staff_redeem` 先 `checkOtp(..., true)` 消费验证码，再调用 `staff_redeem_package` 扣次。后一步失败会烧掉有效码；后一步成功但响应丢失，重试只得到“验证码已使用”，无法据此确认上次是否核销成功。扣次及流水本身已有事务，不应误写成“扣次没有事务”。依据：[核销处理器](../supabase/functions/merchant-v1/staff_orders.ts)、[OTP](../supabase/functions/merchant-v1/otp.ts)、[核销弹层](../apps/merchant/lib/pages/staff_app/st_redeem_sheet.dart)。 | 将验证码确认、核销请求与业务结果关联，在服务端保证一致性及结果查询；验证库存次数不足、并发核销、数据库错误和响应丢失。失败不应不明原因消耗确认资格，成功重放能确认原结果且不重复扣次。 |
 | P1-07 | **未结业务列表存在静默截断【已确认】**。员工待收银只取最新 50 条，老板挂单只取最新 200 条，没有分页协议；前台数量直接显示返回数组长度。超过上限的单据暂不可见，页面数量也不是实际待处理总数。依据：[待收银接口](../supabase/functions/merchant-v1/staff_orders.ts)、[挂单接口](../supabase/functions/merchant-v1/ops.ts)、[待收银页面](../apps/merchant/lib/pages/staff_app/st_cash_queue_template.dart)。 | 提供准确总数及稳定分页 / 继续加载，所有未结单均可找到和处理；用超过 50 / 200 条的数据验证无遗漏、重复或错误总数，避免新单持续进入时旧单一直无法看到。 |
-| P1-08 | **协议默认勾选，缺少可追溯的版本确认【已确认】**。登录页 `agree=true`、注册页 `_agreed=true`；注册 / 登录请求未携带协议版本，H5 正文可独立更新。现有代码无法说明某账号主动同意了哪一版，重大修改后的再次确认也未形成闭环。依据：[登录页](../apps/merchant/lib/pages/account/login_page.dart)、[注册页](../apps/merchant/lib/pages/account/reg_phone_page.dart)、[认证处理器](../supabase/functions/merchant-v1/auth.ts)、[协议版本](../supabase/functions/merchant-v1/legal_content.ts)。 | 在确认交互调整后，采用用户主动确认并记录版本 / 时间的机制，验证不同意、查看失败、版本变化、员工首次登录等情形；只在必要场景重新确认，不借此增加一期通知系统。具体政策和同意流程按实际发布渠道审核。 |
+| P1-08 | **协议默认勾选，缺少可追溯的版本确认【已确认】**。登录页 `agree=true`、注册页 `_agreed=true`；注册 / 登录请求未携带协议版本，H5 正文可独立更新。现有代码无法说明某账号主动同意了哪一版，重大修改后的再次确认也未形成闭环。依据：[登录页](../apps/merchant/lib/pages/account/login_page.dart)、[注册页](../apps/merchant/lib/pages/account/reg_phone_page.dart)、[认证处理器](../supabase/functions/merchant-v1/auth.ts)、[协议版本](../supabase/static/legal/privacy.html)。 | 在确认交互调整后，采用用户主动确认并记录版本 / 时间的机制，验证不同意、查看失败、版本变化、员工首次登录等情形；只在必要场景重新确认，不借此增加一期通知系统。具体政策和同意流程按实际发布渠道审核。 |
 | P1-09 | **短信容量与真实用途验收尚未形成发布门槛【容量已确认；生产送达待验收】**。所有手机号 / 用途共享环境每天 200 次上限，单号每天 10 次；包含员工登录、注册、找回密码、换号、注销与会员核销。公开注册也消耗全局额度，达到上限会同时影响这些业务。已有真实助通适配、冷却与配额，不能说没有限流；当前“渠道受理”也不等于已送达。依据：[配额 SQL](../supabase/migrations/202611100007_sms_logs.sql)、[短信说明](sms.md)。 | 根据试点门店数和核销量核定额度、异常保护与告警，保留费用限制；确认各用途实际模板语义及生产接收结果。补运营侧送达 / 失败排查办法。使用获准的验收手机号，不自动向现有商家或会员发送测试短信。 |
 | P1-10 | **核心链路与真机发布验收证据不足，CI 未覆盖部分现有 SQL 用例【已确认配置；候选包待验收】**。Flutter 测试中使用接口替身，不能覆盖跨角色、云函数和数据库组合问题；后端 CI 运行 `staff_identity.mjs`，但没有运行独立的 `staff.sql`、`staff_tasks.sql`、`order_center.sql` 等脚本，也没有调用已有 `merchant_media.mjs`。历史迁移记录明确未完成真机 / 生产业务验收。依据：[后端工作流](../.github/workflows/supabase-prod.yml)、[现有 SQL 用例](../supabase/tests/)、[迁移验收记录](frontend-guidelines.md)、[图片验收边界](image-upload-migration.md)。 | 将适用的关键事务用例接入可执行测试入口及 CI，新增本清单缺陷的回归；按下方验收矩阵验证候选正式包与生产版本。特别覆盖 API 权限和异常路径，不能仅靠前端 mock 测试通过放行。 |
 | P1-11 | **一期收缩后仍有无效入口和误导性提示【已确认】**。次卡退款后端已下线，详情仍能进入退款表单；预约通知开关、挂单提醒等仍可触达 TODO；员工完工页仍写“已通知前台收银”，而一期消息入口已移除，后台写消息不等于前台能看到。依据：[次卡详情](../apps/merchant/lib/pages/members/packages/package_detail_page.dart)、[次卡退款拦截](../supabase/functions/merchant-v1/ops.ts)、[预约新增](../apps/merchant/lib/pages/booking/appointment_add_page.dart)、[挂单控制器](../apps/merchant/lib/pages/orders/hold_controller.dart)、[完工页](../apps/merchant/lib/pages/staff_app/st_done_template.dart)。 | 按已批准的一期边界核对真实入口、路由和提示，删除一期不用的前端；保留功能如确实未接通，应在操作前明确告知。对“已通知”等结果文案按实际可见结果修正；不为消除提示而擅自恢复短信通知、消息系统或退款渠道。 |

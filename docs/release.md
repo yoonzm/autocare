@@ -12,7 +12,8 @@
 - 公开客服电话：`18706849256`；客服邮箱：`wodehuiyuanguanjia@163.com`（来源：[我的会员管家公开联系方式](https://mymember.ltd/member/assets?name=privacy-policy.html)）。公开客服邮箱与审核联系邮箱分别维护。
 - 技术支持网址：`https://member.mymember.ltd/member-sit/`（2026-11-20 匿名 GET 验证为 HTTP 200）；按用户要求，商户 App 保留原微信客服入口 `https://work.weixin.qq.com/kfid/kfc6eaf7469b168651b`，不随支持页配置更换。
 - 上述电话和邮箱已纳入上架资料；本次未更改生产服务器环境变量。复用客服配置不替换商户端专属隐私政策，隐私政策仍需准确反映本 App 的实际数据处理。
-- 待完成：隐私政策匿名访问、真实 iPhone 截图、App Privacy 申报及归档隐私清单核验。账号注销说明必须与实际数据处理一致，不能将停用账号表述为删除全部数据。
+- 隐私政策与用户协议匿名访问已于 2026-11-20 修复并验证（HTTP 200 / HTML）；维护和回滚见 [协议页面说明](legal-pages.md)。
+- 待完成：真实 iPhone 截图、App Privacy 申报及归档隐私清单核验。账号注销说明必须与实际数据处理一致，不能将停用账号表述为删除全部数据。
 - 中国大陆分发除 APP 备案外，当前 App Store Connect 还要求填写 AIGC 与安全评估相关声明。仅车牌识别不等于面向用户提供内容生成服务，但须按实际功能和第三方服务用途核对问卷，不自动复制其他 App 的答案；只有适用受监管功能时才提供相应备案及报告。参见 [Apple 中国大陆合规说明](https://developer.apple.com/help/app-store-connect/manage-compliance-information/view-china-mainland-compliance-information)。
 
 ### 简体中文商店文案草案
@@ -153,6 +154,6 @@ sudo ls -lh /var/backups/supabase
 
 ## 用户协议与隐私政策（H5）
 
-- 页面由 `merchant-v1` 的公开 GET 路由提供：`/functions/v1/merchant-v1/legal/terms` 与 `/legal/privacy`，正文在 `supabase/functions/merchant-v1/legal_content.ts`，随 `supabase-prod.yml` 部署，改文案不必发新版 App。详见 `docs/legal-pages.md`。
+- 页面由生产 Caddy 静态托管：隐私政策 `https://autocare.mymember.ltd/legal/privacy.html`，用户协议 `https://autocare.mymember.ltd/legal/terms.html`。正文在 `supabase/static/legal/`，随 `supabase-prod.yml` 部署。旧地址不再支持；本次 App 链接切换需要新版，后续正文更新无需发版。详见 `docs/legal-pages.md`。
 - 服务器 `.env.support`（已注入函数容器）可增加 `LEGAL_OPERATOR_NAME`（运营主体全称，写入协议开头）；客服电话沿用 `MERCHANT_SUPPORT_PHONE`。两者缺省时页面不写占位文字，只指引到 App 内的客服入口。
 - 上线前请法务审核正文，并在应用商店资料里填写这两个页面的网址。

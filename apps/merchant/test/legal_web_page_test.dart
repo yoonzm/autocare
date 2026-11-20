@@ -33,14 +33,14 @@ void main() {
     await t.pumpWidget(MaterialApp(home: LegalWebPage(doc: doc)));
   }
 
-  testWidgets('用户协议加载后端 H5，带客户端公开密钥', (t) async {
+  testWidgets('用户协议加载公开静态 HTML，不带鉴权请求头', (t) async {
     await open(t, LegalDoc.terms);
     expect(find.text('用户协议'), findsOneWidget);
     expect(
       loadedUrl.toString(),
-      '$supabaseUrl/functions/v1/merchant-v1/legal/terms',
+      '$supabaseUrl/legal/terms.html',
     );
-    expect(loadedHeaders, {'apikey': supabasePublishableKey});
+    expect(loadedHeaders, isEmpty);
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
     loaded();
     await t.pump();
@@ -51,7 +51,7 @@ void main() {
   testWidgets('隐私政策使用 privacy 页面', (t) async {
     await open(t, LegalDoc.privacy);
     expect(find.text('隐私政策'), findsOneWidget);
-    expect(loadedUrl!.path, endsWith('/legal/privacy'));
+    expect(loadedUrl!.path, '/legal/privacy.html');
   });
 
   testWidgets('加载失败显示错误和重试，重试重新加载同一页面', (t) async {
@@ -65,6 +65,6 @@ void main() {
     await t.pump();
     expect(find.byType(ErrorView), findsNothing);
     expect(builds, before + 1);
-    expect(loadedUrl!.path, endsWith('/legal/privacy'));
+    expect(loadedUrl!.path, '/legal/privacy.html');
   });
 }

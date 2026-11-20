@@ -37,6 +37,32 @@ class ArchiveValidation(unittest.TestCase):
             production.validate_members(self.valid()+[member('supabase/migrations/202611100003_member_portal.sql')])
         production.validate_members(self.valid()+[member('supabase/migrations/202611100003_member_portal.sql'),member('supabase/functions/member-v1/index.ts')])
 
+    def test_static_legal_pair_is_the_only_allowed_static_content(self):
+        pages = [member('supabase/static/legal/' + name + '.html') for name in ['privacy', 'terms']]
+        production.validate_members(self.valid() + pages)
+        with self.assertRaises(ValueError):
+            production.validate_members(self.valid() + pages[:1])
+        for name in ['index.html', 'script.js', '../secret.html', 'nested/privacy.html']:
+            with self.subTest(name=name), self.assertRaises(ValueError):
+                production.validate_members(self.valid() + pages + [member('supabase/static/legal/' + name)])
+
+    def test_package_contains_static_pages_with_exact_content(self):
+        package_spec = importlib.util.spec_from_file_location('backend_package', Path(__file__).with_name('package.py'))
+        package_tool = importlib.util.module_from_spec(package_spec)
+        package_spec.loader.exec_module(package_tool)
+        root = Path(__file__).resolve().parents[2]
+        with tempfile.TemporaryDirectory() as directory:
+            archive_path = Path(directory) / 'backend.tar.gz'
+            package_tool.package('a' * 40, archive_path)
+            with tarfile.open(archive_path) as archive:
+                production.validate_members(archive.getmembers())
+                for name in ['privacy', 'terms']:
+                    path = 'supabase/static/legal/' + name + '.html'
+                    content = (root / path).read_bytes().replace(b'\r\n', b'\n')
+                    self.assertEqual(archive.extractfile(path).read(), content)
+                    self.assertIn(b'<meta name="viewport"', content)
+                    self.assertNotIn(b'<script', content.lower())
+
     def test_member_function_is_self_contained(self):
         package_spec = importlib.util.spec_from_file_location('backend_package', Path(__file__).with_name('package.py'))
         package_tool = importlib.util.module_from_spec(package_spec)

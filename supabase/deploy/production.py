@@ -17,6 +17,7 @@ import tempfile
 import time
 import urllib.error
 import urllib.request
+from legal_checks import check as check_legal
 
 PROJECT = Path('/opt/supabase')
 STATE = Path('/var/lib/autocare-deploy')
@@ -39,6 +40,7 @@ def validate_members(members):
         allowed = name == 'release.json'
         allowed |= bool(re.fullmatch(r'supabase/migrations/\d+_[A-Za-z0-9_]+\.sql', name))
         allowed |= any(name.startswith('supabase/functions/' + function + '/') for function in FUNCTIONS) and path.suffix in {'.ts', '.json', '.jsonc', '.lock'}
+        allowed |= name in {'supabase/static/legal/privacy.html', 'supabase/static/legal/terms.html'}
         if not allowed:
             raise ValueError('Unexpected archive member: ' + name)
         total += member.size
@@ -46,6 +48,9 @@ def validate_members(members):
             raise ValueError('Archive exceeds deployment limits')
     if 'release.json' not in names or 'supabase/functions/merchant-v1/index.ts' not in names:
         raise ValueError('Incomplete backend archive')
+    legal = names & {'supabase/static/legal/privacy.html', 'supabase/static/legal/terms.html'}
+    if legal and len(legal) != 2:
+        raise ValueError('Both static legal pages must be deployed together')
     if any(name.endswith('_admin_platform.sql') for name in names) and 'supabase/functions/admin-v1/index.ts' not in names:
         raise ValueError('Admin migration requires the admin function')
     if any(name.endswith('_member_portal.sql') for name in names) and 'supabase/functions/member-v1/index.ts' not in names:
@@ -132,7 +137,7 @@ def deploy(staging):
     source_hash=source_metadata.get('source_sha256')
     if source_hash is not None:
         digest=hashlib.sha256()
-        for directory in ('supabase/migrations', *('supabase/functions/' + function for function in FUNCTIONS)):
+        for directory in ('supabase/migrations', *('supabase/functions/' + function for function in FUNCTIONS), 'supabase/static/legal'):
             for path in sorted((staging / directory).rglob('*')):
                 if path.is_file():
                     digest.update(path.relative_to(staging).as_posix().encode()+b'\0'+path.read_bytes()+b'\0')
@@ -246,7 +251,26 @@ CREATE TABLE IF NOT EXISTS supabase_migrations.schema_migrations(version text PR
             installed.append((target,previous))
             next_target.rename(target)
         compose('up', '-d', '--force-recreate', '--wait', '--wait-timeout', '120', 'functions')
+        legal_source = staging / 'supabase/static/legal'
+        if legal_source.exists():
+            target = Path('/srv/autocare/legal')
+            target.parent.mkdir(parents=True, exist_ok=True, mode=0o755)
+            target.parent.chmod(0o755)
+            next_target = target.with_name('legal.next')
+            if next_target.exists():
+                shutil.rmtree(next_target)
+            shutil.copytree(legal_source, next_target)
+            next_target.chmod(0o755)
+            for path in next_target.iterdir():
+                path.chmod(0o644)
+            previous = release / 'previous-legal'
+            if target.exists():
+                target.rename(previous)
+            installed.append((target, previous))
+            next_target.rename(target)
         smoke(environment)
+        if legal_source.exists():
+            check_legal(environment['SUPABASE_PUBLIC_URL'], Path('/srv/autocare/legal'))
     except Exception:
         for target,previous in reversed(installed):
             if target.exists():
