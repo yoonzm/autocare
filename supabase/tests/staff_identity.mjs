@@ -28,5 +28,6 @@ try{
 
  await db.exec(readFileSync(new URL('staff_identity.sql',import.meta.url),'utf8'));
  await db.exec(readFileSync(new URL('manager_staff_management.sql',import.meta.url),'utf8'));
- console.log('staff_identity and manager_staff_management ok');
+ await db.exec(readFileSync(new URL('admin_staff_count.sql',import.meta.url),'utf8'));
+ console.log('staff_identity, manager_staff_management and admin_staff_count ok');
 }finally{await db.close();}
