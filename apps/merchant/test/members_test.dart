@@ -514,6 +514,8 @@ class MemberFakeApi extends MerchantApi {
     String filter = 'all',
     int offset = 0,
     int limit = 30,
+    DateTime? createdFrom,
+    DateTime? createdBefore,
   }) async {
     ledgerCalls.add(filter);
     // 与云函数一致：recharge / consume（含消费退款）/ package 三个筛选，其余返回全部。

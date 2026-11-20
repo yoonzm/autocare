@@ -43,6 +43,8 @@ class FormApi extends MemberFakeApi {
     String filter = 'all',
     int offset = 0,
     int limit = 30,
+    DateTime? createdFrom,
+    DateTime? createdBefore,
   }) async {
     ledgerIds.add(memberId);
     if (memberId == 'old' && oldLedger != null) return oldLedger!.future;
