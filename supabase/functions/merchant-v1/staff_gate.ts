@@ -111,13 +111,14 @@ const byAction: Record<string, Requirement> = {
 
 export function requirementFor(input: Input): Requirement {
   const action = String(input.action ?? '');
+  // 库存请求的 kind 是单据类型；与实际路由一样先按 action 分流。
+  if (action.startsWith('inventory_')) return inventoryReads.has(action) ? anyCap('stock_manage', 'stock_use') : cap('stock_manage');
   if (typeof input.kind === 'string') {
     const rule = kindRules[input.kind]?.[action];
     return rule ?? deny;
   }
   if (byAction[action]) return byAction[action];
   if (action.startsWith('subscription_') || action.startsWith('store_') || action.startsWith('support_')) return owner;
-  if (action.startsWith('inventory_')) return inventoryReads.has(action) ? anyCap('stock_manage', 'stock_use') : cap('stock_manage');
   if (action.startsWith('expense_')) return cap('expense');
   return byAction[action] ?? deny;
 }

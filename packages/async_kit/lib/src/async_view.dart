@@ -33,7 +33,7 @@ class AsyncView<T> extends StatefulWidget {
   /// 空状态 / 错误状态下也可下拉刷新；内容状态需 builder 返回可滚动控件。
   final bool pullToRefresh;
 
-  /// 登录失效 / 无权限 / 不存在时的“下一步”（重新登录 / 返回）。
+  /// 登录失效 / 不存在时的下一步。无权限时统一返回上一页，避免误用登录回调。
   final VoidCallback? onNext;
   const AsyncView({
     super.key,
@@ -183,7 +183,9 @@ class AsyncViewState<T> extends State<AsyncView<T>> {
           error: _error!,
           retrying: _loading,
           onRetry: reload,
-          onNext: widget.onNext,
+          onNext: _error!.type == AppErrorType.forbidden
+              ? () => Navigator.of(context).maybePop()
+              : widget.onNext,
         ),
       );
     } else {

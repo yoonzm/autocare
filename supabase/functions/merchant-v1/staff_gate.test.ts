@@ -54,8 +54,8 @@ Deno.test('owner-only areas are closed to every staff role even with all caps', 
 
 Deno.test('inventory reads accept stock_use, writes need stock_manage; expenses need expense', () => {
   assert(can('technician', ['stock_use'], { action: 'inventory_list' }));
-  assert(!can('technician', ['stock_use'], { action: 'inventory_document_save' }));
-  assert(can('manager', ['stock_manage'], { action: 'inventory_document_save' }));
+  assert(!can('technician', ['stock_use'], { action: 'inventory_document', kind: 'in' }));
+  assert(can('manager', ['stock_manage'], { action: 'inventory_document', kind: 'in' }));
   assert(!can('manager', ['stock_manage'], { action: 'expense_board' }));
   assert(can('manager', ['expense'], { action: 'expense_board' }));
 });
@@ -110,3 +110,17 @@ Deno.test('only owner and manager maintain store; lifecycle stays owner-only', (
   }
 });
 function rolesForTest(): Role[] { return ['owner', 'manager', 'cashier', 'technician']; }
+
+Deno.test('inventory document kinds do not route through catalog permissions', () => {
+  for (const role of ['manager', 'cashier', 'technician'] as Role[]) {
+    for (const kind of ['in', 'out', 'check']) {
+      assert(can(role, ['stock_manage'], { action: 'inventory_draft', kind }));
+      assert(can(role, ['stock_manage'], { action: 'inventory_document', kind, post: false }));
+      assert(can(role, ['stock_manage'], { action: 'inventory_document', kind, post: true }));
+      assert(can(role, ['stock_use'], { action: 'inventory_draft', kind }));
+      assert(!can(role, [], { action: 'inventory_draft', kind }));
+      assert(!can(role, ['stock_use'], { action: 'inventory_document', kind }));
+      assert(!can(role, ['cashier'], { action: 'inventory_document', kind: 'orders' }));
+    }
+  }
+});
