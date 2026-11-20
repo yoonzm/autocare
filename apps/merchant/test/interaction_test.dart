@@ -562,6 +562,8 @@ void main() {
       ),
     );
     expect(find.text('沪'), findsWidgets);
+    expect(find.text('燃油车 · 蓝牌'), findsNothing);
+    expect(find.text('新能源 · 绿牌'), findsNothing);
     await t.tap(find.text('6').first); // 最后一格
     await t.pumpAndSettle();
     expect(find.text('输入字母或数字'), findsOneWidget);

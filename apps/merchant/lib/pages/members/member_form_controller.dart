@@ -45,7 +45,7 @@ class MemberFormController extends ChangeNotifier {
           ? text.length == 8
           : values.containsKey('energy')
           ? values['energy'] == 'ev'
-          : kind == MemberFormKind.vehicle,
+          : false,
     )..addListener(_changed);
   }
 
@@ -151,7 +151,7 @@ class MemberFormController extends ChangeNotifier {
       body = {
         'member_id': member!['id'],
         'plate': number,
-        'energy': plate.green ? 'ev' : 'fuel',
+        'energy': number.length == 8 ? 'ev' : 'fuel',
         'brand_model': text('brand_model'),
         'color': text('color'),
         'vin': text('vin').trim(),
@@ -183,7 +183,7 @@ class MemberFormController extends ChangeNotifier {
           if (number.isNotEmpty)
             'vehicle': {
               'plate': number,
-              'energy': plate.green ? 'ev' : 'fuel',
+              'energy': number.length == 8 ? 'ev' : 'fuel',
               'brand_model': text('brand_model'),
               'color': text('color'),
             },

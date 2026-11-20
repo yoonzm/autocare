@@ -59,7 +59,23 @@ void main() {
   });
   tearDown(() {
     merchantApi = original;
+  });
 
+  test('vehicle energy follows the entered plate length', () async {
+    final owner = row(id: 'a');
+    final blue = MemberFormController(MemberFormKind.vehicle, member: owner);
+    expect(blue.plate.green, isFalse);
+    blue.plate.setText('沪A8K29M');
+    await blue.save();
+    expect(api.savedVehicles.last['energy'], 'fuel');
+    blue.dispose();
+
+    final green = MemberFormController(MemberFormKind.vehicle, member: owner);
+    green.plate.setGreen(true);
+    green.plate.setText('沪AF09316');
+    await green.save();
+    expect(api.savedVehicles.last['energy'], 'ev');
+    green.dispose();
   });
 
   test('两个编辑表单按各自快照提交，实例间不串字段且同实例防重复', () async {
@@ -137,7 +153,6 @@ void main() {
   });
 
   testWidgets('缺少会员参数的编辑页阻止打开，不读取全局旧会员', (t) async {
-
     await t.pumpWidget(const MaterialApp(home: MemberEditPage()));
     await t.pumpAndSettle();
     expect(find.byType(ErrorView), findsOneWidget);
@@ -147,7 +162,6 @@ void main() {
   });
 
   testWidgets('结果页需要明确的办卡回执，不借用之前的全局会员', (t) async {
-
     await t.pumpWidget(const MaterialApp(home: MemberAddDonePage()));
     await t.pumpAndSettle();
     expect(find.byType(ErrorView), findsOneWidget);
@@ -204,6 +218,5 @@ void main() {
     await t.pumpAndSettle();
     expect(find.text('新会员'), findsOneWidget);
     expect(find.text('旧会员晚到数据'), findsNothing);
-
   });
 }
