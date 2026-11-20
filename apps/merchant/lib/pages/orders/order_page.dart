@@ -517,10 +517,11 @@ class _OrderPageState extends State<OrderPage> {
   }
 
   List<(String, String)> get _pays => _walkIn
-      ? const [('微信 / 支付宝', '扫码收款'), ('现金', '可找零'), ('银行卡', 'POS 刷卡')]
+      ? const [('微信', '扫码收款'), ('支付宝', '扫码收款'), ('现金', '可找零')]
       : [
           ('会员余额', '可用 $_balanceText'),
-          ('微信 / 支付宝', '扫码收款'),
+          ('微信', '扫码收款'),
+          ('支付宝', '扫码收款'),
           ('现金', '可找零'),
         ];
   int cat = 0;
@@ -593,31 +594,14 @@ class _OrderPageState extends State<OrderPage> {
     try {
       await runBusy(_actionKey, () async {
         try {
-          String method;
+          // 页面选项与收款方式一一对应：散客 微信 / 支付宝 / 现金；会员 会员余额 / 微信 / 支付宝 / 现金
+          final String method;
           if (walkIn) {
-            if (selectedPay == 0) {
-              final value = await pickFromList(context, '选择收款方式', [
-                '微信',
-                '支付宝',
-              ], '微信');
-              if (value == null || !mounted) return;
-              method = value;
-            } else {
-              method = selectedPay == 1 ? '现金' : 'POS 刷卡';
-            }
+            method = const ['微信', '支付宝', '现金'][selectedPay];
           } else if (due <= 0) {
             method = '现金';
-          } else if (selectedPay == 0) {
-            method = '会员余额';
-          } else if (selectedPay == 1) {
-            final value = await pickFromList(context, '选择收款方式', [
-              '微信',
-              '支付宝',
-            ], '微信');
-            if (value == null || !mounted) return;
-            method = value;
           } else {
-            method = '现金';
+            method = const ['会员余额', '微信', '支付宝', '现金'][selectedPay];
           }
           setState(() => _submitting = true);
           final receipt = await _payment.pay(

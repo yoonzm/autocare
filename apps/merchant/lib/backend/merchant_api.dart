@@ -753,7 +753,7 @@ class MerchantApi {
     return Map<String, dynamic>.from(data['item'] as Map);
   }
 
-  /// 散客开单：不记会员、没有折扣和次卡抵扣，只能用微信 / 支付宝 / 现金 / POS 刷卡。
+  /// 散客开单：不记会员、没有折扣和次卡抵扣，只能用微信 / 支付宝 / 现金。
   Future<Map<String, dynamic>> checkoutWalkIn({
     String? requestId,
     required List<Map<String, dynamic>> lines,

@@ -98,7 +98,8 @@ Deno.test('recharge: amount and method are validated', () => {
   }
   eq(typeof parseRecharge({ amount: 100, method: '赊账' }), 'string', 'bad method');
   eq(typeof parseRecharge({ amount: 100 }), 'string', 'no method');
-  eq(typeof parseRecharge({ amount: 99.5, method: 'POS 刷卡' }), 'object', 'decimals ok');
+  eq(typeof parseRecharge({ amount: 99.5, method: '现金' }), 'object', 'decimals ok');
+eq(typeof parseRecharge({ amount: 99.5, method: 'POS 刷卡' }), 'string', 'POS is no longer offered');
 });
 
 Deno.test('adjust: needs something to change, a design reason, and sane points', () => {

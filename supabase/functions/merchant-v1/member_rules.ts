@@ -90,7 +90,7 @@ export function parseVehicle(input: Record<string, unknown>): VehicleValues | st
 }
 
 // ───────── 储值充值 / 调整 ─────────
-export const PAY_METHODS = ['微信', '支付宝', '现金', 'POS 刷卡'] as const;
+export const PAY_METHODS = ['微信', '支付宝', '现金'] as const;
 export const ADJUST_REASONS = ['活动补发', '客诉补偿', '录入错误', '其他'] as const;
 export const MAX_RECHARGE = 1_000_000;
 export const MAX_POINTS_ADJUST = 1_000_000;

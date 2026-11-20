@@ -87,8 +87,11 @@ void main() {
     expect(find.text('选填，便于施工与取车'), findsOneWidget); // placeholder
     expect(find.text('会员余额'), findsNothing);
     expect(find.text('组合支付'), findsNothing);
-    expect(find.text('银行卡'), findsOneWidget);
-    expect(find.text('POS 刷卡'), findsOneWidget);
+    expect(find.text('微信'), findsOneWidget);
+    expect(find.text('支付宝'), findsOneWidget);
+    expect(find.text('现金'), findsOneWidget);
+    expect(find.text('银行卡'), findsNothing);
+    expect(find.text('POS 刷卡'), findsNothing);
     // 选两个项目：没有折扣标签，合计 = 原价
     await t.tap(find.text('精致洗车'));
     await t.pump();
@@ -104,12 +107,12 @@ void main() {
     expect(find.text('次卡抵扣 1 次'), findsNothing);
     expect(find.textContaining('次卡抵扣 ·'), findsNothing);
     await t.enterText(find.byType(TextField).first, '苏K5F218');
-    await t.tap(find.text('银行卡'));
+    await t.tap(find.text('支付宝'));
     await t.pump();
     await t.tap(find.text('确认收款'));
     await t.pumpAndSettle();
     final sent = fake.walkIns.single;
-    expect(sent['method'], 'POS 刷卡');
+    expect(sent['method'], '支付宝');
     expect(sent['plate'], '苏K5F218');
     expect(sent['lines'], [
       {'service_id': 's1', 'qty': 1},

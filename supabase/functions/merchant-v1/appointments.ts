@@ -163,7 +163,7 @@ export async function handleAppointments(input: Input, request: Request): Promis
           (l.member_package_id == null || uuid(l.member_package_id))
         )
       ) return fail('订单项目无效');
-      if (!['微信', '支付宝', '现金', 'POS 刷卡', '会员余额'].includes(String(input.method))) {
+      if (!['微信', '支付宝', '现金', '会员余额'].includes(String(input.method))) {
         return fail('收款方式无效');
       }
       const technicians = parseOrderTechnicians(input.technician_ids);

@@ -618,7 +618,7 @@ class RechargeEmptyPage extends StatelessWidget {
                                     ),
                                   ),
                                   Text(
-                                    'POS 刷卡',
+                                    '微信',
                                     style: hts(
                                       14,
                                       dk(

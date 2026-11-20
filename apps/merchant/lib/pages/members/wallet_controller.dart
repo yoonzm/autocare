@@ -26,7 +26,7 @@ class WalletReceipt {
 }
 
 class WalletController extends ChangeNotifier {
-  static const methods = ['微信', '支付宝', '现金', 'POS 刷卡'];
+  static const methods = ['微信', '支付宝', '现金'];
   static const saleMethods = [...methods, '会员余额'];
   Map<String, dynamic>? member;
   final custom = TextEditingController();

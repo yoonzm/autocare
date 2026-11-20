@@ -563,68 +563,6 @@ class RechargeCardPage extends StatelessWidget {
                                       alignment: Alignment.center,
                                       widthFactor: 1,
                                       child: Text(
-                                        'POS 刷卡',
-                                        style: hts(
-                                          13,
-                                          dk(
-                                            context,
-                                            Color(0xFF1E63AE),
-                                            Color(0xFF6AB4FA),
-                                          ),
-                                          w: FontWeight.w500,
-                                          lh: 18,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  off: hbox(
-                                    h: 34,
-                                    bg: dk(
-                                      context,
-                                      Color(0xFFF4F4F5),
-                                      Color(0xFF27272A),
-                                    ),
-                                    radius: BorderRadius.circular(17),
-                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      widthFactor: 1,
-                                      child: Text(
-                                        'POS 刷卡',
-                                        style: hts(
-                                          13,
-                                          dk(
-                                            context,
-                                            Color(0xFF3F3F46),
-                                            Color(0xFFD4D4D8),
-                                          ),
-                                          w: FontWeight.w500,
-                                          lh: 18,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                HSel(
-                                  ctrl: selection,
-                                  index: 4,
-                                  on: hbox(
-                                    h: 34,
-                                    bg: dk(
-                                      context,
-                                      Color(0xFFE1F0FE),
-                                      Color.fromRGBO(4, 133, 247, 0.18),
-                                    ),
-                                    radius: BorderRadius.circular(17),
-                                    border: Border.all(
-                                      color: Color(0xFF0485F7),
-                                      width: 1.5,
-                                    ),
-                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      widthFactor: 1,
-                                      child: Text(
                                         c.saleBalanceChip,
                                         style: hts(
                                           13,
