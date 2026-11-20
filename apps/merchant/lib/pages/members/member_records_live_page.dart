@@ -69,12 +69,11 @@ class _MemberRecordsLivePageState extends State<MemberRecordsLivePage> {
           cross: CrossAxisAlignment.stretch,
           gap: 0,
         ),
-        // TODO: 流水日期筛选缺少 ledger 的日期范围参数；不得返回无效筛选成功。
         trailing: AppHeaderCircle(
           lightSvg: Svgs.s230,
           darkSvg: Svgs.s231,
           label: '日期筛选',
-          onTap: () => AppToast.show(context, '日期筛选尚未接通：缺少流水日期范围接口'),
+          onTap: _pickDate,
         ),
       ),
       flow: hcol(
@@ -316,6 +315,16 @@ class _MemberRecordsLivePageState extends State<MemberRecordsLivePage> {
                   selected: _tab < 0 ? 0 : _tab,
                   onChanged: (v) => setState(() => _syncTab(v)),
                 ),
+                if (_date != null)
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: InputChip(
+                      label: Text('${_date!.year}年${_date!.month}月${_date!.day}日'),
+                      onPressed: _pickDate,
+                      onDeleted: () => _setDate(null),
+                      deleteButtonTooltipMessage: '清除日期筛选',
+                    ),
+                  ),
                 ..._ledger(context),
               ],
               main: MainAxisAlignment.start,
@@ -332,6 +341,40 @@ class _MemberRecordsLivePageState extends State<MemberRecordsLivePage> {
     );
   }
 
+  DateTime? _date;
+  DateTime? _itemsDate;
+
+  Future<void> _pickDate() async {
+    final memberId = _memberId;
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _date ?? DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+      initialEntryMode: DatePickerEntryMode.calendarOnly,
+      helpText: '选择消费记录日期',
+      cancelText: '取消',
+      confirmText: '确定',
+    );
+    if (!mounted || memberId != _memberId || picked == null) return;
+    _setDate(picked);
+  }
+
+  void _setDate(DateTime? date) {
+    if (_date == date) return;
+    setState(() {
+      _date = date;
+      // Invalidate requests for the previous date, including pagination.
+      _request++;
+      _loading = false;
+      _loadingMore = false;
+      _showSkeleton = false;
+      _skeletonAt = null;
+      _error = null;
+    });
+    _load();
+  }
+
   int _request = 0;
   @override
   void didUpdateWidget(MemberRecordsLivePage oldWidget) {
@@ -341,6 +384,8 @@ class _MemberRecordsLivePageState extends State<MemberRecordsLivePage> {
       _items.clear();
       _total = 0;
       _tab = -1;
+      _date = null;
+      _itemsDate = null;
       _loading = false;
       _loadingMore = false;
       _showSkeleton = false;
@@ -383,6 +428,7 @@ class _MemberRecordsLivePageState extends State<MemberRecordsLivePage> {
     if (id == null || _loading || _loadingMore) return;
     final seq = ++_request;
     final tab = _tab;
+    final date = _date;
     final hadLoaded = _loaded;
     setState(() {
       if (more) {
@@ -412,6 +458,10 @@ class _MemberRecordsLivePageState extends State<MemberRecordsLivePage> {
           'package',
         ][tab.clamp(0, 3)],
         offset: more ? _items.length : 0,
+        createdFrom: date,
+        createdBefore: date == null
+            ? null
+            : DateTime(date.year, date.month, date.day + 1),
       );
     } catch (e) {
       failed = AppError.from(e);
@@ -430,10 +480,12 @@ class _MemberRecordsLivePageState extends State<MemberRecordsLivePage> {
       _loaded = true;
       if (failed != null) {
         if (!hadLoaded) _error = failed;
+        if (hadLoaded) _date = _itemsDate;
       } else {
         if (!more) _items.clear();
         _items.addAll(page!.items);
         _total = page.total;
+        _itemsDate = date;
         _error = null;
       }
     });
@@ -597,8 +649,12 @@ class _MemberRecordsLivePageState extends State<MemberRecordsLivePage> {
         SizedBox(
           height: 240,
           child: EmptyView(
-            title: _tab == 1 || _tab == 3 ? '暂无记录' : '还没有记录',
-            message: _tab == 1
+            title: _date != null
+                ? '当天没有记录'
+                : (_tab == 1 || _tab == 3 ? '暂无记录' : '还没有记录'),
+            message: _date != null
+                ? '请选择其他日期或清除日期筛选'
+                : _tab == 1
                 ? '开单消费后会显示在这里'
                 : _tab == 3
                 ? '次卡购买和使用后会显示在这里'

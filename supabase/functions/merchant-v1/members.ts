@@ -192,6 +192,15 @@ export async function handleMembers(input: Input, storeId: string): Promise<Resp
       consume: ['consume', 'order_refund'],
       package: ['package_buy', 'package_use', 'package_extend', 'package_refund'],
     };
+    const from = input.created_from;
+    const before = input.created_before;
+    if (from != null || before != null) {
+      if (typeof from !== 'string' || typeof before !== 'string' ||
+          !Number.isFinite(Date.parse(from)) || !Number.isFinite(Date.parse(before)) ||
+          Date.parse(from) >= Date.parse(before)) return fail('日期范围无效');
+      query = query.gte('created_at', new Date(from).toISOString())
+        .lt('created_at', new Date(before).toISOString());
+    }
     const wanted = typeof input.filter === 'string' ? kinds[input.filter] : undefined;
     if (wanted) query = query.in('kind', wanted);
     const { data, error, count } = await query;

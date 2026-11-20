@@ -914,6 +914,8 @@ class MerchantApi {
     String filter = 'all',
     int offset = 0,
     int limit = 30,
+    DateTime? createdFrom,
+    DateTime? createdBefore,
   }) async {
     final data = await invoke({
       'action': 'ledger',
@@ -922,6 +924,8 @@ class MerchantApi {
       'filter': filter,
       'offset': offset,
       'limit': limit,
+      'created_from': ?createdFrom?.toUtc().toIso8601String(),
+      'created_before': ?createdBefore?.toUtc().toIso8601String(),
     });
     return (
       items: List<Map<String, dynamic>>.from(data['items'] as List),
