@@ -293,8 +293,8 @@ class _VehicleAddPageTemplate extends StatelessWidget {
                             pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
                             child: hrow(
                               [
-                                Expanded(
-                                  flex: 1,
+                                hbox(
+                                  w: 64,
                                   child: Text(
                                     '当前里程',
                                     style: hts(
@@ -308,8 +308,7 @@ class _VehicleAddPageTemplate extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                                hbox(
-                                  w: 80,
+                                Expanded(
                                   child: AppTextInput(
                                     controller: c.input('mileage'),
                                     style: hts(
@@ -319,10 +318,9 @@ class _VehicleAddPageTemplate extends StatelessWidget {
                                         Color(0xFF18181B),
                                         Color(0xFFFAFAFA),
                                       ),
-                                      w: FontWeight.w600,
                                       lh: 22,
                                     ),
-                                    hint: '请输入当前里程',
+                                    hint: '请输入里程',
                                     keyboard: TextInputType.number,
                                     align: TextAlign.right,
                                   ),
@@ -355,233 +353,6 @@ class _VehicleAddPageTemplate extends StatelessWidget {
                     cross: CrossAxisAlignment.stretch,
                     gap: 12,
                   ),
-                ),
-                hcol(
-                  [
-                    hbox(
-                      pad: EdgeInsets.fromLTRB(4, 0, 0, 0),
-                      child: Text(
-                        '到期提醒 · 自动加入回访',
-                        style: hts(
-                          13,
-                          dk(context, Color(0xFF52525B), Color(0xFFA8A8B3)),
-                          w: FontWeight.w500,
-                          lh: 18,
-                        ),
-                      ),
-                    ),
-                    hbox(
-                      bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                      radius: BorderRadius.circular(24),
-                      shadow: dk(
-                        context,
-                        [
-                          BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 0),
-                            blurRadius: 1,
-                            spreadRadius: 0,
-                          ),
-                          BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 1),
-                            blurRadius: 2,
-                            spreadRadius: 0,
-                          ),
-                          BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.04),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
-                            spreadRadius: 0,
-                          ),
-                        ],
-                        [
-                          BoxShadow(
-                            color: Color(0xFF26262B),
-                            offset: Offset(0, 0),
-                            blurRadius: 0,
-                            spreadRadius: 1,
-                          ),
-                        ],
-                      ),
-                      pad: EdgeInsets.fromLTRB(0, 4, 0, 4),
-                      child: hcol(
-                        [
-                          hbox(
-                            minH: 58,
-                            pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                            child: hrow(
-                              [
-                                Expanded(
-                                  flex: 1,
-                                  child: hcol(
-                                    [
-                                      Text(
-                                        '车险到期',
-                                        style: hts(
-                                          15,
-                                          dk(
-                                            context,
-                                            Color(0xFF18181B),
-                                            Color(0xFFFAFAFA),
-                                          ),
-                                          lh: 22,
-                                        ),
-                                      ),
-                                      Text(
-                                        '未设置',
-                                        style: hts(
-                                          12,
-                                          dk(
-                                            context,
-                                            Color(0xFF71717A),
-                                            Color(0xFF9A9AA3),
-                                          ),
-                                          lh: 16,
-                                        ),
-                                      ),
-                                    ],
-                                    main: MainAxisAlignment.start,
-                                    cross: CrossAxisAlignment.stretch,
-                                    gap: 0,
-                                  ),
-                                ),
-                                HSwitchValue(
-                                  value: false,
-                                  onChanged: (_) => c.reminderTodo(context),
-                                ),
-                              ],
-                              main: MainAxisAlignment.start,
-                              cross: CrossAxisAlignment.center,
-                              gap: 12,
-                            ),
-                          ),
-                          hbox(
-                            h: 1,
-                            bg: dk(
-                              context,
-                              Color(0xFFEFEFF1),
-                              Color(0xFF2A2A2E),
-                            ),
-                            margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
-                          ),
-                          hbox(
-                            minH: 58,
-                            pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                            child: hrow(
-                              [
-                                Expanded(
-                                  flex: 1,
-                                  child: hcol(
-                                    [
-                                      Text(
-                                        '镀晶养护',
-                                        style: hts(
-                                          15,
-                                          dk(
-                                            context,
-                                            Color(0xFF18181B),
-                                            Color(0xFFFAFAFA),
-                                          ),
-                                          lh: 22,
-                                        ),
-                                      ),
-                                      Text(
-                                        '施工后每 3 个月提醒复养',
-                                        style: hts(
-                                          12,
-                                          dk(
-                                            context,
-                                            Color(0xFF71717A),
-                                            Color(0xFF9A9AA3),
-                                          ),
-                                          lh: 16,
-                                        ),
-                                      ),
-                                    ],
-                                    main: MainAxisAlignment.start,
-                                    cross: CrossAxisAlignment.stretch,
-                                    gap: 0,
-                                  ),
-                                ),
-                                HSwitchValue(
-                                  value: false,
-                                  onChanged: (_) => c.reminderTodo(context),
-                                ),
-                              ],
-                              main: MainAxisAlignment.start,
-                              cross: CrossAxisAlignment.center,
-                              gap: 12,
-                            ),
-                          ),
-                          hbox(
-                            h: 1,
-                            bg: dk(
-                              context,
-                              Color(0xFFEFEFF1),
-                              Color(0xFF2A2A2E),
-                            ),
-                            margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
-                          ),
-                          hbox(
-                            minH: 58,
-                            pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                            child: hrow(
-                              [
-                                Expanded(
-                                  flex: 1,
-                                  child: hcol(
-                                    [
-                                      Text(
-                                        '年检到期',
-                                        style: hts(
-                                          15,
-                                          dk(
-                                            context,
-                                            Color(0xFF18181B),
-                                            Color(0xFFFAFAFA),
-                                          ),
-                                          lh: 22,
-                                        ),
-                                      ),
-                                      Text(
-                                        '未设置',
-                                        style: hts(
-                                          12,
-                                          dk(
-                                            context,
-                                            Color(0xFF71717A),
-                                            Color(0xFF9A9AA3),
-                                          ),
-                                          lh: 16,
-                                        ),
-                                      ),
-                                    ],
-                                    main: MainAxisAlignment.start,
-                                    cross: CrossAxisAlignment.stretch,
-                                    gap: 0,
-                                  ),
-                                ),
-                                HSwitchValue(
-                                  value: false,
-                                  onChanged: (_) => c.reminderTodo(context),
-                                ),
-                              ],
-                              main: MainAxisAlignment.start,
-                              cross: CrossAxisAlignment.center,
-                              gap: 12,
-                            ),
-                          ),
-                        ],
-                        main: MainAxisAlignment.start,
-                        cross: CrossAxisAlignment.stretch,
-                        gap: 0,
-                      ),
-                    ),
-                  ],
-                  main: MainAxisAlignment.start,
-                  cross: CrossAxisAlignment.stretch,
-                  gap: 8,
                 ),
               ],
               main: MainAxisAlignment.start,

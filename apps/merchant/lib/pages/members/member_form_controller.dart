@@ -129,11 +129,6 @@ class MemberFormController extends ChangeNotifier {
       if (context.mounted && !disposed) AppToast.error(context, e);
     }
   });
-  void reminderTodo(BuildContext context) {
-    // TODO: 车辆提醒缺少配置与触达接口，预期 vehicle_reminder_save；不能只在前端开启。
-    AppToast.show(context, '车辆提醒尚未接通：缺少提醒配置与触达接口');
-  }
-
   Future<Map<String, dynamic>?> save() async {
     if (busy || disposed) return null;
     if (!merchantApi.hasSession) {
