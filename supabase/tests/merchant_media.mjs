@@ -27,5 +27,6 @@ try{
  }
 
  await db.exec(readFileSync(new URL('merchant_media.sql',import.meta.url),'utf8'));
- console.log('merchant_media ok');
+ await db.exec(readFileSync(new URL('manager_store_maintenance.sql',import.meta.url),'utf8'));
+ console.log('merchant_media + manager_store_maintenance ok');
 }finally{await db.close();}

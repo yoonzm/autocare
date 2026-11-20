@@ -12,7 +12,7 @@ export async function handleMedia(input: Input, request: Request): Promise<Respo
  const store = String(input.action).startsWith('store_media_');
  const action = String(input.action).replace(store ? 'store_media_' : 'staff_task_photo_','');
  if (!['list','upload','remove'].includes(action)) return fail('不支持的图片操作');
- if (store ? session.role !== 'owner' : !session.staffId) return fail('暂无权限',403);
+ if (store ? !['owner','manager'].includes(session.role) : !session.staffId) return fail('暂无权限',403);
  const target = store ? session.store : input.target_id;
  if (!uuid(target)) return fail('图片所属记录无效');
  const args = {p_store:session.store,p_user:auth.user.id,p_staff:session.staffId ?? null,p_kind:store?'store':'task',p_target:target};

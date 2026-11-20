@@ -98,3 +98,15 @@ Deno.test('refusals carry a message the app can show', () => {
   assert(!d.allowed && typeof d.message === 'string' && d.message.length > 0);
   assert(decide('manager', {}, { action: 'get_subscription' }).message === '该功能仅老板可用');
 });
+
+Deno.test('only owner and manager maintain store; lifecycle stays owner-only', () => {
+  for (const action of ['store_update', 'store_media_list', 'store_media_upload', 'store_media_remove']) {
+    for (const role of rolesForTest()) {
+      assert(can(role, ['catalog_manage', 'appt_settings'], { action }) === ['owner', 'manager'].includes(role), `${role}: ${action}`);
+    }
+  }
+  for (const action of ['store_create', 'store_switch', 'store_archive', 'store_restore', 'store_media_unknown']) {
+    assert(!can('manager', ['catalog_manage'], { action }), action);
+  }
+});
+function rolesForTest(): Role[] { return ['owner', 'manager', 'cashier', 'technician']; }

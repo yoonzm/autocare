@@ -9,6 +9,7 @@ export type Requirement =
   | { kind: 'cap'; cap: string }
   | { kind: 'anyCap'; caps: string[] }
   | { kind: 'owner' }
+  | { kind: 'manager' }
   | { kind: 'deny' };
 
 const any: Requirement = { kind: 'any' };
@@ -46,6 +47,10 @@ const kindRules: Record<string, Record<string, Requirement>> = {
 
 const byAction: Record<string, Requirement> = {
   get_store: any,
+  store_update: { kind: 'manager' },
+  store_media_list: { kind: 'manager' },
+  store_media_upload: { kind: 'manager' },
+  store_media_remove: { kind: 'manager' },
   profile_update: any,
   profile_avatar_upload: any,
   staff_home: any,
@@ -110,6 +115,7 @@ export function requirementFor(input: Input): Requirement {
     const rule = kindRules[input.kind]?.[action];
     return rule ?? deny;
   }
+  if (byAction[action]) return byAction[action];
   if (action.startsWith('subscription_') || action.startsWith('store_') || action.startsWith('support_')) return owner;
   if (action.startsWith('inventory_')) return inventoryReads.has(action) ? anyCap('stock_manage', 'stock_use') : cap('stock_manage');
   if (action.startsWith('expense_')) return cap('expense');
@@ -129,6 +135,8 @@ export function decide(role: Role, caps: Record<string, boolean>, input: Input):
   switch (need.kind) {
     case 'any':
       return { allowed: true };
+    case 'manager':
+      return role === 'manager' ? { allowed: true } : refuse('该功能仅老板或店长可用');
     case 'owner':
       return refuse('该功能仅老板可用');
     case 'cap':
