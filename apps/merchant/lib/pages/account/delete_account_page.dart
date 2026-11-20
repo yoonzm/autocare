@@ -494,7 +494,7 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
                                   Flexible(
                                     flex: 182,
                                     child: Text(
-                                      '停用账号并退出所有设备',
+                                      '永久删除账号及个人资料，并退出所有设备',
                                       style: hts(
                                         13,
                                         dk(
@@ -521,7 +521,7 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
                                   Flexible(
                                     flex: 195,
                                     child: Text(
-                                      '门店经营数据保留，不会被清除',
+                                      '清除账号关联的所有数据，且无法恢复',
                                       style: hts(
                                         13,
                                         dk(
