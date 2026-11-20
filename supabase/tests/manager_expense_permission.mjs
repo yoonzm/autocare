@@ -16,7 +16,7 @@ try {
     (1,'manager','staff_manage',false),(1,'manager','stock_manage',true);`);
   const snapshot = async () => (await db.query('select store_id,role,permission,allowed from store_role_permissions order by store_id,role,permission')).rows;
   const before = await snapshot();
-  const migration = readFileSync(new URL('../migrations/202611200005_manager_expense_permission.sql', import.meta.url), 'utf8');
+  const migration = readFileSync(new URL('../migrations/202611200006_manager_expense_permission.sql', import.meta.url), 'utf8');
   await db.exec(migration);
   const expected = before.map(row => row.role === 'manager' && row.permission === 'expense' ? {...row, allowed: true} : row);
   assert.deepEqual(await snapshot(), expected);

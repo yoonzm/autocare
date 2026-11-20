@@ -8,10 +8,20 @@ import tarfile
 from pathlib import Path
 
 
+def validate_migration_versions(paths) -> None:
+    versions = {}
+    for path in paths:
+        version = path.name.split('_', 1)[0]
+        if version in versions:
+            raise ValueError(f'Duplicate migration version {version}: {versions[version]} and {path.name}')
+        versions[version] = path.name
+
+
 def package(revision: str, destination: Path) -> None:
     if not re.fullmatch(r"[0-9a-f]{40}", revision):
         raise ValueError("Expected a full Git commit SHA")
     root = Path(__file__).resolve().parents[2]
+    validate_migration_versions(sorted((root / "supabase/migrations").glob("*.sql")))
     files=[]
     digest=hashlib.sha256()
     for directory in ("supabase/migrations", "supabase/functions/merchant-v1", "supabase/functions/admin-v1", "supabase/functions/member-v1", "supabase/static/legal"):

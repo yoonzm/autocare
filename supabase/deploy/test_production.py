@@ -48,6 +48,20 @@ class ArchiveValidation(unittest.TestCase):
             with self.subTest(name=name), self.assertRaises(ValueError):
                 production.validate_members(self.valid() + pages + [member('supabase/static/legal/' + name)])
 
+    def test_package_rejects_duplicate_migration_versions(self):
+        package_spec = importlib.util.spec_from_file_location('backend_package', Path(__file__).with_name('package.py'))
+        package_tool = importlib.util.module_from_spec(package_spec)
+        package_spec.loader.exec_module(package_tool)
+        with self.assertRaisesRegex(ValueError, 'Duplicate migration version 202611200005'):
+            package_tool.validate_migration_versions([
+                Path('202611200005_manager_store_maintenance.sql'),
+                Path('202611200005_manager_expense_permission.sql'),
+            ])
+        package_tool.validate_migration_versions([
+            Path('202611200005_manager_store_maintenance.sql'),
+            Path('202611200006_manager_expense_permission.sql'),
+        ])
+
     def test_package_contains_static_pages_with_exact_content(self):
         package_spec = importlib.util.spec_from_file_location('backend_package', Path(__file__).with_name('package.py'))
         package_tool = importlib.util.module_from_spec(package_spec)
