@@ -10,6 +10,7 @@ import '../../kit/kit.dart' show ConfirmDiscard;
 import '../../kit/sheet_route.dart';
 import '../../routes.dart' show openRoute;
 import 'staff_add_template.dart';
+import 'staff_commission_template.dart';
 import 'staff_edit_template.dart';
 import 'staff_list_template.dart';
 import 'staff_editor_controller.dart';
@@ -105,6 +106,13 @@ class _StaffEditorHostState extends State<_StaffEditorHost> {
           appSheetRoute<void>(
             settings: const RouteSettings(name: 'StaffInvite'),
             page: StaffInviteLivePage(employee: row),
+          ),
+        );
+    controller.onEditCommission = (context, id) =>
+        Navigator.of(context).push<Map<String, dynamic>>(
+          appSheetRoute<Map<String, dynamic>>(
+            settings: const RouteSettings(name: 'StaffCommission'),
+            page: StaffCommissionLivePage(staffId: id, returnToCaller: true),
           ),
         );
     controller.onDisable = (context) => openRoute(

@@ -15,7 +15,7 @@ class StaffEditorController extends ChangeNotifier {
   final request = MutationRequest();
   final actionKey = 'staff-editor:${UniqueKey()}';
   bool busy = false, dirty = false, saving = false, disposed = false;
-  bool _committed = false, _uncertain = false;
+  bool _committed = false, _uncertain = false, _commissionOpen = false;
   bool get locked => busy || isBusy(actionKey);
   int filter = 0;
   bool showInactive = false;
@@ -79,6 +79,35 @@ class StaffEditorController extends ChangeNotifier {
   void Function(BuildContext, Map<String, dynamic>?)? onEdit;
   void Function(BuildContext, Map<String, dynamic>)? onAdded;
   void Function(BuildContext)? onDisable;
+  Future<Map<String, dynamic>?> Function(BuildContext, String)? onEditCommission;
+
+  Future<void> editCommission(BuildContext context) async {
+    if (locked || disposed || _commissionOpen) return;
+    if (!Access.isOwner) {
+      AppToast.show(context, '仅老板可调整提成方案');
+      return;
+    }
+    final id = draft['id'] as String?;
+    if (id == null) {
+      AppToast.show(context, '请先保存员工，再设置提成方案');
+      return;
+    }
+    _commissionOpen = true;
+    try {
+      final result = await onEditCommission?.call(context, id);
+      if (disposed || result == null || result['id'] != draft['id']) return;
+      // Commission is saved independently; keep all unsaved employee fields.
+      for (final key in ['commission_mode', 'commission_rate', 'commission_overrides']) {
+        if (result.containsKey(key)) draft[key] = dataSnapshot(result)[key];
+      }
+      changed();
+    } catch (e) {
+      if (!disposed && context.mounted) AppToast.error(context, e);
+    } finally {
+      _commissionOpen = false;
+    }
+  }
+
   void editResource(BuildContext context, Map<String, dynamic>? row) =>
       onEdit?.call(context, row);
   void addStaff(BuildContext context) => onEdit?.call(context, null);

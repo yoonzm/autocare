@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import '../../kit/kit.dart';
 import '../../kit/async_kit.dart';
 import 'staff_editor_controller.dart';
+import 'staff_live.dart' show staffCommissionLabel;
 import '../../resources/merchant_svgs.dart';
 import '../../kit/page_header.dart';
 
@@ -1470,7 +1471,7 @@ class StaffAddTemplate extends StatelessWidget {
                     [
                       GestureDetector(
                         behavior: HitTestBehavior.opaque,
-                        onTap: () => c.deferred(context),
+                        onTap: () => c.editCommission(context),
                         child: hbox(
                           minH: 54,
                           pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
@@ -1492,7 +1493,7 @@ class StaffAddTemplate extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                '跟随项目设置',
+                                staffCommissionLabel(c.draft),
                                 style: hts(
                                   15,
                                   dk(

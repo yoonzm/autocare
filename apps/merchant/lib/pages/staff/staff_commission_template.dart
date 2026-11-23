@@ -13,7 +13,12 @@ import 'staff_route_data.dart';
 
 class StaffCommissionTemplate extends StatefulWidget {
   final Map<String, dynamic> d;
-  const StaffCommissionTemplate({super.key, required this.d});
+  final bool returnToCaller;
+  const StaffCommissionTemplate({
+    super.key,
+    required this.d,
+    this.returnToCaller = false,
+  });
 
   @override
   State<StaffCommissionTemplate> createState() => _StaffCommissionState();
@@ -72,14 +77,17 @@ class _StaffCommissionState extends State<StaffCommissionTemplate> {
     };
     setState(() => _busy = true);
     try {
-      await Future.wait([
-        StaffFlow.saveCommission('${d['id']}', mode, rate: rate, overrides: overrides),
-        Future<void>.delayed(const Duration(milliseconds: 500)),
-      ]);
+      final result = await StaffFlow.saveCommission(
+        '${d['id']}', mode, rate: rate, overrides: overrides,
+      );
       if (!mounted) return;
       setState(() { _saved = true; _busy = false; });
       AppToast.show(context, '提成方案已保存');
-      openRoute(context, 'StaffDetail', arguments: StaffRouteData(staffId: '${d['id']}'));
+      if (widget.returnToCaller) {
+        Navigator.of(context).pop(result);
+      } else {
+        openRoute(context, 'StaffDetail', arguments: StaffRouteData(staffId: '${d['id']}'));
+      }
     } catch (e) {
       if (mounted) {
         setState(() => _busy = false);
@@ -285,13 +293,20 @@ class _StaffCommissionState extends State<StaffCommissionTemplate> {
 
 class StaffCommissionLivePage extends StatelessWidget {
   final String? staffId;
-  const StaffCommissionLivePage({super.key, this.staffId});
+  final bool returnToCaller;
+  const StaffCommissionLivePage({
+    super.key,
+    this.staffId,
+    this.returnToCaller = false,
+  });
 
   @override
   Widget build(BuildContext context) => StaffLiveHost(
     staffId: staffId,
     title: '提成方案',
     load: (id) => merchantApi.staff('get', {'id': id}),
-    builder: (_, d) => StaffCommissionTemplate(key: ValueKey(d['id']), d: d),
+    builder: (_, d) => StaffCommissionTemplate(
+      key: ValueKey(d['id']), d: d, returnToCaller: returnToCaller,
+    ),
   );
 }

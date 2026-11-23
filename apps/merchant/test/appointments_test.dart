@@ -434,7 +434,13 @@ class BookingApi extends MemberFakeApi {
       return {...row};
     }
     if (action == 'commission_save') {
-      return {...staffRows.firstWhere((r) => r['id'] == values['id'])};
+      final row = staffRows.firstWhere((r) => r['id'] == values['id']);
+      row.addAll({
+        'commission_mode': values['mode'],
+        'commission_rate': values['mode'] == 'flat' ? values['rate'] : 0,
+        'commission_overrides': values['mode'] == 'custom' ? values['overrides'] : {},
+      });
+      return {...row};
     }
     if (action == 'permissions_save') {
       (permissions[values['role']] as Map).addAll(

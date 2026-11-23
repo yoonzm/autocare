@@ -163,6 +163,68 @@ void main() {
     expect(call.containsKey('store_id'), isFalse);
   });
 
+  testWidgets('编辑员工设置提成：失败保留输入，成功返回并保留员工草稿', (t) async {
+    await open(t, const StaffDetailLivePage(staffId: 't1'));
+    await t.tap(text('编辑'));
+    await t.pumpAndSettle();
+    await t.enterText(find.byType(TextFormField).first, '尚未保存的名字');
+    await t.ensureVisible(text('提成方案'));
+    await t.tap(text('提成方案'));
+    await t.pumpAndSettle();
+    expect(find.byType(StaffCommissionLivePage), findsOneWidget);
+    await t.tap(text('统一比例'));
+    await t.pumpAndSettle();
+    await t.enterText(find.byType(TextFormField), '12.5');
+    api.writeError = const AppError('保存失败');
+    await t.tap(text('保存'));
+    await t.pumpAndSettle();
+    expect(find.byType(StaffCommissionLivePage), findsOneWidget);
+    expect(t.widget<TextFormField>(find.byType(TextFormField)).controller!.text, '12.5');
+    api.writeError = null;
+    await t.tap(text('保存'));
+    await t.pumpAndSettle();
+    expect(find.byType(StaffCommissionLivePage), findsNothing);
+    expect(text('编辑员工'), findsOneWidget);
+    expect(text('统一 12.5%'), findsOneWidget);
+    expect(t.widget<TextFormField>(find.byType(TextFormField).first).controller!.text, '尚未保存的名字');
+    expect(calls('staff_save'), isEmpty);
+    expect(calls('staff_commission_save').last['id'], 't1');
+    await t.tap(text('保存'));
+    await t.pumpAndSettle();
+    expect(calls('staff_save').single['name'], '尚未保存的名字');
+  });
+
+  testWidgets('编辑员工提成入口回显已有方案，取消返回保留原值', (t) async {
+    api.staffRows.firstWhere((r) => r['id'] == 't1').addAll({
+      'commission_mode': 'flat', 'commission_rate': 16.5,
+    });
+    await open(t, const StaffEditorPage(row: {
+      'id': 't1', 'name': '真实技师', 'role': 'technician',
+      'commission_mode': 'flat', 'commission_rate': 16.5,
+    }));
+    await t.ensureVisible(text('提成方案'));
+    expect(text('统一 16.5%'), findsOneWidget);
+    await t.tap(text('提成方案'));
+    await t.pumpAndSettle();
+    expect(t.widget<TextFormField>(find.byType(TextFormField)).controller!.text, '16.5');
+    Navigator.of(t.element(find.byType(StaffCommissionLivePage))).maybePop();
+    await t.pumpAndSettle();
+    expect(text('编辑员工'), findsOneWidget);
+    expect(text('统一 16.5%'), findsOneWidget);
+    expect(calls('staff_commission_save'), isEmpty);
+  });
+
+  testWidgets('新增员工尚未保存时，提成入口明确提示先保存', (t) async {
+    await open(t, const StaffEditorPage());
+    await t.ensureVisible(text('提成方案'));
+    await t.tap(text('提成方案'));
+    await t.pumpAndSettle();
+    expect(text('请先保存员工，再设置提成方案'), findsOneWidget);
+    expect(find.byType(StaffCommissionLivePage), findsNothing);
+    expect(calls('staff_save'), isEmpty);
+    expect(calls('staff_commission_save'), isEmpty);
+  });
+
   testWidgets('新增员工 → 邀请页：展示刚保存的员工，复制登录说明，短信明确未接通', (t) async {
     String? copied;
     t.binding.defaultBinaryMessenger.setMockMethodCallHandler(
