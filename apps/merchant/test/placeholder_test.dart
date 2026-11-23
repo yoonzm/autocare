@@ -1,3 +1,4 @@
+import 'package:autocare_merchant/pages/staff/staff_commission_template.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -62,6 +63,14 @@ void main() {
   }
 
   final handWritten = <String, Widget Function()>{
+    for (final mode in ['flat', 'custom'])
+      'StaffCommission-$mode': () => StaffCommissionTemplate(d: {
+        'id': 't1', 'name': '技师', 'role': 'technician',
+        'commission_mode': mode,
+        'services': [
+          {'id': 's1', 'name': '洗车', 'commission_type': 'percent', 'commission_value': 8},
+        ],
+      }),
     'Login': () => const LoginPage(),
     'Order': () => const OrderPage(),
     'AppointmentAdd': () => const AppointmentAddPage(),

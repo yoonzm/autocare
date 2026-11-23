@@ -291,22 +291,62 @@ void main() {
     expect(call['status'], 'enabled');
   });
 
-  testWidgets('提成方案：只有跟随项目设置可保存，其余两项提示待设计，不假装成功', (t) async {
+  testWidgets('提成方案：统一比例校验后保存真实选择', (t) async {
     await open(t, const StaffCommissionLivePage(staffId: 't1'));
-    expect(text('上月提成 ¥8,640'), findsNothing);
     expect(find.textContaining('上月提成 ¥8,640'), findsOneWidget);
     expect(text('真实洗车'), findsOneWidget);
     expect(text('8%'), findsOneWidget);
     expect(text('¥60/单'), findsOneWidget);
     await t.tap(text('统一比例'));
-    await t.pump();
-    expect(find.textContaining('TODO'), findsWidgets);
+    await t.pumpAndSettle();
+    await t.enterText(find.byType(TextFormField), '101');
+    await t.tap(text('保存'));
+    await t.pumpAndSettle();
+    expect(text('请输入 0–100 的比例'), findsOneWidget);
     expect(calls('staff_commission_save'), isEmpty);
-    await t.pump(const Duration(seconds: 4));
+    await t.enterText(find.byType(TextFormField), '12.5');
     await t.tap(text('保存'));
     await t.pumpAndSettle();
     final call = calls('staff_commission_save').single;
-    expect(call['mode'], 'follow');
+    expect(call['mode'], 'flat');
+    expect(call['rate'], 12.5);
+  });
+
+  testWidgets('提成方案：自定义留空跟随，零比例单独保存', (t) async {
+    await open(t, const StaffCommissionLivePage(staffId: 't1'));
+    await t.tap(text('按项目自定义'));
+    await t.pumpAndSettle();
+    final fields = find.byType(TextFormField);
+    await t.enterText(fields.first, '0');
+    for (final field in t.widgetList<TextFormField>(fields)) {
+      expect(field.controller, isNotNull);
+    }
+    for (final field in t.widgetList<TextField>(find.byType(TextField))) {
+      expect(field.decoration?.hintText, isNotEmpty);
+    }
+    await t.tap(text('统一比例'));
+    await t.pumpAndSettle();
+    await t.tap(text('按项目自定义'));
+    await t.pumpAndSettle();
+    expect(t.widget<TextFormField>(fields.first).controller!.text, '0');
+    await t.tap(text('保存'));
+    await t.pumpAndSettle();
+    final call = calls('staff_commission_save').single;
+    expect(call['mode'], 'custom');
+    expect((call['overrides'] as Map).values.toList(), [0]);
+  });
+
+  testWidgets('提成方案：回显已保存统一比例', (t) async {
+    await open(t, const StaffCommissionTemplate(d: {
+      'id': 't1', 'name': '真实技师', 'role': 'technician',
+      'commission_mode': 'flat', 'commission_rate': 16.5,
+      'services': <Map<String, dynamic>>[],
+    }));
+    expect(t.widget<TextFormField>(find.byType(TextFormField)).controller!.text, '16.5');
+    await t.tap(text('保存'));
+    await t.pumpAndSettle();
+    expect(calls('staff_commission_save').single['mode'], 'flat');
+    expect(calls('staff_commission_save').single['rate'], 16.5);
   });
 
   testWidgets('施工记录：本月 / 上月 / 全部分别按范围向后端读取', (t) async {

@@ -1,85 +1,189 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:autocare_ui_kit/autocare_ui_kit.dart' show AppTokens;
 
 import '../../backend/merchant_api.dart';
 import '../../backend/staff_flow.dart';
 import '../../kit/async_kit.dart';
 import '../../kit/kit.dart';
+import '../../kit/page_header.dart';
 import '../../routes.dart' show openRoute;
-import '../../resources/merchant_svgs.dart';
 import 'staff_live.dart';
 import 'staff_route_data.dart';
-import '../../kit/page_header.dart';
 
-class StaffCommissionTemplate extends StatelessWidget {
+class StaffCommissionTemplate extends StatefulWidget {
   final Map<String, dynamic> d;
   const StaffCommissionTemplate({super.key, required this.d});
 
   @override
+  State<StaffCommissionTemplate> createState() => _StaffCommissionState();
+}
+
+class _StaffCommissionState extends State<StaffCommissionTemplate> {
+  late String _mode;
+  late final TextEditingController _rate;
+  final _overrides = <String, TextEditingController>{};
+  final _form = GlobalKey<FormState>();
+  bool _busy = false;
+  bool _saved = false;
+  late String _initial;
+  Map<String, dynamic> get d => widget.d;
+  List<Map<String, dynamic>> get _services => [
+    for (final s in (d['services'] as List? ?? const []))
+      Map<String, dynamic>.from(s as Map),
+  ];
+  String get _draft => '$_mode|${_rate.text}|${_overrides.entries.map((e) => '${e.key}:${e.value.text}').join('|')}';
+
+  @override
+  void initState() {
+    super.initState();
+    _mode = d['commission_mode'] as String? ?? 'follow';
+    _rate = TextEditingController(text: '${d['commission_rate'] ?? 0}');
+    final values = Map<String, dynamic>.from(d['commission_overrides'] as Map? ?? {});
+    // Preserve overrides for inactive services too; the active list may omit them.
+    for (final id in {...values.keys, ..._services.map((s) => '${s['id']}')}) {
+      _overrides[id] = TextEditingController(text: values[id]?.toString() ?? '');
+    }
+    _initial = _draft;
+    for (final c in [_rate, ..._overrides.values]) {
+      c.addListener(_changed);
+    }
+  }
+
+  void _changed() => setState(() {});
+
+  @override
+  void dispose() {
+    for (final c in [_rate, ..._overrides.values]) {
+      c.dispose();
+    }
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    if (_busy || !_form.currentState!.validate()) return;
+    FocusScope.of(context).unfocus();
+    final mode = _mode;
+    final rate = mode == 'flat' ? num.parse(_rate.text) : 0;
+    final overrides = <String, num>{
+      if (mode == 'custom')
+        for (final e in _overrides.entries)
+          if (e.value.text.trim().isNotEmpty) e.key: num.parse(e.value.text),
+    };
+    setState(() => _busy = true);
+    try {
+      await Future.wait([
+        StaffFlow.saveCommission('${d['id']}', mode, rate: rate, overrides: overrides),
+        Future<void>.delayed(const Duration(milliseconds: 500)),
+      ]);
+      if (!mounted) return;
+      setState(() { _saved = true; _busy = false; });
+      AppToast.show(context, '提成方案已保存');
+      openRoute(context, 'StaffDetail', arguments: StaffRouteData(staffId: '${d['id']}'));
+    } catch (e) {
+      if (mounted) {
+        setState(() => _busy = false);
+        AppToast.error(context, e);
+      }
+    }
+  }
+
+  Widget _input(TextEditingController controller, {required String label, bool optional = false}) {
+    final colors = AppTokens.of(context);
+    return TextFormField(
+      controller: controller,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))],
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: optional ? '留空跟随项目设置' : '请输入提成比例',
+        suffixText: '%',
+        filled: true,
+        fillColor: colors.surface,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colors.line)),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colors.line)),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      ),
+      validator: (value) {
+        final text = (value ?? '').trim();
+        if (optional && text.isEmpty) return null;
+        final rate = num.tryParse(text);
+        if (rate == null || !rate.isFinite || rate < 0 || rate > 100) return '请输入 0–100 的比例';
+        if (!RegExp(r'^\d+(\.\d{1,2})?$').hasMatch(text)) return '最多保留两位小数';
+        return null;
+      },
+    );
+  }
+
+  Widget _card(String mode, String title, String subtitle, Widget content) {
+    final colors = AppTokens.of(context);
+    final selected = _mode == mode;
+    return Container(
+      decoration: BoxDecoration(
+        color: selected ? colors.primarySoft : colors.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: selected ? colors.primary : colors.line, width: selected ? 1.5 : 1),
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Semantics(
+          selected: selected, button: true,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(20),
+            onTap: () { FocusScope.of(context).unfocus(); setState(() => _mode = mode); },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              child: Row(children: [
+                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(title, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: colors.ink)),
+                  const SizedBox(height: 4),
+                  Text(subtitle, style: TextStyle(fontSize: 12, height: 1.5, color: colors.inkSub)),
+                ])),
+                const SizedBox(width: 12),
+                Icon(selected ? Icons.check_circle : Icons.radio_button_unchecked, color: selected ? colors.primary : colors.inkFaint, size: 24),
+              ]),
+            ),
+          ),
+        ),
+        if (selected) Padding(padding: const EdgeInsets.fromLTRB(16, 0, 16, 16), child: content),
+      ]),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final id = '${d['id']}';
+    final colors = AppTokens.of(context);
     final name = '${d['name']}';
     final role = StaffFlow.roleName(d['role']);
-    final services = [
-      for (final s in (d['services'] as List? ?? const []))
-        Map<String, dynamic>.from(s as Map),
-    ];
-    return AsyncActionScope(
-      actionKey: 'StaffCommission>StaffDetail-${identityHashCode(context)}',
+    final services = _services;
+    return ConfirmDiscard(
+      dirty: !_saved && _initial != _draft,
+      busy: _busy,
       child: HPage(
-        bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
+        bg: colors.bg,
         header: AppPageHeader(
           title: '提成方案',
-          trailing: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () => runBusy(
-              'StaffCommission>StaffDetail-${identityHashCode(context)}',
-              () async {
-                try {
-                  await StaffFlow.saveCommission(id, 'follow');
-                  if (context.mounted) {
-                    openRoute(
-                      context,
-                      'StaffDetail',
-                      arguments: StaffRouteData(staffId: id),
-                    );
-                  }
-                } catch (e) {
-                  if (context.mounted) AppToast.error(context, e);
-                }
-              },
-            ),
-            child: hbox(
-              h: 44,
-              bg: Color(0xFF0485F7),
-              radius: BorderRadius.circular(22),
-              pad: EdgeInsets.fromLTRB(18, 0, 18, 0),
-              child: Align(
-                alignment: Alignment(-1, 0),
-                widthFactor: 1,
-                child: hBusy(
-                  'StaffCommission>StaffDetail-${identityHashCode(context)}',
-                  Text(
-                    '保存',
-                    style: hts(
-                      14,
-                      Color(0xFFFFFFFF),
-                      w: FontWeight.w600,
-                      lh: 20,
-                    ),
-                  ),
-                  style: hts(14, Color(0xFFFFFFFF), w: FontWeight.w600, lh: 20),
-                  label: '提交中…',
-                ),
+          leadingEnabled: !_busy,
+          trailing: Semantics(
+            button: true, label: _busy ? '保存中' : '保存',
+            child: GestureDetector(
+              onTap: _busy ? null : _save,
+              child: Container(
+                height: 44,
+                padding: EdgeInsets.symmetric(horizontal: _busy ? 12 : 18),
+                decoration: BoxDecoration(color: colors.primary, borderRadius: BorderRadius.circular(22)),
+                alignment: Alignment.center,
+                child: _busy ? AppSpinner(size: 20, color: colors.onPrimary) : Text('保存', style: TextStyle(color: colors.onPrimary, fontSize: 14, fontWeight: FontWeight.w600)),
               ),
             ),
           ),
         ),
-        flow: hcol(
-          [
-            hbox(
-              pad: EdgeInsets.fromLTRB(20, 8, 20, 40),
-              child: hcol(
-                [
+        flow: AbsorbPointer(
+          absorbing: _busy,
+          child: Form(
+            key: _form,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 40),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                   hbox(
                     bg: dk(context, Color(0xFF18181B), Color(0xFF1F1F23)),
                     radius: BorderRadius.circular(22),
@@ -142,326 +246,43 @@ class StaffCommissionTemplate extends StatelessWidget {
                       gap: 12,
                     ),
                   ),
-                  hcol(
-                    [
-                      hbox(
-                        bg: Color(0xFFF2F8FE),
-                        radius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: Color(0xFF0485F7),
-                          width: 1.5,
-                        ),
-                        pad: EdgeInsets.fromLTRB(16, 14, 16, 14),
-                        child: hcol(
-                          [
-                            hrow(
-                              [
-                                Expanded(
-                                  flex: 1,
-                                  child: hcol(
-                                    [
-                                      Text(
-                                        '跟随项目设置',
-                                        style: hts(
-                                          15,
-                                          dk(
-                                            context,
-                                            Color(0xFF18181B),
-                                            Color(0xFFFAFAFA),
-                                          ),
-                                          w: FontWeight.w600,
-                                          lh: 22,
-                                        ),
-                                      ),
-                                      Text(
-                                        '按「服务项目」中各项目设定的提成比例计算',
-                                        style: hts(
-                                          12,
-                                          dk(
-                                            context,
-                                            Color(0xFF71717A),
-                                            Color(0xFF9A9AA3),
-                                          ),
-                                          lh: 17,
-                                        ),
-                                      ),
-                                    ],
-                                    main: MainAxisAlignment.start,
-                                    cross: CrossAxisAlignment.stretch,
-                                    gap: 2,
-                                  ),
-                                ),
-                                hbox(
-                                  w: 22,
-                                  h: 22,
-                                  bg: Color(0xFF0485F7),
-                                  radius: BorderRadius.circular(11),
-                                  child: hrow(
-                                    [hsvg(Svgs.s309, w: 14, h: 14)],
-                                    main: MainAxisAlignment.center,
-                                    cross: CrossAxisAlignment.center,
-                                    gap: 0,
-                                  ),
-                                ),
-                              ],
-                              main: MainAxisAlignment.start,
-                              cross: CrossAxisAlignment.center,
-                              gap: 12,
-                            ),
-                            hbox(
-                              border: Border(
-                                top: BorderSide(
-                                  color: Color(0xFFDCEBFB),
-                                  width: 1,
-                                ),
-                              ),
-                              pad: EdgeInsets.fromLTRB(0, 10, 0, 0),
-                              child: hcol(
-                                [
-                                  for (final s in services)
-                                    hrow(
-                                      [
-                                        Expanded(
-                                          flex: 1,
-                                          child: Text(
-                                            '${s['name']}',
-                                            style: hts(
-                                              13,
-                                              dk(
-                                                context,
-                                                Color(0xFF52525B),
-                                                Color(0xFFA8A8B3),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        Text(
-                                          staffServiceRate(s),
-                                          style: hts(
-                                            13,
-                                            dk(
-                                              context,
-                                              Color(0xFF18181B),
-                                              Color(0xFFFAFAFA),
-                                            ),
-                                            w: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ],
-                                      main: MainAxisAlignment.start,
-                                      cross: CrossAxisAlignment.center,
-                                      gap: 8,
-                                    ),
-                                ],
-                                main: MainAxisAlignment.start,
-                                cross: CrossAxisAlignment.stretch,
-                                gap: 8,
-                              ),
-                            ),
-                          ],
-                          main: MainAxisAlignment.start,
-                          cross: CrossAxisAlignment.stretch,
-                          gap: 12,
-                        ),
-                      ),
-                      GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () => AppToast.show(
-                          context,
-                          'TODO：比例输入界面待设计确认，当前仅支持跟随项目设置',
-                        ),
-                        child: hbox(
-                          bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                          radius: BorderRadius.circular(20),
-                          border: dk(
-                            context,
-                            Border.all(color: Color(0xFFE4E4E7), width: 1),
-                            Border.all(color: Color(0xFF3A3A40), width: 1),
-                          ),
-                          pad: EdgeInsets.fromLTRB(16, 14, 16, 14),
-                          child: hcol(
-                            [
-                              hrow(
-                                [
-                                  Expanded(
-                                    flex: 1,
-                                    child: hcol(
-                                      [
-                                        Text(
-                                          '统一比例',
-                                          style: hts(
-                                            15,
-                                            dk(
-                                              context,
-                                              Color(0xFF18181B),
-                                              Color(0xFFFAFAFA),
-                                            ),
-                                            w: FontWeight.w600,
-                                            lh: 22,
-                                          ),
-                                        ),
-                                        Text(
-                                          '所有项目按同一比例，覆盖项目设置',
-                                          style: hts(
-                                            12,
-                                            dk(
-                                              context,
-                                              Color(0xFF71717A),
-                                              Color(0xFF9A9AA3),
-                                            ),
-                                            lh: 17,
-                                          ),
-                                        ),
-                                      ],
-                                      main: MainAxisAlignment.start,
-                                      cross: CrossAxisAlignment.stretch,
-                                      gap: 2,
-                                    ),
-                                  ),
-                                  hbox(
-                                    w: 22,
-                                    h: 22,
-                                    radius: BorderRadius.circular(11),
-                                    border: dk(
-                                      context,
-                                      Border.all(
-                                        color: Color(0xFFD4D4D8),
-                                        width: 2,
-                                      ),
-                                      Border.all(
-                                        color: Color(0xFF3F3F46),
-                                        width: 2,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                                main: MainAxisAlignment.start,
-                                cross: CrossAxisAlignment.center,
-                                gap: 12,
-                              ),
-                            ],
-                            main: MainAxisAlignment.start,
-                            cross: CrossAxisAlignment.stretch,
-                            gap: 12,
-                          ),
-                        ),
-                      ),
-                      GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () => AppToast.show(
-                          context,
-                          'TODO：比例输入界面待设计确认，当前仅支持跟随项目设置',
-                        ),
-                        child: hbox(
-                          bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                          radius: BorderRadius.circular(20),
-                          border: dk(
-                            context,
-                            Border.all(color: Color(0xFFE4E4E7), width: 1),
-                            Border.all(color: Color(0xFF3A3A40), width: 1),
-                          ),
-                          pad: EdgeInsets.fromLTRB(16, 14, 16, 14),
-                          child: hcol(
-                            [
-                              hrow(
-                                [
-                                  Expanded(
-                                    flex: 1,
-                                    child: hcol(
-                                      [
-                                        Text(
-                                          '按项目自定义',
-                                          style: hts(
-                                            15,
-                                            dk(
-                                              context,
-                                              Color(0xFF18181B),
-                                              Color(0xFFFAFAFA),
-                                            ),
-                                            w: FontWeight.w600,
-                                            lh: 22,
-                                          ),
-                                        ),
-                                        Text(
-                                          '仅对该员工单独设置，其余项目仍跟随项目设置',
-                                          style: hts(
-                                            12,
-                                            dk(
-                                              context,
-                                              Color(0xFF71717A),
-                                              Color(0xFF9A9AA3),
-                                            ),
-                                            lh: 17,
-                                          ),
-                                        ),
-                                      ],
-                                      main: MainAxisAlignment.start,
-                                      cross: CrossAxisAlignment.stretch,
-                                      gap: 2,
-                                    ),
-                                  ),
-                                  hbox(
-                                    w: 22,
-                                    h: 22,
-                                    radius: BorderRadius.circular(11),
-                                    border: dk(
-                                      context,
-                                      Border.all(
-                                        color: Color(0xFFD4D4D8),
-                                        width: 2,
-                                      ),
-                                      Border.all(
-                                        color: Color(0xFF3F3F46),
-                                        width: 2,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                                main: MainAxisAlignment.start,
-                                cross: CrossAxisAlignment.center,
-                                gap: 12,
-                              ),
-                            ],
-                            main: MainAxisAlignment.start,
-                            cross: CrossAxisAlignment.stretch,
-                            gap: 12,
-                          ),
-                        ),
-                      ),
-                    ],
-                    main: MainAxisAlignment.start,
-                    cross: CrossAxisAlignment.stretch,
-                    gap: 10,
-                  ),
-                  hbox(
-                    pad: EdgeInsets.fromLTRB(4, 0, 4, 0),
-                    child: Text(
-                      '修改后仅对之后完工的订单生效，已完成订单的提成不会重算。',
-                      style: hts(
-                        12,
-                        dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
-                        lh: 18,
-                      ),
+                const SizedBox(height: 16),
+                _card('follow', '跟随项目设置', '按「服务项目」中各项目设定的提成规则计算',
+                  Column(children: [
+                    Divider(color: colors.line, height: 16),
+                    if (services.isEmpty) Text('还没有服务项目，请先在服务项目中设置提成。', style: TextStyle(color: colors.inkSub)),
+                    for (final s in services) Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 5),
+                      child: Row(children: [
+                        Expanded(child: Text('${s['name']}', style: TextStyle(color: colors.inkSub, fontSize: 13))),
+                        Text(staffServiceRate(s), style: TextStyle(color: colors.ink, fontWeight: FontWeight.w600)),
+                      ]),
                     ),
-                  ),
-                ],
-                main: MainAxisAlignment.start,
-                cross: CrossAxisAlignment.stretch,
-                gap: 16,
-              ),
+                  ])),
+                const SizedBox(height: 10),
+                _card('flat', '统一比例', '所有项目按同一比例，覆盖项目设置',
+                  _input(_rate, label: '统一提成比例')),
+                const SizedBox(height: 10),
+                _card('custom', '按项目自定义', '仅对该员工单独设置，其余项目仍跟随项目设置',
+                  Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                    Text('留空跟随项目设置；填写 0 表示该项目不提成。', style: TextStyle(color: colors.inkSub, fontSize: 12)),
+                    if (services.isEmpty) const Padding(padding: EdgeInsets.only(top: 12), child: Text('还没有可设置的服务项目。')),
+                    for (final s in services) Padding(
+                      padding: const EdgeInsets.only(top: 14),
+                      child: _input(_overrides['${s['id']}']!, label: '${s['name']} · 项目默认 ${staffServiceRate(s)}', optional: true),
+                    ),
+                  ])),
+                const SizedBox(height: 16),
+                Text('修改后对之后结算的订单生效（含已完工待结算订单），已结算订单的提成不会重算。', style: TextStyle(color: colors.inkSub, fontSize: 12, height: 1.5)),
+              ]),
             ),
-          ],
-          main: MainAxisAlignment.start,
-          cross: CrossAxisAlignment.stretch,
-          gap: 0,
+          ),
         ),
-        overlays: [],
       ),
     );
   }
 }
 
-/// 提成方案（设计稿 StaffCommission）：读取员工与各服务项目的提成设置。
 class StaffCommissionLivePage extends StatelessWidget {
   final String? staffId;
   const StaffCommissionLivePage({super.key, this.staffId});
@@ -471,6 +292,6 @@ class StaffCommissionLivePage extends StatelessWidget {
     staffId: staffId,
     title: '提成方案',
     load: (id) => merchantApi.staff('get', {'id': id}),
-    builder: (_, d) => StaffCommissionTemplate(d: d),
+    builder: (_, d) => StaffCommissionTemplate(key: ValueKey(d['id']), d: d),
   );
 }
