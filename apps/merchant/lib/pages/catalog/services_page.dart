@@ -1,6 +1,8 @@
 import '../../routes.dart' show openRoute;
 
 import 'package:flutter/material.dart';
+import 'package:autocare_ui_kit/autocare_ui_kit.dart'
+    show AppChoiceChip, AppSpacing, ChipSurface;
 
 import '../../backend/merchant_api.dart';
 import 'service_edit_page.dart';
@@ -106,10 +108,22 @@ class _ServicesPageState extends State<ServicesPage> {
               ),
             ),
             const SizedBox(height: 8),
-            ChipTabs(
-              labels: cats,
-              selected: cat,
-              onChanged: (i) => setState(() => cat = i),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+              child: Row(
+                children: [
+                  for (var i = 0; i < cats.length; i++) ...[
+                    if (i > 0) const SizedBox(width: AppSpacing.s8),
+                    AppChoiceChip(
+                      label: cats[i],
+                      selected: cat == i,
+                      surface: ChipSurface.onPage,
+                      onTap: () => setState(() => cat = i),
+                    ),
+                  ],
+                ],
+              ),
             ),
             Expanded(
               child: AsyncView<List<Map<String, dynamic>>>(
