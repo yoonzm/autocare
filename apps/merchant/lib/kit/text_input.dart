@@ -18,6 +18,7 @@ class AppTextInput extends StatelessWidget {
   final TextAlign align;
   final TextInputType? keyboard;
   final Color hintColor;
+  final FontWeight? hintFontWeight;
   final List<TextInputFormatter>? inputFormatters;
 
   const AppTextInput({
@@ -34,6 +35,7 @@ class AppTextInput extends StatelessWidget {
     this.align = TextAlign.start,
     this.keyboard,
     this.hintColor = const Color(0xFF71717A),
+    this.hintFontWeight,
     this.inputFormatters,
   }) : assert(controller == null || initialValue == null);
 
@@ -60,6 +62,7 @@ class AppTextInput extends StatelessWidget {
       border: InputBorder.none,
       hintText: hint,
       hintStyle: style.copyWith(
+        fontWeight: hintFontWeight,
         color:
             hintColor == const Color(0xFF71717A) &&
                 Theme.of(context).brightness == Brightness.dark

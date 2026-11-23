@@ -127,6 +127,11 @@ void main() {
     (w) => w is TextField && w.decoration?.hintText == hint,
   );
 
+  Finder amountField(String key) => find.descendant(
+    of: find.byKey(ValueKey(key)),
+    matching: find.byType(TextField),
+  );
+
   Future<void> select(WidgetTester t, String current, String next) async {
     await t.ensureVisible(find.text(current).last);
     await t.tap(find.text(current).last);
@@ -139,8 +144,8 @@ void main() {
     testWidgets('已有卡种：各项配置回显', (t) async {
       initial = _card();
       await openEdit(t);
-      expect(t.widget<TextField>(field('请输入单次充值满')).controller!.text, '10000');
-      expect(t.widget<TextField>(field('请输入累计消费满')).controller!.text, '30000');
+      expect(t.widget<TextField>(amountField('upgrade-recharge')).controller!.text, '10000');
+      expect(t.widget<TextField>(amountField('upgrade-cumulative')).controller!.text, '30000');
       expect(find.text('2 倍'), findsOneWidget);
       expect(find.text('赠精致洗车 2 次'), findsWidgets);
       expect(t.widget<HSwitch>(find.byType(HSwitch)).initial, isTrue);
@@ -151,8 +156,8 @@ void main() {
     testWidgets('新建卡种：默认值，升级条件为空并显示 placeholder', (t) async {
       initial = null;
       await openEdit(t);
-      expect(t.widget<TextField>(field('请输入单次充值满')).controller!.text, isEmpty);
-      expect(t.widget<TextField>(field('请输入累计消费满')).controller!.text, isEmpty);
+      expect(t.widget<TextField>(amountField('upgrade-recharge')).controller!.text, isEmpty);
+      expect(t.widget<TextField>(amountField('upgrade-cumulative')).controller!.text, isEmpty);
       expect(find.text('1 倍'), findsOneWidget);
       expect(find.text('不赠送'), findsOneWidget);
       expect(t.widget<HSwitch>(find.byType(HSwitch)).value, isFalse);
@@ -252,8 +257,8 @@ void main() {
     testWidgets('保存：所有配置一起提交', (t) async {
       initial = _card();
       await openEdit(t);
-      await t.enterText(field('请输入单次充值满'), '8,000');
-      await t.enterText(field('请输入累计消费满'), '');
+      await t.enterText(amountField('upgrade-recharge'), '8,000');
+      await t.enterText(amountField('upgrade-cumulative'), '');
       final semantics = t.ensureSemantics();
       await t.tap(find.bySemanticsLabel('银卡配色'));
       await t.pumpAndSettle();
@@ -280,7 +285,7 @@ void main() {
     testWidgets('升级条件金额不合法：提示并且不提交', (t) async {
       initial = _card();
       await openEdit(t);
-      await t.enterText(field('请输入单次充值满'), 'abc');
+      await t.enterText(amountField('upgrade-recharge'), 'abc');
       await t.tap(find.text('保存').first);
       await t.pump(const Duration(milliseconds: 800));
       expect(find.text('请输入正确的单次充值满金额'), findsOneWidget);

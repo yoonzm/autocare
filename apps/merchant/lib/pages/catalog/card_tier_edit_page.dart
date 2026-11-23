@@ -431,9 +431,9 @@ class _CardTierEditPageState extends State<CardTierEditPage> {
                                         lh: 22,
                                       ),
                                     ),
-                                    hbox(
-                                      w: 72,
+                                    Expanded(
                                       child: AppTextInput(
+                                        key: const ValueKey('upgrade-recharge'),
                                         style: hts(
                                           15,
                                           dk(
@@ -444,7 +444,8 @@ class _CardTierEditPageState extends State<CardTierEditPage> {
                                           w: FontWeight.w600,
                                           lh: 22,
                                         ),
-                                        hint: '请输入单次充值满',
+                                        hint: '请输入金额',
+                                        hintFontWeight: FontWeight.w400,
                                         controller: _recharge,
                                         keyboard:
                                             TextInputType.numberWithOptions(
@@ -500,9 +501,9 @@ class _CardTierEditPageState extends State<CardTierEditPage> {
                                         lh: 22,
                                       ),
                                     ),
-                                    hbox(
-                                      w: 72,
+                                    Expanded(
                                       child: AppTextInput(
+                                        key: const ValueKey('upgrade-cumulative'),
                                         style: hts(
                                           15,
                                           dk(
@@ -513,7 +514,8 @@ class _CardTierEditPageState extends State<CardTierEditPage> {
                                           w: FontWeight.w600,
                                           lh: 22,
                                         ),
-                                        hint: '请输入累计消费满',
+                                        hint: '请输入金额',
+                                        hintFontWeight: FontWeight.w400,
                                         controller: _cumulative,
                                         keyboard:
                                             TextInputType.numberWithOptions(
