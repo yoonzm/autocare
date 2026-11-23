@@ -147,7 +147,7 @@ class _CardTierEditPageState extends State<CardTierEditPage> {
         child: HPage(
           bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
           header: AppPageHeader(
-            title: '编辑卡种',
+            title: widget.initial?['id'] == null ? '新增卡种' : '编辑卡种',
             leading: AppHeaderLeading.close,
             trailing: GestureDetector(
               behavior: HitTestBehavior.opaque,

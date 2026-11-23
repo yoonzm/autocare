@@ -765,7 +765,7 @@ class _ServiceEditPageState extends State<ServiceEditPage> {
         child: HPage(
           bg: C.bg,
           header: AppPageHeader(
-            title: '编辑项目',
+            title: widget.initial?['id'] == null ? '新增项目' : '编辑项目',
             leading: AppHeaderLeading.close,
             trailing: GestureDetector(
               behavior: HitTestBehavior.opaque,
