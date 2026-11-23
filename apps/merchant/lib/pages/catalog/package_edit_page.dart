@@ -196,7 +196,7 @@ class _PackageEditPageState extends State<PackageEditPage> {
         child: HPage(
           bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
           header: AppPageHeader(
-            title: '编辑套餐',
+            title: widget.initial?['id'] == null ? '新增套餐' : '编辑套餐',
             leading: AppHeaderLeading.close,
             trailing: GestureDetector(
               behavior: HitTestBehavior.opaque,
@@ -550,8 +550,7 @@ class _PackageEditPageState extends State<PackageEditPage> {
                                         ),
                                       ),
                                     ),
-                                    hbox(
-                                      w: 76,
+                                    Expanded(
                                       child: AppTextInput(
                                         style: hts(
                                           16,
@@ -563,7 +562,8 @@ class _PackageEditPageState extends State<PackageEditPage> {
                                           w: FontWeight.w600,
                                           lh: 22,
                                         ),
-                                        hint: '请输入套餐售价',
+                                        hint: '请输入金额',
+                                        hintFontWeight: FontWeight.w400,
                                         controller: _price,
                                         keyboard:
                                             TextInputType.numberWithOptions(
