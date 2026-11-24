@@ -11,6 +11,7 @@ const rpcError = (e: { message: string; code?: string }) => {
   const messages: Record<string, string> = {
     slot_unavailable: '该时段、工位或技师已不可预约，请重新选择',
     appointment_closed: '预约状态已变化，请刷新后重试',
+    reminder_phone_required: '客户手机号无效，无法开启到店提醒',
     appointment_not_arrived: '请先标记客户到店',
     arrival_too_early: '不能提前标记未来日期的预约到店',
     capacity_conflict: '已有预约超过新的接待上限，请先调整预约',
@@ -120,7 +121,7 @@ export async function handleAppointments(input: Input, request: Request): Promis
     if (action === 'appointment_save') {
       const value = parseBooking(input);
       if (typeof value === 'string') return fail(value);
-      const { data, error } = await admin.rpc('save_appointment', {
+      const { data, error } = await admin.rpc('save_merchant_appointment', {
         p_store: store,
         p_input: value,
         p_request: request.headers.get('x-request-id'),

@@ -6,7 +6,7 @@ export const validDay = (v: unknown): v is string =>
   !Number.isNaN(Date.parse(v)) && new Date(v).toISOString().slice(0, 10) === v;
 export function parseBooking(i: Input): Input | string {
   if (i.deposit === true) return '定金尚未接通';
-  if (i.remind === true) return '定时到店提醒尚未接通';
+  if (i.remind != null && typeof i.remind !== 'boolean') return '提醒设置无效';
   for (const k of ['id', 'member_id', 'bay_id', 'technician_id']) {
     if (i[k] != null && !id(i[k])) return '预约或资源 ID 无效';
   }
@@ -34,6 +34,7 @@ export function parseBooking(i: Input): Input | string {
     guest = { guest_name: name, guest_phone: phone, guest_plate: plate };
   }
   return {
+    ...(typeof i.remind === 'boolean' ? { remind: i.remind } : {}),
     id: i.id ?? null,
     member_id: i.member_id ?? null,
     bay_id: i.bay_id ?? null,

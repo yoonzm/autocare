@@ -11,6 +11,8 @@ Deno.test('booking input: explicit timezone, member/resource IDs, services and n
     guest_phone: '13900001111',
   };
   assert(typeof parseBooking(base) === 'object');
+  assert((parseBooking({ ...base, remind: true }) as Record<string, unknown>).remind === true);
+  assert(!('remind' in (parseBooking(base) as Record<string, unknown>)));
   assert(typeof parseBooking({ ...base, notify: true }) === 'object');
   for (
     const input of [
@@ -19,7 +21,7 @@ Deno.test('booking input: explicit timezone, member/resource IDs, services and n
       { ...base, service_ids: [] },
       { ...base, note: 'a'.repeat(201) },
       { ...base, bay_id: 'bad' },
-      { ...base, remind: true },
+      { ...base, remind: 'true' },
       { ...base, deposit: true },
     ]
   ) assert(typeof parseBooking(input) === 'string');

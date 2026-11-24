@@ -243,6 +243,7 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
           'technician_id': _tech?['id'],
           'note': _note.text.trim(),
           if (notify) 'notify': true,
+          'remind': remind,
         });
         saved = Map<String, dynamic>.from(r['item'] as Map? ?? const {});
       });
@@ -509,9 +510,9 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
                           const Divider1(indent: 16),
                           _switch(
                             '到店前 2 小时提醒客户',
-                            '定时提醒服务暂未接通',
+                            '通过短信提醒，不足 2 小时不发送',
                             remind,
-                            (v) => AppToast.show(context, 'TODO：定时预约提醒服务尚未接通'),
+                            (v) => setState(() => remind = v),
                           ),
                         ],
                       ),

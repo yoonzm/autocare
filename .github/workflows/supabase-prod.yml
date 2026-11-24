@@ -65,6 +65,7 @@ jobs:
           node supabase/tests/service_consumables.mjs "$RUNNER_TEMP/sms-db-test/node_modules/@electric-sql/pglite/dist/index.js"
           node supabase/tests/inventory_freight.mjs "$RUNNER_TEMP/sms-db-test/node_modules/@electric-sql/pglite/dist/index.js"
           node supabase/tests/order_scope.mjs "$RUNNER_TEMP/sms-db-test/node_modules/@electric-sql/pglite/dist/index.js"
+          node supabase/tests/appointment_reminders.mjs "$RUNNER_TEMP/sms-db-test/node_modules/@electric-sql/pglite/dist/index.js"
 
   deploy:
     needs: check

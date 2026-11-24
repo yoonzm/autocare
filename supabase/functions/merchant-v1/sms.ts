@@ -91,6 +91,9 @@ export async function sendNoticeSms(
     storeName: request.storeName,
   });
   if (reservation.error) {
+    if (reservation.error === 'duplicate_request') {
+      throw new SmsError('该短信请求已处理或结果待确认', 409, 'duplicate_request');
+    }
     if (reservation.error === 'cooldown') {
       throw new SmsError(`请 ${reservation.retry_after ?? 60} 秒后再发送通知短信`, 429, 'cooldown');
     }

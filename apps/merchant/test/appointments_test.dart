@@ -3,6 +3,7 @@ import 'package:autocare_merchant/pages/staff/staff_editor_page.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:autocare_merchant/kit/kit.dart' show HSwitchValue;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:autocare_merchant/backend/appointment_flow.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
@@ -735,6 +736,9 @@ void main() {
     final note = find.byType(TextField).last;
     await t.ensureVisible(note);
     await t.enterText(note, '车身检查');
+    await t.ensureVisible(find.text('到店前 2 小时提醒客户'));
+    await t.tap(find.byType(HSwitchValue).last);
+    await t.pumpAndSettle();
     // 姓名、手机号必填：没填时提示，不提交
     await t.tap(find.text('确认预约'));
     await t.pumpAndSettle();
@@ -751,6 +755,7 @@ void main() {
     final call = api.calls.lastWhere((c) => c['action'] == 'save');
     expect(call['service_ids'], ['s1']);
     expect(call['member_id'], isNull);
+    expect(call['remind'], isTrue);
     expect(call['guest_name'], '张先生');
     expect(call['guest_phone'], '139 0000 1111');
     expect(call['guest_plate'], '沪A8K29M');

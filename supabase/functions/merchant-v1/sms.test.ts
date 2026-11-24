@@ -115,3 +115,19 @@ Deno.test('SMS log content carries the signature and code', async () => {
   await sendOtp({ name: 'zhutong', signature: '汽美管家', sendCode: () => Promise.resolve() }, store, request);
   eq(content, '【汽美管家】验证码 123456，5 分钟内有效，请勿泄露给他人。');
 });
+
+Deno.test('notice duplicate reservation never calls provider or finish', async () => {
+  const { sendNoticeSms } = await import('./sms.ts');
+  let sends = 0;
+  let finishes = 0;
+  try {
+    await sendNoticeSms({ name: 'test', signature: '测试', sendNotice: async () => { sends++; } }, {
+      reserve: async () => ({ error: 'duplicate_request' }),
+      finish: async () => { finishes++; },
+    }, { phone: '+8613900001111', purpose: 'appointment_reminder', content: '提醒', storeName: '门店', requestId: 'same' });
+    throw new Error('Expected rejection');
+  } catch (e) {
+    eq(e instanceof SmsError && e.reason, 'duplicate_request');
+  }
+  eq([sends, finishes], [0, 0]);
+});
