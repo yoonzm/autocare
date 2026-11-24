@@ -60,12 +60,16 @@ class FlowApi extends MemberFakeApi {
     String remark = '',
     String? holdId,
     List<String>? technicianIds,
+    String? bayId,
+    String? estimatedFinish,
   }) async {
     requests.add({
       'id': memberId,
       'lines': lines,
       'method': method,
       'requestId': requestId,
+      'bay_id': bayId,
+      'estimated_finish': estimatedFinish,
     });
     await gate?.future;
     if (fail) throw const AppError('收款未完成');
@@ -90,6 +94,8 @@ class FlowApi extends MemberFakeApi {
     String remind = '不提醒',
     String plate = '',
     List<String>? technicianIds,
+    String? bayId,
+    String? estimatedFinish,
   }) async {
     requests.add({
       'id': memberId,
@@ -98,6 +104,8 @@ class FlowApi extends MemberFakeApi {
       'note': note,
       'remind': remind,
       'requestId': requestId,
+      'bay_id': bayId,
+      'estimated_finish': estimatedFinish,
     });
     await gate?.future;
     if (fail) throw const AppError('挂单未完成');
@@ -108,6 +116,8 @@ class FlowApi extends MemberFakeApi {
       'note': note,
       'remind': remind,
       'items': lines,
+      'bay_id': bayId,
+      'estimated_finish': estimatedFinish,
     };
   }
 

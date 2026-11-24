@@ -136,6 +136,8 @@ class MemberFakeApi extends MerchantApi {
     String remark = '',
     String? holdId,
     List<String>? technicianIds,
+    String? bayId,
+    String? estimatedFinish,
   }) async {
     if (checkoutError != null) throw checkoutError!;
     checkouts.add({
@@ -145,6 +147,8 @@ class MemberFakeApi extends MerchantApi {
       'plate': plate,
       'hold': holdId,
       'technician_ids': technicianIds,
+      'bay_id': bayId,
+      'estimated_finish': estimatedFinish,
     });
     if (holdId != null) holdRows.removeWhere((h) => h['id'] == holdId);
     return {
@@ -172,6 +176,8 @@ class MemberFakeApi extends MerchantApi {
     String remark = '',
     String? holdId,
     List<String>? technicianIds,
+    String? bayId,
+    String? estimatedFinish,
   }) async {
     walkIns.add({
       'lines': lines,
@@ -179,6 +185,8 @@ class MemberFakeApi extends MerchantApi {
       'plate': plate,
       'hold': holdId,
       'technician_ids': technicianIds,
+      'bay_id': bayId,
+      'estimated_finish': estimatedFinish,
     });
     if (holdId != null) holdRows.removeWhere((h) => h['id'] == holdId);
     return {
@@ -219,6 +227,8 @@ class MemberFakeApi extends MerchantApi {
     String remind = '不提醒',
     String plate = '',
     List<String>? technicianIds,
+    String? bayId,
+    String? estimatedFinish,
   }) async {
     if (holdSaveError != null) throw holdSaveError!;
     heldSaves.add({
@@ -231,6 +241,8 @@ class MemberFakeApi extends MerchantApi {
       'remind': remind,
       'plate': plate,
       'technician_ids': technicianIds,
+      'bay_id': bayId,
+      'estimated_finish': estimatedFinish,
     });
     final row = {
       'id': holdId ?? 'h${holdRows.length + 1}',
@@ -240,6 +252,8 @@ class MemberFakeApi extends MerchantApi {
       'remind': remind,
       'vehicle_plate': plate,
       'technician_ids': technicianIds,
+      'bay_id': bayId,
+      'estimated_finish': estimatedFinish,
       'estimate': 342,
       'created_at': DateTime.now().toUtc().toIso8601String(),
       'updated_at': DateTime.now().toUtc().toIso8601String(),

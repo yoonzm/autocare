@@ -119,9 +119,8 @@ class PackageRowInfo {
     return m == 0 ? '永久有效' : '$m 个月有效';
   }
 
-  int get soldCount => _n(row['sold_count']).toInt();
-
-  String get subtitle => '$totalCount 次 · $validityText · 已售 $soldCount';
+  // 销量由列表页根据统计权限和 packageStats 返回的数据单独展示。
+  String get subtitle => '$totalCount 次 · $validityText';
   String get priceText => '¥${formatMoney(price)}';
   String get originalText => '¥${formatMoney(original)}';
 }
