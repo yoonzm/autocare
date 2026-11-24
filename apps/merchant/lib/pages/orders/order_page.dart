@@ -122,6 +122,10 @@ class _OrderPageState extends State<OrderPage> {
       if (widget.appointment != null) {
         _walkIn = widget.appointment!['member_id'] == null;
         _walkPlateCtl.text = '${widget.appointment!['vehicle_plate'] ?? ''}';
+        final apBayId = '${widget.appointment!['bay_id'] ?? ''}'.trim();
+        final apBayName = '${widget.appointment!['bay_name'] ?? ''}'.trim();
+        if (apBayId.isNotEmpty) _bayId = apBayId;
+        if (apBayName.isNotEmpty) bay = apBayName;
       }
       ServiceStore.changed.addListener(_onServiceStore);
       unawaited(_loadServices());
@@ -170,6 +174,10 @@ class _OrderPageState extends State<OrderPage> {
       _holdId = null;
       _holdRow = null;
       _bookingApplied = false;
+      _bayId = widget.appointment?['bay_id']?.toString();
+      final apBayName = '${widget.appointment?['bay_name'] ?? ''}'.trim();
+      bay = apBayName.isEmpty ? '选填' : apBayName;
+      finish = '选填';
       customer = widget.member ?? _noMember;
       _walkIn =
           widget.walkIn ||
@@ -253,6 +261,12 @@ class _OrderPageState extends State<OrderPage> {
         techs
           ..clear()
           ..addAll(_heldTechnicians(row));
+        final heldBayId = '${row['bay_id'] ?? ''}'.trim();
+        final heldBayName = '${row['bay_name'] ?? ''}'.trim();
+        final heldFinish = '${row['estimated_finish'] ?? ''}'.trim();
+        _bayId = heldBayId.isEmpty ? null : heldBayId;
+        bay = heldBayName.isEmpty ? '选填' : heldBayName;
+        finish = heldFinish.isEmpty ? '选填' : heldFinish;
         customer = m == null ? _noMember : memberFromRow(m);
         _cover = {};
         _packageNote = '';
@@ -324,6 +338,8 @@ class _OrderPageState extends State<OrderPage> {
         ],
         payableText: money(payable, digits: 2),
         technicianIds: techs.toList(),
+        bayId: _bayId,
+        estimatedFinish: finish == '选填' ? '' : finish,
         holdId: _holdId,
         appointmentId: widget.appointment?['id']?.toString(),
         original: _holdRow,
@@ -334,6 +350,9 @@ class _OrderPageState extends State<OrderPage> {
       picked.clear();
       techs.clear();
       _selectDefaultTechnician();
+      _bayId = null;
+      bay = '选填';
+      finish = '选填';
       _holdId = null;
       _holdRow = null;
       _quantities.clear();
@@ -529,8 +548,9 @@ class _OrderPageState extends State<OrderPage> {
   String query = '';
   final _searchCtl = TextEditingController();
   String bay = '选填';
+  String? _bayId;
   String finish = '选填';
-  List<String> _bays = [];
+  List<Map<String, dynamic>> _bayRows = [];
   late Member customer = widget.member ?? _noMember;
   int pay = 0;
   final Set<int> picked = {};
@@ -612,6 +632,8 @@ class _OrderPageState extends State<OrderPage> {
             holdId: holdId,
             appointmentId: widget.appointment?['id']?.toString(),
             technicianIds: technicians,
+            bayId: _bayId,
+            estimatedFinish: finish == '选填' ? '' : finish,
           );
           if (receipt == null || !mounted) return;
           if (receipt.data['upgraded_to'] != null) {
@@ -621,6 +643,9 @@ class _OrderPageState extends State<OrderPage> {
             picked.clear();
             techs.clear();
             if (widget.appointment == null) _selectDefaultTechnician();
+            _bayId = null;
+            bay = '选填';
+            finish = '选填';
             _holdId = null;
             _holdRow = null;
             _quantities.clear();
@@ -1234,10 +1259,14 @@ class _OrderPageState extends State<OrderPage> {
         options['resources'] as List,
       );
       if (mounted) {
-        _bays = [
+        _bayRows = [
           for (final row in resources)
-            if (row['kind'] == 'bay' && row['active'] == true) '${row['name']}',
+            if (row['kind'] == 'bay' && row['active'] == true) row,
         ];
+        if (_bayId != null && bay == '选填') {
+          final matched = _bayRows.where((r) => '${r['id']}' == _bayId).firstOrNull;
+          if (matched != null) bay = '${matched['name']}';
+        }
       }
       rows = resources.where((r) => r['kind'] == 'technician').toList();
     } catch (e) {
@@ -1404,13 +1433,28 @@ class _OrderPageState extends State<OrderPage> {
   );
 
   Future<void> _pickBay() async {
-    // TODO: 工位/预计完工选择尚无订单保存字段，不将页面选择宣称为已保存。
-    if (_bays.isEmpty) {
+    if (_bayRows.isEmpty) {
       AppToast.show(context, '请先配置可用工位');
       return;
     }
-    final r = await pickFromList(context, '选择工位', _bays, bay);
-    if (r != null && mounted) setState(() => bay = r);
+    final labels = ['不指定', for (final r in _bayRows) '${r['name']}'];
+    final current = _bayId == null ? '不指定' : bay;
+    final r = await pickFromList(context, '选择工位', labels, current);
+    if (r == null || !mounted) return;
+    if (r == '不指定') {
+      setState(() {
+        _bayId = null;
+        bay = '选填';
+      });
+      return;
+    }
+    final idx = labels.indexOf(r) - 1;
+    if (idx >= 0 && idx < _bayRows.length) {
+      setState(() {
+        _bayId = '${_bayRows[idx]['id']}';
+        bay = '${_bayRows[idx]['name']}';
+      });
+    }
   }
 
   Future<void> _pickFinish() async {

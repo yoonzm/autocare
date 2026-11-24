@@ -12,6 +12,8 @@ class HoldDraft {
   final String plate;
   final List<Map<String, dynamic>> lines;
   final List<String>? technicianIds;
+  final String? bayId;
+  final String estimatedFinish;
 
   /// 开单页当前显示的应收（仅用于挂单弹层的展示，真正的估价在云函数）。
   final String payableText;
@@ -26,6 +28,8 @@ class HoldDraft {
     required this.plate,
     required List<Map<String, dynamic>> lines,
     List<String>? technicianIds,
+    this.bayId,
+    this.estimatedFinish = '',
     required this.payableText,
     this.holdId,
     this.appointmentId,

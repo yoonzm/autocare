@@ -62,18 +62,28 @@ export function parseBookingSettings(i: Input): Input | string {
     !Array.isArray(i.closed_days) || i.closed_days.length > 7 ||
     !i.closed_days.every((d) => Number.isInteger(d) && d >= 1 && d <= 7)
   ) return '定休日无效';
-  return Object.fromEntries(
-    [
-      'opens_at',
-      'closes_at',
-      'slot_minutes',
-      'capacity',
-      'lead_hours',
-      'advance_days',
-      'grace_minutes',
-      'closed_days',
-    ].map((k) => [k, i[k]]),
-  );
+  let closedDates: string[] = [];
+  if (i.closed_dates != null) {
+    if (!Array.isArray(i.closed_dates) || i.closed_dates.length > 100 || !i.closed_dates.every(validDay)) {
+      return '休息日格式无效';
+    }
+    closedDates = [...new Set(i.closed_dates as string[])].sort();
+  }
+  return {
+    ...Object.fromEntries(
+      [
+        'opens_at',
+        'closes_at',
+        'slot_minutes',
+        'capacity',
+        'lead_hours',
+        'advance_days',
+        'grace_minutes',
+        'closed_days',
+      ].map((k) => [k, i[k]]),
+    ),
+    closed_dates: closedDates,
+  };
 }
 export function parseResource(i: Input): Input | string {
   if (i.id != null && !id(i.id)) return '资源 ID 无效';

@@ -742,6 +742,8 @@ class MerchantApi {
     String remark = '',
     String? holdId,
     List<String>? technicianIds,
+    String? bayId,
+    String? estimatedFinish,
   }) async {
     final data = await invoke({
       'action': 'checkout',
@@ -753,6 +755,8 @@ class MerchantApi {
       'remark': remark,
       'hold_id': ?holdId,
       'technician_ids': ?technicianIds,
+      'bay_id': ?bayId,
+      'estimated_finish': ?estimatedFinish,
     }, requestId: requestId);
     return Map<String, dynamic>.from(data['item'] as Map);
   }
@@ -766,6 +770,8 @@ class MerchantApi {
     String remark = '',
     String? holdId,
     List<String>? technicianIds,
+    String? bayId,
+    String? estimatedFinish,
   }) async {
     final data = await invoke({
       'action': 'checkout',
@@ -773,6 +779,8 @@ class MerchantApi {
       'walk_in': true,
       'hold_id': ?holdId,
       'technician_ids': ?technicianIds,
+      'bay_id': ?bayId,
+      'estimated_finish': ?estimatedFinish,
       'lines': lines,
       'method': method,
       'plate': plate,
@@ -802,6 +810,8 @@ class MerchantApi {
     String remind = '不提醒',
     String plate = '',
     List<String>? technicianIds,
+    String? bayId,
+    String? estimatedFinish,
   }) async {
     final data = await invoke({
       'action': 'hold',
@@ -815,6 +825,8 @@ class MerchantApi {
       'remind': remind,
       'plate': plate,
       'technician_ids': ?technicianIds,
+      'bay_id': ?bayId,
+      'estimated_finish': ?estimatedFinish,
     }, requestId: requestId);
     return Map<String, dynamic>.from(data['item'] as Map);
   }

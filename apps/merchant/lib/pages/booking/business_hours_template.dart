@@ -704,38 +704,99 @@ class BusinessHoursTemplate extends StatelessWidget {
                       pad: EdgeInsets.fromLTRB(0, 4, 0, 4),
                       child: hcol(
                         [
-                          // TODO: 节假日 / 休息日设置不在本次范围，预期后端接口：holiday_rules（列表 / 保存）。
-                          hbox(
-                            minH: 54,
-                            pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                '节假日设置尚未接通',
-                                style: hts(
-                                  14,
-                                  dk(
-                                    context,
-                                    Color(0xFF71717A),
-                                    Color(0xFF9A9AA3),
+                          if (c.closedDates.isEmpty)
+                            hbox(
+                              minH: 54,
+                              pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  '暂未设置休息日',
+                                  style: hts(
+                                    14,
+                                    dk(
+                                      context,
+                                      Color(0xFF71717A),
+                                      Color(0xFF9A9AA3),
+                                    ),
+                                    lh: 20,
                                   ),
-                                  lh: 20,
                                 ),
                               ),
+                            )
+                          else
+                            for (final d in c.closedDates) ...[
+                              hbox(
+                                minH: 54,
+                                pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                                child: hrow(
+                                  [
+                                    Expanded(
+                                      flex: 1,
+                                      child: Text(
+                                        d,
+                                        style: hts(
+                                          14,
+                                          dk(
+                                            context,
+                                            Color(0xFF18181B),
+                                            Color(0xFFFAFAFA),
+                                          ),
+                                          lh: 20,
+                                        ),
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      behavior: HitTestBehavior.opaque,
+                                      onTap: () => c.removeClosedDate(d),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 6,
+                                          vertical: 8,
+                                        ),
+                                        child: Text(
+                                          '移除',
+                                          style: hts(
+                                            13,
+                                            dk(
+                                              context,
+                                              Color(0xFFDC2626),
+                                              Color(0xFFF87171),
+                                            ),
+                                            w: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                  main: MainAxisAlignment.start,
+                                  cross: CrossAxisAlignment.center,
+                                  gap: 12,
+                                ),
+                              ),
+                              hbox(
+                                h: 1,
+                                bg: dk(
+                                  context,
+                                  Color(0xFFEFEFF1),
+                                  Color(0xFF2A2A2E),
+                                ),
+                                margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
+                              ),
+                            ],
+                          if (c.closedDates.isEmpty)
+                            hbox(
+                              h: 1,
+                              bg: dk(
+                                context,
+                                Color(0xFFEFEFF1),
+                                Color(0xFF2A2A2E),
+                              ),
+                              margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
                             ),
-                          ),
-                          hbox(
-                            h: 1,
-                            bg: dk(
-                              context,
-                              Color(0xFFEFEFF1),
-                              Color(0xFF2A2A2E),
-                            ),
-                            margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
-                          ),
                           GestureDetector(
                             behavior: HitTestBehavior.opaque,
-                            onTap: () => c.deferred(context),
+                            onTap: () => c.addClosedDate(context),
                             child: hbox(
                               minH: 54,
                               pad: EdgeInsets.fromLTRB(16, 0, 16, 0),

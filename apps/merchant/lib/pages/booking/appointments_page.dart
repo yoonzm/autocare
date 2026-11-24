@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../backend/appointment_flow.dart';
 import '../../backend/mutation_request.dart';
@@ -552,12 +553,23 @@ class _AppointmentsPageState extends State<AppointmentsPage>
     }
   }
 
-  void _contact(Appointment a) {
-    // TODO: 尚未接系统拨号能力；显示真实联系电话，不假装已经拨打。
-    AppToast.show(
-      context,
-      a.row['phone'] == '' ? '散客尚未登记联系方式' : '联系电话：${a.row['phone']}',
-    );
+  Future<void> _contact(Appointment a) async {
+    final phone = '${a.row['phone'] ?? ''}'.trim();
+    if (phone.isEmpty) {
+      AppToast.show(context, '散客尚未登记联系方式');
+      return;
+    }
+    try {
+      final ok = await launchUrl(
+        Uri(scheme: 'tel', path: phone),
+        mode: LaunchMode.externalApplication,
+      );
+      if (!ok && mounted) {
+        AppToast.show(context, '无法拉起拨号，联系电话：$phone');
+      }
+    } catch (_) {
+      if (mounted) AppToast.show(context, '无法拉起拨号，联系电话：$phone');
+    }
   }
 
   Widget _card(BuildContext context, Appointment a) {

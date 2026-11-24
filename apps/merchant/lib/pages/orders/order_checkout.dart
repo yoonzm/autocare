@@ -22,6 +22,8 @@ class OrderCheckout extends ChangeNotifier {
     String? holdId,
     String? appointmentId,
     List<String>? technicianIds,
+    String? bayId,
+    String? estimatedFinish,
   }) async {
     if (busy || disposed) return null;
     if (!merchantApi.hasSession) {
@@ -45,6 +47,8 @@ class OrderCheckout extends ChangeNotifier {
       'hold': holdId,
       'appointment': appointmentId,
       'technicians': technicians,
+      'bay': bayId,
+      'estimatedFinish': estimatedFinish,
     });
     if (_intent != intent) {
       _intent = intent;
@@ -69,6 +73,8 @@ class OrderCheckout extends ChangeNotifier {
           plate: plate,
           holdId: holdId,
           technicianIds: technicians,
+          bayId: bayId,
+          estimatedFinish: estimatedFinish,
           requestId: _requestId,
         );
       } else {
@@ -79,6 +85,8 @@ class OrderCheckout extends ChangeNotifier {
           plate: plate,
           holdId: holdId,
           technicianIds: technicians,
+          bayId: bayId,
+          estimatedFinish: estimatedFinish,
           requestId: _requestId,
         );
       }

@@ -641,8 +641,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 }
 
 /// 首页“施工中”：取真实挂单里状态为“施工中”的单子。
-///
-/// TODO: 卡片上的工位、技师、施工进度、预计完工依赖员工和工位模块，目前没有数据，不显示。
 class _WorkSection extends StatefulWidget {
   const _WorkSection();
   @override
@@ -746,11 +744,23 @@ class _LiveJob extends StatelessWidget {
             ),
           );
     final created = DateTime.tryParse('${hold['created_at'] ?? ''}');
+    final bayName = '${hold['bay_name'] ?? ''}'.trim();
+    final estFinish = '${hold['estimated_finish'] ?? ''}'.trim();
+    final techNames = [
+      for (final t in (hold['technician_names'] as List? ?? const []))
+        if ('$t'.trim().isNotEmpty) '$t'.trim(),
+    ];
+    final details = [
+      if (bayName.isNotEmpty) bayName,
+      if (techNames.isNotEmpty) '技师 ${techNames.join('、')}',
+      if (estFinish.isNotEmpty) '预计完工 $estFinish',
+    ];
     return AppCard(
       radius: 22,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       onTap: () => openRoute(context, 'HoldList'),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
@@ -785,6 +795,15 @@ class _LiveJob extends StatelessWidget {
                 ),
             ],
           ),
+          if (details.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Text(
+              details.join(' · '),
+              style: ts(12, color: C.muted, h: 16),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
         ],
       ),
     );

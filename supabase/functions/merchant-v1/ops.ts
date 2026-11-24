@@ -6,6 +6,7 @@ import {
   parseExtend,
   parseFollowUp,
   parseHold,
+  parseOrderSchedule,
   parseOrderTechnicians,
   parseRefund,
   parseSell,
@@ -82,6 +83,7 @@ const HOLD_SELECT =
 
 const holdFail = (error: { code?: string; message: string }) => {
   if (error.message.includes('order_technician_unavailable')) return fail('所选技师不可用，请重新选择');
+  if (error.message.includes('order_bay_unavailable')) return fail('所选工位不可用，请重新选择');
   if (error.code === 'P0002') {
     const m = error.message;
     return fail(m.includes('hold') ? '挂单不存在或已处理' : m.includes('member') ? '会员不存在' : '服务项目不存在或已下架', 404);
@@ -95,38 +97,65 @@ const holdFail = (error: { code?: string; message: string }) => {
 
 /** 开单收银 + 挂单（挂起 / 取单 / 删除）。估价和扣款都在数据库函数里按服务端价格计算。 */
 export async function handleOrders(input: Input, storeId: string, maskMemberPhone = false): Promise<Response> {
-  const sanitizeHold = (row: Record<string, unknown> | null) => {
-    if (!row || !maskMemberPhone) return row;
-    const member = row.member as Record<string, unknown> | null | undefined;
-    if (!member || typeof member.phone !== 'string') return row;
-    return { ...row, member: { ...member, phone: maskPhone(member.phone) } };
+  const enrichHolds = async (rows: Record<string, unknown>[]) => {
+    const techIds = new Set<string>();
+    for (const row of rows) {
+      if (Array.isArray(row.technician_ids)) {
+        for (const id of row.technician_ids) {
+          if (typeof id === 'string') techIds.add(id);
+        }
+      }
+    }
+    const techNames = new Map<string, string>();
+    if (techIds.size > 0) {
+      const { data: techs } = await admin.from('appointment_resources').select('id, name')
+        .eq('store_id', storeId).eq('kind', 'technician').in('id', [...techIds]);
+      for (const t of techs ?? []) techNames.set(String(t.id), String(t.name));
+    }
+    return rows.map((row) => {
+      const names = Array.isArray(row.technician_ids)
+        ? (row.technician_ids as unknown[]).map((id) => techNames.get(String(id))).filter((n): n is string => Boolean(n))
+        : [];
+      const member = row.member as Record<string, unknown> | null | undefined;
+      const sanitizedMember = (maskMemberPhone && member && typeof member.phone === 'string')
+        ? { ...member, phone: maskPhone(member.phone) }
+        : member;
+      return { ...row, technician_names: names, ...(member ? { member: sanitizedMember } : {}) };
+    });
   };
   if (input.action === 'holds') {
     const { data, error } = await admin.from('held_orders').select(HOLD_SELECT)
       .eq('store_id', storeId).is('settled_at', null).is('cancelled_at', null)
       .order('created_at', { ascending: false }).limit(200);
-    return error ? fail('读取失败', 500) : json({ items: (data ?? []).map((r) => sanitizeHold(r as unknown as Record<string, unknown>)) });
+    if (error) return fail('读取失败', 500);
+    return json({ items: await enrichHolds((data ?? []) as unknown as Record<string, unknown>[]) });
   }
   if (input.action === 'hold_get') {
     if (!uuid(input.id)) return fail('挂单无效');
     const { data, error } = await admin.from('held_orders').select(HOLD_SELECT)
       .eq('id', input.id).eq('store_id', storeId).is('settled_at', null).is('cancelled_at', null).maybeSingle();
     if (error) return fail('读取失败', 500);
-    return data ? json({ item: sanitizeHold(data as unknown as Record<string, unknown>) }) : fail('挂单不存在或已处理', 404);
+    if (!data) return fail('挂单不存在或已处理', 404);
+    const [enriched] = await enrichHolds([data as unknown as Record<string, unknown>]);
+    return json({ item: enriched });
   }
   if (input.action === 'hold') {
     const v = parseHold(input);
     if (typeof v === 'string') return fail(v);
     const technicians = parseOrderTechnicians(input.technician_ids);
     if (typeof technicians === 'string') return fail(technicians);
+    const schedule = parseOrderSchedule(input);
+    if (typeof schedule === 'string') return fail(schedule);
     const { data, error } = await admin.rpc('hold_order_with_technicians', {
       p_store: storeId, p_member: v.member_id, p_lines: v.lines, p_status: v.status,
       p_note: v.note, p_remind: v.remind, p_plate: v.plate, p_hold: v.hold_id,
       p_technician_ids: technicians, p_appointment: v.appointment_id,
+      p_bay: schedule.bay_id, p_estimated_finish: schedule.estimated_finish,
     });
     if (error) return holdFail(error);
     const { data: item } = await admin.from('held_orders').select(HOLD_SELECT).eq('id', data).single();
-    return json({ item: sanitizeHold(item as unknown as Record<string, unknown> | null) });
+    const [enriched] = item ? await enrichHolds([item as unknown as Record<string, unknown>]) : [null];
+    return json({ item: enriched });
   }
   if (input.action === 'hold_cancel') {
     if (!uuid(input.id)) return fail('挂单无效');
@@ -140,15 +169,19 @@ export async function handleOrders(input: Input, storeId: string, maskMemberPhon
     if (typeof w === 'string') return fail(w);
     const technicians = parseOrderTechnicians(input.technician_ids);
     if (typeof technicians === 'string') return fail(technicians);
+    const schedule = parseOrderSchedule(input);
+    if (typeof schedule === 'string') return fail(schedule);
     const request = typeof input.__request === 'string' ? input.__request : null;
     const operator = await operatorOf(storeId);
     const { data, error } = await admin.rpc('checkout_with_technicians', {
       p_store: storeId, p_hold: w.hold_id, p_lines: w.lines, p_method: w.method, p_balance_part: null,
       p_other: null, p_plate: w.plate, p_remark: w.remark, p_operator: operator, p_request: request,
       p_technician_ids: technicians, p_member: null, p_appointment: null,
+      p_bay: schedule.bay_id, p_estimated_finish: schedule.estimated_finish,
     });
     if (error) {
       if (error.message.includes('order_technician_unavailable')) return fail('所选技师不可用，请重新选择');
+      if (error.message.includes('order_bay_unavailable')) return fail('所选工位不可用，请重新选择');
       if (error.code === 'P0002') {
         const m = error.message;
         return fail(m.includes('hold') ? '挂单不存在或已处理' : m.includes('service') ? '服务项目不存在或已下架' : '请先选择服务项目', 404);
@@ -163,15 +196,19 @@ export async function handleOrders(input: Input, storeId: string, maskMemberPhon
     if (typeof v === 'string') return fail(v);
     const technicians = parseOrderTechnicians(input.technician_ids);
     if (typeof technicians === 'string') return fail(technicians);
+    const schedule = parseOrderSchedule(input);
+    if (typeof schedule === 'string') return fail(schedule);
     const request = typeof input.__request === 'string' ? input.__request : null;
     const operator = await operatorOf(storeId);
     const { data, error } = await admin.rpc('checkout_with_technicians', {
       p_store: storeId, p_hold: v.hold_id, p_member: v.member_id, p_lines: v.lines, p_method: v.method,
       p_balance_part: null, p_other: null, p_plate: v.plate, p_remark: v.remark,
       p_operator: operator, p_request: request, p_technician_ids: technicians, p_appointment: null,
+      p_bay: schedule.bay_id, p_estimated_finish: schedule.estimated_finish,
     });
     if (error) {
       if (error.message.includes('order_technician_unavailable')) return fail('所选技师不可用，请重新选择');
+      if (error.message.includes('order_bay_unavailable')) return fail('所选工位不可用，请重新选择');
       if (error.code === 'P0002') {
         const m = error.message;
         return fail(m.includes('hold') ? '挂单不存在或已处理' : m.includes('member') ? '会员不存在' : m.includes('service') ? '服务项目不存在或已下架' : '请先选择服务项目', 404);

@@ -70,6 +70,18 @@ _HoldCard _cardOf(Map<String, dynamic> h) {
       );
   final plate = '${h['vehicle_plate'] ?? ''}';
   final created = DateTime.tryParse('${h['created_at'] ?? ''}');
+  final bayName = '${h['bay_name'] ?? ''}'.trim();
+  final estFinish = '${h['estimated_finish'] ?? ''}'.trim();
+  final techNames = [
+    for (final t in (h['technician_names'] as List? ?? const []))
+      if ('$t'.trim().isNotEmpty) '$t'.trim(),
+  ];
+  final metaParts = [
+    if (created != null) holdTimeText(created),
+    if (bayName.isNotEmpty) bayName,
+    if (techNames.isNotEmpty) techNames.join('、'),
+    if (estFinish.isNotEmpty) '预计 $estFinish',
+  ];
   return _HoldCard(
     id: '${h['id']}',
     row: h,
@@ -82,8 +94,7 @@ _HoldCard _cardOf(Map<String, dynamic> h) {
     status: '${h['status']}',
     items: items.map((e) => '${e['name']}').join(' · '),
     amount: '¥${money2(HoldStore.estimateOf(h))}',
-    // TODO: 技师、工位、预计完工要等员工 / 工位模块接入后再显示，目前只显示挂单时间。
-    meta: created == null ? '' : holdTimeText(created),
+    meta: metaParts.join(' · '),
     note: '${h['note'] ?? ''}',
     ready: h['status'] == '待结算',
   );

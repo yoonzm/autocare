@@ -19,6 +19,22 @@ export function parseOrderTechnicians(value: unknown): string[] | null | string 
   return value;
 }
 
+export interface OrderScheduleValues {
+  bay_id: string | null;
+  estimated_finish: string;
+}
+
+export function parseOrderSchedule(input: Record<string, unknown>): OrderScheduleValues | string {
+  let bayId: string | null = null;
+  if (input.bay_id != null && input.bay_id !== '') {
+    if (typeof input.bay_id !== 'string' || !UUID.test(input.bay_id)) return '所选工位无效';
+    bayId = input.bay_id;
+  }
+  const estimatedFinish = text(input.estimated_finish);
+  if (estimatedFinish.length > 30) return '预计完工时间不能超过 30 字';
+  return { bay_id: bayId, estimated_finish: estimatedFinish };
+}
+
 export interface SellValues {
   member_id: string;
   package_id: string;

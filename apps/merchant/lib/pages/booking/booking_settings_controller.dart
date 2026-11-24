@@ -63,6 +63,33 @@ class BookingSettingsController extends ChangeNotifier {
     edited();
   }
 
+  List<String> get closedDates => [
+    for (final d in (settings['closed_dates'] as List? ?? const [])) '$d',
+  ]..sort();
+
+  Future<void> addClosedDate(BuildContext context) async {
+    if (locked) return;
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: today,
+      firstDate: today,
+      lastDate: today.add(const Duration(days: 365)),
+    );
+    if (picked == null || !context.mounted || disposed) return;
+    final formatted =
+        '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
+    final next = {...closedDates, formatted}.toList()..sort();
+    setSetting('closed_dates', next);
+  }
+
+  void removeClosedDate(String date) {
+    if (locked) return;
+    final next = closedDates.where((d) => d != date).toList();
+    setSetting('closed_dates', next);
+  }
+
   void setDraft(String key, Object? value) {
     if (locked) return;
     draft[key] = value;
