@@ -119,7 +119,7 @@ class AppointmentRescheduleTemplate extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '微信优先，失败转短信',
+                  '通过助通自定义短信通知',
                   style: hts(
                     12,
                     dk(
@@ -132,7 +132,7 @@ class AppointmentRescheduleTemplate extends StatelessWidget {
                 ),
               ], gap: 0),
             ),
-            HSwitchValue(value: false, onChanged: (_) => c.deferred(context)),
+            HSwitchValue(value: c.notify, onChanged: c.toggleNotify),
           ],
           cross: CrossAxisAlignment.center,
           gap: 12,

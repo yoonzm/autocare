@@ -1,10 +1,12 @@
-import { SmsError, type EnvReader, type SmsProvider, type SmsPurpose } from './sms_types.ts';
-import { zhutongProvider } from './sms_zhutong.ts';
+import { SmsError, type EnvReader, type SmsNoticeProvider, type SmsProvider, type SmsPurpose } from './sms_types.ts';
+import { zhutongNoticeProvider, zhutongProvider } from './sms_zhutong.ts';
 export { SmsError, isSmsPurpose, type SmsPurpose } from './sms_types.ts';
 
 type ProviderFactory = (env: EnvReader, purpose: SmsPurpose) => SmsProvider;
+type NoticeProviderFactory = (env: EnvReader) => SmsNoticeProvider;
 // Add future providers here. Business/OTP logic depends only on SmsProvider.
 const providers: Record<string, ProviderFactory> = { zhutong: zhutongProvider };
+const noticeProviders: Record<string, NoticeProviderFactory> = { zhutong: zhutongNoticeProvider };
 
 export function smsProvider(env: EnvReader, purpose: SmsPurpose): SmsProvider {
   const selected = env('SMS_PROVIDER')?.trim();
@@ -12,6 +14,16 @@ export function smsProvider(env: EnvReader, purpose: SmsPurpose): SmsProvider {
     const factory = Object.hasOwn(providers, selected) ? providers[selected] : undefined;
     if (!factory) throw new SmsError('短信渠道尚未支持', 501, 'unknown_provider');
     return factory(env, purpose);
+  }
+  throw new SmsError('短信服务尚未启用', 501, 'configuration_missing');
+}
+
+export function smsNoticeProvider(env: EnvReader): SmsNoticeProvider {
+  const selected = env('SMS_PROVIDER')?.trim();
+  if (selected) {
+    const factory = Object.hasOwn(noticeProviders, selected) ? noticeProviders[selected] : undefined;
+    if (!factory) throw new SmsError('短信渠道尚未支持', 501, 'unknown_provider');
+    return factory(env);
   }
   throw new SmsError('短信服务尚未启用', 501, 'configuration_missing');
 }
@@ -53,4 +65,48 @@ export async function sendOtp(
   return {
     ok: true, retry_after: 60, expires_in: 300,
   };
+}
+
+export interface NoticeSendStore {
+  reserve(request: {
+    phone: string; purpose: string; requestId: string; content: string; sign: string; storeName: string;
+  }): Promise<{ error?: string; retry_after?: number }>;
+  finish(requestId: string, sent: boolean, provider: string, error?: string): Promise<void>;
+}
+
+export async function sendNoticeSms(
+  provider: SmsNoticeProvider,
+  store: NoticeSendStore,
+  request: { phone: string; purpose: string; content: string; storeName: string; requestId: string },
+): Promise<{ ok: true }> {
+  const sign = provider.signature ?? '';
+  const body = request.content.trim().replace(/^【[^】]*】/, '');
+  const fullContent = `${sign ? `【${sign}】` : ''}${body}`;
+  const reservation = await store.reserve({
+    phone: request.phone,
+    purpose: request.purpose,
+    requestId: request.requestId,
+    content: fullContent,
+    sign,
+    storeName: request.storeName,
+  });
+  if (reservation.error) {
+    if (reservation.error === 'cooldown') {
+      throw new SmsError(`请 ${reservation.retry_after ?? 60} 秒后再发送通知短信`, 429, 'cooldown');
+    }
+    throw new SmsError(
+      reservation.error === 'phone_quota' ? '该手机号今日通知短信已达上限' : '通知短信今日发送量已达上限，请稍后再试',
+      429,
+      reservation.error,
+    );
+  }
+  try {
+    await provider.sendNotice(request.phone, body);
+  } catch (error) {
+    const failure = error instanceof SmsError ? error : new SmsError('短信发送失败，请稍后重试');
+    await store.finish(request.requestId, false, provider.name, `${failure.message}（${failure.reason}）`);
+    throw failure;
+  }
+  await store.finish(request.requestId, true, provider.name);
+  return { ok: true };
 }

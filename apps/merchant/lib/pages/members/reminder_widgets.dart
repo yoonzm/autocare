@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../backend/merchant_api.dart';
 import '../../kit/async_kit.dart';
 import '../../kit/kit.dart';
 import '../../theme.dart' show C, softShadow;
@@ -233,8 +234,26 @@ class _ReminderCard extends StatelessWidget {
                         reload,
                       );
                     } else {
-                      // TODO: 续卡优惠 / 生日礼要通过微信或短信下发、并发放赠品，依赖微信和营销模块。
-                      hToast(context, '$primary暂未接通（依赖微信 / 短信通知）');
+                      try {
+                        await merchantApi.invoke({
+                          'action': 'notify',
+                          'kind': 'follow_ups',
+                          'member_id': '${item['member_id']}',
+                          'notice_kind': primary.contains('续卡')
+                              ? 'renew'
+                              : 'birthday',
+                        });
+                        if (context.mounted) {
+                          AppToast.show(
+                            context,
+                            '已发送短信通知',
+                            kind: ToastKind.success,
+                          );
+                          reload();
+                        }
+                      } catch (e) {
+                        if (context.mounted) AppToast.error(context, e);
+                      }
                     }
                   },
                 ),

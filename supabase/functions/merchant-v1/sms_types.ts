@@ -12,6 +12,13 @@ export interface SmsProvider {
   sendCode(phone: string, code: string, purpose: SmsPurpose): Promise<void>;
 }
 
+export interface SmsNoticeProvider {
+  readonly name: string;
+  /** 短信签名（不含【】），用于发送与后台「短信记录」展示。 */
+  readonly signature: string;
+  sendNotice(phone: string, content: string): Promise<void>;
+}
+
 export class SmsError extends Error {
   constructor(message: string, readonly status = 502, readonly reason = 'provider_error') {
     super(message);

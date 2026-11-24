@@ -13,6 +13,7 @@ class RescheduleController extends ChangeNotifier {
   final actionKey = 'reschedule:${UniqueKey()}';
   int? rescheduleDay, cancelReason;
   String selectedTime = '';
+  bool notify = true;
   bool busy = false, dirty = false, disposed = false;
   bool _committed = false;
   bool get locked => busy || isBusy(actionKey);
@@ -32,9 +33,9 @@ class RescheduleController extends ChangeNotifier {
     if (!disposed) notifyListeners();
   }
 
-  void deferred(BuildContext context) {
-    // TODO: reschedule/cancellation notifications have no connected delivery channel.
-    AppToast.show(context, 'TODO：预约通知尚未接通，当前未发送通知');
+  void toggleNotify(bool value) {
+    notify = value;
+    if (!disposed) notifyListeners();
   }
 
   void edited() {
@@ -58,6 +59,7 @@ class RescheduleController extends ChangeNotifier {
             '${bookingDay(date(rescheduleDay!))}T$selectedTime:00+08:00',
         'bay_id': booking.row['bay_id'],
         'technician_id': booking.row['technician_id'],
+        if (notify) 'notify': true,
       });
       dirty = false;
       _committed = true;
@@ -100,6 +102,7 @@ class RescheduleController extends ChangeNotifier {
             'action': 'appointment_cancel',
             'id': booking.id,
             'reason': reason,
+            if (notify) 'notify': true,
           });
           dirty = false;
           AppointmentFlow.notify();

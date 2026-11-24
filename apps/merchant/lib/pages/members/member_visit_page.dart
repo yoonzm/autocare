@@ -814,9 +814,34 @@ class _MemberVisitPageTemplate extends StatelessWidget {
                       ),
                       GestureDetector(
                         behavior: HitTestBehavior.opaque,
-                        onTap: () {
-                          // TODO: 回访推送渠道及发送计划接口未接通，follow_ups.save 只记录下次回访日期。
-                          AppToast.show(context, '推送提醒暂未接通：缺少通知渠道与发送计划接口');
+                        onTap: () async {
+                          final memberId = '${c.member['id'] ?? ''}';
+                          if (memberId.isEmpty) return;
+                          final ok = await hConfirm(
+                            context,
+                            '立即发送回访关怀短信？',
+                            message: '将通过助通自定义短信立即发送一条回访关怀给该会员（定时自动推送仍暂未开启）',
+                          );
+                          if (!ok || !context.mounted) return;
+                          await runBusy('follow-up-notify-$memberId', () async {
+                            try {
+                              await merchantApi.invoke({
+                                'action': 'notify',
+                                'kind': 'follow_ups',
+                                'member_id': memberId,
+                                'notice_kind': 'visit',
+                              });
+                              if (context.mounted) {
+                                AppToast.show(
+                                  context,
+                                  '回访短信已发送',
+                                  kind: ToastKind.success,
+                                );
+                              }
+                            } catch (e) {
+                              if (context.mounted) AppToast.error(context, e);
+                            }
+                          });
                         },
                         child: hbox(
                           minH: 54,
@@ -839,7 +864,7 @@ class _MemberVisitPageTemplate extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                '当天 9:00 推送',
+                                '立即发回访短信',
                                 style: hts(
                                   15,
                                   dk(

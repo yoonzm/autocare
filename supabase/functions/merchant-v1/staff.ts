@@ -1,4 +1,6 @@
 import { admin, authOnly, fail, json, storeFor, uuid } from './shared.ts';
+import { SmsError } from './sms.ts';
+import { sendStoreNotice } from './sms_notice.ts';
 import {
   inviteHash, inviteLink, newInviteToken, parseCommission, parsePermissions, parseRecords, parseStaff, parseStatus,
 } from './staff_rules.ts';
@@ -83,9 +85,30 @@ export async function handleStaff(input: Input, request: Request): Promise<Respo
     }
     if (action === 'staff_invite') {
       if (!uuid(input.id)) return fail('员工 ID 无效');
-      // TODO: 短信邀请需要在助通登记“员工邀请”模板并为 SmsProvider 增加通知类发送；当前明确阻止，不返回假成功。
-      // 预期接口：staff_invite { id, via: 'sms' } → SmsProvider.sendNotice(phone, template, vars)。
-      if (input.via === 'sms') return fail('短信邀请尚未接通：缺少助通邀请短信模板', 501);
+      if (input.via === 'sms') {
+        const [{ data: staffRow, error: staffErr }, { data: storeRow }] = await Promise.all([
+          admin.from('store_staff').select('id, name, phone, role').eq('id', input.id).eq('store_id', store).maybeSingle(),
+          admin.from('stores').select('name').eq('id', store).maybeSingle(),
+        ]);
+        if (staffErr) return fail('读取员工资料失败', 500);
+        if (!staffRow) return fail('员工不存在', 404);
+        const storeName = String(storeRow?.name ?? '门店').trim() || '门店';
+        const roleLabel = staffRow.role === 'manager' ? '店长' : staffRow.role === 'cashier' ? '前台' : '技师';
+        try {
+          await sendStoreNotice({
+            storeId: store,
+            phone: staffRow.phone,
+            purpose: 'staff_invite',
+            content: `${storeName}邀请您加入团队（${roleLabel}），请下载并打开“我的汽美管家”App，使用本手机号验证码登录即可激活。`,
+            storeName,
+            requestId: typeof input.__request === 'string' ? input.__request : null,
+          });
+          return json({ ok: true });
+        } catch (err) {
+          if (err instanceof SmsError) return fail(err.message, err.status);
+          return fail('该员工未登记有效手机号，无法发送短信邀请', 400);
+        }
+      }
       // 员工通过合并 App 的手机号登录与加入确认激活；链接仅在配置真实地址后生成。
       const base = Deno.env.get('STAFF_INVITE_BASE_URL');
       const probe = inviteLink(base, 'x');

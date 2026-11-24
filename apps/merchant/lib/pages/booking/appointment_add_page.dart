@@ -227,8 +227,9 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
     }
     setState(() => _busy = true);
     try {
+      Map<String, dynamic>? saved;
       await runBusy(_actionKey, () async {
-        await _write.send({
+        final r = await _write.send({
           'action': 'appointment_save',
           'member_id': isMember ? customer.id : null,
           if (!isMember) ...{
@@ -241,13 +242,24 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
           'bay_id': _bay?['id'],
           'technician_id': _tech?['id'],
           'note': _note.text.trim(),
+          if (notify) 'notify': true,
         });
+        saved = Map<String, dynamic>.from(r['item'] as Map? ?? const {});
       });
       AppointmentFlow.notify();
       if (mounted) {
         final messenger = ScaffoldMessenger.of(context);
         Navigator.of(context).pop();
-        AppToast.showOn(messenger, '预约已保存', kind: ToastKind.success);
+        final smsSent = saved?['sms_sent'] == true;
+        final smsErr = '${saved?['sms_error'] ?? ''}'.trim();
+        final msg = !notify
+            ? '预约已保存'
+            : smsSent
+            ? '预约已保存并发送短信通知'
+            : smsErr.isNotEmpty
+            ? '预约已保存（短信未发出：$smsErr）'
+            : '预约已保存（客户无手机号，未发短信）';
+        AppToast.showOn(messenger, msg, kind: ToastKind.success);
       }
     } catch (e) {
       if (mounted) {
@@ -490,19 +502,16 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
                         children: [
                           _switch(
                             '预约成功后通知客户',
-                            '微信优先，失败转短信',
+                            '通过助通自定义短信发送确认',
                             notify,
-                            (v) => AppToast.show(
-                              context,
-                              'TODO：微信／短信通知尚未接通，未发送通知',
-                            ),
+                            (v) => setState(() => notify = v),
                           ),
                           const Divider1(indent: 16),
                           _switch(
                             '到店前 2 小时提醒客户',
-                            '按"通知与消息"设置发送',
+                            '定时提醒服务暂未接通',
                             remind,
-                            (v) => AppToast.show(context, 'TODO：预约提醒服务尚未接通'),
+                            (v) => AppToast.show(context, 'TODO：定时预约提醒服务尚未接通'),
                           ),
                         ],
                       ),

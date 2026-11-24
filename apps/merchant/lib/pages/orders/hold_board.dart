@@ -294,7 +294,11 @@ class _HoldBoardState extends State<HoldBoard> {
                   ),
                   GestureDetector(
                     behavior: HitTestBehavior.opaque,
-                    onTap: () => _remind(context),
+                    onTap: () {
+                      final idx = HoldStore.statuses.indexOf('待结算');
+                      if (idx >= 0) setState(() => tab = idx + 1);
+                      AppToast.show(context, '请在下方待结算卡片中点击“提醒取车”');
+                    },
                     child: hbox(
                       h: 30,
                       bg: const Color(0xFFF5D78E),
@@ -339,10 +343,21 @@ class _HoldBoardState extends State<HoldBoard> {
     );
   }
 
-  // TODO: 提醒取车要给会员发微信 / 短信通知，依赖微信与消息模块，
-  // 预期接口：merchant-v1 orders/hold_remind（按挂单 ID 发送取车提醒），目前不假装已发送。
-  void _remind(BuildContext context) =>
-      hToast(context, '提醒取车暂未接通（依赖微信 / 消息通知模块）');
+  Future<void> _remind(BuildContext context, String holdId) =>
+      runBusy('hold-remind-$holdId', () async {
+        try {
+          await merchantApi.invoke({
+            'action': 'hold_remind',
+            'kind': 'orders',
+            'id': holdId,
+          });
+          if (context.mounted) {
+            AppToast.show(context, '取车提醒短信已发送', kind: ToastKind.success);
+          }
+        } catch (e) {
+          if (context.mounted) AppToast.error(context, e);
+        }
+      });
 
   // ── 状态页签 ──
   Widget _tabs(BuildContext context, List<String> labels, int tab) {
@@ -562,7 +577,7 @@ class _HoldBoardState extends State<HoldBoard> {
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: c.ready
-                    ? () => _remind(context)
+                    ? () => _remind(context, c.id ?? '')
                     : () => _takeOut(context, c),
                 child: hbox(
                   h: 42,
@@ -575,10 +590,20 @@ class _HoldBoardState extends State<HoldBoard> {
                   pad: const EdgeInsets.symmetric(horizontal: 18),
                   child: Align(
                     widthFactor: 1,
-                    child: Text(
-                      c.ready ? '提醒取车' : '加项',
-                      style: hts(14, ink, w: FontWeight.w500, lh: 20),
-                    ),
+                    child: c.ready
+                        ? hBusy(
+                            'hold-remind-${c.id}',
+                            Text(
+                              '提醒取车',
+                              style: hts(14, ink, w: FontWeight.w500, lh: 20),
+                            ),
+                            style: hts(14, ink, w: FontWeight.w500, lh: 20),
+                            label: '发送中…',
+                          )
+                        : Text(
+                            '加项',
+                            style: hts(14, ink, w: FontWeight.w500, lh: 20),
+                          ),
                   ),
                 ),
               ),

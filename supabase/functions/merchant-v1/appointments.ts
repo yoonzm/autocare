@@ -3,6 +3,8 @@ import { operatorOf } from './members.ts';
 import { hasCap, technicianScope } from './staff_access.ts';
 import { parseBooking, parseBookingSettings, parseResource, validDay } from './appointment_rules.ts';
 import { parseOrderTechnicians } from './ops_rules.ts';
+import { SmsError } from './sms.ts';
+import { normalizeCnPhone, sendStoreNotice } from './sms_notice.ts';
 import type { Input } from './types.ts';
 
 const rpcError = (e: { message: string; code?: string }) => {
@@ -123,7 +125,34 @@ export async function handleAppointments(input: Input, request: Request): Promis
         p_input: value,
         p_request: request.headers.get('x-request-id'),
       });
-      return error ? rpcError(error) : json({ item: data });
+      if (error) return rpcError(error);
+      let sms_sent = false;
+      let sms_error = '';
+      if (input.notify === true && data && normalizeCnPhone(data.phone)) {
+        const dt = new Date(new Date(String(data.starts_at)).getTime() + 8 * 3600000);
+        const timeStr = `${dt.toISOString().slice(0, 10)} ${dt.toISOString().slice(11, 16)}`;
+        const items = Array.isArray(data.items) ? (data.items as { name?: string }[]).map((x) => x.name).filter(Boolean).join('、') : '';
+        const { data: storeRow } = await admin.from('stores').select('name').eq('id', store).maybeSingle();
+        const storeName = String(storeRow?.name ?? '门店').trim() || '门店';
+        const isEdit = input.id != null;
+        const content = isEdit
+          ? `您的预约时间已调整为 ${timeStr}，如有疑问请联系${storeName}。`
+          : `您已成功预约 ${timeStr} 到店${items ? `（${items}）` : ''}，如需改期请提前联系${storeName}。`;
+        try {
+          await sendStoreNotice({
+            storeId: store,
+            phone: data.phone,
+            purpose: isEdit ? 'appointment_reschedule' : 'appointment_confirm',
+            content,
+            storeName,
+            requestId: request.headers.get('x-request-id'),
+          });
+          sms_sent = true;
+        } catch (err) {
+          sms_error = err instanceof SmsError ? err.message : '短信发送失败';
+        }
+      }
+      return json({ item: { ...data, sms_sent, ...(sms_error ? { sms_error } : {}) } });
     }
     if (action === 'appointment_arrive' || action === 'appointment_cancel') {
       if (!uuid(input.id)) return fail('预约 ID 无效');
@@ -133,7 +162,29 @@ export async function handleAppointments(input: Input, request: Request): Promis
         p_action: action === 'appointment_arrive' ? 'arrive' : 'cancel',
         p_reason: String(input.reason ?? '').trim(),
       });
-      return error ? rpcError(error) : json({ item: data });
+      if (error) return rpcError(error);
+      let sms_sent = false;
+      let sms_error = '';
+      if (action === 'appointment_cancel' && input.notify === true && data && normalizeCnPhone(data.phone)) {
+        const dt = new Date(new Date(String(data.starts_at)).getTime() + 8 * 3600000);
+        const timeStr = `${dt.toISOString().slice(0, 10)} ${dt.toISOString().slice(11, 16)}`;
+        const { data: storeRow } = await admin.from('stores').select('name').eq('id', store).maybeSingle();
+        const storeName = String(storeRow?.name ?? '门店').trim() || '门店';
+        try {
+          await sendStoreNotice({
+            storeId: store,
+            phone: data.phone,
+            purpose: 'appointment_cancel',
+            content: `您预约的 ${timeStr} 到店服务已取消，如需重新预约请联系${storeName}。`,
+            storeName,
+            requestId: request.headers.get('x-request-id'),
+          });
+          sms_sent = true;
+        } catch (err) {
+          sms_error = err instanceof SmsError ? err.message : '短信发送失败';
+        }
+      }
+      return json({ item: { ...data, sms_sent, ...(sms_error ? { sms_error } : {}) } });
     }
     if (action === 'appointment_settings_save') {
       const value = parseBookingSettings(input);

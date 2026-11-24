@@ -1,4 +1,6 @@
 import { admin, fail, json, uuid } from './shared.ts';
+import { SmsError } from './sms.ts';
+import { normalizeCnPhone, sendStoreNotice } from './sms_notice.ts';
 import { operatorOf } from './members.ts';
 import { maskPhone } from './staff_member_rules.ts';
 import {
@@ -164,6 +166,37 @@ export async function handleOrders(input: Input, storeId: string, maskMemberPhon
     if (error) return fail('删除失败', 400);
     return data && data.length > 0 ? json({ ok: true }) : fail('挂单不存在或已处理', 404);
   }
+  if (input.action === 'hold_remind') {
+    if (!uuid(input.id)) return fail('挂单无效');
+    const [{ data: holdRow, error: holdErr }, { data: storeRow }] = await Promise.all([
+      admin.from('held_orders').select('id, vehicle_plate, member:members(name, phone)')
+        .eq('id', input.id).eq('store_id', storeId).is('settled_at', null).is('cancelled_at', null).maybeSingle(),
+      admin.from('stores').select('name').eq('id', storeId).maybeSingle(),
+    ]);
+    if (holdErr) return fail('读取挂单失败', 500);
+    if (!holdRow) return fail('挂单不存在或已处理', 404);
+    const member = holdRow.member as unknown as { name?: string; phone?: string } | null;
+    if (!member || !normalizeCnPhone(member.phone)) {
+      return fail('散客或未登记有效手机号，无法发送取车提醒短信', 400);
+    }
+    const storeName = String(storeRow?.name ?? '门店').trim() || '门店';
+    const plate = String(holdRow.vehicle_plate ?? '').trim();
+    const plateText = plate ? `（${plate}）` : '';
+    try {
+      await sendStoreNotice({
+        storeId,
+        phone: member.phone,
+        purpose: 'hold_pickup',
+        content: `您的爱车${plateText}在${storeName}已施工完成，请方便时到店取车。`,
+        storeName,
+        requestId: typeof input.__request === 'string' ? input.__request : null,
+      });
+      return json({ ok: true });
+    } catch (err) {
+      if (err instanceof SmsError) return fail(err.message, err.status);
+      return fail('发送取车提醒失败', 500);
+    }
+  }
   if (input.action === 'checkout' && input.walk_in === true) {
     const w = parseWalkIn(input);
     if (typeof w === 'string') return fail(w);
@@ -262,6 +295,49 @@ export async function handleFollowUps(input: Input, storeId: string): Promise<Re
       operator: await operatorOf(storeId),
     });
     return error ? fail('保存失败', 400) : json({ ok: true });
+  }
+  if (input.action === 'notify') {
+    if (!uuid(input.member_id)) return fail('会员无效');
+    const noticeKind = typeof input.notice_kind === 'string' ? input.notice_kind : 'visit';
+    if (!['visit', 'renew', 'birthday'].includes(noticeKind)) return fail('通知类型无效');
+    const [{ data: member }, { data: storeRow }] = await Promise.all([
+      admin.from('members').select('id, name, phone')
+        .eq('id', input.member_id).eq('store_id', storeId).is('deleted_at', null).maybeSingle(),
+      admin.from('stores').select('name').eq('id', storeId).maybeSingle(),
+    ]);
+    if (!member) return fail('会员不存在', 404);
+    if (!normalizeCnPhone(member.phone)) {
+      return fail('该会员未登记有效手机号，无法发送短信', 400);
+    }
+    const storeName = String(storeRow?.name ?? '门店').trim() || '门店';
+    const memberName = String(member.name ?? '').trim() || '尊贵的会员';
+    const content = noticeKind === 'renew'
+      ? `${memberName}您好，您的会员卡即将到期或次数不足，欢迎近期到${storeName}续卡享专属优惠。`
+      : noticeKind === 'birthday'
+      ? `${memberName}您好，祝您生日快乐！${storeName}诚邀您近期到店享受专属生日礼遇。`
+      : `${memberName}您好，感谢您对${storeName}的支持，近期如需洗护保养欢迎随时预约到店。`;
+    try {
+      await sendStoreNotice({
+        storeId,
+        phone: member.phone,
+        purpose: `member_${noticeKind}`,
+        content,
+        storeName,
+        requestId: typeof input.__request === 'string' ? input.__request : null,
+      });
+    } catch (err) {
+      if (err instanceof SmsError) return fail(err.message, err.status);
+      return fail('发送短信通知失败', 500);
+    }
+    await admin.from('member_follow_ups').insert({
+      store_id: storeId,
+      member_id: input.member_id,
+      method: '短信',
+      result: '已预约到店',
+      content,
+      operator: await operatorOf(storeId),
+    });
+    return json({ ok: true });
   }
   if (input.action === 'reminders') {
     const now = Date.now();
