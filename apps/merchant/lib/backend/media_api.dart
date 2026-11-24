@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 import '../kit/upload_gallery.dart';
 import 'merchant_api.dart';
@@ -23,8 +23,13 @@ class MediaApi {
     };
   }
 
-  UploadRecord _record(Map<String, dynamic> row) =>
-      UploadRecord(row['id'] as String, NetworkImage(row['url'] as String));
+  UploadRecord _record(Map<String, dynamic> row) {
+    final id = row['id'] as String;
+    return UploadRecord(
+      id,
+      CachedNetworkImageProvider(row['url'] as String, cacheKey: id),
+    );
+  }
   Future<List<UploadRecord>> load() async {
     final r = await api.invoke(_body('list'));
     return [

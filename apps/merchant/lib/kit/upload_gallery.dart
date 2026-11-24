@@ -380,6 +380,45 @@ class _UploadGalleryState extends State<UploadGallery> {
     }
   }
 
+  Widget _placeholder(BuildContext context, {required bool skeleton}) {
+    final t = AppTokens.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Expanded(child: Text(widget.title, style: t.small)),
+            Text(
+              '0 / ${widget.max}',
+              style: t.caption.copyWith(
+                color: t.inkMute,
+                fontFeatures: AppTokens.tabular,
+              ),
+            ),
+          ],
+        ),
+        if (widget.helper != null)
+          Text(widget.helper!, style: t.caption.copyWith(color: t.inkMute)),
+        const SizedBox(height: AppSpacing.s10),
+        if (skeleton)
+          const SizedBox(
+            height: 72,
+            child: Row(
+              children: [
+                AppSkeleton(width: 72, height: 72, radius: 14),
+                SizedBox(width: 10),
+                AppSkeleton(width: 72, height: 72, radius: 14),
+                SizedBox(width: 10),
+                AppSkeleton(width: 72, height: 72, radius: 14),
+              ],
+            ),
+          )
+        else
+          const SizedBox(height: 72),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) => AsyncView<List<UploadRecord>>(
     key: _key,
@@ -389,18 +428,8 @@ class _UploadGalleryState extends State<UploadGallery> {
     skeletonScrollable: false,
     load: _load,
     isEmpty: (_) => false,
-    skeleton: const SizedBox(
-      height: 100,
-      child: Row(
-        children: [
-          AppSkeleton(width: 72, height: 72, radius: 14),
-          SizedBox(width: 10),
-          AppSkeleton(width: 72, height: 72, radius: 14),
-          SizedBox(width: 10),
-          AppSkeleton(width: 72, height: 72, radius: 14),
-        ],
-      ),
-    ),
+    waiting: _placeholder(context, skeleton: false),
+    skeleton: _placeholder(context, skeleton: true),
     empty: (_) => const SizedBox(),
     builder: (_, _) => AppImageUploader.grid(
       title: widget.title,
