@@ -96,11 +96,6 @@ class BookingSettingsController extends ChangeNotifier {
     edited();
   }
 
-  void deferred(BuildContext context) {
-    // TODO: online booking policy and notifications need their own backend contracts.
-    AppToast.show(context, 'TODO：此功能尚未接通，当前未执行该操作');
-  }
-
   Future<Map<String, dynamic>?> persist() async {
     if (busy || disposed || _committed) return null;
     if (_uncertain) throw const AppError('保存结果未确认，请先返回工位列表核对，避免重复新增');

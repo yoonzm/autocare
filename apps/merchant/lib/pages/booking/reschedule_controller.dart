@@ -73,16 +73,21 @@ class RescheduleController extends ChangeNotifier {
 
   Future<void> save(BuildContext context) async {
     if (locked) return;
-    bool saved = false;
+    Map<String, dynamic>? saved;
     await runBusy(actionKey, () async {
       try {
-        saved = await persist() != null;
+        saved = await persist();
       } catch (e) {
         if (context.mounted && !disposed) AppToast.error(context, e);
       }
     });
-    if (saved && context.mounted && !disposed) {
-      AppToast.show(context, '已保存', kind: ToastKind.success);
+    if (saved != null && context.mounted && !disposed) {
+      final item = saved!['item'] as Map? ?? const {};
+      AppToast.show(
+        context,
+        _noticeResult('已保存', item),
+        kind: ToastKind.success,
+      );
       Navigator.of(context).pop();
     }
   }
@@ -90,6 +95,7 @@ class RescheduleController extends ChangeNotifier {
   Future<void> cancelBooking(BuildContext context) async {
     if (cancelReason == null || locked) return;
     final reason = ['客户有事', '时间冲突', '联系不上', '其他'][cancelReason!];
+    Map<String, dynamic>? saved;
     final ok = await hConfirm(
       context,
       '确认取消预约？',
@@ -98,7 +104,7 @@ class RescheduleController extends ChangeNotifier {
         busy = true;
         if (!disposed) notifyListeners();
         try {
-          await request.send({
+          saved = await request.send({
             'action': 'appointment_cancel',
             'id': booking.id,
             'reason': reason,
@@ -112,7 +118,24 @@ class RescheduleController extends ChangeNotifier {
         }
       },
     );
-    if (ok && context.mounted && !disposed) Navigator.of(context).pop();
+    if (ok && context.mounted && !disposed) {
+      final item = saved?['item'] as Map? ?? const {};
+      AppToast.show(
+        context,
+        _noticeResult('预约已取消', item),
+        kind: ToastKind.success,
+      );
+      Navigator.of(context).pop();
+    }
+  }
+
+  String _noticeResult(String message, Map item) {
+    final errors = [
+      if ('${item['sms_error'] ?? ''}'.isNotEmpty) '客户短信：${item['sms_error']}',
+      if ('${item['manager_sms_error'] ?? ''}'.isNotEmpty)
+        '${item['manager_sms_error']}',
+    ];
+    return errors.isEmpty ? message : '$message（${errors.join('；')}）';
   }
 
   @override

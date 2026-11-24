@@ -1,3 +1,4 @@
+import { notifyAppointmentManagers, type ManagerNoticeDependencies } from './appointment_manager_notice.ts';
 import { admin, fail, json, storeFor, uuid } from './shared.ts';
 import { operatorOf } from './members.ts';
 import { hasCap, technicianScope } from './staff_access.ts';
@@ -7,11 +8,32 @@ import { SmsError } from './sms.ts';
 import { normalizeCnPhone, sendStoreNotice } from './sms_notice.ts';
 import type { Input } from './types.ts';
 
+const managerNoticeDeps: ManagerNoticeDependencies = {
+  async load(storeId) {
+    const settings = await admin.from('appointment_settings').select('notify_manager').eq('store_id', storeId).maybeSingle();
+    if (settings.error) throw settings.error;
+    if (!settings.data?.notify_manager) return { enabled: false, name: '', phones: [] };
+    const [staff, store] = await Promise.all([
+      admin.from('store_staff').select('phone').eq('store_id', storeId).eq('role', 'manager').eq('status', 'active'),
+      admin.from('stores').select('name').eq('id', storeId).single(),
+    ]);
+    if (staff.error || store.error) throw staff.error || store.error;
+    return { enabled: true, name: String(store.data.name), phones: (staff.data ?? []).map((s) => s.phone) };
+  },
+  async previous(requestId) {
+    const { data, error } = await admin.from('sms_logs').select('status').eq('request_id', requestId).maybeSingle();
+    if (error) throw error;
+    return data?.status ?? null;
+  },
+  send: sendStoreNotice,
+};
+
 const rpcError = (e: { message: string; code?: string }) => {
   const messages: Record<string, string> = {
     slot_unavailable: '该时段、工位或技师已不可预约，请重新选择',
     appointment_closed: '预约状态已变化，请刷新后重试',
     reminder_phone_required: '客户手机号无效，无法开启到店提醒',
+    appointment_manager_required: '请先在员工管理中配置已启用的店长，再开启店长通知',
     appointment_not_arrived: '请先标记客户到店',
     arrival_too_early: '不能提前标记未来日期的预约到店',
     capacity_conflict: '已有预约超过新的接待上限，请先调整预约',
@@ -129,7 +151,7 @@ export async function handleAppointments(input: Input, request: Request): Promis
       if (error) return rpcError(error);
       let sms_sent = false;
       let sms_error = '';
-      if (input.notify === true && data && normalizeCnPhone(data.phone)) {
+      if ((input.id == null ? data?.notify_confirm === true : input.notify === true) && data && normalizeCnPhone(data.phone)) {
         const dt = new Date(new Date(String(data.starts_at)).getTime() + 8 * 3600000);
         const timeStr = `${dt.toISOString().slice(0, 10)} ${dt.toISOString().slice(11, 16)}`;
         const items = Array.isArray(data.items) ? (data.items as { name?: string }[]).map((x) => x.name).filter(Boolean).join('、') : '';
@@ -153,7 +175,11 @@ export async function handleAppointments(input: Input, request: Request): Promis
           sms_error = err instanceof SmsError ? err.message : '短信发送失败';
         }
       }
-      return json({ item: { ...data, sms_sent, ...(sms_error ? { sms_error } : {}) } });
+      const managerNotice = await notifyAppointmentManagers({ storeId: store, appointment: data,
+        event: input.id == null ? 'created' : 'rescheduled',
+        version: input.id == null ? String(data.id) : request.headers.get('x-request-id') ?? String(data.updated_at),
+      }, managerNoticeDeps);
+      return json({ item: { ...data, sms_sent, ...(sms_error ? { sms_error } : {}), ...managerNotice } });
     }
     if (action === 'appointment_arrive' || action === 'appointment_cancel') {
       if (!uuid(input.id)) return fail('预约 ID 无效');
@@ -185,7 +211,11 @@ export async function handleAppointments(input: Input, request: Request): Promis
           sms_error = err instanceof SmsError ? err.message : '短信发送失败';
         }
       }
-      return json({ item: { ...data, sms_sent, ...(sms_error ? { sms_error } : {}) } });
+      const managerNotice = action === 'appointment_cancel'
+        ? await notifyAppointmentManagers({ storeId: store, appointment: data, event: 'cancelled',
+          version: String(data.cancelled_at),
+        }, managerNoticeDeps) : {};
+      return json({ item: { ...data, sms_sent, ...(sms_error ? { sms_error } : {}), ...managerNotice } });
     }
     if (action === 'appointment_settings_save') {
       const value = parseBookingSettings(input);

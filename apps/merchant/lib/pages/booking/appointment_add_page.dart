@@ -63,6 +63,8 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
   bool _dirty = false;
   int _revision = 0;
   bool notify = false, remind = false;
+  bool _notifyTouched = false, _remindTouched = false;
+  bool _notificationDefaultsLoaded = false;
   String get tech => '${_tech?['name'] ?? '暂不指定'}';
   String get _bayLabel => '${_bay?['name'] ?? '暂不指定'}';
   int get minutes => picked.fold(
@@ -124,6 +126,14 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
       _showOptionsSkeleton = false;
       if (failed == null) {
         _options = data!;
+        if (!_notificationDefaultsLoaded) {
+          final settings = _options['settings'] as Map? ?? const {};
+          if (!_notifyTouched) {
+            notify = settings['notify_confirm_default'] == true;
+          }
+          if (!_remindTouched) remind = settings['remind_default'] == true;
+          _notificationDefaultsLoaded = true;
+        }
         _optionsReady = true;
         _optionsError = null;
         picked
@@ -242,7 +252,7 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
           'bay_id': _bay?['id'],
           'technician_id': _tech?['id'],
           'note': _note.text.trim(),
-          if (notify) 'notify': true,
+          'notify': notify,
           'remind': remind,
         });
         saved = Map<String, dynamic>.from(r['item'] as Map? ?? const {});
@@ -260,7 +270,12 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
             : smsErr.isNotEmpty
             ? '预约已保存（短信未发出：$smsErr）'
             : '预约已保存（客户无手机号，未发短信）';
-        AppToast.showOn(messenger, msg, kind: ToastKind.success);
+        final managerError = '${saved?['manager_sms_error'] ?? ''}'.trim();
+        AppToast.showOn(
+          messenger,
+          managerError.isEmpty ? msg : '$msg（$managerError）',
+          kind: ToastKind.success,
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -505,14 +520,20 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
                             '预约成功后通知客户',
                             '通过助通自定义短信发送确认',
                             notify,
-                            (v) => setState(() => notify = v),
+                            (v) => setState(() {
+                              _notifyTouched = true;
+                              notify = v;
+                            }),
                           ),
                           const Divider1(indent: 16),
                           _switch(
                             '到店前 2 小时提醒客户',
                             '通过短信提醒，不足 2 小时不发送',
                             remind,
-                            (v) => setState(() => remind = v),
+                            (v) => setState(() {
+                              _remindTouched = true;
+                              remind = v;
+                            }),
                           ),
                         ],
                       ),

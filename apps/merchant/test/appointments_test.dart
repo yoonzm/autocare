@@ -756,6 +756,7 @@ void main() {
     expect(call['service_ids'], ['s1']);
     expect(call['member_id'], isNull);
     expect(call['remind'], isTrue);
+    expect(call['notify'], isFalse);
     expect(call['guest_name'], '张先生');
     expect(call['guest_phone'], '139 0000 1111');
     expect(call['guest_plate'], '沪A8K29M');
@@ -877,6 +878,72 @@ void main() {
     final call = api.calls.lastWhere((c) => c['action'] == 'settings_save');
     expect(call['capacity'], 3);
   });
+  testWidgets('预约通知默认值回显并保存，渠道模板入口已移除', (t) async {
+    api.settings.addAll({
+      'notify_confirm_default': true,
+      'remind_default': false,
+      'notify_manager': true,
+    });
+    await open(t, const AppointmentSettingsLivePage());
+    expect(find.text('通知渠道与模板'), findsNothing);
+    expect(find.text('微信 + 短信'), findsNothing);
+    final switches = find.byType(HSwitchValue);
+    expect(t.widget<HSwitchValue>(switches.at(0)).value, isTrue);
+    expect(t.widget<HSwitchValue>(switches.at(1)).value, isFalse);
+    expect(t.widget<HSwitchValue>(switches.at(2)).value, isTrue);
+    await t.ensureVisible(switches.at(1));
+    await t.tap(switches.at(1));
+    await t.pumpAndSettle();
+    api.writeError = const AppError('保存失败');
+    await t.tap(find.text('保存设置'));
+    await t.pumpAndSettle();
+    final call = api.calls.lastWhere((c) => c['action'] == 'settings_save');
+    expect(call['notify_confirm_default'], isTrue);
+    expect(call['remind_default'], isTrue);
+    expect(call['notify_manager'], isTrue);
+    expect(t.widget<HSwitchValue>(switches.at(1)).value, isTrue);
+  });
+
+  testWidgets('新建预约带入门店默认通知设置，允许本单关闭', (t) async {
+    api.settings.addAll({'notify_confirm_default': true, 'remind_default': true});
+    await open(t, const AppointmentAddPage());
+    await t.tap(find.text('散客'));
+    await t.pumpAndSettle();
+    await t.drag(find.byType(ListView).first, const Offset(0, -3000));
+    await t.pump(const Duration(milliseconds: 100));
+    final switches = find.byType(HSwitchValue);
+    expect(t.widget<HSwitchValue>(switches.at(0)).value, isTrue);
+    expect(t.widget<HSwitchValue>(switches.at(1)).value, isTrue);
+    await t.ensureVisible(switches.at(0));
+    await t.tap(switches.at(0));
+    await t.pumpAndSettle();
+    expect(t.widget<HSwitchValue>(switches.at(0)).value, isFalse);
+    expect(api.settings['notify_confirm_default'], isTrue);
+  });
+
+  testWidgets('迟到的门店默认值不会覆盖用户已操作的通知开关', (t) async {
+    api.settings.addAll({'notify_confirm_default': false, 'remind_default': true});
+    api.optionsGate = Completer<void>();
+    await open(t, const AppointmentAddPage());
+    await t.tap(find.text('散客'));
+    await t.pump(const Duration(milliseconds: 100));
+    await t.drag(find.byType(ListView).first, const Offset(0, -3000));
+    await t.pump(const Duration(milliseconds: 100));
+    final switches = find.byType(HSwitchValue);
+    await t.ensureVisible(switches.at(0));
+    await t.tap(switches.at(0));
+    await t.pump(const Duration(milliseconds: 100));
+    await t.ensureVisible(switches.at(1));
+    await t.tap(switches.at(1));
+    await t.pump(const Duration(milliseconds: 100));
+    await t.tap(switches.at(1));
+    await t.pump(const Duration(milliseconds: 100));
+    api.optionsGate!.complete();
+    await t.pumpAndSettle();
+    expect(t.widget<HSwitchValue>(switches.at(0)).value, isTrue);
+    expect(t.widget<HSwitchValue>(switches.at(1)).value, isFalse);
+  });
+
   testWidgets('预约设置保存加载时保持按钮尺寸与单次请求', (t) async {
     await open(t, const AppointmentSettingsLivePage());
     api.gate = Completer<void>();

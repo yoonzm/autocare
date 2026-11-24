@@ -6,6 +6,7 @@ export const validDay = (v: unknown): v is string =>
   !Number.isNaN(Date.parse(v)) && new Date(v).toISOString().slice(0, 10) === v;
 export function parseBooking(i: Input): Input | string {
   if (i.deposit === true) return '定金尚未接通';
+  if (i.notify != null && typeof i.notify !== 'boolean') return '通知设置无效';
   if (i.remind != null && typeof i.remind !== 'boolean') return '提醒设置无效';
   for (const k of ['id', 'member_id', 'bay_id', 'technician_id']) {
     if (i[k] != null && !id(i[k])) return '预约或资源 ID 无效';
@@ -35,6 +36,7 @@ export function parseBooking(i: Input): Input | string {
   }
   return {
     ...(typeof i.remind === 'boolean' ? { remind: i.remind } : {}),
+    ...(typeof i.notify === 'boolean' ? { notify: i.notify } : {}),
     id: i.id ?? null,
     member_id: i.member_id ?? null,
     bay_id: i.bay_id ?? null,
@@ -46,6 +48,10 @@ export function parseBooking(i: Input): Input | string {
   };
 }
 export function parseBookingSettings(i: Input): Input | string {
+  const flags = ['notify_confirm_default', 'remind_default', 'notify_manager'];
+  for (const key of flags) {
+    if (i[key] != null && typeof i[key] !== 'boolean') return '通知设置无效';
+  }
   for (const k of ['opens_at', 'closes_at']) {
     if (typeof i[k] !== 'string' || !/^([01]\d|2[0-3]):[0-5]\d$/.test(i[k] as string)) return '营业时间无效';
   }
@@ -85,6 +91,7 @@ export function parseBookingSettings(i: Input): Input | string {
       ].map((k) => [k, i[k]]),
     ),
     closed_dates: closedDates,
+    ...Object.fromEntries(flags.filter((key) => typeof i[key] === 'boolean').map((key) => [key, i[key]])),
   };
 }
 export function parseResource(i: Input): Input | string {

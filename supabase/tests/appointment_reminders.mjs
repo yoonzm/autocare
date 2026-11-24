@@ -23,4 +23,6 @@ try{
 
  await db.exec(readFileSync(new URL('appointment_reminders.sql',import.meta.url),'utf8'));
  console.log('appointment reminders ok');
+ await db.exec(readFileSync(new URL('booking_notification_defaults.sql',import.meta.url),'utf8'));
+ console.log('booking notification defaults ok');
 }catch(e){console.error(e.message, e.where);process.exitCode=1;}finally{await db.close();}

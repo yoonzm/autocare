@@ -1380,8 +1380,11 @@ class AppointmentSettingsTemplate extends StatelessWidget {
                                   ),
                                 ),
                                 HSwitchValue(
-                                  value: false,
-                                  onChanged: (_) => c.deferred(context),
+                                  value:
+                                      c.settings['notify_confirm_default'] ==
+                                      true,
+                                  onChanged: (v) =>
+                                      c.setSetting('notify_confirm_default', v),
                                 ),
                               ],
                               main: MainAxisAlignment.start,
@@ -1438,8 +1441,9 @@ class AppointmentSettingsTemplate extends StatelessWidget {
                                   ),
                                 ),
                                 HSwitchValue(
-                                  value: false,
-                                  onChanged: (_) => c.deferred(context),
+                                  value: c.settings['remind_default'] == true,
+                                  onChanged: (v) =>
+                                      c.setSetting('remind_default', v),
                                 ),
                               ],
                               main: MainAxisAlignment.start,
@@ -1478,7 +1482,7 @@ class AppointmentSettingsTemplate extends StatelessWidget {
                                         ),
                                       ),
                                       Text(
-                                        '新预约、改期、取消即时推送',
+                                        '新预约、改期、取消时发送短信',
                                         style: hts(
                                           12,
                                           dk(
@@ -1496,69 +1500,14 @@ class AppointmentSettingsTemplate extends StatelessWidget {
                                   ),
                                 ),
                                 HSwitchValue(
-                                  value: false,
-                                  onChanged: (_) => c.deferred(context),
+                                  value: c.settings['notify_manager'] == true,
+                                  onChanged: (v) =>
+                                      c.setSetting('notify_manager', v),
                                 ),
                               ],
                               main: MainAxisAlignment.start,
                               cross: CrossAxisAlignment.center,
                               gap: 12,
-                            ),
-                          ),
-                          hbox(
-                            h: 1,
-                            bg: dk(
-                              context,
-                              Color(0xFFEFEFF1),
-                              Color(0xFF2A2A2E),
-                            ),
-                            margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
-                          ),
-                          GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: () => c.deferred(context),
-                            child: hbox(
-                              minH: 54,
-                              pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                              child: hrow(
-                                [
-                                  Expanded(
-                                    flex: 1,
-                                    child: Text(
-                                      '通知渠道与模板',
-                                      style: hts(
-                                        14,
-                                        dk(
-                                          context,
-                                          Color(0xFF52525B),
-                                          Color(0xFFA8A8B3),
-                                        ),
-                                        lh: 20,
-                                      ),
-                                    ),
-                                  ),
-                                  Text(
-                                    '微信 + 短信',
-                                    style: hts(
-                                      15,
-                                      dk(
-                                        context,
-                                        Color(0xFF18181B),
-                                        Color(0xFFFAFAFA),
-                                      ),
-                                      lh: 22,
-                                    ),
-                                  ),
-                                  hsvg(
-                                    dk(context, Svgs.s3, Svgs.s4),
-                                    w: 16,
-                                    h: 16,
-                                  ),
-                                ],
-                                main: MainAxisAlignment.start,
-                                cross: CrossAxisAlignment.center,
-                                gap: 12,
-                              ),
                             ),
                           ),
                         ],
