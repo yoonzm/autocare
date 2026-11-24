@@ -1,6 +1,7 @@
 import 'holds_test.dart' as held show hold;
 import 'members_test.dart' show MemberFakeApi, row;
 
+import 'package:autocare_merchant/pages/members/member_picker_sheet.dart';
 import 'package:autocare_merchant/pages/members/member_route_data.dart';
 
 import 'dart:async';
@@ -329,28 +330,30 @@ void main() {
         ),
       ),
     );
-    pickLiveMember(ctx);
+    showMemberPicker(ctx, title: '选择推荐人', allowAdd: false);
     await t.pumpAndSettle();
-    expect(find.text('王建国'), findsOneWidget);
-    expect(find.text('周志远'), findsOneWidget);
+    expect(find.text('选择推荐人'), findsOneWidget);
+    expect(find.text('新增会员'), findsNothing);
+    expect(find.text('王建国'), findsWidgets);
+    expect(find.text('周志远'), findsWidgets);
     await t.enterText(find.byType(TextField), '周');
     await t.pump(const Duration(milliseconds: 400));
     await t.pumpAndSettle();
     expect(find.text('王建国'), findsNothing);
-    expect(find.text('周志远'), findsOneWidget);
+    expect(find.text('周志远'), findsWidgets);
     await t.enterText(find.byType(TextField), '8K29');
     await t.pump(const Duration(milliseconds: 400));
     await t.pumpAndSettle();
-    expect(find.text('王建国'), findsOneWidget);
+    expect(find.text('王建国'), findsWidgets);
     expect(find.text('周志远'), findsNothing);
     await t.enterText(find.byType(TextField), '1391688');
     await t.pump(const Duration(milliseconds: 400));
     await t.pumpAndSettle();
-    expect(find.text('刘先生'), findsOneWidget);
+    expect(find.text('刘先生'), findsWidgets);
     await t.enterText(find.byType(TextField), '不存在');
     await t.pump(const Duration(milliseconds: 400));
     await t.pumpAndSettle();
-    expect(find.text('没有找到会员'), findsOneWidget);
+    expect(find.text('没有找到「不存在」'), findsOneWidget);
   });
 
   testWidgets('密码登录：密码输入框的占位文字在输入框内垂直居中', (t) async {

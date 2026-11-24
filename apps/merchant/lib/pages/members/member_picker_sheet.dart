@@ -7,17 +7,28 @@ import 'package:flutter/material.dart';
 import '../../kit/kit.dart';
 import '../../resources/merchant_svgs.dart';
 
-Future<Map<String, dynamic>?> showMemberPicker(BuildContext context) =>
-    showModalBottomSheet<Map<String, dynamic>>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      routeSettings: const RouteSettings(name: 'sheet:MemberPicker'),
-      builder: (_) => const SingleChildScrollView(child: MemberPickerSheet()),
-    );
+Future<Map<String, dynamic>?> showMemberPicker(
+  BuildContext context, {
+  String title = '选择会员',
+  bool allowAdd = true,
+}) => showModalBottomSheet<Map<String, dynamic>>(
+  context: context,
+  isScrollControlled: true,
+  backgroundColor: Colors.transparent,
+  routeSettings: const RouteSettings(name: 'sheet:MemberPicker'),
+  builder: (_) => SingleChildScrollView(
+    child: MemberPickerSheet(title: title, allowAdd: allowAdd),
+  ),
+);
 
 class MemberPickerSheet extends StatefulWidget {
-  const MemberPickerSheet({super.key});
+  final String title;
+  final bool allowAdd;
+  const MemberPickerSheet({
+    super.key,
+    this.title = '选择会员',
+    this.allowAdd = true,
+  });
   @override
   State<MemberPickerSheet> createState() => _MemberPickerSheetState();
 }
@@ -63,7 +74,7 @@ class _MemberPickerSheetState extends State<MemberPickerSheet> {
                       Expanded(
                         flex: 1,
                         child: Text(
-                          '选择会员',
+                          widget.title,
                           style: hts(
                             17,
                             dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
@@ -111,7 +122,7 @@ class _MemberPickerSheetState extends State<MemberPickerSheet> {
             query,
             (member) => Navigator.of(context).pop(member),
           ),
-          if (Access.can('member_edit'))
+          if (widget.allowAdd && Access.can('member_edit'))
             hbox(
             bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
             shadow: dk(

@@ -2,10 +2,11 @@ import '../scan/scan_page.dart';
 
 import 'package:flutter/material.dart';
 
+import '../../backend/member_flow.dart' show memberFromRow;
 import '../../backend/merchant_api.dart';
-import '../../kit/pickers.dart'
-    show PlateCtrl, pickCarModel, pickDate, pickLiveMember;
+import '../../kit/pickers.dart' show PlateCtrl, pickCarModel, pickDate;
 import 'member_events.dart';
+import 'member_picker_sheet.dart' show showMemberPicker;
 import '../../kit/async_kit.dart';
 import '../../routes.dart' show openRoute;
 import 'member_route_data.dart';
@@ -81,8 +82,13 @@ class MemberFormController extends ChangeNotifier {
   }
 
   Future<void> selectReferrer(BuildContext context) async {
-    final selected = await pickLiveMember(context, title: '选择推荐人');
-    if (selected != null && !disposed) {
+    final row = await showMemberPicker(
+      context,
+      title: '选择推荐人',
+      allowAdd: false,
+    );
+    if (row != null && !disposed) {
+      final selected = memberFromRow(row);
       set('referrer_id', selected.id);
       set('referrer_label', '${selected.name} · ${selected.level}');
     }
