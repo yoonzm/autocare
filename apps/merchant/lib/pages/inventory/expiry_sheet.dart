@@ -7,14 +7,12 @@ import '../../theme.dart';
 
 /// 入库明细里「到期日」的选择弹层（设计稿 StockInExpiry）。
 /// 返回 `YYYY-MM-DD`；取消返回 null。
-// TODO shelf_months: 设计稿的「保质期 N 个月」和「+N 个月 · 保质期」高亮依赖商品的保质期月数字段，
-// 目前商品只有 shelf_life 开关和临期提醒天数，缺少该字段（预期接口：商品新增 shelf_months）。
-// 在补上之前，快捷按钮固定为 +12 / +24 / +36 个月，不标注「保质期」。
 Future<String?> pickExpiryDate(
   BuildContext context, {
   required String productName,
   required DateTime received,
   String? current,
+  int? shelfMonths,
 }) => showModalBottomSheet<String>(
   context: context,
   isScrollControlled: true,
@@ -27,6 +25,7 @@ Future<String?> pickExpiryDate(
       productName: productName,
       received: received,
       current: current,
+      shelfMonths: shelfMonths,
     ),
   ),
 );
@@ -46,17 +45,24 @@ class _ExpirySheet extends StatefulWidget {
   final String productName;
   final DateTime received;
   final String? current;
+  final int? shelfMonths;
   const _ExpirySheet({
     required this.productName,
     required this.received,
     this.current,
+    this.shelfMonths,
   });
   @override
   State<_ExpirySheet> createState() => _ExpirySheetState();
 }
 
 class _ExpirySheetState extends State<_ExpirySheet> {
-  static const _quick = [12, 24, 36];
+  List<int> get _quick {
+    final sm = widget.shelfMonths;
+    final list = <int>[if (sm != null && sm > 0) sm, 12, 24, 36];
+    return list.toSet().toList();
+  }
+
   late final DateTime _received = DateTime(
     widget.received.year,
     widget.received.month,
@@ -69,8 +75,12 @@ class _ExpirySheetState extends State<_ExpirySheet> {
   void initState() {
     super.initState();
     final parsed = DateTime.tryParse(widget.current ?? '');
+    final defaultMonths =
+        (widget.shelfMonths != null && widget.shelfMonths! > 0)
+        ? widget.shelfMonths!
+        : 12;
     _picked = parsed == null
-        ? addMonths(_received, 12)
+        ? addMonths(_received, defaultMonths)
         : DateTime(parsed.year, parsed.month, parsed.day);
     _month = DateTime(_picked.year, _picked.month);
   }
@@ -109,7 +119,9 @@ class _ExpirySheetState extends State<_ExpirySheet> {
             const SizedBox(height: 14),
             Text('选择到期日', style: ts(20, w: FontWeight.w600, h: 28)),
             Text(
-              widget.productName,
+              widget.shelfMonths != null && widget.shelfMonths! > 0
+                  ? '${widget.productName} · 保质期 ${widget.shelfMonths} 个月'
+                  : widget.productName,
               style: ts(13, color: C.muted, h: 18),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -205,6 +217,7 @@ class _ExpirySheetState extends State<_ExpirySheet> {
 
   Widget _chip(int months) {
     final on = _picked == addMonths(_received, months);
+    final isShelf = widget.shelfMonths != null && months == widget.shelfMonths;
     return GestureDetector(
       onTap: () => setState(() {
         _picked = addMonths(_received, months);
@@ -217,10 +230,14 @@ class _ExpirySheetState extends State<_ExpirySheet> {
         decoration: BoxDecoration(
           color: on ? C.primarySoft : C.inset,
           borderRadius: BorderRadius.circular(18),
-          border: on ? Border.all(color: C.primary, width: 1.5) : null,
+          border: on
+              ? Border.all(color: C.primary, width: 1.5)
+              : isShelf
+              ? Border.all(color: C.primary.withValues(alpha: 0.45), width: 1)
+              : null,
         ),
         child: Text(
-          '+$months 个月',
+          isShelf ? '+$months 个月 · 保质期' : '+$months 个月',
           style: ts(
             13,
             w: on ? FontWeight.w600 : FontWeight.w500,

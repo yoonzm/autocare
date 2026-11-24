@@ -248,7 +248,9 @@ class _PackageExtendSheetTemplate extends StatelessWidget {
                           alignment: Alignment.center,
                           widthFactor: 1,
                           child: Text(
-                            '自定义',
+                            c.customDays == null
+                                ? '自定义'
+                                : '自定义 (${c.customDays} 天)',
                             style: hts(
                               13,
                               dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
@@ -267,7 +269,9 @@ class _PackageExtendSheetTemplate extends StatelessWidget {
                           alignment: Alignment.center,
                           widthFactor: 1,
                           child: Text(
-                            '自定义',
+                            c.customDays == null
+                                ? '自定义'
+                                : '自定义 (${c.customDays} 天)',
                             style: hts(
                               13,
                               dk(context, Color(0xFF3F3F46), Color(0xFFD4D4D8)),

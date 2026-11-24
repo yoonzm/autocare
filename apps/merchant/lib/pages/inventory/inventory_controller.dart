@@ -303,7 +303,6 @@ class InventoryController extends ChangeNotifier {
   String get outSubtotalLabel => quoted('subtotal');
 
   /// 设计稿：关联了工单写「将计入该工单的成本核算」，没有关联写「未关联工单，仅记录出库成本」。
-  /// TODO: 按工单汇总成本的核算页面尚未实现，目前只在出库单上记录关联的工单。
   String get outCostNote => workorderSet ? '将计入该工单的成本核算' : '未关联工单，仅记录出库成本';
   String get productName => '${detail['name'] ?? ''}';
   String get skuCategoryLabel =>
@@ -842,6 +841,7 @@ class InventoryController extends ChangeNotifier {
         received:
             DateTime.tryParse('${payload['date'] ?? ''}') ?? DateTime.now(),
         current: '${l[field] ?? ''}',
+        shelfMonths: (product(l)['shelf_months'] as num?)?.toInt(),
       );
       if (picked != null) {
         l[field] = picked;

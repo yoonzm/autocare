@@ -8,10 +8,24 @@ const SELECT =
 
 export async function handlePackages(input: Input, storeId: string): Promise<Response> {
   if (input.action === 'list') {
-    const { data, error } = await admin.from('card_packages').select(SELECT)
-      .eq('store_id', storeId).is('deleted_at', null)
-      .order('created_at', { ascending: false });
-    return error ? fail('读取失败', 500) : json({ items: data as unknown as PackageRow[] });
+    const [{ data, error }, { data: soldRows, error: soldErr }] = await Promise.all([
+      admin.from('card_packages').select(SELECT)
+        .eq('store_id', storeId).is('deleted_at', null)
+        .order('created_at', { ascending: false }),
+      admin.from('member_packages').select('package_id')
+        .eq('store_id', storeId).is('refunded_at', null),
+    ]);
+    if (error || soldErr) return fail('读取失败', 500);
+    const counts = new Map<string, number>();
+    for (const r of soldRows ?? []) {
+      const id = r.package_id ? String(r.package_id) : '';
+      if (id) counts.set(id, (counts.get(id) ?? 0) + 1);
+    }
+    const items = (data as unknown as PackageRow[]).map((p) => ({
+      ...p,
+      sold_count: counts.get(p.id) ?? 0,
+    }));
+    return json({ items });
   }
   if (input.action === 'save') {
     if (input.id != null && !uuid(input.id)) return fail('记录 ID 无效');

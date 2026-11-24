@@ -119,8 +119,9 @@ class PackageRowInfo {
     return m == 0 ? '永久有效' : '$m 个月有效';
   }
 
-  /// TODO: “已售 N” 依赖次卡售卖（订单 / 会员模块），V1 未接入，这里不显示销量。
-  String get subtitle => '$totalCount 次 · $validityText';
+  int get soldCount => _n(row['sold_count']).toInt();
+
+  String get subtitle => '$totalCount 次 · $validityText · 已售 $soldCount';
   String get priceText => '¥${formatMoney(price)}';
   String get originalText => '¥${formatMoney(original)}';
 }

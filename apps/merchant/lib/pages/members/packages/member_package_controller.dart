@@ -19,25 +19,64 @@ class MemberPackageController extends ChangeNotifier {
   final MemberPackageRouteData data;
   Map<String, dynamic> row;
   int daysIndex = 0, target = 0, reasonIndex = -1;
+  int? customDays;
   bool busy = false, disposed = false;
   String? _intent, _requestId;
   MemberPackageController(this.data, Map<String, dynamic> row)
     : row = Map.from(row);
+  int get activeDays =>
+      daysIndex < days.length ? days[daysIndex] : (customDays ?? days[0]);
   OwnedPackageView get view =>
-      OwnedPackageView(row, member: data.member, extendDays: days[daysIndex]);
+      OwnedPackageView(row, member: data.member, extendDays: activeDays);
   String get actionKey => 'member-package-${identityHashCode(this)}';
   void apply(Map<String, dynamic> value) {
     if (!disposed) row = Map.from(value);
   }
 
-  void chooseDays(BuildContext context, int index) {
+  Future<void> chooseDays(BuildContext context, int index) async {
     if (busy) return;
     if (index >= days.length) {
-      // TODO: 预期 extend.days 已支持，缺少自定义天数输入；不以默认天数代替。
-      AppToast.show(context, '自定义延期天数暂未接通：缺少天数输入');
-    } else {
-      daysIndex = index;
+      final ctl = TextEditingController(
+        text: customDays == null ? '' : '$customDays',
+      );
+      final value = await showDialog<int>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('自定义延期天数'),
+          content: TextField(
+            controller: ctl,
+            autofocus: true,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(hintText: '请输入延期天数（1–3650）'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: const Text('取消'),
+            ),
+            TextButton(
+              onPressed: () {
+                final n = int.tryParse(ctl.text.trim());
+                if (n == null || n < 1 || n > 3650) {
+                  AppToast.show(ctx, '请输入 1–3650 之间的整数天数');
+                  return;
+                }
+                Navigator.of(ctx).pop(n);
+              },
+              child: const Text('确定'),
+            ),
+          ],
+        ),
+      );
+      ctl.dispose();
+      if (value != null && !disposed) {
+        customDays = value;
+        daysIndex = 3;
+        notifyListeners();
+      }
+      return;
     }
+    daysIndex = index;
     notifyListeners();
   }
 
@@ -87,7 +126,7 @@ class MemberPackageController extends ChangeNotifier {
         final intent = jsonEncode({
           'refund': refund,
           'id': data.id,
-          'value': refund ? refundTargets[target] : days[daysIndex],
+          'value': refund ? refundTargets[target] : activeDays,
           'reason': reasons[reasonIndex],
         });
         if (_intent != intent) {
@@ -107,7 +146,7 @@ class MemberPackageController extends ChangeNotifier {
               : await merchantApi.extendPackage(
                   id: data.id,
                   requestId: _requestId,
-                  days: days[daysIndex],
+                  days: activeDays,
                   reason: reasons[reasonIndex],
                 );
           _intent = null;
@@ -118,7 +157,7 @@ class MemberPackageController extends ChangeNotifier {
             context,
             refund
                 ? '已退款 ¥${formatMoney(response['refund'] as num)}'
-                : '已延期 ${days[daysIndex]} 天',
+                : '已延期 $activeDays 天',
           );
           final nav = Navigator.of(context);
           nav.pop();

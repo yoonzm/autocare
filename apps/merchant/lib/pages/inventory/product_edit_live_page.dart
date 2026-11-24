@@ -51,6 +51,9 @@ class _ProductEditState extends State<ProductEditLivePage> {
   late final expiryDays = TextEditingController(
     text: '${p['expiry_days'] ?? 30}',
   );
+  late final shelfMonths = TextEditingController(
+    text: p['shelf_months'] == null ? '' : '${p['shelf_months']}',
+  );
   late final productId = p['id'] ?? inventoryId();
   final request = InventoryRequest();
   List<String> categories = [];
@@ -122,7 +125,16 @@ class _ProductEditState extends State<ProductEditLivePage> {
 
   @override
   void dispose() {
-    for (final c in [name, spec, sku, safe, location, cost, expiryDays]) {
+    for (final c in [
+      name,
+      spec,
+      sku,
+      safe,
+      location,
+      cost,
+      expiryDays,
+      shelfMonths,
+    ]) {
       c.dispose();
     }
     super.dispose();
@@ -157,6 +169,8 @@ class _ProductEditState extends State<ProductEditLivePage> {
     String? error;
     final safeValue = editing ? num.tryParse(safe.text.trim()) : 0;
     final costValue = editing ? p['cost'] : num.tryParse(cost.text.trim());
+    final monthsText = shelfMonths.text.trim();
+    final monthsValue = monthsText.isEmpty ? null : int.tryParse(monthsText);
     if (name.text.trim().isEmpty) {
       error = '请填写商品名称';
     } else if (category == null) {
@@ -167,6 +181,10 @@ class _ProductEditState extends State<ProductEditLivePage> {
       error = '请填写正确的安全库存';
     } else if (costValue == null || costValue < 0) {
       error = '请填写参考成本价';
+    } else if (shelfLife &&
+        monthsText.isNotEmpty &&
+        (monthsValue == null || monthsValue < 1 || monthsValue > 120)) {
+      error = '保质期月数须为 1–120 整数';
     }
     if (error != null) {
       AppToast.show(context, error);
@@ -180,6 +198,7 @@ class _ProductEditState extends State<ProductEditLivePage> {
         'metadata_revision': p['metadata_revision'] ?? 0,
         'allow_decimal': p['allow_decimal'] ?? true,
         'shelf_life': shelfLife,
+        'shelf_months': shelfLife ? monthsValue : null,
         'expiry_days': expiryDays.text == '${p['expiry_days'] ?? 30}'
             ? p['expiry_days']
             : int.tryParse(expiryDays.text),
@@ -498,6 +517,17 @@ class _ProductEditState extends State<ProductEditLivePage> {
                             _touch();
                           },
                         ),
+                        if (shelfLife)
+                          _field(
+                            '保质期月数',
+                            _input(
+                              shelfMonths,
+                              '选填，如 12、24、36',
+                              suffix: '个月',
+                              keyboard: TextInputType.number,
+                            ),
+                            foot: '填写后入库选择到期日时将自动高亮对应保质期快捷选项',
+                          ),
                         if (editing && shelfLife)
                           _field(
                             '临期提醒',

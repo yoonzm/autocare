@@ -248,9 +248,8 @@ class CardTileFace extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    // 人数来自会员模块，会员尚未接后端，这里恒为 0
                     Text(
-                      '0 人',
+                      '${row['member_count'] ?? 0} 人',
                       style: hts(12, p.strong, w: FontWeight.w600, lh: 16),
                     ),
                   ],

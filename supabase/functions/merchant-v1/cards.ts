@@ -49,10 +49,22 @@ function configOf(input: Input): Record<string, unknown> | string {
 
 export async function handleCards(input: Input, storeId: string): Promise<Response> {
   if (input.action === 'list') {
-    const { data, error } = await admin.from('card_types').select('*')
-      .eq('store_id', storeId).eq('active', true)
-      .order('created_at', { ascending: false });
-    return error ? fail('读取失败', 500) : json({ items: data as CardTypeRow[] });
+    const [{ data, error }, { data: members, error: membersErr }] = await Promise.all([
+      admin.from('card_types').select('*').eq('store_id', storeId).eq('active', true)
+        .order('created_at', { ascending: false }),
+      admin.from('members').select('card_type_id').eq('store_id', storeId).is('deleted_at', null),
+    ]);
+    if (error || membersErr) return fail('读取失败', 500);
+    const counts = new Map<string, number>();
+    for (const m of members ?? []) {
+      const id = m.card_type_id ? String(m.card_type_id) : '';
+      if (id) counts.set(id, (counts.get(id) ?? 0) + 1);
+    }
+    const items = (data as CardTypeRow[]).map((c) => ({
+      ...c,
+      member_count: counts.get(c.id) ?? 0,
+    }));
+    return json({ items });
   }
   if (input.action === 'rules') {
     const { data, error } = await admin.from('stores')
