@@ -55,11 +55,6 @@ class _StoreEditPageState extends State<StoreEditPage> {
     nav.pop();
   }
 
-  void _locate() {
-    // TODO: 地图定位尚无真实渠道，预期地图选址适配；地址由用户手动填写。
-    AppToast.show(context, '地图定位暂未接通，请手动填写地址');
-  }
-
   @override
   Widget build(BuildContext context) {
     if (!_api.hasSession) {
@@ -360,33 +355,6 @@ class _StoreEditPageState extends State<StoreEditPage> {
                                           hint: '请输入门店地址',
 
                                           align: TextAlign.right,
-                                        ),
-                                      ),
-                                    ),
-                                    GestureDetector(
-                                      behavior: HitTestBehavior.opaque,
-                                      key: const ValueKey('store-locate'),
-                                      onTap: _locate,
-                                      child: hbox(
-                                        w: 32,
-                                        h: 32,
-                                        bg: dk(
-                                          context,
-                                          Color(0xFFE1F0FE),
-                                          Color.fromRGBO(4, 133, 247, 0.18),
-                                        ),
-                                        radius: BorderRadius.circular(16),
-                                        child: hrow(
-                                          [
-                                            hsvg(
-                                              dk(context, Svgs.s370, Svgs.s371),
-                                              w: 16,
-                                              h: 16,
-                                            ),
-                                          ],
-                                          main: MainAxisAlignment.center,
-                                          cross: CrossAxisAlignment.center,
-                                          gap: 0,
                                         ),
                                       ),
                                     ),
