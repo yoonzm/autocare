@@ -276,13 +276,13 @@ void main() {
       expect(find.text('共 1 单'), findsOneWidget);
     });
 
-    testWidgets('提醒取车依赖消息通知模块：明确提示未接通，不假装已发送', (t) async {
+    testWidgets('顶部提醒取车入口引导到具体挂单卡片，不假装已发送', (t) async {
       phone(t);
       fake.holdRows.add(hold(status: '待结算', updatedMinutesAgo: 40));
       await openList(t);
       await t.tap(find.text('提醒取车').first);
       await t.pump();
-      expect(find.textContaining('暂未接通'), findsOneWidget);
+      expect(find.text('请在下方待结算卡片中点击“提醒取车”'), findsOneWidget);
     });
 
     testWidgets('删除：先确认，再由后端删除，成功后卡片局部移除', (t) async {

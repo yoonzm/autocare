@@ -2,7 +2,7 @@
 begin;
 do $$
 declare owner_u uuid:=gen_random_uuid(); shop uuid; svc uuid; ta uuid; tb uuid; ap_a uuid:=gen_random_uuid(); ap_b uuid:=gen_random_uuid();
-  tier uuid; o_a uuid; o_b uuid; o_direct uuid; feed jsonb; feed_a jsonb; feed_b jsonb; r jsonb; caught boolean; m uuid;
+  tier uuid; o_a uuid; o_b uuid; o_direct uuid; feed jsonb; feed_a jsonb; feed_b jsonb; r jsonb; caught boolean; m uuid; pkg uuid;
   from_ts timestamptz:=now()-interval '1 day'; to_ts timestamptz:=now()+interval '1 day'; nobody uuid:='00000000-0000-0000-0000-000000000000';
 begin
   insert into auth.users(id,phone) values(owner_u,'8613900000051');
@@ -56,9 +56,26 @@ begin
   assert (public.order_detail(shop,'consume',o_b)->>'id')::uuid=o_b,'报错后范围没有残留';
 
   -- 退款行同样按范围：甲的订单退款后，乙看不到这条退款
-  perform public.refund_order(shop,o_a,'录入错误','店长','rf-1');
+  perform public.refund_order(shop,o_a,'录入错误','店长','rf-1',40);
   assert jsonb_array_length(public.order_feed_scoped(shop,from_ts,to_ts,'refund','','','','',null,50,ta)->'items')=1,'甲能看到自己订单的退款';
   assert jsonb_array_length(public.order_feed_scoped(shop,from_ts,to_ts,'refund','','','','',null,50,tb)->'items')=0,'乙看不到甲订单的退款';
+  assert (public.order_feed_scoped(shop,from_ts,to_ts,'all','','','','',null,50,ta)->'summary'->>'refunded')::numeric=40,'部分退款汇总只算本人';
+  perform public.refund_order(shop,o_a,'录入错误','店长','rf-2',60);
+  assert jsonb_array_length(public.order_feed_scoped(shop,from_ts,to_ts,'refund','','','','',null,50,ta)->'items')=2,'多次退款均属于原订单技师';
+  assert jsonb_array_length(public.order_feed_scoped(shop,from_ts,to_ts,'refund','','','','',null,50,tb)->'items')=0,'他人看不到多次退款';
+  -- 历史退款没有明细表记录，仍按订单归属过滤。
+  update public.orders set status='refunded',refunded_at=now(),refunded_amount=payable where id=o_b;
+  assert jsonb_array_length(public.order_feed_scoped(shop,from_ts,to_ts,'refund','','','','',null,50,tb)->'items')=1,'本人能看到历史整单退款';
+  assert jsonb_array_length(public.order_feed_scoped(shop,from_ts,to_ts,'refund','','','','',null,50,ta)->'items')=2,'他人的历史退款不混入本人范围';
+  assert jsonb_array_length(public.order_feed(shop,from_ts,to_ts,'refund','','','','',null,50)->'items')=3,'店主仍能查看全部新旧退款';
+  -- 次卡售卖和退款不属于技师，不能随新版退款查询泄漏到本人范围。
+  insert into public.card_packages(store_id,name,price) values(shop,'范围测试次卡',100) returning id into pkg;
+  insert into public.member_packages(store_id,member_id,package_id,name,price_paid,total_count,pay_method,refunded_at,refund_amount)
+    values(shop,m,pkg,'范围测试次卡',100,1,'现金',now(),100);
+  assert jsonb_array_length(public.order_feed(shop,from_ts,to_ts,'package','','','','',null,50)->'items')=1,'店主能查看次卡售卖';
+  assert jsonb_array_length(public.order_feed(shop,from_ts,to_ts,'refund','','','','',null,50)->'items')=4,'店主能查看次卡退款';
+  assert jsonb_array_length(public.order_feed_scoped(shop,from_ts,to_ts,'package','','','','',null,50,ta)->'items')=0,'技师看不到次卡售卖';
+  assert jsonb_array_length(public.order_feed_scoped(shop,from_ts,to_ts,'refund','','','','',null,50,ta)->'items')=2,'技师看不到次卡退款';
 
   assert not has_function_privilege('authenticated','public.order_feed_scoped(uuid,timestamptz,timestamptz,text,text,text,text,text,timestamptz,int,uuid)','execute');
   assert not has_function_privilege('authenticated','public.order_detail_scoped(uuid,text,uuid,uuid)','execute');

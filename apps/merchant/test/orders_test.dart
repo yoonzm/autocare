@@ -107,7 +107,7 @@ class OrderApi extends MemberFakeApi {
   }) => orderCenter('refund', {
     'id': id,
     'reason': reason,
-    if (amount != null) 'amount': amount,
+    'amount': ?amount,
     'request_id': requestId,
   });
 
