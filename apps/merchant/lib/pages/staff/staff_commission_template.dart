@@ -7,6 +7,7 @@ import '../../backend/staff_flow.dart';
 import '../../kit/async_kit.dart';
 import '../../kit/kit.dart';
 import '../../kit/page_header.dart';
+import '../../kit/text_input.dart';
 import '../../routes.dart' show openRoute;
 import 'staff_live.dart';
 import 'staff_route_data.dart';
@@ -28,7 +29,8 @@ class _StaffCommissionState extends State<StaffCommissionTemplate> {
   late String _mode;
   late final TextEditingController _rate;
   final _overrides = <String, TextEditingController>{};
-  final _form = GlobalKey<FormState>();
+  final _errors = <String, String?>{};
+  bool _submitted = false;
   bool _busy = false;
   bool _saved = false;
   late String _initial;
@@ -55,7 +57,37 @@ class _StaffCommissionState extends State<StaffCommissionTemplate> {
     }
   }
 
-  void _changed() => setState(() {});
+  void _changed() => setState(() {
+    if (_submitted) _refreshErrors();
+  });
+
+  String? _validateValue(String raw, {bool optional = false}) {
+    final text = raw.trim();
+    if (optional && text.isEmpty) return null;
+    final rate = num.tryParse(text);
+    if (rate == null || !rate.isFinite || rate < 0 || rate > 100) {
+      return '请输入 0–100 的比例';
+    }
+    if (!RegExp(r'^\d+(\.\d{1,2})?$').hasMatch(text)) {
+      return '最多保留两位小数';
+    }
+    return null;
+  }
+
+  bool _refreshErrors() {
+    _errors.clear();
+    if (_mode == 'flat') {
+      final err = _validateValue(_rate.text);
+      if (err != null) _errors['flat'] = err;
+    } else if (_mode == 'custom') {
+      for (final s in _services) {
+        final id = '${s['id']}';
+        final err = _validateValue(_overrides[id]?.text ?? '', optional: true);
+        if (err != null) _errors[id] = err;
+      }
+    }
+    return _errors.isEmpty;
+  }
 
   @override
   void dispose() {
@@ -66,7 +98,11 @@ class _StaffCommissionState extends State<StaffCommissionTemplate> {
   }
 
   Future<void> _save() async {
-    if (_busy || !_form.currentState!.validate()) return;
+    if (_busy) return;
+    _submitted = true;
+    final valid = _refreshErrors();
+    setState(() {});
+    if (!valid) return;
     FocusScope.of(context).unfocus();
     final mode = _mode;
     final rate = mode == 'flat' ? num.parse(_rate.text) : 0;
@@ -96,30 +132,59 @@ class _StaffCommissionState extends State<StaffCommissionTemplate> {
     }
   }
 
-  Widget _input(TextEditingController controller, {required String label, bool optional = false}) {
+  Widget _input(
+    TextEditingController controller, {
+    required String fieldKey,
+    required String label,
+    bool optional = false,
+  }) {
     final colors = AppTokens.of(context);
-    return TextFormField(
-      controller: controller,
-      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))],
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: optional ? '留空跟随项目设置' : '请输入提成比例',
-        suffixText: '%',
-        filled: true,
-        fillColor: colors.surface,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colors.line)),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colors.line)),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-      ),
-      validator: (value) {
-        final text = (value ?? '').trim();
-        if (optional && text.isEmpty) return null;
-        final rate = num.tryParse(text);
-        if (rate == null || !rate.isFinite || rate < 0 || rate > 100) return '请输入 0–100 的比例';
-        if (!RegExp(r'^\d+(\.\d{1,2})?$').hasMatch(text)) return '最多保留两位小数';
-        return null;
-      },
+    final error = _errors[fieldKey];
+    final hasError = error != null && error.isNotEmpty;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: colors.small),
+        const SizedBox(height: 6),
+        Container(
+          constraints: const BoxConstraints(minHeight: 48),
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          decoration: BoxDecoration(
+            color: colors.surface,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: hasError ? colors.badge : colors.line,
+              width: hasError ? 1.2 : 1,
+            ),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: AppTextInput(
+                  controller: controller,
+                  keyboard: const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+                  ],
+                  style: colors.body.copyWith(fontWeight: FontWeight.w400),
+                  hint: optional ? '留空跟随项目设置' : '请输入提成比例',
+                  hintColor: colors.inkFaint,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text('%', style: colors.body.copyWith(color: colors.inkMute)),
+            ],
+          ),
+        ),
+        if (hasError)
+          Padding(
+            padding: const EdgeInsets.only(top: 4, left: 2),
+            child: Text(
+              error,
+              style: colors.caption.copyWith(color: colors.requiredStar),
+            ),
+          ),
+      ],
     );
   }
 
@@ -137,7 +202,14 @@ class _StaffCommissionState extends State<StaffCommissionTemplate> {
           selected: selected, button: true,
           child: InkWell(
             borderRadius: BorderRadius.circular(20),
-            onTap: () { FocusScope.of(context).unfocus(); setState(() => _mode = mode); },
+            onTap: () {
+              FocusScope.of(context).unfocus();
+              setState(() {
+                _mode = mode;
+                _submitted = false;
+                _errors.clear();
+              });
+            },
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               child: Row(children: [
@@ -187,9 +259,7 @@ class _StaffCommissionState extends State<StaffCommissionTemplate> {
         ),
         flow: AbsorbPointer(
           absorbing: _busy,
-          child: Form(
-            key: _form,
-            child: Padding(
+          child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 40),
               child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                   hbox(
@@ -269,7 +339,7 @@ class _StaffCommissionState extends State<StaffCommissionTemplate> {
                   ])),
                 const SizedBox(height: 10),
                 _card('flat', '统一比例', '所有项目按同一比例，覆盖项目设置',
-                  _input(_rate, label: '统一提成比例')),
+                  _input(_rate, fieldKey: 'flat', label: '统一提成比例')),
                 const SizedBox(height: 10),
                 _card('custom', '按项目自定义', '仅对该员工单独设置，其余项目仍跟随项目设置',
                   Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -277,14 +347,13 @@ class _StaffCommissionState extends State<StaffCommissionTemplate> {
                     if (services.isEmpty) const Padding(padding: EdgeInsets.only(top: 12), child: Text('还没有可设置的服务项目。')),
                     for (final s in services) Padding(
                       padding: const EdgeInsets.only(top: 14),
-                      child: _input(_overrides['${s['id']}']!, label: '${s['name']} · 项目默认 ${staffServiceRate(s)}', optional: true),
+                      child: _input(_overrides['${s['id']}']!, fieldKey: '${s['id']}', label: '${s['name']} · 项目默认 ${staffServiceRate(s)}', optional: true),
                     ),
                   ])),
                 const SizedBox(height: 16),
                 Text('修改后对之后结算的订单生效（含已完工待结算订单），已结算订单的提成不会重算。', style: TextStyle(color: colors.inkSub, fontSize: 12, height: 1.5)),
               ]),
             ),
-          ),
         ),
       ),
     );
