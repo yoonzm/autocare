@@ -51,9 +51,15 @@ class RefundApi extends OrderApi {
   Future<Map<String, dynamic>> refundOrder(
     String id,
     String reason, {
+    num? amount,
     String? requestId,
   }) async {
-    writes.add({'id': id, 'reason': reason, 'requestId': requestId});
+    writes.add({
+      'id': id,
+      'reason': reason,
+      'amount': amount,
+      'requestId': requestId,
+    });
     if (write != null) return write!.future;
     if (fail) throw const AppError('稍后重试');
     return {'order_id': id};
@@ -229,21 +235,25 @@ void main() {
     expect(notifications, 1);
   });
 
-  test('微信支付宝及未知支付方式阻止假退款，现金储值与次卡记账调用真实接口', () async {
+  test('微信支付宝POS现金储值与次卡均支持退款记账，且支持部分退款金额校验', () async {
     final api = RefundApi()..fail = false;
     merchantApi = api;
-    for (final method in ['微信支付', '支付宝支付', '未知方式']) {
-      final c = OrderRefundController(refundable('x', method));
-      await expectLater(c.submit('服务问题'), throwsA(isA<AppError>()));
-      c.dispose();
-    }
-    expect(api.writes, isEmpty);
-    for (final method in ['储值余额', '现金支付', '次卡抵扣']) {
+    expect(OrderRefundController.destination('微信支付'), '原路退回');
+    expect(OrderRefundController.destination('现金支付'), '现金交还');
+    for (final method in ['微信支付', '支付宝支付', 'POS 刷卡支付', '储值余额', '现金支付', '次卡抵扣']) {
       final c = OrderRefundController(refundable('x', method));
       expect(await c.submit('服务问题'), isTrue);
       c.dispose();
     }
-    expect(api.writes.length, 3);
+    expect(api.writes.length, 6);
+    expect(api.writes.last['amount'], isNull);
+
+    final partial = OrderRefundController(refundable('p', '微信支付'));
+    await expectLater(partial.submit('服务问题', amount: 0), throwsA(isA<AppError>()));
+    await expectLater(partial.submit('服务问题', amount: 50), throwsA(isA<AppError>()));
+    expect(await partial.submit('服务问题', amount: 20), isTrue);
+    expect(api.writes.last['amount'], 20);
+    partial.dispose();
   });
 
   testWidgets('筛选弹层取消不修改传入条件；确认返回独立条件', (t) async {

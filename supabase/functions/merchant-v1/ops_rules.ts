@@ -56,9 +56,16 @@ export function parseExtend(input: Record<string, unknown>): { days: number; rea
   return { days, reason };
 }
 
-/** 次卡退款已下线；兼容旧客户端，任何退回方式均拒绝。 */
-export function parseRefund(_input: Record<string, unknown>): string {
-  return '次卡退款功能已下线';
+export const PACKAGE_REFUND_TARGETS = ['原路退回', '储值余额'] as const;
+export const PACKAGE_REFUND_REASONS = ['会员不再需要', '搬家 / 换车', '服务问题'] as const;
+
+/** 次卡退款校验；选择「原路退回」时现阶段由商家线下退还客户，系统只做记账。 */
+export function parseRefund(input: Record<string, unknown>): { to: string; reason: string } | string {
+  const to = text(input.to);
+  if (!(PACKAGE_REFUND_TARGETS as readonly string[]).includes(to)) return '请选择退回方式';
+  const reason = text(input.reason);
+  if (!(PACKAGE_REFUND_REASONS as readonly string[]).includes(reason)) return '请选择退款原因';
+  return { to, reason };
 }
 
 export interface CheckoutLine {

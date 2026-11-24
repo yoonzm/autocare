@@ -48,13 +48,18 @@ Deno.test('订单查询：默认今日全部；类型 / 收款方式 / 状态只
   check(typeof ok !== 'string' && ok.method === '储值抵扣' && ok.before === '2026-11-03T10:00:00.000Z', 'valid');
 });
 
-Deno.test('订单详情和退款参数：id 必须是 UUID，部分退款被明确拒绝，原因要从列表里选', () => {
+Deno.test('订单详情和退款参数：id 必须是 UUID，支持整单与部分退款，原因要从列表里选', () => {
   const id = '10000000-0000-0000-0000-000000000001';
   check(typeof parseOrderDetail({ type: 'consume', id }) !== 'string', 'detail ok');
   check(typeof parseOrderDetail({ type: 'refund', id }) === 'string', 'refund type has no detail');
   check(typeof parseOrderDetail({ type: 'consume', id: '1' }) === 'string', 'bad id');
   check(typeof parseOrderRefund({ id, reason: '服务问题' }) !== 'string', 'refund ok');
-  check(typeof parseOrderRefund({ id, reason: '服务问题', scope: 'partial' }) === 'string', 'partial rejected');
+  const partial = parseOrderRefund({ id, reason: '服务问题', scope: 'partial', amount: 25.5 });
+  if (typeof partial === 'string') throw new Error(partial);
+  check(partial.amount === 25.5, 'partial amount');
+  check(typeof parseOrderRefund({ id, reason: '服务问题', scope: 'partial' }) === 'string', 'partial missing amount');
+  check(typeof parseOrderRefund({ id, reason: '服务问题', scope: 'partial', amount: 0 }) === 'string', 'partial zero');
+  check(typeof parseOrderRefund({ id, reason: '服务问题', scope: 'partial', amount: 1.234 }) === 'string', 'partial 3 decimals');
   check(typeof parseOrderRefund({ id, reason: '随便' }) === 'string', 'bad reason');
   check(typeof parseOrderRefund({ id: 'x', reason: '服务问题' }) === 'string', 'bad id');
 });

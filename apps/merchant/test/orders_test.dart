@@ -102,10 +102,12 @@ class OrderApi extends MemberFakeApi {
   Future<Map<String, dynamic>> refundOrder(
     String id,
     String reason, {
+    num? amount,
     String? requestId,
   }) => orderCenter('refund', {
     'id': id,
     'reason': reason,
+    if (amount != null) 'amount': amount,
     'request_id': requestId,
   });
 
@@ -356,7 +358,7 @@ void main() {
     await t.pump(const Duration(seconds: 4));
   });
 
-  testWidgets('部分退款没有规则：提示暂未支持，不提交', (t) async {
+  testWidgets('部分退款：可输入部分金额并提交到云函数', (t) async {
     await open(
       t,
       const OrderDetailLivePage(
@@ -366,10 +368,17 @@ void main() {
     await t.tap(find.text('退款'));
     await t.pumpAndSettle();
     await t.tap(find.text('部分退款'));
-    await t.pump();
-    expect(find.text('部分退款暂未支持，请选择全额退款'), findsWidgets);
-    expect(api.calls.where((c) => c['action'] == 'refund'), isEmpty);
-    await t.pump(const Duration(seconds: 6));
+    await t.pumpAndSettle();
+    expect(find.text('确认部分退款'), findsOneWidget);
+    await t.enterText(find.byType(TextFormField), '200');
+    await t.pumpAndSettle();
+    expect(find.text('确认退款 ¥200'), findsOneWidget);
+    await t.tap(find.text('确认退款 ¥200'));
+    await t.pumpAndSettle();
+    final call = api.calls.lastWhere((c) => c['action'] == 'refund');
+    expect(call['id'], 'c1');
+    expect(call['amount'], 200);
+    await t.pump(const Duration(seconds: 4));
   });
 
   testWidgets('退款失败：保留弹层并说明原因，可再次提交', (t) async {

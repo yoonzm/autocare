@@ -33,10 +33,16 @@ Deno.test('extend: whole days, design reasons only', () => {
   eq(typeof parseExtend({ days: 30, reason: '随便' }), 'string', 'reason');
 });
 
-Deno.test('refund: retired for every destination, including old clients', () => {
-  for (const to of ['原路退回', '储值余额', '现金', undefined]) {
-    eq(parseRefund({ to, reason: '搬家 / 换车' }), '次卡退款功能已下线', String(to));
+Deno.test('refund: accepts offline original-route or balance target with valid reason', () => {
+  for (const to of ['原路退回', '储值余额']) {
+    const ok = parseRefund({ to, reason: '搬家 / 换车' });
+    if (typeof ok === 'string') throw new Error(ok);
+    eq(ok, { to, reason: '搬家 / 换车' }, to);
   }
+  for (const to of ['现金', undefined]) {
+    eq(typeof parseRefund({ to, reason: '搬家 / 换车' }), 'string', String(to));
+  }
+  eq(typeof parseRefund({ to: '原路退回', reason: '随便' }), 'string', 'bad reason');
 });
 
 Deno.test('checkout: lines, quantities and payment are validated; prices are never read', () => {

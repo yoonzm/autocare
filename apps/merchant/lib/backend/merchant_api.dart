@@ -464,12 +464,14 @@ class MerchantApi {
   Future<Map<String, dynamic>> refundOrder(
     String id,
     String reason, {
+    num? amount,
     String? requestId,
   }) async {
     final data = await invoke({
       'action': 'order_refund',
       'id': id,
       'reason': reason,
+      if (amount != null) ...{'scope': 'partial', 'amount': amount},
     }, requestId: requestId);
     return Map<String, dynamic>.from(data['item'] as Map);
   }

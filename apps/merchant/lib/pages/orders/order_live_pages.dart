@@ -12,6 +12,7 @@ import '../../kit/async_kit.dart';
 import '../../kit/kit.dart';
 import '../../kit/page_header.dart';
 import '../../kit/sheet_frame.dart';
+import '../../kit/text_input.dart';
 import '../../routes.dart';
 import '../../theme.dart';
 import '../../widgets/app_icon.dart';
@@ -786,6 +787,8 @@ class _DetailBody extends StatelessWidget {
 
   String get kind => '${data['kind']}';
   bool get refunded => data['status'] == 'refunded';
+  bool get partialRefunded => data['status'] == 'partial_refunded';
+  bool get hasRefund => refunded || partialRefunded;
 
   String get _typeLabel => switch (kind) {
     'recharge' => '储值充值',
@@ -884,15 +887,27 @@ class _DetailBody extends StatelessWidget {
                               height: 18,
                               alignment: Alignment.center,
                               decoration: BoxDecoration(
-                                color: refunded ? C.redSoft : C.greenSoft,
+                                color: refunded
+                                    ? C.redSoft
+                                    : partialRefunded
+                                    ? C.amberSoft
+                                    : C.greenSoft,
                                 borderRadius: BorderRadius.circular(9),
                               ),
                               child: Text(
-                                refunded ? '已退款' : '已完成',
+                                refunded
+                                    ? '已退款'
+                                    : partialRefunded
+                                    ? '部分退款'
+                                    : '已完成',
                                 style: ts(
                                   11,
                                   w: FontWeight.w600,
-                                  color: refunded ? C.redInk : C.greenInk,
+                                  color: refunded
+                                      ? C.redInk
+                                      : partialRefunded
+                                      ? C.amberInk
+                                      : C.greenInk,
                                   h: 18,
                                 ),
                               ),
@@ -1043,17 +1058,22 @@ class _DetailBody extends StatelessWidget {
                   '${data['remark'] ?? ''}'.isEmpty ? '无' : '${data['remark']}',
                 ),
             ]),
-            if (refunded && data['refund'] is Map) ...[
+            if (hasRefund && data['refund'] is Map) ...[
               const SizedBox(height: 16),
               _section('退款信息', [
                 _row('退款时间', _when((data['refund'] as Map)['at'])),
                 if ('${(data['refund'] as Map)['reason'] ?? ''}'.isNotEmpty)
                   _row('退款原因', '${(data['refund'] as Map)['reason']}'),
                 _row(
-                  '退款金额',
+                  '已退金额',
                   OrderListController.money((data['refund'] as Map)['amount']),
                   bold: true,
                 ),
+                if (partialRefunded && data['refundable_amount'] is num)
+                  _row(
+                    '剩余可退',
+                    OrderListController.money(data['refundable_amount']),
+                  ),
               ]),
             ],
           ],
@@ -1273,22 +1293,39 @@ class _RefundState extends State<OrderRefundLiveSheet> {
   int amount = 0;
   int reason = 0;
   late final refund = OrderRefundController(widget.order);
+  final _partialCtrl = TextEditingController();
   final _actionKey = 'order-refund:${UniqueKey()}';
   bool get busy => refund.busy || isBusy(_actionKey);
 
   @override
+  void initState() {
+    super.initState();
+    _partialCtrl.addListener(() => setState(() {}));
+  }
+
+  @override
   void dispose() {
+    _partialCtrl.dispose();
     refund.dispose();
     super.dispose();
   }
 
+  num? get _partialAmount =>
+      num.tryParse(_partialCtrl.text.replaceAll(',', '').trim());
+
   @override
   Widget build(BuildContext context) {
-    final total = OrderListController.money(widget.order['amount']);
+    final refundable = refund.refundable;
+    final total = OrderListController.money(refundable);
     final pays = [
       for (final e in widget.order['payments'] as List? ?? const [])
         Map<String, dynamic>.from(e as Map),
     ];
+    final confirmLabel = amount == 1
+        ? (_partialAmount != null && _partialAmount! > 0
+              ? '确认退款 ${OrderListController.money(_partialAmount)}'
+              : '确认部分退款')
+        : '确认退款 $total';
     return ValueListenableBuilder<Set<String>>(
       valueListenable: busyActions,
       builder: (context, _, _) => AsyncActionScope(
@@ -1300,14 +1337,53 @@ class _RefundState extends State<OrderRefundLiveSheet> {
             child: AppSheetFrame(
               title: '订单退款',
               children: [
-                _group('退款金额', ['全额退款 $total', '部分退款'], amount, (i) {
-                  if (i == 1) {
-                    // TODO: 部分退款需要后端按支付方式拆分退回金额的规则，预期接口：order_refund 的 amount 参数；暂只支持全额。
-                    AppToast.show(context, '部分退款暂未支持，请选择全额退款');
-                    return;
-                  }
-                  setState(() => amount = i);
-                }),
+                _group(
+                  '退款金额',
+                  [
+                    '全额退款 $total',
+                    if (refundable > 0) '部分退款',
+                  ],
+                  amount,
+                  (i) => setState(() => amount = i),
+                ),
+                if (amount == 1)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: C.inset,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Row(
+                      children: [
+                        Text(
+                          '退款金额',
+                          style: ts(14, color: C.sub, h: 20),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: AppTextInput(
+                            controller: _partialCtrl,
+                            hint: '最多 $total',
+                            keyboard: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
+                            inputFormatters: [MoneyInputFormatter()],
+                            align: TextAlign.right,
+                            style: ts(
+                              15,
+                              w: FontWeight.w600,
+                              color: C.ink,
+                              h: 22,
+                              tabular: true,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -1406,7 +1482,7 @@ class _RefundState extends State<OrderRefundLiveSheet> {
                     Expanded(
                       flex: 14,
                       child: PrimaryButton(
-                        '确认退款 $total',
+                        confirmLabel,
                         bg: C.redSoft,
                         fg: C.redInk,
                         loading: busy,
@@ -1426,12 +1502,24 @@ class _RefundState extends State<OrderRefundLiveSheet> {
 
   Future<void> _submit() async {
     if (busy) return;
+    num? partial;
+    if (amount == 1) {
+      partial = _partialAmount;
+      if (partial == null || partial <= 0 || partial > refund.refundable) {
+        AppToast.show(
+          context,
+          '请输入 0.01 至 ${OrderListController.money(refund.refundable)} 之间的退款金额',
+        );
+        return;
+      }
+    }
     final messenger = ScaffoldMessenger.of(context);
     final nav = Navigator.of(context);
     await runBusy(_actionKey, () async {
       try {
         final changed = await refund.submit(
           OrderListController.refundReasons[reason],
+          amount: partial,
         );
         if (!mounted || !changed) return;
         nav.pop(true);

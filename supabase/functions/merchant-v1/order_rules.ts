@@ -104,11 +104,22 @@ export function parseOrderDetail(input: Record<string, unknown>): { kind: string
   return { kind, id: input.id };
 }
 
-/** 退款：只支持消费订单的整单退款；部分退款、充值退款还没有规则，明确拒绝而不是假装成功。 */
-export function parseOrderRefund(input: Record<string, unknown>): { id: string; reason: string } | string {
+/** 退款：支持消费订单整单退款与部分退款；现阶段线下收款由商家线下退还，系统只做记账。 */
+export function parseOrderRefund(
+  input: Record<string, unknown>,
+): { id: string; reason: string; amount: number | null } | string {
   if (typeof input.id !== 'string' || !UUID.test(input.id)) return '订单无效';
-  if (text(input.scope) && text(input.scope) !== 'full') return '部分退款暂未支持，请选择全额退款';
+  const scope = text(input.scope);
+  if (scope && scope !== 'full' && scope !== 'partial') return '退款类型无效';
+  let amount: number | null = null;
+  if (input.amount !== undefined && input.amount !== null && input.amount !== '') {
+    const n = Number(String(input.amount).replace(/,/g, ''));
+    if (!Number.isFinite(n) || n <= 0) return '请输入正确的退款金额';
+    if (Math.round(n * 100) !== n * 100) return '退款金额最多两位小数';
+    amount = n;
+  }
+  if (scope === 'partial' && amount === null) return '请输入退款金额';
   const reason = text(input.reason);
   if (!(REFUND_REASONS as readonly string[]).includes(reason)) return '请选择退款原因';
-  return { id: input.id, reason };
+  return { id: input.id, reason, amount };
 }

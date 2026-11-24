@@ -8,6 +8,7 @@ const refundFail = (error: { code?: string; message: string }) => {
   if (error.code === 'P0002') return fail('订单不存在', 404);
   if (error.code === 'P0001') {
     if (error.message.includes('already_refunded')) return fail('这笔订单已经退款，不能重复退款', 400);
+    if (error.message.includes('invalid_refund_amount')) return fail('退款金额须大于 0 且不超过剩余可退金额', 400);
     return fail('请选择退款原因', 400);
   }
   return fail('退款失败', 500);
@@ -61,8 +62,11 @@ export async function handleOrderCenter(input: Input, request: Request): Promise
       const probe = await admin.rpc('order_detail_scoped', { p_store: store, p_kind: 'consume', p_id: v.id, p_resource: scope.resource });
       if (probe.error) return probe.error.code === 'P0002' ? fail('订单不存在', 404) : fail('退款失败', 500);
     }
+    // TODO: 接入微信/支付宝/POS 原路退款支付系统接口后，此处由后端发起真实原路退款；
+    // 现阶段未对接支付系统，线下收款由商家线下退还客户，系统仅做退款记账。
     const { data, error } = await admin.rpc('refund_order', {
-      p_store: store, p_order: v.id, p_reason: v.reason, p_operator: await operatorOf(store), p_request: requestId,
+      p_store: store, p_order: v.id, p_reason: v.reason, p_operator: await operatorOf(store),
+      p_request: requestId, p_amount: v.amount,
     });
     return error ? refundFail(error) : json({ item: data });
   }

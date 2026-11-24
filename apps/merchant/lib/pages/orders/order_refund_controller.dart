@@ -11,15 +11,23 @@ class OrderRefundController extends ChangeNotifier {
   OrderRefundController(Map<String, dynamic> order)
     : order = dataSnapshot(order);
 
-  // 支付 label 是现有 order_detail 的明确协议值。未知方式不能默认为可退。
+  // 支付 label 是现有 order_detail 的明确协议值。
   static String destination(Object? label) => switch (label) {
     '储值余额' => '退回储值余额',
     '现金支付' => '现金交还',
     '次卡抵扣' => '退回次卡次数',
-    _ => '原路退款渠道尚未接通',
+    _ => '原路退回',
   };
 
-  Future<bool> submit(String reason) async {
+  num get refundable {
+    final raw = order['refundable_amount'];
+    if (raw is num) return raw < 0 ? 0 : raw;
+    final total = order['amount'] as num? ?? 0;
+    final refunded = order['refunded_amount'] as num? ?? 0;
+    return (total - refunded) < 0 ? 0 : (total - refunded);
+  }
+
+  Future<bool> submit(String reason, {num? amount}) async {
     if (busy || disposed) return false;
     if (!merchantApi.hasSession) {
       throw const AppError('请先登录', type: AppErrorType.auth);
@@ -27,15 +35,12 @@ class OrderRefundController extends ChangeNotifier {
     if (order['kind'] != 'consume' || order['can_refund'] != true) {
       throw const AppError('这笔订单不能退款');
     }
-    final payments = order['payments'] as List? ?? const [];
-    // TODO: order_refund 目前只做记账，没有微信/支付宝等原路退款渠道闭环。
-    // 不调用该记账接口冒充实际到账；支付渠道接通后再启用对应方式。
-    const supported = ['储值余额', '现金支付', '次卡抵扣'];
-    if ((payments.isEmpty && (order['amount'] as num? ?? 0) > 0) ||
-        payments.any((e) => !supported.contains((e as Map)['label']))) {
-      throw const AppError('原路退款渠道尚未接通，未发起退款');
+    if (amount != null) {
+      if (amount <= 0 || amount > refundable) {
+        throw const AppError('退款金额须大于 0 且不超过可退金额');
+      }
     }
-    final intent = '${order['id']}:$reason';
+    final intent = '${order['id']}:$reason:${amount ?? 'full'}';
     if (_intent != intent) {
       _intent = intent;
       _requestId = MerchantApi.newRequestId();
@@ -46,6 +51,7 @@ class OrderRefundController extends ChangeNotifier {
       await merchantApi.refundOrder(
         '${order['id']}',
         reason,
+        amount: amount != null && amount < refundable ? amount : null,
         requestId: _requestId,
       );
       memberChanged.value++;
