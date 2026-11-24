@@ -168,25 +168,42 @@ void main() {
     await t.tap(text('编辑'));
     await t.pumpAndSettle();
     await t.enterText(find.byType(TextFormField).first, '尚未保存的名字');
-    await t.ensureVisible(text('提成方案'));
-    await t.tap(text('提成方案'));
+    final commissionEntry = find.descendant(
+      of: find.byType(StaffEditorPage),
+      matching: text('提成方案'),
+    );
+    await t.ensureVisible(commissionEntry);
+    await t.tap(commissionEntry);
     await t.pumpAndSettle();
     expect(find.byType(StaffCommissionLivePage), findsOneWidget);
     await t.tap(text('统一比例'));
     await t.pumpAndSettle();
-    await t.enterText(find.byType(TextFormField), '12.5');
+    final commissionPage = find.byType(StaffCommissionLivePage);
+    final commissionRateField = find.descendant(
+      of: commissionPage,
+      matching: find.byType(TextFormField),
+    );
+    final commissionSave = find.descendant(
+      of: commissionPage,
+      matching: text('保存'),
+    );
+    await t.enterText(commissionRateField, '12.5');
     api.writeError = const AppError('保存失败');
-    await t.tap(text('保存'));
+    await t.tap(commissionSave);
     await t.pumpAndSettle();
     expect(find.byType(StaffCommissionLivePage), findsOneWidget);
-    expect(t.widget<TextFormField>(find.byType(TextFormField)).controller!.text, '12.5');
+    expect(t.widget<TextFormField>(commissionRateField).controller!.text, '12.5');
     api.writeError = null;
-    await t.tap(text('保存'));
+    await t.tap(commissionSave);
     await t.pumpAndSettle();
     expect(find.byType(StaffCommissionLivePage), findsNothing);
     expect(text('编辑员工'), findsOneWidget);
     expect(text('统一 12.5%'), findsOneWidget);
-    expect(t.widget<TextFormField>(find.byType(TextFormField).first).controller!.text, '尚未保存的名字');
+    final editorName = find.descendant(
+      of: find.byType(StaffEditorPage),
+      matching: find.byType(EditableText),
+    ).first;
+    expect(t.widget<EditableText>(editorName).controller.text, '尚未保存的名字');
     expect(calls('staff_save'), isEmpty);
     expect(calls('staff_commission_save').last['id'], 't1');
     await t.tap(text('保存'));
@@ -202,11 +219,19 @@ void main() {
       'id': 't1', 'name': '真实技师', 'role': 'technician',
       'commission_mode': 'flat', 'commission_rate': 16.5,
     }));
-    await t.ensureVisible(text('提成方案'));
+    final commissionEntry = find.descendant(
+      of: find.byType(StaffEditorPage),
+      matching: text('提成方案'),
+    );
+    await t.ensureVisible(commissionEntry);
     expect(text('统一 16.5%'), findsOneWidget);
-    await t.tap(text('提成方案'));
+    await t.tap(commissionEntry);
     await t.pumpAndSettle();
-    expect(t.widget<TextFormField>(find.byType(TextFormField)).controller!.text, '16.5');
+    final commissionRateField = find.descendant(
+      of: find.byType(StaffCommissionLivePage),
+      matching: find.byType(TextFormField),
+    );
+    expect(t.widget<TextFormField>(commissionRateField).controller!.text, '16.5');
     Navigator.of(t.element(find.byType(StaffCommissionLivePage))).maybePop();
     await t.pumpAndSettle();
     expect(text('编辑员工'), findsOneWidget);
