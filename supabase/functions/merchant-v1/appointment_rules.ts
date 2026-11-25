@@ -48,7 +48,7 @@ export function parseBooking(i: Input): Input | string {
   };
 }
 export function parseBookingSettings(i: Input): Input | string {
-  const flags = ['notify_confirm_default', 'remind_default', 'notify_manager'];
+  const flags = ['notify_confirm_default', 'remind_default', 'notify_manager', 'notify_consume', 'notify_recharge'];
   for (const key of flags) {
     if (i[key] != null && typeof i[key] !== 'boolean') return '通知设置无效';
   }

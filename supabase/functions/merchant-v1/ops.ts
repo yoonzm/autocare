@@ -1,6 +1,6 @@
 import { admin, fail, json, uuid } from './shared.ts';
 import { SmsError } from './sms.ts';
-import { normalizeCnPhone, sendStoreNotice } from './sms_notice.ts';
+import { normalizeCnPhone, sendStoreNotice, sendTransactionNotice } from './sms_notice.ts';
 import { operatorOf } from './members.ts';
 import { maskPhone } from './staff_member_rules.ts';
 import {
@@ -46,9 +46,10 @@ export async function handleMemberPackages(input: Input, storeId: string): Promi
   if (input.action === 'sell') {
     const v = parseSell(input);
     if (typeof v === 'string') return fail(v);
+    const reqId = typeof input.__request === 'string' ? input.__request : null;
     const { data, error } = await admin.rpc('sell_package', {
       p_store: storeId, p_member: v.member_id, p_package: v.package_id, p_method: v.method,
-      p_operator: await operatorOf(storeId), p_request: typeof input.__request === 'string' ? input.__request : null,
+      p_operator: await operatorOf(storeId), p_request: reqId,
     });
     if (error) {
       if (error.code === 'P0002') {
@@ -59,7 +60,19 @@ export async function handleMemberPackages(input: Input, storeId: string): Promi
       }
       return fail('购买失败', 400);
     }
-    return json({ item: data });
+    const row = (data ?? {}) as Record<string, unknown>;
+    const pkgName = String(row.name ?? '次卡套餐').trim() || '次卡套餐';
+    const totalCount = Number(row.total_count ?? 0);
+    const countText = totalCount > 0 ? `（${totalCount} 次）` : '';
+    const sms = await sendTransactionNotice({
+      storeId,
+      memberId: v.member_id,
+      settingKey: 'notify_recharge',
+      purpose: 'package_buy',
+      requestId: reqId,
+      buildContent: (storeName) => `您在${storeName}购买的「${pkgName}」${countText}已开通，欢迎到店使用。`,
+    });
+    return json({ item: { ...row, ...sms } });
   }
   if (input.action === 'extend') {
     if (!uuid(input.id)) return fail('记录 ID 无效');
@@ -238,9 +251,16 @@ export async function handleOrders(input: Input, storeId: string, maskMemberPhon
       if (error.code === 'P0001') return fail(error.message.includes('hold_closed') ? '这张挂单已经处理过了' : '收款方式无效', 400);
       return fail('收款失败', 400);
     }
-    return json({ item: data });
-  }
-  if (input.action === 'checkout') {
+    const row = (data ?? {}) as Record<string, unknown>;
+    const sms = await sendTransactionNotice({
+      storeId,
+      memberId: null,
+      settingKey: 'notify_consume',
+      purpose: 'order_consume',
+      requestId: request,
+      buildContent: (storeName) => `您在${storeName}本次消费 ¥${Number(row.payable ?? 0).toFixed(2)} 已完成，感谢光临！`,
+    });
+    return json({ item: { ...row, ...sms } });
     const v = parseCheckout(input);
     if (typeof v === 'string') return fail(v);
     const technicians = parseOrderTechnicians(input.technician_ids);
@@ -271,7 +291,19 @@ export async function handleOrders(input: Input, storeId: string, maskMemberPhon
       }
       return fail('收款失败', 400);
     }
-    return json({ item: data });
+    const row = (data ?? {}) as Record<string, unknown>;
+    const payable = Number(row.payable ?? 0).toFixed(2);
+    const method = String(row.pay_method ?? v.method ?? '');
+    const balText = row.balance != null ? `，当前余额 ¥${Number(row.balance).toFixed(2)}` : '';
+    const sms = await sendTransactionNotice({
+      storeId,
+      memberId: v.member_id,
+      settingKey: 'notify_consume',
+      purpose: 'order_consume',
+      requestId: request,
+      buildContent: (storeName) => `您在${storeName}本次消费 ¥${payable}（${method}）已完成${balText}。感谢光临！`,
+    });
+    return json({ item: { ...row, ...sms } });
   }
   return fail('不支持的操作');
 }

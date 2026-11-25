@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import '../../../kit/kit.dart';
 import '../../../resources/merchant_svgs.dart';
 import '../../../kit/page_header.dart';
+import '../../../widgets/sms_receipt_notice.dart';
 
 class PackageSoldPage extends StatelessWidget {
   final WalletReceipt? receipt;
@@ -448,6 +449,7 @@ class PackageSoldPage extends StatelessWidget {
                     gap: 0,
                   ),
                 ),
+                SmsReceiptNoticeCard(data: receipt!.data),
               ],
               main: MainAxisAlignment.start,
               cross: CrossAxisAlignment.stretch,

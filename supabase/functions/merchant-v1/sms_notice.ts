@@ -1,3 +1,4 @@
+import { SmsError } from './sms_types.ts';
 import { admin } from './shared.ts';
 import { sendNoticeSms, smsNoticeProvider, type NoticeSendStore } from './sms.ts';
 
@@ -86,5 +87,103 @@ export async function recordAppointmentNotice(args: {
     });
   } catch {
     // 通知记录写入失败不阻塞主流程或覆盖短信已发送状态。
+  }
+}
+
+export type TxSmsResult = {
+  sms_status: 'sent' | 'failed' | 'skipped';
+  sms_phone_masked?: string;
+  sms_error?: string;
+};
+
+function maskCnPhone(phone: string): string {
+  const digits = phone.replace(/\D/g, '');
+  const local = digits.startsWith('86') && digits.length === 13 ? digits.slice(2) : digits;
+  return local.length === 11 ? `${local.slice(0, 3)}****${local.slice(7)}` : local;
+}
+
+async function deterministicNoticeUuid(parts: string[]): Promise<string> {
+  const bytes = new Uint8Array(
+    await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(parts))),
+  );
+  bytes[6] = (bytes[6] & 15) | 80;
+  bytes[8] = (bytes[8] & 63) | 128;
+  const hex = [...bytes.slice(0, 16)].map((x) => x.toString(16).padStart(2, '0')).join('');
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+}
+
+/**
+ * 消费/充值/购卡完成后的非阻塞短信通知：
+ * 即使开关关闭、未登记手机号或渠道失败，也不回滚已完成的主账务。
+ */
+export async function sendTransactionNotice(args: {
+  storeId: string;
+  memberId?: string | null;
+  settingKey: 'notify_consume' | 'notify_recharge';
+  purpose: 'order_consume' | 'member_recharge' | 'package_buy';
+  buildContent: (storeName: string) => string;
+  requestId?: string | null;
+}): Promise<TxSmsResult> {
+  try {
+    const [settingsRes, storeRes, memberRes] = await Promise.all([
+      admin.from('appointment_settings')
+        .select('notify_consume, notify_recharge')
+        .eq('store_id', args.storeId)
+        .maybeSingle(),
+      admin.from('stores')
+        .select('name')
+        .eq('id', args.storeId)
+        .maybeSingle(),
+      args.memberId
+        ? admin.from('members').select('phone').eq('id', args.memberId).eq('store_id', args.storeId).maybeSingle()
+        : Promise.resolve({ data: null }),
+    ]);
+
+    const enabled = settingsRes.data == null
+      ? true
+      : settingsRes.data[args.settingKey] !== false;
+    if (!enabled) {
+      return {
+        sms_status: 'skipped',
+        sms_error: args.settingKey === 'notify_consume'
+          ? '门店已关闭消费短信通知'
+          : '门店已关闭充值/购卡短信通知',
+      };
+    }
+
+    const rawPhone = memberRes.data?.phone;
+    const normalized = normalizeCnPhone(rawPhone);
+    if (!normalized) {
+      return {
+        sms_status: 'skipped',
+        sms_error: args.memberId ? '会员未登记有效手机号，未发送短信' : '散客未登记手机号，未发送短信',
+      };
+    }
+
+    const storeName = String(storeRes.data?.name ?? '门店').trim() || '门店';
+    const masked = maskCnPhone(normalized);
+    const noticeReqId = args.requestId
+      ? await deterministicNoticeUuid(['tx-sms', args.storeId, args.purpose, args.requestId])
+      : crypto.randomUUID();
+
+    try {
+      await sendStoreNotice({
+        storeId: args.storeId,
+        phone: normalized,
+        purpose: args.purpose,
+        content: args.buildContent(storeName),
+        storeName,
+        requestId: noticeReqId,
+      });
+      return { sms_status: 'sent', sms_phone_masked: masked };
+    } catch (err) {
+      return {
+        sms_status: 'failed',
+        sms_phone_masked: masked,
+        sms_error: err instanceof SmsError ? err.message : '短信发送失败',
+      };
+    }
+  } catch {
+    return { sms_status: 'failed', sms_error: '短信通知处理失败' };
   }
 }

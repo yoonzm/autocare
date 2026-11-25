@@ -11,6 +11,9 @@ const purposeLabels: Record<string, string> = {
   appointment_manager_cancelled: '预约取消通知店长',
   hold_pickup: '完工取车通知',
   staff_invite: '员工短信邀请',
+  order_consume: '消费结账通知',
+  member_recharge: '储值充值通知',
+  package_buy: '购买次卡通知',
   member_visit: '会员回访通知',
   member_reminder: '会员提醒通知',
   member_followup: '会员跟进通知',
@@ -93,6 +96,8 @@ export async function handleStoreSms(input: Input, request: Request): Promise<Re
       notify_remind: true,
       remind_minutes: 60,
       notify_manager: true,
+      notify_consume: true,
+      notify_recharge: true,
     };
 
     return json({
@@ -112,6 +117,22 @@ export async function handleStoreSms(input: Input, request: Request): Promise<Re
         },
         booking_settings: bs,
         scenarios: [
+          {
+            key: 'order_consume',
+            group: 'transaction',
+            title: '消费结账通知客户',
+            setting_key: 'notify_consume',
+            enabled: bs.notify_consume !== false,
+            template_preview: `您在${storeName}本次消费 ¥{金额}（{支付方式}）已完成，当前余额 ¥{余额}。感谢光临！`,
+          },
+          {
+            key: 'member_recharge',
+            group: 'transaction',
+            title: '储值充值与购卡通知',
+            setting_key: 'notify_recharge',
+            enabled: bs.notify_recharge !== false,
+            template_preview: `您在${storeName}充值 ¥{金额}（赠送 ¥{赠送}）已到账，当前余额 ¥{余额}；购买次卡时提示套餐已开通。`,
+          },
           {
             key: 'appointment_confirm',
             group: 'booking',

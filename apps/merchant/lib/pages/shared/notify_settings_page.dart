@@ -180,15 +180,31 @@ class _NotifySettingsPageState extends State<NotifySettingsPage> {
       for (final s in (data['scenarios'] as List? ?? const []))
         if (s is Map) Map<String, dynamic>.from(s),
     ];
+    final transactionScenarios =
+        scenarios.where((s) => s['group'] == 'transaction').toList();
     final bookingScenarios =
         scenarios.where((s) => s['group'] == 'booking').toList();
-    final readonlyScenarios =
-        scenarios.where((s) => s['group'] != 'booking').toList();
+    final readonlyScenarios = scenarios
+        .where((s) => s['group'] != 'booking' && s['group'] != 'transaction')
+        .toList();
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 36),
       children: [
         _heroCard(stats, provider),
+        if (transactionScenarios.isNotEmpty) ...[
+          const SizedBox(height: 20),
+          _sectionTitle('消费与充值通知 · 默认开启'),
+          const SizedBox(height: 10),
+          _card(
+            children: [
+              for (var i = 0; i < transactionScenarios.length; i++) ...[
+                if (i > 0) Divider(height: 1, color: C.line),
+                _bookingScenarioRow(transactionScenarios[i]),
+              ],
+            ],
+          ),
+        ],
         const SizedBox(height: 20),
         _sectionTitle('预约短信通知 · 与预约设置同步'),
         const SizedBox(height: 10),

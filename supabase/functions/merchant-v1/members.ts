@@ -1,5 +1,6 @@
 import { parseMemberExtraFilters } from './member_filter_rules.ts';
 import { admin, fail, json, uuid } from './shared.ts';
+import { sendTransactionNotice } from './sms_notice.ts';
 import { recognizeAndFindMember } from './plate_lookup.ts';
 import { RecognitionError, recognitionConfig } from './plate_recognition.ts';
 import {
@@ -151,16 +152,30 @@ export async function handleMembers(input: Input, storeId: string): Promise<Resp
     if (!uuid(input.id)) return fail('会员无效');
     const values = parseRecharge(input);
     if (typeof values === 'string') return fail(values);
+    const reqId = typeof input.__request === 'string' ? input.__request : null;
     const { data, error } = await admin.rpc('recharge_member', {
       p_store: storeId, p_member: input.id, p_amount: values.amount, p_gift: values.gift,
       p_method: values.method, p_operator: await operatorOf(storeId), p_note: values.note,
-      p_request: typeof input.__request === 'string' ? input.__request : null,
+      p_request: reqId,
     });
     if (error) {
       if (error.code === 'P0002') return fail('会员不存在', 404);
       return fail('充值失败', 400);
     }
-    return json({ item: data });
+    const row = (data ?? {}) as Record<string, unknown>;
+    const amount = Number(values.amount ?? 0).toFixed(2);
+    const gift = Number(row.gift ?? values.gift ?? 0);
+    const giftText = gift > 0 ? `（赠送 ¥${gift.toFixed(2)}）` : '';
+    const balText = row.balance != null ? `，当前余额 ¥${Number(row.balance).toFixed(2)}` : '';
+    const sms = await sendTransactionNotice({
+      storeId,
+      memberId: String(input.id),
+      settingKey: 'notify_recharge',
+      purpose: 'member_recharge',
+      requestId: reqId,
+      buildContent: (storeName) => `您在${storeName}充值 ¥${amount}${giftText}已到账${balText}。`,
+    });
+    return json({ item: { ...row, ...sms } });
   }
   if (input.action === 'adjust') {
     if (!uuid(input.id)) return fail('会员无效');

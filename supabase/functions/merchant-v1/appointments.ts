@@ -5,7 +5,7 @@ import { hasCap, technicianScope } from './staff_access.ts';
 import { parseBooking, parseBookingSettings, parseResource, validDay } from './appointment_rules.ts';
 import { parseOrderTechnicians } from './ops_rules.ts';
 import { SmsError } from './sms.ts';
-import { normalizeCnPhone, recordAppointmentNotice, sendStoreNotice } from './sms_notice.ts';
+import { normalizeCnPhone, recordAppointmentNotice, sendStoreNotice, sendTransactionNotice } from './sms_notice.ts';
 import type { Input } from './types.ts';
 
 const managerNoticeDeps: ManagerNoticeDependencies = {
@@ -299,6 +299,7 @@ export async function handleAppointments(input: Input, request: Request): Promis
       }
       const technicians = parseOrderTechnicians(input.technician_ids);
       if (typeof technicians === 'string') return fail(technicians);
+      const reqId = request.headers.get('x-request-id');
       const { data, error } = await admin.rpc('checkout_with_technicians', {
         p_store: store,
         p_appointment: input.id,
@@ -311,10 +312,34 @@ export async function handleAppointments(input: Input, request: Request): Promis
         p_plate: String(input.plate ?? '').slice(0, 10),
         p_remark: '',
         p_operator: await operatorOf(store),
-        p_request: request.headers.get('x-request-id'),
+        p_request: reqId,
         p_technician_ids: technicians,
       });
-      return error ? rpcError(error) : json({ item: data });
+      if (error) return rpcError(error);
+      const row = (data ?? {}) as Record<string, unknown>;
+      const { data: apptRow } = await admin
+        .from('appointments')
+        .select('member_id')
+        .eq('id', input.id)
+        .eq('store_id', store)
+        .maybeSingle();
+      const memberId = typeof row.member_id === 'string'
+        ? row.member_id
+        : typeof apptRow?.member_id === 'string'
+        ? apptRow.member_id
+        : null;
+      const payable = Number(row.payable ?? 0).toFixed(2);
+      const method = String(row.pay_method ?? input.method ?? '');
+      const balText = row.balance != null ? `，当前余额 ¥${Number(row.balance).toFixed(2)}` : '';
+      const sms = await sendTransactionNotice({
+        storeId: store,
+        memberId,
+        settingKey: 'notify_consume',
+        purpose: 'order_consume',
+        requestId: reqId,
+        buildContent: (storeName) => `您在${storeName}本次消费 ¥${payable}（${method}）已完成${balText}。感谢光临！`,
+      });
+      return json({ item: { ...row, ...sms } });
     }
     return fail('不支持的预约操作');
   } catch (e) {
