@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../backend/appointment_flow.dart';
 import '../../backend/merchant_api.dart';
 import '../../kit/async_kit.dart';
+import '../../kit/kit.dart' show HSwitchValue;
 import '../../routes.dart' show openRoute;
 import '../../theme.dart';
 import '../../widgets/app_icon.dart';
@@ -110,12 +111,18 @@ class _NotifySettingsPageState extends State<NotifySettingsPage> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
                   decoration: BoxDecoration(
                     color: C.inset,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Text('固定模板 · 只读', style: ts(11, color: C.muted, h: 14)),
+                  child: Text(
+                    '固定模板 · 只读',
+                    style: ts(11, color: C.muted, h: 14),
+                  ),
                 ),
               ],
             ),
@@ -205,10 +212,12 @@ class _NotifySettingsPageState extends State<NotifySettingsPage> {
       for (final s in (data['scenarios'] as List? ?? const []))
         if (s is Map) Map<String, dynamic>.from(s),
     ];
-    final transactionScenarios =
-        scenarios.where((s) => s['group'] == 'transaction').toList();
-    final bookingScenarios =
-        scenarios.where((s) => s['group'] == 'booking').toList();
+    final transactionScenarios = scenarios
+        .where((s) => s['group'] == 'transaction')
+        .toList();
+    final bookingScenarios = scenarios
+        .where((s) => s['group'] == 'booking')
+        .toList();
     final readonlyScenarios = scenarios
         .where((s) => s['group'] != 'booking' && s['group'] != 'transaction')
         .toList();
@@ -219,35 +228,41 @@ class _NotifySettingsPageState extends State<NotifySettingsPage> {
         _heroCard(stats),
         if (transactionScenarios.isNotEmpty) ...[
           const SizedBox(height: 20),
-          _sectionTitle('消费与充值通知 · 点击查看模板'),
+          _sectionTitle('消费与充值通知'),
           const SizedBox(height: 10),
           _card(
+            scene: true,
             children: [
               for (var i = 0; i < transactionScenarios.length; i++) ...[
-                if (i > 0) Divider(height: 1, color: C.line),
+                if (i > 0)
+                  Divider(height: 1, thickness: 1, indent: 60, color: C.line),
                 _toggleRow(transactionScenarios[i]),
               ],
             ],
           ),
         ],
         const SizedBox(height: 20),
-        _sectionTitle('预约短信通知 · 与预约设置同步'),
+        _sectionTitle('预约短信通知'),
         const SizedBox(height: 10),
         _card(
+          scene: true,
           children: [
             for (var i = 0; i < bookingScenarios.length; i++) ...[
-              if (i > 0) Divider(height: 1, color: C.line),
+              if (i > 0)
+                Divider(height: 1, thickness: 1, indent: 60, color: C.line),
               _toggleRow(bookingScenarios[i]),
             ],
           ],
         ),
         const SizedBox(height: 20),
-        _sectionTitle('业务与验证码模板 · 平台固定配置'),
+        _sectionTitle('其他通知'),
         const SizedBox(height: 10),
         _card(
+          scene: true,
           children: [
             for (var i = 0; i < readonlyScenarios.length; i++) ...[
-              if (i > 0) Divider(height: 1, color: C.line),
+              if (i > 0)
+                Divider(height: 1, thickness: 1, indent: 60, color: C.line),
               _readonlyRow(readonlyScenarios[i]),
             ],
           ],
@@ -265,43 +280,55 @@ class _NotifySettingsPageState extends State<NotifySettingsPage> {
     final pending = (stats['pending'] as num?)?.toInt() ?? 0;
 
     return Container(
+      clipBehavior: Clip.antiAlias,
       decoration: C.hero(28),
       padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
+        clipBehavior: Clip.none,
         children: [
-          Text(
-            '本月已发送通知短信',
-            style: ts(13, color: const Color(0xFFA1A1AA), h: 18),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
+          const Positioned(right: -90, top: -100, child: Rings(size: 220)),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '$total',
-                style: ts(
-                  36,
-                  w: FontWeight.w600,
-                  color: const Color(0xFFFAFAFA),
-                  h: 44,
-                ),
+                '本月已发送通知短信',
+                style: ts(13, color: const Color(0xFFA1A1AA), h: 18),
               ),
-              const SizedBox(width: 6),
-              Text('条', style: ts(14, color: const Color(0xFFA1A1AA), h: 20)),
-            ],
-          ),
-          const SizedBox(height: 14),
-          Row(
-            children: [
-              _statPill('已送达 $delivered', const Color(0xFF5FD48C)),
-              const SizedBox(width: 8),
-              _statPill('待回执 $pending', const Color(0xFFA1A1AA)),
-              const SizedBox(width: 8),
-              _statPill(
-                '失败 $failed',
-                failed > 0 ? const Color(0xFFFF7B7E) : const Color(0xFFA1A1AA),
+              const SizedBox(height: 8),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  Text(
+                    '$total',
+                    style: ts(
+                      36,
+                      w: FontWeight.w600,
+                      color: const Color(0xFFFAFAFA),
+                      h: 44,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    '条',
+                    style: ts(14, color: const Color(0xFFA1A1AA), h: 20),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  _statPill('已送达 $delivered', const Color(0xFF5FD48C)),
+                  const SizedBox(width: 8),
+                  _statPill('待回执 $pending', const Color(0xFFA1A1AA)),
+                  const SizedBox(width: 8),
+                  _statPill(
+                    '失败 $failed',
+                    failed > 0
+                        ? const Color(0xFFFF7B7E)
+                        : const Color(0xFFA1A1AA),
+                  ),
+                ],
               ),
             ],
           ),
@@ -317,19 +344,26 @@ class _NotifySettingsPageState extends State<NotifySettingsPage> {
         color: const Color.fromRGBO(255, 255, 255, 0.08),
         borderRadius: BorderRadius.circular(10),
       ),
-      child: Text(text, style: ts(12, w: FontWeight.w500, color: color, h: 16)),
+      child: Text(
+        text,
+        style: ts(12, w: FontWeight.w500, color: color, h: 16),
+      ),
     );
   }
 
   Widget _sectionTitle(String text) {
     return Padding(
       padding: const EdgeInsets.only(left: 4),
-      child: Text(text, style: ts(13, w: FontWeight.w600, color: C.muted, h: 18)),
+      child: Text(
+        text,
+        style: ts(13, w: FontWeight.w600, color: C.muted, h: 18),
+      ),
     );
   }
 
-  Widget _card({required List<Widget> children}) {
+  Widget _card({required List<Widget> children, bool scene = false}) {
     return Container(
+      padding: scene ? const EdgeInsets.symmetric(vertical: 4) : null,
       decoration: BoxDecoration(
         color: C.card,
         borderRadius: BorderRadius.circular(24),
@@ -346,11 +380,8 @@ class _NotifySettingsPageState extends State<NotifySettingsPage> {
     return switch (key) {
       'order_consume' => ('receipt', C.primarySoft, C.primaryInk),
       'member_recharge' => ('card', C.greenSoft, C.greenInk),
-      'appointment_confirm' || 'appointment_reschedule' => (
-        'calendar',
-        C.primarySoft,
-        C.primaryInk,
-      ),
+      'appointment_confirm' ||
+      'appointment_reschedule' => ('calendar', C.primarySoft, C.primaryInk),
       'appointment_cancel' => ('calendar', C.redSoft, C.redInk),
       'appointment_reminder' => ('clock', C.amberSoft, C.amberInk),
       'appointment_manager' => ('bell', C.amberSoft, C.amberInk),
@@ -364,8 +395,8 @@ class _NotifySettingsPageState extends State<NotifySettingsPage> {
   Widget _iconTile(String key) {
     final (icon, bg, fg) = _iconStyle(key);
     return Container(
-      width: 36,
-      height: 36,
+      width: 32,
+      height: 32,
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(10),
@@ -376,104 +407,93 @@ class _NotifySettingsPageState extends State<NotifySettingsPage> {
   }
 
   Widget _toggleRow(Map<String, dynamic> item) {
-    final key = '${item['key'] ?? ''}';
     final settingKey = '${item['setting_key'] ?? ''}';
     final enabled = _bookingSettings != null && settingKey.isNotEmpty
         ? _bookingSettings![settingKey] == true
         : item['enabled'] == true;
     final busy = _savingKey == settingKey;
-
-    return InkWell(
-      onTap: () => _showTemplateSheet(item),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 12, 14, 12),
-        child: Row(
-          children: [
-            _iconTile(key),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '${item['title'] ?? ''}',
-                    style: ts(15, w: FontWeight.w600, color: C.ink, h: 20),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    '点击查看固定短信模板',
-                    style: ts(12, color: C.muted, h: 16),
-                  ),
-                ],
-              ),
-            ),
-            if (busy)
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 12),
+    return _notificationRow(
+      item,
+      trailing: SizedBox(
+        width: 48,
+        height: 28,
+        child: busy
+            ? const Center(
                 child: SizedBox(
                   width: 22,
                   height: 22,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 ),
               )
-            else
-              Switch.adaptive(
-                value: enabled,
-                activeTrackColor: C.primary,
-                onChanged: settingKey.isEmpty
-                    ? null
-                    : (v) => _toggleSetting(settingKey, v),
+            : Semantics(
+                label: '${item['title'] ?? ''}',
+                toggled: enabled,
+                enabled: settingKey.isNotEmpty && _savingKey == null,
+                child: IgnorePointer(
+                  ignoring: settingKey.isEmpty || _savingKey != null,
+                  child: HSwitchValue(
+                    value: enabled,
+                    onChanged: (v) => _toggleSetting(settingKey, v),
+                  ),
+                ),
               ),
-          ],
-        ),
       ),
     );
   }
 
-  Widget _readonlyRow(Map<String, dynamic> item) {
-    final key = '${item['key'] ?? ''}';
-    final hint = '${item['trigger_hint'] ?? ''}';
-    return InkWell(
-      onTap: () => _showTemplateSheet(item),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 12, 14, 12),
-        child: Row(
-          children: [
-            _iconTile(key),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '${item['title'] ?? ''}',
-                    style: ts(15, w: FontWeight.w600, color: C.ink, h: 20),
-                  ),
-                  if (hint.isNotEmpty) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      hint,
-                      style: ts(12, color: C.muted, h: 16),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+  Widget _smsTag() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6),
+      decoration: BoxDecoration(
+        color: C.primarySoft,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        '短信',
+        style: ts(11, w: FontWeight.w500, color: C.primaryInk, h: 16),
+      ),
+    );
+  }
+
+  Widget _readonlyRow(Map<String, dynamic> item) => _notificationRow(item);
+
+  Widget _notificationRow(Map<String, dynamic> item, {Widget? trailing}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: [
+          Expanded(
+            child: InkWell(
+              onTap: () => _showTemplateSheet(item),
+              child: Container(
+                constraints: const BoxConstraints(minHeight: 64),
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                  children: [
+                    _iconTile('${item['key'] ?? ''}'),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${item['title'] ?? ''}',
+                            style: ts(15, color: C.ink, h: 22),
+                          ),
+                          const SizedBox(height: 3),
+                          _smsTag(),
+                        ],
+                      ),
                     ),
+                    const SizedBox(width: 12),
+                    AppIcon('chevronRight', size: 16, color: C.faint),
                   ],
-                ],
+                ),
               ),
             ),
-            const SizedBox(width: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                color: C.inset,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text('固定模板', style: ts(11, color: C.muted, h: 14)),
-            ),
-            const SizedBox(width: 4),
-            AppIcon('chevronRight', size: 16, color: C.faint),
-          ],
-        ),
+          ),
+          if (trailing != null) ...[const SizedBox(width: 12), trailing],
+        ],
       ),
     );
   }
