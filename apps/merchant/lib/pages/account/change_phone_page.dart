@@ -567,7 +567,7 @@ class _ChangePhonePageState extends State<ChangePhonePage> {
                           Flexible(
                             flex: 416,
                             child: Text(
-                              '更换后需使用新手机号登录，微信与短信通知的接收号码也会同步更新。',
+                              '更换后需使用新手机号登录，短信通知的接收号码也会同步更新。',
                               style: hts(
                                 13,
                                 dk(

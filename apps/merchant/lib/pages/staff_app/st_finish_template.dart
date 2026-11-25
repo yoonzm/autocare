@@ -585,7 +585,7 @@ class StFinishTemplate extends StatelessWidget {
                     gap: 10,
                   ),
                   Text(
-                    '提交后将通知前台收银',
+                    '提交后将进入待收银列表',
                     style: hts(
                       11,
                       dk(context, Color(0xFFA1A1AA), Color(0xFF80808A)),

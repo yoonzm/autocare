@@ -336,7 +336,7 @@ class _StaffTransferTemplateState extends State<StaffTransferTemplate> {
               gap: 8,
             ),
             Text(
-              '转交后进度与已拍照片保留，提成按各自完成的工序分配，并通知接手技师。',
+              '转交后进度与已拍照片保留，提成按各自完成的工序分配，接手技师可在任务列表中查看。',
               style: hts(
                 12,
                 dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),

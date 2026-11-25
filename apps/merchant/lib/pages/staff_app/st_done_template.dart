@@ -130,7 +130,7 @@ class StDoneTemplate extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          '已通知前台收银，结算后计入本月提成',
+                          '已进入待收银列表，结算后计入本月提成',
                           style: hts(
                             13,
                             dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),

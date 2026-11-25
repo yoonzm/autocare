@@ -97,7 +97,7 @@ class _StCashQueueTemplateState extends State<StCashQueueTemplate> {
     HoldStore.recordRemoved('${h['id']}');
     TaskFlow.notify();
     StQueueFlow.changed.value++;
-    if (mounted) AppToast.show(context, '已退回，已通知提交人', kind: ToastKind.success);
+    if (mounted) AppToast.show(context, '已退回，等待提交人核对', kind: ToastKind.success);
   }
 
   void _collect(Map<String, dynamic> h) {
@@ -581,7 +581,7 @@ class _StCashQueueTemplateState extends State<StCashQueueTemplate> {
                 hbox(
                   margin: EdgeInsets.fromLTRB(4, 0, 4, 0),
                   child: Text(
-                    '技师在「开单」提交后进入这里，收银完成后会通知提交人。老板、店长、前台都能处理。',
+                    '技师在「开单」提交后进入这里，老板、店长、前台都能处理。',
                     style: hts(
                       12,
                       dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),

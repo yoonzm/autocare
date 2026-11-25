@@ -150,15 +150,13 @@ void main() {
       await t.enterText(find.byType(TextFormField), '客户去开会，17:00 取车');
       await t.tap(find.text('待结算'));
       await t.pump();
-      await t.tap(find.text('1 小时'));
-      await t.pump();
       await t.tap(find.text('确认挂单'));
       await t.pumpAndSettle();
       final sent = fake.heldSaves.single;
       expect(sent['hold'], isNull);
       expect(sent['member'], 'm1');
       expect(sent['status'], '待结算');
-      expect(sent['remind'], '1 小时');
+      expect(sent['remind'], '不提醒');
       expect(sent['note'], '客户去开会，17:00 取车');
       expect(sent['plate'], '沪A8K29M');
       expect(sent['lines'], [
@@ -175,17 +173,18 @@ void main() {
       expect(find.text('¥0.00'), findsWidgets);
     });
 
-    testWidgets('默认状态是“施工中”、提醒是“完工时”（和设计稿一致）', (t) async {
+    testWidgets('默认状态是“施工中”，一期不展示到点提醒入口', (t) async {
       phone(t);
       await openOrder(t);
       await t.tap(find.text('精致洗车'));
       await t.pump();
       await t.tap(find.text('挂单').last);
       await t.pumpAndSettle();
+      expect(find.text('到点提醒我'), findsNothing);
       await t.tap(find.text('确认挂单'));
       await t.pumpAndSettle();
       expect(fake.heldSaves.single['status'], '施工中');
-      expect(fake.heldSaves.single['remind'], '完工时');
+      expect(fake.heldSaves.single['remind'], '不提醒');
       expect(fake.heldSaves.single['note'], '');
     });
 
