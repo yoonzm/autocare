@@ -68,7 +68,6 @@ const byAction: Record<string, Requirement> = {
   staff_order_quote: cap('order_submit'),
   staff_order_submit: cap('order_submit'),
   staff_cash_queue: cap('cash_queue'),
-  staff_order_return: cap('cash_queue'),
   staff_redeem_send: cap('order_submit'),
   staff_redeem: cap('order_submit'),
   staff_messages: any,

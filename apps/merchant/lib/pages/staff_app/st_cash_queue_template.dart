@@ -2,18 +2,16 @@ import 'package:flutter/material.dart';
 
 import '../../backend/access_flow.dart';
 import '../../backend/hold_store.dart';
-import '../../backend/task_flow.dart';
 import '../orders/order_detail_ref.dart';
 import '../orders/order_route_data.dart';
 import '../../backend/merchant_api.dart';
-import '../../kit/async_kit.dart';
 import '../../kit/kit.dart';
 import '../../routes.dart' show openRoute;
 import '../staff/staff_live.dart';
 import 'st_live.dart';
 import '../../kit/page_header.dart';
 
-/// 待收银队列变化（退回 / 收银后）时刷新列表与前台工作台。
+/// 待收银队列变化（收银后）时刷新列表与前台工作台。
 class StQueueFlow {
   static final changed = ValueNotifier<int>(0);
 }
@@ -35,13 +33,9 @@ class StCashQueueTemplate extends StatefulWidget {
 }
 
 class _StCashQueueTemplateState extends State<StCashQueueTemplate> {
-  final _prefix = 'staff-queue:${UniqueKey()}';
-  final _returned = <String>{};
   int _tab = 0;
-  List<Map<String, dynamic>> get items =>
-      widget.items.where((e) => !_returned.contains('${e['id']}')).toList();
+  List<Map<String, dynamic>> get items => widget.items;
   int get _collectedCount => widget.collectedCount ?? widget.collected.length;
-  String _returnKey(Map<String, dynamic> h) => '$_prefix:${h['id']}';
 
   Map<String, dynamic> _quote(Map<String, dynamic> h) =>
       Map<String, dynamic>.from((h['quote'] as Map?) ?? const {});
@@ -62,6 +56,7 @@ class _StCashQueueTemplateState extends State<StCashQueueTemplate> {
     if (m == null) return '散客 · 非会员';
     return '${m['name'] ?? ''} · ${_level(h)}';
   }
+
   String _submitter(Map<String, dynamic> h) {
     final s = h['submitter'] as Map?;
     if (s == null) return '提交人 —';
@@ -90,306 +85,248 @@ class _StCashQueueTemplateState extends State<StCashQueueTemplate> {
       },
   ];
 
-  Future<void> _return(Map<String, dynamic> h) async {
-    var saved = false;
-    await runBusy(_returnKey(h), () async {
-      try {
-        await merchantApi.staffWork('staff_order_return', {
-          'id': h['id'],
-          'reason': '请核对后重新提交',
-        });
-        saved = true;
-      } catch (e) {
-        if (mounted) AppToast.error(context, e);
-      }
-    });
-    if (!saved) return;
-    if (mounted) setState(() => _returned.add('${h['id']}'));
-    HoldStore.recordRemoved('${h['id']}');
-    TaskFlow.notify();
-    StQueueFlow.changed.value++;
-    if (mounted) AppToast.show(context, '已退回，等待提交人核对', kind: ToastKind.success);
-  }
-
-  void _collect(Map<String, dynamic> h) {
+  void _collect(BuildContext context, Map<String, dynamic> h) {
     openRoute(context, 'Order', arguments: OrderRouteData(hold: h));
   }
 
-  Widget _card(
-    BuildContext context,
-    Map<String, dynamic> h,
-  ) => AsyncActionScope(
-    actionKey: _returnKey(h),
-    child: hbox(
-      bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-      radius: BorderRadius.circular(24),
-      shadow: dk(
-        context,
-        [
-          BoxShadow(
-            color: Color.fromRGBO(0, 0, 0, 0.06),
-            offset: Offset(0, 0),
-            blurRadius: 1,
-            spreadRadius: 0,
-          ),
-          BoxShadow(
-            color: Color.fromRGBO(0, 0, 0, 0.06),
-            offset: Offset(0, 1),
-            blurRadius: 2,
-            spreadRadius: 0,
-          ),
-          BoxShadow(
-            color: Color.fromRGBO(0, 0, 0, 0.04),
-            offset: Offset(0, 2),
-            blurRadius: 4,
-            spreadRadius: 0,
-          ),
-        ],
-        [
-          BoxShadow(
-            color: Color(0xFF26262B),
-            offset: Offset(0, 0),
-            blurRadius: 0,
-            spreadRadius: 1,
-          ),
-        ],
-      ),
-      pad: EdgeInsets.fromLTRB(16, 16, 16, 16),
-      child: hcol(
-        [
-          hrow(
-            [
-              hbox(
-                grad: LinearGradient(
-                  begin: Alignment(-0, -1),
-                  end: Alignment(0, 1),
-                  colors: [Color(0xFF2F73F2), Color(0xFF1A4FC4)],
-                  stops: [0, 1],
-                ),
-                radius: BorderRadius.circular(5),
-                shadow: [
-                  BoxShadow(
-                    color: Color.fromRGBO(0, 0, 0, 0.08),
-                    offset: Offset(0, 0),
-                    blurRadius: 0,
-                    spreadRadius: 1,
-                  ),
-                ],
-                border: Border.all(
-                  color: Color.fromRGBO(255, 255, 255, 0.75),
-                  width: 1.5,
-                ),
-                pad: EdgeInsets.fromLTRB(7, 1, 7, 1),
-                child: Text(
-                  _plate(h),
-                  style: hts(
-                    12,
-                    Color(0xFFFFFFFF),
-                    w: FontWeight.w600,
-                    lh: 18,
-                    ls: 0.5,
-                  ),
-                  softWrap: false,
-                  maxLines: 1,
-                ),
+  Widget _card(BuildContext context, Map<String, dynamic> h) => hbox(
+    bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+    radius: BorderRadius.circular(24),
+    shadow: dk(
+      context,
+      [
+        BoxShadow(
+          color: Color.fromRGBO(0, 0, 0, 0.06),
+          offset: Offset(0, 0),
+          blurRadius: 1,
+          spreadRadius: 0,
+        ),
+        BoxShadow(
+          color: Color.fromRGBO(0, 0, 0, 0.06),
+          offset: Offset(0, 1),
+          blurRadius: 2,
+          spreadRadius: 0,
+        ),
+        BoxShadow(
+          color: Color.fromRGBO(0, 0, 0, 0.04),
+          offset: Offset(0, 2),
+          blurRadius: 4,
+          spreadRadius: 0,
+        ),
+      ],
+      [
+        BoxShadow(
+          color: Color(0xFF26262B),
+          offset: Offset(0, 0),
+          blurRadius: 0,
+          spreadRadius: 1,
+        ),
+      ],
+    ),
+    pad: EdgeInsets.fromLTRB(16, 16, 16, 16),
+    child: hcol(
+      [
+        hrow(
+          [
+            hbox(
+              grad: LinearGradient(
+                begin: Alignment(-0, -1),
+                end: Alignment(0, 1),
+                colors: [Color(0xFF2F73F2), Color(0xFF1A4FC4)],
+                stops: [0, 1],
               ),
-              Expanded(
-                flex: 1,
-                child: Text(
-                  _sub(h),
-                  style: hts(
-                    12,
-                    dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
-                    lh: 17,
-                  ),
+              radius: BorderRadius.circular(5),
+              shadow: [
+                BoxShadow(
+                  color: Color.fromRGBO(0, 0, 0, 0.08),
+                  offset: Offset(0, 0),
+                  blurRadius: 0,
+                  spreadRadius: 1,
                 ),
+              ],
+              border: Border.all(
+                color: Color.fromRGBO(255, 255, 255, 0.75),
+                width: 1.5,
               ),
-              Text(
-                _time(h),
+              pad: EdgeInsets.fromLTRB(7, 1, 7, 1),
+              child: Text(
+                _plate(h),
+                style: hts(
+                  12,
+                  Color(0xFFFFFFFF),
+                  w: FontWeight.w600,
+                  lh: 18,
+                  ls: 0.5,
+                ),
+                softWrap: false,
+                maxLines: 1,
+              ),
+            ),
+            Expanded(
+              flex: 1,
+              child: Text(
+                _sub(h),
                 style: hts(
                   12,
                   dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
                   lh: 17,
                 ),
               ),
-            ],
-            main: MainAxisAlignment.start,
-            cross: CrossAxisAlignment.center,
-            gap: 8,
-          ),
-          hcol(
-            [
-              for (final l in _lines(h))
-                hrow(
-                  [
-                    Expanded(
-                      flex: 1,
-                      child: Text(
-                        l['label'],
-                        style: hts(
-                          14,
-                          dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                          lh: 20,
-                        ),
-                      ),
-                    ),
-                    Text(
-                      l['amount'],
+            ),
+            Text(
+              _time(h),
+              style: hts(
+                12,
+                dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
+                lh: 17,
+              ),
+            ),
+          ],
+          main: MainAxisAlignment.start,
+          cross: CrossAxisAlignment.center,
+          gap: 8,
+        ),
+        hcol(
+          [
+            for (final l in _lines(h))
+              hrow(
+                [
+                  Expanded(
+                    flex: 1,
+                    child: Text(
+                      l['label'],
                       style: hts(
                         14,
                         dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
                         lh: 20,
                       ),
                     ),
-                  ],
-                  main: MainAxisAlignment.start,
-                  cross: CrossAxisAlignment.center,
-                  gap: 0,
-                ),
-              if (_discount(h) > 0)
-                hrow(
-                  [
-                    Expanded(
-                      flex: 1,
+                  ),
+                  Text(
+                    l['amount'],
+                    style: hts(
+                      14,
+                      dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                      lh: 20,
+                    ),
+                  ),
+                ],
+                main: MainAxisAlignment.start,
+                cross: CrossAxisAlignment.center,
+                gap: 0,
+              ),
+            if (_discount(h) > 0)
+              hrow(
+                [
+                  Expanded(
+                    flex: 1,
+                    child: Text(
+                      _discLabel(h),
+                      style: hts(
+                        13,
+                        dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
+                        lh: 18,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    _discAmount(h),
+                    style: hts(
+                      13,
+                      dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
+                      lh: 18,
+                    ),
+                  ),
+                ],
+                main: MainAxisAlignment.start,
+                cross: CrossAxisAlignment.center,
+                gap: 0,
+              ),
+          ],
+          main: MainAxisAlignment.start,
+          cross: CrossAxisAlignment.stretch,
+          gap: 6,
+        ),
+        hbox(h: 1, bg: dk(context, Color(0xFFEFEFF1), Color(0xFF2A2A2E))),
+        hrow(
+          [
+            Expanded(
+              flex: 1,
+              child: hcol(
+                [
+                  Text(
+                    _who(h),
+                    style: hts(
+                      13,
+                      dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                      w: FontWeight.w500,
+                      lh: 18,
+                    ),
+                  ),
+                  Text(
+                    _submitter(h),
+                    style: hts(
+                      12,
+                      dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
+                      lh: 16,
+                    ),
+                  ),
+                ],
+                main: MainAxisAlignment.start,
+                cross: CrossAxisAlignment.stretch,
+                gap: 1,
+              ),
+            ),
+            Text(
+              _payable(h),
+              style: hts(
+                20,
+                dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                w: FontWeight.w600,
+                lh: 28,
+              ),
+            ),
+          ],
+          main: MainAxisAlignment.start,
+          cross: CrossAxisAlignment.center,
+          gap: 8,
+        ),
+        hrow(
+          [
+            Expanded(
+              flex: 14,
+              child: UnconstrainedBox(
+                alignment: Alignment.topLeft,
+                constrainedAxis: Axis.horizontal,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => _collect(context, h),
+                  child: hbox(
+                    h: 44,
+                    bg: Color(0xFF0485F7),
+                    radius: BorderRadius.circular(22),
+                    child: Align(
+                      alignment: Alignment(0, 0),
+                      widthFactor: 1,
                       child: Text(
-                        _discLabel(h),
-                        style: hts(
-                          13,
-                          dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
-                          lh: 18,
-                        ),
-                      ),
-                    ),
-                    Text(
-                      _discAmount(h),
-                      style: hts(
-                        13,
-                        dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
-                        lh: 18,
-                      ),
-                    ),
-                  ],
-                  main: MainAxisAlignment.start,
-                  cross: CrossAxisAlignment.center,
-                  gap: 0,
-                ),
-            ],
-            main: MainAxisAlignment.start,
-            cross: CrossAxisAlignment.stretch,
-            gap: 6,
-          ),
-          hbox(h: 1, bg: dk(context, Color(0xFFEFEFF1), Color(0xFF2A2A2E))),
-          hrow(
-            [
-              Expanded(
-                flex: 1,
-                child: hcol(
-                  [
-                    Text(
-                      _who(h),
-                      style: hts(
-                        13,
-                        dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                        w: FontWeight.w500,
-                        lh: 18,
-                      ),
-                    ),
-                    Text(
-                      _submitter(h),
-                      style: hts(
-                        12,
-                        dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
-                        lh: 16,
-                      ),
-                    ),
-                  ],
-                  main: MainAxisAlignment.start,
-                  cross: CrossAxisAlignment.stretch,
-                  gap: 1,
-                ),
-              ),
-              Text(
-                _payable(h),
-                style: hts(
-                  20,
-                  dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                  w: FontWeight.w600,
-                  lh: 28,
-                ),
-              ),
-            ],
-            main: MainAxisAlignment.start,
-            cross: CrossAxisAlignment.center,
-            gap: 8,
-          ),
-          hrow(
-            [
-              Expanded(
-                flex: 10,
-                child: UnconstrainedBox(
-                  alignment: Alignment.topLeft,
-                  constrainedAxis: Axis.horizontal,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => _return(h),
-                    child: hbox(
-                      h: 44,
-                      bg: dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
-                      radius: BorderRadius.circular(22),
-                      child: Align(
-                        alignment: Alignment(0, 0),
-                        widthFactor: 1,
-                        child: hBusy(
-                          _returnKey(h),
-                          Text(
-                            '退回修改',
-                            style: hts(
-                              14,
-                              dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                              w: FontWeight.w500,
-                            ),
-                          ),
-                        ),
+                        '去收银',
+                        style: hts(14, Color(0xFFFFFFFF), w: FontWeight.w600),
                       ),
                     ),
                   ),
                 ),
               ),
-              Expanded(
-                flex: 14,
-                child: UnconstrainedBox(
-                  alignment: Alignment.topLeft,
-                  constrainedAxis: Axis.horizontal,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => _collect(h),
-                    child: hbox(
-                      h: 44,
-                      bg: Color(0xFF0485F7),
-                      radius: BorderRadius.circular(22),
-                      child: Align(
-                        alignment: Alignment(0, 0),
-                        widthFactor: 1,
-                        child: Text(
-                          '去收银',
-                          style: hts(14, Color(0xFFFFFFFF), w: FontWeight.w600),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-            main: MainAxisAlignment.start,
-            cross: CrossAxisAlignment.stretch,
-            gap: 10,
-            intrinsic: true,
-          ),
-        ],
-        main: MainAxisAlignment.start,
-        cross: CrossAxisAlignment.stretch,
-        gap: 12,
-      ),
+            ),
+          ],
+          main: MainAxisAlignment.start,
+          cross: CrossAxisAlignment.stretch,
+          gap: 10,
+          intrinsic: true,
+        ),
+      ],
+      main: MainAxisAlignment.start,
+      cross: CrossAxisAlignment.stretch,
+      gap: 12,
     ),
   );
 

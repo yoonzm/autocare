@@ -49,10 +49,7 @@ begin
   caught:=false; begin perform public.staff_task_finish(shop,tech_id,h1); exception when others then caught:=true; end;
   assert caught,'不能重复提交完工';
 
-  -- 4. 前台退回修改 → 挂单回到「施工中」；再次完工并结算 → 提成快照落库
-  perform public.staff_order_return(shop,h1,'请核对项目');
-  assert (select status from public.held_orders where id=h1)='施工中';
-  perform public.staff_task_finish(shop,tech_id,h1);
+  -- 4. 完工后直接结算 → 提成快照落库
   perform public.checkout_with_technicians(shop,jsonb_build_array(jsonb_build_object('service_id',svc,'qty',1)),'现金','沪A8K29M','','店主','h1-pay',array[res],null,h1,null,null,null);
   r:=public.staff_perf(shop,tech_id);
   assert (r->>'month_commission')::numeric=100 and (r->>'month_orders')::int=1 and (r->>'month_revenue')::numeric=1000;

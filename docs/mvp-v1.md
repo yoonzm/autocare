@@ -111,7 +111,7 @@
 
 新增接通(迁移 `202611110002_staff_quick_orders.sql`):
 - 技师快速开单:`staff_order_quote`(服务端估价)、`staff_order_submit`(提交为一张“待结算”挂单并记录提交人),需「开单提交」权限。
-- 前台待收银:`staff_cash_queue`、`staff_order_return`(退回并通知提交人),需「待收银」权限;“去收银”把单放回既有开单页走取单结算,收银完成后通知提交人。前台工作台的“待收银 · 技师提交”随之恢复。
+- 前台待收银:`staff_cash_queue`（已移除退回修改）,需「待收银」权限;“去收银”把单放回既有开单页走取单结算,收银完成后通知提交人。前台工作台的“待收银 · 技师提交”随之恢复。
 - 次卡核销:`staff_redeem_send` 向会员登记的手机号发验证码(新用途 `redeem`,公开的 `send_code` 拒绝该用途),`staff_redeem` 校验并消费验证码后在同一事务扣减次数、写核销记录与流水。验证码模板读取 `ZHUTONG_TEMPLATE_REDEEM`,缺省沿用 `ZHUTONG_TEMPLATE_VERIFY`。核销弹层(`st_redeem_sheet.dart`)设计稿中没有,使用设计稿同色系的基础样式。
 
 仍为 TODO:

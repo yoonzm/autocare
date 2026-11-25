@@ -116,9 +116,7 @@ class MemberLookupApi extends WorkApi {
         'collected_count': 1,
       };
     }
-    if (action == 'staff_order_return' ||
-        action == 'staff_redeem_send' ||
-        action == 'staff_redeem') {
+    if (action == 'staff_redeem_send' || action == 'staff_redeem') {
       calls.add({'action': action, ...values});
       if (action == 'staff_redeem_send') {
         return {'ok': true, 'retry_after': 60, 'expires_in': 300};
@@ -181,7 +179,7 @@ void main() {
     expect(find.text('沪A8K29M'), findsOneWidget);
   });
 
-  testWidgets('待收银：显示技师提交的单、服务端估价，退回会通知提交人', (t) async {
+  testWidgets('待收银：显示技师提交的单、服务端估价，仅保留去收银', (t) async {
     phone(t);
     await t.pumpWidget(const MaterialApp(home: StCashQueueLivePage()));
     await t.pumpAndSettle();
@@ -189,12 +187,8 @@ void main() {
     expect(find.text('提交人 老周（技师）'), findsOneWidget);
     expect(find.text('¥61'), findsOneWidget);
     expect(find.text('-¥7'), findsOneWidget);
-    await t.tap(find.text('退回修改'));
-    await t.pumpAndSettle();
-    expect(
-      api.calls.where((c) => c['action'] == 'staff_order_return').single['id'],
-      'h1',
-    );
+    expect(find.text('退回修改'), findsNothing);
+    expect(find.text('去收银'), findsOneWidget);
   });
 
   testWidgets('待收银：切换到「今日已收」展示今日已收订单明细', (t) async {

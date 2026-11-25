@@ -16,7 +16,7 @@ Deno.test('quick order, cash queue and redeem follow their capabilities', () => 
   assert(can('technician', ['order_submit'], { action: 'staff_redeem' }));
   assert(!can('technician', ['order_submit'], { action: 'staff_cash_queue' }));
   assert(can('cashier', ['cash_queue'], { action: 'staff_cash_queue' }));
-  assert(can('cashier', ['cash_queue'], { action: 'staff_order_return' }));
+  assert(!can('cashier', ['cash_queue'], { action: 'staff_order_return' }));
   assert(!can('cashier', ['member_lookup'], { action: 'staff_order_submit' }));
 });
 

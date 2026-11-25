@@ -133,12 +133,6 @@ export async function handleStaffOrders(
         },
       } as never);
     }
-    if (action === 'staff_order_return') {
-      if (!isUuid(input.id)) return fail('待收银单无效');
-      const reason = typeof input.reason === 'string' ? input.reason.trim().slice(0, 100) : '';
-      const { error } = await admin.rpc('staff_order_return', { p_store: store, p_hold: input.id, p_reason: reason });
-      return error ? rpcError(error) : json({ item: { ok: true } } as never);
-    }
     if (action === 'staff_redeem_send') {
       if (!isUuid(input.member_id)) return fail('请先选择会员');
       const { data: m } = await admin.from('members').select('phone').eq('id', input.member_id)

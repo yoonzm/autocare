@@ -19,23 +19,13 @@ import 'members_test.dart' show phone;
 class StaffInputApi extends MemberLookupApi {
   final pending = <Completer<Map<String, dynamic>>>[];
   bool defer = false;
-  bool deferReturns = false;
   @override
   Future<Map<String, dynamic>> staffWork(
     String action, [
     Map<String, dynamic> values = const {},
   ]) {
-    if (deferReturns && action == 'staff_order_return') {
-      calls.add({'action': action, ...values});
-      final c = Completer<Map<String, dynamic>>();
-      pending.add(c);
-      return c.future;
-    }
     if (defer &&
-        const [
-          'staff_member_search',
-          'staff_member_info',
-        ].contains(action)) {
+        const ['staff_member_search', 'staff_member_info'].contains(action)) {
       calls.add({'action': action, ...values});
       final c = Completer<Map<String, dynamic>>();
       pending.add(c);
@@ -118,43 +108,6 @@ void main() {
       pageFor('StMemberInfo', arguments: const StMemberRouteData('m1')),
       isA<StMemberInfoLivePage>().having((p) => p.memberId, '会员', 'm1'),
     );
-  });
-
-  testWidgets('两个待收银列表提交锁隔离，同一列表重复退回只发一次', (t) async {
-    phone(t);
-    final rows = (await api.staffWork('staff_cash_queue'))['items'] as List;
-    final items = [
-      for (final row in rows) Map<String, dynamic>.from(row as Map),
-    ];
-    api.deferReturns = true;
-    Future<void> show(int index) => t.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: IndexedStack(
-            index: index,
-            children: [
-              StCashQueueTemplate(key: const ValueKey('a'), items: items),
-              StCashQueueTemplate(key: const ValueKey('b'), items: items),
-            ],
-          ),
-        ),
-      ),
-    );
-    await show(0);
-    await t.tap(find.text('退回修改'));
-    await t.pump();
-    expect(api.pending.length, 1);
-    await show(1);
-    expect(find.text('退回修改'), findsOneWidget);
-    await t.tap(find.text('退回修改'));
-    await t.pump();
-    expect(api.pending.length, 2);
-    api.pending[0].complete({'ok': true});
-    api.pending[1].complete({'ok': true});
-    await t.pumpAndSettle();
-    expect(find.text('退回修改'), findsNothing);
-    await show(0);
-    expect(find.text('退回修改'), findsNothing);
   });
 
   test('员工扫码明确提供员工会员与开单动作，不依赖全局选择', () {
