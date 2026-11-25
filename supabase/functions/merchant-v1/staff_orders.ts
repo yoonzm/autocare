@@ -22,6 +22,10 @@ const rpcError = (e: { message: string; code?: string }) => {
 const QUEUE_SELECT =
   '*, items:held_order_items(position, service_id, name, qty, member_package_id), ' +
   'member:members(id, name, phone, balance, card:card_types(name, discount)), submitter:store_staff(name, role)';
+const COLLECTED_SELECT =
+  'id, member_id, subtotal, card_off, discount_off, payable, balance_paid, pay_method, vehicle_plate, operator, created_at, ' +
+  'items:order_items(position, name, qty, unit_price, line_total), ' +
+  'member:members(id, name, phone, card:card_types(name))';
 
 /**
  * 员工端开单 / 待收银队列 / 次卡核销。权限由 staff_gate 先校验；这里只接受已识别的员工身份，
@@ -52,11 +56,19 @@ export async function handleStaffOrders(
       return error ? rpcError(error) : json({ item: { id: data } } as never);
     }
     if (action === 'staff_cash_queue') {
-      const { data, error } = await admin.from('held_orders').select(QUEUE_SELECT)
-        .eq('store_id', store).is('settled_at', null).is('cancelled_at', null)
-        .or('submitted_by.not.is.null,status.eq.待结算')
-        .order('created_at', { ascending: false }).limit(50);
-      if (error) return fail('读取失败，请稍后重试', 500);
+      const bjDate = new Date(Date.now() + 8 * 3600_000).toISOString().slice(0, 10);
+      const todayStart = new Date(`${bjDate}T00:00:00+08:00`).toISOString();
+      const [{ data, error }, { data: collectedRows, count: collectedCount, error: collectedErr }] = await Promise.all([
+        admin.from('held_orders').select(QUEUE_SELECT)
+          .eq('store_id', store).is('settled_at', null).is('cancelled_at', null)
+          .or('submitted_by.not.is.null,status.eq.待结算')
+          .order('created_at', { ascending: false }).limit(50),
+        admin.from('orders').select(COLLECTED_SELECT, { count: 'exact' })
+          .eq('store_id', store).eq('status', 'completed')
+          .gte('created_at', todayStart)
+          .order('created_at', { ascending: false }).limit(50),
+      ]);
+      if (error || collectedErr) return fail('读取失败，请稍后重试', 500);
       type Item = { service_id: string | null; name: string; qty: number; member_package_id: string | null };
       type Row = {
         id: string;
@@ -93,7 +105,33 @@ export async function handleStaffOrders(
           quote: quote ?? null,
         };
       }));
-      return json({ item: { items } } as never);
+      type CollectedRow = {
+        id: string;
+        member_id: string | null;
+        subtotal: number;
+        card_off: number;
+        discount_off: number;
+        payable: number;
+        balance_paid: number;
+        pay_method: string;
+        vehicle_plate: string;
+        operator: string;
+        created_at: string;
+        items: { position: number; name: string; qty: number; unit_price: number; line_total: number }[];
+        member: { id: string; name: string; phone?: string; card?: { name?: string } | null } | null;
+      };
+      const collected = ((collectedRows ?? []) as unknown as CollectedRow[]).map((o) => ({
+        ...o,
+        member: o.member ? { ...o.member, phone: maskPhone(o.member.phone) } : o.member,
+        lines: (o.items ?? []).map((i) => ({ name: i.name, qty: i.qty, unit_price: Number(i.unit_price) })),
+      }));
+      return json({
+        item: {
+          items,
+          collected,
+          collected_count: collectedCount ?? collected.length,
+        },
+      } as never);
     }
     if (action === 'staff_order_return') {
       if (!isUuid(input.id)) return fail('待收银单无效');

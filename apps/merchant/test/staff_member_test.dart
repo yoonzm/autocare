@@ -90,6 +90,30 @@ class MemberLookupApi extends WorkApi {
             },
           },
         ],
+        'collected': [
+          {
+            'id': 'o1',
+            'member_id': 'm1',
+            'vehicle_plate': '沪B12345',
+            'created_at': '2026-11-10T01:30:00Z',
+            'pay_method': '微信收款',
+            'operator': '李前台',
+            'subtotal': 198,
+            'card_off': 0,
+            'discount_off': 20,
+            'payable': 178,
+            'member': {
+              'id': 'm1',
+              'name': '王建国',
+              'phone': '138****6021',
+              'card': {'name': '黑金卡'},
+            },
+            'lines': [
+              {'name': '精洗内饰', 'qty': 1, 'unit_price': 198},
+            ],
+          },
+        ],
+        'collected_count': 1,
       };
     }
     if (action == 'staff_order_return' ||
@@ -171,6 +195,20 @@ void main() {
       api.calls.where((c) => c['action'] == 'staff_order_return').single['id'],
       'h1',
     );
+  });
+
+  testWidgets('待收银：切换到「今日已收」展示今日已收订单明细', (t) async {
+    phone(t);
+    await t.pumpWidget(const MaterialApp(home: StCashQueueLivePage()));
+    await t.pumpAndSettle();
+    expect(find.textContaining('今日已收 1'), findsOneWidget);
+    await t.tap(find.textContaining('今日已收'));
+    await t.pumpAndSettle();
+    expect(find.text('沪B12345'), findsOneWidget);
+    expect(find.text('精洗内饰'), findsOneWidget);
+    expect(find.text('微信收款 · 李前台'), findsOneWidget);
+    expect(find.text('¥178'), findsOneWidget);
+    expect(find.text('去收银'), findsNothing);
   });
 
   testWidgets('次卡核销：先给会员发验证码，再带验证码核销', (t) async {

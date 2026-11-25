@@ -163,7 +163,7 @@ void main() {
     expect(scanner.onOrderMember, isNotNull);
   });
 
-  testWidgets('待收银数量来自真实列表，已收历史缺少接口明确阻止且不显示样例数量', (t) async {
+  testWidgets('待收银与今日已收数量来自真实列表，不显示样例数量', (t) async {
     phone(t);
     final rows = (await api.staffWork('staff_cash_queue'))['items'] as List;
     await t.pumpWidget(
@@ -178,12 +178,12 @@ void main() {
       ),
     );
     expect(find.text('待收银 1'), findsOneWidget);
-    expect(find.text('今日已收 —'), findsOneWidget);
+    expect(find.text('今日已收 0'), findsOneWidget);
     expect(find.text('今日已收 34'), findsNothing);
-    await t.tap(find.text('今日已收 —'));
+    await t.tap(find.text('今日已收 0'));
     await t.pumpAndSettle();
-    expect(find.text('今日已收明细暂未接通'), findsWidgets);
-    expect(find.text('退回修改'), findsOneWidget);
+    expect(find.text('今日暂无已收银的订单'), findsOneWidget);
+    expect(find.text('退回修改'), findsNothing);
   });
 
   testWidgets('短信自定义冷却按秒递减，销毁取消计时且不跨实例', (t) async {
