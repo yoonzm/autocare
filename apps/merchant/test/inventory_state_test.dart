@@ -38,7 +38,7 @@ class InventoryStateApi extends MemberFakeApi {
     String? requestId,
   }) async {
     if (body['action'] == 'inventory_get') return {'item': product(body['id'])};
-    if (body['action'] == 'inventory_settings_save') {
+    if (body['action'] == 'inventory_void') {
       writes.add({
         'requestId': requestId,
         ...jsonDecode(jsonEncode(body)) as Map<String, dynamic>,
@@ -123,12 +123,14 @@ void main() {
     expect(find.text('1-1-selected'), findsOneWidget);
   });
 
-  testWidgets('两个预警设置实例并行提交互不阻塞，失败保留字段并重用请求编号', (t) async {
-    final first = InventoryManagementController('settings')
-      ..settings = {'expiry_days': 15}
+  testWidgets('两个单据作废实例并行提交互不阻塞，失败保留字段并重用请求编号', (t) async {
+    final first = InventoryManagementController('document', documentId: 'doc-1')
+      ..document = {'can_void': true}
+      ..voidReason = '录错数量'
       ..dirty = true;
-    final second = InventoryManagementController('settings')
-      ..settings = {'expiry_days': 60}
+    final second = InventoryManagementController('document', documentId: 'doc-2')
+      ..document = {'can_void': true}
+      ..voidReason = '其他'
       ..dirty = true;
     late BuildContext context;
     await t.pumpWidget(
@@ -142,11 +144,11 @@ void main() {
       ),
     );
     final gate = api.saveGate = Completer<void>();
-    final a = first.saveSettings(context);
-    final duplicate = first.saveSettings(context);
-    final b = second.saveSettings(context);
+    final a = first.confirmVoid(context);
+    final duplicate = first.confirmVoid(context);
+    final b = second.confirmVoid(context);
     expect(api.writes, hasLength(2));
-    expect(api.writes.map((w) => w['payload']['expiry_days']), [15, 60]);
+    expect(api.writes.map((w) => w['payload']['reason']), ['录错数量', '其他']);
     expect(first.busy, isTrue);
     expect(second.busy, isTrue);
     gate.complete();
@@ -155,10 +157,10 @@ void main() {
     await Future.wait([a, b, duplicate]);
     expect(first.dirty, isTrue);
     expect(second.dirty, isTrue);
-    expect(first.settings['expiry_days'], 15);
+    expect(first.voidReason, '录错数量');
     expect(first.busy, isFalse);
     expect(second.busy, isFalse);
-    final retry = first.saveSettings(context);
+    final retry = first.confirmVoid(context);
     await t.pump(const Duration(seconds: 1));
     await t.pumpAndSettle();
     await retry;
@@ -186,9 +188,9 @@ void main() {
     expect(find.text('商品a'), findsNothing);
   });
 
-  testWidgets('设置实例销毁后，晚到的提交失败不向当前页面显示旧错误', (t) async {
-    final c = InventoryManagementController('settings')
-      ..settings = {'expiry_days': 15};
+  testWidgets('控制器销毁后，晚到的提交失败不向当前页面显示旧错误', (t) async {
+    final c = InventoryManagementController('document', documentId: 'doc-1')
+      ..document = {'can_void': true};
     late BuildContext context;
     await t.pumpWidget(
       MaterialApp(
@@ -201,7 +203,7 @@ void main() {
       ),
     );
     final gate = api.saveGate = Completer<void>();
-    final pending = c.saveSettings(context);
+    final pending = c.confirmVoid(context);
     c.dispose();
     gate.complete();
     await t.pump(const Duration(seconds: 1));

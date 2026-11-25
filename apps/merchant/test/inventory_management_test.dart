@@ -87,9 +87,6 @@ class _Api extends MemberFakeApi {
         },
       };
     }
-    if (body['action'] == 'inventory_settings_save') {
-      return {'item': body['payload']};
-    }
     return super.invoke(body, requestId: requestId);
   }
 }
@@ -152,28 +149,6 @@ void main() {
     expect(find.text('× 2.5 升'), findsOneWidget);
     expect(find.textContaining('窗膜'), findsNothing);
   });
-  testWidgets('预警设置保存服务端字段、未接通知不会假装开启', (t) async {
-    await open(t, 'settings');
-    expect(find.text('库存预警设置'), findsOneWidget);
-    for (final days in ['7 天', '15 天', '30 天', '60 天']) {
-      await t.ensureVisible(find.text(days));
-      await t.tap(find.text(days));
-      await t.pump();
-      for (final channel in ['首页卡片', 'App 消息推送', '微信服务通知']) {
-        expect(find.text(channel), findsOneWidget, reason: '选择过期阈值不能按文案过滤通知渠道');
-      }
-    }
-    await t.ensureVisible(find.text('保存'));
-    await t.tap(find.text('保存'));
-    await t.pumpAndSettle();
-    expect(
-      api.calls
-          .where((c) => c['action'] == 'inventory_settings_save')
-          .single['payload']['expiry_days'],
-      60,
-    );
-  });
-
   testWidgets('入库单详情：有凭证时显示「送货单 / 发票」缩略图，没有「查看附件」文字链接；没有凭证不显示', (t) async {
     api.withVouchers = true;
     await open(t, 'document', id: '12345678-aaaa-bbbb-cccc-111111111111');

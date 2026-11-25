@@ -179,7 +179,6 @@ void main() {
   testWidgets('库存新页面都已登记：商品编辑、分类、预警、单据、详情和扫码结果', (t) async {
     for (final n in [
       'CategoryManage',
-      'StockAlertSettings',
       'SupplierEdit',
       'StockDocs',
       'StockDocsOut',

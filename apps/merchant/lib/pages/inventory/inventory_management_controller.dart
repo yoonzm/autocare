@@ -46,7 +46,7 @@ class InventoryManagementController extends ChangeNotifier {
       freeze = false;
   int tab = 0, status = 0, scope = 0, selectionEpoch = 0;
   String? scopeValue;
-  Map<String, dynamic> settings = {}, document = {}, scanProduct = {};
+  Map<String, dynamic> document = {}, scanProduct = {};
   List<Map<String, dynamic>> categories = [], documents = [], products = [];
   final request = InventoryRequest();
   final scanner = MobileScannerController(
@@ -72,9 +72,6 @@ class InventoryManagementController extends ChangeNotifier {
   void apply(Map<String, dynamic> data) {
     if (mode == 'docs') documents = maps(data['items']);
     if (mode == 'document') document = Map<String, dynamic>.from(data['item']);
-    if (mode == 'settings' && !dirty) {
-      settings = Map<String, dynamic>.from(data['settings']);
-    }
     if (data['categories'] != null) categories = maps(data['categories']);
   }
 
@@ -191,15 +188,8 @@ class InventoryManagementController extends ChangeNotifier {
 
   Widget busyLabel(Widget child) =>
       hBusy(actionKey, child, style: child is Text ? child.style : null);
-  static const expiryDays = [7, 15, 30, 60];
   static const voidReasons = ['录错数量', '录错商品', '供应商退货', '其他'];
-  int get expiryIndex => expiryDays.indexOf(settings['expiry_days'] ?? 30);
   int get voidReasonIndex => voidReasons.indexOf(voidReason);
-  void selectExpiry(int index) {
-    if (busy) return;
-    settings['expiry_days'] = expiryDays[index];
-    changed();
-  }
 
   void selectVoidReason(int index) {
     if (busy) return;
@@ -275,16 +265,6 @@ class InventoryManagementController extends ChangeNotifier {
   });
   Future<void> addCategory(BuildContext context) =>
       _perform(context, () => categoryEdit(context, null));
-  Future<void> saveSettings(BuildContext context) =>
-      _perform(context, () async {
-        await request.send({
-          'action': 'inventory_settings_save',
-          'payload': settings,
-        });
-        dirty = false;
-        inventoryChanged.value++;
-        if (context.mounted && !disposed) Navigator.pop(context);
-      });
   void replenishShortage(BuildContext context) {
     final line = shortageLine;
     final nav = Navigator.of(context);
@@ -345,17 +325,6 @@ class InventoryManagementController extends ChangeNotifier {
       );
     }
   });
-
-  void setAlert(BuildContext context, String field, bool value) {
-    if (busy) return;
-    if (field == 'message_enabled' || field == 'wechat_enabled') {
-      // TODO: 缺少真实消息/微信通知渠道；预期接口 inventory_settings_save 配套渠道适配。
-      AppToast.show(context, '消息通知渠道尚未接通，请使用首页提醒');
-      return;
-    }
-    settings[field] = value;
-    changed();
-  }
 
   Widget categoryRows(BuildContext context) => Column(
     children: [

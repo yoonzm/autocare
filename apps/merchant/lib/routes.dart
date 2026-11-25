@@ -166,8 +166,6 @@ Widget? pageFor(String name, {Object? arguments}) {
       return const InventoryManagementPage(mode: 'docs', initialTab: 1);
     case 'CategoryManage':
       return const InventoryManagementPage(mode: 'categories');
-    case 'StockAlertSettings':
-      return const InventoryManagementPage(mode: 'settings');
     case 'ScanProduct':
       return const InventoryManagementPage(mode: 'scan');
     case 'StockInDetail':

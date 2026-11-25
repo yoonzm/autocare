@@ -8,7 +8,6 @@ import '../../kit/kit.dart' show ConfirmDiscard;
 import 'inventory_controller.dart';
 import 'inventory_management_controller.dart';
 import 'category_manage_bound_template.dart';
-import 'stock_alert_settings_bound_template.dart';
 import 'stock_docs_bound_template.dart';
 import 'stock_in_detail_bound_template.dart';
 import 'stock_out_detail_bound_template.dart';
@@ -121,7 +120,6 @@ class _State extends State<InventoryManagementPage> {
             absorbing: c.busy,
             child: switch (widget.mode) {
               'categories' => CategoryManageBoundTemplate(c: c),
-              'settings' => StockAlertSettingsBoundTemplate(c: c),
               'docs' => StockDocsBoundTemplate(c: c),
               'scan' => ScanProductBoundTemplate(c: c),
               _ =>
