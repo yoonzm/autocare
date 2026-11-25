@@ -154,6 +154,14 @@ class _SettingsPageState extends State<SettingsPage> {
                         fg: const Color(0xFF1E63AE),
                         route: 'BusinessHours',
                       ),
+                      _Item(
+                        'bell',
+                        '通知与消息',
+                        '短信记录 · 模板与开关',
+                        bg: const Color(0xFFFFE1E2),
+                        fg: const Color(0xFFA43433),
+                        route: 'NotifySettings',
+                      ),
                     ]),
                     const SizedBox(height: 20),
                     _group(context, '通用', [

@@ -94,6 +94,8 @@ const byAction: Record<string, Requirement> = {
   appointment_checkout: cap('cashier'),
   appointment_settings_save: cap('appt_settings'),
   appointment_resource_save: cap('appt_settings'),
+  store_sms_overview: cap('appt_settings'),
+  store_sms_logs: cap('appt_settings'),
   order_list: anyCap('order_view_all', 'order_view_own'),
   order_detail: anyCap('order_view_all', 'order_view_own'),
   order_feed: anyCap('order_view_all', 'order_view_own'),

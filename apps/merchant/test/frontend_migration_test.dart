@@ -573,7 +573,6 @@ void main() {
       'StoreSwitch',
       'StoreAdd',
       'DataBackup',
-      'NotifySettings',
       'Messages',
       'StMsgs',
       'Printer',

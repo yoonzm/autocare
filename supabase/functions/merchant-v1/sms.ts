@@ -70,7 +70,7 @@ export async function sendOtp(
 
 export interface NoticeSendStore {
   reserve(request: {
-    phone: string; purpose: string; requestId: string; content: string; sign: string; storeName: string;
+    phone: string; purpose: string; requestId: string; content: string; sign: string; storeName: string; storeId?: string;
   }): Promise<{ error?: string; retry_after?: number }>;
   finish(requestId: string, sent: boolean, provider: string, error?: string, providerMsgId?: string): Promise<void>;
 }
@@ -78,7 +78,7 @@ export interface NoticeSendStore {
 export async function sendNoticeSms(
   provider: SmsNoticeProvider,
   store: NoticeSendStore,
-  request: { phone: string; purpose: string; content: string; storeName: string; requestId: string },
+  request: { phone: string; purpose: string; content: string; storeName: string; requestId: string; storeId?: string },
 ): Promise<{ ok: true }> {
   const sign = provider.signature ?? '';
   const body = request.content.trim().replace(/^【[^】]*】/, '');
@@ -90,6 +90,7 @@ export async function sendNoticeSms(
     content: fullContent,
     sign,
     storeName: request.storeName,
+    storeId: request.storeId,
   });
   if (reservation.error) {
     if (reservation.error === 'duplicate_request') {

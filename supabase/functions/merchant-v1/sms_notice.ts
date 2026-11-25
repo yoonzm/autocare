@@ -2,7 +2,7 @@ import { admin } from './shared.ts';
 import { sendNoticeSms, smsNoticeProvider, type NoticeSendStore } from './sms.ts';
 
 export const noticeStore: NoticeSendStore = {
-  async reserve({ phone, purpose, requestId, content, sign, storeName }) {
+  async reserve({ phone, purpose, requestId, content, sign, storeName, storeId }) {
     const { data, error } = await admin.rpc('reserve_notice_sms', {
       p_phone: phone,
       p_purpose: purpose,
@@ -10,6 +10,7 @@ export const noticeStore: NoticeSendStore = {
       p_content: content,
       p_sign: sign,
       p_store_name: storeName,
+      p_store_id: storeId ?? null,
     });
     if (error || !data) throw new Error('Notice SMS reservation failed');
     return data;
@@ -58,6 +59,7 @@ export async function sendStoreNotice(args: {
     content: args.content,
     storeName,
     requestId,
+    storeId: args.storeId,
   });
 }
 

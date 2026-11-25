@@ -374,6 +374,31 @@ class MerchantApi {
     return Map<String, dynamic>.from(data['item'] as Map);
   }
 
+  Future<Map<String, dynamic>> storeSmsOverview() async {
+    if (!hasSession) {
+      throw const AppError('请先登录', type: AppErrorType.auth);
+    }
+    final data = await invoke({'action': 'store_sms_overview'});
+    return Map<String, dynamic>.from(data['item'] as Map);
+  }
+
+  Future<Map<String, dynamic>> storeSmsLogs({
+    String status = 'all',
+    int offset = 0,
+    int limit = 20,
+  }) async {
+    if (!hasSession) {
+      throw const AppError('请先登录', type: AppErrorType.auth);
+    }
+    final data = await invoke({
+      'action': 'store_sms_logs',
+      'status': status,
+      'offset': offset,
+      'limit': limit,
+    });
+    return Map<String, dynamic>.from(data['item'] as Map);
+  }
+
   Future<Map<String, dynamic>> homeStats() async {
     final data = await invoke({'action': 'home_stats'});
     return Map<String, dynamic>.from(data['item'] as Map);

@@ -60,6 +60,7 @@ import 'pages/staff/disable_staff_template.dart';
 import 'pages/staff/staff_transfer_template.dart';
 import 'pages/staff/staff_enable_template.dart';
 import 'pages/catalog/services_page.dart';
+import 'pages/shared/notify_settings_page.dart';
 import 'pages/shared/settings_page.dart';
 import 'pages/scan/scan_page.dart';
 import 'pages/shared/shell.dart';
@@ -208,6 +209,8 @@ Widget? pageFor(String name, {Object? arguments}) {
       return const AppointmentSettingsLivePage();
     case 'BusinessHours':
       return const BusinessHoursPage();
+    case 'NotifySettings':
+      return const NotifySettingsPage();
     case 'Staff':
       return const StaffResourcesPage();
     case 'StaffAdd':
