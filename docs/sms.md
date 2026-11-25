@@ -6,7 +6,38 @@
 
 业务入口在 `merchant-v1/auth.ts`，验证码存取在 `otp.ts`，发送编排在 `sms.ts`。渠道统一实现 `sms_types.ts` 的 `SmsProvider`，一期适配器为 `sms_zhutong.ts`。后续新增渠道只需实现适配器并登记到 `sms.ts`，不需要改注册、登录和数据库校验逻辑。
 
-助通使用固定 HTTPS 地址 `/v2/sendSmsTp`，签名为 `md5(md5(password) + 秒级时间戳)`，模板参数仅由服务端生成的 `{code}` 构成。只把 HTTP 成功且业务 `code=200` 当作已受理；超时、非 JSON 和渠道拒绝都返回明确失败，且不自动重发。受理成功不代表运营商已经送达，本期未接状态回执。
+助通使用固定 HTTPS 地址 `/v2/sendSmsTp`（通知类预留 `/v2/sendSms`），签名为 `md5(md5(password) + 秒级时间戳)`，模板参数仅由服务端生成的 `{code}` 构成。只把 HTTP 成功且业务 `code=200` 当作已受理；超时、非 JSON 和渠道拒绝都返回明确失败，且不自动重发。受理成功不代表运营商已经送达，本期未接状态回执。
+
+### 助通官方接口参考
+
+官方在线文档入口：`https://doc.zthysms.com/web/#/1?page_id=14`（注：该文档站中 `page_id=14`「自定义发送接口」目前返回“页面不存在”，同文档目录 `https://doc.zthysms.com/web/#/1` 下有效 HTTP 接口页如下）：
+
+- **快速接入（`page_id=236`）**：统一使用 `POST` + `application/json; charset="UTF-8"`。
+  - 常用域名：`https://api-shss.zthysms.com`（当前代码使用）、华东 `https://api.mix2.zthysms.com`、华北 `https://api-bj-shss01-mix2.zthysms.com` / `https://api-zj-mix2.zthysms.com`。
+  - 推送服务来源 IP：`47.100.107.149`、`47.100.207.118`。
+  - 鉴权参数：`username`、`tKey`（东八区 10 位秒级时间戳）、`password = md5(md5(password) + tKey)`（32 位小写）。
+- **模板短信发送（`page_id=13`，`POST /v2/sendSmsTp`）**：
+  - 请求关键参数：`username`、`password`、`tKey`、`signature`、`tpId`、`records`（`mobile` + `tpContent`），可选 `extend`（自定义参数，最大长度 100，在状态报告中透传返回）、`ext`、`time`（定时发送）。
+  - 响应关键参数：`code`（`200` 为提交成功）、`msg`、`msgId`（消息 ID）、`tpId`、`invalidList`。
+- **下行回执抓取（`page_id=31`，`POST /v2/batchReport`）**：
+  - 请求参数：`username`、`password`、`tKey`、可选 `count`（默认 400、最大 1000）。
+  - 响应：`code=200` 时返回 `records` 数组（无数据时返回 `4017 no data`），每条含 `msg_id`、`mobile`、`report_time`、`code`、`msg`、`extend`、`pkTotal`、`pkNumber`、`username`。长短信会拆分为多条回执。
+- **下行回执推送（`page_id=34`）**：
+  - 平台以 `1 ~ 2 s/次` 频率主动 `POST` JSON 数组到对接方提供的公网 URL。
+  - 请求 Header 携带 `zt-tkey` 与 `zt-password`（`md5(md5(password) + tKey)`）用于验签。
+  - 请求 Body 每条含 `msgId`、`mobile`、`reportTime`（如 `2019-03-15 00:00:00`）、`code`、`msg`、`extend`、`pkTotal`、`pkNumber`、`username`、`operator`（`1` 移动、`2` 联通、`3` 电信、`4` 未知）。
+  - 对接方接收成功后需返回 `0` 或 `SUCCESS`。
+- **短信状态码（`page_id=7`）**：
+  - CMPP 状态报告：`DELIVRD` 表示已送达；`EXPIRED`（超时）、`DELETED`（已删除）、`UNDELIV`（不可达）、`ACCEPTD`、`UNKNOWN`、`REJECTD`（拒绝）以及 `ZT:*`（如 `ZT:invalid` 空号/无效、`ZT:black` 黑名单、`ZT:1020` 运营商拦截等）均表示未送达或失败。
+
+### 送达状态与送达时间实现（定时拉取）
+
+采用 **下行回执抓取（`POST /v2/batchReport`，`page_id=31`）** 定时拉取方案实现“已送达 / 未送达”和“送达时间”：
+
+1. **发送侧保留 `msgId` 与透传 `extend`**：`sms_zhutong.ts` 在调用 `/v2/sendSmsTp` 和 `/v2/sendSms` 时传入 `extend: requestId`，并解析响应中的 `msgId` 经 `finish_phone_otp` / `finish_notice_sms` 写入 `sms_logs.provider_msg_id`。
+2. **数据库扩展（`202611250002_sms_delivery_receipt.sql`）**：`sms_logs` 新增 `provider_msg_id`、`delivery_status`（`unknown | delivered | failed`）、`delivery_code`、`delivered_at`，新增 `apply_sms_delivery_reports` RPC 按 `extend`（`request_id`）或 `provider_msg_id + mobile` 匹配更新送达状态与时间；`admin_sms_list` / `admin_sms_get` 返回上述字段。
+3. **定时拉取（`sms_receipts.ts` + `supabase/deploy/sms_receipts.py`）**：`merchant-v1` 提供 `sms_receipts_run`（仅 `service_role` 可调用），每轮调用 `zhutongBatchReport`（单批 400 条，最多 5 批；`4017 no data` 视为空批）并写入数据库；生产主机通过 `python3 supabase/deploy/sms_receipts.py --install` 安装 `autocare-sms-receipts.timer` 每分钟执行一次。
+4. **后台展示（`apps/admin`）**：`SmsLog` 展示真实回执状态（`已发送` / `已送达` / `未送达` / `失败`）与真实 `送达时间`（未收到回执时仍显示 `—`，不将已受理时间当作送达时间）。
 
 配置样例为 `supabase/deploy/sms.env.example`。用户已指定复用 my-baas 的助通账号、签名及模板：
 

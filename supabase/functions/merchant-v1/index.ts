@@ -1,4 +1,5 @@
 import { handleAppointmentReminders } from './appointment_reminders.ts';
+import { handleSmsReceipts } from './sms_receipts.ts';
 import { handleMedia } from './media.ts';
 import { handleStores } from './stores.ts';
 import { handleRegions } from './regions.ts';
@@ -36,6 +37,7 @@ Deno.serve(async (request: Request): Promise<Response> => {
   }
   if (!isInput(input)) return fail('Invalid JSON');
   if (input.action === 'appointment_reminders_run') return handleAppointmentReminders(request);
+  if (input.action === 'sms_receipts_run') return handleSmsReceipts(request);
   if (['account_devices','account_device_revoke','account_cancel_check','account_contact'].includes(String(input.action))) return handleAccountTools(input,request);
   if (String(input.action).startsWith('identity_')) return handleIdentity(input, request);
   // 员工身份（店长 / 前台 / 技师）按权限目录逐请求校验；老板直接放行。服务端拒绝才是安全边界。

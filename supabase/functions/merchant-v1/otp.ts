@@ -26,10 +26,10 @@ export const otpStore: OtpSendStore = {
     if (error || !data) throw new Error('OTP reservation failed');
     return data;
   },
-  async finish(phone, purpose, requestId, sent, provider, failure) {
+  async finish(phone, purpose, requestId, sent, provider, failure, providerMsgId) {
     const { data, error } = await admin.rpc('finish_phone_otp', {
       p_phone: phone, p_purpose: purpose, p_request: requestId, p_sent: sent, p_provider: provider,
-      p_error: failure ?? null,
+      p_error: failure ?? null, p_provider_msg_id: providerMsgId ?? null,
     });
     if (error || data !== true) throw new Error('OTP delivery persistence failed');
   },

@@ -33,7 +33,7 @@ export interface OtpSendStore {
   reserve(request: {
     phone: string; purpose: SmsPurpose; hash: string; requestId: string; code: string; content: string; sign: string;
   }): Promise<{ error?: string; retry_after?: number }>;
-  finish(phone: string, purpose: SmsPurpose, requestId: string, sent: boolean, provider: string, error?: string): Promise<void>;
+  finish(phone: string, purpose: SmsPurpose, requestId: string, sent: boolean, provider: string, error?: string, providerMsgId?: string): Promise<void>;
 }
 
 export async function sendOtp(
@@ -53,15 +53,16 @@ export async function sendOtp(
     throw new SmsError(reservation.error === 'phone_quota'
       ? '今日发送次数已达上限' : '短信服务今日发送量已达上限，请稍后再试', 429, reservation.error);
   }
+  let sendResult: { msgId?: string } | void;
   try {
-    await provider.sendCode(request.phone, request.code, request.purpose);
+    sendResult = await provider.sendCode(request.phone, request.code, request.purpose, request.requestId);
   } catch (error) {
     const failure = error instanceof SmsError ? error : new SmsError('短信发送失败，请稍后重试');
     await store.finish(request.phone, request.purpose, request.requestId, false, provider.name, `${failure.message}（${failure.reason}）`);
     throw failure;
   }
   // Pending/failed codes cannot be verified. A DB error fails closed here.
-  await store.finish(request.phone, request.purpose, request.requestId, true, provider.name);
+  await store.finish(request.phone, request.purpose, request.requestId, true, provider.name, undefined, sendResult?.msgId);
   return {
     ok: true, retry_after: 60, expires_in: 300,
   };
@@ -71,7 +72,7 @@ export interface NoticeSendStore {
   reserve(request: {
     phone: string; purpose: string; requestId: string; content: string; sign: string; storeName: string;
   }): Promise<{ error?: string; retry_after?: number }>;
-  finish(requestId: string, sent: boolean, provider: string, error?: string): Promise<void>;
+  finish(requestId: string, sent: boolean, provider: string, error?: string, providerMsgId?: string): Promise<void>;
 }
 
 export async function sendNoticeSms(
@@ -103,13 +104,14 @@ export async function sendNoticeSms(
       reservation.error,
     );
   }
+  let sendResult: { msgId?: string } | void;
   try {
-    await provider.sendNotice(request.phone, body);
+    sendResult = await provider.sendNotice(request.phone, body, request.requestId);
   } catch (error) {
     const failure = error instanceof SmsError ? error : new SmsError('短信发送失败，请稍后重试');
     await store.finish(request.requestId, false, provider.name, `${failure.message}（${failure.reason}）`);
     throw failure;
   }
-  await store.finish(request.requestId, true, provider.name);
+  await store.finish(request.requestId, true, provider.name, undefined, sendResult?.msgId);
   return { ok: true };
 }

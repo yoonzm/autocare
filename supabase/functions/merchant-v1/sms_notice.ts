@@ -14,12 +14,13 @@ export const noticeStore: NoticeSendStore = {
     if (error || !data) throw new Error('Notice SMS reservation failed');
     return data;
   },
-  async finish(requestId, sent, provider, failure) {
+  async finish(requestId, sent, provider, failure, providerMsgId) {
     const { data, error } = await admin.rpc('finish_notice_sms', {
       p_request: requestId,
       p_sent: sent,
       p_provider: provider,
       p_error: failure ?? null,
+      p_provider_msg_id: providerMsgId ?? null,
     });
     if (error || data !== true) throw new Error('Notice SMS persistence failed');
   },

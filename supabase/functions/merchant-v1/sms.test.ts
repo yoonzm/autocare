@@ -1,5 +1,6 @@
 import { sendOtp, smsProvider, SmsError, type OtpSendStore } from './sms.ts';
-import { zhutongProvider } from './sms_zhutong.ts';
+import { zhutongBatchReport, zhutongProvider } from './sms_zhutong.ts';
+import { pullSmsReceipts } from './sms_receipts.ts';
 import type { SmsProvider } from './sms_types.ts';
 
 const eq = (a: unknown, b: unknown) => {
@@ -130,4 +131,55 @@ Deno.test('notice duplicate reservation never calls provider or finish', async (
     eq(e instanceof SmsError && e.reason, 'duplicate_request');
   }
   eq([sends, finishes], [0, 0]);
+});
+
+Deno.test('zhutong sendCode forwards extend and returns msgId to store.finish', async () => {
+  let finishedMsgId: string | undefined;
+  const fetcher: typeof fetch = (_url, options) => {
+    const body = JSON.parse(String(options?.body));
+    eq(body.extend, 'req-123');
+    return Promise.resolve(Response.json({ code: 200, msgId: 'zt-msg-999' }));
+  };
+  const provider = zhutongProvider(env, 'register', fetcher, () => 1700000000000);
+  await sendOtp(provider, {
+    reserve: () => Promise.resolve({}),
+    finish: (_p, _u, _id, _sent, _prov, _err, msgId) => {
+      finishedMsgId = msgId;
+      return Promise.resolve();
+    },
+  }, { ...request, requestId: 'req-123' });
+  eq(finishedMsgId, 'zt-msg-999');
+});
+
+Deno.test('zhutongBatchReport returns records on 200 and empty list on 4017 no data', async () => {
+  const fetcher200: typeof fetch = (_url, options) => {
+    eq(_url, 'https://api-shss.zthysms.com/v2/batchReport');
+    const body = JSON.parse(String(options?.body));
+    eq(body, { username: 'test-account', password: 'c6db59d585fe802fdc77e9d1d0e71384', tKey: '1700000000', count: 400 });
+    return Promise.resolve(Response.json({
+      code: 200,
+      records: [{ msg_id: 'm1', mobile: '13900000000', code: 'DELIVRD', report_time: '2026-11-25 11:00:00' }],
+    }));
+  };
+  const recs = await zhutongBatchReport(env, 400, fetcher200, () => 1700000000000);
+  eq(recs.length, 1);
+  eq(recs[0].msg_id, 'm1');
+  const empty = await zhutongBatchReport(env, 400, () => Promise.resolve(Response.json({ code: 4017, msg: 'no data' })), () => 1700000000000);
+  eq(empty, []);
+  await rejects(() => zhutongBatchReport(env, 400, () => Promise.resolve(Response.json({ code: 4009 }))), 502);
+});
+
+Deno.test('pullSmsReceipts skips non-zhutong and applies fetched batches', async () => {
+  eq(await pullSmsReceipts({ env: () => '', applyReports: async () => 0 }), {
+    pulled: 0, updated: 0, skipped: 'provider_not_zhutong',
+  });
+  const res = await pullSmsReceipts({
+    env,
+    fetchBatch: async () => [{ msg_id: 'm1', code: 'DELIVRD' }, { msg_id: 'm2', code: 'UNDELIV' }],
+    applyReports: async (provider, records) => {
+      eq(provider, 'zhutong');
+      return records.length;
+    },
+  });
+  eq(res, { pulled: 2, updated: 2 });
 });

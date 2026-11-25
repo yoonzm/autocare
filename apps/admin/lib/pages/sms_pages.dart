@@ -19,16 +19,13 @@ Tone _purposeTone(SmsLog s) {
   };
 }
 
-(String, Color, Color) _statusLook(SmsLog s) => switch (s.status) {
-  'sent' => (
-    // TODO sms_delivery_receipt: 渠道只返回“已受理”，没有运营商送达回执，所以这里不写“已送达”。
-    '已发送',
-    C.green,
-    C.greenInk,
-  ),
-  'failed' => ('失败', C.red, C.redInk),
-  _ => ('发送中', C.amber, C.amberInk),
-};
+(String, Color, Color) _statusLook(SmsLog s) {
+  if (s.status == 'failed') return ('失败', C.red, C.redInk);
+  if (s.deliveryStatus == 'failed') return ('未送达', C.red, C.redInk);
+  if (s.delivered) return ('已送达', C.green, C.greenInk);
+  if (s.status == 'sent') return ('已发送', C.green, C.greenInk);
+  return ('发送中', C.amber, C.amberInk);
+}
 
 String _dayLabel(DateTime t) {
   final now = beijingDate(kNow.toIso8601String());
@@ -577,8 +574,12 @@ class _SmsLogDetailPageState extends State<SmsLogDetailPage> {
               Divider(height: 1, color: C.line),
               KV('发送时间', SmsLog.full(s.createdAt)),
               Divider(height: 1, color: C.line),
-              // TODO sms_delivery_receipt: 短信渠道暂无送达回执，不能把“已受理时间”当作送达时间。
-              const KV('送达时间', '—'),
+              KV(
+                '送达时间',
+                s.delivered
+                    ? SmsLog.full(s.deliveredAt)
+                    : (s.deliveryStatus == 'failed' ? '未送达' : '—'),
+              ),
               Divider(height: 1, color: C.line),
               KV('触发场景', s.scene),
               Divider(height: 1, color: C.line),

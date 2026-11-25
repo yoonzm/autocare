@@ -1,9 +1,24 @@
 import { createHash } from 'node:crypto';
-import { SmsError, type EnvReader, type SmsNoticeProvider, type SmsProvider, type SmsPurpose } from './sms_types.ts';
+import { SmsError, type EnvReader, type SmsNoticeProvider, type SmsProvider, type SmsPurpose, type SmsSendResult } from './sms_types.ts';
 
 const templateEndpoint = 'https://api-shss.zthysms.com/v2/sendSmsTp';
 const customEndpoint = 'https://api-shss.zthysms.com/v2/sendSms';
+const batchReportEndpoint = 'https://api-shss.zthysms.com/v2/batchReport';
 const md5 = (value: string) => createHash('md5').update(value, 'utf8').digest('hex');
+
+export interface ZhutongReportRecord {
+  msg_id?: string;
+  msgId?: string;
+  mobile?: string;
+  report_time?: string;
+  reportTime?: string;
+  code?: string;
+  msg?: string;
+  extend?: string;
+  pkTotal?: number;
+  pkNumber?: number;
+  username?: string;
+}
 const templateKeys: Record<SmsPurpose, string> = {
   register: 'ZHUTONG_TEMPLATE_REGISTER',
   login: 'ZHUTONG_TEMPLATE_LOGIN',
@@ -26,11 +41,12 @@ function readCredentials(env: EnvReader) {
 
 async function postZhutong(
   endpoint: string,
-  creds: { username: string; password: string; sign: string },
+  creds: { username: string; password: string; sign?: string },
   payload: Record<string, unknown>,
   fetcher: typeof fetch,
   now: () => number,
-): Promise<void> {
+  allowNoData = false,
+): Promise<{ code: number; msgId?: string; records?: ZhutongReportRecord[] }> {
   const tKey = String(Math.floor(now() / 1000));
   let response: Response;
   try {
@@ -42,7 +58,7 @@ async function postZhutong(
       body: JSON.stringify({
         username: creds.username,
         password: md5(md5(creds.password) + tKey),
-        signature: `【${creds.sign}】`,
+        ...(creds.sign ? { signature: `【${creds.sign}】` } : {}),
         tKey,
         ...payload,
       }),
@@ -50,15 +66,20 @@ async function postZhutong(
   } catch {
     throw new SmsError('短信发送结果未确认，请稍后重试', 502, 'transport_error');
   }
-  let result: { code?: unknown };
+  let result: { code?: unknown; msgId?: unknown; records?: unknown };
   try {
     result = await response.json();
   } catch {
     throw new SmsError('短信通道响应异常，请稍后重试', 502, 'invalid_response');
   }
-  if (!response.ok || !result || result.code !== 200) {
+  if (!response.ok || !result || (result.code !== 200 && !(allowNoData && result.code === 4017))) {
     throw new SmsError('短信发送失败，请稍后重试', 502, 'provider_rejected');
   }
+  return {
+    code: result.code as number,
+    msgId: typeof result.msgId === 'string' ? result.msgId : undefined,
+    records: Array.isArray(result.records) ? (result.records as ZhutongReportRecord[]) : undefined,
+  };
 }
 
 /** Same v2 template protocol as my-baas; credentials and OTPs are never logged. */
@@ -77,14 +98,19 @@ export function zhutongProvider(
   return {
     name: 'zhutong',
     signature: creds.sign,
-    sendCode(phone, code) {
-      return postZhutong(
+    async sendCode(phone, code, _purpose, requestId): Promise<SmsSendResult> {
+      const res = await postZhutong(
         templateEndpoint,
         creds,
-        { tpId: template, records: [{ mobile: phone.replace(/^\+86/, ''), tpContent: { code } }] },
+        {
+          tpId: template,
+          ...(requestId ? { extend: requestId } : {}),
+          records: [{ mobile: phone.replace(/^\+86/, ''), tpContent: { code } }],
+        },
         fetcher,
         now,
       );
+      return res.msgId ? { msgId: res.msgId } : {};
     },
   };
 }
@@ -99,15 +125,43 @@ export function zhutongNoticeProvider(
   return {
     name: 'zhutong',
     signature: creds.sign,
-    sendNotice(phone, content) {
+    async sendNotice(phone, content, requestId): Promise<SmsSendResult> {
       const clean = content.trim().replace(/^【[^】]*】/, '');
-      return postZhutong(
+      const res = await postZhutong(
         customEndpoint,
         creds,
-        { mobile: phone.replace(/^\+86/, ''), content: `【${creds.sign}】${clean}` },
+        {
+          mobile: phone.replace(/^\+86/, ''),
+          content: `【${creds.sign}】${clean}`,
+          ...(requestId ? { extend: requestId } : {}),
+        },
         fetcher,
         now,
       );
+      return res.msgId ? { msgId: res.msgId } : {};
     },
   };
+}
+
+/** 助通下行回执抓取（/v2/batchReport）：4017 表示暂无新回执，返回空数组。 */
+export async function zhutongBatchReport(
+  env: EnvReader,
+  count = 400,
+  fetcher: typeof fetch = fetch,
+  now: () => number = Date.now,
+): Promise<ZhutongReportRecord[]> {
+  const username = env('ZHUTONG_USERNAME')?.trim();
+  const password = env('ZHUTONG_PASSWORD');
+  if (!username || !password) {
+    throw new SmsError('短信服务尚未配置', 501, 'configuration_missing');
+  }
+  const res = await postZhutong(
+    batchReportEndpoint,
+    { username, password },
+    { count: Math.min(Math.max(Math.trunc(count), 1), 1000) },
+    fetcher,
+    now,
+    true,
+  );
+  return res.code === 4017 ? [] : (res.records ?? []);
 }

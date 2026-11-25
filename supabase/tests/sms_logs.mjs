@@ -24,14 +24,21 @@ try {
   await db.query('insert into auth.sessions values($1,$2),($3,$4)', [superSession, superId, opsSession, opsId]);
   await db.exec(file('202611060004_admin_platform.sql'));
   await db.query("insert into admin_accounts(id,username,name,role,must_change) values($1,'super_test','Test Super','superAdmin',false),($2,'ops_test','Test Ops','ops',false)", [superId, opsId]);
-  for (const name of ['202611010003_phone_otp.sql', '202611010006_forgot_password.sql', '202611060001_sms_channels.sql', '202611100007_sms_logs.sql']) {
+  for (const name of [
+    '202611010003_phone_otp.sql',
+    '202611010006_forgot_password.sql',
+    '202611060001_sms_channels.sql',
+    '202611100007_sms_logs.sql',
+    '202611240003_sms_notice.sql',
+    '202611250002_sms_delivery_receipt.sql',
+  ]) {
     await db.exec(file(name));
   }
   const hash = 'a'.repeat(64), wrong = 'b'.repeat(64);
   const reserve = (phone, purpose, id, code = '482916') =>
     scalar('select public.reserve_phone_otp($1,$2,$3,$4,$5,$6,$7) as value', [phone, purpose, hash, id, code, `【汽美管家】验证码 ${code}`, '汽美管家']);
-  const finish = (phone, purpose, id, sent, error = null) =>
-    scalar('select public.finish_phone_otp($1,$2,$3,$4,$5,$6) as value', [phone, purpose, id, sent, 'zhutong', error]);
+  const finish = (phone, purpose, id, sent, error = null, msgId = null) =>
+    scalar('select public.finish_phone_otp($1,$2,$3,$4,$5,$6,$7) as value', [phone, purpose, id, sent, 'zhutong', error, msgId]);
   const list = (args = {}, actor = superId, session = superSession) =>
     scalar('select public.admin_sms_list($1,$2,$3,$4,$5,$6,$7) as value',
       [actor, session, args.kind ?? 'all', args.phone ?? '', args.at ?? null, args.id ?? null, args.limit ?? 30]);
@@ -41,9 +48,27 @@ try {
   assert.deepEqual(await reserve('+8613800137712', 'login', a), {});
   let row = (await db.query('select * from sms_logs where request_id=$1', [a])).rows[0];
   assert.equal(row.status, 'pending'); assert.equal(row.code, '482916'); assert.equal(row.phone, '+8613800137712');
-  assert.equal(await finish('+8613800137712', 'login', a, true), true);
+  assert.equal(await finish('+8613800137712', 'login', a, true, null, 'zt-msg-a'), true);
   row = (await db.query('select * from sms_logs where request_id=$1', [a])).rows[0];
   assert.equal(row.status, 'sent'); assert.ok(row.sent_at); assert.equal(row.provider, 'zhutong');
+  assert.equal(row.provider_msg_id, 'zt-msg-a'); assert.equal(row.delivery_status, 'unknown');
+  // 回执同步：DELIVRD 标记已送达与送达时间；运营商失败标记未送达并计入 failed_count。
+  const c = uuid();
+  assert.deepEqual(await reserve('+8613500112233', 'register', c, '654321'), {});
+  assert.equal(await finish('+8613500112233', 'register', c, true, null, 'zt-msg-c'), true);
+  const applied = await scalar('select public.apply_sms_delivery_reports($1,$2::jsonb) as value', [
+    'zhutong',
+    JSON.stringify([
+      { msg_id: 'zt-msg-a', mobile: '13800137712', report_time: '2026-11-25 11:05:00', code: 'DELIVRD', msg: '发送成功' },
+      { msg_id: 'other', mobile: '13500112233', extend: c, report_time: '2026-11-25 11:06:00', code: 'UNDELIV', msg: '用户停机' },
+    ]),
+  ]);
+  assert.equal(applied, 2);
+  const rowA = (await db.query('select delivery_status, delivery_code, delivered_at from sms_logs where request_id=$1', [a])).rows[0];
+  assert.equal(rowA.delivery_status, 'delivered'); assert.equal(rowA.delivery_code, 'DELIVRD'); assert.ok(rowA.delivered_at);
+  const rowC = (await db.query('select delivery_status, delivery_code, delivered_at, error from sms_logs where request_id=$1', [c])).rows[0];
+  assert.equal(rowC.delivery_status, 'failed'); assert.equal(rowC.delivery_code, 'UNDELIV'); assert.equal(rowC.delivered_at, null);
+  assert.equal(rowC.error, '用户停机');
   assert.deepEqual(await reserve('+8613677889900', 'login', b, '123456'), {});
   assert.equal(await finish('+8613677889900', 'login', b, false, '短信发送失败，请稍后重试（provider_rejected）'), true);
   assert.equal((await db.query('select * from sms_logs where request_id=$1', [b])).rows[0].error, '短信发送失败，请稍后重试（provider_rejected）');
@@ -58,11 +83,13 @@ try {
 
   // 查询：筛选、手机号检索、失败计数、分页、权限。
   let r = await list();
-  assert.equal(r.items.length, 2); assert.equal(r.failed_count, 1); assert.equal(r.more, false);
-  assert.equal(r.items[0].phone, '+8613677889900', '最新的在前');
-  assert.equal(r.items[1].code, '482916', '验证码明文返回');
-  assert.equal((await list({ kind: 'failed' })).items.length, 1);
-  assert.equal((await list({ kind: 'code' })).items.length, 2);
+  assert.equal(r.items.length, 3); assert.equal(r.failed_count, 2); assert.equal(r.more, false);
+  assert.equal(r.items[0].phone, '+8613500112233', '最新的在前');
+  assert.equal(r.items[2].code, '482916', '验证码明文返回');
+  assert.equal(r.items[2].delivery_status, 'delivered');
+  assert.ok(r.items[2].delivered_at);
+  assert.equal((await list({ kind: 'failed' })).items.length, 2);
+  assert.equal((await list({ kind: 'code' })).items.length, 3);
   assert.equal((await list({ kind: 'notice' })).items.length, 0);
   assert.equal((await list({ phone: '138 0013' })).items.length, 1);
   assert.equal((await list({ phone: '7712' })).items[0].phone, '+8613800137712');

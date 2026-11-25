@@ -14,6 +14,9 @@ Map<String, dynamic> sms(
   String phone, {
   String purpose = 'login',
   String status = 'sent',
+  String deliveryStatus = 'unknown',
+  String deliveryCode = '',
+  String? deliveredAt,
   String code = '482916',
   String error = '',
   int attempts = 0,
@@ -30,11 +33,14 @@ Map<String, dynamic> sms(
   'provider': 'zhutong',
   'sign_name': '汽美管家',
   'status': status,
+  'delivery_status': deliveryStatus,
+  'delivery_code': deliveryCode,
   'error': error,
   'attempts': attempts,
   'store_name': '',
   'created_at': created.toIso8601String(),
   'sent_at': status == 'sent' ? created.toIso8601String() : null,
+  'delivered_at': deliveredAt,
   'expires_at': created.add(validFor).toIso8601String(),
   'consumed_at': consumedAt,
 };
@@ -236,6 +242,36 @@ void main() {
     await t.pumpAndSettle(const Duration(milliseconds: 400));
     expect(api.calls.any((c) => c['action'] == 'sms_resend' && c['id'] == 'a'), isTrue);
     expect(find.text('短信详情'), findsNothing);
+  });
+
+  testWidgets('回执同步后显示已送达与送达时间，未送达显示失败状态', (t) async {
+    final created = DateTime.utc(2026, 11, 25, 3, 0, 0);
+    final delivered = DateTime.utc(2026, 11, 25, 3, 0, 8);
+    api.rows = [
+      sms(
+        'd1',
+        '+8613800137712',
+        deliveryStatus: 'delivered',
+        deliveryCode: 'DELIVRD',
+        deliveredAt: delivered.toIso8601String(),
+        created: created,
+      ),
+      sms(
+        'd2',
+        '+8613677889900',
+        deliveryStatus: 'failed',
+        deliveryCode: 'UNDELIV',
+        error: '用户停机',
+        created: created,
+      ),
+    ];
+    await open(t);
+    expect(find.text('已送达'), findsOneWidget);
+    expect(find.text('未送达'), findsOneWidget);
+    expect(find.textContaining('用户停机'), findsOneWidget);
+    await t.tap(find.text('138 0013 7712'));
+    await t.pumpAndSettle(const Duration(milliseconds: 400));
+    expect(find.text('2026-11-25 11:00:08'), findsOneWidget);
   });
 
   testWidgets('已使用 / 已过期 / 错误次数过多的验证状态', (t) async {

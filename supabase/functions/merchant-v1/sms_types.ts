@@ -5,18 +5,22 @@ export type SmsPurpose = typeof smsPurposes[number];
 export const isSmsPurpose = (value: unknown): value is SmsPurpose =>
   typeof value === 'string' && (smsPurposes as readonly string[]).includes(value);
 
+export interface SmsSendResult {
+  msgId?: string;
+}
+
 export interface SmsProvider {
   readonly name: string;
   /** 短信签名（不含【】），只用于后台「短信记录」展示。 */
   readonly signature?: string;
-  sendCode(phone: string, code: string, purpose: SmsPurpose): Promise<void>;
+  sendCode(phone: string, code: string, purpose: SmsPurpose, requestId?: string): Promise<SmsSendResult | void>;
 }
 
 export interface SmsNoticeProvider {
   readonly name: string;
   /** 短信签名（不含【】），用于发送与后台「短信记录」展示。 */
   readonly signature: string;
-  sendNotice(phone: string, content: string): Promise<void>;
+  sendNotice(phone: string, content: string, requestId?: string): Promise<SmsSendResult | void>;
 }
 
 export class SmsError extends Error {

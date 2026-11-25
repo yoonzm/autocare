@@ -311,11 +311,14 @@ class SmsLog {
   final String provider;
   final String signName;
   final String status; // pending | sent | failed
+  final String deliveryStatus; // unknown | delivered | failed
+  final String deliveryCode;
   final String error;
   final int attempts;
   final String storeName;
   final DateTime createdAt;
   final DateTime? sentAt;
+  final DateTime? deliveredAt;
   final DateTime? expiresAt;
   final DateTime? consumedAt;
   const SmsLog({
@@ -328,11 +331,14 @@ class SmsLog {
     required this.provider,
     required this.signName,
     required this.status,
+    this.deliveryStatus = 'unknown',
+    this.deliveryCode = '',
     required this.error,
     required this.attempts,
     required this.storeName,
     required this.createdAt,
     required this.sentAt,
+    this.deliveredAt,
     required this.expiresAt,
     required this.consumedAt,
   });
@@ -349,18 +355,22 @@ class SmsLog {
       provider: j['provider'] as String? ?? '',
       signName: j['sign_name'] as String? ?? '',
       status: j['status'] as String,
+      deliveryStatus: j['delivery_status'] as String? ?? 'unknown',
+      deliveryCode: j['delivery_code'] as String? ?? '',
       error: j['error'] as String? ?? '',
       attempts: j['attempts'] as int? ?? 0,
       storeName: j['store_name'] as String? ?? '',
       createdAt: DateTime.parse(j['created_at'] as String).toUtc(),
       sentAt: time(j['sent_at']),
+      deliveredAt: time(j['delivered_at']),
       expiresAt: time(j['expires_at']),
       consumedAt: time(j['consumed_at']),
     );
   }
 
   bool get isCode => kind == 'code';
-  bool get failed => status == 'failed';
+  bool get failed => status == 'failed' || deliveryStatus == 'failed';
+  bool get delivered => status == 'sent' && deliveryStatus == 'delivered';
 
   /// `+8613800137712` → `138 0013 7712`，手机号不脱敏。
   String get phoneText {
