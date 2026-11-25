@@ -261,6 +261,8 @@ export async function handleOrders(input: Input, storeId: string, maskMemberPhon
       buildContent: (storeName) => `您在${storeName}本次消费 ¥${Number(row.payable ?? 0).toFixed(2)} 已完成，感谢光临！`,
     });
     return json({ item: { ...row, ...sms } });
+  }
+  if (input.action === 'checkout') {
     const v = parseCheckout(input);
     if (typeof v === 'string') return fail(v);
     const technicians = parseOrderTechnicians(input.technician_ids);
