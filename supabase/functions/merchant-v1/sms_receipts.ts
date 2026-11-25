@@ -1,4 +1,3 @@
-import { admin, fail, json } from './shared.ts';
 import { SmsError } from './sms_types.ts';
 import { zhutongBatchReport } from './sms_zhutong.ts';
 
@@ -27,6 +26,8 @@ export async function pullSmsReceipts(deps: {
 }
 
 export async function handleSmsReceipts(request: Request): Promise<Response> {
+  // Keep the injected polling logic importable without production credentials.
+  const { admin, fail, json } = await import('./shared.ts');
   const key = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
   if (!key || request.headers.get('authorization') !== `Bearer ${key}`) return fail('Forbidden', 403);
   try {

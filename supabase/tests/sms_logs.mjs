@@ -82,9 +82,14 @@ try {
   assert.ok((await db.query('select consumed_at from sms_logs where request_id=$1', [a])).rows[0].consumed_at);
 
   // 查询：筛选、手机号检索、失败计数、分页、权限。
+  // 固定 a、c、b 的创建顺序，避免相同时间戳按随机 UUID 排序。
+  await db.query(`update sms_logs set created_at = now() - case request_id
+    when $1::uuid then interval '3 minutes'
+    when $2::uuid then interval '2 minutes'
+    else interval '1 minute' end where request_id in ($1::uuid,$2::uuid,$3::uuid)`, [a, c, b]);
   let r = await list();
   assert.equal(r.items.length, 3); assert.equal(r.failed_count, 2); assert.equal(r.more, false);
-  assert.equal(r.items[0].phone, '+8613500112233', '最新的在前');
+  assert.equal(r.items[0].phone, '+8613677889900', '最新的在前');
   assert.equal(r.items[2].code, '482916', '验证码明文返回');
   assert.equal(r.items[2].delivery_status, 'delivered');
   assert.ok(r.items[2].delivered_at);

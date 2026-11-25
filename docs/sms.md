@@ -39,6 +39,8 @@
 3. **定时拉取（`sms_receipts.ts` + `supabase/deploy/sms_receipts.py`）**：`merchant-v1` 提供 `sms_receipts_run`（仅 `service_role` 可调用），每轮调用 `zhutongBatchReport`（单批 400 条，最多 5 批；`4017 no data` 视为空批）并写入数据库；生产主机通过 `python3 supabase/deploy/sms_receipts.py --install` 安装 `autocare-sms-receipts.timer` 每分钟执行一次。
 4. **后台展示（`apps/admin`）**：`SmsLog` 展示真实回执状态（`已发送` / `已送达` / `未送达` / `失败`）与真实 `送达时间`（未收到回执时仍显示 `—`，不将已受理时间当作送达时间）。
 
+2026-11-25 生产修复记录：已备份并发布 `8ebfc3e` 基线加回执模块延迟加载修复，应用 `202611250001` / `202611250002`，安装并启用 `autocare-sms-receipts.timer`（每分钟、开机启用），已验证自动触发。精确后端摘要为 `13f72c66acf409506e6b164f648dea463049430d7dc042915dc6463a22a0e5b6`，定时器安装审计位于服务器 `/var/lib/autocare-deploy/timers-1795589795536880200/receipt.json`。首次启用时渠道返回 `4067: grab report not allowed`；用户开通下行回执抓取权限后，15:04 手动执行和 15:05 自动触发均成功，接口返回 `HTTP 200`、`ok=true`、`pulled=0`、`updated=0`。当时助通无可拉取回执，历史 28 条短信仍为 `unknown`，真实回执入库尚待新回执验证。此次未发送测试短信，也未将历史受理记录改为送达。发布前通过三个云函数类型检查及 164 项测试、17 项部署脚本测试和 21 套数据库测试。
+
 配置样例为 `supabase/deploy/sms.env.example`。用户已指定复用 my-baas 的助通账号、签名及模板：
 
 | 用途 | purpose | 模板变量 | 当前模板 |

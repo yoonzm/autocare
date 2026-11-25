@@ -20,6 +20,8 @@
 4. 用 `systemctl status autocare-appointment-reminders.timer` 和 `journalctl -u autocare-appointment-reminders.service` 检查运行。停止发送可执行 `systemctl disable --now autocare-appointment-reminders.timer`；这不会撤回已受理短信。
 5. 发布新版商户 App。真实短信联调仅使用用户明确指定的测试手机号。
 
+2026-11-25 已在生产补装并启用 `autocare-appointment-reminders.timer`（每分钟、开机启用），手动执行及 14:57 自动触发均成功，日志为 `Reminder batch completed: 0`。当时无到期提醒，未创建测试预约或发送测试短信；真实到期发送仍按现有预约开关和时间规则执行。安装审计位于服务器 `/var/lib/autocare-deploy/timers-1795589795536880200/receipt.json`。
+
 服务端入口 `appointment_reminders_run` 仅接受 service-role Bearer 密钥，不能由商户会话或公开 key 调用。数据库相关 RPC 也仅向 service_role 授权。定时器以一分钟为粒度，单次处理 20 条；积压或故障会增加延迟，需通过运行日志及预约中逾期 pending/sending 状态监控。
 
 ## 验证
