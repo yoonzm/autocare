@@ -13,7 +13,7 @@ import 'staff_live.dart';
 import '../../kit/page_header.dart';
 
 // 不提供邀请二维码：员工按手机号匹配自动激活，只需下载 App、用该手机号验证码登录。
-// 复制的是登录说明文字。短信邀请仍需助通邀请模板，后端明确返回 501。
+// 复制的是登录说明文字。短信邀请已接入后端通知短信接口（sendStoreNotice / zhutongNoticeProvider）。
 class StaffInviteTemplate extends StatelessWidget {
   final Map<String, dynamic> d;
   const StaffInviteTemplate({super.key, required this.d});
