@@ -1,5 +1,5 @@
 import { admin, fail, json } from './shared.ts';
-import { sendStoreNotice } from './sms_notice.ts';
+import { recordAppointmentNotice, sendStoreNotice } from './sms_notice.ts';
 import { SmsError } from './sms_types.ts';
 
 export async function handleAppointmentReminders(request: Request): Promise<Response> {
@@ -8,7 +8,7 @@ export async function handleAppointmentReminders(request: Request): Promise<Resp
   const { data, error } = await admin.rpc('claim_appointment_reminders');
   if (error) return fail('提醒任务领取失败', 500);
   try {
-    await Promise.all((data ?? []).map(async (job: { id: string; remind_request: string }) => {
+    await Promise.all((data ?? []).map(async (job: { id: string; store_id: string; phone?: string; remind_request: string }) => {
       // Re-read after claiming so cancellation/rescheduling invalidates the old generation.
       const { data: a, error: readError } = await admin.from('appointments').select('*')
         .eq('id', job.id).eq('remind_request', job.remind_request)
@@ -20,9 +20,18 @@ export async function handleAppointmentReminders(request: Request): Promise<Resp
           p_id: job.id, p_request: job.remind_request, p_state: 'skipped',
         });
         if (skippedError) throw skippedError;
+        await recordAppointmentNotice({
+          storeId: job.store_id,
+          appointmentId: job.id,
+          kind: 'remind',
+          status: 'skipped',
+          recipient: String(job.phone ?? ''),
+          error: '预约已变更或已过开始时间',
+        });
         return;
       }
       let state = 'sent';
+      let noticeError = '';
       try {
         const dt = new Date(new Date(a.starts_at).getTime() + 8 * 3600000);
         const time = `${dt.toISOString().slice(0, 10)} ${dt.toISOString().slice(11, 16)}`;
@@ -30,6 +39,7 @@ export async function handleAppointmentReminders(request: Request): Promise<Resp
           purpose: 'appointment_reminder', requestId: job.remind_request,
           content: `温馨提醒：您预约的到店服务时间为 ${time}，请按时到店。如需改期，请联系门店。` });
       } catch (e) {
+        noticeError = e instanceof SmsError ? e.message : '短信发送失败';
         // Cooldown is a confirmed pre-send refusal. Transport/persistence failures are ambiguous.
         state = e instanceof SmsError
           ? e.reason === 'cooldown' ? 'pending'
@@ -41,6 +51,16 @@ export async function handleAppointmentReminders(request: Request): Promise<Resp
         p_id: job.id, p_request: job.remind_request, p_state: state,
       });
       if (finishError) throw finishError;
+      if (state === 'sent' || state === 'failed' || state === 'unknown') {
+        await recordAppointmentNotice({
+          storeId: a.store_id,
+          appointmentId: a.id,
+          kind: 'remind',
+          status: state === 'sent' ? 'sent' : 'failed',
+          recipient: String(a.phone ?? ''),
+          error: state === 'sent' ? '' : noticeError,
+        });
+      }
     }));
     return json({ ok: true, item: { count: data?.length ?? 0 } });
   } catch {

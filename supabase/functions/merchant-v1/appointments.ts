@@ -5,7 +5,7 @@ import { hasCap, technicianScope } from './staff_access.ts';
 import { parseBooking, parseBookingSettings, parseResource, validDay } from './appointment_rules.ts';
 import { parseOrderTechnicians } from './ops_rules.ts';
 import { SmsError } from './sms.ts';
-import { normalizeCnPhone, sendStoreNotice } from './sms_notice.ts';
+import { normalizeCnPhone, recordAppointmentNotice, sendStoreNotice } from './sms_notice.ts';
 import type { Input } from './types.ts';
 
 const managerNoticeDeps: ManagerNoticeDependencies = {
@@ -151,13 +151,14 @@ export async function handleAppointments(input: Input, request: Request): Promis
       if (error) return rpcError(error);
       let sms_sent = false;
       let sms_error = '';
-      if ((input.id == null ? data?.notify_confirm === true : input.notify === true) && data && normalizeCnPhone(data.phone)) {
+      const isEdit = input.id != null;
+      const shouldNotify = (isEdit ? input.notify === true : data?.notify_confirm === true) && !!data;
+      if (shouldNotify && normalizeCnPhone(data.phone)) {
         const dt = new Date(new Date(String(data.starts_at)).getTime() + 8 * 3600000);
         const timeStr = `${dt.toISOString().slice(0, 10)} ${dt.toISOString().slice(11, 16)}`;
         const items = Array.isArray(data.items) ? (data.items as { name?: string }[]).map((x) => x.name).filter(Boolean).join('、') : '';
         const { data: storeRow } = await admin.from('stores').select('name').eq('id', store).maybeSingle();
         const storeName = String(storeRow?.name ?? '门店').trim() || '门店';
-        const isEdit = input.id != null;
         const content = isEdit
           ? `您的预约时间已调整为 ${timeStr}，如有疑问请联系${storeName}。`
           : `您已成功预约 ${timeStr} 到店${items ? `（${items}）` : ''}，如需改期请提前联系${storeName}。`;
@@ -171,9 +172,33 @@ export async function handleAppointments(input: Input, request: Request): Promis
             requestId: request.headers.get('x-request-id'),
           });
           sms_sent = true;
+          await recordAppointmentNotice({
+            storeId: store,
+            appointmentId: String(data.id),
+            kind: isEdit ? 'reschedule' : 'confirm',
+            status: 'sent',
+            recipient: String(data.phone ?? ''),
+          });
         } catch (err) {
           sms_error = err instanceof SmsError ? err.message : '短信发送失败';
+          await recordAppointmentNotice({
+            storeId: store,
+            appointmentId: String(data.id),
+            kind: isEdit ? 'reschedule' : 'confirm',
+            status: 'failed',
+            recipient: String(data.phone ?? ''),
+            error: sms_error,
+          });
         }
+      } else if (shouldNotify) {
+        await recordAppointmentNotice({
+          storeId: store,
+          appointmentId: String(data.id),
+          kind: isEdit ? 'reschedule' : 'confirm',
+          status: 'skipped',
+          recipient: String(data.phone ?? ''),
+          error: '客户未登记有效手机号',
+        });
       }
       const managerNotice = await notifyAppointmentManagers({ storeId: store, appointment: data,
         event: input.id == null ? 'created' : 'rescheduled',
@@ -207,9 +232,33 @@ export async function handleAppointments(input: Input, request: Request): Promis
             requestId: request.headers.get('x-request-id'),
           });
           sms_sent = true;
+          await recordAppointmentNotice({
+            storeId: store,
+            appointmentId: String(data.id),
+            kind: 'cancel',
+            status: 'sent',
+            recipient: String(data.phone ?? ''),
+          });
         } catch (err) {
           sms_error = err instanceof SmsError ? err.message : '短信发送失败';
+          await recordAppointmentNotice({
+            storeId: store,
+            appointmentId: String(data.id),
+            kind: 'cancel',
+            status: 'failed',
+            recipient: String(data.phone ?? ''),
+            error: sms_error,
+          });
         }
+      } else if (action === 'appointment_cancel' && input.notify === true && data) {
+        await recordAppointmentNotice({
+          storeId: store,
+          appointmentId: String(data.id),
+          kind: 'cancel',
+          status: 'skipped',
+          recipient: String(data.phone ?? ''),
+          error: '客户未登记有效手机号',
+        });
       }
       const managerNotice = action === 'appointment_cancel'
         ? await notifyAppointmentManagers({ storeId: store, appointment: data, event: 'cancelled',

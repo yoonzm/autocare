@@ -917,305 +917,7 @@ class AppointmentDetailTemplate extends StatelessWidget {
                       ),
                       pad: EdgeInsets.fromLTRB(0, 4, 0, 4),
                       child: hcol(
-                        [
-                          hbox(
-                            minH: 60,
-                            pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                            child: hrow(
-                              [
-                                hbox(
-                                  w: 36,
-                                  h: 36,
-                                  bg: dk(
-                                    context,
-                                    Color(0xFFDDF6E7),
-                                    Color.fromRGBO(23, 201, 100, 0.16),
-                                  ),
-                                  radius: BorderRadius.circular(18),
-                                  align: Alignment(0, 0),
-                                  child: Text(
-                                    '微信',
-                                    style: hts(
-                                      11,
-                                      dk(
-                                        context,
-                                        Color(0xFF2B7745),
-                                        Color(0xFF5FD48C),
-                                      ),
-                                      w: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 1,
-                                  child: hcol(
-                                    [
-                                      Text(
-                                        '预约确认',
-                                        style: hts(
-                                          14,
-                                          dk(
-                                            context,
-                                            Color(0xFF18181B),
-                                            Color(0xFFFAFAFA),
-                                          ),
-                                          w: FontWeight.w500,
-                                          lh: 20,
-                                        ),
-                                      ),
-                                      Text(
-                                        '—',
-                                        style: hts(
-                                          12,
-                                          dk(
-                                            context,
-                                            Color(0xFF71717A),
-                                            Color(0xFF9A9AA3),
-                                          ),
-                                          lh: 16,
-                                        ),
-                                      ),
-                                    ],
-                                    main: MainAxisAlignment.start,
-                                    cross: CrossAxisAlignment.stretch,
-                                    gap: 1,
-                                  ),
-                                ),
-                                hbox(
-                                  bg: dk(
-                                    context,
-                                    Color(0xFFDDF6E7),
-                                    Color.fromRGBO(23, 201, 100, 0.16),
-                                  ),
-                                  radius: BorderRadius.circular(9),
-                                  pad: EdgeInsets.fromLTRB(8, 0, 8, 0),
-                                  child: Text(
-                                    '未接通',
-                                    style: hts(
-                                      11,
-                                      dk(
-                                        context,
-                                        Color(0xFF2B7745),
-                                        Color(0xFF5FD48C),
-                                      ),
-                                      w: FontWeight.w600,
-                                      lh: 18,
-                                    ),
-                                    softWrap: false,
-                                    maxLines: 1,
-                                  ),
-                                ),
-                              ],
-                              main: MainAxisAlignment.start,
-                              cross: CrossAxisAlignment.center,
-                              gap: 12,
-                            ),
-                          ),
-                          hbox(
-                            h: 1,
-                            bg: dk(
-                              context,
-                              Color(0xFFEFEFF1),
-                              Color(0xFF2A2A2E),
-                            ),
-                            margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
-                          ),
-                          hbox(
-                            minH: 60,
-                            pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                            child: hrow(
-                              [
-                                hbox(
-                                  w: 36,
-                                  h: 36,
-                                  bg: dk(
-                                    context,
-                                    Color(0xFFDDF6E7),
-                                    Color.fromRGBO(23, 201, 100, 0.16),
-                                  ),
-                                  radius: BorderRadius.circular(18),
-                                  align: Alignment(0, 0),
-                                  child: Text(
-                                    '微信',
-                                    style: hts(
-                                      11,
-                                      dk(
-                                        context,
-                                        Color(0xFF2B7745),
-                                        Color(0xFF5FD48C),
-                                      ),
-                                      w: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 1,
-                                  child: hcol(
-                                    [
-                                      Text(
-                                        '到店前提醒',
-                                        style: hts(
-                                          14,
-                                          dk(
-                                            context,
-                                            Color(0xFF18181B),
-                                            Color(0xFFFAFAFA),
-                                          ),
-                                          w: FontWeight.w500,
-                                          lh: 20,
-                                        ),
-                                      ),
-                                      Text(
-                                        '—',
-                                        style: hts(
-                                          12,
-                                          dk(
-                                            context,
-                                            Color(0xFF71717A),
-                                            Color(0xFF9A9AA3),
-                                          ),
-                                          lh: 16,
-                                        ),
-                                      ),
-                                    ],
-                                    main: MainAxisAlignment.start,
-                                    cross: CrossAxisAlignment.stretch,
-                                    gap: 1,
-                                  ),
-                                ),
-                                hbox(
-                                  bg: dk(
-                                    context,
-                                    Color(0xFFDDF6E7),
-                                    Color.fromRGBO(23, 201, 100, 0.16),
-                                  ),
-                                  radius: BorderRadius.circular(9),
-                                  pad: EdgeInsets.fromLTRB(8, 0, 8, 0),
-                                  child: Text(
-                                    '未接通',
-                                    style: hts(
-                                      11,
-                                      dk(
-                                        context,
-                                        Color(0xFF2B7745),
-                                        Color(0xFF5FD48C),
-                                      ),
-                                      w: FontWeight.w600,
-                                      lh: 18,
-                                    ),
-                                    softWrap: false,
-                                    maxLines: 1,
-                                  ),
-                                ),
-                              ],
-                              main: MainAxisAlignment.start,
-                              cross: CrossAxisAlignment.center,
-                              gap: 12,
-                            ),
-                          ),
-                          hbox(
-                            h: 1,
-                            bg: dk(
-                              context,
-                              Color(0xFFEFEFF1),
-                              Color(0xFF2A2A2E),
-                            ),
-                            margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
-                          ),
-                          hbox(
-                            minH: 60,
-                            pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                            child: hrow(
-                              [
-                                hbox(
-                                  w: 36,
-                                  h: 36,
-                                  bg: dk(
-                                    context,
-                                    Color(0xFFDDF6E7),
-                                    Color.fromRGBO(23, 201, 100, 0.16),
-                                  ),
-                                  radius: BorderRadius.circular(18),
-                                  align: Alignment(0, 0),
-                                  child: Text(
-                                    '微信',
-                                    style: hts(
-                                      11,
-                                      dk(
-                                        context,
-                                        Color(0xFF2B7745),
-                                        Color(0xFF5FD48C),
-                                      ),
-                                      w: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 1,
-                                  child: hcol(
-                                    [
-                                      Text(
-                                        '爽约提醒',
-                                        style: hts(
-                                          14,
-                                          dk(
-                                            context,
-                                            Color(0xFF18181B),
-                                            Color(0xFFFAFAFA),
-                                          ),
-                                          w: FontWeight.w500,
-                                          lh: 20,
-                                        ),
-                                      ),
-                                      Text(
-                                        '—',
-                                        style: hts(
-                                          12,
-                                          dk(
-                                            context,
-                                            Color(0xFF71717A),
-                                            Color(0xFF9A9AA3),
-                                          ),
-                                          lh: 16,
-                                        ),
-                                      ),
-                                    ],
-                                    main: MainAxisAlignment.start,
-                                    cross: CrossAxisAlignment.stretch,
-                                    gap: 1,
-                                  ),
-                                ),
-                                hbox(
-                                  bg: dk(
-                                    context,
-                                    Color(0xFFEEEEF0),
-                                    Color(0xFF27272A),
-                                  ),
-                                  radius: BorderRadius.circular(9),
-                                  pad: EdgeInsets.fromLTRB(8, 0, 8, 0),
-                                  child: Text(
-                                    '未接通',
-                                    style: hts(
-                                      11,
-                                      dk(
-                                        context,
-                                        Color(0xFF52525B),
-                                        Color(0xFFA8A8B3),
-                                      ),
-                                      w: FontWeight.w600,
-                                      lh: 18,
-                                    ),
-                                    softWrap: false,
-                                    maxLines: 1,
-                                  ),
-                                ),
-                              ],
-                              main: MainAxisAlignment.start,
-                              cross: CrossAxisAlignment.center,
-                              gap: 12,
-                            ),
-                          ),
-                        ],
+                        _noticeRows(context),
                         main: MainAxisAlignment.start,
                         cross: CrossAxisAlignment.stretch,
                         gap: 0,
@@ -1340,5 +1042,201 @@ class AppointmentDetailTemplate extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  List<Widget> _noticeRows(BuildContext context) {
+    final raw = (a.row['notices'] as List? ?? const [])
+        .whereType<Map>()
+        .map((e) => Map<String, dynamic>.from(e))
+        .toList();
+    final rows = <Map<String, dynamic>>[];
+
+    if (raw.isEmpty) {
+      rows.add({
+        'kind': 'confirm',
+        'channel': 'sms',
+        'status': a.row['notify_confirm'] == true ? 'unrecorded' : 'disabled',
+        'subtitle': '—',
+      });
+    } else {
+      for (final n in raw) {
+        final sent = _noticeTime('${n['sent_at'] ?? n['created_at'] ?? ''}');
+        final err = '${n['error'] ?? ''}'.trim();
+        rows.add({
+          'kind': '${n['kind'] ?? 'confirm'}',
+          'channel': '${n['channel'] ?? 'sms'}',
+          'status': '${n['status'] ?? 'sent'}',
+          'subtitle': n['status'] == 'sent'
+              ? (sent.isEmpty ? '—' : sent)
+              : (err.isNotEmpty ? err : '—'),
+        });
+      }
+    }
+
+    final hasRemind = raw.any((n) => n['kind'] == 'remind');
+    if (!hasRemind) {
+      final enabled = a.row['remind_enabled'] == true;
+      final state = '${a.row['remind_state'] ?? 'disabled'}';
+      final remindAt = _noticeTime('${a.row['remind_at'] ?? ''}');
+      final status = !enabled
+          ? 'disabled'
+          : switch (state) {
+              'pending' || 'sending' => 'pending',
+              'sent' => 'sent',
+              'failed' || 'unknown' => 'failed',
+              'skipped' || 'cancelled' => 'skipped',
+              _ => 'disabled',
+            };
+      rows.add({
+        'kind': 'remind',
+        'channel': 'sms',
+        'status': status,
+        'subtitle': status == 'pending' && remindAt.isNotEmpty
+            ? '预计 $remindAt 发送'
+            : '—',
+      });
+    }
+
+    final widgets = <Widget>[];
+    for (var i = 0; i < rows.length; i++) {
+      if (i > 0) {
+        widgets.add(
+          hbox(
+            h: 1,
+            bg: dk(context, Color(0xFFEFEFF1), Color(0xFF2A2A2E)),
+            margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
+          ),
+        );
+      }
+      widgets.add(_noticeRow(context, rows[i]));
+    }
+    return widgets;
+  }
+
+  Widget _noticeRow(BuildContext context, Map<String, dynamic> row) {
+    final isWechat = row['channel'] == 'wechat';
+    final title = switch (row['kind']) {
+      'confirm' => '预约确认',
+      'reschedule' => '改期通知',
+      'remind' => '到店前提醒',
+      'cancel' => '取消通知',
+      _ => '预约通知',
+    };
+    final (badgeLabel, badgeBg, badgeInk) = switch (row['status']) {
+      'sent' => (
+        '已发送',
+        dk(context, Color(0xFFDDF6E7), Color.fromRGBO(23, 201, 100, 0.16)),
+        dk(context, Color(0xFF2B7745), Color(0xFF5FD48C)),
+      ),
+      'pending' => (
+        '待发送',
+        dk(context, Color(0xFFE8F2FC), Color.fromRGBO(4, 133, 247, 0.16)),
+        dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
+      ),
+      'failed' => (
+        '发送失败',
+        dk(context, Color(0xFFFDECEC), Color.fromRGBO(243, 18, 96, 0.16)),
+        dk(context, Color(0xFFC81E45), Color(0xFFFB7185)),
+      ),
+      'skipped' => (
+        '已跳过',
+        dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
+        dk(context, Color(0xFF52525B), Color(0xFFA8A8B3)),
+      ),
+      'unrecorded' => (
+        '未记录',
+        dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
+        dk(context, Color(0xFF52525B), Color(0xFFA8A8B3)),
+      ),
+      _ => (
+        '未开启',
+        dk(context, Color(0xFFEEEEF0), Color(0xFF27272A)),
+        dk(context, Color(0xFF52525B), Color(0xFFA8A8B3)),
+      ),
+    };
+    final channelBg = isWechat
+        ? dk(context, Color(0xFFDDF6E7), Color.fromRGBO(23, 201, 100, 0.16))
+        : dk(context, Color(0xFFE8F2FC), Color.fromRGBO(4, 133, 247, 0.16));
+    final channelInk = isWechat
+        ? dk(context, Color(0xFF2B7745), Color(0xFF5FD48C))
+        : dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA));
+
+    return hbox(
+      minH: 60,
+      pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
+      child: hrow(
+        [
+          hbox(
+            w: 36,
+            h: 36,
+            bg: channelBg,
+            radius: BorderRadius.circular(18),
+            align: Alignment(0, 0),
+            child: Text(
+              isWechat ? '微信' : '短信',
+              style: hts(11, channelInk, w: FontWeight.w600),
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: hcol(
+              [
+                Text(
+                  title,
+                  style: hts(
+                    14,
+                    dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+                    w: FontWeight.w500,
+                    lh: 20,
+                  ),
+                ),
+                Text(
+                  '${row['subtitle'] ?? '—'}',
+                  style: hts(
+                    12,
+                    dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
+                    lh: 16,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+              main: MainAxisAlignment.start,
+              cross: CrossAxisAlignment.stretch,
+              gap: 1,
+            ),
+          ),
+          hbox(
+            bg: badgeBg,
+            radius: BorderRadius.circular(9),
+            pad: EdgeInsets.fromLTRB(8, 0, 8, 0),
+            child: Text(
+              badgeLabel,
+              style: hts(11, badgeInk, w: FontWeight.w600, lh: 18),
+              softWrap: false,
+              maxLines: 1,
+            ),
+          ),
+        ],
+        main: MainAxisAlignment.start,
+        cross: CrossAxisAlignment.center,
+        gap: 12,
+      ),
+    );
+  }
+
+  String _noticeTime(String raw) {
+    final parsed = DateTime.tryParse(raw);
+    if (parsed == null) return '';
+    final bj = parsed.toUtc().add(const Duration(hours: 8));
+    final now = bookingToday;
+    final hhmm =
+        '${bj.hour.toString().padLeft(2, '0')}:${bj.minute.toString().padLeft(2, '0')}';
+    if (bj.year == now.year && bj.month == now.month && bj.day == now.day) {
+      return '今天 $hhmm';
+    }
+    final mm = bj.month.toString().padLeft(2, '0');
+    final dd = bj.day.toString().padLeft(2, '0');
+    return bj.year == now.year ? '$mm-$dd $hhmm' : '${bj.year}-$mm-$dd $hhmm';
   }
 }

@@ -786,7 +786,45 @@ void main() {
     expect(find.text('真实客户'), findsOneWidget);
     expect(find.text('后门有划痕'), findsOneWidget);
     expect(find.text('已送达'), findsNothing);
+    expect(find.text('未接通'), findsNothing);
+    expect(find.text('爽约提醒'), findsNothing);
     expect(find.text('刘先生'), findsNothing);
+  });
+  testWidgets('预约详情通知记录展示真实短信状态与待发送提醒', (t) async {
+    api.bookings.add({
+      ...bookingRow(),
+      'remind_enabled': true,
+      'remind_state': 'pending',
+      'remind_at': '2026-11-26T08:00:00Z',
+      'notices': [
+        {
+          'id': 'n1',
+          'kind': 'confirm',
+          'channel': 'sms',
+          'status': 'sent',
+          'sent_at': '2026-11-25T02:30:00Z',
+          'error': '',
+        },
+        {
+          'id': 'n2',
+          'kind': 'reschedule',
+          'channel': 'sms',
+          'status': 'failed',
+          'sent_at': null,
+          'error': '今日发送量已达上限',
+        },
+      ],
+    });
+    await open(t, const AppointmentDetailLivePage(id: 'a1'));
+    expect(find.text('短信'), findsNWidgets(3));
+    expect(find.text('微信'), findsNothing);
+    expect(find.text('预约确认'), findsOneWidget);
+    expect(find.text('已发送'), findsOneWidget);
+    expect(find.text('改期通知'), findsOneWidget);
+    expect(find.text('发送失败'), findsOneWidget);
+    expect(find.text('今日发送量已达上限'), findsOneWidget);
+    expect(find.text('到店前提醒'), findsOneWidget);
+    expect(find.text('待发送'), findsOneWidget);
   });
   testWidgets('预约详情仅保留底部改期取消入口', (t) async {
     api.bookings.add(bookingRow());

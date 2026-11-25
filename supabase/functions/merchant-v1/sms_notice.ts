@@ -59,3 +59,29 @@ export async function sendStoreNotice(args: {
     requestId,
   });
 }
+
+export async function recordAppointmentNotice(args: {
+  storeId: string;
+  appointmentId: string;
+  kind: 'confirm' | 'reschedule' | 'remind' | 'cancel';
+  channel?: 'sms' | 'wechat';
+  status: 'pending' | 'sent' | 'failed' | 'skipped';
+  recipient?: string;
+  error?: string;
+  sentAt?: string | null;
+}): Promise<void> {
+  try {
+    await admin.from('appointment_notices').insert({
+      store_id: args.storeId,
+      appointment_id: args.appointmentId,
+      kind: args.kind,
+      channel: args.channel ?? 'sms',
+      status: args.status,
+      recipient: args.recipient ?? '',
+      error: args.error ?? '',
+      sent_at: args.sentAt ?? (args.status === 'sent' ? new Date().toISOString() : null),
+    });
+  } catch {
+    // 通知记录写入失败不阻塞主流程或覆盖短信已发送状态。
+  }
+}
