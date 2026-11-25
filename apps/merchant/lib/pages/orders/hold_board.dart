@@ -113,7 +113,8 @@ const _shadowDark = [BoxShadow(color: Color(0xFF26262B), spreadRadius: 1)];
 
 /// 挂单列表的布局与交互；编辑目标通过 OrderRouteData 传递。
 class HoldBoard extends StatefulWidget {
-  const HoldBoard({super.key});
+  final int initialTab;
+  const HoldBoard({super.key, this.initialTab = 0});
   @override
   State<HoldBoard> createState() => _HoldBoardState();
 }
@@ -126,6 +127,7 @@ class _HoldBoardState extends State<HoldBoard> {
   @override
   void initState() {
     super.initState();
+    tab = widget.initialTab.clamp(0, HoldStore.statuses.length);
     HoldStore.invalidated.addListener(_changed);
   }
 

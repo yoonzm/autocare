@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:autocare_merchant/backend/access_flow.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
-import 'package:autocare_merchant/pages/staff_app/st_cash_queue_template.dart';
 import 'package:autocare_merchant/pages/staff_app/st_member_info_template.dart';
 import 'package:autocare_merchant/pages/staff_app/st_member_template.dart';
 import 'package:autocare_merchant/routes.dart' show navTracker;
@@ -58,62 +57,6 @@ class MemberLookupApi extends WorkApi {
             ],
           },
         ],
-      };
-    }
-    if (action == 'staff_cash_queue') {
-      calls.add({'action': action, ...values});
-      return {
-        'items': [
-          {
-            'id': 'h1',
-            'member_id': 'm1',
-            'vehicle_plate': '沪A8K29M',
-            'created_at': '2026-11-10T02:42:00Z',
-            'member': {
-              'id': 'm1',
-              'name': '王建国',
-              'phone': '138****6021',
-              'card': {'name': '黑金卡'},
-            },
-            'submitter': {'name': '老周', 'role': 'technician'},
-            'items': [
-              {'service_id': 's1', 'name': '精致洗车', 'qty': 1},
-            ],
-            'lines': [
-              {'name': '精致洗车', 'qty': 1, 'unit_price': 68},
-            ],
-            'quote': {
-              'subtotal': 68,
-              'card_off': 0,
-              'discount_off': 7,
-              'payable': 61,
-            },
-          },
-        ],
-        'collected': [
-          {
-            'id': 'o1',
-            'member_id': 'm1',
-            'vehicle_plate': '沪B12345',
-            'created_at': '2026-11-10T01:30:00Z',
-            'pay_method': '微信收款',
-            'operator': '李前台',
-            'subtotal': 198,
-            'card_off': 0,
-            'discount_off': 20,
-            'payable': 178,
-            'member': {
-              'id': 'm1',
-              'name': '王建国',
-              'phone': '138****6021',
-              'card': {'name': '黑金卡'},
-            },
-            'lines': [
-              {'name': '精洗内饰', 'qty': 1, 'unit_price': 198},
-            ],
-          },
-        ],
-        'collected_count': 1,
       };
     }
     if (action == 'staff_redeem_send' || action == 'staff_redeem') {
@@ -177,32 +120,6 @@ void main() {
     expect(find.text('剩余 12 次 · 2027.03.31 到期'), findsOneWidget);
     expect(find.text('40%'), findsOneWidget);
     expect(find.text('沪A8K29M'), findsOneWidget);
-  });
-
-  testWidgets('待收银：显示技师提交的单、服务端估价，仅保留去收银', (t) async {
-    phone(t);
-    await t.pumpWidget(const MaterialApp(home: StCashQueueLivePage()));
-    await t.pumpAndSettle();
-    expect(find.text('沪A8K29M'), findsOneWidget);
-    expect(find.text('提交人 老周（技师）'), findsOneWidget);
-    expect(find.text('¥61'), findsOneWidget);
-    expect(find.text('-¥7'), findsOneWidget);
-    expect(find.text('退回修改'), findsNothing);
-    expect(find.text('去收银'), findsOneWidget);
-  });
-
-  testWidgets('待收银：切换到「今日已收」展示今日已收订单明细', (t) async {
-    phone(t);
-    await t.pumpWidget(const MaterialApp(home: StCashQueueLivePage()));
-    await t.pumpAndSettle();
-    expect(find.textContaining('今日已收 1'), findsOneWidget);
-    await t.tap(find.textContaining('今日已收'));
-    await t.pumpAndSettle();
-    expect(find.text('沪B12345'), findsOneWidget);
-    expect(find.text('精洗内饰'), findsOneWidget);
-    expect(find.text('微信收款 · 李前台'), findsOneWidget);
-    expect(find.text('¥178'), findsOneWidget);
-    expect(find.text('去收银'), findsNothing);
   });
 
   testWidgets('次卡核销：先给会员发验证码，再带验证码核销', (t) async {

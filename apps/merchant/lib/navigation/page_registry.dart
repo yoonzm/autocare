@@ -11,7 +11,6 @@ import '../pages/account/feedback_page.dart';
 import '../pages/account/forgot_done_page.dart';
 import '../pages/account/forgot_reset_page.dart';
 import '../pages/account/forgot_verify_page.dart';
-import '../pages/orders/hold_list_page.dart';
 import '../pages/members/member_add_done_page.dart';
 import '../pages/members/member_adjust_page.dart';
 import '../pages/members/member_edit_page.dart';
@@ -58,7 +57,6 @@ final Map<String, WidgetBuilder> pageBuilders = {
   'ForgotDone': (_) => const ForgotDonePage(),
   'ForgotReset': (_) => const ForgotResetPage(),
   'ForgotVerify': (_) => const ForgotVerifyPage(),
-  'HoldList': (_) => const HoldListPage(),
   'MemberAddDone': (_) => const MemberAddDonePage(),
   'MemberAdjust': (_) => const MemberAdjustPage(),
   'MemberEdit': (_) => const MemberEditPage(),

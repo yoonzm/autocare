@@ -7,7 +7,6 @@ import 'package:autocare_merchant/kit/sms_code.dart';
 import 'package:autocare_merchant/pages/staff_app/st_member_template.dart';
 import 'package:autocare_merchant/pages/staff_app/st_member_info_template.dart';
 import 'package:autocare_merchant/pages/staff_app/st_member_route_data.dart';
-import 'package:autocare_merchant/pages/staff_app/st_cash_queue_template.dart';
 import 'package:autocare_merchant/pages/staff_app/staff_tabs.dart'
     show stPageFor;
 import 'package:autocare_merchant/pages/scan/scan_page.dart';
@@ -114,29 +113,6 @@ void main() {
     final scanner = stPageFor('StVerify') as ScanPage;
     expect(scanner.onViewMember, isNotNull);
     expect(scanner.onOrderMember, isNotNull);
-  });
-
-  testWidgets('待收银与今日已收数量来自真实列表，不显示样例数量', (t) async {
-    phone(t);
-    final rows = (await api.staffWork('staff_cash_queue'))['items'] as List;
-    await t.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: StCashQueueTemplate(
-            items: [
-              for (final row in rows) Map<String, dynamic>.from(row as Map),
-            ],
-          ),
-        ),
-      ),
-    );
-    expect(find.text('待收银 1'), findsOneWidget);
-    expect(find.text('今日已收 0'), findsOneWidget);
-    expect(find.text('今日已收 34'), findsNothing);
-    await t.tap(find.text('今日已收 0'));
-    await t.pumpAndSettle();
-    expect(find.text('今日暂无已收银的订单'), findsOneWidget);
-    expect(find.text('退回修改'), findsNothing);
   });
 
   testWidgets('短信自定义冷却按秒递减，销毁取消计时且不跨实例', (t) async {

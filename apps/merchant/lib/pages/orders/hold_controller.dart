@@ -7,7 +7,6 @@ import '../../backend/hold_store.dart';
 import '../../backend/merchant_api.dart';
 import '../../backend/task_flow.dart';
 import '../../kit/async_kit.dart';
-import '../staff_app/st_cash_queue_template.dart' show StQueueFlow;
 import 'hold_draft.dart';
 
 class HoldController extends ChangeNotifier {
@@ -87,7 +86,6 @@ class HoldController extends ChangeNotifier {
       HoldStore.recordSaved(row);
       if (draft.appointmentId != null) AppointmentFlow.notify();
       TaskFlow.notify();
-      StQueueFlow.changed.value++;
       return row;
     } finally {
       busy = false;

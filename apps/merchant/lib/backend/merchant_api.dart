@@ -461,6 +461,15 @@ class MerchantApi {
     return Map<String, dynamic>.from(data['item'] as Map);
   }
 
+  /// 站内消息：服务端从当前会话确定门店与收件人。
+  Future<Map<String, dynamic>> inbox(
+    String action, [
+    Map<String, dynamic> values = const {},
+  ]) async {
+    final data = await invoke({...values, 'action': 'inbox_$action'});
+    return Map<String, dynamic>.from(data['item'] as Map);
+  }
+
   /// 员工工作台（技师：今日任务与业绩；前台：今日笔数与待到店）。
   Future<Map<String, dynamic>> staffHome() async {
     final data = await invoke({'action': 'staff_home'});

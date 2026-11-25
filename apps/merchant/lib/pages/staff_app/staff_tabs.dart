@@ -5,7 +5,7 @@ import 'st_front_home_template.dart';
 import 'st_home_template.dart';
 import '../scan/scan_page.dart';
 import 'st_arrivals_template.dart';
-import 'st_cash_queue_template.dart';
+import '../orders/hold_list_page.dart';
 import '../orders/order_route_data.dart';
 import 'st_member_info_template.dart';
 import 'st_member_template.dart';
@@ -91,7 +91,8 @@ Widget? stPageFor(
     onOrderMember: (context, m) =>
         openRoute(context, 'Order', arguments: OrderRouteData(member: m)),
   ),
-  'StCashQueue' => const StCashQueueLivePage(),
+  // 历史完工消息仍使用此路由；直接进入统一挂单列表。
+  'StCashQueue' => const HoldListPage(initialTab: 3),
   'StPerf' => const StPerfLivePage(),
   _ => null,
 };

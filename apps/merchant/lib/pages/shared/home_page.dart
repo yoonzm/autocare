@@ -1,3 +1,4 @@
+import '../../widgets/inbox_bell.dart';
 import '../members/member_events.dart';
 import '../inventory/inventory_controller.dart' show inventoryChanged;
 import '../../backend/appointment_flow.dart';
@@ -219,6 +220,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           ),
         ),
       ),
+      const InboxBell(),
+      const SizedBox(width: 8),
       GestureDetector(
         onTap: () => push(context, const SettingsPage()),
         child: Container(

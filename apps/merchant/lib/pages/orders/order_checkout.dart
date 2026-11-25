@@ -7,7 +7,6 @@ import '../../backend/hold_store.dart';
 import '../../backend/merchant_api.dart';
 import '../../backend/task_flow.dart';
 import '../members/member_events.dart';
-import '../staff_app/st_cash_queue_template.dart' show StQueueFlow;
 import 'order_route_data.dart';
 
 /// 只提交选择并交付本次服务端回执；价格、权限、余额和核销由服务端决定。
@@ -94,9 +93,13 @@ class OrderCheckout extends ChangeNotifier {
       _requestId = null;
       memberChanged.value++;
       TaskFlow.notify();
-      StQueueFlow.changed.value++;
       if (appointmentId != null) AppointmentFlow.notify();
-      if (holdId != null) HoldStore.recordRemoved(holdId);
+      if (holdId != null) {
+        HoldStore.recordRemoved(holdId);
+      } else {
+        // 直接收银也要刷新前台工作台的今日收款笔数。
+        HoldStore.invalidated.value++;
+      }
       return OrderReceipt({
         ...result,
         'member_name': snapshot?['name'] ?? '散客',

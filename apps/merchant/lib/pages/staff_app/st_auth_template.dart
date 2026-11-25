@@ -593,7 +593,7 @@ const stPermItems = <String, List<(String, String)>>{
   ],
   'cashier': [
     ('cashier', '开单收银'),
-    ('cash_queue', '处理待收银'),
+    ('cashier', '处理挂单'),
     ('member_recharge_refund', '会员充值'),
     ('appt_edit', '新建与改期预约'),
     ('order_refund', '订单退款'),

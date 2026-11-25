@@ -1,3 +1,5 @@
+import '../../widgets/inbox_bell.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../backend/access_flow.dart';
@@ -106,6 +108,7 @@ class StHomeTemplate extends StatelessWidget {
                         gap: 1,
                       ),
                     ),
+                    const InboxBell(),
                     Semantics(
                       button: true,
                       label: '我的',

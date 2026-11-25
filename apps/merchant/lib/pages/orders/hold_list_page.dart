@@ -8,7 +8,8 @@ import '../../kit/page_header.dart';
 import '../../resources/merchant_svgs.dart';
 
 class HoldListPage extends StatelessWidget {
-  const HoldListPage({super.key});
+  final int initialTab;
+  const HoldListPage({super.key, this.initialTab = 0});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +21,7 @@ class HoldListPage extends StatelessWidget {
           hbox(
             pad: EdgeInsets.fromLTRB(20, 8, 20, 120),
             child: hcol(
-              [const HoldBoard()],
+              [HoldBoard(initialTab: initialTab)],
               main: MainAxisAlignment.start,
               cross: CrossAxisAlignment.stretch,
               gap: 16,

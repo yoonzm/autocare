@@ -13,6 +13,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'appointments_test.dart' show BookingApi;
+import 'holds_test.dart' show hold;
+
+import 'package:autocare_merchant/backend/hold_store.dart';
+import 'package:autocare_merchant/pages/orders/hold_list_page.dart';
+import 'package:autocare_merchant/pages/orders/order_list_controller.dart';
+import 'package:autocare_merchant/pages/orders/order_checkout.dart';
+import 'package:autocare_merchant/routes.dart' show pageFor, navTracker;
+
 import 'members_test.dart' show phone;
 
 class _Api extends BookingApi {
@@ -37,17 +45,10 @@ class _Api extends BookingApi {
   }
 
   @override
-  Future<Map<String, dynamic>> staffWork(
-    String action, [
-    Map<String, dynamic> values = const {},
-  ]) {
-    if (action == 'staff_cash_queue') {
-      calls.add({'action': action});
-      return queueError != null
-          ? Future.error(queueError!)
-          : Future.value({'items': []});
-    }
-    return super.staffWork(action, values);
+  Future<List<Map<String, dynamic>>> holds() async {
+    calls.add({'action': 'holds'});
+    if (queueError != null) throw queueError!;
+    return super.holds();
   }
 
   @override
@@ -157,7 +158,7 @@ void main() {
     Access.apply({
       ...api.identityCtx,
       'role': 'cashier',
-      'caps': {'cash_queue': true},
+      'caps': {'cashier': true},
     });
     api.queueError = const AppError.timeout();
     await t.pumpWidget(const MaterialApp(home: StFrontHomeLivePage()));
@@ -169,7 +170,97 @@ void main() {
     await t.pumpAndSettle();
     expect(find.text('请求超时'), findsNothing);
     expect(find.byType(ErrorView), findsNothing);
-    expect(calls('staff_cash_queue'), 2);
+    expect(calls('holds'), 2);
+  });
+
+  testWidgets('前台与挂单共用待结算筛选，施工中提交单不计入；收银后同步刷新', (t) async {
+    phone(t);
+    Access.apply({
+      ...api.identityCtx,
+      'role': 'cashier',
+      'caps': {'cashier': true},
+    });
+    api.holdRows.addAll([
+      {
+        ...hold(id: 'working', plate: 'A11111', status: '施工中'),
+        'submitted_by': 'tech',
+      },
+      hold(id: 'ready', plate: 'A22222', status: '待结算'),
+    ]);
+    await t.pumpWidget(const MaterialApp(home: StFrontHomeLivePage()));
+    await t.pumpAndSettle();
+    expect(find.text('全部 1'), findsOneWidget);
+    expect(find.textContaining('11111'), findsNothing);
+    expect(find.textContaining('22222'), findsOneWidget);
+    await t.ensureVisible(find.text('全部 1'));
+    await t.tap(find.text('全部 1'));
+    await t.pumpAndSettle();
+    expect(find.byType(HoldListPage), findsOneWidget);
+    expect(find.text('待结算 1'), findsOneWidget);
+    expect(find.textContaining('11111'), findsNothing);
+    expect(find.textContaining('22222'), findsOneWidget);
+    Navigator.of(t.element(find.byType(HoldListPage))).pop();
+    await t.pumpAndSettle();
+    api.holdRows.removeWhere((h) => h['id'] == 'ready');
+    HoldStore.recordRemoved('ready');
+    await t.pumpAndSettle();
+    expect(find.text('全部 1'), findsNothing);
+    expect(find.textContaining('22222'), findsNothing);
+    final reads = calls('holds');
+    final checkout = OrderCheckout();
+    await checkout.pay(
+      lines: [
+        {'service_id': 's1', 'qty': 1},
+      ],
+      method: '现金',
+    );
+    await t.pumpAndSettle();
+    expect(calls('holds'), greaterThan(reads), reason: '未挂单的直接收银也刷新工作台');
+    checkout.dispose();
+  });
+
+  testWidgets('今日收款笔数打开订单列表，列表默认今日', (t) async {
+    phone(t);
+    Access.apply({
+      ...api.identityCtx,
+      'role': 'cashier',
+      'caps': {'order_view_all': true},
+    });
+    navTracker.stack.clear();
+    await t.pumpWidget(
+      MaterialApp(
+        navigatorObservers: [navTracker],
+        home: const StFrontHomeLivePage(),
+      ),
+    );
+    await t.pumpAndSettle();
+    await t.tap(find.textContaining(' 笔').first);
+    await t.pumpAndSettle();
+    expect(navTracker.stack.last.settings.name, 'OrderList');
+    final controller = OrderListController();
+    expect(OrderListController.ranges[controller.rangeIndex], 'today');
+    controller.dispose();
+    expect(calls('holds'), 0);
+    navTracker.stack.clear();
+  });
+
+  testWidgets('历史待收银消息直达挂单待结算；普通挂单仍显示全部', (t) async {
+    phone(t);
+    api.holdRows.addAll([
+      hold(id: 'working', plate: 'A11111', status: '施工中'),
+      hold(id: 'ready', plate: 'A22222', status: '待结算'),
+    ]);
+    final legacy = pageFor('StCashQueue')!;
+    expect(legacy, isA<HoldListPage>());
+    await t.pumpWidget(MaterialApp(home: legacy));
+    await t.pumpAndSettle();
+    expect(find.textContaining('11111'), findsNothing);
+    expect(find.textContaining('22222'), findsOneWidget);
+    await t.pumpWidget(const SizedBox());
+    await t.pumpWidget(MaterialApp(home: pageFor('HoldList')!));
+    await t.pumpAndSettle();
+    expect(find.textContaining('11111'), findsOneWidget);
+    expect(find.textContaining('22222'), findsOneWidget);
   });
 
   testWidgets('退出接口失败停留原页面，不清除当前身份冒充成功', (t) async {

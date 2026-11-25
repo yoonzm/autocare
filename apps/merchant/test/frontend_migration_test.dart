@@ -150,7 +150,6 @@ void main() {
       'st_member_template',
       'st_member_info_template',
       'st_redeem_sheet',
-      'st_cash_queue_template',
     ]) {
       final source = File('lib/pages/staff_app/$name.dart').readAsStringSync();
       for (final legacy in [
@@ -573,8 +572,6 @@ void main() {
       'StoreSwitch',
       'StoreAdd',
       'DataBackup',
-      'Messages',
-      'StMsgs',
       'Printer',
       'BindH5',
       'BindDone',

@@ -46,6 +46,7 @@ const kindRules: Record<string, Record<string, Requirement>> = {
 };
 
 const byAction: Record<string, Requirement> = {
+  inbox_list: any, inbox_unread: any, inbox_read: any, inbox_target: any,
   get_store: any,
   store_update: { kind: 'manager' },
   store_media_list: { kind: 'manager' },

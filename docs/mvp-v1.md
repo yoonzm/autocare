@@ -66,7 +66,7 @@
 用户已批准直接删除一期不用的前端页面、专用路由、绑定模板、状态和仅服务于这些功能的资源及测试；后续需要时再加入。已实现的后端接口、数据库迁移和权限校验保留，不为保留前端代码新增开关。
 
 - 多门店切换与新增门店
-- 消息通知（App 推送通知、微信通知渠道、老板与店员端站内消息中心均不实现；移除首页铃铛、未读红点、员工“我的”消息入口、消息页及挂单“到点提醒我”入口；通知渠道一期仅保留助通短信，已实现后端保留）、短信营销、优惠券
+- 消息通知（App 推送通知、微信通知渠道、站内消息已按用户最新批准重新接通，见 [站内消息](inbox.md)；挂单“到点提醒我”仍移除；通知渠道一期仅保留助通短信，已实现后端保留）、短信营销、优惠券
 - 数据备份、导出
 - 支付进件、收款配置、发票、渠道配置、绑定
 - 订阅:套餐、续费、试用 / 到期提示、到期页(入口和提示全部去掉,见上节)
@@ -111,7 +111,7 @@
 
 新增接通(迁移 `202611110002_staff_quick_orders.sql`):
 - 技师快速开单:`staff_order_quote`(服务端估价)、`staff_order_submit`(提交为一张“待结算”挂单并记录提交人),需「开单提交」权限。
-- 前台待收银:`staff_cash_queue`（已移除退回修改）,需「待收银」权限;“去收银”把单放回既有开单页走取单结算,收银完成后通知提交人。前台工作台的“待收银 · 技师提交”随之恢复。
+- 前台待收银统一进入「挂单 → 待结算」，工作台与挂单共用 `orders/holds` 数据，仅统计「待结算」状态；今日已收通过「今日收款笔数」进入默认筛选今日的订单列表。独立待收银页面已删除，旧 `StCashQueue` 消息链接兼容跳转挂单；旧 `staff_cash_queue` 后端保留供旧版客户端使用，新版不再调用。
 - 次卡核销:`staff_redeem_send` 向会员登记的手机号发验证码(新用途 `redeem`,公开的 `send_code` 拒绝该用途),`staff_redeem` 校验并消费验证码后在同一事务扣减次数、写核销记录与流水。验证码模板读取 `ZHUTONG_TEMPLATE_REDEEM`,缺省沿用 `ZHUTONG_TEMPLATE_VERIFY`。核销弹层(`st_redeem_sheet.dart`)设计稿中没有,使用设计稿同色系的基础样式。
 
 仍为 TODO:
@@ -233,7 +233,7 @@ MVP 阶段商户 App 前端去掉开支管理的「预算」和库存管理的�
 | P1-04 | **提成配置前端已接通，待生产验收【已修复，待生产验收】**。服务编辑（[service_edit_page.dart](../apps/merchant/lib/pages/catalog/service_edit_page.dart)）已按服务实际 `commission_type` / `commission_value` 回填与提交（仅新建默认 8%）；员工提成页（[staff_commission_template.dart](../apps/merchant/lib/pages/staff/staff_commission_template.dart)）已实现「跟随项目 / 统一比例 / 按项目自定义」编辑并调用 `StaffFlow.saveCommission` 保存。 | 生产环境分别验证跟随项目、统一比例、自定义的新建、修改、回填及实际结算提成结果。 |
 | P1-05 | **多项经营流水的经办人会记成门店联系人【已确认】**。`operatorOf(storeId)` 读取 `stores.contact_name/contact_role`，消费收银、充值、售卡、积分调整、退款、回访等调用它，没有使用实际登录员工身份。前台与店主操作因此可能全部显示为同一人，无法可靠追责或按经办人核账。依据：[operatorOf](../supabase/functions/merchant-v1/members.ts)、[订单与回访](../supabase/functions/merchant-v1/ops.ts)、[退款](../supabase/functions/merchant-v1/orders_center.ts)。 | 后端从有效会话取得操作者账号 / 员工 ID，保存显示名快照；不得信任客户端填写经办人。两名员工分别处理交易后，流水及筛选能正确区分，员工改名或停用后历史归属仍可追溯。 |
 | P1-06 | **核销的验证码消费与扣次分成两个事务，失败后缺少结果恢复【已确认调用顺序】**。`staff_redeem` 先 `checkOtp(..., true)` 消费验证码，再调用 `staff_redeem_package` 扣次。后一步失败会烧掉有效码；后一步成功但响应丢失，重试只得到“验证码已使用”，无法据此确认上次是否核销成功。扣次及流水本身已有事务，不应误写成“扣次没有事务”。依据：[核销处理器](../supabase/functions/merchant-v1/staff_orders.ts)、[OTP](../supabase/functions/merchant-v1/otp.ts)、[核销弹层](../apps/merchant/lib/pages/staff_app/st_redeem_sheet.dart)。 | 将验证码确认、核销请求与业务结果关联，在服务端保证一致性及结果查询；验证库存次数不足、并发核销、数据库错误和响应丢失。失败不应不明原因消耗确认资格，成功重放能确认原结果且不重复扣次。 |
-| P1-07 | **未结业务列表存在静默截断【已确认】**。员工待收银只取最新 50 条，老板挂单只取最新 200 条，没有分页协议；前台数量直接显示返回数组长度。超过上限的单据暂不可见，页面数量也不是实际待处理总数。依据：[待收银接口](../supabase/functions/merchant-v1/staff_orders.ts)、[挂单接口](../supabase/functions/merchant-v1/ops.ts)、[待收银页面](../apps/merchant/lib/pages/staff_app/st_cash_queue_template.dart)。 | 提供准确总数及稳定分页 / 继续加载，所有未结单均可找到和处理；用超过 50 / 200 条的数据验证无遗漏、重复或错误总数，避免新单持续进入时旧单一直无法看到。 |
+| P1-07 | **未结业务列表存在静默截断【已确认】**。新版前台与老板统一读取挂单，接口只取最新 200 条，没有分页协议；前台待收银数量取返回数组中待结算条数。超过上限的单据暂不可见，页面数量也不是实际待处理总数。依据：[挂单接口](../supabase/functions/merchant-v1/ops.ts)、[挂单列表](../apps/merchant/lib/pages/orders/hold_board.dart)。 | 提供准确总数及稳定分页 / 继续加载，所有未结单均可找到和处理；用超过 200 条的数据验证无遗漏、重复或错误总数，避免新单持续进入时旧单一直无法看到。 |
 | P1-08 | **协议默认勾选，缺少可追溯的版本确认【已确认】**。登录页 `agree=true`、注册页 `_agreed=true`；注册 / 登录请求未携带协议版本，H5 正文可独立更新。现有代码无法说明某账号主动同意了哪一版，重大修改后的再次确认也未形成闭环。依据：[登录页](../apps/merchant/lib/pages/account/login_page.dart)、[注册页](../apps/merchant/lib/pages/account/reg_phone_page.dart)、[认证处理器](../supabase/functions/merchant-v1/auth.ts)、[协议版本](../supabase/static/legal/privacy.html)。 | 在确认交互调整后，采用用户主动确认并记录版本 / 时间的机制，验证不同意、查看失败、版本变化、员工首次登录等情形；只在必要场景重新确认，不借此增加一期通知系统。具体政策和同意流程按实际发布渠道审核。 |
 | P1-09 | **短信容量与真实用途验收尚未形成发布门槛【容量已确认；生产送达待验收】**。所有手机号 / 用途共享环境每天 200 次上限，单号每天 10 次；包含员工登录、注册、找回密码、换号、注销与会员核销。公开注册也消耗全局额度，达到上限会同时影响这些业务。已有真实助通适配、冷却与配额，不能说没有限流；当前“渠道受理”也不等于已送达。依据：[配额 SQL](../supabase/migrations/202611100007_sms_logs.sql)、[短信说明](sms.md)。 | 根据试点门店数和核销量核定额度、异常保护与告警，保留费用限制；确认各用途实际模板语义及生产接收结果。补运营侧送达 / 失败排查办法。使用获准的验收手机号，不自动向现有商家或会员发送测试短信。 |
 | P1-10 | **核心链路与真机发布验收证据不足，CI 未覆盖部分现有 SQL 用例【已确认配置；候选包待验收】**。Flutter 测试中使用接口替身，不能覆盖跨角色、云函数和数据库组合问题；后端 CI 运行 `staff_identity.mjs`，但没有运行独立的 `staff.sql`、`staff_tasks.sql`、`order_center.sql` 等脚本，也没有调用已有 `merchant_media.mjs`。历史迁移记录明确未完成真机 / 生产业务验收。依据：[后端工作流](../.github/workflows/supabase-prod.yml)、[现有 SQL 用例](../supabase/tests/)、[迁移验收记录](frontend-guidelines.md)、[图片验收边界](image-upload-migration.md)。 | 将适用的关键事务用例接入可执行测试入口及 CI，新增本清单缺陷的回归；按下方验收矩阵验证候选正式包与生产版本。特别覆盖 API 权限和异常路径，不能仅靠前端 mock 测试通过放行。 |
@@ -244,7 +244,7 @@ MVP 阶段商户 App 前端去掉开支管理的「预算」和库存管理的�
 
 | 编号 | 当前不足 | 建议与边界 |
 | --- | --- | --- |
-| P2-01 | **查询与低频操作不完整**：会员流水日期筛选仍提示未接通；前台“今日已收明细”仍是 TODO。（次卡自定义延期天数输入已在 [member_package_controller.dart](../apps/merchant/lib/pages/members/packages/member_package_controller.dart) 补齐。）依据：[会员流水](../apps/merchant/lib/pages/members/member_records_live_page.dart)、[待收银页](../apps/merchant/lib/pages/staff_app/st_cash_queue_template.dart)。 | 先保证现有全量流水和订单中心可用，再补真实筛选和汇总；不显示看似已生效的无效筛选。 |
+| P2-01 | **查询与低频操作不完整**：会员流水日期筛选仍提示未接通；前台已收明细已统一由订单列表承接。（次卡自定义延期天数输入已在 [member_package_controller.dart](../apps/merchant/lib/pages/members/packages/member_package_controller.dart) 补齐。）依据：[会员流水](../apps/merchant/lib/pages/members/member_records_live_page.dart)、[统一挂单页](../apps/merchant/lib/pages/orders/hold_list_page.dart)。 | 先保证现有全量流水和订单中心可用，再补真实筛选和汇总；不显示看似已生效的无效筛选。 |
 | P2-02 | **联系与辅助录入体验不足**：预约“联系客户”只 Toast 展示号码；地图选址未接通，门店信息已移除无效的“导航”按钮，员工“联系店长”入口已替换为真实任务入口。依据：[预约页](../apps/merchant/lib/pages/booking/appointments_page.dart)、[员工我的](../apps/merchant/lib/pages/staff_app/st_mine_template.dart)、[门店信息](../apps/merchant/lib/pages/account/store_info_page.dart)、[门店编辑](../apps/merchant/lib/pages/account/store_edit_page.dart)。 | 核对手动联系方式和地址输入是否足够支撑一期；需要时复用真实拨号能力并处理无号码 / 拒绝权限。地图等辅助能力可延期，不作为恢复定位或扩大一期范围的默认授权。 |
 
 ### 本次验证结果与边界
@@ -270,4 +270,8 @@ MVP 阶段商户 App 前端去掉开支管理的「预算」和库存管理的�
 
 建议推进顺序：先修 **P0-01～03** 并补后端回归；同步处理 **P0-04～05** 的协议与发行条件；再解决 **P1-01～07** 的核心业务一致性，完成其余 P1 验收与范围清理；最后按本节矩阵进入 3～5 家真实门店内测。P2 可在不影响上述结果的前提下后排。
 
-**不计入上线缺口的范围**：订阅收费 / 模拟订阅支付、多门店切换、会员端小程序、App 推送通知 / 微信通知 / 站内消息中心 / 挂单提醒 / 营销、线上充值 / 售卡、支付进件、发票、数据导出、App 数据备份、预算、盘点、小票打印、邀请二维码等已明确延期或移除的功能。不要求为上线重做这些能力；但现有保留页面不能继续假装提供相应服务。施工照片、员工登录 / 激活、快速开单 / 待收银、会员查询与核销已经接入，按真实缺口验收，不再统称“未接通”。
+**不计入上线缺口的范围**：订阅收费 / 模拟订阅支付、多门店切换、会员端小程序、App 推送通知 / 微信通知 / 挂单提醒 / 营销、线上充值 / 售卡、支付进件、发票、数据导出、App 数据备份、预算、盘点、小票打印、邀请二维码等已明确延期或移除的功能。不要求为上线重做这些能力；但现有保留页面不能继续假装提供相应服务。施工照片、员工登录 / 激活、快速开单 / 待收银、会员查询与核销已经接入，按真实缺口验收，不再统称“未接通”。
+
+### 站内消息范围更新（2026-11-25）
+
+用户已批准恢复 App 内站内消息；老板与员工首页提供铃铛、分页消息列表、未读数与已读操作，前台轮询与恢复刷新，业务跳转检查归属。此前“一期不做站内消息中心”的说明已被本次批准取代；手机系统推送、微信通知仍不在范围。实现与验收见 [站内消息](inbox.md)。

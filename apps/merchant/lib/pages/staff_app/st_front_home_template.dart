@@ -1,3 +1,5 @@
+import '../../widgets/inbox_bell.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../backend/access_flow.dart';
@@ -6,7 +8,6 @@ import '../../kit/kit.dart';
 import '../../routes.dart' show openRoute;
 import '../../resources/staff_svgs.dart';
 import '../../backend/hold_store.dart';
-import 'st_cash_queue_template.dart' show StQueueFlow;
 import 'st_live.dart';
 
 class StFrontHomeTemplate extends StatelessWidget {
@@ -34,16 +35,15 @@ class StFrontHomeTemplate extends StatelessWidget {
         ((q['items'] as List?) ?? const [])
             .map((e) => '${(e as Map)['name']}')
             .join(' + ');
-    String qWho(Map<String, dynamic> q) =>
-        '${(q['submitter'] as Map?)?['name'] ?? '—'} · ${stClock(q['created_at'])} 提交';
-    String qPayable(Map<String, dynamic> q) =>
-        stMoney(((q['quote'] as Map?)?['payable']) ?? 0);
+    String qWho(Map<String, dynamic> q) => '${stClock(q['created_at'])} 挂单';
+    String qPayable(Map<String, dynamic> q) => stMoney(HoldStore.estimateOf(q));
     String qMember(Map<String, dynamic> q) {
       final m = q['member'] as Map?;
       if (m == null) return '散客 · 非会员';
       return '${m['name'] ?? ''} · ${(m['card'] as Map?)?['name'] ?? '会员'} · 会员价';
     }
-    // _queueBlock：待收银 · 技师提交（有队列时显示）
+
+    // _queueBlock：待收银 · 待结算（有队列时显示）
     return HPage(
       bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
       flow: hcol(
@@ -81,6 +81,7 @@ class StFrontHomeTemplate extends StatelessWidget {
                         gap: 1,
                       ),
                     ),
+                    const InboxBell(),
                     Semantics(
                       button: true,
                       label: '我的',
@@ -164,46 +165,62 @@ class StFrontHomeTemplate extends StatelessWidget {
                           cross: CrossAxisAlignment.center,
                           gap: 10,
                         ),
-                        Text(
-                          '${d['orders_today'] ?? 0} 笔',
-                          style: hts(
-                            34,
-                            Color(0xFFF5D78E),
-                            w: FontWeight.w600,
-                            lh: 42,
+                        GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: Access.can('order_view_all')
+                              ? () => openRoute(context, 'OrderList')
+                              : null,
+                          child: Text(
+                            '${d['orders_today'] ?? 0} 笔',
+                            style: hts(
+                              34,
+                              Color(0xFFF5D78E),
+                              w: FontWeight.w600,
+                              lh: 42,
+                            ),
                           ),
                         ),
                         hrow(
                           [
                             Expanded(
                               flex: 1,
-                              child: hcol(
-                                [
-                                  Text(
-                                    '${queue.length}',
-                                    style: hts(
-                                      17,
-                                      Color(0xFFFAFAFA),
-                                      w: FontWeight.w600,
-                                      lh: 24,
-                                    ),
-                                  ),
-                                  Text(
-                                    '待收银',
-                                    style: hts(
-                                      11,
-                                      dk(
+                              child: GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: Access.can('cashier')
+                                    ? () => openRoute(
                                         context,
-                                        Color(0xFFA1A1AA),
-                                        Color(0xFF80808A),
+                                        'HoldList',
+                                        arguments: 3,
+                                      )
+                                    : null,
+                                child: hcol(
+                                  [
+                                    Text(
+                                      '${queue.length}',
+                                      style: hts(
+                                        17,
+                                        Color(0xFFFAFAFA),
+                                        w: FontWeight.w600,
+                                        lh: 24,
                                       ),
-                                      lh: 16,
                                     ),
-                                  ),
-                                ],
-                                main: MainAxisAlignment.start,
-                                cross: CrossAxisAlignment.stretch,
-                                gap: 2,
+                                    Text(
+                                      '待收银',
+                                      style: hts(
+                                        11,
+                                        dk(
+                                          context,
+                                          Color(0xFFA1A1AA),
+                                          Color(0xFF80808A),
+                                        ),
+                                        lh: 16,
+                                      ),
+                                    ),
+                                  ],
+                                  main: MainAxisAlignment.start,
+                                  cross: CrossAxisAlignment.stretch,
+                                  gap: 2,
+                                ),
                               ),
                             ),
                             Expanded(
@@ -562,7 +579,7 @@ class StFrontHomeTemplate extends StatelessWidget {
                             Expanded(
                               flex: 1,
                               child: Text(
-                                '待收银 · 技师提交',
+                                '待收银 · 待结算',
                                 style: hts(
                                   13,
                                   dk(
@@ -577,7 +594,8 @@ class StFrontHomeTemplate extends StatelessWidget {
                             ),
                             GestureDetector(
                               behavior: HitTestBehavior.opaque,
-                              onTap: () => openRoute(context, 'StCashQueue'),
+                              onTap: () =>
+                                  openRoute(context, 'HoldList', arguments: 3),
                               child: Text(
                                 '全部 ${queue.length}',
                                 style: hts(
@@ -601,7 +619,8 @@ class StFrontHomeTemplate extends StatelessWidget {
                       for (final q in queue.take(2))
                         GestureDetector(
                           behavior: HitTestBehavior.opaque,
-                          onTap: () => openRoute(context, 'StCashQueue'),
+                          onTap: () =>
+                              openRoute(context, 'HoldList', arguments: 3),
                           child: hbox(
                             bg: dk(
                               context,
@@ -675,7 +694,7 @@ class StFrontHomeTemplate extends StatelessWidget {
                                       ),
                                       pad: EdgeInsets.fromLTRB(7, 1, 7, 1),
                                       child: Text(
-                                        plateOf(q),
+                                        HoldStore.plateOf(q),
                                         style: hts(
                                           12,
                                           Color(0xFFFFFFFF),
@@ -928,13 +947,16 @@ class StFrontHomeLivePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => StLive(
     title: '工作台',
-    refresh: Listenable.merge([StQueueFlow.changed, HoldStore.invalidated]),
+    refresh: HoldStore.invalidated,
     load: () async {
       final home = await merchantApi.staffHome();
       // 无此权限时不请求；已授权请求失败由统一边界展示并允许重试。
-      if (!Access.can('cash_queue')) return home;
-      final q = await merchantApi.staffWork('staff_cash_queue');
-      return {...home, 'queue': q['items'] ?? const []};
+      if (!Access.can('cashier')) return home;
+      final holds = await merchantApi.holds();
+      return {
+        ...home,
+        'queue': holds.where((h) => h['status'] == '待结算').toList(),
+      };
     },
     builder: (_, d) => StFrontHomeTemplate(d: d),
   );

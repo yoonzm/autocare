@@ -1,7 +1,9 @@
+import 'pages/messages/inbox_page.dart';
 import 'navigation/catalog_route.dart';
 import 'pages/staff/staff_editor_page.dart';
 import 'pages/orders/pay_success_page.dart';
 import 'pages/orders/order_route_data.dart';
+import 'pages/orders/hold_list_page.dart';
 import 'pages/orders/order_detail_ref.dart';
 import 'pages/members/member_adjust_page.dart';
 import 'pages/members/member_visit_page.dart';
@@ -118,6 +120,9 @@ Widget? pageFor(String name, {Object? arguments}) {
   final orderData = arguments is OrderRouteData ? arguments : null;
   final memberPackage = arguments is MemberPackageRouteData ? arguments : null;
   switch (name) {
+    case 'Messages':
+    case 'StMsgs':
+      return const InboxPage();
     case 'PaySuccess':
       return PaySuccessPage(
         receipt: arguments is OrderReceipt ? arguments : null,
@@ -150,6 +155,8 @@ Widget? pageFor(String name, {Object? arguments}) {
       );
     case 'ProductEdit':
       return const ProductEditLivePage();
+    case 'HoldList':
+      return HoldListPage(initialTab: arguments is int ? arguments : 0);
     case 'OrderList':
       return const OrderListLivePage();
     case 'OrderDetail':
@@ -354,6 +361,8 @@ void openRoute(BuildContext context, String name, {Object? arguments}) =>
 
 /// 没有对应权限时直达这些页面：显示「暂无权限访问」（设计稿 StNoPerm），入口本身已按权限隐藏。
 const Map<String, (String, String)> _routeCaps = {
+  'HoldList': ('cashier', '挂单收银'),
+  'StCashQueue': ('cashier', '挂单收银'),
   'Staff': ('staff_view', '查看员工列表'),
   'StaffAdd': ('staff_manage', '管理员工'),
   'StaffEdit': ('staff_manage', '管理员工'),

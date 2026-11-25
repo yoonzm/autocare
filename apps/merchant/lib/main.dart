@@ -1,3 +1,5 @@
+import 'backend/inbox_store.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/services.dart';
@@ -57,6 +59,7 @@ class _QimeiAppState extends State<QimeiApp> with WidgetsBindingObserver {
     if (_expiring) return;
     _expiring = true;
     try {
+      Access.clear();
       storeProfile.clear();
       try {
         await merchantApi.client.auth.signOut(scope: SignOutScope.local);
@@ -164,7 +167,7 @@ class _QimeiAppState extends State<QimeiApp> with WidgetsBindingObserver {
         scaffoldMessengerKey: _msgKey,
         navigatorObservers: [navTracker],
         builder: (context, child) =>
-            ToastHost(child: child ?? const SizedBox()),
+            InboxHost(child: ToastHost(child: child ?? const SizedBox())),
         locale: const Locale('zh', 'CN'),
         supportedLocales: const [Locale('zh', 'CN')],
         localizationsDelegates: const [
