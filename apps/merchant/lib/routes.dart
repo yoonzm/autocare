@@ -62,6 +62,7 @@ import 'pages/staff/staff_enable_template.dart';
 import 'pages/catalog/services_page.dart';
 import 'pages/shared/notify_settings_page.dart';
 import 'pages/shared/settings_page.dart';
+import 'pages/shared/sms_logs_page.dart';
 import 'pages/scan/scan_page.dart';
 import 'pages/shared/shell.dart';
 import 'pages/shared/theme_sheet.dart';
@@ -211,6 +212,8 @@ Widget? pageFor(String name, {Object? arguments}) {
       return const BusinessHoursPage();
     case 'NotifySettings':
       return const NotifySettingsPage();
+    case 'SmsLogs':
+      return const SmsLogsPage();
     case 'Staff':
       return const StaffResourcesPage();
     case 'StaffAdd':
