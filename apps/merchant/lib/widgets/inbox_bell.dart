@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../backend/inbox_store.dart';
 import '../routes.dart' show openRoute;
 import '../theme.dart';
+import 'app_icon.dart';
 
 class InboxBell extends StatelessWidget {
   const InboxBell({super.key});
@@ -13,7 +14,12 @@ class InboxBell extends StatelessWidget {
     return Semantics(
       label: unread > 0 ? '消息，$unread 条未读' : '消息',
       button: true,
-      child: SizedBox(
+      child: Container(
+        decoration: BoxDecoration(
+          color: C.card,
+          shape: BoxShape.circle,
+          boxShadow: softShadow,
+        ),
         width: 44,
         height: 44,
         child: Stack(
@@ -21,18 +27,19 @@ class InboxBell extends StatelessWidget {
             IconButton(
               tooltip: '消息',
               onPressed: () => openRoute(context, 'Messages'),
-              icon: Icon(Icons.notifications_none_rounded, color: C.ink),
+              icon: AppIcon('bell', size: 20, color: C.ink),
             ),
             if (unread > 0)
               Positioned(
-                right: 7,
-                top: 7,
+                right: 12,
+                top: 11,
                 child: Container(
                   width: 8,
                   height: 8,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFEF4444),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFF383C),
                     shape: BoxShape.circle,
+                    boxShadow: [BoxShadow(color: C.card, spreadRadius: 2)],
                   ),
                 ),
               ),

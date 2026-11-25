@@ -6,7 +6,8 @@ import '../../backend/inbox_store.dart';
 import '../../kit/async_kit.dart';
 import '../../kit/kit.dart';
 import '../../kit/page_header.dart';
-import '../../widgets/choice_chip_group.dart';
+import '../../theme.dart';
+import '../../widgets/app_icon.dart';
 import '../../routes.dart' show openRoute;
 import '../orders/order_detail_ref.dart';
 import '../staff_app/task_route_data.dart';
@@ -219,85 +220,191 @@ class _InboxPageState extends State<InboxPage> {
     });
   }
 
+  String _timeLabel(Object? raw) {
+    final at = DateTime.tryParse('$raw')?.toLocal();
+    if (at == null) return '';
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final day = DateTime(at.year, at.month, at.day);
+    if (day == today) {
+      return '${at.hour.toString().padLeft(2, '0')}:${at.minute.toString().padLeft(2, '0')}';
+    }
+    if (day == DateTime(now.year, now.month, now.day - 1)) return '昨天';
+    return '${at.month}月${at.day}日';
+  }
+
   Widget _row(Map<String, dynamic> m) {
     final unread = m['read_at'] == null;
-    final at = DateTime.tryParse('${m['created_at']}')?.toLocal();
-    final time = at == null
-        ? ''
-        : '${at.month}月${at.day}日 ${at.hour.toString().padLeft(2, '0')}:${at.minute.toString().padLeft(2, '0')}';
+    final (icon, bg, fg) = switch (m['kind']) {
+      'task' => ('receipt', C.greenSoft, C.greenInk),
+      'arrival' => ('calendar', C.redSoft, C.redInk),
+      _ => ('bell', C.primarySoft, C.primaryInk),
+    };
     return AsyncActionScope(
       actionKey: '$_actionKey:${m['id']}',
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 12),
-        child: Material(
-          color: dk(context, Colors.white, const Color(0xFF18181B)),
-          borderRadius: BorderRadius.circular(20),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(20),
-            onTap: _mutating ? null : () => _open(m),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      hBusy(
-                        '$_actionKey:${m['id']}',
-                        Icon(
-                          m['kind'] == 'task'
-                              ? Icons.assignment_outlined
-                              : m['kind'] == 'arrival'
-                              ? Icons.directions_car_outlined
-                              : Icons.notifications_none,
-                          size: 22,
-                          color: const Color(0xFF0485F7),
-                        ),
-                        icon: true,
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          '${m['title']}',
-                          style: hts(
-                            15,
-                            dk(context, const Color(0xFF18181B), Colors.white),
-                            w: FontWeight.w600,
+      child: InkWell(
+        onTap: _mutating ? null : () => _open(m),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: bg,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                alignment: Alignment.center,
+                child: hBusy(
+                  '$_actionKey:${m['id']}',
+                  AppIcon(icon, size: 20, color: fg),
+                  icon: true,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  '${m['title']}',
+                                  style: ts(15, w: FontWeight.w600, h: 22),
+                                ),
+                              ),
+                              if (unread) ...[
+                                const SizedBox(width: 6),
+                                Container(
+                                  key: ValueKey('unread-${m['id']}'),
+                                  width: 8,
+                                  height: 8,
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFFFF383C),
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              ],
+                            ],
                           ),
                         ),
-                      ),
-                      if (unread)
-                        Container(
-                          key: ValueKey('unread-${m['id']}'),
-                          width: 7,
-                          height: 7,
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFEF4444),
-                            shape: BoxShape.circle,
-                          ),
+                        const SizedBox(width: 6),
+                        Text(
+                          _timeLabel(m['created_at']),
+                          style: ts(12, color: C.faint),
                         ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    '${m['body'] ?? ''}',
-                    style: hts(
-                      13,
-                      dk(
-                        context,
-                        const Color(0xFF52525B),
-                        const Color(0xFFA8A8B3),
-                      ),
-                      lh: 20,
+                      ],
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(time, style: hts(11, const Color(0xFF71717A))),
-                ],
+                    const SizedBox(height: 2),
+                    Text(
+                      '${m['body'] ?? ''}',
+                      style: ts(13, color: C.sub, h: 19),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _readAllButton() {
+    final enabled =
+        _snapshot != null && !_mutating && (_inbox?.unread ?? 0) > 0;
+    return AsyncActionScope(
+      actionKey: '$_actionKey:all',
+      child: Container(
+        decoration: BoxDecoration(
+          color: C.card,
+          borderRadius: BorderRadius.circular(22),
+          boxShadow: softShadow,
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(22),
+            onTap: !enabled
+                ? null
+                : () async {
+                    await runBusy('$_actionKey:all', () async {
+                      try {
+                        await _readAll();
+                      } catch (e) {
+                        if (mounted) AppToast.error(context, e);
+                      }
+                    });
+                  },
+            child: SizedBox(
+              width: 88,
+              height: 44,
+              child: Center(
+                child: hBusy(
+                  '$_actionKey:all',
+                  Text('全部已读', style: ts(14, w: FontWeight.w500, h: 20)),
+                  icon: true,
+                ),
               ),
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _filters() {
+    const kinds = ['all', 'task', 'arrival', 'system'];
+    const labels = ['全部', '任务', '到店', '系统'];
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: C.segment,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        children: [
+          for (var i = 0; i < kinds.length; i++) ...[
+            if (i > 0) const SizedBox(width: 2),
+            Expanded(
+              child: Semantics(
+                button: true,
+                selected: _kind == kinds[i],
+                child: GestureDetector(
+                  onTap: () {
+                    if (_kind == kinds[i]) return;
+                    setState(() => _kind = kinds[i]);
+                    _reload();
+                  },
+                  child: Container(
+                    height: 32,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: _kind == kinds[i] ? C.card : Colors.transparent,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: _kind == kinds[i] ? softShadow : null,
+                    ),
+                    child: Text(
+                      labels[i],
+                      style: ts(
+                        13,
+                        w: FontWeight.w500,
+                        color: _kind == kinds[i] ? C.ink : C.sub,
+                        h: 18,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }
@@ -309,45 +416,14 @@ class _InboxPageState extends State<InboxPage> {
       backgroundColor: bg,
       body: HHeaderFrame(
         bg: bg,
-        header: AppPageHeader(
-          title: '消息',
-          trailing: SizedBox(
-            width: 120,
-            child: LoadingButton(
-              label: '全部已读',
-              loadingLabel: '处理中',
-              height: 40,
-              style: LoadingButtonStyle.secondary,
-              onPressed:
-                  _snapshot == null || _mutating || (_inbox?.unread ?? 0) == 0
-                  ? null
-                  : _readAll,
-            ),
-          ),
-        ),
+        header: AppPageHeader(title: '消息中心', trailing: _readAllButton()),
         body: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
               child: IgnorePointer(
                 ignoring: _mutating || (_viewKey.currentState?.busy ?? false),
-                child: ChoiceChipGroup<String>(
-                  items: const [
-                    ChoiceChipItem(value: 'all', label: '全部'),
-                    ChoiceChipItem(value: 'task', label: '任务'),
-                    ChoiceChipItem(value: 'arrival', label: '到店'),
-                    ChoiceChipItem(value: 'system', label: '系统'),
-                  ],
-                  selected: _kind,
-                  kind: ChipKind.pill,
-                  columns: 4,
-                  semanticLabel: '消息分类',
-                  onChanged: (kind) {
-                    if (kind == _kind) return;
-                    setState(() => _kind = kind);
-                    _reload();
-                  },
-                ),
+                child: _filters(),
               ),
             ),
             Expanded(
@@ -365,7 +441,36 @@ class _InboxPageState extends State<InboxPage> {
                   padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
                   physics: const AlwaysScrollableScrollPhysics(),
                   children: [
-                    for (final row in _items) _row(row),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: C.card,
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: softShadow,
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.circular(24),
+                        clipBehavior: Clip.antiAlias,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Column(
+                            children: [
+                              for (var i = 0; i < _items.length; i++) ...[
+                                if (i > 0)
+                                  Divider(
+                                    height: 1,
+                                    thickness: 1,
+                                    indent: 68,
+                                    color: C.line,
+                                  ),
+                                _row(_items[i]),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    if (_cursor != null) const SizedBox(height: 16),
                     if (_cursor != null)
                       LoadingButton(
                         label: '加载更多',
