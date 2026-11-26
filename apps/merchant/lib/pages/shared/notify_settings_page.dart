@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../backend/appointment_flow.dart';
 import '../../backend/merchant_api.dart';
 import '../../kit/async_kit.dart';
 import '../../kit/kit.dart' show HSwitchValue;
@@ -21,45 +20,26 @@ class _NotifySettingsPageState extends State<NotifySettingsPage> {
   final _overviewKey = GlobalKey<AsyncViewState<Map<String, dynamic>>>();
   late final _actionKey = 'notify-settings-${identityHashCode(this)}';
 
-  Map<String, dynamic>? _bookingSettings;
+  Map<String, dynamic>? _notifySettings;
   String? _savingKey;
-
-  @override
-  void initState() {
-    super.initState();
-    AppointmentFlow.changed.addListener(_onAppointmentChanged);
-  }
-
-  @override
-  void dispose() {
-    AppointmentFlow.changed.removeListener(_onAppointmentChanged);
-    super.dispose();
-  }
-
-  void _onAppointmentChanged() {
-    _overviewKey.currentState?.reload();
-  }
 
   Future<Map<String, dynamic>> _loadOverview() async {
     final data = await merchantApi.storeSmsOverview();
-    final bs = data['booking_settings'];
-    if (bs is Map) {
-      _bookingSettings = Map<String, dynamic>.from(bs);
+    final ns = data['notify_settings'] ?? data['booking_settings'];
+    if (ns is Map) {
+      _notifySettings = Map<String, dynamic>.from(ns);
     }
     return data;
   }
 
   Future<void> _toggleSetting(String key, bool value) async {
-    final current = _bookingSettings;
-    if (current == null || _savingKey != null) return;
+    if (_notifySettings == null || _savingKey != null) return;
     setState(() => _savingKey = key);
     await runBusy(_actionKey, () async {
       try {
-        final next = {...current, key: value};
-        final saved = await merchantApi.appointment('settings_save', next);
+        final saved = await merchantApi.storeNotifySettingsSave({key: value});
         if (!mounted) return;
-        setState(() => _bookingSettings = saved);
-        AppointmentFlow.notify();
+        setState(() => _notifySettings = saved);
       } catch (e) {
         if (!mounted) return;
         AppToast.error(context, e);
@@ -408,8 +388,8 @@ class _NotifySettingsPageState extends State<NotifySettingsPage> {
 
   Widget _toggleRow(Map<String, dynamic> item) {
     final settingKey = '${item['setting_key'] ?? ''}';
-    final enabled = _bookingSettings != null && settingKey.isNotEmpty
-        ? _bookingSettings![settingKey] == true
+    final enabled = _notifySettings != null && settingKey.isNotEmpty
+        ? _notifySettings![settingKey] == true
         : item['enabled'] == true;
     final busy = _savingKey == settingKey;
     return _notificationRow(

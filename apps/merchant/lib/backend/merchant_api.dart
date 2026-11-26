@@ -145,6 +145,8 @@ class MerchantApi {
     'business_stats',
     'package_stats',
     'settings_stats',
+    'store_sms_overview',
+    'store_sms_logs',
     'list_stores',
     'get_subscription',
     'subscription_catalog',
@@ -379,6 +381,19 @@ class MerchantApi {
       throw const AppError('请先登录', type: AppErrorType.auth);
     }
     final data = await invoke({'action': 'store_sms_overview'});
+    return Map<String, dynamic>.from(data['item'] as Map);
+  }
+
+  Future<Map<String, dynamic>> storeNotifySettingsSave(
+    Map<String, bool> patch,
+  ) async {
+    if (!hasSession) {
+      throw const AppError('请先登录', type: AppErrorType.auth);
+    }
+    final data = await invoke({
+      'action': 'store_notify_settings_save',
+      ...patch,
+    });
     return Map<String, dynamic>.from(data['item'] as Map);
   }
 

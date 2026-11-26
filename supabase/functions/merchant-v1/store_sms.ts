@@ -1,4 +1,5 @@
 import { admin, fail, json, storeFor } from './shared.ts';
+import { parseStoreNotifySettings } from './store_notify_rules.ts';
 import type { Input } from './types.ts';
 
 const purposeLabels: Record<string, string> = {
@@ -50,6 +51,11 @@ export async function handleStoreSms(input: Input, request: Request): Promise<Re
 
   if (input.action === 'store_sms_overview') {
     const monthStart = monthStartUtcIso();
+    const ensureRes = await admin
+      .from('store_notify_settings')
+      .upsert({ store_id: storeId }, { onConflict: 'store_id', ignoreDuplicates: true });
+    if (ensureRes.error) return fail('读取通知设置失败，请重试', 500);
+
     const [logsRes, settingsRes, storeRes] = await Promise.all([
       admin
         .from('sms_logs')
@@ -58,10 +64,10 @@ export async function handleStoreSms(input: Input, request: Request): Promise<Re
         .eq('kind', 'notice')
         .gte('created_at', monthStart),
       admin
-        .from('appointment_settings')
+        .from('store_notify_settings')
         .select('*')
         .eq('store_id', storeId)
-        .maybeSingle(),
+        .single(),
       admin
         .from('stores')
         .select('name')
@@ -89,15 +95,7 @@ export async function handleStoreSms(input: Input, request: Request): Promise<Re
     const providerConfigured = Boolean(Deno.env.get('SMS_PROVIDER')?.trim());
     const signName = Deno.env.get('ZHUTONG_SIGN_NAME')?.trim() || '';
     const storeName = String(storeRes.data?.name ?? '当前门店').trim() || '当前门店';
-    const bs = settingsRes.data ?? {
-      notify_confirm_default: true,
-      notify_reschedule: true,
-      notify_cancel: true,
-      remind_default: false,
-      notify_manager: true,
-      notify_consume: true,
-      notify_recharge: true,
-    };
+    const ns = settingsRes.data;
 
     return json({
       item: {
@@ -114,14 +112,14 @@ export async function handleStoreSms(input: Input, request: Request): Promise<Re
           failed,
           pending,
         },
-        booking_settings: bs,
+        notify_settings: ns,
         scenarios: [
           {
             key: 'order_consume',
             group: 'transaction',
             title: '消费结账通知客户',
             setting_key: 'notify_consume',
-            enabled: bs.notify_consume !== false,
+            enabled: ns.notify_consume !== false,
             template_preview: `您在${storeName}本次消费 ¥{金额}（{支付方式}）已完成，当前余额 ¥{余额}。感谢光临！`,
           },
           {
@@ -129,7 +127,7 @@ export async function handleStoreSms(input: Input, request: Request): Promise<Re
             group: 'transaction',
             title: '储值充值与购卡通知',
             setting_key: 'notify_recharge',
-            enabled: bs.notify_recharge !== false,
+            enabled: ns.notify_recharge !== false,
             template_preview: `您在${storeName}充值 ¥{金额}（赠送 ¥{赠送}）已到账，当前余额 ¥{余额}；购买次卡时提示套餐已开通。`,
           },
           {
@@ -137,7 +135,7 @@ export async function handleStoreSms(input: Input, request: Request): Promise<Re
             group: 'booking',
             title: '预约成功通知客户',
             setting_key: 'notify_confirm_default',
-            enabled: Boolean(bs.notify_confirm_default),
+            enabled: Boolean(ns.notify_confirm_default),
             template_preview: `您在${storeName}预约了{时间}到店服务，如需改期请提前联系门店。`,
           },
           {
@@ -145,7 +143,7 @@ export async function handleStoreSms(input: Input, request: Request): Promise<Re
             group: 'booking',
             title: '预约改期通知客户',
             setting_key: 'notify_reschedule',
-            enabled: bs.notify_reschedule !== false,
+            enabled: ns.notify_reschedule !== false,
             template_preview: `您在${storeName}的预约已改期至{时间}，请按时到店。`,
           },
           {
@@ -153,7 +151,7 @@ export async function handleStoreSms(input: Input, request: Request): Promise<Re
             group: 'booking',
             title: '预约取消通知客户',
             setting_key: 'notify_cancel',
-            enabled: bs.notify_cancel !== false,
+            enabled: ns.notify_cancel !== false,
             template_preview: `您预约的{时间}到店服务已取消，如需重新预约请联系${storeName}。`,
           },
           {
@@ -161,7 +159,7 @@ export async function handleStoreSms(input: Input, request: Request): Promise<Re
             group: 'booking',
             title: '到店前提醒（提前 2 小时）',
             setting_key: 'remind_default',
-            enabled: Boolean(bs.remind_default),
+            enabled: Boolean(ns.remind_default),
             template_preview: '温馨提醒：您预约的到店服务时间为{时间}，请按时到店。如需改期，请联系门店。',
           },
           {
@@ -169,7 +167,7 @@ export async function handleStoreSms(input: Input, request: Request): Promise<Re
             group: 'booking',
             title: '预约变动通知店长',
             setting_key: 'notify_manager',
-            enabled: Boolean(bs.notify_manager),
+            enabled: Boolean(ns.notify_manager),
             template_preview: `${storeName}：{新增/改期/取消}预约，客户{姓名}，预约时间{时间}。请在商户 App 查看详情。`,
           },
           {
@@ -253,6 +251,25 @@ export async function handleStoreSms(input: Input, request: Request): Promise<Re
         next_offset: offset + items.length,
       },
     });
+  }
+
+  if (input.action === 'store_notify_settings_save') {
+    const patch = parseStoreNotifySettings(input);
+    if (typeof patch === 'string') return fail(patch);
+    const { data, error } = await admin.rpc('save_store_notify_settings', {
+      p_store: storeId,
+      p_input: patch,
+    });
+    if (error) {
+      if (error.message.includes('appointment_manager_required')) {
+        return fail('请先在员工管理中配置已启用的店长，再开启店长通知', 400);
+      }
+      if (error.message.includes('invalid_notify_setting')) {
+        return fail('通知设置无效', 400);
+      }
+      return fail('保存通知设置失败，请稍后重试', 500);
+    }
+    return json({ item: data });
   }
 
   return fail('不支持的操作');

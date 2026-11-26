@@ -63,7 +63,11 @@ Deno.serve(async (request: Request): Promise<Response> => {
   if (['get_store', 'profile_update', 'profile_avatar_upload', 'change_password', 'change_phone', 'delete_account'].includes(String(input.action))) {
     return handleAccount(input, request);
   }
-  if (input.action === 'store_sms_overview' || input.action === 'store_sms_logs') return handleStoreSms(input, request);
+  if (
+    input.action === 'store_sms_overview' ||
+    input.action === 'store_sms_logs' ||
+    input.action === 'store_notify_settings_save'
+  ) return handleStoreSms(input, request);
   if (input.action === 'list_stores' || input.action === 'get_subscription' || String(input.action).startsWith('store_')) return handleStores(input, request);
   if (input.action === 'settings_stats') return handleSettingsStats(request);
   if (input.action === 'home_stats') return handleHomeStats(request);

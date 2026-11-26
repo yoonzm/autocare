@@ -126,7 +126,7 @@ export async function sendTransactionNotice(args: {
 }): Promise<TxSmsResult> {
   try {
     const [settingsRes, storeRes, memberRes] = await Promise.all([
-      admin.from('appointment_settings')
+      admin.from('store_notify_settings')
         .select('notify_consume, notify_recharge')
         .eq('store_id', args.storeId)
         .maybeSingle(),

@@ -10,7 +10,7 @@ import type { Input } from './types.ts';
 
 const managerNoticeDeps: ManagerNoticeDependencies = {
   async load(storeId) {
-    const settings = await admin.from('appointment_settings').select('notify_manager').eq('store_id', storeId).maybeSingle();
+    const settings = await admin.from('store_notify_settings').select('notify_manager').eq('store_id', storeId).maybeSingle();
     if (settings.error) throw settings.error;
     if (!settings.data?.notify_manager) return { enabled: false, name: '', phones: [] };
     const [staff, store] = await Promise.all([
@@ -72,10 +72,21 @@ export async function handleAppointments(input: Input, request: Request): Promis
     if (result.error) throw result.error;
     return result.data;
   };
+  const notifySettings = async () => {
+    const { error } = await admin.from('store_notify_settings').upsert({ store_id: store }, {
+      onConflict: 'store_id',
+      ignoreDuplicates: true,
+    });
+    if (error) throw error;
+    const result = await admin.from('store_notify_settings').select('*').eq('store_id', store).single();
+    if (result.error) throw result.error;
+    return result.data;
+  };
   try {
     if (action === 'appointment_options') {
-      const [s, services, resources, canEditAppt] = await Promise.all([
+      const [s, ns, services, resources, canEditAppt] = await Promise.all([
         settings(),
+        notifySettings(),
         admin.from('service_items').select('*').eq('store_id', store).eq('active', true).order('created_at'),
         admin.rpc('appointment_resource_list', { p_store: store }),
         hasCap(request, 'appt_edit'),
@@ -88,7 +99,7 @@ export async function handleAppointments(input: Input, request: Request): Promis
             const { phone: _phone, ...rest } = r;
             return rest;
           });
-      return json({ item: { settings: s, services: services.data, resources: sanitized } });
+      return json({ item: { settings: s, notify_settings: ns, services: services.data, resources: sanitized } });
     }
     if (action === 'appointment_board') {
       if (!validDay(input.day)) return fail('日期无效');
@@ -154,7 +165,7 @@ export async function handleAppointments(input: Input, request: Request): Promis
       const isEdit = input.id != null;
       let rescheduleEnabled = true;
       if (isEdit && input.notify === true) {
-        const { data: cfg } = await admin.from('appointment_settings').select('notify_reschedule').eq('store_id', store)
+        const { data: cfg } = await admin.from('store_notify_settings').select('notify_reschedule').eq('store_id', store)
           .maybeSingle();
         rescheduleEnabled = cfg?.notify_reschedule !== false;
       }
@@ -226,7 +237,7 @@ export async function handleAppointments(input: Input, request: Request): Promis
       let sms_error = '';
       let cancelNotifyEnabled = true;
       if (action === 'appointment_cancel' && input.notify === true) {
-        const { data: cfg } = await admin.from('appointment_settings').select('notify_cancel').eq('store_id', store)
+        const { data: cfg } = await admin.from('store_notify_settings').select('notify_cancel').eq('store_id', store)
           .maybeSingle();
         cancelNotifyEnabled = cfg?.notify_cancel !== false;
       }

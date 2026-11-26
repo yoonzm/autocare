@@ -48,18 +48,6 @@ export function parseBooking(i: Input): Input | string {
   };
 }
 export function parseBookingSettings(i: Input): Input | string {
-  const flags = [
-    'notify_confirm_default',
-    'remind_default',
-    'notify_manager',
-    'notify_reschedule',
-    'notify_cancel',
-    'notify_consume',
-    'notify_recharge',
-  ];
-  for (const key of flags) {
-    if (i[key] != null && typeof i[key] !== 'boolean') return '通知设置无效';
-  }
   for (const k of ['opens_at', 'closes_at']) {
     if (typeof i[k] !== 'string' || !/^([01]\d|2[0-3]):[0-5]\d$/.test(i[k] as string)) return '营业时间无效';
   }
@@ -99,7 +87,6 @@ export function parseBookingSettings(i: Input): Input | string {
       ].map((k) => [k, i[k]]),
     ),
     closed_dates: closedDates,
-    ...Object.fromEntries(flags.filter((key) => typeof i[key] === 'boolean').map((key) => [key, i[key]])),
   };
 }
 export function parseResource(i: Input): Input | string {

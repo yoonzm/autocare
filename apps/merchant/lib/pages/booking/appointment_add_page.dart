@@ -127,11 +127,16 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
       if (failed == null) {
         _options = data!;
         if (!_notificationDefaultsLoaded) {
-          final settings = _options['settings'] as Map? ?? const {};
+          final notifySettings =
+              (_options['notify_settings'] as Map?) ??
+              (_options['settings'] as Map?) ??
+              const {};
           if (!_notifyTouched) {
-            notify = settings['notify_confirm_default'] == true;
+            notify = notifySettings['notify_confirm_default'] == true;
           }
-          if (!_remindTouched) remind = settings['remind_default'] == true;
+          if (!_remindTouched) {
+            remind = notifySettings['remind_default'] == true;
+          }
           _notificationDefaultsLoaded = true;
         }
         _optionsReady = true;

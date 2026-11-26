@@ -114,6 +114,15 @@ class BookingApi extends MemberFakeApi {
     'grace_minutes': 15,
     'closed_days': <int>[],
   };
+  Map<String, dynamic> notifySettings = {
+    'notify_confirm_default': false,
+    'remind_default': false,
+    'notify_manager': false,
+    'notify_reschedule': true,
+    'notify_cancel': true,
+    'notify_consume': true,
+    'notify_recharge': true,
+  };
   Completer<void>? gate;
   Completer<void>? optionsGate;
   Object? readError, writeError;
@@ -469,6 +478,7 @@ class BookingApi extends MemberFakeApi {
       await optionsGate?.future;
       return {
         'settings': {...settings},
+        'notify_settings': {...notifySettings},
         'resources': [
           for (final r in resources) {...r},
         ],
@@ -917,7 +927,7 @@ void main() {
     expect(call['capacity'], 3);
   });
   testWidgets('预约设置仅保留预约规则，营业时间只读且预约通知收口为跳转入口', (t) async {
-    api.settings.addAll({
+    api.notifySettings.addAll({
       'notify_confirm_default': true,
       'remind_default': false,
       'notify_manager': true,
@@ -930,13 +940,16 @@ void main() {
     await t.tap(find.text('保存设置'));
     await t.pumpAndSettle();
     final call = api.calls.lastWhere((c) => c['action'] == 'settings_save');
-    expect(call['notify_confirm_default'], isTrue);
-    expect(call['remind_default'], isFalse);
-    expect(call['notify_manager'], isTrue);
+    expect(call.containsKey('notify_confirm_default'), isFalse);
+    expect(call.containsKey('remind_default'), isFalse);
+    expect(call.containsKey('notify_manager'), isFalse);
   });
 
   testWidgets('新建预约带入门店默认通知设置，允许本单关闭', (t) async {
-    api.settings.addAll({'notify_confirm_default': true, 'remind_default': true});
+    api.notifySettings.addAll({
+      'notify_confirm_default': true,
+      'remind_default': true,
+    });
     await open(t, const AppointmentAddPage());
     await t.tap(find.text('散客'));
     await t.pumpAndSettle();
@@ -949,11 +962,14 @@ void main() {
     await t.tap(switches.at(0));
     await t.pumpAndSettle();
     expect(t.widget<HSwitchValue>(switches.at(0)).value, isFalse);
-    expect(api.settings['notify_confirm_default'], isTrue);
+    expect(api.notifySettings['notify_confirm_default'], isTrue);
   });
 
   testWidgets('迟到的门店默认值不会覆盖用户已操作的通知开关', (t) async {
-    api.settings.addAll({'notify_confirm_default': false, 'remind_default': true});
+    api.notifySettings.addAll({
+      'notify_confirm_default': false,
+      'remind_default': true,
+    });
     api.optionsGate = Completer<void>();
     await open(t, const AppointmentAddPage());
     await t.tap(find.text('散客'));

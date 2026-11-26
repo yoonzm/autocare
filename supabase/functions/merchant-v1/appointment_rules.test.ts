@@ -72,11 +72,10 @@ Deno.test('settings validates ranges, order, weekdays and strips unsupported fie
     closed_days: [1],
   };
   assert(typeof parseBookingSettings(base) === 'object');
-  for (const key of ['notify_confirm_default', 'remind_default', 'notify_manager', 'notify_reschedule', 'notify_cancel']) {
-    assert(typeof parseBookingSettings({ ...base, [key]: 'true' }) === 'string');
-    assert((parseBookingSettings({ ...base, [key]: false }) as Record<string, unknown>)[key] === false);
-    assert((parseBookingSettings({ ...base, [key]: true }) as Record<string, unknown>)[key] === true);
-    assert(!(key in (parseBookingSettings(base) as Record<string, unknown>)));
+  // 通知开关已拆分到 store_notify_settings，预约设置解析不再接受或透传通知字段
+  for (const key of ['notify_confirm_default', 'remind_default', 'notify_manager', 'notify_reschedule', 'notify_cancel', 'notify_consume', 'notify_recharge']) {
+    const parsed = parseBookingSettings({ ...base, [key]: true }) as Record<string, unknown>;
+    assert(!(key in parsed));
   }
   for (
     const input of [{ ...base, closes_at: '08:00' }, { ...base, slot_minutes: 7 }, { ...base, capacity: 0 }, {
