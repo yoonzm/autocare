@@ -152,9 +152,11 @@ class _NotificationsPageState extends State<NotificationsPage> {
   Widget build(BuildContext context) {
     return AdPage(
       title: '通知中心',
-      action: AppButton(
-        label: '发通知',
-        size: AppButtonSize.small,
+      action: AppIconButton(
+        key: const ValueKey('compose-notification'),
+        icon: Icons.add_rounded,
+        semanticLabel: '发通知',
+        kind: AppIconButtonKind.primary,
         onPressed: _openCompose,
       ),
       onRefresh: _load,
