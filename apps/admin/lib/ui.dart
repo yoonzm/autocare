@@ -228,7 +228,7 @@ class Empty extends StatelessWidget {
 /// 页面骨架：顶栏（返回 / 标题 / 右侧入口）+ 滚动内容 + 可选底部操作栏。
 ///
 /// 底部只有按钮时传 [bottomBar]（`AppBottomBar`）；底栏里还要放输入框等自定义内容时用 [dock]。
-class AdPage extends StatelessWidget {
+class AdPage extends StatefulWidget {
   final String? title;
   final bool back;
   final Widget? action;
@@ -254,41 +254,95 @@ class AdPage extends StatelessWidget {
   });
 
   @override
+  State<AdPage> createState() => _AdPageState();
+}
+
+class _AdPageState extends State<AdPage> {
+  bool _scrolled = false;
+
+  bool _onScroll(ScrollNotification n) {
+    if (n.depth != 0 || n.metrics.axis != Axis.vertical) return false;
+    final scrolled = n.metrics.pixels > 0.5;
+    if (scrolled != _scrolled) setState(() => _scrolled = scrolled);
+    return false;
+  }
+
+  @override
   Widget build(BuildContext context) {
     final top = MediaQuery.of(context).padding.top;
     final t = AppTokens.of(context);
+    final hasHeader = widget.title != null;
+    final listTopPadding = hasHeader
+        ? (widget.gap - 8).clamp(0.0, double.infinity)
+        : top + 12;
+
+    Widget listView = RefreshIndicator(
+      onRefresh: widget.onRefresh ?? () async {
+        try {
+          await store.refresh();
+          if (context.mounted) AppToast.show(context, '已更新');
+        } catch (e) {
+          if (context.mounted) AppToast.error(context, e);
+        }
+      },
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        padding: EdgeInsets.fromLTRB(20, listTopPadding, 20, 32),
+        children: [
+          for (var i = 0; i < widget.children.length; i++) ...[
+            if (i > 0) SizedBox(height: widget.gap),
+            widget.children[i],
+          ],
+        ],
+      ),
+    );
+
+    if (hasHeader) {
+      listView = MediaQuery.removePadding(
+        context: context,
+        removeTop: true,
+        child: NotificationListener<ScrollNotification>(
+          onNotification: _onScroll,
+          child: listView,
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: C.bg,
       body: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () => FocusScope.of(context).unfocus(),
-        child: RefreshIndicator(
-          onRefresh: onRefresh ?? () async {
-            try {
-              await store.refresh();
-              if (context.mounted) AppToast.show(context, '已更新');
-            } catch (e) {
-              if (context.mounted) AppToast.error(context, e);
-            }
-          },
-          child: ListView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-            padding: EdgeInsets.fromLTRB(20, top + 12, 20, 32),
-            children: [
-              if (title != null)
-                AppPageHeader(
-                  title: title!,
-                  leading: back ? HeaderLeading.back : HeaderLeading.none,
-                  trailing: action,
-                ),
-              for (final c in children) ...[SizedBox(height: gap), c],
-            ],
-          ),
-        ),
+        child: hasHeader
+            ? Column(
+                children: [
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: C.bg,
+                      border: Border(
+                        bottom: BorderSide(
+                          color: _scrolled ? t.line : Colors.transparent,
+                        ),
+                      ),
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(20, top + 12, 20, 8),
+                      child: AppPageHeader(
+                        title: widget.title!,
+                        leading:
+                            widget.back ? HeaderLeading.back : HeaderLeading.none,
+                        trailing: widget.action,
+                      ),
+                    ),
+                  ),
+                  Expanded(child: listView),
+                ],
+              )
+            : listView,
       ),
-      bottomNavigationBar: bottomBar ??
-          (dock == null
+      bottomNavigationBar: widget.bottomBar ??
+          (widget.dock == null
               ? null
               : Container(
                   padding: EdgeInsets.fromLTRB(
@@ -301,7 +355,7 @@ class AdPage extends StatelessWidget {
                     color: t.surface,
                     border: Border(top: BorderSide(color: t.line)),
                   ),
-                  child: dock,
+                  child: widget.dock,
                 )),
     );
   }
