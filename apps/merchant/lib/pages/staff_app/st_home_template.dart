@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../backend/access_flow.dart';
 import '../../backend/hold_store.dart';
 import '../../backend/merchant_api.dart';
+import '../../kit/async_kit.dart';
 import '../../kit/kit.dart';
 import '../../routes.dart' show openRoute;
 import '../../resources/staff_svgs.dart';
@@ -12,7 +13,8 @@ import 'st_live.dart';
 
 class StHomeTemplate extends StatelessWidget {
   final Map<String, dynamic> d;
-  const StHomeTemplate({super.key, required this.d});
+  final Future<void> Function()? onRefresh;
+  const StHomeTemplate({super.key, required this.d, this.onRefresh});
 
   @override
   Widget build(BuildContext context) {
@@ -73,6 +75,7 @@ class StHomeTemplate extends StatelessWidget {
     );
     return HPage(
       bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
+      onRefresh: onRefresh,
       flow: hcol(
         [
           hbox(
@@ -632,7 +635,54 @@ class StHomeTemplate extends StatelessWidget {
                   ),
                 ),
                 if (working.isEmpty && waiting.isEmpty)
-                  taskHeader('我的任务', showAll: true),
+                  hcol(
+                    [
+                      taskHeader('我的任务', showAll: true),
+                      hbox(
+                        bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+                        radius: BorderRadius.circular(22),
+                        shadow: dk(
+                          context,
+                          [
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 0),
+                              blurRadius: 1,
+                              spreadRadius: 0,
+                            ),
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.06),
+                              offset: Offset(0, 1),
+                              blurRadius: 2,
+                              spreadRadius: 0,
+                            ),
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.04),
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
+                              spreadRadius: 0,
+                            ),
+                          ],
+                          [
+                            BoxShadow(
+                              color: Color(0xFF26262B),
+                              offset: Offset(0, 0),
+                              blurRadius: 0,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                        pad: EdgeInsets.fromLTRB(16, 12, 16, 12),
+                        child: const EmptyView(
+                          title: '暂无待办任务',
+                          message: '新派工的任务会显示在这里',
+                        ),
+                      ),
+                    ],
+                    main: MainAxisAlignment.start,
+                    cross: CrossAxisAlignment.stretch,
+                    gap: 8,
+                  ),
                 if (working.isNotEmpty)
                   hcol(
                     [
@@ -1105,6 +1155,9 @@ class StHomeLivePage extends StatelessWidget {
     title: '工作台',
     refresh: HoldStore.invalidated,
     load: merchantApi.staffHome,
-    builder: (_, d) => StHomeTemplate(d: d),
+    builder: (ctx, d) => StHomeTemplate(
+      d: d,
+      onRefresh: () => stPullRefresh(ctx, syncInbox: true),
+    ),
   );
 }

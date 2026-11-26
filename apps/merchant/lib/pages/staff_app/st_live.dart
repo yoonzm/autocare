@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../backend/inbox_store.dart';
 import '../../backend/merchant_api.dart';
 import '../../backend/staff_flow.dart';
 import '../../backend/task_flow.dart';
@@ -87,6 +88,21 @@ String stPlateOf(Map<String, dynamic> t) =>
 int stPhase(Map<String, dynamic> t) {
   if (t['finished_at'] != null || t['status'] == 'done') return 2;
   return t['status'] == 'arrived' ? 1 : 0;
+}
+
+/// 下拉刷新当前员工页面；[syncInbox] 为 true 时同步刷新站内消息未读数。
+Future<void> stPullRefresh(
+  BuildContext context, {
+  bool syncInbox = false,
+}) async {
+  final reload = StaffLiveHost.refreshOf(context);
+  final inbox = syncInbox
+      ? context.getInheritedWidgetOfExactType<InboxScope>()?.notifier
+      : null;
+  await Future.wait([
+    if (reload != null) reload(),
+    if (inbox != null) inbox.refresh(),
+  ]);
 }
 
 /// 读取当前任务；任务不是派给自己的由服务端拒绝。

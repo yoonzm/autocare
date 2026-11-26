@@ -117,14 +117,15 @@ export function requirementFor(input: Input): Requirement {
   const action = String(input.action ?? '');
   // 库存请求的 kind 是单据类型；与实际路由一样先按 action 分流。
   if (action.startsWith('inventory_')) return inventoryReads.has(action) ? anyCap('stock_manage', 'stock_use') : cap('stock_manage');
+  // 按 action 分流的接口（如 inbox_list 也携带 kind 筛选参数）必须先于目录型 kindRules 判定。
+  if (byAction[action]) return byAction[action];
+  if (action.startsWith('subscription_') || action.startsWith('store_') || action.startsWith('support_')) return owner;
+  if (action.startsWith('expense_')) return cap('expense');
   if (typeof input.kind === 'string') {
     const rule = kindRules[input.kind]?.[action];
     return rule ?? deny;
   }
-  if (byAction[action]) return byAction[action];
-  if (action.startsWith('subscription_') || action.startsWith('store_') || action.startsWith('support_')) return owner;
-  if (action.startsWith('expense_')) return cap('expense');
-  return byAction[action] ?? deny;
+  return deny;
 }
 
 export interface Decision {

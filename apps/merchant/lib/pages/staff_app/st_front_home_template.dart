@@ -12,7 +12,8 @@ import 'st_live.dart';
 
 class StFrontHomeTemplate extends StatelessWidget {
   final Map<String, dynamic> d;
-  const StFrontHomeTemplate({super.key, required this.d});
+  final Future<void> Function()? onRefresh;
+  const StFrontHomeTemplate({super.key, required this.d, this.onRefresh});
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +47,7 @@ class StFrontHomeTemplate extends StatelessWidget {
     // _queueBlock：待收银 · 待结算（有队列时显示）
     return HPage(
       bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
+      onRefresh: onRefresh,
       flow: hcol(
         [
           hbox(
@@ -958,6 +960,9 @@ class StFrontHomeLivePage extends StatelessWidget {
         'queue': holds.where((h) => h['status'] == '待结算').toList(),
       };
     },
-    builder: (_, d) => StFrontHomeTemplate(d: d),
+    builder: (ctx, d) => StFrontHomeTemplate(
+      d: d,
+      onRefresh: () => stPullRefresh(ctx, syncInbox: true),
+    ),
   );
 }

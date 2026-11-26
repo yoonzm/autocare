@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../backend/hold_store.dart';
 import '../../backend/merchant_api.dart';
+import '../../kit/async_kit.dart';
 import '../../kit/kit.dart';
 import '../../resources/staff_svgs.dart';
 import 'st_live.dart';
@@ -11,7 +12,8 @@ import '../../kit/page_header.dart';
 
 class StTasksTemplate extends StatefulWidget {
   final Map<String, dynamic> d;
-  const StTasksTemplate({super.key, required this.d});
+  final Future<void> Function()? onRefresh;
+  const StTasksTemplate({super.key, required this.d, this.onRefresh});
 
   @override
   State<StTasksTemplate> createState() => _StTasksTemplateState();
@@ -39,7 +41,10 @@ class _StTasksTemplateState extends State<StTasksTemplate> {
         if (stPhase(t) == 2) t,
     ];
     final tab =
-        picked ?? (working.isNotEmpty ? 1 : (waiting.isNotEmpty ? 0 : 2));
+        picked ??
+        (working.isNotEmpty
+            ? 1
+            : (waiting.isNotEmpty ? 0 : (done.isNotEmpty ? 2 : 0)));
     final list = tab == 0 ? waiting : (tab == 1 ? working : done);
     Widget workingCard(Map<String, dynamic> t) => GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -367,6 +372,7 @@ class _StTasksTemplateState extends State<StTasksTemplate> {
     return HPage(
       bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
       header: AppPageHeader(title: '我的任务'),
+      onRefresh: widget.onRefresh,
       flow: hcol(
         [
           hbox(
@@ -642,30 +648,42 @@ class _StTasksTemplateState extends State<StTasksTemplate> {
                     ),
                   ),
                 ),
-                ...(tab == 1
-                    ? [for (final t in working) workingCard(t)]
-                    : [for (final t in list) waitCard(t, finished: tab == 2)]),
-                hbox(
-                  pad: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                  child: hrow(
-                    [
-                      hsvg(dk(context, Svgs.s111, Svgs.s112), w: 14, h: 14),
-                      Flexible(
-                        flex: 84,
-                        child: Text(
-                          list.isEmpty ? '暂无任务' : '已显示全部任务',
-                          style: hts(
-                            12,
-                            dk(context, Color(0xFFA1A1AA), Color(0xFF80808A)),
+                if (list.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 32),
+                    child: EmptyView(
+                      title: tab == 0
+                          ? '暂无待施工任务'
+                          : (tab == 1 ? '暂无施工中任务' : '今日暂无已完成任务'),
+                      message: tab == 2 ? '完工后的任务会显示在这里' : '新派工的任务会显示在这里',
+                    ),
+                  )
+                else ...[
+                  ...(tab == 1
+                      ? [for (final t in working) workingCard(t)]
+                      : [for (final t in list) waitCard(t, finished: tab == 2)]),
+                  hbox(
+                    pad: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                    child: hrow(
+                      [
+                        hsvg(dk(context, Svgs.s111, Svgs.s112), w: 14, h: 14),
+                        Flexible(
+                          flex: 84,
+                          child: Text(
+                            '已显示全部任务',
+                            style: hts(
+                              12,
+                              dk(context, Color(0xFFA1A1AA), Color(0xFF80808A)),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                    main: MainAxisAlignment.center,
-                    cross: CrossAxisAlignment.center,
-                    gap: 8,
+                      ],
+                      main: MainAxisAlignment.center,
+                      cross: CrossAxisAlignment.center,
+                      gap: 8,
+                    ),
                   ),
-                ),
+                ],
               ],
               main: MainAxisAlignment.start,
               cross: CrossAxisAlignment.stretch,
@@ -691,6 +709,7 @@ class StTasksLivePage extends StatelessWidget {
     title: '我的任务',
     refresh: HoldStore.invalidated,
     load: () => merchantApi.staffWork('staff_task_list'),
-    builder: (_, d) => StTasksTemplate(d: d),
+    builder: (ctx, d) =>
+        StTasksTemplate(d: d, onRefresh: () => stPullRefresh(ctx)),
   );
 }

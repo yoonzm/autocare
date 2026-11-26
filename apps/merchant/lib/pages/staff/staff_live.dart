@@ -36,8 +36,21 @@ class StaffLiveHost extends StatefulWidget {
     this.refresh,
   });
 
+  /// 获取当前 [StaffLiveHost] 的下拉刷新回调（用于子页面接入 [RefreshIndicator]）。
+  static Future<void> Function()? refreshOf(BuildContext context) =>
+      context.getInheritedWidgetOfExactType<_StaffLiveScope>()?.onRefresh;
+
   @override
   State<StaffLiveHost> createState() => _StaffLiveHostState();
+}
+
+class _StaffLiveScope extends InheritedWidget {
+  final Future<void> Function() onRefresh;
+  const _StaffLiveScope({required this.onRefresh, required super.child});
+
+  @override
+  bool updateShouldNotify(_StaffLiveScope oldWidget) =>
+      onRefresh != oldWidget.onRefresh;
 }
 
 class _StaffLiveHostState extends State<StaffLiveHost> {
@@ -92,6 +105,11 @@ class _StaffLiveHostState extends State<StaffLiveHost> {
     _key.currentState?.reload();
   }
 
+  Future<void> _pullRefresh() async {
+    if (!mounted) return;
+    await _key.currentState?.reload();
+  }
+
   @override
   Widget build(BuildContext context) {
     final id = widget.needsId ? widget.staffId : '';
@@ -120,7 +138,10 @@ class _StaffLiveHostState extends State<StaffLiveHost> {
       skeletonScrollable: false,
       skeleton: StaffSkeleton(title: widget.title),
       empty: (_) => const SizedBox.shrink(),
-      builder: (context, data) => widget.builder(context, data),
+      builder: (context, data) => _StaffLiveScope(
+        onRefresh: _pullRefresh,
+        child: Builder(builder: (ctx) => widget.builder(ctx, data)),
+      ),
       onNext: () => Navigator.of(context).maybePop(),
     );
     return Scaffold(body: view);

@@ -93,6 +93,17 @@ Deno.test('staff workflow actions: tasks need task caps, perf needs perf cap, me
   assert(can('technician', [], { action: 'staff_messages_read' }));
 });
 
+Deno.test('inbox_list with kind filter is open to every staff role', () => {
+  for (const role of ['manager', 'cashier', 'technician'] as Role[]) {
+    for (const kind of ['all', 'task', 'arrival', 'system']) {
+      assert(can(role, [], { action: 'inbox_list', kind }), `${role} inbox_list ${kind}`);
+    }
+    assert(can(role, [], { action: 'inbox_unread' }), `${role} inbox_unread`);
+    assert(can(role, [], { action: 'inbox_read', id: '00000000-0000-0000-0000-000000000001' }), `${role} inbox_read`);
+    assert(can(role, [], { action: 'inbox_target', id: '00000000-0000-0000-0000-000000000001' }), `${role} inbox_target`);
+  }
+});
+
 Deno.test('refusals carry a message the app can show', () => {
   const d = decide('technician', {}, { kind: 'members', action: 'list' });
   assert(!d.allowed && typeof d.message === 'string' && d.message.length > 0);

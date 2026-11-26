@@ -177,19 +177,73 @@ export async function handleNotificationWrite(
     inbox_count: number;
     push_count: number;
     popup_count: number;
-    sms_targets?: Array<{ phone: string }>;
+    sms_targets?: Array<{ phone: string; store_name?: string }>;
   };
 
   let smsSent = 0;
   let smsFailed = 0;
   if (channels.includes('sms') && Array.isArray(created.sms_targets) && created.sms_targets.length > 0) {
     try {
-      const { zhutongNoticeProvider } = await import('../merchant-v1/sms_zhutong.ts');
+      const [{ zhutongNoticeProvider }, { sendNoticeSms }] = await Promise.all([
+        import('../merchant-v1/sms_zhutong.ts'),
+        import('../merchant-v1/sms.ts'),
+      ]);
       const provider = zhutongNoticeProvider((name) => Deno.env.get(name));
+      const noticeStore = {
+        async reserve(req: {
+          phone: string;
+          purpose: string;
+          requestId: string;
+          content: string;
+          sign: string;
+          storeName: string;
+          storeId?: string;
+        }) {
+          const { data: resData, error: resError } = await db.rpc('reserve_notice_sms', {
+            p_phone: req.phone,
+            p_purpose: req.purpose,
+            p_request: req.requestId,
+            p_content: req.content,
+            p_sign: req.sign,
+            p_store_name: req.storeName,
+            p_store_id: req.storeId ?? null,
+          });
+          if (resError || !resData) throw new Error('Notice SMS reservation failed');
+          return resData as { error?: string; retry_after?: number };
+        },
+        async finish(
+          requestId: string,
+          sent: boolean,
+          providerName: string,
+          failure?: string,
+          providerMsgId?: string,
+        ) {
+          const { data: finData, error: finError } = await db.rpc('finish_notice_sms', {
+            p_request: requestId,
+            p_sent: sent,
+            p_provider: providerName,
+            p_error: failure ?? null,
+            p_provider_msg_id: providerMsgId ?? null,
+          });
+          if (finError || finData !== true) throw new Error('Notice SMS persistence failed');
+        },
+      };
       const smsContent = title === body ? body : `${title}：${body}`;
       for (const target of created.sms_targets) {
+        const digits = String(target.phone ?? '').replace(/\D/g, '');
+        const local = digits.startsWith('86') && digits.length === 13 ? digits.slice(2) : digits;
+        if (!/^1[3-9]\d{9}$/.test(local)) {
+          smsFailed++;
+          continue;
+        }
         try {
-          await provider.sendNotice(target.phone, smsContent, created.id);
+          await sendNoticeSms(provider, noticeStore, {
+            phone: `+86${local}`,
+            purpose: 'admin_notice',
+            content: smsContent,
+            storeName: String(target.store_name ?? '').trim() || '平台通知',
+            requestId: crypto.randomUUID(),
+          });
           smsSent++;
         } catch {
           smsFailed++;

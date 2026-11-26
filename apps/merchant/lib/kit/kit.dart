@@ -26,12 +26,16 @@ class HPage extends StatefulWidget {
   /// 固定在顶部、不随内容滚动的头部（通常是 [AppPageHeader]）。
   /// 头部自带状态栏留白和左右 20 的边距；内容滚到头部下方时出现一条淡分隔线。
   final Widget? header;
+
+  /// 可选下拉刷新回调：传入时自动包裹 [RefreshIndicator] 并允许内容不足一屏时触发下拉。
+  final Future<void> Function()? onRefresh;
   const HPage({
     super.key,
     required this.bg,
     required this.flow,
     this.overlays = const [],
     this.header,
+    this.onRefresh,
   });
 
   @override
@@ -49,16 +53,24 @@ class _HPageState extends State<HPage> {
       resizeToAvoidBottomInset: true,
       body: LayoutBuilder(
         builder: (context, c) {
-          Widget scroller(BoxConstraints body) => SingleChildScrollView(
-            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: body.maxHeight,
-                minWidth: double.infinity,
+          Widget scroller(BoxConstraints body) {
+            final view = SingleChildScrollView(
+              physics: widget.onRefresh != null
+                  ? const AlwaysScrollableScrollPhysics()
+                  : null,
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: body.maxHeight,
+                  minWidth: double.infinity,
+                ),
+                child: widget.flow,
               ),
-              child: widget.flow,
-            ),
-          );
+            );
+            return widget.onRefresh == null
+                ? view
+                : RefreshIndicator(onRefresh: widget.onRefresh!, child: view);
+          }
           return Stack(
             children: [
               Positioned.fill(
