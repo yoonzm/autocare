@@ -1,3 +1,5 @@
+import 'package:autocare_ui_kit/autocare_ui_kit.dart'
+    show AppSegmented, SegmentItem;
 import 'package:flutter/material.dart';
 
 import '../../backend/merchant_api.dart';
@@ -70,46 +72,22 @@ class _SmsLogsPageState extends State<SmsLogsPage> {
             const SubHeader('发送记录'),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
-              child: Row(
-                children: [
-                  _chip('all', '全部'),
-                  const SizedBox(width: 8),
-                  _chip('delivered', '已送达'),
-                  const SizedBox(width: 8),
-                  _chip('failed', '失败'),
+              child: AppSegmented<String>(
+                items: const [
+                  SegmentItem(value: 'all', label: '全部'),
+                  SegmentItem(value: 'delivered', label: '已送达'),
+                  SegmentItem(value: 'failed', label: '失败'),
                 ],
+                selected: _filter,
+                onChanged: (value) {
+                  if (_filter == value) return;
+                  setState(() => _filter = value);
+                  _load(reset: true);
+                },
               ),
             ),
             Expanded(child: _body()),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _chip(String value, String label) {
-    final selected = _filter == value;
-    return GestureDetector(
-      onTap: () {
-        if (_filter == value) return;
-        setState(() => _filter = value);
-        _load(reset: true);
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-        decoration: BoxDecoration(
-          color: selected ? C.btn : C.card,
-          borderRadius: BorderRadius.circular(14),
-          border: selected ? null : Border.all(color: C.line),
-        ),
-        child: Text(
-          label,
-          style: ts(
-            13,
-            w: FontWeight.w600,
-            color: selected ? C.btnFg : C.muted,
-            h: 18,
-          ),
         ),
       ),
     );
