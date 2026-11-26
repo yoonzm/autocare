@@ -19,6 +19,7 @@ bundle = 'com.yoonzm.autocare.merchant'
 assert team in profile['TeamIdentifier'], 'Provisioning profile team mismatch'
 assert profile['Entitlements']['application-identifier'] == f'{team}.{bundle}', 'Bundle ID mismatch'
 assert not profile['Entitlements'].get('get-task-allow', False), 'Development profile is not supported'
+assert profile['Entitlements'].get('aps-environment') == 'production', 'Profile must enable production push notifications'
 assert 'ProvisionedDevices' not in profile and not profile.get('ProvisionsAllDevices'), 'App Store profile required'
 assert profile['ExpirationDate'] > datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None), 'Profile expired'
 uuid = profile['UUID']

@@ -63,5 +63,18 @@ begin
  assert not has_table_privilege('authenticated','staff_messages','select');
  assert not has_function_privilege('authenticated','inbox_read(uuid,uuid,uuid,uuid,timestamptz)','execute');
  assert has_function_privilege('service_role','inbox_list(uuid,uuid,uuid,text,timestamptz,uuid)','execute');
+ -- iOS 推送设备绑定、站内信自动入队与同设备切换身份覆盖。
+ assert (push_register(shop,tech,null,'ios','aliyun-ios-token-1')->>'ok')::boolean;
+ insert into staff_messages(store_id,staff_id,kind,title,body,link) values(shop,tech,'system','推送测试','测试内容','');
+ assert (select count(*) from push_outbox where staff_id=tech and title='推送测试' and status='pending')=1;
+ assert jsonb_array_length(push_claim_outbox(10))=1;
+ -- 同一设备切换为老板登录后，旧员工绑定被覆盖，不再串推。
+ assert (push_register(shop,null,u,'ios','aliyun-ios-token-1')->>'ok')::boolean;
+ assert (select count(*) from push_devices where device_token='aliyun-ios-token-1' and owner_id=u and staff_id is null and disabled_at is null)=1;
+ assert (push_unregister(shop,null,u,'ios','aliyun-ios-token-1')->>'ok')::boolean;
+ assert (select disabled_at is not null from push_devices where device_token='aliyun-ios-token-1')=true;
+ assert not has_table_privilege('authenticated','push_devices','select');
+ assert not has_table_privilege('authenticated','push_outbox','select');
+ assert not has_function_privilege('authenticated','push_register(uuid,uuid,uuid,text,text)','execute');
 end $$;
 rollback;

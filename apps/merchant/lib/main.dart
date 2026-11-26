@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'backend/inbox_store.dart';
 
 import 'package:flutter/material.dart';
@@ -9,6 +11,7 @@ import 'backend/access_flow.dart';
 import 'backend/feedback_draft.dart';
 import 'widgets/feedback_recovery_scope.dart';
 import 'backend/merchant_api.dart';
+import 'backend/push_service.dart';
 import 'backend/store_profile.dart';
 import 'kit/async_kit.dart';
 import 'preferences/theme_preferences.dart';
@@ -51,6 +54,9 @@ class _QimeiAppState extends State<QimeiApp> with WidgetsBindingObserver {
     appThemeMode.addListener(_onMode);
     authExpired.addListener(_onAuthExpired);
     accessIssue.addListener(_onAccessIssue);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) unawaited(PushService.instance.start(navKey: _navKey));
+    });
   }
 
   /// 令牌刷新失败：清掉本地登录态，回到登录页并说明原因。
@@ -111,6 +117,7 @@ class _QimeiAppState extends State<QimeiApp> with WidgetsBindingObserver {
   @override
   void dispose() {
     _feedbackRecovery.clear();
+    PushService.instance.dispose();
     accessIssue.removeListener(_onAccessIssue);
     authExpired.removeListener(_onAuthExpired);
     appThemeMode.removeListener(_onMode);

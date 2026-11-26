@@ -474,6 +474,30 @@ class MerchantApi {
     return Map<String, dynamic>.from(data['item'] as Map);
   }
 
+  /// 注册推送设备（阿里云 EMAS deviceId），身份与门店由服务端从当前会话解析。
+  Future<void> pushRegister({
+    required String platform,
+    required String token,
+  }) async {
+    await invoke({
+      'action': 'push_register',
+      'platform': platform,
+      'token': token,
+    });
+  }
+
+  /// 注销推送设备（退出登录或切换身份时解绑）。
+  Future<void> pushUnregister({
+    required String platform,
+    required String token,
+  }) async {
+    await invoke({
+      'action': 'push_unregister',
+      'platform': platform,
+      'token': token,
+    });
+  }
+
   /// 员工工作台（技师：今日任务与业绩；前台：今日笔数与待到店）。
   Future<Map<String, dynamic>> staffHome() async {
     final data = await invoke({'action': 'staff_home'});

@@ -1,4 +1,5 @@
 import { handleInbox } from './inbox.ts';
+import { handlePushDevice, handlePushDispatch } from './push.ts';
 import { handleAppointmentReminders } from './appointment_reminders.ts';
 import { handleSmsReceipts } from './sms_receipts.ts';
 import { handleMedia } from './media.ts';
@@ -40,6 +41,7 @@ Deno.serve(async (request: Request): Promise<Response> => {
   if (!isInput(input)) return fail('Invalid JSON');
   if (input.action === 'appointment_reminders_run') return handleAppointmentReminders(request);
   if (input.action === 'sms_receipts_run') return handleSmsReceipts(request);
+  if (input.action === 'push_dispatch_run') return handlePushDispatch(request);
   if (['account_devices','account_device_revoke','account_cancel_check','account_contact'].includes(String(input.action))) return handleAccountTools(input,request);
   if (String(input.action).startsWith('identity_')) return handleIdentity(input, request);
   // 员工身份（店长 / 前台 / 技师）按权限目录逐请求校验；老板直接放行。服务端拒绝才是安全边界。
@@ -49,6 +51,7 @@ Deno.serve(async (request: Request): Promise<Response> => {
   }
   if (/^(store_media_|staff_task_photo_)/.test(String(input.action))) return handleMedia(input, request);
   if (String(input.action).startsWith('inbox_')) return handleInbox(input, request);
+  if (input.action === 'push_register' || input.action === 'push_unregister') return handlePushDevice(input, request);
   if (input.action === 'staff_home') return handleIdentity(input, request);
   // 一期限时免费：不向客户端开放订阅/续费/模拟支付；权益由注册时的内部限时免费套餐提供。
   if (String(input.action).startsWith('subscription_')) return fail('限时免费期间暂不开放订阅', 403);

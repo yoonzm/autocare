@@ -144,8 +144,10 @@ jobs:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
           ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+          ALIYUN_PUSH_IOS_APP_KEY: ${{ secrets.ALIYUN_PUSH_IOS_APP_KEY }}
+          ALIYUN_PUSH_IOS_APP_SECRET: ${{ secrets.ALIYUN_PUSH_IOS_APP_SECRET }}
         run: |
-          for name in BUILD_CERTIFICATE_BASE64 P12_PASSWORD BUILD_PROVISION_PROFILE_BASE64 ASC_KEY_ID ASC_ISSUER_ID ASC_PRIVATE_KEY; do
+          for name in BUILD_CERTIFICATE_BASE64 P12_PASSWORD BUILD_PROVISION_PROFILE_BASE64 ASC_KEY_ID ASC_ISSUER_ID ASC_PRIVATE_KEY ALIYUN_PUSH_IOS_APP_KEY ALIYUN_PUSH_IOS_APP_SECRET; do
             if [[ -z "${!name}" ]]; then
               echo "::error::Missing repository secret: $name"
               exit 1
@@ -168,8 +170,13 @@ jobs:
           flutter pub get
 
       - name: Generate iOS build configuration
+        env:
+          ALIYUN_PUSH_IOS_APP_KEY: ${{ secrets.ALIYUN_PUSH_IOS_APP_KEY }}
+          ALIYUN_PUSH_IOS_APP_SECRET: ${{ secrets.ALIYUN_PUSH_IOS_APP_SECRET }}
         run: |
           flutter build ios --config-only --no-codesign --release \
+            --dart-define=ALIYUN_PUSH_IOS_APP_KEY="$ALIYUN_PUSH_IOS_APP_KEY" \
+            --dart-define=ALIYUN_PUSH_IOS_APP_SECRET="$ALIYUN_PUSH_IOS_APP_SECRET" \
             --build-name="$APP_VERSION" --build-number="$GITHUB_RUN_NUMBER"
 
       - name: Install signing identity and provisioning profile

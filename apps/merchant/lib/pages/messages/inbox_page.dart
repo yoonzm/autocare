@@ -9,8 +9,7 @@ import '../../kit/page_header.dart';
 import '../../theme.dart';
 import '../../widgets/app_icon.dart';
 import '../../routes.dart' show openRoute;
-import '../orders/order_detail_ref.dart';
-import '../staff_app/task_route_data.dart';
+import 'inbox_navigation.dart';
 
 class InboxPage extends StatefulWidget {
   const InboxPage({super.key});
@@ -183,32 +182,7 @@ class _InboxPageState extends State<InboxPage> {
         }
         final target = await _inbox!.call('target', {'id': row['id']});
         if (!mounted || version != _epoch) return;
-        switch (target['type']) {
-          case 'holds':
-            openRoute(context, 'HoldList', arguments: 3);
-          case 'order':
-            openRoute(
-              context,
-              'OrderDetail',
-              arguments: OrderDetailRef(kind: 'consume', id: '${target['id']}'),
-            );
-          case 'task':
-            openRoute(
-              context,
-              'StTaskDetail',
-              arguments: TaskRouteData(taskId: '${target['id']}'),
-            );
-          case 'arrivals':
-            openRoute(context, 'StArrivals');
-          case 'performance':
-            openRoute(context, 'StPerf');
-          case 'profile':
-            openRoute(context, 'StMine');
-          case 'none':
-            break;
-          default:
-            AppToast.show(context, '${target['message'] ?? '该业务已不可访问'}');
-        }
+        openInboxTarget(context, target);
       } catch (e) {
         if (mounted && version == _epoch) AppToast.error(context, e);
       } finally {

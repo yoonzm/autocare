@@ -212,6 +212,10 @@ CREATE TABLE IF NOT EXISTS supabase_migrations.schema_migrations(version text PR
     if not support_env.exists():
         support_env.write_text('MERCHANT_SUPPORT_PHONE=\n')
     support_env.chmod(0o600)
+    push_env = PROJECT / '.env.push'
+    if not push_env.exists():
+        push_env.write_text('ALIYUN_ACCESS_KEY_ID=\nALIYUN_ACCESS_KEY_SECRET=\nALIYUN_PUSH_IOS_APP_KEY=\nALIYUN_PUSH_IOS_APNS_ENV=PRODUCT\n')
+    push_env.chmod(0o600)
     override.write_text('''services:
   functions:
     env_file:
@@ -219,6 +223,7 @@ CREATE TABLE IF NOT EXISTS supabase_migrations.schema_migrations(version text PR
       - .env.recognition
       - .env.wechat
       - .env.support
+      - .env.push
 ''')
     files = environment.get('COMPOSE_FILE', 'docker-compose.yml').split(':')
     if override.name not in files:
