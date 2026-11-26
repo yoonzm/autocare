@@ -7,6 +7,7 @@ import '../../backend/data_snapshot.dart';
 import '../../backend/mutation_request.dart';
 import '../../backend/staff_flow.dart';
 import '../../kit/async_kit.dart';
+import '../../kit/pickers.dart';
 
 class StaffEditorController extends ChangeNotifier {
   Map<String, dynamic> options;
@@ -127,6 +128,21 @@ class StaffEditorController extends ChangeNotifier {
     if (key == 'role' && !Access.isOwner && value == 'manager') return;
     draft[key] = value;
     edited();
+  }
+
+  Future<void> pickJoinedOn(BuildContext context) async {
+    if (locked || disposed) return;
+    FocusScope.of(context).unfocus();
+    final value = await pickDate(
+      context,
+      '入职日期',
+      birthday: false,
+      current: '${draft['joined_on'] ?? ''}'.replaceAll('-', '.'),
+      fullFormat: true,
+      minimumDate: DateTime(1930),
+    );
+    if (value == null || disposed || !context.mounted || locked) return;
+    setDraft('joined_on', value.replaceAll('.', '-'));
   }
 
   void setFilter(int value) {

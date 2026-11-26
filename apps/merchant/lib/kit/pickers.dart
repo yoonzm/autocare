@@ -206,6 +206,7 @@ Widget _wheelTheme(Widget child) => CupertinoTheme(
 // ───────── 日期 ─────────
 /// 日期选择。年 / 月 / 日三列联动：月份决定天数（含闰年），并受 [min]、[max] 限制。
 /// 生日：1930 年至今天；入库 / 开支等已发生的日期：最近一年内、不晚于今天；其余：前后各一年。
+/// 入职等需要选择历史日期的表单可通过 [minimumDate] 扩大范围。
 Future<String?> pickDate(
   BuildContext context,
   String title, {
@@ -213,12 +214,13 @@ Future<String?> pickDate(
   required String current,
   bool pastOnly = false,
   bool fullFormat = false,
+  DateTime? minimumDate,
 }) {
   final clock = DateTime.now();
   final now = DateTime(clock.year, clock.month, clock.day);
-  final min = birthday
-      ? DateTime(1930)
-      : DateTime(now.year - 1, now.month, now.day);
+  final min =
+      minimumDate ??
+      (birthday ? DateTime(1930) : DateTime(now.year - 1, now.month, now.day));
   final max = (birthday || pastOnly)
       ? now
       : DateTime(now.year + 1, now.month, now.day);

@@ -298,13 +298,12 @@ class StaffEditTemplate extends StatelessWidget {
                               [
                                 Expanded(
                                   child: AppTextInput(
+                                    key: ValueKey(c.draft['joined_on']),
                                     initialValue:
                                         '${c.draft['joined_on'] ?? ''}'
                                             .replaceAll('-', '.'),
-                                    onChanged: (v) => c.setDraft(
-                                      'joined_on',
-                                      v.replaceAll('.', '-'),
-                                    ),
+                                    readOnly: true,
+                                    onTap: () => c.pickJoinedOn(context),
                                     style: hts(
                                       15,
                                       dk(
@@ -314,7 +313,7 @@ class StaffEditTemplate extends StatelessWidget {
                                       ),
                                       lh: 22,
                                     ),
-                                    hint: '请输入入职日期',
+                                    hint: '请选择入职日期',
                                   ),
                                 ),
                               ],

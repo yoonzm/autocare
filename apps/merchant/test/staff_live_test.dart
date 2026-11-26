@@ -1,5 +1,6 @@
 import 'package:autocare_merchant/pages/staff/staff_editor_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
@@ -239,6 +240,53 @@ void main() {
     expect(calls('staff_commission_save'), isEmpty);
   });
 
+  for (final editing in [false, true]) {
+    testWidgets('${editing ? '编辑' : '新增'}员工：滚轮日期确认回填，取消保留原值', (t) async {
+      await open(
+        t,
+        StaffEditorPage(
+          row: editing
+              ? {
+                  'id': 't1',
+                  'name': '员工',
+                  'phone': '13800009999',
+                  'role': 'technician',
+                  'joined_on': '2020-02-29',
+                }
+              : null,
+        ),
+      );
+      final dateField = find.byWidgetPredicate(
+        (w) =>
+            w is TextFormField &&
+            w.initialValue != null &&
+            RegExp(r'^\d{4}\.\d{2}\.\d{2}$').hasMatch(w.initialValue!),
+      );
+      await t.ensureVisible(dateField);
+      await t.tap(dateField);
+      await t.pumpAndSettle();
+      final picker = t.widget<CupertinoDatePicker>(
+        find.byType(CupertinoDatePicker),
+      );
+      if (editing) expect(picker.initialDateTime, DateTime(2020, 2, 29));
+      picker.onDateTimeChanged(DateTime(2024, 2, 29));
+      await t.pump();
+      await t.tap(text('确定'));
+      await t.pumpAndSettle();
+      expect(text('2024.02.29'), findsOneWidget);
+      await t.tap(dateField);
+      await t.pumpAndSettle();
+      t
+          .widget<CupertinoDatePicker>(find.byType(CupertinoDatePicker))
+          .onDateTimeChanged(DateTime(2025, 1, 1));
+      await t.pump();
+      await t.tap(find.widgetWithText(TextButton, '取消'));
+      await t.pumpAndSettle();
+      expect(text('2024.02.29'), findsOneWidget);
+      expect(text('2025.01.01'), findsNothing);
+    });
+  }
+
   testWidgets('新增员工尚未保存时，提成入口明确提示先保存', (t) async {
     await open(t, const StaffEditorPage());
     await t.ensureVisible(text('提成方案'));
@@ -250,7 +298,7 @@ void main() {
     expect(calls('staff_commission_save'), isEmpty);
   });
 
-  testWidgets('新增员工 → 邀请页：展示刚保存的员工，复制登录说明，短信明确未接通', (t) async {
+  testWidgets('新增员工 → 邀请页：展示刚保存的员工，复制登录说明，短信失败显示后端原因', (t) async {
     String? copied;
     t.binding.defaultBinaryMessenger.setMockMethodCallHandler(
       SystemChannels.platform,

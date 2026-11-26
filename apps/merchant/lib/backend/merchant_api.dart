@@ -448,6 +448,10 @@ class MerchantApi {
     Map<String, dynamic> values = const {},
   ]) async {
     final data = await invoke({...values, 'action': 'staff_$action'});
+    // SMS invitations return an acknowledgement, not an employee record.
+    if (action == 'invite' && values['via'] == 'sms' && data['ok'] == true) {
+      return data;
+    }
     return Map<String, dynamic>.from(data['item'] as Map);
   }
 
