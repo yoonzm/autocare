@@ -459,368 +459,34 @@ class AppointmentSettingsTemplate extends StatelessWidget {
                       pad: EdgeInsets.fromLTRB(0, 4, 0, 4),
                       child: hcol(
                         [
-                          hbox(
-                            minH: 60,
-                            pad: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                            child: hrow(
-                              [
-                                Expanded(
-                                  flex: 1,
-                                  child: hcol(
-                                    [
-                                      Text(
-                                        '每个时段最多接待',
-                                        style: hts(
-                                          14,
-                                          dk(
-                                            context,
-                                            Color(0xFF18181B),
-                                            Color(0xFFFAFAFA),
-                                          ),
-                                          lh: 20,
-                                        ),
-                                      ),
-                                      Text(
-                                        '不超过空闲工位数',
-                                        style: hts(
-                                          12,
-                                          dk(
-                                            context,
-                                            Color(0xFF71717A),
-                                            Color(0xFF9A9AA3),
-                                          ),
-                                          lh: 16,
-                                        ),
-                                      ),
-                                    ],
-                                    main: MainAxisAlignment.start,
-                                    cross: CrossAxisAlignment.stretch,
-                                    gap: 1,
-                                  ),
-                                ),
-                                hrow(
-                                  [
-                                    Flexible(
-                                      flex: 81,
-                                      child: _BookingNumberStepper(
-                                        key: const ValueKey('capacity'),
-                                        value: (c.settings['capacity'] as num)
-                                            .toInt(),
-                                        onChanged: (v) =>
-                                            c.setSetting('capacity', v),
-                                      ),
-                                    ),
-                                    Flexible(
-                                      flex: 13,
-                                      child: Text(
-                                        '单',
-                                        style: hts(
-                                          13,
-                                          dk(
-                                            context,
-                                            Color(0xFF71717A),
-                                            Color(0xFF9A9AA3),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                  main: MainAxisAlignment.start,
-                                  cross: CrossAxisAlignment.center,
-                                  gap: 4,
-                                ),
-                              ],
-                              main: MainAxisAlignment.start,
-                              cross: CrossAxisAlignment.center,
-                              gap: 12,
-                            ),
+                          _ruleRow(
+                            context,
+                            title: '每个时段最多接待',
+                            subtitle: '不超过空闲工位数',
+                            settingKey: 'capacity',
+                            unit: '单',
                           ),
-                          hbox(
-                            h: 1,
-                            bg: dk(
-                              context,
-                              Color(0xFFEFEFF1),
-                              Color(0xFF2A2A2E),
-                            ),
-                            margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
+                          _ruleDivider(context),
+                          _ruleRow(
+                            context,
+                            title: '最早提前预约',
+                            settingKey: 'lead_hours',
+                            unit: '小时',
                           ),
-                          hbox(
-                            h: 1,
-                            bg: dk(
-                              context,
-                              Color(0xFFEFEFF1),
-                              Color(0xFF2A2A2E),
-                            ),
-                            margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
+                          _ruleDivider(context),
+                          _ruleRow(
+                            context,
+                            title: '最远可预约',
+                            settingKey: 'advance_days',
+                            unit: '天',
                           ),
-                          hbox(
-                            h: 1,
-                            bg: dk(
-                              context,
-                              Color(0xFFEFEFF1),
-                              Color(0xFF2A2A2E),
-                            ),
-                            margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
-                          ),
-                          hbox(
-                            minH: 60,
-                            pad: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                            child: hrow(
-                              [
-                                Expanded(
-                                  flex: 1,
-                                  child: hcol(
-                                    [
-                                      Text(
-                                        '最早提前预约',
-                                        style: hts(
-                                          14,
-                                          dk(
-                                            context,
-                                            Color(0xFF18181B),
-                                            Color(0xFFFAFAFA),
-                                          ),
-                                          lh: 20,
-                                        ),
-                                      ),
-                                    ],
-                                    main: MainAxisAlignment.start,
-                                    cross: CrossAxisAlignment.stretch,
-                                    gap: 1,
-                                  ),
-                                ),
-                                hrow(
-                                  [
-                                    Flexible(
-                                      flex: 81,
-                                      child: _BookingNumberStepper(
-                                        key: const ValueKey('lead_hours'),
-                                        value: (c.settings['lead_hours'] as num)
-                                            .toInt(),
-                                        onChanged: (v) =>
-                                            c.setSetting('lead_hours', v),
-                                      ),
-                                    ),
-                                    Flexible(
-                                      flex: 26,
-                                      child: Text(
-                                        '小时',
-                                        style: hts(
-                                          13,
-                                          dk(
-                                            context,
-                                            Color(0xFF71717A),
-                                            Color(0xFF9A9AA3),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                  main: MainAxisAlignment.start,
-                                  cross: CrossAxisAlignment.center,
-                                  gap: 4,
-                                ),
-                              ],
-                              main: MainAxisAlignment.start,
-                              cross: CrossAxisAlignment.center,
-                              gap: 12,
-                            ),
-                          ),
-                          hbox(
-                            h: 1,
-                            bg: dk(
-                              context,
-                              Color(0xFFEFEFF1),
-                              Color(0xFF2A2A2E),
-                            ),
-                            margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
-                          ),
-                          hbox(
-                            h: 1,
-                            bg: dk(
-                              context,
-                              Color(0xFFEFEFF1),
-                              Color(0xFF2A2A2E),
-                            ),
-                            margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
-                          ),
-                          hbox(
-                            h: 1,
-                            bg: dk(
-                              context,
-                              Color(0xFFEFEFF1),
-                              Color(0xFF2A2A2E),
-                            ),
-                            margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
-                          ),
-                          hbox(
-                            minH: 60,
-                            pad: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                            child: hrow(
-                              [
-                                Expanded(
-                                  flex: 1,
-                                  child: hcol(
-                                    [
-                                      Text(
-                                        '最远可预约',
-                                        style: hts(
-                                          14,
-                                          dk(
-                                            context,
-                                            Color(0xFF18181B),
-                                            Color(0xFFFAFAFA),
-                                          ),
-                                          lh: 20,
-                                        ),
-                                      ),
-                                    ],
-                                    main: MainAxisAlignment.start,
-                                    cross: CrossAxisAlignment.stretch,
-                                    gap: 1,
-                                  ),
-                                ),
-                                hrow(
-                                  [
-                                    Flexible(
-                                      flex: 89,
-                                      child: _BookingNumberStepper(
-                                        key: const ValueKey('advance_days'),
-                                        value:
-                                            (c.settings['advance_days'] as num)
-                                                .toInt(),
-                                        onChanged: (v) =>
-                                            c.setSetting('advance_days', v),
-                                      ),
-                                    ),
-                                    Flexible(
-                                      flex: 13,
-                                      child: Text(
-                                        '天',
-                                        style: hts(
-                                          13,
-                                          dk(
-                                            context,
-                                            Color(0xFF71717A),
-                                            Color(0xFF9A9AA3),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                  main: MainAxisAlignment.start,
-                                  cross: CrossAxisAlignment.center,
-                                  gap: 4,
-                                ),
-                              ],
-                              main: MainAxisAlignment.start,
-                              cross: CrossAxisAlignment.center,
-                              gap: 12,
-                            ),
-                          ),
-                          hbox(
-                            h: 1,
-                            bg: dk(
-                              context,
-                              Color(0xFFEFEFF1),
-                              Color(0xFF2A2A2E),
-                            ),
-                            margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
-                          ),
-                          hbox(
-                            h: 1,
-                            bg: dk(
-                              context,
-                              Color(0xFFEFEFF1),
-                              Color(0xFF2A2A2E),
-                            ),
-                            margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
-                          ),
-                          hbox(
-                            h: 1,
-                            bg: dk(
-                              context,
-                              Color(0xFFEFEFF1),
-                              Color(0xFF2A2A2E),
-                            ),
-                            margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
-                          ),
-                          hbox(
-                            minH: 60,
-                            pad: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                            child: hrow(
-                              [
-                                Expanded(
-                                  flex: 1,
-                                  child: hcol(
-                                    [
-                                      Text(
-                                        '到店保留时长',
-                                        style: hts(
-                                          14,
-                                          dk(
-                                            context,
-                                            Color(0xFF18181B),
-                                            Color(0xFFFAFAFA),
-                                          ),
-                                          lh: 20,
-                                        ),
-                                      ),
-                                      Text(
-                                        '超时后标记"超时未到"',
-                                        style: hts(
-                                          12,
-                                          dk(
-                                            context,
-                                            Color(0xFF71717A),
-                                            Color(0xFF9A9AA3),
-                                          ),
-                                          lh: 16,
-                                        ),
-                                      ),
-                                    ],
-                                    main: MainAxisAlignment.start,
-                                    cross: CrossAxisAlignment.stretch,
-                                    gap: 1,
-                                  ),
-                                ),
-                                hrow(
-                                  [
-                                    Flexible(
-                                      flex: 89,
-                                      child: _BookingNumberStepper(
-                                        key: const ValueKey('grace_minutes'),
-                                        value:
-                                            (c.settings['grace_minutes'] as num)
-                                                .toInt(),
-                                        onChanged: (v) =>
-                                            c.setSetting('grace_minutes', v),
-                                      ),
-                                    ),
-                                    Flexible(
-                                      flex: 26,
-                                      child: Text(
-                                        '分钟',
-                                        style: hts(
-                                          13,
-                                          dk(
-                                            context,
-                                            Color(0xFF71717A),
-                                            Color(0xFF9A9AA3),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                  main: MainAxisAlignment.start,
-                                  cross: CrossAxisAlignment.center,
-                                  gap: 4,
-                                ),
-                              ],
-                              main: MainAxisAlignment.start,
-                              cross: CrossAxisAlignment.center,
-                              gap: 12,
-                            ),
+                          _ruleDivider(context),
+                          _ruleRow(
+                            context,
+                            title: '到店保留时长',
+                            subtitle: '超时后标记"超时未到"',
+                            settingKey: 'grace_minutes',
+                            unit: '分钟',
                           ),
                         ],
                         main: MainAxisAlignment.start,
@@ -1027,6 +693,77 @@ class AppointmentSettingsTemplate extends StatelessWidget {
       ],
     );
   }
+  Widget _ruleDivider(BuildContext context) => hbox(
+    h: 1,
+    bg: dk(context, const Color(0xFFEFEFF1), const Color(0xFF2A2A2E)),
+    margin: const EdgeInsets.symmetric(horizontal: 16),
+  );
+
+  Widget _ruleRow(
+    BuildContext context, {
+    required String title,
+    String? subtitle,
+    required String settingKey,
+    required String unit,
+  }) => hbox(
+    minH: 60,
+    pad: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+    child: hrow(
+      [
+        Expanded(
+          child: hcol(
+            [
+              Text(
+                title,
+                style: hts(
+                  14,
+                  dk(context, const Color(0xFF18181B), const Color(0xFFFAFAFA)),
+                  lh: 20,
+                ),
+              ),
+              if (subtitle != null)
+                Text(
+                  subtitle,
+                  style: hts(
+                    12,
+                    dk(context, const Color(0xFF71717A), const Color(0xFF9A9AA3)),
+                    lh: 16,
+                  ),
+                ),
+            ],
+            main: MainAxisAlignment.start,
+            cross: CrossAxisAlignment.stretch,
+            gap: 1,
+          ),
+        ),
+        hrow(
+          [
+            _BookingNumberStepper(
+              key: ValueKey(settingKey),
+              value: (c.settings[settingKey] as num).toInt(),
+              onChanged: (v) => c.setSetting(settingKey, v),
+            ),
+            SizedBox(
+              width: 28,
+              child: Text(
+                unit,
+                style: hts(
+                  13,
+                  dk(context, const Color(0xFF71717A), const Color(0xFF9A9AA3)),
+                ),
+              ),
+            ),
+          ],
+          main: MainAxisAlignment.start,
+          cross: CrossAxisAlignment.center,
+          gap: 6,
+        ),
+      ],
+      main: MainAxisAlignment.start,
+      cross: CrossAxisAlignment.center,
+      gap: 12,
+    ),
+  );
 }
 
 /// 预约设置页的 32px 设计稿外观；数值交互统一交给 HNumberStepper。
@@ -1055,22 +792,19 @@ class _BookingNumberStepper extends StatelessWidget {
         gap: 0,
       ),
     ),
-    value: Flexible(
-      flex: 9,
-      child: hbox(
-        minW: 36,
-        child: Align(
-          alignment: Alignment.center,
-          widthFactor: 1,
-          child: Text(
-            value?.toString() ?? '—',
-            style: hts(
-              15,
-              dk(context, const Color(0xFF18181B), const Color(0xFFFAFAFA)),
-              w: FontWeight.w600,
-              lh: 22,
-              tab: true,
-            ),
+    value: hbox(
+      minW: 36,
+      child: Align(
+        alignment: Alignment.center,
+        widthFactor: 1,
+        child: Text(
+          value?.toString() ?? '—',
+          style: hts(
+            15,
+            dk(context, const Color(0xFF18181B), const Color(0xFFFAFAFA)),
+            w: FontWeight.w600,
+            lh: 22,
+            tab: true,
           ),
         ),
       ),
