@@ -46,6 +46,19 @@ class BookingSettingsController extends ChangeNotifier {
   void Function(BuildContext, Map<String, dynamic>?)? onEdit;
   void editResource(BuildContext context, Map<String, dynamic>? row) =>
       onEdit?.call(context, row);
+  void syncOptions(Map<String, dynamic> data) {
+    options = dataSnapshot(data);
+    if (!dirty && options['settings'] is Map) {
+      final fresh = Map<String, dynamic>.from(options['settings'] as Map)
+        ..update('opens_at', (v) => '$v'.substring(0, 5))
+        ..update('closes_at', (v) => '$v'.substring(0, 5));
+      settings
+        ..clear()
+        ..addAll(fresh);
+    }
+    changed();
+  }
+
   void edited() {
     if (disposed) return;
     dirty = true;

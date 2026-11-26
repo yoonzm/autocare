@@ -916,30 +916,23 @@ void main() {
     final call = api.calls.lastWhere((c) => c['action'] == 'settings_save');
     expect(call['capacity'], 3);
   });
-  testWidgets('预约通知默认值回显并保存，渠道模板入口已移除', (t) async {
+  testWidgets('预约设置仅保留预约规则，营业时间只读且预约通知收口为跳转入口', (t) async {
     api.settings.addAll({
       'notify_confirm_default': true,
       'remind_default': false,
       'notify_manager': true,
     });
     await open(t, const AppointmentSettingsLivePage());
-    expect(find.text('通知渠道与模板'), findsNothing);
-    expect(find.text('微信 + 短信'), findsNothing);
-    final switches = find.byType(HSwitchValue);
-    expect(t.widget<HSwitchValue>(switches.at(0)).value, isTrue);
-    expect(t.widget<HSwitchValue>(switches.at(1)).value, isFalse);
-    expect(t.widget<HSwitchValue>(switches.at(2)).value, isTrue);
-    await t.ensureVisible(switches.at(1));
-    await t.tap(switches.at(1));
-    await t.pumpAndSettle();
-    api.writeError = const AppError('保存失败');
+    expect(find.text('定休日'), findsNothing);
+    expect(find.byType(HSwitchValue), findsNothing);
+    expect(find.text('通知渠道与开关'), findsOneWidget);
+    expect(find.text('前往通知与消息'), findsOneWidget);
     await t.tap(find.text('保存设置'));
     await t.pumpAndSettle();
     final call = api.calls.lastWhere((c) => c['action'] == 'settings_save');
     expect(call['notify_confirm_default'], isTrue);
-    expect(call['remind_default'], isTrue);
+    expect(call['remind_default'], isFalse);
     expect(call['notify_manager'], isTrue);
-    expect(t.widget<HSwitchValue>(switches.at(1)).value, isTrue);
   });
 
   testWidgets('新建预约带入门店默认通知设置，允许本单关闭', (t) async {

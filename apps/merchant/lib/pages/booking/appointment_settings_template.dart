@@ -1,9 +1,9 @@
 import '../../kit/single_selection.dart';
-import '../../kit/multiple_selection.dart';
 
 import 'package:flutter/material.dart';
 
 import '../../kit/kit.dart';
+import '../../routes.dart' show openRoute;
 import 'booking_settings_controller.dart';
 import '../../resources/merchant_svgs.dart';
 import '../../kit/page_header.dart';
@@ -83,102 +83,101 @@ class AppointmentSettingsTemplate extends StatelessWidget {
                               lh: 20,
                             ),
                           ),
-                          hrow(
-                            [
-                              Expanded(
-                                flex: 1,
-                                child: GestureDetector(
-                                  behavior: HitTestBehavior.opaque,
-                                  onTap: () => c.pickSettingTime(
-                                    context,
-                                    'opens_at',
-                                    '选择开始时间',
-                                  ),
-                                  child: hbox(
-                                    h: 44,
-                                    bg: dk(
-                                      context,
-                                      Color(0xFFF4F4F5),
-                                      Color(0xFF27272A),
-                                    ),
-                                    radius: BorderRadius.circular(14),
-                                    child: Align(
-                                      alignment: Alignment(0, 0),
-                                      widthFactor: 1,
-                                      child: Text(
-                                        '${c.settings['opens_at']}',
-                                        style: hts(
-                                          16,
-                                          dk(
-                                            context,
-                                            Color(0xFF18181B),
-                                            Color(0xFFFAFAFA),
+                          GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () => openRoute(context, 'BusinessHours'),
+                            child: hcol(
+                              [
+                                hrow(
+                                  [
+                                    Expanded(
+                                      flex: 1,
+                                      child: hbox(
+                                        h: 44,
+                                        bg: dk(
+                                          context,
+                                          Color(0xFFF4F4F5),
+                                          Color(0xFF27272A),
+                                        ),
+                                        radius: BorderRadius.circular(14),
+                                        child: Align(
+                                          alignment: Alignment(0, 0),
+                                          widthFactor: 1,
+                                          child: Text(
+                                            '${c.settings['opens_at']}',
+                                            style: hts(
+                                              16,
+                                              dk(
+                                                context,
+                                                Color(0xFF18181B),
+                                                Color(0xFFFAFAFA),
+                                              ),
+                                              w: FontWeight.w600,
+                                            ),
                                           ),
-                                          w: FontWeight.w600,
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ),
-                              ),
-                              Text(
-                                '至',
-                                style: hts(
-                                  16,
-                                  dk(
-                                    context,
-                                    Color(0xFFA1A1AA),
-                                    Color(0xFF80808A),
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: GestureDetector(
-                                  behavior: HitTestBehavior.opaque,
-                                  onTap: () => c.pickSettingTime(
-                                    context,
-                                    'closes_at',
-                                    '选择结束时间',
-                                  ),
-                                  child: hbox(
-                                    h: 44,
-                                    bg: dk(
-                                      context,
-                                      Color(0xFFF4F4F5),
-                                      Color(0xFF27272A),
-                                    ),
-                                    radius: BorderRadius.circular(14),
-                                    child: Align(
-                                      alignment: Alignment(0, 0),
-                                      widthFactor: 1,
-                                      child: Text(
-                                        '${c.settings['closes_at']}',
-                                        style: hts(
-                                          16,
-                                          dk(
-                                            context,
-                                            Color(0xFF18181B),
-                                            Color(0xFFFAFAFA),
-                                          ),
-                                          w: FontWeight.w600,
+                                    Text(
+                                      '至',
+                                      style: hts(
+                                        16,
+                                        dk(
+                                          context,
+                                          Color(0xFFA1A1AA),
+                                          Color(0xFF80808A),
                                         ),
                                       ),
                                     ),
+                                    Expanded(
+                                      flex: 1,
+                                      child: hbox(
+                                        h: 44,
+                                        bg: dk(
+                                          context,
+                                          Color(0xFFF4F4F5),
+                                          Color(0xFF27272A),
+                                        ),
+                                        radius: BorderRadius.circular(14),
+                                        child: Align(
+                                          alignment: Alignment(0, 0),
+                                          widthFactor: 1,
+                                          child: Text(
+                                            '${c.settings['closes_at']}',
+                                            style: hts(
+                                              16,
+                                              dk(
+                                                context,
+                                                Color(0xFF18181B),
+                                                Color(0xFFFAFAFA),
+                                              ),
+                                              w: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                  main: MainAxisAlignment.start,
+                                  cross: CrossAxisAlignment.center,
+                                  gap: 10,
+                                ),
+                                Text(
+                                  '与"营业时间与工位"保持一致，修改请前往营业设置',
+                                  style: hts(
+                                    12,
+                                    dk(
+                                      context,
+                                      Color(0xFF71717A),
+                                      Color(0xFF9A9AA3),
+                                    ),
+                                    lh: 16,
                                   ),
                                 ),
-                              ),
-                            ],
-                            main: MainAxisAlignment.start,
-                            cross: CrossAxisAlignment.center,
-                            gap: 10,
-                          ),
-                          Text(
-                            '与"营业时间与工位"保持一致，修改请前往营业设置',
-                            style: hts(
-                              12,
-                              dk(context, Color(0xFF71717A), Color(0xFF9A9AA3)),
-                              lh: 16,
+                              ],
+                              main: MainAxisAlignment.start,
+                              cross: CrossAxisAlignment.stretch,
+                              gap: 12,
                             ),
                           ),
                           hbox(
@@ -378,473 +377,6 @@ class AppointmentSettingsTemplate extends StatelessWidget {
                                       widthFactor: 1,
                                       child: Text(
                                         '60 分钟',
-                                        style: hts(
-                                          13,
-                                          dk(
-                                            context,
-                                            Color(0xFF3F3F46),
-                                            Color(0xFFD4D4D8),
-                                          ),
-                                          w: FontWeight.w500,
-                                          lh: 18,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                              gap: 8,
-                              rowGap: 8,
-                              cross: WrapCrossAlignment.start,
-                            ),
-                          ),
-                          hbox(
-                            h: 1,
-                            bg: dk(
-                              context,
-                              Color(0xFFEFEFF1),
-                              Color(0xFF2A2A2E),
-                            ),
-                          ),
-                          Text(
-                            '定休日',
-                            style: hts(
-                              14,
-                              dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                              w: FontWeight.w600,
-                              lh: 20,
-                            ),
-                          ),
-                          MultipleSelection(
-                            selected: {
-                              for (final i in c.settings['closed_days'] as List)
-                                (i as int) - 1,
-                            },
-                            onChanged: (values) => c.setSetting('closed_days', [
-                              for (final i in values) i + 1,
-                            ]),
-                            builder: (context, selection) => hwrap(
-                              [
-                                HSel(
-                                  ctrl: selection,
-                                  index: 0,
-                                  on: hbox(
-                                    h: 34,
-                                    bg: dk(
-                                      context,
-                                      Color(0xFFE1F0FE),
-                                      Color.fromRGBO(4, 133, 247, 0.18),
-                                    ),
-                                    radius: BorderRadius.circular(17),
-                                    border: Border.all(
-                                      color: Color(0xFF0485F7),
-                                      width: 1.5,
-                                    ),
-                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      widthFactor: 1,
-                                      child: Text(
-                                        '周一',
-                                        style: hts(
-                                          13,
-                                          dk(
-                                            context,
-                                            Color(0xFF1E63AE),
-                                            Color(0xFF6AB4FA),
-                                          ),
-                                          w: FontWeight.w500,
-                                          lh: 18,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  off: hbox(
-                                    h: 34,
-                                    bg: dk(
-                                      context,
-                                      Color(0xFFF4F4F5),
-                                      Color(0xFF27272A),
-                                    ),
-                                    radius: BorderRadius.circular(17),
-                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      widthFactor: 1,
-                                      child: Text(
-                                        '周一',
-                                        style: hts(
-                                          13,
-                                          dk(
-                                            context,
-                                            Color(0xFF3F3F46),
-                                            Color(0xFFD4D4D8),
-                                          ),
-                                          w: FontWeight.w500,
-                                          lh: 18,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                HSel(
-                                  ctrl: selection,
-                                  index: 1,
-                                  on: hbox(
-                                    h: 34,
-                                    bg: dk(
-                                      context,
-                                      Color(0xFFE1F0FE),
-                                      Color.fromRGBO(4, 133, 247, 0.18),
-                                    ),
-                                    radius: BorderRadius.circular(17),
-                                    border: Border.all(
-                                      color: Color(0xFF0485F7),
-                                      width: 1.5,
-                                    ),
-                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      widthFactor: 1,
-                                      child: Text(
-                                        '周二',
-                                        style: hts(
-                                          13,
-                                          dk(
-                                            context,
-                                            Color(0xFF1E63AE),
-                                            Color(0xFF6AB4FA),
-                                          ),
-                                          w: FontWeight.w500,
-                                          lh: 18,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  off: hbox(
-                                    h: 34,
-                                    bg: dk(
-                                      context,
-                                      Color(0xFFF4F4F5),
-                                      Color(0xFF27272A),
-                                    ),
-                                    radius: BorderRadius.circular(17),
-                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      widthFactor: 1,
-                                      child: Text(
-                                        '周二',
-                                        style: hts(
-                                          13,
-                                          dk(
-                                            context,
-                                            Color(0xFF3F3F46),
-                                            Color(0xFFD4D4D8),
-                                          ),
-                                          w: FontWeight.w500,
-                                          lh: 18,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                HSel(
-                                  ctrl: selection,
-                                  index: 2,
-                                  on: hbox(
-                                    h: 34,
-                                    bg: dk(
-                                      context,
-                                      Color(0xFFE1F0FE),
-                                      Color.fromRGBO(4, 133, 247, 0.18),
-                                    ),
-                                    radius: BorderRadius.circular(17),
-                                    border: Border.all(
-                                      color: Color(0xFF0485F7),
-                                      width: 1.5,
-                                    ),
-                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      widthFactor: 1,
-                                      child: Text(
-                                        '周三',
-                                        style: hts(
-                                          13,
-                                          dk(
-                                            context,
-                                            Color(0xFF1E63AE),
-                                            Color(0xFF6AB4FA),
-                                          ),
-                                          w: FontWeight.w500,
-                                          lh: 18,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  off: hbox(
-                                    h: 34,
-                                    bg: dk(
-                                      context,
-                                      Color(0xFFF4F4F5),
-                                      Color(0xFF27272A),
-                                    ),
-                                    radius: BorderRadius.circular(17),
-                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      widthFactor: 1,
-                                      child: Text(
-                                        '周三',
-                                        style: hts(
-                                          13,
-                                          dk(
-                                            context,
-                                            Color(0xFF3F3F46),
-                                            Color(0xFFD4D4D8),
-                                          ),
-                                          w: FontWeight.w500,
-                                          lh: 18,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                HSel(
-                                  ctrl: selection,
-                                  index: 3,
-                                  on: hbox(
-                                    h: 34,
-                                    bg: dk(
-                                      context,
-                                      Color(0xFFE1F0FE),
-                                      Color.fromRGBO(4, 133, 247, 0.18),
-                                    ),
-                                    radius: BorderRadius.circular(17),
-                                    border: Border.all(
-                                      color: Color(0xFF0485F7),
-                                      width: 1.5,
-                                    ),
-                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      widthFactor: 1,
-                                      child: Text(
-                                        '周四',
-                                        style: hts(
-                                          13,
-                                          dk(
-                                            context,
-                                            Color(0xFF1E63AE),
-                                            Color(0xFF6AB4FA),
-                                          ),
-                                          w: FontWeight.w500,
-                                          lh: 18,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  off: hbox(
-                                    h: 34,
-                                    bg: dk(
-                                      context,
-                                      Color(0xFFF4F4F5),
-                                      Color(0xFF27272A),
-                                    ),
-                                    radius: BorderRadius.circular(17),
-                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      widthFactor: 1,
-                                      child: Text(
-                                        '周四',
-                                        style: hts(
-                                          13,
-                                          dk(
-                                            context,
-                                            Color(0xFF3F3F46),
-                                            Color(0xFFD4D4D8),
-                                          ),
-                                          w: FontWeight.w500,
-                                          lh: 18,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                HSel(
-                                  ctrl: selection,
-                                  index: 4,
-                                  on: hbox(
-                                    h: 34,
-                                    bg: dk(
-                                      context,
-                                      Color(0xFFE1F0FE),
-                                      Color.fromRGBO(4, 133, 247, 0.18),
-                                    ),
-                                    radius: BorderRadius.circular(17),
-                                    border: Border.all(
-                                      color: Color(0xFF0485F7),
-                                      width: 1.5,
-                                    ),
-                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      widthFactor: 1,
-                                      child: Text(
-                                        '周五',
-                                        style: hts(
-                                          13,
-                                          dk(
-                                            context,
-                                            Color(0xFF1E63AE),
-                                            Color(0xFF6AB4FA),
-                                          ),
-                                          w: FontWeight.w500,
-                                          lh: 18,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  off: hbox(
-                                    h: 34,
-                                    bg: dk(
-                                      context,
-                                      Color(0xFFF4F4F5),
-                                      Color(0xFF27272A),
-                                    ),
-                                    radius: BorderRadius.circular(17),
-                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      widthFactor: 1,
-                                      child: Text(
-                                        '周五',
-                                        style: hts(
-                                          13,
-                                          dk(
-                                            context,
-                                            Color(0xFF3F3F46),
-                                            Color(0xFFD4D4D8),
-                                          ),
-                                          w: FontWeight.w500,
-                                          lh: 18,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                HSel(
-                                  ctrl: selection,
-                                  index: 5,
-                                  on: hbox(
-                                    h: 34,
-                                    bg: dk(
-                                      context,
-                                      Color(0xFFE1F0FE),
-                                      Color.fromRGBO(4, 133, 247, 0.18),
-                                    ),
-                                    radius: BorderRadius.circular(17),
-                                    border: Border.all(
-                                      color: Color(0xFF0485F7),
-                                      width: 1.5,
-                                    ),
-                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      widthFactor: 1,
-                                      child: Text(
-                                        '周六',
-                                        style: hts(
-                                          13,
-                                          dk(
-                                            context,
-                                            Color(0xFF1E63AE),
-                                            Color(0xFF6AB4FA),
-                                          ),
-                                          w: FontWeight.w500,
-                                          lh: 18,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  off: hbox(
-                                    h: 34,
-                                    bg: dk(
-                                      context,
-                                      Color(0xFFF4F4F5),
-                                      Color(0xFF27272A),
-                                    ),
-                                    radius: BorderRadius.circular(17),
-                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      widthFactor: 1,
-                                      child: Text(
-                                        '周六',
-                                        style: hts(
-                                          13,
-                                          dk(
-                                            context,
-                                            Color(0xFF3F3F46),
-                                            Color(0xFFD4D4D8),
-                                          ),
-                                          w: FontWeight.w500,
-                                          lh: 18,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                HSel(
-                                  ctrl: selection,
-                                  index: 6,
-                                  on: hbox(
-                                    h: 34,
-                                    bg: dk(
-                                      context,
-                                      Color(0xFFE1F0FE),
-                                      Color.fromRGBO(4, 133, 247, 0.18),
-                                    ),
-                                    radius: BorderRadius.circular(17),
-                                    border: Border.all(
-                                      color: Color(0xFF0485F7),
-                                      width: 1.5,
-                                    ),
-                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      widthFactor: 1,
-                                      child: Text(
-                                        '周日',
-                                        style: hts(
-                                          13,
-                                          dk(
-                                            context,
-                                            Color(0xFF1E63AE),
-                                            Color(0xFF6AB4FA),
-                                          ),
-                                          w: FontWeight.w500,
-                                          lh: 18,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  off: hbox(
-                                    h: 34,
-                                    bg: dk(
-                                      context,
-                                      Color(0xFFF4F4F5),
-                                      Color(0xFF27272A),
-                                    ),
-                                    radius: BorderRadius.circular(17),
-                                    pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      widthFactor: 1,
-                                      child: Text(
-                                        '周日',
                                         style: hts(
                                           13,
                                           dk(
@@ -1352,162 +884,51 @@ class AppointmentSettingsTemplate extends StatelessWidget {
                       pad: EdgeInsets.fromLTRB(0, 4, 0, 4),
                       child: hcol(
                         [
-                          hbox(
-                            minH: 54,
-                            pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                            child: hrow(
-                              [
-                                Expanded(
-                                  flex: 1,
-                                  child: hcol(
-                                    [
-                                      Text(
-                                        '预约成功通知客户',
-                                        style: hts(
-                                          14,
-                                          dk(
-                                            context,
-                                            Color(0xFF18181B),
-                                            Color(0xFFFAFAFA),
-                                          ),
-                                          lh: 20,
+                          GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () => openRoute(context, 'NotifySettings'),
+                            child: hbox(
+                              minH: 54,
+                              pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                              child: hrow(
+                                [
+                                  Expanded(
+                                    flex: 1,
+                                    child: Text(
+                                      '通知渠道与开关',
+                                      style: hts(
+                                        14,
+                                        dk(
+                                          context,
+                                          Color(0xFF52525B),
+                                          Color(0xFFA8A8B3),
                                         ),
+                                        lh: 20,
                                       ),
-                                    ],
-                                    main: MainAxisAlignment.start,
-                                    cross: CrossAxisAlignment.stretch,
-                                    gap: 1,
+                                    ),
                                   ),
-                                ),
-                                HSwitchValue(
-                                  value:
-                                      c.settings['notify_confirm_default'] ==
-                                      true,
-                                  onChanged: (v) =>
-                                      c.setSetting('notify_confirm_default', v),
-                                ),
-                              ],
-                              main: MainAxisAlignment.start,
-                              cross: CrossAxisAlignment.center,
-                              gap: 12,
-                            ),
-                          ),
-                          hbox(
-                            h: 1,
-                            bg: dk(
-                              context,
-                              Color(0xFFEFEFF1),
-                              Color(0xFF2A2A2E),
-                            ),
-                            margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
-                          ),
-                          hbox(
-                            minH: 54,
-                            pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                            child: hrow(
-                              [
-                                Expanded(
-                                  flex: 1,
-                                  child: hcol(
-                                    [
-                                      Text(
-                                        '到店前提醒客户',
-                                        style: hts(
-                                          14,
-                                          dk(
-                                            context,
-                                            Color(0xFF18181B),
-                                            Color(0xFFFAFAFA),
-                                          ),
-                                          lh: 20,
-                                        ),
+                                  Text(
+                                    '前往通知与消息',
+                                    style: hts(
+                                      14,
+                                      dk(
+                                        context,
+                                        Color(0xFF71717A),
+                                        Color(0xFF9A9AA3),
                                       ),
-                                      Text(
-                                        '提前 2 小时发送',
-                                        style: hts(
-                                          12,
-                                          dk(
-                                            context,
-                                            Color(0xFF71717A),
-                                            Color(0xFF9A9AA3),
-                                          ),
-                                          lh: 16,
-                                        ),
-                                      ),
-                                    ],
-                                    main: MainAxisAlignment.start,
-                                    cross: CrossAxisAlignment.stretch,
-                                    gap: 1,
+                                      lh: 20,
+                                    ),
                                   ),
-                                ),
-                                HSwitchValue(
-                                  value: c.settings['remind_default'] == true,
-                                  onChanged: (v) =>
-                                      c.setSetting('remind_default', v),
-                                ),
-                              ],
-                              main: MainAxisAlignment.start,
-                              cross: CrossAxisAlignment.center,
-                              gap: 12,
-                            ),
-                          ),
-                          hbox(
-                            h: 1,
-                            bg: dk(
-                              context,
-                              Color(0xFFEFEFF1),
-                              Color(0xFF2A2A2E),
-                            ),
-                            margin: EdgeInsets.fromLTRB(16, 0, 0, 0),
-                          ),
-                          hbox(
-                            minH: 54,
-                            pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                            child: hrow(
-                              [
-                                Expanded(
-                                  flex: 1,
-                                  child: hcol(
-                                    [
-                                      Text(
-                                        '预约变动通知店长',
-                                        style: hts(
-                                          14,
-                                          dk(
-                                            context,
-                                            Color(0xFF18181B),
-                                            Color(0xFFFAFAFA),
-                                          ),
-                                          lh: 20,
-                                        ),
-                                      ),
-                                      Text(
-                                        '新预约、改期、取消时发送短信',
-                                        style: hts(
-                                          12,
-                                          dk(
-                                            context,
-                                            Color(0xFF71717A),
-                                            Color(0xFF9A9AA3),
-                                          ),
-                                          lh: 16,
-                                        ),
-                                      ),
-                                    ],
-                                    main: MainAxisAlignment.start,
-                                    cross: CrossAxisAlignment.stretch,
-                                    gap: 1,
+                                  hsvg(
+                                    dk(context, Svgs.s3, Svgs.s4),
+                                    w: 16,
+                                    h: 16,
                                   ),
-                                ),
-                                HSwitchValue(
-                                  value: c.settings['notify_manager'] == true,
-                                  onChanged: (v) =>
-                                      c.setSetting('notify_manager', v),
-                                ),
-                              ],
-                              main: MainAxisAlignment.start,
-                              cross: CrossAxisAlignment.center,
-                              gap: 12,
+                                ],
+                                main: MainAxisAlignment.start,
+                                cross: CrossAxisAlignment.center,
+                                gap: 12,
+                              ),
                             ),
                           ),
                         ],

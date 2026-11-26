@@ -90,11 +90,10 @@ export async function handleStoreSms(input: Input, request: Request): Promise<Re
     const signName = Deno.env.get('ZHUTONG_SIGN_NAME')?.trim() || '';
     const storeName = String(storeRes.data?.name ?? '当前门店').trim() || '当前门店';
     const bs = settingsRes.data ?? {
-      notify_customer: true,
+      notify_confirm_default: true,
       notify_reschedule: true,
       notify_cancel: true,
-      notify_remind: true,
-      remind_minutes: 60,
+      remind_default: false,
       notify_manager: true,
       notify_consume: true,
       notify_recharge: true,
@@ -137,8 +136,8 @@ export async function handleStoreSms(input: Input, request: Request): Promise<Re
             key: 'appointment_confirm',
             group: 'booking',
             title: '预约成功通知客户',
-            setting_key: 'notify_customer',
-            enabled: Boolean(bs.notify_customer),
+            setting_key: 'notify_confirm_default',
+            enabled: Boolean(bs.notify_confirm_default),
             template_preview: `您在${storeName}预约了{时间}到店服务，如需改期请提前联系门店。`,
           },
           {
@@ -146,7 +145,7 @@ export async function handleStoreSms(input: Input, request: Request): Promise<Re
             group: 'booking',
             title: '预约改期通知客户',
             setting_key: 'notify_reschedule',
-            enabled: Boolean(bs.notify_reschedule),
+            enabled: bs.notify_reschedule !== false,
             template_preview: `您在${storeName}的预约已改期至{时间}，请按时到店。`,
           },
           {
@@ -154,15 +153,15 @@ export async function handleStoreSms(input: Input, request: Request): Promise<Re
             group: 'booking',
             title: '预约取消通知客户',
             setting_key: 'notify_cancel',
-            enabled: Boolean(bs.notify_cancel),
+            enabled: bs.notify_cancel !== false,
             template_preview: `您预约的{时间}到店服务已取消，如需重新预约请联系${storeName}。`,
           },
           {
             key: 'appointment_reminder',
             group: 'booking',
-            title: `到店前提醒（提前 ${Number(bs.remind_minutes ?? 60)} 分钟）`,
-            setting_key: 'notify_remind',
-            enabled: Boolean(bs.notify_remind),
+            title: '到店前提醒（提前 2 小时）',
+            setting_key: 'remind_default',
+            enabled: Boolean(bs.remind_default),
             template_preview: '温馨提醒：您预约的到店服务时间为{时间}，请按时到店。如需改期，请联系门店。',
           },
           {

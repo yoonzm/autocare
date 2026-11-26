@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../backend/appointment_flow.dart';
-import '../../backend/data_snapshot.dart';
 import '../../backend/merchant_api.dart';
 import '../../kit/async_kit.dart';
 import '../../kit/kit.dart' show ConfirmDiscard;
@@ -77,7 +76,10 @@ class _BookingHostState extends State<BookingLiveHost> {
   }
 
   void _reload() {
-    if (!listing || !mounted) return;
+    if ((!listing && !(widget.mode == 'settings' && c?.dirty != true)) ||
+        !mounted) {
+      return;
+    }
     if (_key.currentState?.busy == true) {
       pending = true;
       return;
@@ -93,9 +95,13 @@ class _BookingHostState extends State<BookingLiveHost> {
   }
 
   void _bind(Map<String, dynamic> data) {
-    c ??= BookingSettingsController(data, widget.mode, widget.row);
-    c!.options = dataSnapshot(data);
+    if (c == null) {
+      c = BookingSettingsController(data, widget.mode, widget.row);
+    } else {
+      c!.syncOptions(data);
+    }
     final controller = c!;
+    controller.reload = () => _key.currentState?.reload();
     controller.onEdit = (context, row) => Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => BayEditorPage(row: row, options: controller.options),

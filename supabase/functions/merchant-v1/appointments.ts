@@ -152,7 +152,14 @@ export async function handleAppointments(input: Input, request: Request): Promis
       let sms_sent = false;
       let sms_error = '';
       const isEdit = input.id != null;
-      const shouldNotify = (isEdit ? input.notify === true : data?.notify_confirm === true) && !!data;
+      let rescheduleEnabled = true;
+      if (isEdit && input.notify === true) {
+        const { data: cfg } = await admin.from('appointment_settings').select('notify_reschedule').eq('store_id', store)
+          .maybeSingle();
+        rescheduleEnabled = cfg?.notify_reschedule !== false;
+      }
+      const shouldNotify = (isEdit ? (input.notify === true && rescheduleEnabled) : data?.notify_confirm === true) &&
+        !!data;
       if (shouldNotify && normalizeCnPhone(data.phone)) {
         const dt = new Date(new Date(String(data.starts_at)).getTime() + 8 * 3600000);
         const timeStr = `${dt.toISOString().slice(0, 10)} ${dt.toISOString().slice(11, 16)}`;
@@ -217,7 +224,16 @@ export async function handleAppointments(input: Input, request: Request): Promis
       if (error) return rpcError(error);
       let sms_sent = false;
       let sms_error = '';
-      if (action === 'appointment_cancel' && input.notify === true && data && normalizeCnPhone(data.phone)) {
+      let cancelNotifyEnabled = true;
+      if (action === 'appointment_cancel' && input.notify === true) {
+        const { data: cfg } = await admin.from('appointment_settings').select('notify_cancel').eq('store_id', store)
+          .maybeSingle();
+        cancelNotifyEnabled = cfg?.notify_cancel !== false;
+      }
+      if (
+        action === 'appointment_cancel' && input.notify === true && cancelNotifyEnabled && data &&
+        normalizeCnPhone(data.phone)
+      ) {
         const dt = new Date(new Date(String(data.starts_at)).getTime() + 8 * 3600000);
         const timeStr = `${dt.toISOString().slice(0, 10)} ${dt.toISOString().slice(11, 16)}`;
         const { data: storeRow } = await admin.from('stores').select('name').eq('id', store).maybeSingle();
@@ -250,7 +266,7 @@ export async function handleAppointments(input: Input, request: Request): Promis
             error: sms_error,
           });
         }
-      } else if (action === 'appointment_cancel' && input.notify === true && data) {
+      } else if (action === 'appointment_cancel' && input.notify === true && cancelNotifyEnabled && data) {
         await recordAppointmentNotice({
           storeId: store,
           appointmentId: String(data.id),

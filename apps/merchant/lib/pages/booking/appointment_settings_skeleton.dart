@@ -19,11 +19,11 @@ class AppointmentSettingsSkeleton extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (showBlocks) ...[
-            _section(context, '可预约时间', const [70, 58, 86, 76, 76]),
+            _section(context, '可预约时间', const [70, 58, 107]),
             const SizedBox(height: 16),
             _section(context, '接待规则', const [84, 84, 87]),
             const SizedBox(height: 16),
-            _section(context, '预约通知', const [54, 54, 54]),
+            _section(context, '预约通知', const [54]),
           ],
         ],
       ),
