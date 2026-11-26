@@ -10,6 +10,7 @@ import '../data/theme_state.dart';
 import 'accounts_pages.dart';
 import 'components/components_preview_page.dart';
 import 'login_page.dart';
+import 'notifications_page.dart';
 import 'plans_pages.dart';
 import 'sms_pages.dart';
 import 'users_pages.dart';
@@ -112,6 +113,7 @@ class MinePage extends StatelessWidget {
                       style: ts(13, color: C.muted),
                     )
                   : null, onTap: () => go(context, const TicketsPage())),
+            AppListRow(size: AppRowSize.comfortable, leading: AppIconTile(icon: Icons.campaign_outlined, tone: Tone.warn), title: '通知中心', subtitle: '站内信 · 推送 · 短信 · 弹窗', onTap: () => go(context, const NotificationsPage())),
             AppListRow(size: AppRowSize.comfortable, leading: AppIconTile(icon: Icons.group_outlined, tone: Tone.ok), title: '运营账号', subtitle:
                   '${store.isSuper ? store.accounts.length : '—'} 人 · 仅超级管理员可见', onTap: () {
                 if (!store.isSuper) {

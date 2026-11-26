@@ -90,10 +90,11 @@ export async function pushIosNotice(params: {
   deviceTokens: string[];
   title: string;
   body: string;
-  messageId: string;
+  messageId?: string | null;
   fetcher?: typeof fetch;
 }): Promise<{ ok: boolean; messageId?: string; error?: string }> {
   if (!params.deviceTokens.length) return { ok: true };
+  const extParams = params.messageId ? JSON.stringify({ message_id: params.messageId }) : '{}';
   const form = new URLSearchParams({
     AppKey: params.config.iosAppKey,
     PushType: 'NOTICE',
@@ -103,7 +104,7 @@ export async function pushIosNotice(params: {
     Title: params.title.slice(0, 100),
     Body: (params.body.trim() || params.title).slice(0, 300),
     iOSApnsEnv: params.config.iosApnsEnv,
-    iOSExtParameters: JSON.stringify({ message_id: params.messageId }),
+    iOSExtParameters: extParams,
     StoreOffline: 'true',
   });
   const body = form.toString();

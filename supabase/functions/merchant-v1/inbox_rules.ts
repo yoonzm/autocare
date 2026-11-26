@@ -15,6 +15,8 @@ export function inboxArgs(input: Record<string, unknown>): Record<string, unknow
       if (input.id == null && at(input.before)) return { p_id: null, p_before: input.before };
       return '请选择消息或已加载的消息范围';
     case 'inbox_target': return id(input.id) ? { p_id: input.id } : '消息无效';
+    case 'inbox_popups': return {};
+    case 'inbox_popup_dismiss': return id(input.id) ? { p_id: input.id } : '弹窗无效';
     default: return '不支持的消息操作';
   }
 }

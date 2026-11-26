@@ -7,6 +7,12 @@ import {
 } from './auth.ts';
 import { commandContext, executeCommand } from './commands.ts';
 import { handleMerchants, merchantActions } from './merchants.ts';
+import {
+  handleNotificationRead,
+  handleNotificationWrite,
+  notificationReadActions,
+  notificationWriteActions,
+} from './notifications.ts';
 import { adminFor, authorizeAction } from './permissions.ts';
 import { cors, fail, isInput, runtimeServices } from './shared.ts';
 import { handleSmsRead, handleSmsResend, smsReadActions } from './sms_logs.ts';
@@ -39,11 +45,13 @@ export function createHandler(services?: AdminServices) {
       if (action === 'ticket_attachment') return await ticketAttachment(input, identity);
       if (smsReadActions.has(action)) return await handleSmsRead(action, input, identity);
       if (userReadActions.has(action)) return await handleUserRead(action, input, identity);
+      if (notificationReadActions.has(action)) return await handleNotificationRead(action, input, identity);
 
       const context = commandContext(identity, request);
       if (context instanceof Response) return context;
       if (action === 'sms_resend') return await handleSmsResend(input, context);
       if (action === 'user_cancel') return await handleUserCancel(input, context);
+      if (notificationWriteActions.has(action)) return await handleNotificationWrite(action, input, context);
       if (authActions.has(action)) {
         return await handleAuth(action, input, context);
       }

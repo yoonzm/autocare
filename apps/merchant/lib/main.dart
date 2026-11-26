@@ -13,6 +13,7 @@ import 'widgets/feedback_recovery_scope.dart';
 import 'backend/merchant_api.dart';
 import 'backend/push_service.dart';
 import 'backend/store_profile.dart';
+import 'widgets/app_popup_dialog.dart';
 import 'kit/async_kit.dart';
 import 'preferences/theme_preferences.dart';
 import 'pages/account/access_boot.dart';
@@ -55,7 +56,10 @@ class _QimeiAppState extends State<QimeiApp> with WidgetsBindingObserver {
     authExpired.addListener(_onAuthExpired);
     accessIssue.addListener(_onAccessIssue);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) unawaited(PushService.instance.start(navKey: _navKey));
+      if (mounted) {
+        unawaited(PushService.instance.start(navKey: _navKey));
+        AppPopupCoordinator.instance.start(navKey: _navKey);
+      }
     });
   }
 
@@ -118,6 +122,7 @@ class _QimeiAppState extends State<QimeiApp> with WidgetsBindingObserver {
   void dispose() {
     _feedbackRecovery.clear();
     PushService.instance.dispose();
+    AppPopupCoordinator.instance.dispose();
     accessIssue.removeListener(_onAccessIssue);
     authExpired.removeListener(_onAuthExpired);
     appThemeMode.removeListener(_onMode);

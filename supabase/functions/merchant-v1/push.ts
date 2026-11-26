@@ -31,7 +31,7 @@ export async function handlePushDevice(input: Input, request: Request): Promise<
 
 interface OutboxItem {
   id: string;
-  message_id: string;
+  message_id: string | null;
   title: string;
   body: string;
   ios_tokens: string[];

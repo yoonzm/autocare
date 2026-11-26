@@ -330,6 +330,77 @@ class Store extends ChangeNotifier {
     });
   }
 
+  /// 通知中心：历史发送批次列表。
+  Future<({List<Map<String, dynamic>> items, bool more})> notificationList({
+    DateTime? beforeAt,
+    String? beforeId,
+  }) async {
+    final data = await api.call('notification_list', {
+      if (beforeAt != null && beforeId != null)
+        'before': {'at': beforeAt.toIso8601String(), 'id': beforeId},
+    });
+    return (
+      items: (data['items'] as List? ?? const [])
+          .map((e) => Map<String, dynamic>.from(e as Map))
+          .toList(),
+      more: data['more'] == true,
+    );
+  }
+
+  /// 通知中心：搜索可选接收人（老板与在职员工）。
+  Future<List<Map<String, dynamic>>> notificationRecipients(String q) async {
+    final data = await api.call('notification_recipients', {'q': q});
+    return (data['items'] as List? ?? const [])
+        .map((e) => Map<String, dynamic>.from(e as Map))
+        .toList();
+  }
+
+  /// 通知中心：发送前预估命中人数与渠道覆盖数。
+  Future<Map<String, dynamic>> notificationPreview({
+    required String audienceType,
+    String? storeId,
+    String? role,
+    List<Map<String, dynamic>> targets = const [],
+  }) async {
+    final data = await api.call('notification_preview', {
+      'audience_type': audienceType,
+      'store_id': ?storeId,
+      'role': ?role,
+      if (targets.isNotEmpty) 'targets': targets,
+    });
+    return Map<String, dynamic>.from(data['item'] as Map);
+  }
+
+  /// 通知中心：发送通知（站内信 / App推送 / 短信 / 应用内弹窗）。
+  Future<Map<String, dynamic>> notificationSend({
+    required String title,
+    required String body,
+    required String audienceType,
+    String? storeId,
+    String? role,
+    List<Map<String, dynamic>> targets = const [],
+    required List<String> channels,
+    DateTime? popupExpiresAt,
+  }) async {
+    final data = await api.call('notification_send', {
+      'title': title,
+      'body': body,
+      'audience_type': audienceType,
+      'store_id': ?storeId,
+      'role': ?role,
+      if (targets.isNotEmpty) 'targets': targets,
+      'channels': channels,
+      if (popupExpiresAt != null)
+        'popup_expires_at': popupExpiresAt.toUtc().toIso8601String(),
+    });
+    return Map<String, dynamic>.from(data['item'] as Map);
+  }
+
+  /// 通知中心：撤回生效中的应用内弹窗。
+  Future<void> notificationRevokePopup(String id) async {
+    await api.call('notification_revoke_popup', {'id': id});
+  }
+
   Future<void> reply(Ticket t, String text) =>
       _write('ticket_reply', {'id': t.id, 'text': text});
   Future<void> resolve(Ticket t) => _write('ticket_resolve', {'id': t.id});
