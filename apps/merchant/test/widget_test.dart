@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:autocare_merchant/main.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/backend/store_profile.dart';
+import 'package:autocare_merchant/backend/access_flow.dart';
 
 import 'fixtures/preview_member.dart';
 
@@ -37,6 +38,7 @@ void main() {
     await tester.tap(find.text('登录').first);
     await tester.pumpAndSettle();
     expect(find.text('测试门店'), findsOneWidget);
+    expect(Access.context['store_id'], 'test-store');
     for (final tab in ['会员', '库存', '统计', '首页']) {
       await tester.tap(find.text(tab).last);
       await tester.pumpAndSettle();
@@ -79,6 +81,12 @@ class _FakeMerchantApi extends MemberFakeApi {
 
   @override
   Future<Map<String, dynamic>> getStore() async => {'name': '测试门店'};
+
+  @override
+  Future<Map<String, dynamic>> identity(
+    String action, [
+    Map<String, dynamic> values = const {},
+  ]) async => {'role': 'owner', 'store_id': 'test-store', 'status': 'active'};
 
   @override
   Future<void> loginPassword(String phone, String password) async {

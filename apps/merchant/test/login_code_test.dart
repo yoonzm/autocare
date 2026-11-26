@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/main.dart';
 import 'package:autocare_merchant/backend/store_profile.dart';
+import 'package:autocare_merchant/backend/access_flow.dart';
 
 import 'members_test.dart' show MemberFakeApi;
 
@@ -14,6 +15,11 @@ class _FakeApi extends MemberFakeApi {
   bool get hasSession => signedIn;
   @override
   Future<Map<String, dynamic>> getStore() async => {'name': '验证码测试门店'};
+  @override
+  Future<Map<String, dynamic>> identity(
+    String action, [
+    Map<String, dynamic> values = const {},
+  ]) async => {'role': 'owner', 'store_id': 'code-store', 'status': 'active'};
   @override
   Future<void> sendCode(String phone, {required String purpose}) async {
     calls.add('send:$phone');
@@ -103,6 +109,7 @@ void main() {
     await t.tap(find.text('登录').first);
     await t.pumpAndSettle();
     expect(find.text('验证码测试门店'), findsOneWidget);
+    expect(Access.context['store_id'], 'code-store');
     expect(api.calls.last, 'login:13988888812:482910');
   });
 

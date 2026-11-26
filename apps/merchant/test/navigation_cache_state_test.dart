@@ -46,6 +46,12 @@ class _LoginApi extends MemberFakeApi {
   }
 
   @override
+  Future<Map<String, dynamic>> identity(
+    String action, [
+    Map<String, dynamic> values = const {},
+  ]) async => {'role': 'owner', 'store_id': 'signed-store', 'status': 'active'};
+
+  @override
   Future<Map<String, dynamic>> homeStats() {
     businessReads++;
     return super.homeStats();

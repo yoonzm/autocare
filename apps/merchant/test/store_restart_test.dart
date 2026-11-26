@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:autocare_merchant/backend/access_flow.dart';
 import 'package:autocare_merchant/backend/hold_store.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
 import 'package:autocare_merchant/backend/service_store.dart';
@@ -16,6 +17,7 @@ import 'members_test.dart' show MemberFakeApi, phone;
 
 class RestartApi extends MemberFakeApi {
   Completer<Map<String, dynamic>> profile = Completer();
+  Object? identityError;
   final requests = <String>[];
   final storeIds = <String?>[];
   void record(String action) {
@@ -25,6 +27,20 @@ class RestartApi extends MemberFakeApi {
 
   @override
   Future<Map<String, dynamic>> getStore() => profile.future;
+  @override
+  Future<Map<String, dynamic>> identity(
+    String action, [
+    Map<String, dynamic> values = const {},
+  ]) async {
+    if (identityError != null) throw identityError!;
+    return {
+      'store_id': (await profile.future)['id'],
+      'role': 'owner',
+      'status': 'active',
+      'caps': <String, bool>{},
+    };
+  }
+
   @override
   Future<Map<String, dynamic>> homeStats() async {
     record('home_stats');
@@ -50,6 +66,11 @@ class RestartApi extends MemberFakeApi {
     String? requestId,
   }) async {
     record('${body['action']}');
+    if ('${body['action']}'.startsWith('inbox_')) {
+      return {
+        'item': {'unread': 0, 'items': <Map<String, dynamic>>[]},
+      };
+    }
     return {'items': <Map<String, dynamic>>[]};
   }
 }
@@ -92,6 +113,7 @@ void main() {
     api.profile.complete(selected);
     await t.pumpAndSettle();
     expect(StoreContext.id, 'second');
+    expect(Access.context['store_id'], 'second');
     expect(find.text('第二家店'), findsOneWidget);
     expect(find.text('88.88'), findsOneWidget);
     expect(find.text('第二店会员'), findsOneWidget);
@@ -101,6 +123,26 @@ void main() {
     expect(HoldStore.error, isNull);
     expect(HoldStore.holds!.single['id'], 'second-hold');
     expect(find.text('门店已切换，请重新操作'), findsNothing);
+    expect(t.takeException(), isNull);
+  });
+
+  testWidgets('冷启动身份恢复失败时不进入首页，重试后恢复消息所需身份', (t) async {
+    phone(t);
+    final api = RestartApi()
+      ..profile.complete(selected)
+      ..identityError = const AppError('恢复身份失败', type: AppErrorType.network);
+    merchantApi = api;
+    await t.pumpWidget(const QimeiApp());
+    await t.pumpAndSettle();
+    expect(find.byType(HomePage), findsNothing);
+    expect(Access.context, isEmpty);
+    expect(api.requests, isEmpty);
+    api.identityError = null;
+    await t.tap(find.text('重试'));
+    await t.pumpAndSettle();
+    expect(find.byType(HomePage), findsOneWidget);
+    expect(Access.context['store_id'], 'second');
+    expect(api.requests, contains('inbox_unread'));
     expect(t.takeException(), isNull);
   });
 

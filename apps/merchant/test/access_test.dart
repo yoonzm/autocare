@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:autocare_merchant/backend/access_flow.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
+import 'package:autocare_merchant/backend/inbox_store.dart';
+import 'package:autocare_merchant/pages/account/access_boot.dart';
 import 'package:autocare_merchant/pages/account/access_pages.dart';
 import 'package:autocare_merchant/pages/staff_app/staff_tabs.dart';
 import 'package:autocare_merchant/routes.dart' show navTracker, openRoute;
@@ -11,6 +13,12 @@ import 'appointments_test.dart' show BookingApi;
 import 'members_test.dart' show phone;
 
 class AccessApi extends BookingApi {
+  @override
+  Future<Map<String, dynamic>> getStore() async => {
+    'id': identityCtx['store_id'],
+    'name': '测试门店',
+  };
+
   @override
   Future<Map<String, dynamic>> staffWork(
     String action, [
@@ -72,6 +80,21 @@ void main() {
   Finder text(String s) => find.text(s);
   List<Map<String, dynamic>> calls(String action) =>
       api.calls.where((c) => c['action'] == action).toList();
+
+  testWidgets('老板保留登录态冷启动：恢复身份后消息与推送绑定才就绪', (t) async {
+    api.identityCtx = {
+      ...api.identityCtx,
+      'role': 'owner',
+      'staff_id': null,
+      'store_id': 'owner-store',
+    };
+    await open(t, bootPage());
+    expect(Access.context['store_id'], 'owner-store');
+    expect(Access.isOwner, isTrue);
+    final inbox = InboxStore();
+    expect(inbox.ready, isTrue);
+    inbox.dispose();
+  });
 
   testWidgets('选择身份：三种身份按设计稿展示，点技师进入技师工作台', (t) async {
     await open(
