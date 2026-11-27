@@ -30,7 +30,7 @@ const kindRules: Record<string, Record<string, Requirement>> = {
     delete: cap('member_delete'), recharge_options: cap('member_recharge_refund'), recharge: cap('member_recharge_refund'),
     adjust: cap('member_refund_adjust'), recognize_plate: cap('member_lookup'),
   },
-  vehicles: { save: cap('member_edit'), delete: cap('member_edit') },
+  vehicles: { save: cap('member_edit'), delete_check: cap('member_edit'), delete: cap('member_edit') },
   member_packages: {
     list: cap('member_view'), get: cap('member_view'), sell: cap('cashier'),
     extend: cap('member_refund_adjust'), refund: cap('member_refund_adjust'),

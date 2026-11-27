@@ -1032,6 +1032,20 @@ class MerchantApi {
   Future<Map<String, dynamic>> save(String kind, Map<String, dynamic> values) =>
       invoke({'action': 'save', 'kind': kind, ...values});
 
+  Future<({int openAppointments, int openHolds})> vehicleDeleteCheck(
+    String id,
+  ) async {
+    final data = await invoke({
+      'action': 'delete_check',
+      'kind': 'vehicles',
+      'id': id,
+    });
+    return (
+      openAppointments: (data['open_appointments'] as num?)?.toInt() ?? 0,
+      openHolds: (data['open_holds'] as num?)?.toInt() ?? 0,
+    );
+  }
+
   Future<void> delete(String kind, String id) async {
     await invoke({'action': 'delete', 'kind': kind, 'id': id});
   }

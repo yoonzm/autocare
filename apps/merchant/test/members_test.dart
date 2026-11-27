@@ -478,6 +478,30 @@ class MemberFakeApi extends MerchantApi {
     if (saveError != null) throw saveError!;
     if (kind == 'vehicles') {
       savedVehicles.add(values);
+      final memberId = values['member_id']?.toString();
+      final m = rows.where((r) => r['id'] == memberId).firstOrNull;
+      if (m != null) {
+        final list = List<Map<String, dynamic>>.from(
+          (m['vehicles'] as List?) ?? const [],
+        );
+        final vid = values['id']?.toString();
+        final item = <String, dynamic>{
+          'id': vid ?? 'v-${list.length + 1}',
+          ...values,
+        };
+        if (vid != null) {
+          final idx = list.indexWhere((v) => '${v['id']}' == vid);
+          if (idx >= 0) {
+            list[idx] = {...list[idx], ...item};
+          } else {
+            list.add(item);
+          }
+        } else {
+          list.add(item);
+        }
+        m['vehicles'] = list;
+        return {'item': item};
+      }
       return {'item': values};
     }
     saved.add(values);
@@ -575,9 +599,35 @@ class MemberFakeApi extends MerchantApi {
     };
   }
 
+  int vehicleOpenAppointments = 0;
+  int vehicleOpenHolds = 0;
+  Object? vehicleDeleteCheckError;
+  final vehicleDeleteChecks = <String>[];
+
+  @override
+  Future<({int openAppointments, int openHolds})> vehicleDeleteCheck(
+    String id,
+  ) async {
+    vehicleDeleteChecks.add(id);
+    if (vehicleDeleteCheckError != null) throw vehicleDeleteCheckError!;
+    return (
+      openAppointments: vehicleOpenAppointments,
+      openHolds: vehicleOpenHolds,
+    );
+  }
+
   @override
   Future<void> delete(String kind, String id) async {
     deleted.add('$kind:$id');
+    if (kind == 'vehicles') {
+      for (final r in rows) {
+        final list = List<Map<String, dynamic>>.from(
+          (r['vehicles'] as List?) ?? const [],
+        )..removeWhere((v) => '${v['id']}' == id);
+        r['vehicles'] = list;
+      }
+      return;
+    }
     rows.removeWhere((r) => r['id'] == id);
   }
 }
@@ -1152,6 +1202,126 @@ void main() {
       expect(fake.savedVehicles.single['member_id'], 'm1');
       expect(fake.savedVehicles.single['plate'], '沪AF09316');
       expect(fake.savedVehicles.single['energy'], 'ev');
+      expect(fake.savedVehicles.single.containsKey('id'), isFalse);
+    });
+
+    testWidgets('编辑车辆：从会员详情点车辆进入并回填，修改后携带 id 保存并刷新', (t) async {
+      phone(t);
+      final withVehicle = row(
+        vehicles: [
+          {
+            'id': 'v1',
+            'plate': '沪A8K29M',
+            'energy': 'fuel',
+            'brand_model': '保时捷 Cayenne',
+            'color': '黑色',
+            'vin': 'WP1AA2A20MLA00001',
+            'mileage': 32000,
+          },
+        ],
+      );
+      fake.rows.add(withVehicle);
+      await t.pumpWidget(
+        app(MemberDetailPage(member: memberFromRow(withVehicle))),
+      );
+      await t.pumpAndSettle();
+      expect(find.text('沪A·8K29M'), findsOneWidget);
+      await t.tap(find.text('沪A·8K29M'));
+      await t.pumpAndSettle();
+      expect(find.text('编辑车辆'), findsOneWidget);
+      expect(find.text('保时捷 Cayenne'), findsWidgets);
+      expect(find.text('删除车辆'), findsOneWidget);
+      final plate = t.widget<HPlate>(find.byType(HPlate)).controller;
+      expect(plate.text, '沪A8K29M');
+      plate.setGreen(true);
+      plate.setText('沪AF09316');
+      await t.tap(find.text('保存').first);
+      await t.pumpAndSettle();
+      expect(fake.savedVehicles.single['id'], 'v1');
+      expect(fake.savedVehicles.single['member_id'], 'm1');
+      expect(fake.savedVehicles.single['plate'], '沪AF09316');
+      expect(fake.savedVehicles.single['energy'], 'ev');
+      expect(fake.savedVehicles.single['color'], '黑色');
+      expect(find.text('沪A·F09316'), findsOneWidget);
+    });
+
+    testWidgets('删除车辆：无未结单据时确认删除并刷新；新增态不显示删除按钮', (t) async {
+      phone(t);
+      final withVehicle = row(
+        vehicles: [
+          {
+            'id': 'v1',
+            'plate': '沪A8K29M',
+            'energy': 'fuel',
+            'brand_model': '宝马 X5',
+            'color': '白色',
+            'vin': '',
+            'mileage': 15000,
+          },
+        ],
+      );
+      fake.rows.add(withVehicle);
+      await t.pumpWidget(
+        app(MemberDetailPage(member: memberFromRow(withVehicle))),
+      );
+      await t.pumpAndSettle();
+      // 新增态不显示删除按钮
+      await t.tap(find.text('添加车辆'));
+      await t.pumpAndSettle();
+      expect(find.text('添加车辆'), findsNWidgets(2));
+      expect(find.text('删除车辆'), findsNothing);
+      final nav = t.state<NavigatorState>(find.byType(Navigator));
+      nav.pop();
+      await t.pumpAndSettle();
+
+      // 编辑态删除车辆
+      await t.tap(find.text('沪A·8K29M'));
+      await t.pumpAndSettle();
+      await t.ensureVisible(find.text('删除车辆'));
+      await t.tap(find.text('删除车辆'));
+      await t.pumpAndSettle();
+      expect(fake.vehicleDeleteChecks, ['v1']);
+      expect(find.text('删除车辆 沪A·8K29M？'), findsOneWidget);
+      expect(find.textContaining('不影响该车的历史订单'), findsOneWidget);
+      await t.tap(find.text('确认删除'));
+      await t.pumpAndSettle();
+      expect(fake.deleted, ['vehicles:v1']);
+      expect(find.text('还没有登记车辆'), findsOneWidget);
+    });
+
+    testWidgets('删除车辆：存在未完成预约和挂单时强提示但仍允许删除', (t) async {
+      phone(t);
+      final withVehicle = row(
+        vehicles: [
+          {
+            'id': 'v2',
+            'plate': '沪AF09316',
+            'energy': 'ev',
+            'brand_model': '特斯拉 Model Y',
+            'color': '蓝色',
+            'vin': '',
+            'mileage': 8000,
+          },
+        ],
+      );
+      fake.rows.add(withVehicle);
+      fake.vehicleOpenAppointments = 1;
+      fake.vehicleOpenHolds = 2;
+      await t.pumpWidget(
+        app(MemberDetailPage(member: memberFromRow(withVehicle))),
+      );
+      await t.pumpAndSettle();
+      await t.tap(find.text('沪A·F09316'));
+      await t.pumpAndSettle();
+      await t.ensureVisible(find.text('删除车辆'));
+      await t.tap(find.text('删除车辆'));
+      await t.pumpAndSettle();
+      expect(find.textContaining('1 个未完成预约、2 笔未结算挂单'), findsOneWidget);
+      expect(find.textContaining('不会影响已有预约、挂单及历史订单记录'), findsOneWidget);
+      await t.tap(find.text('确认删除'));
+      await t.pumpAndSettle();
+      expect(fake.deleted, ['vehicles:v2']);
+      expect(find.text('还没有登记车辆'), findsOneWidget);
     });
 
     testWidgets('删除会员：确认后调用后端；失败时保持并提示', (t) async {

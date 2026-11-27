@@ -14,7 +14,7 @@ class VehicleAddPage extends StatelessWidget {
   const VehicleAddPage({super.key, this.member, this.vehicle});
   @override
   Widget build(BuildContext context) => MemberFormHost(
-    key: ValueKey('vehicle-${member?['id']}'),
+    key: ValueKey('vehicle-${member?['id']}-${vehicle?['id'] ?? 'new'}'),
     kind: MemberFormKind.vehicle,
     member: member,
     vehicle: vehicle,
@@ -31,7 +31,7 @@ class _VehicleAddPageTemplate extends StatelessWidget {
     return HPage(
       bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
       header: AppPageHeader(
-        title: '添加车辆',
+        title: c.isEditingVehicle ? '编辑车辆' : '添加车辆',
         leading: AppHeaderLeading.close,
         trailing: GestureDetector(
           behavior: HitTestBehavior.opaque,
@@ -354,6 +354,49 @@ class _VehicleAddPageTemplate extends StatelessWidget {
                     gap: 12,
                   ),
                 ),
+                if (c.isEditingVehicle)
+                  GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => c.deleteVehicle(context),
+                    child: hbox(
+                      h: 50,
+                      bg: dk(
+                        context,
+                        Color(0xFFFFE1E2),
+                        Color.fromRGBO(255, 56, 60, 0.18),
+                      ),
+                      radius: BorderRadius.circular(25),
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: hBusy(
+                          c.deleteActionKey,
+                          Text(
+                            '删除车辆',
+                            style: hts(
+                              15,
+                              dk(
+                                context,
+                                Color(0xFFA43433),
+                                Color(0xFFFF7B7E),
+                              ),
+                              w: FontWeight.w500,
+                              lh: 22,
+                            ),
+                          ),
+                          style: hts(
+                            15,
+                            dk(
+                              context,
+                              Color(0xFFA43433),
+                              Color(0xFFFF7B7E),
+                            ),
+                            w: FontWeight.w500,
+                            lh: 22,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
               ],
               main: MainAxisAlignment.start,
               cross: CrossAxisAlignment.stretch,

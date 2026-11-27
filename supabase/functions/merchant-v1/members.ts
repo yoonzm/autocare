@@ -247,11 +247,37 @@ export async function handleVehicles(input: Input, storeId: string): Promise<Res
     if (error) return fail(error.code === '23505' ? uniqueProblem(error.message) : '保存失败', error.code === '23505' ? 409 : 400);
     return data ? json({ item: data }) : fail('车辆不存在', 404);
   }
+  if (input.action === 'delete_check') {
+    if (!uuid(input.id)) return fail('记录 ID 无效');
+    const { data: vehicle, error } = await admin.from('member_vehicles').select('id, plate')
+      .eq('id', input.id).eq('store_id', storeId).maybeSingle();
+    if (error) return fail('读取失败', 500);
+    if (!vehicle) return fail('车辆不存在', 404);
+    const [appts, holds] = await Promise.all([
+      admin.from('appointments').select('id', { count: 'exact', head: true })
+        .eq('store_id', storeId).eq('vehicle_plate', vehicle.plate).in('status', ['waiting', 'arrived']),
+      admin.from('held_orders').select('id', { count: 'exact', head: true })
+        .eq('store_id', storeId).eq('vehicle_plate', vehicle.plate).is('settled_at', null).is('cancelled_at', null),
+    ]);
+    if (appts.error || holds.error) return fail('读取失败', 500);
+    return json({ open_appointments: appts.count ?? 0, open_holds: holds.count ?? 0 });
+  }
   if (input.action === 'delete') {
     if (!uuid(input.id)) return fail('记录 ID 无效');
     const { data, error } = await admin.from('member_vehicles').delete()
-      .eq('id', input.id).eq('store_id', storeId).select('id').maybeSingle();
-    return error ? fail('删除失败', 400) : data ? json({ ok: true }) : fail('车辆不存在', 404);
+      .eq('id', input.id).eq('store_id', storeId).select('id, member_id, is_default').maybeSingle();
+    if (error) return fail('删除失败', 400);
+    if (!data) return fail('车辆不存在', 404);
+    if (data.is_default) {
+      const { data: next } = await admin.from('member_vehicles').select('id')
+        .eq('store_id', storeId).eq('member_id', data.member_id)
+        .order('created_at', { ascending: true }).limit(1).maybeSingle();
+      if (next?.id) {
+        await admin.from('member_vehicles').update({ is_default: true })
+          .eq('id', next.id).eq('store_id', storeId);
+      }
+    }
+    return json({ ok: true });
   }
   return fail('不支持的操作');
 }

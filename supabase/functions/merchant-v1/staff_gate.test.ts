@@ -30,6 +30,11 @@ Deno.test('owner is never gated; unknown actions are denied for staff', () => {
 Deno.test('catalog rules: members, orders, appointments follow capabilities', () => {
   assert(can('cashier', ['member_view'], { kind: 'members', action: 'list' }));
   assert(!can('technician', [], { kind: 'members', action: 'list' }));
+  assert(can('cashier', ['member_edit'], { kind: 'vehicles', action: 'save' }));
+  assert(can('cashier', ['member_edit'], { kind: 'vehicles', action: 'delete_check' }));
+  assert(can('cashier', ['member_edit'], { kind: 'vehicles', action: 'delete' }));
+  assert(!can('cashier', ['member_view'], { kind: 'vehicles', action: 'delete_check' }));
+  assert(!can('cashier', ['member_view'], { kind: 'vehicles', action: 'delete' }));
   assert(can('technician', ['member_lookup'], { kind: 'members', action: 'recognize_plate' }));
   assert(!can('cashier', ['cashier'], { kind: 'members', action: 'delete' }));
   assert(can('cashier', ['cashier'], { kind: 'orders', action: 'checkout' }));

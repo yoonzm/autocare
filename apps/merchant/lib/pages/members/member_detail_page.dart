@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import '../../kit/kit.dart' show dk;
 
 import 'member_events.dart';
+import '../../backend/access_flow.dart';
 import '../../backend/member_flow.dart';
 import '../../backend/merchant_api.dart';
 import '../../backend/package_calc.dart' show formatMoney;
@@ -433,77 +434,102 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
     return '$masked$joined';
   }
 
-  Widget _vehicles(BuildContext context) => AppCard(
-    padding: const EdgeInsets.all(16),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _sectionHead('名下车辆', '添加车辆', () {
-          openRoute(
-            context,
-            'VehicleAdd',
-            arguments: MemberRouteData(member: member.data),
-          );
-        }),
-        if (_liveVehicles.isEmpty) ...[
-          const SizedBox(height: 12),
-          Text('还没有登记车辆', style: ts(13, color: C.muted, h: 18)),
-        ] else
-          for (var i = 0; i < _vehicleList.length; i++) ...[
+  Widget _vehicles(BuildContext context) {
+    final canEdit = Access.can('member_edit');
+    return AppCard(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _sectionHead('名下车辆', '添加车辆', () {
+            openRoute(
+              context,
+              'VehicleAdd',
+              arguments: MemberRouteData(member: member.data),
+            );
+          }),
+          if (_liveVehicles.isEmpty) ...[
             const SizedBox(height: 12),
-            if (i > 0) ...[const Divider1(), const SizedBox(height: 12)],
-            _vehicle(_vehicleList[i].$1, green: _vehicleList[i].$2),
-          ],
-      ],
-    ),
-  );
+            Text('还没有登记车辆', style: ts(13, color: C.muted, h: 18)),
+          ] else
+            for (var i = 0; i < _vehicleList.length; i++) ...[
+              const SizedBox(height: 12),
+              if (i > 0) ...[const Divider1(), const SizedBox(height: 12)],
+              _vehicle(
+                _vehicleList[i].$1,
+                green: _vehicleList[i].$2,
+                onTap: canEdit
+                    ? () => openRoute(
+                        context,
+                        'VehicleAdd',
+                        arguments: MemberRouteData(
+                          member: member.data,
+                          vehicle: _liveVehicles[i],
+                        ),
+                      )
+                    : null,
+              ),
+            ],
+        ],
+      ),
+    );
+  }
 
-  Widget _vehicle(Vehicle v, {bool green = false}) => Row(
-    children: [
-      Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          color: C.inset,
-          borderRadius: BorderRadius.circular(12),
+  Widget _vehicle(Vehicle v, {bool green = false, VoidCallback? onTap}) {
+    final row = Row(
+      children: [
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: C.inset,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Center(child: AppIcon('car', size: 22, color: C.sub)),
         ),
-        child: Center(child: AppIcon('car', size: 22, color: C.sub)),
-      ),
-      const SizedBox(width: 12),
-      Expanded(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(v.model, style: ts(14, w: FontWeight.w500, h: 20)),
-            const SizedBox(height: 2),
-            Text(v.note, style: ts(12, color: C.muted, h: 16)),
-          ],
-        ),
-      ),
-      const SizedBox(width: 12),
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-        decoration: BoxDecoration(
-          color: green ? const Color(0xFFD7F5E1) : const Color(0xFF0B5FD6),
-          borderRadius: BorderRadius.circular(5),
-          border: Border.all(
-            color: green ? const Color(0xFF86D9A4) : const Color(0xFF5B9BF0),
-            width: 1.5,
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(v.model, style: ts(14, w: FontWeight.w500, h: 20)),
+              const SizedBox(height: 2),
+              Text(v.note, style: ts(12, color: C.muted, h: 16)),
+            ],
           ),
         ),
-        child: Text(
-          v.plate,
-          maxLines: 1,
-          style: ts(
-            12,
-            w: FontWeight.w600,
-            color: green ? const Color(0xFF14532D) : Colors.white,
-            h: 16,
+        const SizedBox(width: 12),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+          decoration: BoxDecoration(
+            color: green ? const Color(0xFFD7F5E1) : const Color(0xFF0B5FD6),
+            borderRadius: BorderRadius.circular(5),
+            border: Border.all(
+              color: green ? const Color(0xFF86D9A4) : const Color(0xFF5B9BF0),
+              width: 1.5,
+            ),
+          ),
+          child: Text(
+            v.plate,
+            maxLines: 1,
+            style: ts(
+              12,
+              w: FontWeight.w600,
+              color: green ? const Color(0xFF14532D) : Colors.white,
+              h: 16,
+            ),
           ),
         ),
-      ),
-    ],
-  );
+      ],
+    );
+    return onTap == null
+        ? row
+        : GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: onTap,
+            child: row,
+          );
+  }
 
   Widget _packs(BuildContext context) => AppCard(
     padding: const EdgeInsets.all(16),
