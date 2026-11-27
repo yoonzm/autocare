@@ -81,7 +81,7 @@ Deno.test('business statistics need store statistics permission, including kind 
   assert(!can('technician', [], { action: 'business_stats', kind: 'services' }));
 });
 
-Deno.test('staff workflow actions: tasks need task caps, perf needs perf cap, messages are open to any staff', () => {
+Deno.test('staff workflow actions: tasks need task caps, perf needs perf cap', () => {
   assert(can('technician', ['order_view_own'], { action: 'staff_task_list' }));
   assert(!can('technician', ['order_view_own'], { action: 'staff_task_finish' }));
   assert(can('technician', ['progress_update'], { action: 'staff_task_finish' }));
@@ -89,8 +89,6 @@ Deno.test('staff workflow actions: tasks need task caps, perf needs perf cap, me
   assert(can('cashier', ['perf_view_own'], { action: 'staff_perf' }));
   assert(!can('cashier', [], { action: 'staff_arrivals' }));
   assert(can('cashier', ['arrivals_today'], { action: 'staff_arrivals' }));
-  assert(can('cashier', [], { action: 'staff_messages' }));
-  assert(can('technician', [], { action: 'staff_messages_read' }));
 });
 
 Deno.test('inbox_list with kind filter is open to every staff role', () => {

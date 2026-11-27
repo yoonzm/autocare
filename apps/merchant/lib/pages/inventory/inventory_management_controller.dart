@@ -425,33 +425,7 @@ class InventoryManagementController extends ChangeNotifier {
   }
 
   Widget _documentRow(BuildContext context, Map<String, dynamic> d) =>
-      GestureDetector(
-        onLongPress: () => _perform(context, () async {
-          final result = await merchantApi.invoke({
-            'action': 'inventory_document_get',
-            'id': d['id'],
-          });
-          if (!context.mounted || disposed) return;
-          final controller =
-              InventoryManagementController('document', documentId: d['id'])
-                ..apply(result)
-                ..reload = reload;
-          try {
-            await showModalBottomSheet<void>(
-              context: context,
-              isScrollControlled: true,
-              backgroundColor: Colors.transparent,
-              builder: (_) => ListenableBuilder(
-                listenable: controller,
-                builder: (_, _) => StockVoidBoundTemplate(c: controller),
-              ),
-            );
-          } finally {
-            controller.dispose();
-          }
-        }),
-        child: InventoryDocumentRowTemplate(c: this, row: d),
-      );
+      InventoryDocumentRowTemplate(c: this, row: d);
 
   /// 入库单详情的「送货单 / 发票」卡片；没有凭证时不显示。
   Widget voucherCard() => InventoryVoucherCard(

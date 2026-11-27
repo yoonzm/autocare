@@ -12,7 +12,7 @@ import 'hold_draft.dart';
 class HoldController extends ChangeNotifier {
   final HoldDraft draft;
   final note = TextEditingController();
-  int status = HoldStore.defaultStatus, remind = HoldStore.defaultRemind;
+  int status = HoldStore.defaultStatus;
   bool busy = false, disposed = false;
   String? _intent, _requestId;
   HoldController(this.draft) {
@@ -21,9 +21,6 @@ class HoldController extends ChangeNotifier {
       status = HoldStore.statuses
           .indexOf('${original['status']}')
           .clamp(0, HoldStore.statuses.length - 1);
-      remind = HoldStore.reminds
-          .indexOf('${original['remind']}')
-          .clamp(0, HoldStore.reminds.length - 1);
       note.text = '${original['note'] ?? ''}';
     }
   }
@@ -31,13 +28,6 @@ class HoldController extends ChangeNotifier {
   void chooseStatus(int index) {
     if (!busy && !disposed) {
       status = index;
-      notifyListeners();
-    }
-  }
-
-  void chooseRemind(int index) {
-    if (!busy && !disposed) {
-      remind = index;
       notifyListeners();
     }
   }
@@ -52,7 +42,6 @@ class HoldController extends ChangeNotifier {
       'member': draft.memberId,
       'lines': draft.lines,
       'status': status,
-      'remind': remind,
       'note': note.text.trim(),
       'plate': draft.plate,
       'technicians': draft.technicianIds,
@@ -72,8 +61,7 @@ class HoldController extends ChangeNotifier {
         memberId: draft.memberId,
         lines: draft.lines,
         status: HoldStore.statuses[status],
-        // TODO: 只保存提醒选项；短信/微信与发送计划接口未接通，不代表已发送通知。
-        remind: HoldStore.reminds[remind],
+        remind: '不提醒',
         note: note.text.trim(),
         plate: draft.plate,
         technicianIds: draft.technicianIds,

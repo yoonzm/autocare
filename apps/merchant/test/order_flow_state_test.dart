@@ -300,7 +300,6 @@ void main() {
   test('挂单状态和备注独立，失败保留输入和请求标识', () async {
     final a = HoldController(draft('a')), b = HoldController(draft('b'));
     a.chooseStatus(2);
-    a.chooseRemind(1);
     a.note.text = '甲的备注';
     b.note.text = '乙的备注';
     api.fail = true;
@@ -308,7 +307,6 @@ void main() {
     await expectLater(a.save(), throwsA(isA<AppError>()));
     expect(a.note.text, '甲的备注');
     expect(a.status, 2);
-    expect(a.remind, 1);
     expect(api.requests[1]['requestId'], api.requests[0]['requestId']);
     api.fail = false;
     api.gate = Completer<void>();

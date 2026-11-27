@@ -520,7 +520,7 @@ class MerchantApi {
   }
 
   /// 员工工作流：staff_task_list / staff_task_detail / staff_task_progress / staff_task_finish /
-  /// staff_perf / staff_messages / staff_messages_read。数据范围由服务端按当前身份限定。
+  /// staff_perf。数据范围由服务端按当前身份限定。
   Future<Map<String, dynamic>> staffWork(
     String action, [
     Map<String, dynamic> values = const {},

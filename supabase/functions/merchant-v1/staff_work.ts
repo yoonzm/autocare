@@ -11,7 +11,6 @@ const messages: Record<string, string> = {
   stage_invalid: '请选择有效的施工阶段',
   stage_backward: '施工进度不能倒退',
   staff_not_found: '员工不存在',
-  kind_invalid: '消息类型无效',
 };
 const rpcError = (e: { message: string; code?: string }) => {
   const key = Object.keys(messages).find((k) => e.message.includes(k));
@@ -19,7 +18,7 @@ const rpcError = (e: { message: string; code?: string }) => {
   return fail('操作失败，请稍后重试', 500);
 };
 
-/** 员工端工作流：技师任务 / 进度 / 完工、业绩提成、消息。权限由 index.ts 的网关先校验，这里再按身份取数据范围。 */
+/** 员工端工作流：技师任务 / 进度 / 完工、业绩提成。权限由 index.ts 的网关先校验，这里再按身份取数据范围。 */
 export async function handleStaffWork(input: Input, request: Request): Promise<Response> {
   const auth = await authOnly(request);
   if ('response' in auth) return auth.response;
@@ -47,14 +46,6 @@ export async function handleStaffWork(input: Input, request: Request): Promise<R
     if (/^staff_(order_|cash_queue$|redeem)/.test(action)) return await handleStaffOrders(input as unknown as Record<string, unknown>, store, staff);
     if (action === 'staff_perf') return await call('staff_perf', {});
     if (action === 'staff_arrivals') return await call('staff_arrivals', {});
-    if (action === 'staff_messages') {
-      const kind = input.kind == null || input.kind === 'all' ? null : String(input.kind);
-      return await call('staff_messages_list', { p_kind: kind });
-    }
-    if (action === 'staff_messages_read') {
-      if (input.id != null && !uuid(input.id)) return fail('消息 ID 无效');
-      return await call('staff_messages_read', { p_id: input.id ?? null });
-    }
     return fail('不支持的员工操作');
   } catch (e) {
     return rpcError(e as { message: string; code?: string });

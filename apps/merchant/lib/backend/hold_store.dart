@@ -14,11 +14,9 @@ class HoldStore {
   HoldStore._();
 
   static const statuses = ['待施工', '施工中', '待结算'];
-  static const reminds = ['不提醒', '30 分钟', '1 小时', '完工时'];
 
-  /// 一期不做挂单到点提醒，默认选中“施工中”“不提醒”。
+  /// 默认选中“施工中”。
   static const defaultStatus = 1;
-  static const defaultRemind = 0;
 
   /// 待处理的挂单；还没读到时为 null。
   static List<Map<String, dynamic>>? _holds;

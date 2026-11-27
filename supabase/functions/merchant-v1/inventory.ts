@@ -146,7 +146,6 @@ export async function handleInventory(
       "inventory_supplier_save",
       "inventory_category_save",
       "inventory_category_delete",
-      "inventory_settings_save",
       "inventory_void",
       "inventory_disable",
       "inventory_enable",
