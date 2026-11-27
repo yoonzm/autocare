@@ -1,7 +1,7 @@
 begin;
 do $$
 declare u uuid:=gen_random_uuid(); other_u uuid:=gen_random_uuid(); shop uuid; other_shop uuid;
- photo uuid:=gen_random_uuid(); item jsonb; caught boolean; task uuid; staff jsonb; staff_id uuid;
+ photo uuid:=gen_random_uuid(); hold_photo uuid:=gen_random_uuid(); item jsonb; caught boolean; task uuid; hold_task uuid; staff jsonb; staff_id uuid;
 begin
  insert into auth.users(id) values(u),(other_u);
  insert into stores(owner_id,name,phone) values(u,'图片测试','13900000001') returning id into shop;
@@ -24,12 +24,21 @@ begin
  staff:=save_staff(shop,'{"name":"技师","phone":"13800001111","role":"technician"}','店主');
  staff_id:=(staff->>'id')::uuid;
  update store_staff set status='active' where id=staff_id;
+ insert into public.held_orders(store_id,vehicle_plate,status,technician_ids)
+ values(shop,'鲁J55555','施工中',array[(staff->>'resource_id')::uuid]) returning id into hold_task;
+ perform merchant_media_mutate(shop,u,staff_id,'task',hold_task,'begin',hold_photo,repeat('a',64),'png');
+ perform merchant_media_mutate(shop,u,staff_id,'task',hold_task,'finish',hold_photo);
+ assert jsonb_array_length(merchant_media_mutate(shop,u,staff_id,'task',hold_task,'list')->'items')=1,'挂单任务技师可读自己施工照片';
+ caught:=false; begin perform merchant_media_mutate(shop,u,gen_random_uuid(),'task',hold_task,'list'); exception when insufficient_privilege then caught:=true; end; assert caught,'非挂单任务技师不能读';
+ perform merchant_media_mutate(shop,u,staff_id,'task',hold_task,'remove',hold_photo);
+ assert jsonb_array_length(merchant_media_mutate(shop,u,staff_id,'task',hold_task,'list')->'items')=0;
  insert into appointments(store_id,customer_name,service_ids,items,starts_at,duration_minutes,estimate,request_id,technician_id,status)
  values(shop,'测试','{}','[]',now(),30,0,'media-task',(staff->>'resource_id')::uuid,'arrived') returning id into task;
  for i in 1..6 loop perform merchant_media_mutate(shop,u,staff_id,'task',task,'begin',gen_random_uuid(),repeat('a',64),'png'); end loop;
  caught:=false; begin perform merchant_media_mutate(shop,u,staff_id,'task',task,'begin',gen_random_uuid(),repeat('a',64),'png'); exception when others then caught:=sqlerrm='media_limit'; end; assert caught,'施工6张上限';
  caught:=false; begin perform merchant_media_mutate(shop,u,gen_random_uuid(),'task',task,'list'); exception when insufficient_privilege then caught:=true; end; assert caught,'非任务技师不能读';
  update store_staff set status='disabled' where id=staff_id;
+ caught:=false; begin perform merchant_media_mutate(shop,u,staff_id,'task',hold_task,'list'); exception when insufficient_privilege then caught:=true; end; assert caught,'停用不能读挂单照片';
  caught:=false; begin perform merchant_media_mutate(shop,u,staff_id,'task',task,'list'); exception when insufficient_privilege then caught:=true; end; assert caught,'停用不能读';
  assert not has_table_privilege('authenticated','merchant_media','SELECT');
  assert not has_function_privilege('authenticated','merchant_media_mutate(uuid,uuid,uuid,text,uuid,text,uuid,text,text)','EXECUTE');
