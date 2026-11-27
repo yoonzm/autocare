@@ -363,55 +363,5 @@ export async function handleInventory(
     });
     return error ? rpcError(error) : json({ item: data });
   }
-  if (input.action === "inventory_workorder_costs") {
-    const { data, error } = await admin.from("inventory_documents")
-      .select("id, payload, created_at, posted_at")
-      .eq("store_id", store)
-      .eq("kind", "out")
-      .eq("status", "posted")
-      .order("posted_at", { ascending: false })
-      .limit(200);
-    if (error) return fail("读取工单成本失败", 500);
-    const groups = new Map<string, {
-      workorder: string;
-      docs: number;
-      total_cost: number;
-      total_qty: number;
-      last_at: string;
-      items: { id: string; date: string; cost: number; lines: number }[];
-    }>();
-    for (const doc of data ?? []) {
-      const payload = (doc.payload ?? {}) as Record<string, unknown>;
-      const wo = typeof payload.workorder === "string" ? payload.workorder.trim() : "";
-      if (!wo) continue;
-      const lines = Array.isArray(payload.lines) ? payload.lines : [];
-      const docCost = typeof payload.total === "number"
-        ? payload.total
-        : Number(payload.total ?? 0) || 0;
-      const docQty = lines.reduce(
-        (s, l) => s + (Number((l as Record<string, unknown>).quantity ?? 0) || 0),
-        0,
-      );
-      const dateStr = typeof payload.date === "string" && payload.date
-        ? payload.date
-        : String(doc.posted_at ?? doc.created_at ?? "").slice(0, 10);
-      const entry = groups.get(wo) ?? {
-        workorder: wo,
-        docs: 0,
-        total_cost: 0,
-        total_qty: 0,
-        last_at: dateStr,
-        items: [],
-      };
-      entry.docs += 1;
-      entry.total_cost = Math.round((entry.total_cost + docCost) * 100) / 100;
-      entry.total_qty = Math.round((entry.total_qty + docQty) * 1000) / 1000;
-      if (dateStr > entry.last_at) entry.last_at = dateStr;
-      entry.items.push({ id: String(doc.id), date: dateStr, cost: docCost, lines: lines.length });
-      groups.set(wo, entry);
-    }
-    const items = [...groups.values()].sort((a, b) => b.total_cost - a.total_cost);
-    return json({ items });
-  }
   return fail("不支持的库存操作");
 }
