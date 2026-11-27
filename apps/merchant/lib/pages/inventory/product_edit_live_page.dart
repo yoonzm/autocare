@@ -625,7 +625,6 @@ class _ProductEditState extends State<ProductEditLivePage> {
                       flex: editing ? 2 : 1,
                       child: LoadingButton(
                         label: editing ? '保存修改' : '保存',
-                        loadingLabel: '提交中…',
                         onPressed: _save,
                       ),
                     ),

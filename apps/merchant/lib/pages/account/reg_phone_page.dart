@@ -871,7 +871,6 @@ class _RegPhonePageState extends State<RegPhonePage> {
                                 w: FontWeight.w600,
                                 lh: 22,
                               ),
-                              label: '提交中…',
                             ),
                           ),
                         ),

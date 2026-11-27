@@ -181,7 +181,6 @@ class _CardTiersLivePageState extends State<CardTiersLivePage> {
       ];
     }
     return [
-      if (loading && showSkeleton) const LinearProgressIndicator(minHeight: 2),
       for (var i = 0; i < rows.length; i++)
         Opacity(
           opacity: loading && showSkeleton ? 0.6 : 1,

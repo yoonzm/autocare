@@ -711,7 +711,6 @@ class _FeedbackPageState extends State<FeedbackPage> {
                                   lh: 22,
                                 ),
                               ),
-                              label: '提交中…',
                               style: hts(
                                 15,
                                 dk(

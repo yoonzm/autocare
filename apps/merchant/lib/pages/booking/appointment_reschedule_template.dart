@@ -193,33 +193,13 @@ class AppointmentRescheduleTemplate extends StatelessWidget {
                     radius: BorderRadius.circular(25),
                     align: Alignment.center,
                     child: c.locked
-                        ? hrow(
-                            [
-                              AppSpinner(
-                                size: 18,
-                                color: dk(
-                                  context,
-                                  Colors.white,
-                                  const Color(0xFF18181B),
-                                ),
-                              ),
-                              Text(
-                                '提交中…',
-                                style: hts(
-                                  15,
-                                  dk(
-                                    context,
-                                    Colors.white,
-                                    const Color(0xFF18181B),
-                                  ),
-                                  w: FontWeight.w600,
-                                  lh: 22,
-                                ),
-                              ),
-                            ],
-                            main: MainAxisAlignment.center,
-                            cross: CrossAxisAlignment.center,
-                            gap: 8,
+                        ? AppSpinner(
+                            size: 18,
+                            color: dk(
+                              context,
+                              Colors.white,
+                              const Color(0xFF18181B),
+                            ),
                           )
                         : Text(
                             '确认改期',

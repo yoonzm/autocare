@@ -577,7 +577,6 @@ class _PackageExtendSheetTemplate extends StatelessWidget {
                               w: FontWeight.w600,
                               lh: 22,
                             ),
-                            label: '提交中…',
                           ),
                         ),
                       ),

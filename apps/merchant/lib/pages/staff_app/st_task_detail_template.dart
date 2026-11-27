@@ -588,7 +588,6 @@ class StTaskDetailTemplate extends StatelessWidget {
                                     w: FontWeight.w600,
                                     lh: 22,
                                   ),
-                                  label: '提交中…',
                                 )
                               : Text(
                                   '提交完工',

@@ -145,7 +145,7 @@ void main() {
     await t.pumpAndSettle();
   });
 
-  testWidgets('保存并邀请：白色转圈和提交文案、尺寸稳定、防连点、失败恢复', (t) async {
+  testWidgets('保存并邀请：白色转圈、尺寸稳定、防连点、失败恢复', (t) async {
     api.gate = Completer<void>();
     api.writeError = const AppError('保存失败，请重试');
     await open(t, const StaffEditorPage());
@@ -153,20 +153,19 @@ void main() {
     final size = t.getSize(button);
     await t.tap(find.text('保存并邀请'));
     await t.pump();
-    expect(find.text('提交中…'), findsOneWidget);
+    expect(find.text('提交中…'), findsNothing);
     expect(t.getSize(button), size);
     final spinner = t.widget<AppSpinner>(find.byType(AppSpinner));
     expect(spinner.color, Colors.white);
     expect(spinner.size, 18);
     // 提交期间由 AbsorbPointer 拦截，重复点击预期不会命中按钮。
-    await t.tap(find.text('提交中…'), warnIfMissed: false);
+    await t.tap(find.byType(AppSpinner), warnIfMissed: false);
     await t.pump();
     expect(api.calls.where((c) => c['action'] == 'staff_save').length, 1);
     await t.pump(const Duration(milliseconds: 500));
     api.gate!.complete();
     await t.pumpAndSettle();
     expect(find.byType(AppSpinner), findsNothing);
-    expect(find.text('提交中…'), findsNothing);
     expect(find.text('保存并邀请'), findsOneWidget);
     expect(t.getSize(button), size);
     expect(find.text('保存失败，请重试'), findsWidgets);

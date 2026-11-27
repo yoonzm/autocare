@@ -637,7 +637,6 @@ class _AppointmentAddPageState extends State<AppointmentAddPage> {
                               color: Colors.white,
                               h: 22,
                             ),
-                            label: '提交中…',
                           ),
                         ),
                       ),

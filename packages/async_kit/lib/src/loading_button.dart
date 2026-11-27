@@ -83,15 +83,16 @@ class _LoadingButtonState extends State<LoadingButton> {
         Colors.white,
       ),
     };
-    final text = _busy
-        ? (widget.loadingLabel ?? widget.label)
-        : (_done ? widget.successLabel! : widget.label);
+    final text = _done ? widget.successLabel! : widget.label;
+    final showBusyLabel = _busy && widget.loadingLabel != null;
+    final labelStyle = AsyncKitTheme.of(context)
+        .textStyle(16, w: FontWeight.w600, color: fg, h: 24);
     return Semantics(
       button: true,
       enabled: !disabled && !_busy,
       label: disabled && widget.disabledReason != null
           ? '${widget.label}，${widget.disabledReason}'
-          : text,
+          : (showBusyLabel ? widget.loadingLabel! : text),
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: disabled
@@ -109,20 +110,25 @@ class _LoadingButtonState extends State<LoadingButton> {
             color: disabled ? AsyncKitTheme.of(context).faint : bg,
             borderRadius: BorderRadius.circular(widget.height / 2),
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (_busy) ...[
-                AppSpinner(size: 18, color: fg),
-                const SizedBox(width: 8),
-              ],
-              Text(
-                text,
-                style: AsyncKitTheme.of(context)
-                    .textStyle(16, w: FontWeight.w600, color: fg, h: 24),
-              ),
-            ],
-          ),
+          child: showBusyLabel
+              ? Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AppSpinner(size: 18, color: fg),
+                    const SizedBox(width: 8),
+                    Text(widget.loadingLabel!, style: labelStyle),
+                  ],
+                )
+              : Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Opacity(
+                      opacity: _busy ? 0 : 1,
+                      child: Text(text, style: labelStyle),
+                    ),
+                    if (_busy) AppSpinner(size: 18, color: fg),
+                  ],
+                ),
         ),
       ),
     );

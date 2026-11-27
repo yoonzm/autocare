@@ -38,10 +38,10 @@ void main() {
     expect(find.text('用户协议'), findsOneWidget);
     expect(loadedUrl.toString(), '$supabaseUrl/legal/terms.html?theme=light');
     expect(loadedHeaders, isEmpty);
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    expect(find.byType(AppSpinner), findsOneWidget);
     loaded();
     await t.pump();
-    expect(find.byType(CircularProgressIndicator), findsNothing);
+    expect(find.byType(AppSpinner), findsNothing);
     expect(find.text('H5 正文'), findsOneWidget);
   });
 
@@ -69,10 +69,10 @@ void main() {
       );
       await t.pump(kThemeAnimationDuration);
       expect(loadedUrl!.queryParameters['theme'], 'dark');
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(AppSpinner), findsOneWidget);
       loaded();
       await t.pump();
-      expect(find.byType(CircularProgressIndicator), findsNothing);
+      expect(find.byType(AppSpinner), findsNothing);
     });
   }
 

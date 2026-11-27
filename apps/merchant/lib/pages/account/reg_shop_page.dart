@@ -1504,7 +1504,6 @@ class _RegShopPageState extends State<RegShopPage> {
                                 w: FontWeight.w600,
                                 lh: 22,
                               ),
-                              label: '提交中…',
                             ),
                           ),
                         ),

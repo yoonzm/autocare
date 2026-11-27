@@ -109,7 +109,6 @@ class _RolePermissionTemplateState extends State<RolePermissionTemplate> {
                     ),
                   ),
                   style: hts(14, Color(0xFFFFFFFF), w: FontWeight.w600, lh: 20),
-                  label: '提交中…',
                 ),
               ),
             ),

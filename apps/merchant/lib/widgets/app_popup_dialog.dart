@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../backend/access_flow.dart';
 import '../backend/merchant_api.dart';
+import '../kit/async_kit.dart' show AppSpinner;
 import '../theme.dart';
 
 /// 商户端应用内公告弹窗控制器：
@@ -321,14 +322,7 @@ class _AppPopupDialogState extends State<_AppPopupDialog> {
                         ),
                       ),
                       child: _busy
-                          ? SizedBox(
-                              width: 18,
-                              height: 18,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: C.btnFg,
-                              ),
-                            )
+                          ? AppSpinner(size: 18, color: C.btnFg)
                           : Text(
                               hasNext ? '下一条（${_index + 1}/$total）' : '我知道了',
                               style: ts(

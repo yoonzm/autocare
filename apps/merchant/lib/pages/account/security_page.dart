@@ -399,7 +399,6 @@ class _SecurityPageState extends State<SecurityPage> {
                               dk(context, Color(0xFFA43433), Color(0xFFFF7B7E)),
                               w: FontWeight.w500,
                             ),
-                            label: '提交中…',
                           ),
                         ),
                       ),

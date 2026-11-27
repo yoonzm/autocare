@@ -374,7 +374,7 @@ class PrimaryButton extends StatelessWidget {
   final Color bg, fg;
   final EdgeInsetsGeometry padding;
 
-  /// 提交中：转圈 + [loadingText]，宽高不变，忽略点击（防连点）。
+  /// 提交中：只显示居中转圈，宽高不变，忽略点击（防连点）。
   final bool loading;
   final String? loadingText;
   const PrimaryButton(
@@ -391,7 +391,7 @@ class PrimaryButton extends StatelessWidget {
   Widget build(BuildContext context) => Semantics(
     button: true,
     enabled: !loading && onTap != null,
-    label: loading ? (loadingText ?? text) : text,
+    label: loading ? '处理中' : text,
     child: GestureDetector(
       onTap: loading ? null : onTap,
       child: Container(
@@ -402,17 +402,17 @@ class PrimaryButton extends StatelessWidget {
           color: onTap == null ? C.faint : bg,
           borderRadius: BorderRadius.circular(25),
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
+        child: Stack(
+          alignment: Alignment.center,
           children: [
-            if (loading) ...[
-              AppSpinner(size: 18, color: fg),
-              const SizedBox(width: 8),
-            ],
-            Text(
-              loading ? (loadingText ?? text) : text,
-              style: ts(16, w: FontWeight.w600, color: fg, h: 24),
+            Opacity(
+              opacity: loading ? 0 : 1,
+              child: Text(
+                text,
+                style: ts(16, w: FontWeight.w600, color: fg, h: 24),
+              ),
             ),
+            if (loading) AppSpinner(size: 18, color: fg),
           ],
         ),
       ),

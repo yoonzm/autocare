@@ -202,7 +202,12 @@ class _LegalWebPageState extends State<LegalWebPage> {
                               ),
                             ),
                             if (!_loaded)
-                              const Center(child: CircularProgressIndicator()),
+                              Center(
+                                child: AppSpinner(
+                                  size: 24,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ),
                           ],
                         ),
                 ),

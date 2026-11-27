@@ -3,6 +3,7 @@ import 'package:autocare_ui_kit/autocare_ui_kit.dart'
 import 'package:flutter/material.dart';
 
 import '../../backend/merchant_api.dart';
+import '../../kit/async_kit.dart' show AppSpinner;
 import '../../theme.dart';
 import '../../widgets/app_icon.dart';
 import '../../widgets/common.dart';
@@ -114,7 +115,7 @@ class _SmsLogsPageState extends State<SmsLogsPage> {
     }
 
     if (!_loaded && _loading) {
-      return const Center(child: CircularProgressIndicator(strokeWidth: 2));
+      return Center(child: AppSpinner(size: 22, color: C.primary));
     }
 
     if (_items.isEmpty) {
@@ -168,11 +169,7 @@ class _SmsLogsPageState extends State<SmsLogsPage> {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       child: Center(
                         child: _loading
-                            ? const SizedBox(
-                                width: 18,
-                                height: 18,
-                                child: CircularProgressIndicator(strokeWidth: 2),
-                              )
+                            ? AppSpinner(size: 14, color: C.primaryInk)
                             : Text(
                                 '加载更多记录',
                                 style: ts(

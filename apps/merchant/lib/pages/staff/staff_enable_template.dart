@@ -244,7 +244,6 @@ class StaffEnableTemplate extends StatelessWidget {
                               Color(0xFFFFFFFF),
                               w: FontWeight.w600,
                             ),
-                            label: '提交中…',
                           ),
                         ),
                       ),

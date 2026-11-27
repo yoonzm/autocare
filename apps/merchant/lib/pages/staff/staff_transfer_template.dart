@@ -427,7 +427,6 @@ class _StaffTransferTemplateState extends State<StaffTransferTemplate> {
                               Color(0xFFFFFFFF),
                               w: FontWeight.w600,
                             ),
-                            label: '提交中…',
                           ),
                         ),
                       ),

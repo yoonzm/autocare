@@ -1231,7 +1231,6 @@ class _BottomDock extends StatelessWidget {
                             w: FontWeight.w600,
                             lh: 24,
                           ),
-                          label: '提交中…',
                         ),
                       ),
                     ),

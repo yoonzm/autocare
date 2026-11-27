@@ -174,7 +174,6 @@ class MemberDeleteSheet extends StatelessWidget {
                               w: FontWeight.w500,
                               lh: 22,
                             ),
-                            label: '提交中…',
                           ),
                         ),
                       ),

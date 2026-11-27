@@ -378,28 +378,20 @@ class _PickerListState extends State<_PickerList> {
       padding: const EdgeInsets.fromLTRB(20, 10, 20, 4),
       child: Text(t, style: hts(12, muted, w: FontWeight.w500, lh: 17)),
     );
-    return Stack(
-      children: [
-        ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            if (_recent.isNotEmpty) ...[
-              heading('最近使用'),
-              for (var i = 0; i < _recent.length; i++)
-                _row(context, _recent[i], i),
-            ],
-            heading('全部会员 · $_total'),
-            for (var i = 0; i < _all.length; i++) _row(context, _all[i], i + 2),
+    return Opacity(
+      opacity: _loading && _skeleton ? 0.6 : 1,
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          if (_recent.isNotEmpty) ...[
+            heading('最近使用'),
+            for (var i = 0; i < _recent.length; i++)
+              _row(context, _recent[i], i),
           ],
-        ),
-        if (_loading && _skeleton)
-          const Positioned(
-            left: 0,
-            right: 0,
-            top: 0,
-            child: LinearProgressIndicator(minHeight: 2),
-          ),
-      ],
+          heading('全部会员 · $_total'),
+          for (var i = 0; i < _all.length; i++) _row(context, _all[i], i + 2),
+        ],
+      ),
     );
   }
 

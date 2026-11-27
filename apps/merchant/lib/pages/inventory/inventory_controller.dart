@@ -425,7 +425,6 @@ class InventoryController extends ChangeNotifier {
     actionKey(kind),
     child,
     style: child is Text ? child.style : null,
-    label: kind == 'submit' ? '提交中…' : null,
   );
   static const payments = ['现金', '微信', '对公转账', '挂账'];
   static const outReasons = ['施工领用', '损耗报废', '退回供应商', '内部使用'];

@@ -308,7 +308,6 @@ class ExpenseController extends ChangeNotifier {
     saveKey,
     child,
     style: child is Text ? child.style : null,
-    label: '提交中…',
   );
 
   void setEntryAmount(String value) {

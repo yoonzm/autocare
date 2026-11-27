@@ -722,8 +722,8 @@ void main() {
     await t.pump();
     expect(api.bookings.single['status'], 'waiting');
     expect(find.byType(AppSpinner), findsWidgets);
-    expect(find.text('提交中…'), findsOneWidget);
-    await t.tap(find.text('提交中…'));
+    expect(find.text('提交中…'), findsNothing);
+    await t.tap(find.byType(AppSpinner).first, warnIfMissed: false);
     await t.pump();
     expect(api.calls.where((c) => c['action'] == 'arrive').length, 1);
     api.writeError = const AppError('该预约已变化');
@@ -863,9 +863,9 @@ void main() {
     await t.tap(find.text('客户到店 · 开单'));
     await t.pump();
     expect(t.getSize(button), size);
-    expect(find.text('提交中…'), findsOneWidget);
+    expect(find.text('提交中…'), findsNothing);
     expect(find.byType(AppSpinner), findsWidgets);
-    await t.tap(find.text('提交中…'));
+    await t.tap(find.byType(AppSpinner).first, warnIfMissed: false);
     await t.pump();
     expect(api.calls.where((c) => c['action'] == 'arrive').length, 1);
     api.writeError = const AppError('该预约已变化');
@@ -1001,10 +1001,10 @@ void main() {
     await t.tap(find.text('保存设置'));
     await t.pump();
     final busyButton = find
-        .ancestor(of: find.text('提交中…'), matching: find.byType(Expanded))
+        .ancestor(of: find.byType(AppSpinner).first, matching: find.byType(Expanded))
         .last;
     expect(t.getSize(busyButton), size);
-    expect(find.text('提交中…'), findsOneWidget);
+    expect(find.text('提交中…'), findsNothing);
     expect(find.byType(AppSpinner), findsWidgets);
     expect(api.calls.where((c) => c['action'] == 'settings_save').length, 1);
     api.writeError = const AppError('保存失败');
@@ -1112,7 +1112,7 @@ void main() {
     expect(api.calls.where((c) => c['action'] == 'save'), isEmpty);
   });
 
-  testWidgets('确认改期加载时按钮不缩形，显示转圈和提交中且不可重复提交', (t) async {
+  testWidgets('确认改期加载时按钮不缩形，显示转圈且不可重复提交', (t) async {
     api.bookings.add(bookingRow());
     api.gate = Completer<void>();
     await open(
@@ -1142,7 +1142,7 @@ void main() {
     expect(t.getSize(button), before);
     expect(
       find.descendant(of: button, matching: find.text('提交中…')),
-      findsOneWidget,
+      findsNothing,
     );
     expect(
       find.descendant(of: button, matching: find.byType(AppSpinner)),

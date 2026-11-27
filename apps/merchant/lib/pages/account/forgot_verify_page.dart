@@ -400,7 +400,6 @@ class _ForgotVerifyPageState extends State<ForgotVerifyPage> {
                               w: FontWeight.w600,
                               lh: 22,
                             ),
-                            label: '提交中…',
                           ),
                         ),
                       ),

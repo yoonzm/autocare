@@ -383,7 +383,6 @@ void main() {
           home: Scaffold(
             body: LoadingButton(
               label: '提交',
-              loadingLabel: '提交中…',
               onPressed: () async {
                 runs++;
                 await done.future;
@@ -394,10 +393,9 @@ void main() {
       );
       await t.tap(find.text('提交'));
       await t.pump();
-      expect(find.text('提交中…'), findsOneWidget);
       expect(find.byType(AppSpinner), findsOneWidget);
-      await t.tap(find.text('提交中…'));
-      await t.tap(find.text('提交中…'));
+      await t.tap(find.byType(LoadingButton));
+      await t.tap(find.byType(LoadingButton));
       await t.pump();
       expect(runs, 1);
       done.complete();

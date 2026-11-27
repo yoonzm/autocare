@@ -252,9 +252,9 @@ class _PayeeSheetState extends State<PayeeSheet> {
       case _Phase.loading:
         if (_items.isEmpty) {
           rows.add(
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 24),
-              child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24),
+              child: Center(child: AppSpinner(size: 20, color: t.primary)),
             ),
           );
           break;

@@ -593,7 +593,6 @@ class _AppointmentsPageState extends State<AppointmentsPage>
                     style: ts(14, w: FontWeight.w600, color: fg, h: 20),
                   ),
                   style: ts(14, w: FontWeight.w600, color: fg, h: 20),
-                  label: '提交中…',
                 )
               : Text(
                   t,

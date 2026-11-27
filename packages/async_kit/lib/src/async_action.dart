@@ -105,8 +105,7 @@ Widget hBusy(
   bool icon = false,
   bool spinner = true,
 
-  /// 全宽底栏按钮的加载文案（设计稿“提交中…”）：转圈在左、文字在右，整体居中。
-  /// 顶部的小按钮不传，只显示转圈。
+  /// 兼容保留参数；按最新规范提交按钮 loading 时仅显示转圈，不再展示附加文案。
   String? label,
 
   /// 顶部的“保存”胶囊按钮：加载时变成设计稿图标按钮的样子（44×44 的圆 + 20px 转圈）。
@@ -134,30 +133,6 @@ Widget hBusy(
             child: AppSpinner(size: 20, color: color),
           ),
         ),
-      );
-    }
-    if (label != null && spinner && !icon) {
-      // 转圈 + 文字（设计稿：“提交中…”“保存中…”）。原内容仍隐藏着占位，
-      // 加载内容比原内容宽时按钮随之撑开，不会比原来更小。
-      return Stack(
-        fit: StackFit.passthrough,
-        alignment: Alignment.center,
-        children: [
-          Opacity(opacity: 0, child: child),
-          Semantics(
-            label: '处理中',
-            liveRegion: true,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                AppSpinner(size: 18, color: color),
-                const SizedBox(width: 8),
-                Text(label, style: style, softWrap: false, maxLines: 1),
-              ],
-            ),
-          ),
-        ],
       );
     }
     return Stack(

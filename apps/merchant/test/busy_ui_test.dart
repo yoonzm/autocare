@@ -183,19 +183,16 @@ void main() {
       final after = t.getSize(button);
       expect(after, before);
       expect(find.byType(AppSpinner), findsOneWidget);
-      // 原来的文字被隐藏；设计稿的全宽按钮：转圈在左、“提交中…”在右，都在按钮里面
+      // 原来的文字被隐藏，只显示居中转圈且在按钮内
       final text = t.widget<Opacity>(
         find
             .ancestor(of: find.text('下一步'), matching: find.byType(Opacity))
             .first,
       );
       expect(text.opacity, 0);
-      expect(find.text('提交中…'), findsOneWidget);
+      expect(find.text('提交中…'), findsNothing);
       final spinner = t.getRect(find.byType(AppSpinner));
-      final label = t.getRect(find.text('提交中…'));
-      expect(spinner.right, lessThan(label.left));
       expect(t.getRect(button).contains(spinner.center), isTrue);
-      expect(t.getRect(button).contains(label.center), isTrue);
 
       api.codeGate!.complete();
       await t.pumpAndSettle();

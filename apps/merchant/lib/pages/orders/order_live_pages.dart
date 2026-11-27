@@ -1486,7 +1486,6 @@ class _RefundState extends State<OrderRefundLiveSheet> {
                         bg: C.redSoft,
                         fg: C.redInk,
                         loading: busy,
-                        loadingText: '提交中…',
                         onTap: _submit,
                       ),
                     ),

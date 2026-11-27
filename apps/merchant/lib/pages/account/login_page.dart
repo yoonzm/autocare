@@ -550,7 +550,6 @@ class _LoginPageState extends State<LoginPage> {
             '登录',
             onTap: login,
             loading: busy,
-            loadingText: '登录中…',
           ),
         ),
         const SizedBox(height: 16),

@@ -858,7 +858,6 @@ class _OrderPageState extends State<OrderPage> {
                       '确认收款',
                       onTap: checkout,
                       loading: _busy,
-                      loadingText: '提交中…',
                     ),
                   ],
                 ],

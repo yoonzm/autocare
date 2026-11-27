@@ -108,14 +108,7 @@ class _ImageViewerPageState extends State<ImageViewerPage> {
               ),
             ),
             loadingBuilder: (_, event) => const Center(
-              child: SizedBox(
-                width: 28,
-                height: 28,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.5,
-                  color: Colors.white70,
-                ),
-              ),
+              child: AppSpinner(size: 24, color: Colors.white70),
             ),
           ),
           Positioned(

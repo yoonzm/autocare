@@ -103,7 +103,7 @@ void main() {
     await t.pump();
     expect(find.byType(AppSpinner), findsOneWidget);
     expect(t.getSize(find.byType(AppSpinner)), const Size(18, 18));
-    expect(find.text('提交中…'), findsOneWidget);
+    expect(find.text('提交中…'), findsNothing);
     final loadingButton = find
         .ancestor(of: find.byType(AppSpinner), matching: find.byType(Container))
         .first;

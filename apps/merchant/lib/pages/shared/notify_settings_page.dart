@@ -398,12 +398,8 @@ class _NotifySettingsPageState extends State<NotifySettingsPage> {
         width: 48,
         height: 28,
         child: busy
-            ? const Center(
-                child: SizedBox(
-                  width: 22,
-                  height: 22,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
+            ? Center(
+                child: AppSpinner(size: 18, color: C.primary),
               )
             : Semantics(
                 label: '${item['title'] ?? ''}',
