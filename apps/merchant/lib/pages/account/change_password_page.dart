@@ -9,6 +9,7 @@ import '../../kit/text_input.dart';
 import '../../resources/merchant_svgs.dart';
 import '../../routes.dart' show openRoute;
 import '../../kit/page_header.dart';
+import 'password_strength_widgets.dart';
 
 class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({super.key});
@@ -20,8 +21,18 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   final _currentPassword = TextEditingController();
   final _newPassword = TextEditingController();
   final _confirmation = TextEditingController();
+  late final _strengthInputs = Listenable.merge([
+    _currentPassword,
+    _newPassword,
+  ]);
   final _visible = [false, false, false];
   late final _api = merchantApi;
+
+  PasswordEvaluation _evaluate() => evaluatePassword(
+    _newPassword.text,
+    current: _currentPassword.text,
+    phone: storeProfile.localPhone,
+  );
   @override
   void dispose() {
     _currentPassword.dispose();
@@ -313,84 +324,11 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                             cross: CrossAxisAlignment.stretch,
                             gap: 6,
                           ),
-                          hcol(
-                            [
-                              hrow(
-                                [
-                                  Expanded(
-                                    flex: 1,
-                                    child: UnconstrainedBox(
-                                      alignment: Alignment.topLeft,
-                                      constrainedAxis: Axis.horizontal,
-                                      child: hbox(
-                                        h: 4,
-                                        bg: Color(0xFF17C964),
-                                        radius: BorderRadius.circular(2),
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 1,
-                                    child: UnconstrainedBox(
-                                      alignment: Alignment.topLeft,
-                                      constrainedAxis: Axis.horizontal,
-                                      child: hbox(
-                                        h: 4,
-                                        bg: Color(0xFF17C964),
-                                        radius: BorderRadius.circular(2),
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 1,
-                                    child: UnconstrainedBox(
-                                      alignment: Alignment.topLeft,
-                                      constrainedAxis: Axis.horizontal,
-                                      child: hbox(
-                                        h: 4,
-                                        bg: Color(0xFF17C964),
-                                        radius: BorderRadius.circular(2),
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 1,
-                                    child: UnconstrainedBox(
-                                      alignment: Alignment.topLeft,
-                                      constrainedAxis: Axis.horizontal,
-                                      child: hbox(
-                                        h: 4,
-                                        bg: dk(
-                                          context,
-                                          Color(0xFFE4E4E7),
-                                          Color(0xFF3A3A40),
-                                        ),
-                                        radius: BorderRadius.circular(2),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                                main: MainAxisAlignment.start,
-                                cross: CrossAxisAlignment.stretch,
-                                gap: 6,
-                                intrinsic: true,
-                              ),
-                              Text(
-                                '强度：强',
-                                style: hts(
-                                  12,
-                                  dk(
-                                    context,
-                                    Color(0xFF2B7745),
-                                    Color(0xFF5FD48C),
-                                  ),
-                                  w: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                            main: MainAxisAlignment.start,
-                            cross: CrossAxisAlignment.stretch,
-                            gap: 8,
+                          ListenableBuilder(
+                            listenable: _strengthInputs,
+                            builder: (context, _) => PasswordStrengthBar(
+                              strength: _evaluate().strength,
+                            ),
                           ),
                           hcol(
                             [
@@ -507,136 +445,31 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                         gap: 16,
                       ),
                     ),
-                    hbox(
-                      bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-                      radius: BorderRadius.circular(24),
-                      shadow: dk(
-                        context,
-                        [
-                          BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 0),
-                            blurRadius: 1,
-                            spreadRadius: 0,
-                          ),
-                          BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.06),
-                            offset: Offset(0, 1),
-                            blurRadius: 2,
-                            spreadRadius: 0,
-                          ),
-                          BoxShadow(
-                            color: Color.fromRGBO(0, 0, 0, 0.04),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
-                            spreadRadius: 0,
-                          ),
-                        ],
-                        [
-                          BoxShadow(
-                            color: Color(0xFF26262B),
-                            offset: Offset(0, 0),
-                            blurRadius: 0,
-                            spreadRadius: 1,
-                          ),
-                        ],
-                      ),
-                      pad: EdgeInsets.fromLTRB(16, 16, 16, 16),
-                      child: hcol(
-                        [
-                          hrow(
-                            [
-                              hsvg(Svgs.s87, w: 14, h: 14),
-                              Flexible(
-                                flex: 76,
-                                child: Text(
-                                  '长度 8–20 位',
-                                  style: hts(
-                                    13,
-                                    dk(
-                                      context,
-                                      Color(0xFF3F3F46),
-                                      Color(0xFFD4D4D8),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                            main: MainAxisAlignment.start,
-                            cross: CrossAxisAlignment.center,
-                            gap: 8,
-                          ),
-                          hrow(
-                            [
-                              hsvg(Svgs.s87, w: 14, h: 14),
-                              Flexible(
-                                flex: 117,
-                                child: Text(
-                                  '同时包含字母和数字',
-                                  style: hts(
-                                    13,
-                                    dk(
-                                      context,
-                                      Color(0xFF3F3F46),
-                                      Color(0xFFD4D4D8),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                            main: MainAxisAlignment.start,
-                            cross: CrossAxisAlignment.center,
-                            gap: 8,
-                          ),
-                          hrow(
-                            [
-                              hsvg(Svgs.s87, w: 14, h: 14),
-                              Flexible(
-                                flex: 117,
-                                child: Text(
-                                  '不能与当前密码相同',
-                                  style: hts(
-                                    13,
-                                    dk(
-                                      context,
-                                      Color(0xFF3F3F46),
-                                      Color(0xFFD4D4D8),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                            main: MainAxisAlignment.start,
-                            cross: CrossAxisAlignment.center,
-                            gap: 8,
-                          ),
-                          hrow(
-                            [
-                              hsvg(Svgs.s87, w: 14, h: 14),
-                              Flexible(
-                                flex: 117,
-                                child: Text(
-                                  '不含手机号连续数字',
-                                  style: hts(
-                                    13,
-                                    dk(
-                                      context,
-                                      Color(0xFF3F3F46),
-                                      Color(0xFFD4D4D8),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                            main: MainAxisAlignment.start,
-                            cross: CrossAxisAlignment.center,
-                            gap: 8,
-                          ),
-                        ],
-                        main: MainAxisAlignment.start,
-                        cross: CrossAxisAlignment.stretch,
-                        gap: 8,
-                      ),
+                    ListenableBuilder(
+                      listenable: _strengthInputs,
+                      builder: (context, _) {
+                        final eval = _evaluate();
+                        return PasswordRulesCard(
+                          rules: [
+                            PasswordRuleItem(
+                              label: '长度 8–20 位',
+                              satisfied: eval.hasLength,
+                            ),
+                            PasswordRuleItem(
+                              label: '同时包含字母和数字',
+                              satisfied: eval.hasLetterAndDigit,
+                            ),
+                            PasswordRuleItem(
+                              label: '不能与当前密码相同',
+                              satisfied: eval.differsFromCurrent,
+                            ),
+                            PasswordRuleItem(
+                              label: '不含手机号连续数字',
+                              satisfied: eval.noPhoneDigits,
+                            ),
+                          ],
+                        );
+                      },
                     ),
                     GestureDetector(
                       behavior: HitTestBehavior.opaque,
