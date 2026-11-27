@@ -35,6 +35,7 @@ try {
   await db.exec(file('202611060004_admin_platform.sql'));
   await db.query("insert into admin_accounts(id,username,name,role,must_change) values($1,'super_test','Test Super','superAdmin',false),($2,'ops_test','Test Ops','ops',false)", [superId, opsId]);
   await db.exec(file('202611100008_account_cancellation.sql'));
+  await db.exec(file('202611270002_admin_user_events.sql'));
 
   // 数据：老板 A（2 家店，其中一家有挂单和待到店预约）、老板 B（已申请注销）、技师、既是老板又是前台的人。
   const storeA1 = uuid(), storeA2 = uuid(), storeB = uuid(), storeC = uuid();
@@ -87,10 +88,20 @@ try {
   // 详情：身份、在线设备、进行中的事项、操作记录。
   let d = await get(ownerA);
   assert.equal(d.devices, 1); assert.equal(d.open_holds, 2); assert.equal(d.open_appointments, 2);
+  assert.deepEqual(
+    d.events.map((e) => e.text),
+    ['创建门店「驰光汽车美容 · 二店」', '创建门店「驰光汽车美容」', '注册账号'],
+    '正常老板账号展示创建门店与注册记录',
+  );
   d = await get(techU);
   assert.equal(d.open_holds, 0); assert.equal(d.open_appointments, 1, '只统计分配给该技师且待到店的预约');
+  assert.deepEqual(
+    d.events.map((e) => e.text),
+    ['加入门店「驰光汽车美容」（技师）', '注册账号'],
+    '正常员工账号展示加入门店与注册记录',
+  );
   d = await get(ownerB);
-  assert.equal(d.events[0].text, '用户自助申请注销');
+  assert.ok(d.events.some((e) => e.text === '用户自助申请注销'), '历史冷静期注销记录保留');
   await assert.rejects(() => get(uuid()), /账号不存在/);
   await assert.rejects(() => get(ownerA, opsId, opsS), /需要超级管理员权限/);
 
@@ -127,6 +138,12 @@ try {
   await assert.rejects(() => cancel(uuid(), 'other'), /账号不存在/);
   await assert.rejects(() => cancel(techU, 'other', '', uuid(), opsId, opsS), /需要超级管理员权限/);
   await assert.rejects(() => cancel(techU, 'other', '', null), /缺少请求编号/);
+  // 自助立即注销（source = 'self'）也会出现在操作记录中，且不再重复显示历史冷静期文案。
+  await db.query("insert into account_cancellations(user_id,phone,source,reason) values($1,'13500001111','self','')", [bothU]);
+  d = await get(bothU);
+  assert.equal(d.events[0].text, '用户自助注销');
+  assert.equal(d.events[0].by, '用户本人');
+
   assert.equal((await get(techU)).item.status, 'active', '被拒绝的操作不改变账号');
   console.log('PASS account list, filters, search, paging, detail, force cancellation keeps all store data, idempotency and super-admin only');
 } finally {
