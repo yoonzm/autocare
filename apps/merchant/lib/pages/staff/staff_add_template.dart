@@ -696,19 +696,6 @@ class StaffAddTemplate extends StatelessWidget {
                           gap: 8,
                         ),
                       ),
-                      GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () => c.deferred(context),
-                        child: Text(
-                          '查看并调整角色权限',
-                          style: hts(
-                            13,
-                            dk(context, Color(0xFF1E63AE), Color(0xFF6AB4FA)),
-                            w: FontWeight.w500,
-                            lh: 18,
-                          ),
-                        ),
-                      ),
                     ],
                     main: MainAxisAlignment.start,
                     cross: CrossAxisAlignment.stretch,

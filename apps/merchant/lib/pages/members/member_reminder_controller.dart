@@ -16,8 +16,6 @@ class FollowView {
   int get all => (data['items'] as List? ?? []).length;
   String get chipAll => '全部 $all';
   String get chipExpire => '次卡到期 ${count('次卡到期')}';
-  // TODO: 养护到期需要施工记录计算；尚无 reminders 返回值，不能伪造提醒。
-  String get chipCare => '养护到期 0';
   String get chipBirthday => '生日 ${count('生日')}';
   String get chipSleep => '沉睡 ${count('沉睡客户')}';
   double get fraction => done + pending == 0
@@ -26,7 +24,7 @@ class FollowView {
 }
 
 class MemberReminderController extends ChangeNotifier {
-  static const kinds = [null, '次卡到期', '养护到期', '生日', '沉睡客户'];
+  static const kinds = [null, '次卡到期', '生日', '沉睡客户'];
   Map<String, dynamic> data = {};
   int tab = 0;
   bool disposed = false;

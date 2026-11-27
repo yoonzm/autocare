@@ -367,7 +367,7 @@ class _MemberFollowUpTemplate extends StatelessWidget {
                                     alignment: Alignment.center,
                                     widthFactor: 1,
                                     child: Text(
-                                      f.chipCare,
+                                      f.chipBirthday,
                                       style: hts(
                                         13,
                                         dk(
@@ -405,7 +405,7 @@ class _MemberFollowUpTemplate extends StatelessWidget {
                                     alignment: Alignment.center,
                                     widthFactor: 1,
                                     child: Text(
-                                      f.chipCare,
+                                      f.chipBirthday,
                                       style: hts(
                                         13,
                                         dk(
@@ -427,80 +427,6 @@ class _MemberFollowUpTemplate extends StatelessWidget {
                               child: HSel(
                                 ctrl: g1,
                                 index: 3,
-                                segment: true,
-                                on: hbox(
-                                  h: 34,
-                                  bg: dk(
-                                    context,
-                                    Color(0xFF18181B),
-                                    Color(0xFFFAFAFA),
-                                  ),
-                                  radius: BorderRadius.circular(17),
-                                  pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                  child: Align(
-                                    alignment: Alignment.center,
-                                    widthFactor: 1,
-                                    child: Text(
-                                      f.chipBirthday,
-                                      style: hts(
-                                        13,
-                                        dk(
-                                          context,
-                                          Color(0xFFFFFFFF),
-                                          Color(0xFF18181B),
-                                        ),
-                                        w: FontWeight.w500,
-                                        lh: 18,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                off: hbox(
-                                  h: 34,
-                                  bg: dk(
-                                    context,
-                                    Color(0xFFFFFFFF),
-                                    Color(0xFF18181B),
-                                  ),
-                                  radius: BorderRadius.circular(17),
-                                  border: dk(
-                                    context,
-                                    Border.all(
-                                      color: Color(0xFFE4E4E7),
-                                      width: 1,
-                                    ),
-                                    Border.all(
-                                      color: Color(0xFF3A3A40),
-                                      width: 1,
-                                    ),
-                                  ),
-                                  pad: EdgeInsets.fromLTRB(14, 0, 14, 0),
-                                  child: Align(
-                                    alignment: Alignment.center,
-                                    widthFactor: 1,
-                                    child: Text(
-                                      f.chipBirthday,
-                                      style: hts(
-                                        13,
-                                        dk(
-                                          context,
-                                          Color(0xFF3F3F46),
-                                          Color(0xFFD4D4D8),
-                                        ),
-                                        w: FontWeight.w500,
-                                        lh: 18,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            UnconstrainedBox(
-                              alignment: Alignment.topLeft,
-                              constrainedAxis: Axis.horizontal,
-                              child: HSel(
-                                ctrl: g1,
-                                index: 4,
                                 segment: true,
                                 on: hbox(
                                   h: 34,

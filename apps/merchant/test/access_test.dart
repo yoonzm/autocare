@@ -161,7 +161,7 @@ void main() {
     await t.pumpAndSettle();
     expect(text('老周'), findsWidgets);
     expect(text('¥4,620'), findsWidgets);
-    expect(text('—'), findsWidgets, reason: '好评率没有数据来源，显示 —');
+    expect(text('好评率'), findsNothing);
     expect(text('切换身份'), findsOneWidget);
     expect(find.textContaining('当前：悦驰汽车装饰 · 松江店 · 施工技师'), findsOneWidget);
     // 单身份账号不显示

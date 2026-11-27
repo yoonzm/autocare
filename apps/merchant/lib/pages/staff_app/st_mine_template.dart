@@ -206,37 +206,6 @@ class StMineTemplate extends StatelessWidget {
                                   child: hcol(
                                     [
                                       Text(
-                                        '—',
-                                        style: hts(
-                                          17,
-                                          Color(0xFFFAFAFA),
-                                          w: FontWeight.w600,
-                                          lh: 24,
-                                        ),
-                                      ),
-                                      Text(
-                                        '好评率',
-                                        style: hts(
-                                          11,
-                                          dk(
-                                            context,
-                                            Color(0xFFA1A1AA),
-                                            Color(0xFF80808A),
-                                          ),
-                                          lh: 16,
-                                        ),
-                                      ),
-                                    ],
-                                    main: MainAxisAlignment.start,
-                                    cross: CrossAxisAlignment.stretch,
-                                    gap: 2,
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 1,
-                                  child: hcol(
-                                    [
-                                      Text(
                                         stMoney(d['month_commission']),
                                         style: hts(
                                           17,

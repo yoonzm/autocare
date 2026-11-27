@@ -361,7 +361,7 @@ void main() {
         {'kind': '沉睡客户', 'member_id': 'b'},
       ],
     });
-    a.selectTab(3);
+    a.selectTab(2);
     expect(a.items.single['member_id'], 'a');
     expect(b.tab, 0);
     expect(a.view.fraction, 0.25);

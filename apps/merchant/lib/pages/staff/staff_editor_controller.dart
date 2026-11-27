@@ -150,11 +150,6 @@ class StaffEditorController extends ChangeNotifier {
     changed();
   }
 
-  void deferred(BuildContext context) {
-    // TODO: staff notification/shift/specialty extensions require their own backend contract.
-    AppToast.show(context, 'TODO：此功能尚未接通，当前未执行该操作');
-  }
-
   void toggleActive(BuildContext context) {
     if (!locked) onDisable?.call(context);
   }

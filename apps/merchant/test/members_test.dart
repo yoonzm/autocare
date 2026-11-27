@@ -2126,7 +2126,7 @@ void main() {
       await t.pumpAndSettle();
       expect(find.text('全部 2'), findsWidgets);
       expect(find.text('次卡到期 1'), findsWidgets);
-      expect(find.text('养护到期 0'), findsWidgets);
+      expect(find.text('养护到期 0'), findsNothing);
       expect(find.text('沉睡 1'), findsWidgets);
       expect(
         find.textContaining('已完成 3 / 5', findRichText: true),

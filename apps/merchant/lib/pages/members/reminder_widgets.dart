@@ -42,14 +42,13 @@ class ReminderList extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
-    final kind = MemberReminderController.kinds[controller.tab];
     final items = controller.items;
     if (items.isEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 40),
         child: Center(
           child: Text(
-            kind == '养护到期' ? '养护提醒暂未接通' : '今天没有需要回访的客户',
+            '今天没有需要回访的客户',
             style: hts(
               14,
               dk(context, const Color(0xFF71717A), const Color(0xFF9A9AA3)),
