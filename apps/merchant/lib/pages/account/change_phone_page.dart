@@ -74,9 +74,23 @@ class _ChangePhonePageState extends State<ChangePhonePage> {
   Widget build(BuildContext context) {
     return AsyncAction(
       onTap: _save,
-      builder: (actionKey, onSave) => AsyncActionScope(
-        actionKey: actionKey,
-        child: HPage(
+      builder: (actionKey, onSave) => ListenableBuilder(
+        listenable: Listenable.merge([
+          busyActions,
+          _oldCode,
+          _newPhone,
+          _newCode,
+        ]),
+        builder: (context, child) => ConfirmDiscard(
+          dirty: _oldCode.text.isNotEmpty ||
+              _newPhone.text.isNotEmpty ||
+              _newCode.text.isNotEmpty,
+          busy: busyActions.value.contains(actionKey),
+          child: child!,
+        ),
+        child: AsyncActionScope(
+          actionKey: actionKey,
+          child: HPage(
           bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
           header: AppPageHeader(title: '更换手机号'),
           flow: hcol(
@@ -676,6 +690,7 @@ class _ChangePhonePageState extends State<ChangePhonePage> {
               ),
             ),
           ],
+        ),
         ),
       ),
     );

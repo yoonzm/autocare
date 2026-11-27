@@ -58,6 +58,26 @@ class _CardTierEditPageState extends State<CardTierEditPage> {
         .clamp(0, 2),
   }, false);
 
+  late final String _initialSnapshot = _snapshot();
+
+  String _snapshot() => [
+    _name.text,
+    _recharge.text,
+    _cumulative.text,
+    _discount.v,
+    _color,
+    _priority,
+    _multiplier.v,
+    _gift.v,
+    _validity.selected.first,
+  ].join('\u0000');
+
+  @override
+  void initState() {
+    super.initState();
+    _initialSnapshot;
+  }
+
   @override
   void dispose() {
     _name.dispose();
@@ -142,9 +162,25 @@ class _CardTierEditPageState extends State<CardTierEditPage> {
   Widget build(BuildContext context) {
     return AsyncAction(
       onTap: _save,
-      builder: (saveKey, onSave) => AsyncActionScope(
-        actionKey: saveKey,
-        child: HPage(
+      builder: (saveKey, onSave) => ListenableBuilder(
+        listenable: Listenable.merge([
+          busyActions,
+          _name,
+          _recharge,
+          _cumulative,
+          _discount,
+          _multiplier,
+          _gift,
+          _validity,
+        ]),
+        builder: (context, child) => ConfirmDiscard(
+          dirty: _snapshot() != _initialSnapshot,
+          busy: busyActions.value.contains(saveKey),
+          child: child!,
+        ),
+        child: AsyncActionScope(
+          actionKey: saveKey,
+          child: HPage(
           bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
           header: AppPageHeader(
             title: widget.initial?['id'] == null ? '新增卡种' : '编辑卡种',
@@ -1311,6 +1347,7 @@ class _CardTierEditPageState extends State<CardTierEditPage> {
             gap: 0,
           ),
           overlays: [],
+        ),
         ),
       ),
     );

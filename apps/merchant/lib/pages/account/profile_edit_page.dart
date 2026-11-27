@@ -23,8 +23,10 @@ class ProfileEditPage extends StatefulWidget {
 }
 
 class _ProfileEditPageState extends State<ProfileEditPage> {
-  final _name = TextEditingController(text: storeProfile.profileName);
-  final _email = TextEditingController(text: storeProfile.profileEmail);
+  late final _initName = storeProfile.profileName;
+  late final _initEmail = storeProfile.profileEmail;
+  late final _name = TextEditingController(text: _initName);
+  late final _email = TextEditingController(text: _initEmail);
   XFile? _avatar;
   XFile? _uploadedAvatar;
   late final _api = merchantApi;
@@ -65,9 +67,18 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
   Widget build(BuildContext context) {
     return AsyncAction(
       onTap: _save,
-      builder: (actionKey, onSave) => AsyncActionScope(
-        actionKey: actionKey,
-        child: ListenableBuilder(
+      builder: (actionKey, onSave) => ListenableBuilder(
+        listenable: Listenable.merge([busyActions, _name, _email]),
+        builder: (context, child) => ConfirmDiscard(
+          dirty: _name.text != _initName ||
+              _email.text != _initEmail ||
+              (_avatar != null && !identical(_avatar, _uploadedAvatar)),
+          busy: busyActions.value.contains(actionKey),
+          child: child!,
+        ),
+        child: AsyncActionScope(
+          actionKey: actionKey,
+          child: ListenableBuilder(
           listenable: storeProfile,
           builder: (context, _) => HPage(
             bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
@@ -675,6 +686,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
             ),
             overlays: [],
           ),
+        ),
         ),
       ),
     );

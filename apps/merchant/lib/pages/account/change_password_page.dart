@@ -59,9 +59,23 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   Widget build(BuildContext context) {
     return AsyncAction(
       onTap: _save,
-      builder: (actionKey, onSave) => AsyncActionScope(
-        actionKey: actionKey,
-        child: HPage(
+      builder: (actionKey, onSave) => ListenableBuilder(
+        listenable: Listenable.merge([
+          busyActions,
+          _currentPassword,
+          _newPassword,
+          _confirmation,
+        ]),
+        builder: (context, child) => ConfirmDiscard(
+          dirty: _currentPassword.text.isNotEmpty ||
+              _newPassword.text.isNotEmpty ||
+              _confirmation.text.isNotEmpty,
+          busy: busyActions.value.contains(actionKey),
+          child: child!,
+        ),
+        child: AsyncActionScope(
+          actionKey: actionKey,
+          child: HPage(
           bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
           header: AppPageHeader(title: '修改登录密码'),
           flow: hcol(
@@ -574,6 +588,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
               ),
             ),
           ],
+        ),
         ),
       ),
     );

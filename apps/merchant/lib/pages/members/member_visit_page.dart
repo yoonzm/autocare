@@ -39,9 +39,13 @@ class _MemberVisitPageHostState extends State<_MemberVisitPageHost> {
 
   Widget content() => ListenableBuilder(
     listenable: c!,
-    builder: (_, _) => AsyncActionScope(
-      actionKey: c!.actionKey,
-      child: _MemberVisitPageTemplate(c: c!),
+    builder: (_, _) => ConfirmDiscard(
+      dirty: c!.dirty,
+      busy: c!.busy,
+      child: AsyncActionScope(
+        actionKey: c!.actionKey,
+        child: _MemberVisitPageTemplate(c: c!),
+      ),
     ),
   );
   @override

@@ -70,9 +70,24 @@ class _PackageEditPageState extends State<PackageEditPage> {
     );
   }
 
+  late final String _initialSnapshot = _snapshot();
+
+  String _snapshot() => [
+    _name.text,
+    _price.text,
+    _description.text,
+    _validity.selected.first,
+    _limit.v,
+    _scope.v,
+    _showInMini,
+    _active,
+    for (final item in _items) '${item['service_id']}:${item['count']}',
+  ].join('\u0000');
+
   @override
   void initState() {
     super.initState();
+    _initialSnapshot;
     _name.addListener(_changed);
     _price.addListener(_changed);
     _validity.addListener(_changed);
@@ -191,9 +206,24 @@ class _PackageEditPageState extends State<PackageEditPage> {
   Widget build(BuildContext context) {
     return AsyncAction(
       onTap: _save,
-      builder: (saveKey, onSave) => AsyncActionScope(
-        actionKey: saveKey,
-        child: HPage(
+      builder: (saveKey, onSave) => ListenableBuilder(
+        listenable: Listenable.merge([
+          busyActions,
+          _name,
+          _price,
+          _description,
+          _validity,
+          _limit,
+          _scope,
+        ]),
+        builder: (context, child) => ConfirmDiscard(
+          dirty: _snapshot() != _initialSnapshot,
+          busy: busyActions.value.contains(saveKey),
+          child: child!,
+        ),
+        child: AsyncActionScope(
+          actionKey: saveKey,
+          child: HPage(
           bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
           header: AppPageHeader(
             title: widget.initial?['id'] == null ? '新增套餐' : '编辑套餐',
@@ -1460,6 +1490,7 @@ class _PackageEditPageState extends State<PackageEditPage> {
             gap: 0,
           ),
           overlays: [],
+        ),
         ),
       ),
     );

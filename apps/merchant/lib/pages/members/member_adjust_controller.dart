@@ -13,11 +13,22 @@ class MemberAdjustController extends ChangeNotifier {
   final Map<String, dynamic> member;
   final note = TextEditingController();
   List<Map<String, dynamic>> tiers = [];
-  int tier = -1, direction = 0, points = 0, reason = -1;
+  int tier = -1, _initialTier = -1, direction = 0, points = 0, reason = -1;
   bool busy = false, disposed = false;
   String? _intent, _requestId;
   MemberAdjustController(Map<String, dynamic> member)
-    : member = Map.unmodifiable(member);
+    : member = Map.unmodifiable(member) {
+    note.addListener(_onNote);
+  }
+  void _onNote() {
+    if (!disposed) notifyListeners();
+  }
+
+  bool get dirty =>
+      (tiers.isNotEmpty && tier != _initialTier) ||
+      points > 0 ||
+      reason >= 0 ||
+      note.text.trim().isNotEmpty;
   MemberView get view => MemberView(member);
   String get actionKey => 'member-adjust-${identityHashCode(this)}';
   String get afterPoints => formatMoney(
@@ -37,6 +48,7 @@ class MemberAdjustController extends ChangeNotifier {
     if (disposed) return;
     tiers = rows.map((r) => Map<String, dynamic>.unmodifiable(r)).toList();
     tier = tiers.indexWhere((r) => r['id'] == member['card_type_id']);
+    _initialTier = tier;
   }
 
   String tierName(int index) {

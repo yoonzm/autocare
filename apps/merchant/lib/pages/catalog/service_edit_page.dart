@@ -80,9 +80,23 @@ class _ServiceEditPageState extends State<ServiceEditPage> {
   List<Map<String, dynamic>> _cards = const [];
   bool _cardsFailed = false;
 
+  late final String _initialSnapshot = _snapshot();
+
+  String _snapshot() => [
+    _name.text,
+    _price.text,
+    _fixedCommission,
+    _commission.text,
+    _category,
+    _durationMinutes,
+    _active,
+    for (final c in _consumables) '${c['product_id']}:${c['quantity']}',
+  ].join('\u0000');
+
   @override
   void initState() {
     super.initState();
+    _initialSnapshot;
     _price.addListener(_rebuild);
     _commission.addListener(_rebuild);
     _loadCards();
@@ -760,9 +774,16 @@ class _ServiceEditPageState extends State<ServiceEditPage> {
   Widget build(BuildContext context) {
     return AsyncAction(
       onTap: _save,
-      builder: (saveKey, onSave) => AsyncActionScope(
-        actionKey: saveKey,
-        child: HPage(
+      builder: (saveKey, onSave) => ListenableBuilder(
+        listenable: Listenable.merge([busyActions, _name, _price, _commission]),
+        builder: (context, child) => ConfirmDiscard(
+          dirty: _snapshot() != _initialSnapshot,
+          busy: busyActions.value.contains(saveKey),
+          child: child!,
+        ),
+        child: AsyncActionScope(
+          actionKey: saveKey,
+          child: HPage(
           bg: C.bg,
           header: AppPageHeader(
             title: widget.initial?['id'] == null ? '新增项目' : '编辑项目',
@@ -826,6 +847,7 @@ class _ServiceEditPageState extends State<ServiceEditPage> {
             ),
           ),
           overlays: const [],
+        ),
         ),
       ),
     );

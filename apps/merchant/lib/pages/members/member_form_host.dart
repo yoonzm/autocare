@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../backend/merchant_api.dart';
 import '../../kit/async_kit.dart';
+import '../../kit/kit.dart' show ConfirmDiscard;
 import '../../routes.dart' show openRoute;
 import 'member_form_controller.dart';
 
@@ -53,8 +54,14 @@ class _MemberFormHostState extends State<MemberFormHost> {
     }
     return ListenableBuilder(
       listenable: c,
-      builder: (_, _) =>
-          AsyncActionScope(actionKey: c.actionKey, child: widget.builder(c)),
+      builder: (_, _) => ConfirmDiscard(
+        dirty: c.dirty,
+        busy: c.busy,
+        child: AsyncActionScope(
+          actionKey: c.actionKey,
+          child: widget.builder(c),
+        ),
+      ),
     );
   }
 }

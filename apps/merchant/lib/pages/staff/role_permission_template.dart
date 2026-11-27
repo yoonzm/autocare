@@ -77,9 +77,17 @@ class _RolePermissionTemplateState extends State<RolePermissionTemplate> {
       for (final s in (d['staff'] as List? ?? const []))
         if ((s as Map)['role'] == role && s['status'] != 'disabled') s,
     ].length;
-    return AsyncActionScope(
-      actionKey: 'RolePermission>Staff-${identityHashCode(context)}',
-      child: HPage(
+    final actionKey = 'RolePermission>Staff-${identityHashCode(context)}';
+    return ValueListenableBuilder<Set<String>>(
+      valueListenable: busyActions,
+      builder: (context, keys, child) => ConfirmDiscard(
+        dirty: dirty.isNotEmpty,
+        busy: keys.contains(actionKey),
+        child: child!,
+      ),
+      child: AsyncActionScope(
+        actionKey: actionKey,
+        child: HPage(
         bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
         header: AppPageHeader(
           title: '角色权限',
@@ -1099,6 +1107,7 @@ class _RolePermissionTemplateState extends State<RolePermissionTemplate> {
           gap: 0,
         ),
         overlays: [],
+      ),
       ),
     );
   }

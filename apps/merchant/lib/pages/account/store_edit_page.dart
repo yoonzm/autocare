@@ -22,9 +22,12 @@ class StoreEditPage extends StatefulWidget {
 }
 
 class _StoreEditPageState extends State<StoreEditPage> {
-  final _name = TextEditingController(text: storeProfile.name);
-  final _phone = TextEditingController(text: storeProfile.phone);
-  final _address = TextEditingController(text: storeProfile.address);
+  late final _initName = storeProfile.name;
+  late final _initPhone = storeProfile.phone;
+  late final _initAddress = storeProfile.address;
+  late final _name = TextEditingController(text: _initName);
+  late final _phone = TextEditingController(text: _initPhone);
+  late final _address = TextEditingController(text: _initAddress);
   final _request = StoreFormRequest.update(storeId: StoreContext.id);
   late final _api = merchantApi;
   late final _media = MediaApi.store(_api);
@@ -67,15 +70,23 @@ class _StoreEditPageState extends State<StoreEditPage> {
     }
     return AsyncAction(
       onTap: _save,
-      builder: (actionKey, onSave) => AsyncActionScope(
-        actionKey: actionKey,
-        child: HPage(
-          bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
-          header: AppPageHeader(
-            title: '编辑门店信息',
-            leading: AppHeaderLeading.close,
-            onLeading: _leave,
-            trailing: GestureDetector(
+      builder: (actionKey, onSave) => ListenableBuilder(
+        listenable: Listenable.merge([busyActions, _name, _phone, _address]),
+        builder: (context, child) => ConfirmDiscard(
+          dirty: _name.text != _initName ||
+              _phone.text != _initPhone ||
+              _address.text != _initAddress,
+          busy: _mediaBusy || busyActions.value.contains(actionKey),
+          child: child!,
+        ),
+        child: AsyncActionScope(
+          actionKey: actionKey,
+          child: HPage(
+            bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
+            header: AppPageHeader(
+              title: '编辑门店信息',
+              leading: AppHeaderLeading.close,
+              trailing: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: _mediaBusy ? null : onSave,
               child: hbox(
@@ -492,6 +503,7 @@ class _StoreEditPageState extends State<StoreEditPage> {
             gap: 0,
           ),
           overlays: [],
+        ),
         ),
       ),
     );

@@ -18,7 +18,18 @@ class MemberVisitController extends ChangeNotifier {
   bool busy = false, disposed = false;
   String? _intent, _requestId;
   MemberVisitController(Map<String, dynamic> member)
-    : member = Map.unmodifiable(member);
+    : member = Map.unmodifiable(member) {
+    content.addListener(_onContent);
+  }
+  void _onContent() {
+    if (!disposed) notifyListeners();
+  }
+
+  bool get dirty =>
+      method != 0 ||
+      result >= 0 ||
+      next.isNotEmpty ||
+      content.text.trim().isNotEmpty;
   MemberView get view => MemberView(member);
   String get actionKey => 'member-visit-${identityHashCode(this)}';
   void chooseMethod(int value) {

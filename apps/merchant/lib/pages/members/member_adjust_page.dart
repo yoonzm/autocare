@@ -38,9 +38,13 @@ class _MemberAdjustPageHostState extends State<_MemberAdjustPageHost> {
 
   Widget content() => ListenableBuilder(
     listenable: c!,
-    builder: (_, _) => AsyncActionScope(
-      actionKey: c!.actionKey,
-      child: _MemberAdjustPageTemplate(c: c!),
+    builder: (_, _) => ConfirmDiscard(
+      dirty: c!.dirty,
+      busy: c!.busy,
+      child: AsyncActionScope(
+        actionKey: c!.actionKey,
+        child: _MemberAdjustPageTemplate(c: c!),
+      ),
     ),
   );
   @override

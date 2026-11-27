@@ -20,6 +20,8 @@ class MemberFormController extends ChangeNotifier {
   final Map<String, dynamic>? member;
   final fields = <String, TextEditingController>{};
   final values = <String, dynamic>{};
+  late final Map<String, String> _initialValues;
+  late final String _initialPlate;
   late final PlateCtrl plate;
   bool busy = false, disposed = false;
 
@@ -48,11 +50,25 @@ class MemberFormController extends ChangeNotifier {
           ? values['energy'] == 'ev'
           : false,
     )..addListener(_changed);
+    _initialValues = {
+      for (final e in values.entries) e.key: '${e.value ?? ''}',
+    };
+    _initialPlate = plate.text;
+  }
+
+  bool get dirty {
+    if (plate.text != _initialPlate) return true;
+    final keys = {..._initialValues.keys, ...values.keys, ...fields.keys};
+    for (final k in keys) {
+      if (text(k) != (_initialValues[k] ?? '')) return true;
+    }
+    return false;
   }
 
   TextEditingController input(String field) => fields.putIfAbsent(
     field,
-    () => TextEditingController(text: '${values[field] ?? ''}'),
+    () => TextEditingController(text: '${values[field] ?? ''}')
+      ..addListener(_changed),
   );
   String text(String field) => fields[field]?.text ?? '${values[field] ?? ''}';
   void set(String field, Object? value) {
