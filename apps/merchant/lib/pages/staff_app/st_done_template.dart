@@ -17,38 +17,7 @@ class StDoneTemplate extends StatelessWidget {
     final plateGreen = stPlateGreen(t['plate']);
     return HPage(
       bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
-      header: AppPageHeader(
-        title: '已完工',
-        trailing: hbox(
-          w: 87,
-          h: 32,
-          bg: dk(
-            context,
-            Color.fromRGBO(255, 255, 255, 0.9),
-            Color.fromRGBO(9, 9, 11, 0.92),
-          ),
-          radius: BorderRadius.circular(16),
-          border: dk(
-            context,
-            Border.all(color: Color(0xFFE4E4E7), width: 1),
-            Border.all(color: Color(0xFF3A3A40), width: 1),
-          ),
-          child: hrow(
-            [
-              hsvg(dk(context, Svgs.s12, Svgs.s13), w: 18, h: 18),
-              hbox(
-                w: 1,
-                h: 16,
-                bg: dk(context, Color(0xFFE4E4E7), Color(0xFF3A3A40)),
-              ),
-              hsvg(dk(context, Svgs.s14, Svgs.s15), w: 18, h: 18),
-            ],
-            main: MainAxisAlignment.center,
-            cross: CrossAxisAlignment.center,
-            gap: 10,
-          ),
-        ),
-      ),
+      header: const AppPageHeader(title: '已完工'),
       flow: hcol(
         [
           hbox(
