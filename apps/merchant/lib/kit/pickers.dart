@@ -563,46 +563,252 @@ class _CitySheetState extends State<_CitySheet> {
   }
 }
 
-// ───────── 金额 ─────────
-Future<String?> pickAmount(BuildContext context, String title, String current) {
-  final text = TextEditingController(
-    text: current.replaceAll(RegExp(r'[^0-9.]'), ''),
-  );
-  return showDialog<String>(
+// ───────── 统一输入弹窗 ─────────
+/// 统一文本 / 数字输入弹窗：与 `hConfirm` 同风格居中卡片，强制带 placeholder，
+/// 取消为灰底胶囊，确定为蓝底胶囊；由独立 State 释放控制器，避免退出动画期间报错。
+Future<String?> hInputDialog(
+  BuildContext context, {
+  required String title,
+  required String hintText,
+  String initial = '',
+  String ok = '确定',
+  String cancel = '取消',
+  String? prefixText,
+  TextInputType keyboardType = TextInputType.text,
+  String? Function(String value)? validate,
+}) async {
+  assert(hintText.trim().isNotEmpty, '输入框必须提供 placeholder');
+  final reduceMotion = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+  return showGeneralDialog<String>(
     context: context,
-    builder: (ctx) => AlertDialog(
-      backgroundColor: C.card,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      title: Text(title, style: _ts(17, w: FontWeight.w600)),
-      content: TextField(
-        controller: text,
-        autofocus: true,
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        onTapOutside: onTapOutsideDismiss,
-        style: _ts(24, w: FontWeight.w600),
-        decoration: const InputDecoration(
-          prefixText: '¥ ',
-          border: InputBorder.none,
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(ctx),
-          child: Text('取消', style: _ts(15, c: _muted)),
-        ),
-        TextButton(
-          onPressed: () {
-            final v = double.tryParse(text.text) ?? 0;
-            Navigator.pop(ctx, '¥${v.toStringAsFixed(2)}');
-          },
-          child: Text(
-            '确定',
-            style: _ts(15, w: FontWeight.w600, c: _primary),
+    useRootNavigator: true,
+    barrierDismissible: true,
+    barrierLabel: title,
+    barrierColor: const Color(0x73000000),
+    transitionDuration: reduceMotion
+        ? Duration.zero
+        : const Duration(milliseconds: 220),
+    transitionBuilder: (ctx, animation, _, child) {
+      if (reduceMotion) return child;
+      return FadeTransition(
+        opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
+        child: ScaleTransition(
+          scale: Tween<double>(begin: 0.94, end: 1).animate(
+            CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOutBack,
+              reverseCurve: Curves.easeInCubic,
+            ),
           ),
+          child: child,
         ),
-      ],
+      );
+    },
+    pageBuilder: (ctx, _, _) => _InputDialogBody(
+      title: title,
+      hintText: hintText,
+      initial: initial,
+      ok: ok,
+      cancel: cancel,
+      prefixText: prefixText,
+      keyboardType: keyboardType,
+      validate: validate,
     ),
   );
+}
+
+class _InputDialogBody extends StatefulWidget {
+  final String title;
+  final String hintText;
+  final String initial;
+  final String ok;
+  final String cancel;
+  final String? prefixText;
+  final TextInputType keyboardType;
+  final String? Function(String value)? validate;
+  const _InputDialogBody({
+    required this.title,
+    required this.hintText,
+    required this.initial,
+    required this.ok,
+    required this.cancel,
+    required this.prefixText,
+    required this.keyboardType,
+    required this.validate,
+  });
+
+  @override
+  State<_InputDialogBody> createState() => _InputDialogBodyState();
+}
+
+class _InputDialogBodyState extends State<_InputDialogBody> {
+  late final TextEditingController _ctrl = TextEditingController(
+    text: widget.initial,
+  );
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    final value = _ctrl.text.trim();
+    final err = widget.validate?.call(value);
+    if (err != null) {
+      AppToast.show(context, err);
+      return;
+    }
+    Navigator.of(context).pop(value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark || C.dark;
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 36),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(20, 24, 20, 18),
+        decoration: BoxDecoration(
+          color: dark ? const Color(0xFF1F1F23) : Colors.white,
+          borderRadius: BorderRadius.circular(28),
+          border: dark ? Border.all(color: const Color(0xFF2E2E33)) : null,
+          boxShadow: dark
+              ? const <BoxShadow>[]
+              : const [
+                  BoxShadow(
+                    color: Color(0x29000000),
+                    blurRadius: 40,
+                    offset: Offset(0, 16),
+                  ),
+                ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              widget.title,
+              textAlign: TextAlign.center,
+              style: _ts(
+                18,
+                w: FontWeight.w600,
+                c: dark ? const Color(0xFFFAFAFA) : const Color(0xFF18181B),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+              decoration: BoxDecoration(
+                color: dark ? const Color(0xFF27272A) : const Color(0xFFF4F4F5),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: TextField(
+                controller: _ctrl,
+                autofocus: true,
+                keyboardType: widget.keyboardType,
+                textInputAction: TextInputAction.done,
+                onSubmitted: (_) => _submit(),
+                onTapOutside: onTapOutsideDismiss,
+                style: _ts(
+                  widget.prefixText != null ? 20 : 16,
+                  w: widget.prefixText != null
+                      ? FontWeight.w600
+                      : FontWeight.w500,
+                  c: dark ? const Color(0xFFFAFAFA) : const Color(0xFF18181B),
+                ),
+                decoration: InputDecoration(
+                  prefixText: widget.prefixText,
+                  prefixStyle: _ts(
+                    20,
+                    w: FontWeight.w600,
+                    c: dark ? const Color(0xFFFAFAFA) : const Color(0xFF18181B),
+                  ),
+                  hintText: widget.hintText,
+                  hintStyle: _ts(
+                    15,
+                    c: dark ? const Color(0xFF71717A) : const Color(0xFFA1A1AA),
+                  ),
+                  border: InputBorder.none,
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => Navigator.of(context).pop(),
+                    child: Container(
+                      height: 46,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: dark
+                            ? const Color(0xFF34343A)
+                            : const Color(0xFFEEEEF0),
+                        borderRadius: BorderRadius.circular(23),
+                      ),
+                      child: Text(
+                        widget.cancel,
+                        style: _ts(
+                          15,
+                          w: FontWeight.w500,
+                          c: dark
+                              ? const Color(0xFFFAFAFA)
+                              : const Color(0xFF18181B),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: _submit,
+                    child: Container(
+                      height: 46,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: _primary,
+                        borderRadius: BorderRadius.circular(23),
+                      ),
+                      child: Text(
+                        widget.ok,
+                        style: _ts(15, w: FontWeight.w600, c: Colors.white),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ───────── 金额 ─────────
+Future<String?> pickAmount(
+  BuildContext context,
+  String title,
+  String current,
+) async {
+  final raw = await hInputDialog(
+    context,
+    title: title,
+    hintText: '请输入金额',
+    initial: current.replaceAll(RegExp(r'[^0-9.]'), ''),
+    prefixText: '¥ ',
+    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+  );
+  if (raw == null) return null;
+  final v = double.tryParse(raw) ?? 0;
+  return '¥${v.toStringAsFixed(2)}';
 }
 
 // ───────── 车牌输入 ─────────

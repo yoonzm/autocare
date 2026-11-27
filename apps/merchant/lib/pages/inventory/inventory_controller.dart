@@ -984,37 +984,15 @@ Future<String?> inputDialog(
   String hint,
   String initial, {
   bool numeric = false,
-}) async {
-  final ctrl = TextEditingController(text: initial);
-  final result = await showDialog<String>(
-    context: context,
-    builder: (ctx) => AlertDialog(
-      title: Text(title),
-      content: TextField(
-        controller: ctrl,
-        autofocus: true,
-        keyboardType: numeric
-            ? const TextInputType.numberWithOptions(decimal: true)
-            : TextInputType.text,
-        decoration: InputDecoration(hintText: hint),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(ctx),
-          child: const Text('取消'),
-        ),
-        TextButton(
-          onPressed: () => Navigator.pop(ctx, ctrl.text.trim()),
-          child: const Text('确定'),
-        ),
-      ],
-    ),
-  );
-  // Dialog transition may still read its controller on dismissal.
-  await Future<void>.delayed(const Duration(milliseconds: 300));
-  ctrl.dispose();
-  return result;
-}
+}) => hInputDialog(
+  context,
+  title: title,
+  hintText: hint.trim().isEmpty ? '请输入$title' : hint,
+  initial: initial,
+  keyboardType: numeric
+      ? const TextInputType.numberWithOptions(decimal: true)
+      : TextInputType.text,
+);
 
 /// 新增 / 编辑商品：设计稿的整页（ProductEdit / ProductEditExist），保存成功后返回商品。
 Future<Map<String, dynamic>?> editProduct(

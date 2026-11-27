@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../../backend/merchant_api.dart';
 import '../../../backend/package_calc.dart' show formatMoney;
 import '../../../kit/async_kit.dart';
+import '../../../kit/kit.dart' show hInputDialog;
 import '../member_events.dart';
 import 'member_package_route_data.dart';
 import 'package_extend_sheet.dart';
@@ -36,39 +37,21 @@ class MemberPackageController extends ChangeNotifier {
   Future<void> chooseDays(BuildContext context, int index) async {
     if (busy) return;
     if (index >= days.length) {
-      final ctl = TextEditingController(
-        text: customDays == null ? '' : '$customDays',
+      final raw = await hInputDialog(
+        context,
+        title: '自定义延期天数',
+        hintText: '请输入延期天数（1–3650）',
+        initial: customDays == null ? '' : '$customDays',
+        keyboardType: TextInputType.number,
+        validate: (text) {
+          final n = int.tryParse(text);
+          if (n == null || n < 1 || n > 3650) {
+            return '请输入 1–3650 之间的整数天数';
+          }
+          return null;
+        },
       );
-      final value = await showDialog<int>(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: const Text('自定义延期天数'),
-          content: TextField(
-            controller: ctl,
-            autofocus: true,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(hintText: '请输入延期天数（1–3650）'),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('取消'),
-            ),
-            TextButton(
-              onPressed: () {
-                final n = int.tryParse(ctl.text.trim());
-                if (n == null || n < 1 || n > 3650) {
-                  AppToast.show(ctx, '请输入 1–3650 之间的整数天数');
-                  return;
-                }
-                Navigator.of(ctx).pop(n);
-              },
-              child: const Text('确定'),
-            ),
-          ],
-        ),
-      );
-      ctl.dispose();
+      final value = raw == null ? null : int.tryParse(raw);
       if (value != null && !disposed) {
         customDays = value;
         daysIndex = 3;

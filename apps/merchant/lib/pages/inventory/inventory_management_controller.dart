@@ -7,6 +7,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 
 import '../../backend/merchant_api.dart';
 import '../../kit/async_kit.dart';
+import '../../kit/kit.dart' show hConfirm;
 import '../../theme.dart';
 import 'inventory_management_page.dart';
 import 'inventory_live_page.dart';
@@ -338,32 +339,20 @@ class InventoryManagementController extends ChangeNotifier {
     Widget child,
   ) => GestureDetector(
     onTap: () => _perform(context, () => categoryEdit(context, row)),
-    onLongPress: () => _perform(context, () async {
-      final confirmed = await showDialog<bool>(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: Text('删除分类「${row['name']}」？'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('取消'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('删除'),
-            ),
-          ],
-        ),
-      );
-      if (confirmed == true) {
+    onLongPress: () => hConfirm(
+      context,
+      '删除分类「${row['name']}」？',
+      ok: '删除',
+      danger: true,
+      onConfirm: () async {
         await request.send({
           'action': 'inventory_category_delete',
           'payload': {'id': row['id']},
         });
         inventoryChanged.value++;
         await reload?.call();
-      }
-    }),
+      },
+    ),
     child: child,
   );
   Future<void> categoryEdit(
