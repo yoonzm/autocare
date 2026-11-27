@@ -46,6 +46,19 @@ class AppError implements Exception {
   /// 4xx 业务失败直接展示服务端文案；只有 401 视为登录失效。
   factory AppError.fromStatus(int status, [String? serverMessage]) {
     final text = (serverMessage ?? '').trim();
+    if (status == 0 || status == 499) {
+      return const AppError.network();
+    }
+    if (status == 408) {
+      return const AppError.timeout();
+    }
+    if (status == 429) {
+      return AppError(
+        text.isNotEmpty ? text : '请求过于频繁，请稍后再试',
+        type: AppErrorType.server,
+        code: 'SRV_429',
+      );
+    }
     if (status == 401) {
       return AppError(
         text.isNotEmpty ? text : '登录已过期，请重新登录',

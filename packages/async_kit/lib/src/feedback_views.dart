@@ -290,20 +290,26 @@ class ErrorView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (bg, fg, ic, hint) = _look(context);
-    final retry = error.retryable && onRetry != null;
+    final retry =
+        (error.retryable || error.type == AppErrorType.business) &&
+        onRetry != null;
     final nextLabel = switch (error.type) {
       AppErrorType.auth => '重新登录',
       AppErrorType.forbidden || AppErrorType.notFound => '返回',
       _ => null,
     };
     if (inline) {
+      final inlineText =
+          error.type == AppErrorType.business && error.message.trim().isNotEmpty
+          ? error.message
+          : error.title;
       return Row(
         children: [
           Icon(ic, size: 20, color: fg),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              error.title,
+              inlineText,
               style: AsyncKitTheme.of(context)
                   .textStyle(13, color: AsyncKitTheme.of(context).sub, h: 18),
             ),

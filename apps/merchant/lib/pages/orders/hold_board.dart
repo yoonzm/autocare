@@ -157,7 +157,6 @@ class _HoldBoardState extends State<HoldBoard> {
     return AsyncView<List<Map<String, dynamic>>>(
       key: contentKey,
       shrinkWrap: true,
-      inlineError: true,
       skeletonScrollable: false,
       pullToRefresh: false,
       load: () async {

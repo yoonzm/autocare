@@ -2,6 +2,7 @@ import 'package:autocare_merchant/pages/orders/hold_list_page.dart';
 import 'package:autocare_merchant/backend/hold_store.dart';
 import 'package:autocare_merchant/backend/member_flow.dart';
 import 'package:autocare_merchant/backend/merchant_api.dart';
+import 'package:autocare_merchant/kit/async_kit.dart';
 
 import 'package:autocare_merchant/pages/orders/order_page.dart';
 import 'package:autocare_merchant/routes.dart';
@@ -267,6 +268,7 @@ void main() {
       HoldStore.reset();
       fake.holdsError = const AppError('网络不稳定', type: AppErrorType.network);
       await openList(t);
+      expect(t.widget<ErrorView>(find.byType(ErrorView)).inline, isFalse);
       expect(find.text('重试'), findsOneWidget);
       fake.holdsError = null;
       fake.holdRows.add(hold());
