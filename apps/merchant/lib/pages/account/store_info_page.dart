@@ -5,6 +5,7 @@ import '../../backend/data_snapshot.dart';
 import '../../backend/merchant_api.dart';
 import '../../kit/async_kit.dart';
 import '../../kit/page_header.dart';
+import '../../kit/sheet_route.dart';
 import 'store_edit_page.dart';
 import '../../routes.dart' show openRoute;
 
@@ -22,6 +23,7 @@ class StoreInfoPage extends StatefulWidget {
 class _StoreInfoPageState extends State<StoreInfoPage> {
   final _view = GlobalKey<AsyncViewState<Map<String, dynamic>>>();
   bool _pending = false;
+  bool _loaded = false;
   @override
   void initState() {
     super.initState();
@@ -59,13 +61,68 @@ class _StoreInfoPageState extends State<StoreInfoPage> {
 
   Future<void> _edit() async {
     await Navigator.of(context).push(
-      MaterialPageRoute<void>(
+      appSheetRoute<void>(
         settings: const RouteSettings(name: 'StoreEdit'),
-        builder: (_) => const StoreEditPage(),
+        page: const StoreEditPage(),
       ),
     );
     if (mounted) _reload();
   }
+
+  Widget _editButton(BuildContext context) => GestureDetector(
+    behavior: HitTestBehavior.opaque,
+    onTap: _edit,
+    child: hbox(
+      h: 44,
+      bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
+      radius: BorderRadius.circular(22),
+      shadow: dk(
+        context,
+        [
+          BoxShadow(
+            color: Color.fromRGBO(0, 0, 0, 0.06),
+            offset: Offset(0, 0),
+            blurRadius: 1,
+            spreadRadius: 0,
+          ),
+          BoxShadow(
+            color: Color.fromRGBO(0, 0, 0, 0.06),
+            offset: Offset(0, 1),
+            blurRadius: 2,
+            spreadRadius: 0,
+          ),
+          BoxShadow(
+            color: Color.fromRGBO(0, 0, 0, 0.04),
+            offset: Offset(0, 2),
+            blurRadius: 4,
+            spreadRadius: 0,
+          ),
+        ],
+        [
+          BoxShadow(
+            color: Color(0xFF26262B),
+            offset: Offset(0, 0),
+            blurRadius: 0,
+            spreadRadius: 1,
+          ),
+        ],
+      ),
+      pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
+      child: Align(
+        alignment: Alignment(-1, 0),
+        widthFactor: 1,
+        child: Text(
+          '编辑',
+          style: hts(
+            14,
+            dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
+            w: FontWeight.w500,
+            lh: 20,
+          ),
+        ),
+      ),
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -78,24 +135,41 @@ class _StoreInfoPageState extends State<StoreInfoPage> {
       );
     }
     return Scaffold(
-      body: AsyncView<Map<String, dynamic>>(
-        key: _view,
-        load: _load,
-        isEmpty: (_) => false,
-        onSettled: _settled,
-        onNext: () => openRoute(context, 'Login'),
-        skeletonPadding: EdgeInsets.all(20),
-        skeleton: Column(
-          children: const [
-            AppPageHeader(title: '门店信息'),
-            SizedBox(height: 20),
-            SkeletonDashboardCard(height: 240, radius: 24),
-            SizedBox(height: 16),
-            SkeletonList(count: 4),
-          ],
-        ),
-        empty: (_) => const SizedBox.shrink(),
-        builder: (_, data) => _StoreInfoView(data: data, onEdit: _edit),
+      backgroundColor: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
+      body: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.fromLTRB(20, topInset(context), 20, 8),
+            child: AppPageHeader(
+              title: '门店信息',
+              trailing: _loaded ? _editButton(context) : null,
+            ),
+          ),
+          Expanded(
+            child: AsyncView<Map<String, dynamic>>(
+              key: _view,
+              load: _load,
+              isEmpty: (_) => false,
+              onLoaded: (_) {
+                if (mounted && !_loaded) setState(() => _loaded = true);
+              },
+              onSettled: _settled,
+              onNext: () => openRoute(context, 'Login'),
+              skeletonPadding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+              skeleton: const Column(
+                children: [
+                  SkeletonDashboardCard(height: 240, radius: 28),
+                  SizedBox(height: 16),
+                  SkeletonDashboardCard(height: 132, radius: 24),
+                  SizedBox(height: 16),
+                  SkeletonDashboardCard(height: 156, radius: 24),
+                ],
+              ),
+              empty: (_) => const SizedBox.shrink(),
+              builder: (_, data) => _StoreInfoView(data: data),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -203,8 +277,7 @@ class _StoreCoverState extends State<_StoreCover> {
 
 class _StoreInfoView extends StatelessWidget {
   final Map<String, dynamic> data;
-  final VoidCallback onEdit;
-  const _StoreInfoView({required this.data, required this.onEdit});
+  const _StoreInfoView({required this.data});
 
   @override
   Widget build(BuildContext context) {
@@ -223,66 +296,8 @@ class _StoreInfoView extends StatelessWidget {
     ].where((v) => v.isNotEmpty).join();
     final phone = '${store['phone'] ?? ''}'.replaceFirst(RegExp(r'^\+86'), '');
     final open = _openNow(store);
-    return HPage(
-      bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
-      header: AppPageHeader(
-        title: '门店信息',
-        trailing: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: onEdit,
-          child: hbox(
-            h: 44,
-            bg: dk(context, Color(0xFFFFFFFF), Color(0xFF18181B)),
-            radius: BorderRadius.circular(22),
-            shadow: dk(
-              context,
-              [
-                BoxShadow(
-                  color: Color.fromRGBO(0, 0, 0, 0.06),
-                  offset: Offset(0, 0),
-                  blurRadius: 1,
-                  spreadRadius: 0,
-                ),
-                BoxShadow(
-                  color: Color.fromRGBO(0, 0, 0, 0.06),
-                  offset: Offset(0, 1),
-                  blurRadius: 2,
-                  spreadRadius: 0,
-                ),
-                BoxShadow(
-                  color: Color.fromRGBO(0, 0, 0, 0.04),
-                  offset: Offset(0, 2),
-                  blurRadius: 4,
-                  spreadRadius: 0,
-                ),
-              ],
-              [
-                BoxShadow(
-                  color: Color(0xFF26262B),
-                  offset: Offset(0, 0),
-                  blurRadius: 0,
-                  spreadRadius: 1,
-                ),
-              ],
-            ),
-            pad: EdgeInsets.fromLTRB(16, 0, 16, 0),
-            child: Align(
-              alignment: Alignment(-1, 0),
-              widthFactor: 1,
-              child: Text(
-                '编辑',
-                style: hts(
-                  14,
-                  dk(context, Color(0xFF18181B), Color(0xFFFAFAFA)),
-                  w: FontWeight.w500,
-                  lh: 20,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-      flow: hcol(
+    return SingleChildScrollView(
+      child: hcol(
         [
           hbox(
             pad: EdgeInsets.fromLTRB(20, 8, 20, 32),
@@ -840,7 +855,6 @@ class _StoreInfoView extends StatelessWidget {
         cross: CrossAxisAlignment.stretch,
         gap: 0,
       ),
-      overlays: [],
     );
   }
 }

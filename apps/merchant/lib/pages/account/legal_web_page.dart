@@ -4,7 +4,7 @@ import 'package:webview_flutter/webview_flutter.dart';
 import '../../backend/merchant_api.dart' show supabaseUrl;
 import '../../kit/async_kit.dart';
 import '../../kit/kit.dart';
-import '../../resources/merchant_svgs.dart';
+import '../../kit/page_header.dart';
 
 /// 用户协议 / 隐私政策为公开静态 HTML，更新正文不必发新版 App。
 enum LegalDoc { terms, privacy }
@@ -141,41 +141,7 @@ class _LegalWebPageState extends State<LegalWebPage> {
         padding: EdgeInsets.fromLTRB(20, topInset(context), 20, 20),
         child: Column(
           children: [
-            Row(
-              children: [
-                GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () => Navigator.of(context).maybePop(),
-                  child: Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: card,
-                      shape: BoxShape.circle,
-                    ),
-                    alignment: Alignment.center,
-                    child: hsvg(dk(context, Svgs.s0, Svgs.s1), w: 20, h: 20),
-                  ),
-                ),
-                Expanded(
-                  child: Text(
-                    _title,
-                    textAlign: TextAlign.center,
-                    style: hts(
-                      17,
-                      dk(
-                        context,
-                        const Color(0xFF18181B),
-                        const Color(0xFFFAFAFA),
-                      ),
-                      w: FontWeight.w600,
-                      lh: 24,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 44),
-              ],
-            ),
+            AppPageHeader(title: _title),
             const SizedBox(height: 12),
             Expanded(
               child: ClipRRect(

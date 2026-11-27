@@ -60,13 +60,36 @@ class _MemberAdjustPageHostState extends State<_MemberAdjustPageHost> {
       );
     }
     return Scaffold(
-      body: AsyncView<List<Map<String, dynamic>>>(
-        load: c!.loadTiers,
-        onLoaded: c!.applyTiers,
-        isEmpty: (_) => false,
-        skeleton: const SkeletonDataPage(title: '调整卡种与积分', detail: true),
-        empty: (_) => const SizedBox.shrink(),
-        builder: (_, _) => content(),
+      backgroundColor: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
+      body: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.fromLTRB(20, topInset(context), 20, 8),
+            child: const AppPageHeader(
+              title: '调整卡种与积分',
+              leading: AppHeaderLeading.close,
+            ),
+          ),
+          Expanded(
+            child: AsyncView<List<Map<String, dynamic>>>(
+              load: c!.loadTiers,
+              onLoaded: c!.applyTiers,
+              isEmpty: (_) => false,
+              skeletonPadding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+              skeleton: const Column(
+                children: [
+                  SkeletonDashboardCard(height: 76, radius: 22),
+                  SizedBox(height: 16),
+                  SkeletonDashboardCard(height: 180, radius: 24),
+                  SizedBox(height: 16),
+                  SkeletonDashboardCard(height: 160, radius: 24),
+                ],
+              ),
+              empty: (_) => const SizedBox.shrink(),
+              builder: (_, _) => content(),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -79,10 +102,10 @@ class _MemberAdjustPageTemplate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final m = c.view;
-    return HPage(
-      bg: dk(context, Color(0xFFF4F4F5), Color(0xFF09090B)),
-      header: AppPageHeader(title: '调整卡种与积分', leading: AppHeaderLeading.close),
-      flow: hcol(
+    return Stack(
+      children: [
+        SingleChildScrollView(
+          child: hcol(
         [
           hbox(
             pad: EdgeInsets.fromLTRB(20, 8, 20, 120),
@@ -1306,7 +1329,7 @@ class _MemberAdjustPageTemplate extends StatelessWidget {
         cross: CrossAxisAlignment.stretch,
         gap: 0,
       ),
-      overlays: [
+        ),
         HBottomDock(
           child: hbox(
             bg: dk(

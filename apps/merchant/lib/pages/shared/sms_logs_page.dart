@@ -3,9 +3,8 @@ import 'package:autocare_ui_kit/autocare_ui_kit.dart'
 import 'package:flutter/material.dart';
 
 import '../../backend/merchant_api.dart';
-import '../../kit/async_kit.dart' show AppSpinner;
+import '../../kit/async_kit.dart';
 import '../../theme.dart';
-import '../../widgets/app_icon.dart';
 import '../../widgets/common.dart';
 
 /// 门店业务通知短信发送记录（独立二级页）。
@@ -17,50 +16,62 @@ class SmsLogsPage extends StatefulWidget {
 }
 
 class _SmsLogsPageState extends State<SmsLogsPage> {
+  final _view = GlobalKey<AsyncViewState<List<Map<String, dynamic>>>>();
   String _filter = 'all';
-  bool _loading = false;
-  bool _loaded = false;
-  String? _error;
+  bool _loadingMore = false;
   List<Map<String, dynamic>> _items = const [];
   bool _hasMore = false;
   int _nextOffset = 0;
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _load(reset: true));
+  Future<List<Map<String, dynamic>>> _loadFirst() async {
+    final status = _filter;
+    final res = await merchantApi.storeSmsLogs(
+      status: status,
+      offset: 0,
+      limit: 20,
+    );
+    final rows = [
+      for (final r in (res['items'] as List? ?? const []))
+        if (r is Map) Map<String, dynamic>.from(r),
+    ];
+    if (mounted && status == _filter) {
+      _items = rows;
+      _hasMore = res['has_more'] == true;
+      _nextOffset = (res['next_offset'] as num?)?.toInt() ?? rows.length;
+    }
+    return rows;
   }
 
-  Future<void> _load({required bool reset}) async {
-    if (_loading) return;
-    setState(() {
-      _loading = true;
-      if (reset) _error = null;
-    });
+  Future<void> _loadMore() async {
+    if (_loadingMore || !_hasMore) return;
+    final status = _filter;
+    setState(() => _loadingMore = true);
     try {
       final res = await merchantApi.storeSmsLogs(
-        status: _filter,
-        offset: reset ? 0 : _nextOffset,
+        status: status,
+        offset: _nextOffset,
         limit: 20,
       );
-      if (!mounted) return;
+      if (!mounted || status != _filter) return;
       final rows = [
         for (final r in (res['items'] as List? ?? const []))
           if (r is Map) Map<String, dynamic>.from(r),
       ];
       setState(() {
-        _items = reset ? rows : [..._items, ...rows];
+        _items = [..._items, ...rows];
         _hasMore = res['has_more'] == true;
         _nextOffset = (res['next_offset'] as num?)?.toInt() ?? _items.length;
-        _loaded = true;
-        _error = null;
       });
     } catch (e) {
-      if (!mounted) return;
-      setState(() => _error = AppError.from(e).message);
+      if (mounted) AppToast.error(context, e);
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (mounted) setState(() => _loadingMore = false);
     }
+  }
+
+  Future<void> _refresh() async {
+    final state = _view.currentState;
+    if (state != null) await state.reload();
   }
 
   @override
@@ -82,111 +93,107 @@ class _SmsLogsPageState extends State<SmsLogsPage> {
                 selected: _filter,
                 onChanged: (value) {
                   if (_filter == value) return;
-                  setState(() => _filter = value);
-                  _load(reset: true);
+                  setState(() {
+                    _filter = value;
+                    _loadingMore = false;
+                  });
+                  _view.currentState?.reload();
                 },
               ),
             ),
-            Expanded(child: _body()),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _body() {
-    if (_error != null && _items.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(_error!, style: ts(14, color: C.redInk, h: 20)),
-              const SizedBox(height: 12),
-              TextButton(
-                onPressed: () => _load(reset: true),
-                child: const Text('重试'),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    if (!_loaded && _loading) {
-      return Center(child: AppSpinner(size: 22, color: C.primary));
-    }
-
-    if (_items.isEmpty) {
-      return RefreshIndicator(
-        onRefresh: () => _load(reset: true),
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 60, 20, 40),
-          children: [
-            Column(
-              children: [
-                AppIcon('bell', size: 32, color: C.faint),
-                const SizedBox(height: 10),
-                Text(
-                  _filter == 'failed'
-                      ? '暂无发送失败的短信记录'
-                      : _filter == 'delivered'
-                          ? '暂无已送达的短信记录'
-                          : '本店暂未发送业务通知短信',
-                  style: ts(14, color: C.muted, h: 20),
-                ),
-              ],
-            ),
-          ],
-        ),
-      );
-    }
-
-    return RefreshIndicator(
-      onRefresh: () => _load(reset: true),
-      child: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 4, 20, 32),
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: C.card,
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: softShadow,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                for (var i = 0; i < _items.length; i++) ...[
-                  if (i > 0) Divider(height: 1, color: C.line),
-                  _row(_items[i]),
-                ],
-                if (_hasMore) ...[
-                  Divider(height: 1, color: C.line),
-                  InkWell(
-                    onTap: _loading ? null : () => _load(reset: false),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      child: Center(
-                        child: _loading
-                            ? AppSpinner(size: 14, color: C.primaryInk)
-                            : Text(
-                                '加载更多记录',
-                                style: ts(
-                                  13,
-                                  w: FontWeight.w600,
-                                  color: C.primaryInk,
-                                  h: 18,
-                                ),
+            Expanded(
+              child: AsyncView<List<Map<String, dynamic>>>(
+                key: _view,
+                load: _loadFirst,
+                isEmpty: (rows) => rows.isEmpty,
+                skeletonPadding: const EdgeInsets.fromLTRB(20, 4, 20, 32),
+                skeleton: const SkeletonList(count: 5),
+                empty: (_) => RefreshIndicator(
+                  onRefresh: _refresh,
+                  child: ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: [
+                      SizedBox(
+                        height: 320,
+                        child: _filter == 'all'
+                            ? const EmptyView(
+                                icon: Icons.notifications_none_rounded,
+                                title: '本店暂未发送业务通知短信',
+                              )
+                            : EmptyView(
+                                kind: EmptyKind.filter,
+                                title: _filter == 'failed'
+                                    ? '没有发送失败的短信记录'
+                                    : '没有已送达的短信记录',
+                                actionLabel: '查看全部',
+                                onAction: () {
+                                  setState(() => _filter = 'all');
+                                  _view.currentState?.reload();
+                                },
                               ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
-              ],
+                ),
+                builder: (_, rows) {
+                  final list = _items.isEmpty ? rows : _items;
+                  return RefreshIndicator(
+                    onRefresh: _refresh,
+                    child: ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.fromLTRB(20, 4, 20, 32),
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            color: C.card,
+                            borderRadius: BorderRadius.circular(24),
+                            boxShadow: softShadow,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              for (var i = 0; i < list.length; i++) ...[
+                                if (i > 0) Divider(height: 1, color: C.line),
+                                _row(list[i]),
+                              ],
+                              if (_hasMore) ...[
+                                Divider(height: 1, color: C.line),
+                                InkWell(
+                                  onTap: _loadingMore ? null : _loadMore,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 14,
+                                    ),
+                                    child: Center(
+                                      child: _loadingMore
+                                          ? AppSpinner(
+                                              size: 14,
+                                              color: C.primaryInk,
+                                            )
+                                          : Text(
+                                              '加载更多记录',
+                                              style: ts(
+                                                13,
+                                                w: FontWeight.w600,
+                                                color: C.primaryInk,
+                                                h: 18,
+                                              ),
+                                            ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

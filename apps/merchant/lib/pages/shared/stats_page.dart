@@ -237,11 +237,16 @@ class _StatsPageState extends State<StatsPage> {
         key: _view,
         load: _load,
         isEmpty: (_) => false,
+        skeletonPadding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
         skeleton: const Column(
           children: [
+            AppSkeleton(height: 40, radius: 20),
+            SizedBox(height: 16),
             SkeletonDashboardCard(height: 230, radius: 24),
             SizedBox(height: 16),
-            SkeletonList(count: 4),
+            SkeletonDashboardCard(height: 180, radius: 24),
+            SizedBox(height: 16),
+            SkeletonDashboardCard(height: 160, radius: 24),
           ],
         ),
         empty: (_) => const SizedBox.shrink(),

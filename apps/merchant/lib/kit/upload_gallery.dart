@@ -120,8 +120,8 @@ class _ImageViewerPageState extends State<ImageViewerPage> {
               child: GestureDetector(
                 onTap: () => Navigator.pop(context),
                 child: Container(
-                  width: widget.guided ? 44 : 40,
-                  height: widget.guided ? 44 : 40,
+                  width: 44,
+                  height: 44,
                   decoration: BoxDecoration(
                     color: widget.guided
                         ? const Color(0xFF27272A)
